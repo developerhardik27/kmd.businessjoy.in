@@ -1,0 +1,108 @@
+<?php
+
+
+namespace App\Http\Controllers\admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\invoice;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
+
+
+
+class PdfController extends Controller
+{
+   public function generatepdf(string $id)
+   {
+
+      $invoice = invoice::findOrFail($id);
+    $this->authorize('view', $invoice);
+      
+      $jsonproductdata =  app('App\Http\Controllers\api\invoiceController')->inv_details($id);
+      $jsoninvdata = app('App\Http\Controllers\api\invoiceController')->index($id);
+      $jsoncompanydetailsdata = app('App\Http\Controllers\api\companyController')->companydetailspdf($invoice->company_details_id);
+      $jsonbankdetailsdata = app('App\Http\Controllers\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
+ 
+      
+      $jsonproductContent = $jsonproductdata->getContent();
+      $jsoninvContent = $jsoninvdata->getContent();
+      $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
+      $jsonbankContent = $jsonbankdetailsdata->getContent();
+
+      // Decode the JSON data
+      $productdata = json_decode($jsonproductContent, true);
+      $invdata = json_decode($jsoninvContent, true);
+      $companydetailsdata = json_decode($jsoncompanyContent, true);
+      $bankdetailsdata = json_decode($jsonbankContent, true);
+      
+      // dd($companydetailsdata);
+
+      $data = [
+         'products' => $productdata['invoice'],
+         'invdata' => $invdata['invoice'][0],
+         'companydetails' =>  $companydetailsdata['companydetails'][0],
+         'bankdetails' =>  $bankdetailsdata['bankdetail'][0]
+
+      ];
+  
+   
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+      ];
+
+
+
+      $pdf = PDF::setOptions($options)->loadView('admin.invoicedetail',$data)->setPaper('a4', 'portrait');
+
+      return $pdf->stream('invoice.pdf');
+
+      
+   }
+   public function generatereciept(string $id)
+   {
+
+      $invoice = invoice::findOrFail($id);
+      $this->authorize('view', $invoice);
+      
+      $jsoninvdata = app('App\Http\Controllers\api\invoiceController')->index($id);
+      $jsonpaymentdata = app('App\Http\Controllers\api\PaymentController')->index($id);
+
+      $jsonpaymentContent = $jsonpaymentdata->getContent();
+      $jsoninvContent = $jsoninvdata->getContent();
+
+      
+
+      // Decode the JSON data
+      $paymentdata = json_decode($jsonpaymentContent, true);
+      $invdata = json_decode($jsoninvContent, true);
+      $data = [
+         'payment' => $paymentdata['payment'][0],
+         'invdata' => $invdata['invoice'][0]
+      ];
+     
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+      ];
+       
+      $pdf = PDF::setOptions($options)->loadView('admin.paymentreciept',$data)->setPaper('a4', 'portrait');
+
+      return $pdf->stream();
+
+      $name =  'reciept'.Str::Random(3).'pdf';
+      // $pdf = PDF::setOptions($options)->loadView('admin.invoicedetail',[ 'payment' => $paymentdata['payment']])->setPaper('a4', 'portrait');
+       
+      // return $pdf->stream($name);
+
+      
+   }
+}
