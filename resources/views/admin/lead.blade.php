@@ -46,8 +46,8 @@
         }
 
         /* #advancestatus {
-                            border: 0.5px solid #d3c3d3 !important;
-                        } */
+                                            border: 0.5px solid #d3c3d3 !important;
+                                        } */
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
@@ -55,9 +55,29 @@
 @endsection
 
 @section('advancefilter')
-    <div class="col-md-12 text-right float-right">
+    <div class="col-md-12">
+        <div class="float-left col-md-3 ">
+            <label for="last_followup" class="form-label float-left  ">Last FollowUp:</label>
+            <input type="date" id="last_followup" class="form-input form-control   advancefilter">
+        </div>
+        <div class="float-left col-md-3">
+            <label for="next_followup" class="form-label float-left ">Next FollowUp:</label>
+            <input type="date" id="next_followup" class="form-input form-control advancefilter">
+        </div>
 
-        <div class="col-md-2 p-1 float-left offset-3">
+        <div class="float-left col-md-3">
+            <label for="fromdate" class="form-label float-left ">From:</label>
+            <input type="date" id="fromdate" class="form-input form-control  float-left advancefilter">
+        </div>
+        <div class="float-left col-md-3">
+            <label for="todate" class="form-label  float-left ">To:</label>
+            <input type="date" id="todate" class="form-input form-control float-left advancefilter">
+            <span id="invaliddate" class="font-weight-bold text-danger" style="float: left;"></span>
+        </div>
+
+    </div>
+    <div class="col-md-12 mt-2">
+        <div class=" float-left col-md-3">
             <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
                 <option disabled selected>status</option>
                 <option value='Not Interested'>Not Interested</option>
@@ -69,41 +89,40 @@
                 <option value='Email Sent'>Email Sent</option>
                 <option value='Wrong Number'>Wrong Number</option>
                 <option value='By Mistake'>By Mistake</option>
+                <option value='Positive'>Positive</option>
                 <option value='Rejected'>Rejected</option>
                 <option value='Sale'>Sale</option>
                 <option value='Busy'>Busy</option>
                 <option value='Call Back'>Call Back</option>
             </select>
         </div>
-        <div class="col-md-3 float-left">
-            <label for="fromdate" class="form-label float-left p-2 w-25">From:</label>
-            <input type="date" id="fromdate" class="form-input form-control  w-75 float-left advancefilter">
-           </div>
-        <div class="col-md-3 float-left">
-            <label for="todate" class="form-label  float-left p-2">To:</label>
-            <input type="date" id="todate" class="form-input form-control w-75 float-left advancefilter">
-            <span id="invaliddate" class="font-weight-bold text-danger" style="float: left;"></span>
+        <div class="float-left  col-md-3">
+            <input type="radio" class="is_active advancefilter" id="qualified" name="status" value="1">
+            <label for="qualified">Qualified</label>
+            <input type="radio" class="is_active advancefilter" id="disqualified" name="status" value="0">
+            <label for="disqualified">Disqualified</label>
+            <input type="radio" class="is_active advancefilter" value="all" checked id="all" name="status">
+            <label for="all">All</label>
         </div>
-        <div class="col-auto float-left text-right mt-1">
+        <div class="float-left offset-3 col-md-3 text-right">
             <button title="Refresh" class="btn btn-info btn-sm removefilters">
                 <i class="fa fa-refresh"></i>
             </button>
         </div>
-
-
-
-        @if (session('user_permissions.leadmodule.lead.add') === '1')
-            @section('addnew')
-                {{ route('admin.addlead') }}
-            @endsection
-            @section('addnewbutton')
-                <button title="Add Lead" class="btn btn-sm btn-primary">
-                    <span class="">+ Lead</span>
-                </button>
-            @endsection
-        @endif
-
     </div>
+
+    @if (session('user_permissions.leadmodule.lead.add') === '1')
+        @section('addnew')
+            {{ route('admin.addlead') }}
+        @endsection
+        @section('addnewbutton')
+            <button title="Add Lead" class="btn btn-sm btn-primary">
+                <span class="">+ Lead</span>
+            </button>
+        @endsection
+    @endif
+
+
 @endsection
 
 
@@ -172,6 +191,7 @@
                                                                 <option value='Email Sent'>Email Sent</option>
                                                                 <option value='Wrong Number'>Wrong Number</option>
                                                                 <option value='By Mistake'>By Mistake</option>
+                                                                <option value='Positive'>Positive</option>
                                                                 <option value='Rejected'>Rejected</option>
                                                                 <option value='Sale'>Sale</option>
                                                                 <option value='Busy'>Busy</option>
@@ -183,7 +203,7 @@
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
                                                     <td>${value.number_of_follow_up}</td>
-                                                    <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
+                                                    <td> ${value.is_active == 1 ? '<span class="badge bg-success">Qualified</span>' : '<span class="badge bg-danger">Disqualified</span>'}</td>
                                                     <td>${value.source}</td>
                                                     <td class="actionwidth">
                                                         <span>
@@ -369,15 +389,20 @@
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
-                console.log('fromdate :- ' + fromdate + ' todate :- ' + todate);
+                LastFollowUpDate = $('#last_followup').val();
+                NextFollowUpDate = $('#next_followup').val();
+                activestatusvalue = $('input[name="status"]:checked').val();
                 var fromDate = new Date(fromdate);
                 var toDate = new Date(todate);
 
-                if(fromDate > toDate){
-                   $('#invaliddate').text('Invalid Date');
-                }else{
+                if (fromDate > toDate) {
+                    $('#invaliddate').text('Invalid Date');
+                } else {
                     $('#invaliddate').text(' ');
                 }
+
+
+
                 if (fromdate != '' && todate != '' && advancestatus != '' && !(fromDate > toDate)) {
 
                     $.ajax({
@@ -400,60 +425,61 @@
                                 var id = 1;
                                 $.each(response.lead, function(key, value) {
                                     $('#data').append(`<tr>
-                                                <td>${id}</td>
-                                                <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
-                                                <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
-                                                <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
-                                                <td>${value.title === null ? '-':value.title}</td>
-                                                <td>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                        <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                            <option value='Not Interested'>Not Interested</option>
-                                                            <option value='Not Receiving'>Not Receiving</option>
-                                                            <option value='New Lead'>New Lead</option>
-                                                            <option value='Interested'>Interested</option>
-                                                            <option value='Switch Off'>Switch Off</option>
-                                                            <option value='Does Not Exist'>Does Not Exist</option>
-                                                            <option value='Email Sent'>Email Sent</option>
-                                                            <option value='Wrong Number'>Wrong Number</option>
-                                                            <option value='By Mistake'>By Mistake</option>
-                                                            <option value='Rejected'>Rejected</option>
-                                                            <option value='Sale'>Sale</option>
-                                                            <option value='Busy'>Busy</option>
-                                                            <option value='Call Back'>Call Back</option>
-                                                        </select>
-                                                   @else
-                                                     -
-                                                   @endif
-                                                </td>
-                                                <td>${value.created_at_formatted}</td>
-                                                <td>${value.number_of_follow_up}</td>
-                                                <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
-                                                <td>${value.source}</td>
-                                                <td class="actionwidth">
+                                            <td>${id}</td>
+                                            <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
+                                            <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
+                                            <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
+                                            <td>${value.title === null ? '-':value.title}</td>
+                                            <td>
+                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                    <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                        <option value='Not Interested'>Not Interested</option>
+                                                        <option value='Not Receiving'>Not Receiving</option>
+                                                        <option value='New Lead'>New Lead</option>
+                                                        <option value='Interested'>Interested</option>
+                                                        <option value='Switch Off'>Switch Off</option>
+                                                        <option value='Does Not Exist'>Does Not Exist</option>
+                                                        <option value='Email Sent'>Email Sent</option>
+                                                        <option value='Wrong Number'>Wrong Number</option>
+                                                        <option value='By Mistake'>By Mistake</option>
+                                                        <option value='Positive'>Positive</option>
+                                                        <option value='Rejected'>Rejected</option>
+                                                        <option value='Sale'>Sale</option>
+                                                        <option value='Busy'>Busy</option>
+                                                        <option value='Call Back'>Call Back</option>
+                                                    </select>
+                                               @else
+                                                 -
+                                               @endif
+                                            </td>
+                                            <td>${value.created_at_formatted}</td>
+                                            <td>${value.number_of_follow_up}</td>
+                                            <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
+                                            <td>${value.source}</td>
+                                            <td class="actionwidth">
+                                                <span>
+                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <i class="ri-whatsapp-line text-white"></i>
+                                                    </a>
+                                                </span>
+                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
                                                     <span>
-                                                        <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                            <i class="ri-whatsapp-line text-white"></i>
-                                                        </a>
-                                                    </span>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                        <span>
-                                                            <a href='EditLead/${value.id}'>
-                                                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </a>   
-                                                        </span>
-                                                    @endif
-                                                    @if (session('user_permissions.leadmodule.lead.delete') === '1')
-                                                        <span>
-                                                            <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
-                                                                <i class="ri-delete-bin-fill"></i>
+                                                        <a href='EditLead/${value.id}'>
+                                                            <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
                                                             </button>
-                                                        </span>
-                                                    @endif
-                                                </td>    
-                                            </tr>`)
+                                                        </a>   
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                    <span>
+                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>    
+                                        </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
                                 });
@@ -497,60 +523,61 @@
                                 var id = 1;
                                 $.each(response.lead, function(key, value) {
                                     $('#data').append(`<tr>
-                                                <td>${id}</td>
-                                                <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
-                                                <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
-                                                <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
-                                                <td>${value.title === null ? '-':value.title}</td>
-                                                <td>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                        <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                            <option value='Not Interested'>Not Interested</option>
-                                                            <option value='Not Receiving'>Not Receiving</option>
-                                                            <option value='New Lead'>New Lead</option>
-                                                            <option value='Interested'>Interested</option>
-                                                            <option value='Switch Off'>Switch Off</option>
-                                                            <option value='Does Not Exist'>Does Not Exist</option>
-                                                            <option value='Email Sent'>Email Sent</option>
-                                                            <option value='Wrong Number'>Wrong Number</option>
-                                                            <option value='By Mistake'>By Mistake</option>
-                                                            <option value='Rejected'>Rejected</option>
-                                                            <option value='Sale'>Sale</option>
-                                                            <option value='Busy'>Busy</option>
-                                                            <option value='Call Back'>Call Back</option>
-                                                        </select>
-                                                   @else
-                                                     -
-                                                   @endif
-                                                </td>
-                                                <td>${value.created_at_formatted}</td>
-                                                <td>${value.number_of_follow_up}</td>
-                                                <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
-                                                <td>${value.source}</td>
-                                                <td class="actionwidth">
+                                            <td>${id}</td>
+                                            <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
+                                            <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
+                                            <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
+                                            <td>${value.title === null ? '-':value.title}</td>
+                                            <td>
+                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                    <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                        <option value='Not Interested'>Not Interested</option>
+                                                        <option value='Not Receiving'>Not Receiving</option>
+                                                        <option value='New Lead'>New Lead</option>
+                                                        <option value='Interested'>Interested</option>
+                                                        <option value='Switch Off'>Switch Off</option>
+                                                        <option value='Does Not Exist'>Does Not Exist</option>
+                                                        <option value='Email Sent'>Email Sent</option>
+                                                        <option value='Wrong Number'>Wrong Number</option>
+                                                        <option value='By Mistake'>By Mistake</option>
+                                                        <option value='Positive'>Positive</option>
+                                                        <option value='Rejected'>Rejected</option>
+                                                        <option value='Sale'>Sale</option>
+                                                        <option value='Busy'>Busy</option>
+                                                        <option value='Call Back'>Call Back</option>
+                                                    </select>
+                                               @else
+                                                 -
+                                               @endif
+                                            </td>
+                                            <td>${value.created_at_formatted}</td>
+                                            <td>${value.number_of_follow_up}</td>
+                                            <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
+                                            <td>${value.source}</td>
+                                            <td class="actionwidth">
+                                                <span>
+                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <i class="ri-whatsapp-line text-white"></i>
+                                                    </a>
+                                                </span>
+                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
                                                     <span>
-                                                        <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                            <i class="ri-whatsapp-line text-white"></i>
-                                                        </a>
-                                                    </span>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                        <span>
-                                                            <a href='EditLead/${value.id}'>
-                                                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </a>   
-                                                        </span>
-                                                    @endif
-                                                    @if (session('user_permissions.leadmodule.lead.delete') === '1')
-                                                        <span>
-                                                            <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
-                                                                <i class="ri-delete-bin-fill"></i>
+                                                        <a href='EditLead/${value.id}'>
+                                                            <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
                                                             </button>
-                                                        </span>
-                                                    @endif
-                                                </td>    
-                                            </tr>`)
+                                                        </a>   
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                    <span>
+                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>    
+                                        </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
                                 });
@@ -593,60 +620,61 @@
                                 var id = 1;
                                 $.each(response.lead, function(key, value) {
                                     $('#data').append(`<tr>
-                                                <td>${id}</td>
-                                                <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
-                                                <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
-                                                <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
-                                                <td>${value.title === null ? '-':value.title}</td>
-                                                <td>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                        <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                            <option value='Not Interested'>Not Interested</option>
-                                                            <option value='Not Receiving'>Not Receiving</option>
-                                                            <option value='New Lead'>New Lead</option>
-                                                            <option value='Interested'>Interested</option>
-                                                            <option value='Switch Off'>Switch Off</option>
-                                                            <option value='Does Not Exist'>Does Not Exist</option>
-                                                            <option value='Email Sent'>Email Sent</option>
-                                                            <option value='Wrong Number'>Wrong Number</option>
-                                                            <option value='By Mistake'>By Mistake</option>
-                                                            <option value='Rejected'>Rejected</option>
-                                                            <option value='Sale'>Sale</option>
-                                                            <option value='Busy'>Busy</option>
-                                                            <option value='Call Back'>Call Back</option>
-                                                        </select>
-                                                   @else
-                                                     -
-                                                   @endif
-                                                </td>
-                                                <td>${value.created_at_formatted}</td>
-                                                <td>${value.number_of_follow_up}</td>
-                                                <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
-                                                <td>${value.source}</td>
-                                                <td class="actionwidth">
+                                            <td>${id}</td>
+                                            <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
+                                            <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
+                                            <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
+                                            <td>${value.title === null ? '-':value.title}</td>
+                                            <td>
+                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                    <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                        <option value='Not Interested'>Not Interested</option>
+                                                        <option value='Not Receiving'>Not Receiving</option>
+                                                        <option value='New Lead'>New Lead</option>
+                                                        <option value='Interested'>Interested</option>
+                                                        <option value='Switch Off'>Switch Off</option>
+                                                        <option value='Does Not Exist'>Does Not Exist</option>
+                                                        <option value='Email Sent'>Email Sent</option>
+                                                        <option value='Wrong Number'>Wrong Number</option>
+                                                        <option value='By Mistake'>By Mistake</option>
+                                                        <option value='Positive'>Positive</option>
+                                                        <option value='Rejected'>Rejected</option>
+                                                        <option value='Sale'>Sale</option>
+                                                        <option value='Busy'>Busy</option>
+                                                        <option value='Call Back'>Call Back</option>
+                                                    </select>
+                                               @else
+                                                 -
+                                               @endif
+                                            </td>
+                                            <td>${value.created_at_formatted}</td>
+                                            <td>${value.number_of_follow_up}</td>
+                                            <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
+                                            <td>${value.source}</td>
+                                            <td class="actionwidth">
+                                                <span>
+                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <i class="ri-whatsapp-line text-white"></i>
+                                                    </a>
+                                                </span>
+                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
                                                     <span>
-                                                        <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                            <i class="ri-whatsapp-line text-white"></i>
-                                                        </a>
-                                                    </span>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                        <span>
-                                                            <a href='EditLead/${value.id}'>
-                                                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </a>   
-                                                        </span>
-                                                    @endif
-                                                    @if (session('user_permissions.leadmodule.lead.delete') === '1')
-                                                        <span>
-                                                            <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
-                                                                <i class="ri-delete-bin-fill"></i>
+                                                        <a href='EditLead/${value.id}'>
+                                                            <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
                                                             </button>
-                                                        </span>
-                                                    @endif
-                                                </td>    
-                                            </tr>`)
+                                                        </a>   
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                    <span>
+                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>    
+                                        </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
                                 });
@@ -676,8 +704,8 @@
             });
 
             $('.removefilters').on('click', function() {
-                 $('#fromdate').val('');
-                 $('#todate').val('');
+                $('#fromdate').val('');
+                $('#todate').val('');
                 $('#invaliddate').text(' ');
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);

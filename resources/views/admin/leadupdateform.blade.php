@@ -39,7 +39,7 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="title">Job Title:</label>
                     <select name="title" class="form-control" id="modal_title" required>
-                        <option value="" disabled selected>Select Title</option>
+                        <option disabled selected>Select Title</option>
                         <option value="Student">Student</option>
                         <option value="Employee">Employee</option>
                         <option value="Manager">Manager</option>
@@ -76,6 +76,7 @@
                         <option value='Email Sent'>Email Sent</option>
                         <option value='Wrong Number'>Wrong Number</option>
                         <option value='By Mistake'>By Mistake</option>
+                        <option value='Positive'>Positive</option>
                         <option value='Rejected'>Rejected</option>
                         <option value='Sale'>Sale</option>
                         <option value='Busy'>Busy</option>
@@ -151,7 +152,7 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label class="form-label" for="is_active">Active:</label>
+                    <label class="form-label" for="is_active">Active:</label><br/>
                     <input type="checkbox" value="1" class="form-control-checkbox" name="is_active" id="is_active" 
                         required />
                     <span class="error-msg" id="error-is_active" style="color: red"></span>
@@ -195,7 +196,7 @@
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
-                     data = response.lead
+                     data = response.lead[0]
                     if (response.status == 200) {
                         // You can update your HTML with the data here if needed
                         $('#name').val(data.name);
@@ -210,8 +211,8 @@
                         $('#next_follow_up').val(data.next_follow_up);
                         $('#no_of_follow_up').val(data.number_of_follow_up);
                         $('#notes').val(data.notes);
-                        $('#created_at').val(data.created_at);
-                        $('#updated_at').val(data.updated_at);
+                        $('#created_at').val(data.created_at_formatted);
+                        $('#updated_at').val(data.updated_at_formatted);
                         $('#source').val(data.source);
                         $('#ip').val(data.ip);
                         (data.is_active == 1) ?  $('#is_active').attr('checked',true) : $('#is_active').attr('checked',false) ;
