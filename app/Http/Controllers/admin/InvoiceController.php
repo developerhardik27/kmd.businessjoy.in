@@ -10,40 +10,51 @@ use Illuminate\Support\Facades\Session;
 
 class InvoiceController extends Controller
 {
-   public function invoiceview(string $id){
+    public function invoiceview(string $id)
+    {
 
-    $invoice = invoice::findOrFail($id);
-    $this->authorize('view', $invoice);
-    $jsoncompanydetailsdata = app('App\Http\Controllers\api\companyController')->companydetailspdf($invoice->company_details_id);
-    $jsonbankdetailsdata = app('App\Http\Controllers\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
+        $invoice = invoice::findOrFail($id);
+        $this->authorize('view', $invoice);
+        $jsoncompanydetailsdata = app('App\Http\Controllers\api\companyController')->companydetailspdf($invoice->company_details_id);
+        $jsonbankdetailsdata = app('App\Http\Controllers\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
 
-    $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
-    $jsonbankContent = $jsonbankdetailsdata->getContent();
+        $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
+        $jsonbankContent = $jsonbankdetailsdata->getContent();
 
-    $companydetailsdata = json_decode($jsoncompanyContent, true);
-    $bankdetailsdata = json_decode($jsonbankContent, true);
+        $companydetailsdata = json_decode($jsoncompanyContent, true);
+        $bankdetailsdata = json_decode($jsonbankContent, true);
 
-    $data = [
-        'companydetails' =>  $companydetailsdata['companydetails'][0],
-        'bankdetails' =>  $bankdetailsdata['bankdetail'][0]
+        $data = [
+            'companydetails' =>  $companydetailsdata['companydetails'][0],
+            'bankdetails' =>  $bankdetailsdata['bankdetail'][0]
 
-     ];
+        ];
 
-    return view('admin.invoiceview',['id'=>$id ,'data'=> $data]);
-   }
+        return view('admin.invoiceview', ['id' => $id, 'data' => $data]);
+    }
 
+    /**
+     * Invoice settings pages.
+     */
+    public function managecolumn(){
+        return view('admin.managecolumn');
+    }
+    public function formula(){
+        return view('admin.formula');
+    }
+   
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {    
-        if(isset($request->search)){
+    {
+        if (isset($request->search)) {
             $search = $request->search;
-        } else{
+        } else {
             $search = '';
         }
 
-        return view('admin.invoice',['search' => $search]);
+        return view('admin.invoice', ['search' => $search]);
     }
 
 
@@ -51,20 +62,18 @@ class InvoiceController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-   
+
     public function create()
     {
         $jsonbankdetails =  app('App\Http\Controllers\api\bankdetailsController')->bank_details(Session::get('company_id'));
-       $bdetailscontent = $jsonbankdetails->getContent();
-       $bdetails = json_decode($bdetailscontent);
-       
-        if($bdetails->status === 200){
-            return view('admin.invoiceform',['user_id'=> Session::get('user_id'),'company_id'=>Session::get('company_id')]);
+        $bdetailscontent = $jsonbankdetails->getContent();
+        $bdetails = json_decode($bdetailscontent);
 
-         }else{
-          return view('admin.bankform',['user_id'=> Session::get('user_id'),'company_id'=>Session::get('company_id'),'message'=>'yes']);
-         }
-        
+        if ($bdetails->status === 200) {
+            return view('admin.invoiceform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        } else {
+            return view('admin.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+        }
     }
 
     /**

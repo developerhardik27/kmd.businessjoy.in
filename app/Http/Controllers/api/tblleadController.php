@@ -17,36 +17,94 @@ class tblleadController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {  
+    {
         $fromdate = $request->fromdate;
         $todate = Carbon::parse($request->todate);
         $status = $request->status;
+        $lastfollowup = $request->lastfollowupdate;
+        $nextfollowup = $request->nextfollowupdate;
+        $activestatus = null;
+        if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
+            $activestatus = $request->activestatusvalue;
+        }
+
         if (isset($fromdate) && isset($todate) && isset($status)) {
-            $lead = DB::table('tbllead')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-            ->whereBetween('created_at', [$fromdate, $todate->addDay()])
-            ->whereIn('status',$status)
-            ->where('is_active', 1)
-            ->get();
-        } elseif (isset($fromdate) && isset($todate) && isNull($status)) {
-            $lead = DB::table('tbllead')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-            ->whereBetween('created_at', [$fromdate, $todate->addDay()])
-            ->where('is_active', 1)
-            ->get();
-        }elseif(isset($status) && isNull($fromdate) && isNull($todate)){
-            $lead = DB::table('tbllead')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-            ->whereIn('status', $status)
-            ->where('is_active', 1)
-            ->get();
-        } 
-        else {
-            $lead = tbllead::orderBy('id', 'desc')
-                ->where('is_deleted', 0)
-                ->where('is_active', 1)
+            $leadquery = DB::table('tbllead')
                 ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-                ->get();
+                ->whereBetween('created_at', [$fromdate, $todate->addDay()])
+                ->whereIn('status', $status)
+                ->where('is_deleted',0);
+
+            if (isset($activestatus)) {
+                $leadquery->where('is_active', $activestatus);
+            }
+            $lead = $leadquery->get();
+        } elseif (isset($fromdate) && isset($todate) && isNull($status)) {
+            $leadquery = DB::table('tbllead')
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+                ->whereBetween('created_at', [$fromdate, $todate->addDay()])
+                ->where('is_deleted',0);
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active', $activestatus);
+                }
+                $lead = $leadquery->get();
+        } elseif (isset($status) && isNull($fromdate) && isNull($todate)) {
+            $leadquery = DB::table('tbllead')
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+                ->whereIn('status', $status)
+                ->where('is_deleted',0);
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active', $activestatus);
+                }
+                $lead = $leadquery->get();
+        }elseif (isset($lastfollowup) && isset($status)) {
+            $leadquery = DB::table('tbllead')
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+                ->whereIn('status', $status)
+                ->where('last_follow_up', $lastfollowup)
+                ->where('is_deleted',0);
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active', $activestatus);
+                }
+                $lead = $leadquery->get();
+        }elseif (isset($nextfollowup) && isset($status)) {
+            $leadquery = DB::table('tbllead')
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+                ->whereIn('status', $status)
+                ->where('next_follow_up', $nextfollowup)
+                ->where('is_deleted',0);
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active', $activestatus);
+                }
+                $lead = $leadquery->get();
+        }
+        elseif (isset($lastfollowup)) {
+            $leadquery = DB::table('tbllead')
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+                ->where('last_follow_up', $lastfollowup)
+                ->where('is_deleted',0);
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active', $activestatus);
+                }
+                $lead = $leadquery->get();
+        }elseif (isset($nextfollowup)) {
+            $leadquery = DB::table('tbllead')
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+                ->where('next_follow_up', $nextfollowup)
+                ->where('is_deleted',0);
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active',$activestatus);
+                }
+                $lead = $leadquery->get();
+        }
+         else {
+            $leadquery = tbllead::orderBy('id', 'desc')
+                ->where('is_deleted', 0)
+                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip');
+                if (isset($activestatus)) {
+                    $leadquery->where('is_active', $activestatus);
+                } 
+                $lead = $leadquery->get();
         }
 
 
@@ -80,9 +138,9 @@ class tblleadController extends Controller
 
         $validator = Validator::make($request->all(), [
             'leadname' => 'required|string',
-            'email' => 'required|email',
+            'email' => 'email',
             'contact_no' => 'required',
-            'title' => 'required|string',
+            'title' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -123,7 +181,7 @@ class tblleadController extends Controller
     {
         $lead = DB::table('tbllead')
             ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
-            ->where('id',$id)
+            ->where('id', $id)
             ->where('is_active', 1)
             ->get();
 
@@ -168,8 +226,8 @@ class tblleadController extends Controller
             'name' => 'required|string',
             'email' => 'required|email',
             'contact_no' => 'required',
-            'title' => 'required|string',
-            'budget' => 'required|string',
+            'title' => 'string',
+            'budget' => 'string',
             'audience_type',
             'customer_type',
             'status',
@@ -192,7 +250,10 @@ class tblleadController extends Controller
             ], 422);
         } else {
             $lead = tbllead::find($id);
-
+            $active = $request->is_active;
+            if(!isset($request->is_active)){
+                $active = 0 ;
+            }
             if ($lead) {
 
                 $lead->update([
@@ -207,7 +268,7 @@ class tblleadController extends Controller
                     'number_of_follow_up'  =>  $request->number_of_follow_up,
                     'notes'  =>  $request->notes,
                     'updated_at' => date('Y-m-d'),
-                    'is_active' =>  $request->is_active,
+                    'is_active' => $active,
                     'source'  =>  $request->source,
                 ]);
 
@@ -274,9 +335,4 @@ class tblleadController extends Controller
         }
     }
 
-    public function advancefilters(Request $request)
-    {
-
-       
-    }
 }

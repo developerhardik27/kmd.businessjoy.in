@@ -23,7 +23,7 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="email">Email:</label> <span style="color:red;">*</span>
                     <input type="email" class="form-control" name="email" id="email"
-                        placeholder="Professional Email" required />
+                        placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -33,7 +33,8 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="contact_no">Mobile Number:</label> <span style="color:red;">*</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
-                        placeholder="Whatsapp Mobile Number" maxlength="13" required />
+                        placeholder="Whatsapp Mobile Number" maxlength="13" onkeypress="return isNumberKey(event);"
+                        onkeyup="numberMobile(event);" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -51,7 +52,7 @@
             <div class="form-row">
                 <div class="col-sm-12">
                     <label class="form-label" for="title">Job Title:</label> <span style="color:red;">*</span>
-                    <select name="title" class="form-control" id="title" required>
+                    <select name="title" class="form-control" id="title">
                         <option value="" disabled selected>Select Title</option>
                         <option value=" Student">Student</option>
                         <option value="Employee">Employee</option>
@@ -75,6 +76,30 @@
 
 @push('ajax')
     <script>
+        // mobile number validation
+        function isNumberKey(e) {
+            var evt = e || window.event;
+
+            if (evt) {
+                var charCode = evt.keyCode || evt.which;
+            } else {
+                return true;
+            }
+
+            // Allow numeric characters (0-9), plus sign (+), tab (9), backspace (8), delete (46), left arrow (37), right arrow (39)
+            if ((charCode > 47 && charCode < 58) || charCode == 9 || charCode == 8 || charCode == 46 ||
+                charCode == 37 || charCode == 39 || charCode == 43) {
+                return true;
+            }
+
+            return false;
+        }
+
+        function numberMobile(e) {
+            e.target.value = e.target.value.replace(/[^+\d]/g, ''); // Allow + and digits
+            return false;
+        }
+
         $('document').ready(function() {
 
             // submit form data

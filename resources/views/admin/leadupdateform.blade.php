@@ -16,14 +16,14 @@
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <label class="form-label" for="name">Name:</label>
-                    <input type="text" readonly class="form-control" name="name" id="name" placeholder="Name"
+                    <input type="text"  class="form-control" name="name" id="name" placeholder="Name"
                         required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="email">Email:</label>
-                    <input type="email" readonly class="form-control" name="email" id="email"
-                        placeholder="Professional Email" required />
+                    <input type="email"  class="form-control" name="email" id="email"
+                        placeholder="Professional Email"  />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -32,7 +32,7 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="contact_no">Mobile Number:</label>
-                    <input type="text" readonly class="form-control" name="contact_no" id="contact_no"
+                    <input type="text"  class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" maxlength="13" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="status">Status:</label>
-                    <select name="status" class="form-control" id="status" required>
+                    <select name="status" class="form-control" id="status" >
                         <option value="" disabled selected>Status</option>
                         <option value='Not Interested'>Not Interested</option>
                         <option value='Not Receiving'>Not Receiving</option>
@@ -90,13 +90,13 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="audience_type">Audience Type:</label>
-                    <input type="text" readonly class="form-control" name="audience_type" id="audience_type"
+                    <input type="text"  class="form-control" name="audience_type" id="audience_type"
                         placeholder="Audience Type" />
                     <span class="error-msg" id="error-audience_type" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="customer_type">Customer Type:</label>
-                    <input type="text" readonly class="form-control" name="customer_type" id="customer_type"
+                    <input type="text"  class="form-control" name="customer_type" id="customer_type"
                         placeholder="Customer Type" />
                     <span class="error-msg" id="error-customer_type" style="color: red"></span>
                 </div>
@@ -128,7 +128,7 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="source">Source:</label>
                     <input type="text" class="form-control" name="source" id="source" placeholder="source"
-                        required />
+                         />
                     <span class="error-source" id="error-description" style="color: red"></span>
                 </div>
             </div>
@@ -138,7 +138,7 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="created_at">Created At:</label>
                     <input type="datetime" readonly class="form-control" name="created_at" id="created_at"
-                        placeholder="Created at" required />
+                        placeholder="Created at"  />
                     <span class="error-msg" id="error-created_at" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -151,10 +151,9 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
-                    <label class="form-label" for="is_active">Active:</label><br/>
-                    <input type="checkbox" value="1" class="form-control-checkbox" name="is_active" id="is_active" 
-                        required />
+                <div class="col-sm-6 mt-4">
+                    <label class="form-label" for="is_active">Qualified:</label>
+                    <input type="checkbox" value="1" class="form-control-checkbox" name="is_active" id="is_active" />
                     <span class="error-msg" id="error-is_active" style="color: red"></span>
                 </div>
                 

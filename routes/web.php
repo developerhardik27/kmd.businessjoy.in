@@ -111,6 +111,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::controller(InvoiceController::class)->group(function () {
             Route::get('/invoiceview/{id}', 'invoiceview')->name('admin.invoiceview')->middleware('checkPermission:invoicemodule,invoice,show');
             Route::get('/invoice', 'index')->name('admin.invoice')->middleware('checkPermission:invoicemodule,invoice,show');
+            Route::get('/managecolumn', 'managecolumn')->name('admin.managecolumn')->middleware('checkPermission:invoicemodule,invoice,edit');
+            Route::get('/formula', 'formula')->name('admin.formula')->middleware('checkPermission:invoicemodule,invoice,edit');
             Route::get('/AddNewInvoice', 'create')->name('admin.addinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
             Route::post('/StoreNewInvoice', 'store')->name('admin.storeinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
             Route::get('/SearchInvoice/{id}', 'show')->name('admin.searchinvoice')->middleware('checkPermission:invoicemodule,invoice,view');

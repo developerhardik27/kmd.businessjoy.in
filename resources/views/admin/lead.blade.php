@@ -44,10 +44,6 @@
         .multiselect {
             border: 0.5px solid #00000073;
         }
-
-        /* #advancestatus {
-                                            border: 0.5px solid #d3c3d3 !important;
-                                        } */
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
@@ -147,6 +143,8 @@
 
         </tbody>
     </table>
+
+    
 @endsection
 
 
@@ -319,8 +317,8 @@
                                                     <th>${lead.source}</th>
                                                 <tr>
                                                 <tr>
-                                                    <td>Notes</td>
-                                                    <th>${lead.notes}</th>
+                                                    <td >Notes</td>
+                                                    <th class='text-wrap'>${lead.notes}</th>
                                                 </tr>
                      `);
                     }
@@ -401,312 +399,134 @@
                     $('#invaliddate').text(' ');
                 }
 
-
-
-                if (fromdate != '' && todate != '' && advancestatus != '' && !(fromDate > toDate)) {
-
-                    $.ajax({
-                        type: 'GET',
-                        url: '{{ route('lead.index') }}',
-                        data: {
-                            user_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            fromdate: fromdate,
-                            todate: todate,
-                            status: advancestatus
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.lead != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                // console.log(response.lead);
-                                // $('#tabledata').val(' ');
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.lead, function(key, value) {
-                                    $('#data').append(`<tr>
-                                            <td>${id}</td>
-                                            <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
-                                            <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
-                                            <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
-                                            <td>${value.title === null ? '-':value.title}</td>
-                                            <td>
-                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                    <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                        <option value='Not Interested'>Not Interested</option>
-                                                        <option value='Not Receiving'>Not Receiving</option>
-                                                        <option value='New Lead'>New Lead</option>
-                                                        <option value='Interested'>Interested</option>
-                                                        <option value='Switch Off'>Switch Off</option>
-                                                        <option value='Does Not Exist'>Does Not Exist</option>
-                                                        <option value='Email Sent'>Email Sent</option>
-                                                        <option value='Wrong Number'>Wrong Number</option>
-                                                        <option value='By Mistake'>By Mistake</option>
-                                                        <option value='Positive'>Positive</option>
-                                                        <option value='Rejected'>Rejected</option>
-                                                        <option value='Sale'>Sale</option>
-                                                        <option value='Busy'>Busy</option>
-                                                        <option value='Call Back'>Call Back</option>
-                                                    </select>
-                                               @else
-                                                 -
-                                               @endif
-                                            </td>
-                                            <td>${value.created_at_formatted}</td>
-                                            <td>${value.number_of_follow_up}</td>
-                                            <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
-                                            <td>${value.source}</td>
-                                            <td class="actionwidth">
-                                                <span>
-                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                        <i class="ri-whatsapp-line text-white"></i>
-                                                    </a>
-                                                </span>
-                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                    <span>
-                                                        <a href='EditLead/${value.id}'>
-                                                            <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
-                                                                <i class="ri-edit-fill"></i>
-                                                            </button>
-                                                        </a>   
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.leadmodule.lead.delete') === '1')
-                                                    <span>
-                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif
-                                            </td>    
-                                        </tr>`)
-                                    $('#status_' + value.id).val(value.status);
-                                    id++;
-                                });
-                                var search = {!! json_encode($search) !!}
-
-                                $('#data').DataTable({
-
-                                    "search": {
-                                        "search": search
-                                    },
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                            } else {
-                                $('#tabledata').html(' ');
-                                $('#data').append(
-                                    `<tr><td colspan='11'>No Data Found</td></tr>`)
-                            }
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(error) {
-                            console.error('Error:', error);
-                        }
-                    });
-                } else if (fromdate != '' && todate != '' && advancestatus == '' && !(fromDate > toDate)) {
-                    $.ajax({
-                        type: 'GET',
-                        url: '{{ route('lead.index') }}',
-                        data: {
-                            user_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            fromdate: fromdate,
-                            todate: todate,
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.lead != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                // console.log(response.lead);
-                                // $('#tabledata').val(' ');
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.lead, function(key, value) {
-                                    $('#data').append(`<tr>
-                                            <td>${id}</td>
-                                            <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
-                                            <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
-                                            <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
-                                            <td>${value.title === null ? '-':value.title}</td>
-                                            <td>
-                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                    <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                        <option value='Not Interested'>Not Interested</option>
-                                                        <option value='Not Receiving'>Not Receiving</option>
-                                                        <option value='New Lead'>New Lead</option>
-                                                        <option value='Interested'>Interested</option>
-                                                        <option value='Switch Off'>Switch Off</option>
-                                                        <option value='Does Not Exist'>Does Not Exist</option>
-                                                        <option value='Email Sent'>Email Sent</option>
-                                                        <option value='Wrong Number'>Wrong Number</option>
-                                                        <option value='By Mistake'>By Mistake</option>
-                                                        <option value='Positive'>Positive</option>
-                                                        <option value='Rejected'>Rejected</option>
-                                                        <option value='Sale'>Sale</option>
-                                                        <option value='Busy'>Busy</option>
-                                                        <option value='Call Back'>Call Back</option>
-                                                    </select>
-                                               @else
-                                                 -
-                                               @endif
-                                            </td>
-                                            <td>${value.created_at_formatted}</td>
-                                            <td>${value.number_of_follow_up}</td>
-                                            <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
-                                            <td>${value.source}</td>
-                                            <td class="actionwidth">
-                                                <span>
-                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                        <i class="ri-whatsapp-line text-white"></i>
-                                                    </a>
-                                                </span>
-                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                    <span>
-                                                        <a href='EditLead/${value.id}'>
-                                                            <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
-                                                                <i class="ri-edit-fill"></i>
-                                                            </button>
-                                                        </a>   
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.leadmodule.lead.delete') === '1')
-                                                    <span>
-                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif
-                                            </td>    
-                                        </tr>`)
-                                    $('#status_' + value.id).val(value.status);
-                                    id++;
-                                });
-                                var search = {!! json_encode($search) !!}
-
-                                $('#data').DataTable({
-
-                                    "search": {
-                                        "search": search
-                                    },
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                            } else {
-                                $('#tabledata').html(' ');
-                                $('#data').append(
-                                    `<tr><td colspan='11'>No Data Found</td></tr>`)
-                            }
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(error) {
-                            console.error('Error:', error);
-                        }
-                    });
-                } else if (fromdate == '' && todate == '' && advancestatus != '') {
-                    $.ajax({
-                        type: 'GET',
-                        url: '{{ route('lead.index') }}',
-                        data: {
-                            user_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            status: advancestatus
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.lead != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                // console.log(response.lead);
-                                // $('#tabledata').val(' ');
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.lead, function(key, value) {
-                                    $('#data').append(`<tr>
-                                            <td>${id}</td>
-                                            <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
-                                            <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
-                                            <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
-                                            <td>${value.title === null ? '-':value.title}</td>
-                                            <td>
-                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                    <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                        <option value='Not Interested'>Not Interested</option>
-                                                        <option value='Not Receiving'>Not Receiving</option>
-                                                        <option value='New Lead'>New Lead</option>
-                                                        <option value='Interested'>Interested</option>
-                                                        <option value='Switch Off'>Switch Off</option>
-                                                        <option value='Does Not Exist'>Does Not Exist</option>
-                                                        <option value='Email Sent'>Email Sent</option>
-                                                        <option value='Wrong Number'>Wrong Number</option>
-                                                        <option value='By Mistake'>By Mistake</option>
-                                                        <option value='Positive'>Positive</option>
-                                                        <option value='Rejected'>Rejected</option>
-                                                        <option value='Sale'>Sale</option>
-                                                        <option value='Busy'>Busy</option>
-                                                        <option value='Call Back'>Call Back</option>
-                                                    </select>
-                                               @else
-                                                 -
-                                               @endif
-                                            </td>
-                                            <td>${value.created_at_formatted}</td>
-                                            <td>${value.number_of_follow_up}</td>
-                                            <td> ${value.is_active == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td>
-                                            <td>${value.source}</td>
-                                            <td class="actionwidth">
-                                                <span>
-                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                        <i class="ri-whatsapp-line text-white"></i>
-                                                    </a>
-                                                </span>
-                                                @if (session('user_permissions.leadmodule.lead.edit') === '1')
-                                                    <span>
-                                                        <a href='EditLead/${value.id}'>
-                                                            <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
-                                                                <i class="ri-edit-fill"></i>
-                                                            </button>
-                                                        </a>   
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.leadmodule.lead.delete') === '1')
-                                                    <span>
-                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif
-                                            </td>    
-                                        </tr>`)
-                                    $('#status_' + value.id).val(value.status);
-                                    id++;
-                                });
-                                var search = {!! json_encode($search) !!}
-
-                                $('#data').DataTable({
-
-                                    "search": {
-                                        "search": search
-                                    },
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                            } else {
-                                $('#tabledata').html(' ');
-                                $('#data').append(
-                                    `<tr><td colspan='11'>No Data Found</td></tr>`)
-                            }
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(error) {
-                            console.error('Error:', error);
-                        }
-                    });
-                } else if (fromdate == '' && todate == '' && advancestatus == '') {
+                var data = {
+                    user_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                };
+                if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
+                    data.fromdate = fromdate;
+                    data.todate = todate;
+                }
+                if (advancestatus != '') {
+                    data.status = advancestatus;
+                }
+                if (LastFollowUpDate != '') {
+                    data.lastfollowupdate = LastFollowUpDate;
+                }
+                if (NextFollowUpDate != '') {
+                    data.nextfollowupdate = NextFollowUpDate;
+                }
+                if (activestatusvalue != '') {
+                    data.activestatusvalue = activestatusvalue;
+                }
+                
+                if (fromdate == '' && todate == '' && advancestatus == '' && LastFollowUpDate == '' && NextFollowUpDate == ''  &&  activestatusvalue == '') {
                     loaddata();
                 }
+                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '' ) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ route('lead.index') }}',
+                        data: data,
+                        success: function(response) {
+                            if (response.status == 200 && response.lead != '') {
+                                $('#data').DataTable().destroy();
+                                $('#tabledata').empty();
+                                global_response = response;
+                                var id = 1;
+                                $.each(response.lead, function(key, value) {
+                                    $('#data').append(`<tr>
+                                                    <td>${id}</td>
+                                                    <td style="cursor:pointer;" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn text-info" >${value.name}</td>
+                                                    <td ><a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a></td>
+                                                    <td ><a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no} </a></td>
+                                                    <td>${value.title === null ? '-':value.title}</td>
+                                                    <td>
+                                                        @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                            <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                                <option value='Not Interested'>Not Interested</option>
+                                                                <option value='Not Receiving'>Not Receiving</option>
+                                                                <option value='New Lead'>New Lead</option>
+                                                                <option value='Interested'>Interested</option>
+                                                                <option value='Switch Off'>Switch Off</option>
+                                                                <option value='Does Not Exist'>Does Not Exist</option>
+                                                                <option value='Email Sent'>Email Sent</option>
+                                                                <option value='Wrong Number'>Wrong Number</option>
+                                                                <option value='By Mistake'>By Mistake</option>
+                                                                <option value='Positive'>Positive</option>
+                                                                <option value='Rejected'>Rejected</option>
+                                                                <option value='Sale'>Sale</option>
+                                                                <option value='Busy'>Busy</option>
+                                                                <option value='Call Back'>Call Back</option>
+                                                            </select>
+                                                       @else
+                                                         -
+                                                       @endif
+                                                    </td>
+                                                    <td>${value.created_at_formatted}</td>
+                                                    <td>${value.number_of_follow_up}</td>
+                                                    <td> ${value.is_active == 1 ? '<span class="badge bg-success">Qualified</span>' : '<span class="badge bg-danger">Disqualified</span>'}</td>
+                                                    <td>${value.source}</td>
+                                                    <td class="actionwidth">
+                                                        <span>
+                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                                <i class="ri-whatsapp-line text-white"></i>
+                                                            </a>
+                                                        </span>
+                                                        @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                            <span>
+                                                                <a href='EditLead/${value.id}'>
+                                                                    <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">
+                                                                        <i class="ri-edit-fill"></i>
+                                                                    </button>
+                                                                </a>   
+                                                            </span>
+                                                        @endif
+                                                        @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                            <span>
+                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                                    <i class="ri-delete-bin-fill"></i>
+                                                                </button>
+                                                            </span>
+                                                        @endif
+                                                    </td>    
+                                                </tr>`)
+                                    $('#status_' + value.id).val(value.status);
+                                    id++;
+                                });
+                                var search = {!! json_encode($search) !!}
+
+                                $('#data').DataTable({
+
+                                    "search": {
+                                        "search": search
+                                    },
+                                    "destroy": true, //use for reinitialize datatable
+                                });
+                            } else {
+                                $('#tabledata').html(' ');
+                                $('#data').append(
+                                    `<tr><td colspan='11' >No Data Found</td></tr>`)
+                            }
+                            // You can update your HTML with the data here if needed
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
+
+
+
             });
 
             $('.removefilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
+                $('#last_followup').val('');
+                $('#next_followup').val('');
                 $('#invaliddate').text(' ');
+                $("input[name='status'][value='all']").prop("checked", true);
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
 

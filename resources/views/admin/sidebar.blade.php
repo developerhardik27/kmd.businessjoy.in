@@ -42,8 +42,9 @@
                         <!-- <li><a href="todo.html" class="iq-waves-effect" aria-expanded="false"><i class="ri-chat-check-line"></i><span>Todo</span></a></li> -->
                         @if (Session::has('menu') && Session::get('menu') == 'invoice')
                             @if (session('user_permissions.invoicemodule.invoice.show') === '1')
-                                <li
-                                    class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }} {{ request()->routeIs('admin.addinvoice') ? 'active' : '' }}">
+                            <li class="{{ implode(' ', [
+                                request()->routeIs('admin.invoice', 'admin.addinvoice', 'admin.invoicesettings', 'admin.managecolumn', 'admin.formula') ? 'active' : ''
+                            ]) }}">
                                     <a href="#invoiceinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
                                         aria-expanded="false"><i class="ri-file-list-3-line"></i><span>Invoice</span><i
                                             class="ri-arrow-right-s-line iq-arrow-right"></i></a>
@@ -56,12 +57,42 @@
                                                 </a>
                                             </li>
                                         @endif
-                                        <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
-                                            <a href="{{ route('admin.invoice') }}">
-                                                <i class="ri-file-list-line"></i>
-                                                Invoice List
-                                            </a>
-                                        </li>
+                                        @if (session('user_permissions.invoicemodule.invoice.view') === '1')
+                                            <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.invoice') }}">
+                                                    <i class="ri-file-list-line"></i>
+                                                    Invoice List
+                                                </a>
+                                            </li>
+                                        @endif
+                                        @if (session('user_permissions.invoicemodule.invoice.edit') === '1')
+                                            <li
+                                                class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
+                                                <a href="#invoicesettinginfo" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"> 
+                                                    <i class="ri-list-settings-line"></i>
+                                                    <span> Invoice Settings</span>
+                                                    <i class="ri-arrow-right-s-line iq-arrow-right"></i>
+                                                </a>
+                                                <ul id="invoicesettinginfo" class="iq-submenu collapse" data-parent="#invoiceinfo">
+                                                    @if (session('user_permissions.invoicemodule.invoice.edit') === '1')
+                                                    <li class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}">
+                                                        <a href="{{ route('admin.managecolumn') }}">
+                                                            <i class="ri-file-add-line"></i>
+                                                            Manage Columns
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                                @if (session('user_permissions.invoicemodule.invoice.edit') === '1')
+                                                    <li class="{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
+                                                        <a href="{{ route('admin.formula') }}">
+                                                            <i class="ri-file-list-line"></i>
+                                                            Set Formula
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                                </ul>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </li>
                             @endif
