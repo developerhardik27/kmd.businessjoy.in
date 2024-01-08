@@ -188,11 +188,11 @@
             // delete bank             
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
-                    var $deleteid = $(this).data('id');
+                    var deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
                         type: 'put',
-                        url: '/api/bank/delete/' + $deleteid,
+                        url: '/api/bank/delete/' + deleteid,
                         data: {
                             token: "{{ session()->get('api_token') }}"
                         },

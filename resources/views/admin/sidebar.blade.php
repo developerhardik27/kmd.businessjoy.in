@@ -1,12 +1,11 @@
 <body class="sidebar-main-active right-column-fixed header-top-bgcolor">
     <!-- loader Start -->
-    {{-- <div id="loading">
-       <div id="loading-center">
-       </div>
-    </div> --}}
+    <div id="loader-container" class="loader-container">
+        <img id="loader" class="loader-img" src="{{asset('admin/images/BusinessJoyLoader.gif')}}" alt="Loader">
+    </div>
     <!-- loader END -->
     <!-- Wrapper Start -->
-    <div class="wrapper">
+    <div  class="wrapper .blurred-content">
         <!-- Sidebar  -->
         <div class="iq-sidebar">
             <div class="iq-sidebar-logo d-flex justify-content-between">

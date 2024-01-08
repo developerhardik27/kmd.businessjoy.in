@@ -140,7 +140,7 @@ class tblleadController extends Controller
             'leadname' => 'required|string',
             'email' => 'email',
             'contact_no' => 'required',
-            'title' => 'string',
+            'title'
         ]);
 
         if ($validator->fails()) {
@@ -226,8 +226,8 @@ class tblleadController extends Controller
             'name' => 'required|string',
             'email' => 'required|email',
             'contact_no' => 'required',
-            'title' => 'string',
-            'budget' => 'string',
+            'title' ,
+            'budget',
             'audience_type',
             'customer_type',
             'status',

@@ -21,7 +21,7 @@
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="email">Email:</label> <span style="color:red;">*</span>
+                    <label class="form-label" for="email">Email:</label> 
                     <input type="email" class="form-control" name="email" id="email"
                         placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
@@ -38,8 +38,8 @@
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="customer_type">Customer Type:</label> <span style="color:red;">*</span>
-                    <select name="customer_type" class="form-control" id="customer_type" required>
+                    <label class="form-label" for="customer_type">Customer Type:</label> 
+                    <select name="customer_type" class="form-control" id="customer_type" >
                         <option disabled selected>Select Customer Type</option>
                         <option value="Global">Local</option>
                         <option value="Global">Global</option>
@@ -51,7 +51,7 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <label class="form-label" for="title">Job Title:</label> <span style="color:red;">*</span>
+                    <label class="form-label" for="title">Job Title:</label> 
                     <select name="title" class="form-control" id="title">
                         <option value="" disabled selected>Select Title</option>
                         <option value=" Student">Student</option>

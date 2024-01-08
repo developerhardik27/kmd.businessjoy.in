@@ -21,7 +21,7 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/r/ju-1.11.4/jqc-1.11.3,dt-1.10.8/datatables.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-    
+
     <style>
         .loader {
             display: none;
@@ -41,9 +41,39 @@
             position: relative;
             display: inline-block;
         }
-     
+
         table.dataTable {
             border-collapse: collapse !important;
+        }
+
+        .loader-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent background */
+            z-index: 9999;
+        }
+
+        .loader-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Add any additional styling for your loader image */
+        }
+        .blurred-content {
+            filter: blur(5px);
+            /* Adjust the blur value according to your preference */
+            /* Add any additional styling for your content */
+        }
+
+        .remove-blur {
+            filter: none;
+            /* Remove the blur effect */
         }
 
         @keyframes spin {

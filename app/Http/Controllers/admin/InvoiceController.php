@@ -37,7 +37,7 @@ class InvoiceController extends Controller
      * Invoice settings pages.
      */
     public function managecolumn(){
-        return view('admin.managecolumn');
+        return view('admin.managecolumn',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     public function formula(){
         return view('admin.formula');

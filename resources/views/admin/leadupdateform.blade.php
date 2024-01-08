@@ -38,7 +38,7 @@
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="title">Job Title:</label>
-                    <select name="title" class="form-control" id="modal_title" required>
+                    <select name="title" class="form-control" id="modal_title" >
                         <option disabled selected>Select Title</option>
                         <option value="Student">Student</option>
                         <option value="Employee">Employee</option>
@@ -55,7 +55,7 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="budget">Budget:</label>
-                    <select name="budget" class="form-control" id="budget" required>
+                    <select name="budget" class="form-control" id="budget" >
                         <option value="" disabled selected>Select Your Budget</option>
                         <option value="10000-20000">10000 To 20000</option>
                         <option value="20000-30000">20000 To 30000</option>
