@@ -74,7 +74,21 @@
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
+       // function for loader hide and show 
+       function loadershow() {
+            $("#loader-container").show();
+        }
+
+        function loaderhide() {
+            $("#loader-container").hide();
+            $("#wrapper").removeClass("blurred-content").addClass("remove-blur");
+        }
+        //   end loader function 
+</script>
+<script>
     $('document').ready(function() {
+
+       
         $.ajax({
             type: 'get',
             url: " /api/username",
@@ -134,7 +148,7 @@
                 }
             });
         });
-       
+
 
         var selectedMenuFromSession = "{{ session()->get('menu') }}";
         $('#pagemenu').text(selectedMenuFromSession);

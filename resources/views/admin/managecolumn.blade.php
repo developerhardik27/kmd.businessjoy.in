@@ -63,15 +63,8 @@
     <script>
         $('document').ready(function() {
 
-            function loadershow() {
-                $("#loader-container").show();
-            }
-
-            function loaderhide() {
-                $("#loader-container").hide();
-                $("#wrapper").removeClass("blurred-content").addClass("remove-blur");
-            }
-            loadershow();
+         
+           
 
             function loaddata() {
                 loadershow();
@@ -172,7 +165,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                toastr.success('succesfully deleted');
+                                toastr.success('Invoice Column succesfully deleted');
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else {

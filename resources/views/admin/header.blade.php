@@ -53,15 +53,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            /* Semi-transparent background */
+            opacity: 0.5;
             z-index: 9999;
+            /* Semi-transparent background */
+            
         }
 
         .loader-img {
             position: absolute;
             top: 50%;
             left: 50%;
+            width: 100px;
             transform: translate(-50%, -50%);
             /* Add any additional styling for your loader image */
         }

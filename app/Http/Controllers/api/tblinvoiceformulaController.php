@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use App\Models\tbl_invoice_column;
+use App\Models\tbl_invoice_formula;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class tblinvoicecolumnController extends Controller
+class tblinvoiceformulaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,17 +16,17 @@ class tblinvoicecolumnController extends Controller
     {
         $userId = $request->input('user_id');
 
-        $invoicecolumn = tbl_invoice_column::all()->where('company_id', $userId)->where('is_deleted', 0);
+        $invoiceformula = tbl_invoice_formula::all()->where('company_id', $userId)->where('is_deleted', 0);
 
-        if ($invoicecolumn->count() > 0) {
+        if ($invoiceformula->count() > 0) {
             return response()->json([
                 'status' => 200,
-                'invoicecolumn' => $invoicecolumn
+                'invoiceformula' => $invoiceformula
             ], 200);
         } else {
             return response()->json([
                 'status' => 404,
-                'invoicecolumn' => 'No Records Found'
+                'invoiceformula' => 'No Records Found'
             ]);
         }
     }
@@ -44,46 +44,32 @@ class tblinvoicecolumnController extends Controller
      */
     public function store(Request $request)
     { 
+       
+            $formuladata = $request['formuladata'];
+            foreach($formuladata as $key => $value){
+                $invoiceformula = tbl_invoice_formula::create([
+                    'first_column' => $value[0],
+                    'operation' => $value[1],
+                    'second_column' =>$value[2],
+                    'output_column' => $value[3],
+                    'company_id' => $request->company_id,
+                    'created_by' => $request->created_by,
+                ]);
+            }
+           
 
-        $validator = Validator::make($request->all(), [
-            'column_name' => 'required|string|max:50',
-            'column_type' => 'required|string|max:50',
-            'company_id' => 'required|numeric',
-            'created_by' => 'required|numeric',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ]);
-        } else {
-
-            $invoicecolumn = tbl_invoice_column::create([
-                'column_name' => $request->column_name,
-                'column_type' => $request->column_type,
-                'company_id' => $request->company_id,
-                'created_by' => $request->created_by,
-
-            ]);
-
-            if ($invoicecolumn) {
+            if ($invoiceformula) {
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Invoice Columns  succesfully added'
+                    'message' => 'Invoice Formula  succesfully added'
                 ], 200);
             } else {
                 return response()->json([
                     'status' => 500,
-                    'message' => 'Invoice Columns not succesfully added'
+                    'message' => 'Invoice Formula not succesfully added'
                 ]);
             }
-        }
+        
     }
 
     /**
@@ -91,17 +77,17 @@ class tblinvoicecolumnController extends Controller
      */
     public function show(string $id)
     {
-        $invoicecolumn = tbl_invoice_column::get()->where('company_id', $id);
-        if ($invoicecolumn->count() > 0) {
+        $invoiceformula = tbl_invoice_formula::get()->where('company_id', $id);
+        if ($invoiceformula->count() > 0) {
             return response()->json([
                 'status' => 200,
-                'invoicecolumn' => $invoicecolumn
+                'invoiceformula' => $invoiceformula
             ]);
         } else {
             return response()->json([
                 'status' => 404,
-                'invoicecolumn' => $invoicecolumn,
-                'message' => "No Such Invoice Column Found!"
+                'invoiceformula' => $invoiceformula,
+                'message' => "No Such Invoice Formula Found!"
             ]);
         }
     }
@@ -111,17 +97,17 @@ class tblinvoicecolumnController extends Controller
      */
     public function edit(string $id)
     {
-        $invoicecolumn = tbl_invoice_column::find($id);
-        if ($invoicecolumn->count() > 0) {
+        $invoiceformula = tbl_invoice_formula::find($id);
+        if ($invoiceformula->count() > 0) {
             return response()->json([
                 'status' => 200,
-                'invoicecolumn' => $invoicecolumn
+                'invoiceformula' => $invoiceformula
             ]);
         } else {
             return response()->json([
                 'status' => 404,
-                'invoicecolumn' => $invoicecolumn,
-                'message' => "No Such Invoice Column Found!"
+                'invoiceformula' => $invoiceformula,
+                'message' => "No Such Invoice Formula Found!"
             ]);
         }
     }
@@ -131,10 +117,12 @@ class tblinvoicecolumnController extends Controller
      */
     public function update(Request $request, string $id)
     { 
-
+           
         $validator = Validator::make($request->all(), [
-            'column_name' => 'required|string|max:50',
-            'column_type' => 'required|string|max:50',
+            'first_column' => 'required|string|max:50',
+            'operation' => 'required|string|max:50',
+            'second_column' => 'required|string',
+            'output_column' => 'required|string',
             'updated_by'  => 'required|numeric',
             'created_by',
             'created_at',
@@ -150,24 +138,26 @@ class tblinvoicecolumnController extends Controller
             ]);
         } else {
 
-            $invoicecolumn = tbl_invoice_column::find($id);
-            if ($invoicecolumn) {
+            $invoiceformula = tbl_invoice_formula::find($id);
+            if ($invoiceformula) {
                 date_default_timezone_set('Asia/Kolkata');
-                $invoicecolumn->update([
-                    'column_name' => $request->column_name,
-                    'column_type' => $request->column_type,
+                $invoiceformula->update([
+                    'first_column' => $request->first_column,
+                    'operation' => $request->operation,
+                    'second_column' => $request->second_column,
+                    'output_column' => $request->output_column,
                     'updated_by' => $request->updated_by,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Invoice Column succesfully updated'
+                    'message' => 'Invoice Formula succesfully updated'
                 ]);
             } else {
                 return response()->json([
                     'status' => 404,
-                    'message' => 'No Such Invoice Column Found!'
+                    'message' => 'No Such Invoice Formula Found!'
                 ]);
             }
         }
@@ -178,20 +168,20 @@ class tblinvoicecolumnController extends Controller
      */
     public function destroy(string $id)
     {
-        $invoicecolumn = tbl_invoice_column::find($id);
+        $invoiceformula = tbl_invoice_formula::find($id);
 
-        if ($invoicecolumn) {
-            $invoicecolumn->update([
+        if ($invoiceformula) {
+            $invoiceformula->update([
                 'is_deleted' => 1
             ]);
             return response()->json([
                 'status' => 200,
-                'message' => 'Invoice Column succesfully deleted'
+                'message' => 'Invoice Formula succesfully deleted'
             ]);
         } else {
             return response()->json([
                 'status' => 404,
-                'message' => 'No Such Invoice Column Found!'
+                'message' => 'No Such Invoice Formula Found!'
             ]);
         }
     }

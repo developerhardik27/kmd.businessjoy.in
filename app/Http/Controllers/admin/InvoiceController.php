@@ -40,7 +40,7 @@ class InvoiceController extends Controller
         return view('admin.managecolumn',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     public function formula(){
-        return view('admin.formula');
+        return view('admin.formula',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
    
     /**

@@ -13,6 +13,7 @@ use App\Http\Controllers\api\productController;
 use App\Http\Controllers\api\purchaseController as ApiPurchaseController;
 use App\Http\Controllers\api\stateController;
 use App\Http\Controllers\api\tblinvoicecolumnController;
+use App\Http\Controllers\api\tblinvoiceformulaController;
 use App\Http\Controllers\api\tblleadController;
 use App\Http\Controllers\api\userController;
 use App\Models\tbl_invoice_column;
@@ -168,6 +169,16 @@ Route::middleware('checkToken')->group(function () {
         Route::get('/invoicecolumn/edit/{id}', 'edit')->name('invoicecolumn.edit');
         Route::post('/invoicecolumn/update/{id}', 'update')->name('invoicecolumn.update');
         Route::put('/invoicecolumn/delete/{id}', 'destroy')->name('invoicecolumn.delete');
+    });
+    
+    // tbl_invoice_formula route 
+    Route::controller(tblinvoiceformulaController::class)->group(function () {
+        Route::get('/invoiceformula', 'index')->name('invoiceformula.index');
+        Route::post('/invoiceformula/insert', 'store')->name('invoiceformula.store');
+        Route::get('/invoiceformula/search/{id}', 'show')->name('invoiceformula.search');
+        Route::get('/invoiceformula/edit/{id}', 'edit')->name('invoiceformula.edit');
+        Route::post('/invoiceformula/update/{id}', 'update')->name('invoiceformula.update');
+        Route::put('/invoiceformula/delete/{id}', 'destroy')->name('invoiceformula.delete');
     });
 
     // lead route 
