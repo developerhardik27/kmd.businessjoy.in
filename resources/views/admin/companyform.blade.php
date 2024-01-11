@@ -118,6 +118,7 @@
                 },
                 success: function(response) {
                     if (response.status == 200 && response.country != '') {
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                         $.each(response.country, function(key, value) {
                             $('#country').append(
@@ -125,16 +126,19 @@
                             )
                         });
                     } else {
-                        $('#country').append(`<option> No Data Found</option>`)
+                        $('#country').append(`<option> No Data Found</option>`);
+                        loaderhide();
                     }
                 },
                 error: function(error) {
                     console.error('Error:', error);
+                    loaderhide();
                 }
             });
 
             // load state in dropdown when country select
             $('#country').on('change', function() {
+                loadershow();
                 var country_id = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
@@ -145,6 +149,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
+                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.state, function(key, value) {
                                 $('#state').append(
@@ -152,17 +157,20 @@
                                 )
                             });
                         } else {
-                            $('#state').append(`<option> No Data Found</option>`)
+                            $('#state').append(`<option> No Data Found</option>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
                         console.error('Error:', error);
+                        loaderhide();
                     }
                 });
             });
 
             // load city in dropdown when state select
             $('#state').on('change', function() {
+                loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state_id = $(this).val();
                 $.ajax({
@@ -173,6 +181,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
+                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.city, function(key, value) {
                                 $('#city').append(
@@ -180,11 +189,13 @@
                                 )
                             });
                         } else {
-                            $('#city').append(`<option> No Data Found</option>`)
+                            $('#city').append(`<option> No Data Found</option>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
                         console.error('Error:', error);
+                        loaderhide();
                     }
                 });
             });
@@ -192,11 +203,8 @@
             // submit form data
             $('#companyform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
-                $('#companysubmit').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 var formdata = new FormData($(this)[0]);
                 $.ajax({
                     type: 'POST',
@@ -207,15 +215,13 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.company') }}";
 
                         } else {
-                            $('#companysubmit').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                           loaderhide();
                             toastr.error(response.message);
                         }
 
@@ -227,11 +233,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#companysubmit').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                           loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

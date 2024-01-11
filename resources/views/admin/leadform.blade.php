@@ -21,7 +21,7 @@
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="email">Email:</label> 
+                    <label class="form-label" for="email">Email:</label>
                     <input type="email" class="form-control" name="email" id="email"
                         placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
@@ -38,10 +38,10 @@
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="customer_type">Customer Type:</label> 
-                    <select name="customer_type" class="form-control" id="customer_type" >
+                    <label class="form-label" for="customer_type">Customer Type:</label>
+                    <select name="customer_type" class="form-control" id="customer_type">
                         <option disabled selected>Select Customer Type</option>
-                        <option value="Global">Local</option>
+                        <option value="local">Local</option>
                         <option value="Global">Global</option>
                     </select>
                     <span class="error-msg" id="error-customer_type" style="color: red"></span>
@@ -51,7 +51,7 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <label class="form-label" for="title">Job Title:</label> 
+                    <label class="form-label" for="title">Job Title:</label>
                     <select name="title" class="form-control" id="title">
                         <option value="" disabled selected>Select Title</option>
                         <option value=" Student">Student</option>
@@ -101,15 +101,12 @@
         }
 
         $('document').ready(function() {
-
+            loaderhide();
             // submit form data
             $('#leadform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
@@ -118,17 +115,14 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.lead') }}";
 
                         } else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
-
                         }
 
                     },
@@ -139,11 +133,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                            loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

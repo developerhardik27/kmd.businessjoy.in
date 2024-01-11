@@ -76,6 +76,7 @@
             var global_response = '';
             // load data in table 
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('company.index') }}',
@@ -85,6 +86,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.company != '') {
+                            loaderhide();
                             global_response = response;
                             var id = 1;
                             $.each(response.company, function(key, value) {
@@ -135,12 +137,14 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else {
-                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
+                            loaderhide();
                         }
                         // You can update your HTML with the data here if needed
                     },
                     error: function(error) {
                         console.error('Error:', error);
+                        loaderhide();
                     }
                 });
             }
@@ -153,6 +157,7 @@
             // delete company             
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
+                    loadershow();
                     var $deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
@@ -163,6 +168,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             }
                         }

@@ -89,11 +89,13 @@
                         $('#amount_type').val(response.purchases.amount_type);
                         $('#date').val(response.purchases.date);
                         company = response.purchases.company_id;
+                        loaderhide();
                     } else {
-                        alert('Something went wrong');
+                        toastr.error('Something went wrong');
                     }
                 },
                 error: function(error) {
+                    loaderhide();
                     console.error('Error:', error);
                 }
             });
@@ -102,11 +104,8 @@
             //submit form
             $('#purchaseupdateform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 var formData =new FormData($(this)[0]);       
                 $.ajax({
                     type: 'POST',
@@ -119,15 +118,13 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.purchase') }}";
                         }  else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -137,11 +134,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                          loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

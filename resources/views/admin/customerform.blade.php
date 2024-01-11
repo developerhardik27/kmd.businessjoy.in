@@ -121,8 +121,8 @@
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
-
                     if (response.status == 200 && response.country != '') {
+                        loaderhide();
                         $.each(response.country, function(key, value) {
                             // You can update your HTML with the data here if needed
                             $('#country').append(
@@ -130,18 +130,21 @@
                             )
                         });
                     } else {
-                        $('#country').append(`<option disabled> No Data Found</option>`)
+                        loaderhide();
+                        $('#country').append(`<option disabled> No Data Found</option>`);
                     }
 
 
                 },
                 error: function(error) {
+                    loaderhide();
                     console.error('Error:', error);
                 }
             });
 
             // set state data when country select
             $('#country').on('change', function() {
+                loadershow();
                 var country_id = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
@@ -152,6 +155,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
+                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.state, function(key, value) {
                                 $('#state').append(
@@ -159,12 +163,14 @@
                                 )
                             });
                         } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`)
+                            loaderhide();
+                            $('#state').append(`<option disabled> No Data Found</option>`);
                         }
 
 
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -172,6 +178,7 @@
 
             // set city data when state select
             $('#state').on('change', function() {
+                loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state_id = $(this).val();
                 $.ajax({
@@ -182,6 +189,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
+                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.city, function(key, value) {
                                 $('#city').append(
@@ -190,12 +198,14 @@
                             });
 
                         } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`)
+                            loaderhide();
+                            $('#city').append(`<option disabled> No Data Found</option>`);
                         }
 
 
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -203,12 +213,8 @@
 
             $('#customerform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
-                $('.error-msg').text('');
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
@@ -217,16 +223,14 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.customer') }}";
 
                         } else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         }
 
                     },
@@ -237,11 +241,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                           loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

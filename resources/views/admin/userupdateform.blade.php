@@ -284,11 +284,14 @@
                         loadcountry(country);
                         loadstate(country, state);
                         loadcity(state, city);
+                     loaderhide();   
                     } else {
-                        alert('Something went wrong');
+                        loaderhide();
+                        toastr.error('Something went wrong');
                     }
                 },
                 error: function(error) {
+                    loaderhide();
                     console.error('Error:', error);
                 }
             });
@@ -376,6 +379,7 @@
 
             // show state of selected country
             $('#country').on('change', function() {
+                loadershow();
                 var country = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
@@ -392,11 +396,14 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
+                            loaderhide();
                         } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`)
+                            $('#state').append(`<option disabled> No Data Found</option>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -404,6 +411,7 @@
 
             // show city of selected state
             $('#state').on('change', function() {
+                loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
                 $.ajax({
@@ -420,7 +428,9 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 );
                             });
+                            loaderhide();
                         } else {
+                            loaderhide();
                             $('#city').append(`<option disabled>No Data Found</option>`);
                         }
                     },
@@ -432,11 +442,8 @@
             //submit form
             $('#userupdateform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
-                $('.submitBtn').hide();
-                $('.resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
@@ -446,21 +453,16 @@
                         // Handle the response from the server
                         // You can perform additional actions, such as showing a success message or redirecting the user
                         if (response.status == 200) {
+                            loaderhide();
                             toastr.success(response.message);
                             window.location = "{{ route('admin.user') }}";
 
                         } else if (response.status == 422) {
+                            loaderhide();
                             toastr.error(response.errors);
-                            $('.submitBtn').show();
-                            $('.resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         } else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('.submitBtn').show();
-                            $('.resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -470,11 +472,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('.submitBtn').show();
-                            $('.resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                           loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

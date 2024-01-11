@@ -119,12 +119,14 @@
                         var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
                             'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         $('#profile_img').append(imgElement);
-
+                       loaderhide();
                     } else {
-
+                        loaderhide();
+                        toastr.error('Something Went Wrong!');
                     }
                 },
                 error: function(error) {
+                    loaderhide();
                     console.error('Error:', error);
                 }
             });

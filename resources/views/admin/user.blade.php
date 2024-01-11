@@ -73,6 +73,7 @@
             var global_response = '';
             // fetch & show user data in table
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('user.index') }}',
@@ -140,11 +141,14 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
+                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -155,6 +159,7 @@
             //  user status update deactive              
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
+                    loadershow();
                     var statusid = $(this).data('status');
                     $.ajax({
                         type: 'put',
@@ -165,12 +170,14 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
                             } else {
+                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
                         }
@@ -181,6 +188,7 @@
             //  user status update  active            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
+                    loadershow();
                     var statusid = $(this).data('status');
                     $.ajax({
                         type: 'put',
@@ -191,12 +199,14 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
                             } else {
+                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
                         }
@@ -207,6 +217,7 @@
             // record delte 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
+                    loadershow();
                     var $deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
@@ -217,6 +228,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             }
                         }

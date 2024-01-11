@@ -182,7 +182,6 @@
                     }
                 }
             });
-
             function paidd() {
                 $('#data').html('');
                 $('#status_title').text('paid');
@@ -376,6 +375,7 @@
 
             // Call the function to fetch data and draw the initial chart
             fetchDataAndDrawChart();
+            loaderhide();
         });
     </script>
 @endpush

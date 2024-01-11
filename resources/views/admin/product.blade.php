@@ -71,6 +71,7 @@
             var global_response = '';
             // fetch & show products data in table
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('product.index') }}',
@@ -128,13 +129,16 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
+                            loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
+                            loaderhide();
                         }
 
 
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -146,6 +150,7 @@
             // delete product
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
+                    loadershow();
                     var $deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
@@ -156,6 +161,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             }
                         }

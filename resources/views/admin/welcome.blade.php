@@ -6,6 +6,11 @@
    Welcome
 @endsection
 
+<style>
+     .loader-container {
+            display: none;
+     }   
+</style>
 <div id="content-page" class="content-page">
     <div class="container-fluid">
         <div class="row">
@@ -26,5 +31,5 @@
         </div>
     </div>
 </div>
-
 @include('admin.footer')
+

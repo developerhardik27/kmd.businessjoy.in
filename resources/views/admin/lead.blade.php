@@ -157,6 +157,7 @@
             $('#advancestatus').multiselect();
 
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('lead.index') }}',
@@ -239,12 +240,15 @@
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
+                            loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='11' >No Data Found</td></tr>`)
+                            $('#data').append(`<tr><td colspan='11' >No Data Found</td></tr>`);
+                            loaderhide();
                         }
                         // You can update your HTML with the data here if needed
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -328,6 +332,7 @@
             $(document).on('change', '.status', function() {
                 var oldstatus = $(this).data('original-value');
                 if (confirm('Are you Sure That to change status  ?')) {
+                    loadershow();
                     var statusid = $(this).data('statusid');
                     var fieldid = $(this).attr('id');
                     var statusvalue = $('#' + fieldid).val();
@@ -341,6 +346,7 @@
                             token: "{{ session()->get('api_token') }}"
                         },
                         success: function(data) {
+                            loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
                             } else {
@@ -350,6 +356,7 @@
                         }
                     });
                 } else {
+                    loaderhide();
                     var fieldid = $(this).attr('id');
                     $('#' + fieldid).val(oldstatus);
                 }
@@ -359,6 +366,7 @@
             $(document).on("click", ".dltbtn", function() {
 
                 if (confirm("Are you Sure that to delete this record")) {
+                    loadershow();
                     var id = $(this).data('uid');
                     var row = this;
 
@@ -370,6 +378,7 @@
                             token: "{{ session()->get('api_token') }}"
                         },
                         success: function(data) {
+                            loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message)
                             } else {
@@ -424,6 +433,7 @@
                     loaddata();
                 }
                 if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '' ) {
+                    loadershow();
                     $.ajax({
                         type: 'GET',
                         url: '{{ route('lead.index') }}',
@@ -503,14 +513,17 @@
                                     },
                                     "destroy": true, //use for reinitialize datatable
                                 });
+                               loaderhide(); 
                             } else {
                                 $('#tabledata').html(' ');
                                 $('#data').append(
-                                    `<tr><td colspan='11' >No Data Found</td></tr>`)
+                                    `<tr><td colspan='11' >No Data Found</td></tr>`);
+                                    loaderhide();
                             }
                             // You can update your HTML with the data here if needed
                         },
                         error: function(error) {
+                            loaderhide();
                             console.error('Error:', error);
                         }
                     });

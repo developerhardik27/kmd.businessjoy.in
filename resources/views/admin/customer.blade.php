@@ -74,6 +74,7 @@
 
             // function for  get customers data and set it table
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('customer.index') }}',
@@ -83,6 +84,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.customer != '') {
+                            loaderhide();
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
@@ -142,11 +144,13 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else {
-                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
                         console.error('Error:', error);
+                        loaderhide();
                     }
                 });
             }
@@ -156,6 +160,7 @@
             //  customer status update deactive              
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
+                    loadershow();
                     var statusid = $(this).data('status');
                     $.ajax({
                         type: 'put',
@@ -166,12 +171,14 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
                             } else {
+                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
                         }
@@ -182,6 +189,7 @@
             //  customer status update  active            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
+                    loadershow();
                     var statusid = $(this).data('status');
                     $.ajax({
                         type: 'put',
@@ -192,12 +200,14 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
                             } else {
+                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
                         }
@@ -209,6 +219,7 @@
             // record delte 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
+                    loadershow();
                     var $deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
@@ -219,6 +230,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             }
                         }

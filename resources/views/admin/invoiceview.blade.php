@@ -3,6 +3,7 @@
 @endsection
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +36,6 @@
             margin: 0;
             padding: 0;
         }
-        
     </style>
 </head>
 
@@ -54,14 +54,19 @@
                             <table class="w-100 float-left">
                                 <tbody>
                                     <tr class="textblue">
-                                        <td class="font-weight-bold">{{$data['companydetails']['name']}}</td>
+                                        <td class="font-weight-bold">{{ $data['companydetails']['name'] }}</td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <span class="w-100 float-left">{{$data['companydetails']['address']}}</span>
-                                            <span class="w-100 float-left">{{$data['companydetails']['city_name']}}, {{$data['companydetails']['state_name']}}, {{$data['companydetails']['pincode']}}</span>
-                                            <span class="w-100 float-left">Email: {{$data['companydetails']['email']}}</span>
-                                            <span class="w-100 float-left">Phone: {{$data['companydetails']['contact_no']}}</span>
+                                            <span
+                                                class="w-100 float-left">{{ $data['companydetails']['address'] }}</span>
+                                            <span class="w-100 float-left">{{ $data['companydetails']['city_name'] }},
+                                                {{ $data['companydetails']['state_name'] }},
+                                                {{ $data['companydetails']['pincode'] }}</span>
+                                            <span class="w-100 float-left">Email:
+                                                {{ $data['companydetails']['email'] }}</span>
+                                            <span class="w-100 float-left">Phone:
+                                                {{ $data['companydetails']['contact_no'] }}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -72,7 +77,7 @@
                             <table class="w-100 float-right">
                                 <tr class="">
                                     <td> <img
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/'.$data['companydetails']['img']))) }}"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $data['companydetails']['img']))) }}"
                                             class="rounded mt-auto mx-auto d-block" alt="logo" height="100px"></td>
                                 </tr>
                             </table>
@@ -80,7 +85,7 @@
                         </td>
                     </tr>
 
-                    <tr >
+                    <tr>
                         <td valint='top'>
                             <table class="w-100 float-left">
                                 <tbody>
@@ -122,23 +127,23 @@
                                 </tr>
                                 <tr>
                                     <td class="font-weight-bold px-2">Holder Name</td>
-                                    <td>{{$data['bankdetails']['holder_name']}}</td>
+                                    <td>{{ $data['bankdetails']['holder_name'] }}</td>
                                 </tr>
                                 <tr>
                                     <td class="font-weight-bold px-2">A/c No</td>
-                                    <td>{{$data['bankdetails']['account_no']}}</td>
+                                    <td>{{ $data['bankdetails']['account_no'] }}</td>
                                 </tr>
                                 <tr>
                                     <td class="font-weight-bold px-2">Swift Code</td>
-                                    <td>{{$data['bankdetails']['swift_code']}}</td>
+                                    <td>{{ $data['bankdetails']['swift_code'] }}</td>
                                 </tr>
                                 <tr>
                                     <td class="font-weight-bold px-2">IFSC Code</td>
-                                    <td>{{$data['bankdetails']['ifsc_code']}}</td>
+                                    <td>{{ $data['bankdetails']['ifsc_code'] }}</td>
                                 </tr>
                                 <tr>
                                     <td class="font-weight-bold px-2">Branch Name</td>
-                                    <td>{{$data['bankdetails']['branch_name']}}
+                                    <td>{{ $data['bankdetails']['branch_name'] }}
                                     </td>
                                 </tr>
                             </table>
@@ -196,20 +201,22 @@
             </div>
         </div>
     </div>
-                <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
-                <script>
-                    $('document').ready(function() {
-                        $.ajax({
-                            type: 'GET',
-                            url: '/api/invoice/inv_details/' + {{ $id }},
-                            data:{token: "{{ session()->get('api_token') }}"},
-                            success: function(response) {
-                                if (response.status == 200 && response.invoice != '') {
-                                    // You can update your HTML with the data here if needed
-                                    var srno = 0;
-                                    $.each(response.invoice, function(key, value) {
-                                        srno++;
-                                        $('#data').append(`<tr>
+    <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
+    <script>
+        $('document').ready(function() {
+            $.ajax({
+                type: 'GET',
+                url: '/api/invoice/inv_details/' + {{ $id }},
+                data: {
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.invoice != '') {
+                        // You can update your HTML with the data here if needed
+                        var srno = 0;
+                        $.each(response.invoice, function(key, value) {
+                            srno++;
+                            $('#data').append(`<tr>
                                                     <td>${srno}</td>
                                                     <td>${value.product_name}</td>
                                                     <td>${value.item_description}</td>
@@ -218,46 +225,48 @@
                                                     <td>${value.total_amount}.00</td>
                                                     </tr>`)
 
-                                    });
-                                } else {
-                                    $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
-                                }
-                            },
-                            error: function(error) {
-                                console.error('Error:', error);
-                            }
                         });
-                        $.ajax({
-                            type: 'GET',
-                            url: '/api/invoice/' + {{ $id }},
-                            data:{token: "{{ session()->get('api_token') }}"},
-                            success: function(response) {
-                                console.log(response);
-                                if (response.status == 200 && response.invoice != '') {
-                                    $.each(response.invoice, function(key, value) {
-                                        $('#status').append(value.status);
-                                        $('#inv_date').append(value.inv_date);
-                                        $('#toname').append(`${value.firstname} ${value.lastname}`);
-                                        $('#toaddress').append(
-                                            `${value.address} <br> ${value.city_name} , ${value.state_name} , ${value.pincode} <br> ${value.email} <br> ${value.contact_no}`
-                                        );
-                                        $('#id').append(value.inv_no );
-                                        $('#invoice_date').append(value.inv_date );
-                                        $('#customer_id').append(value.cid );
-                                        $('#payment_type').append(value.payment_type);
-                                        $('#subtotal').append(value.total + '.00 Rs');
-                                        $('#gst').append(value.gst + '.00 Rs');
-                                        $('#total').append(value.grand_total + '.00 Rs');
-                                    })
+                    } else {
+                        $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/api/invoice/' + {{ $id }},
+                data: {
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status == 200 && response.invoice != '') {
+                        $.each(response.invoice, function(key, value) {
+                            $('#status').append(value.status);
+                            $('#inv_date').append(value.inv_date);
+                            $('#toname').append(`${value.firstname} ${value.lastname}`);
+                            $('#toaddress').append(
+                                `${value.address} <br> ${value.city_name} , ${value.state_name} , ${value.pincode} <br> ${value.email} <br> ${value.contact_no}`
+                            );
+                            $('#id').append(value.inv_no);
+                            $('#invoice_date').append(value.inv_date);
+                            $('#customer_id').append(value.cid);
+                            $('#payment_type').append(value.payment_type);
+                            $('#subtotal').append(value.total + '.00 Rs');
+                            $('#gst').append(value.gst + '.00 Rs');
+                            $('#total').append(value.grand_total + '.00 Rs');
+                        })
 
-                                } else {
-                                    $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
-                                }
-                            },
-                            error: function(error) {
-                                console.error('Error:', error);
-                            }
-                        });
-
-                    })
-                </script>
+                    } else {
+                        $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+            loaderhide();
+        })
+    </script>

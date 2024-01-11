@@ -182,7 +182,6 @@ class tblleadController extends Controller
         $lead = DB::table('tbllead')
             ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
             ->where('id', $id)
-            ->where('is_active', 1)
             ->get();
 
         if ($lead->count() > 0) {

@@ -73,17 +73,13 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-           
-
+           loaderhide();
             //submit form
             $('#purchaseform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
                 var formdata = new FormData($(this)[0]);
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('purchase.store') }}",
@@ -93,15 +89,13 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.purchase') }}";
                         }  else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -111,11 +105,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                            loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

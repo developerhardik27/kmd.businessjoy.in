@@ -360,9 +360,10 @@
                     console.error('Error:', error);
                 }
             });
-
+             loaderhide();
             // customer data fetch and set customer dropdown
             function customers(customerid = 0) {
+                loadershow();
                 $('#customer').html(`<option selected="" value=0 disabled=""> Select Customer</option>`);
                 $.ajax({
                     type: 'GET',
@@ -381,11 +382,14 @@
                                 )
                             });
                             $('#customer').val(customerid);
+                            loaderhide();
                         } else {
-                            $('#customer').append(`<option disabled '>No Data found </option>`)
+                            $('#customer').append(`<option disabled '>No Data found </option>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -396,6 +400,7 @@
 
             // fetch contry id from selected customer and set input value for hidden file
             $('#customer').on('change', function() {
+                loadershow();
                 var selectedOption = $(this).find('option:selected');
                 var id = $(this).val();
                 var gstno = selectedOption.data('gstno');
@@ -425,8 +430,10 @@
                                 $('#currency').val('');
                             }
                         }
+                        loaderhide();
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -456,7 +463,7 @@
                                       <td>
                                         <span class='remove-row'><button type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span>
                                       </td>
-                                     </tr>`);
+                                     </tr>`);                    
             }
 
             // function for fill value on select product 
@@ -508,7 +515,7 @@
             // call function on products select and  filldata 
             var changeid = 0; // this variable is use for check conditon when products select
             $('#products').on('change', function() {
-                
+                loadershow();
                 var product_id = $(this).val();
                 if (changeid < addname) {
                     fillvalue(product_id);
@@ -518,7 +525,7 @@
                     adddiv();
                     fillvalue(product_id);
                 }
-
+               loaderhide();
             });
 
             // total amount counting with quantity functions start
@@ -594,11 +601,8 @@
             var iteam_data = new Array();
             $('#invoiceform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
               $('.error-msg').text('');
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
 
                 var i = 0;
                 $('table tr.iteam_row').each(function() {
@@ -644,16 +648,14 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.invoice') }}";
 
                         }  else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         }
 
                     },
@@ -664,11 +666,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                           loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );
@@ -708,6 +708,7 @@
 
             // set state data when country select
             $('#modal_country').on('change', function() {
+                loadershow();
                 var country_id = $(this).val();
                 $('#modal_state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
@@ -724,13 +725,16 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
+                            loaderhide();
                         } else {
-                            $('#modal_state').append(`<option disabled> No Data Found</option>`)
+                            loaderhide();
+                            $('#modal_state').append(`<option disabled> No Data Found</option>`);
                         }
 
 
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -738,6 +742,7 @@
 
             // set city data when state select
             $('#modal_state').on('change', function() {
+                loadershow();
                 $('#modal_city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state_id = $(this).val();
                 $.ajax({
@@ -754,14 +759,16 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
-
+                            loaderhide();
                         } else {
-                            $('#modal_city').append(`<option disabled> No Data Found</option>`)
+                            $('#modal_city').append(`<option disabled> No Data Found</option>`);
+                            loaderhide();
                         }
 
 
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -771,11 +778,8 @@
             // submit new customer  form
             $('#customerform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.modal-error-msg').text('');
-                $('#modal_submitBtn').hide();
-                $('#modal_resetbtn').hide();
-                // Show the loader
-                $("#modal_loader").show();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
@@ -785,23 +789,16 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             $('#customerform')[0].reset();
-                            $('#modal_submitBtn').show();
-                            $('#modal_resetbtn').show();
-                            // Show the loader
-                            $("#modal_loader").hide();
                             $('#exampleModalScrollable').toggle();
                             $('.modal-backdrop').toggle();
-                            // document.getElementById('exampleModalScrollable').style.display = 'none';
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
                             customers(response.customerid);
+                            loaderhide();
+                            toastr.success(response.message);
 
                         } else {
                             toastr.error(response.message);
-                            $('#modal_submitBtn').show();
-                            $('#modal_resetbtn').show();
-                            // Show the loader
-                            $("#modal_loader").hide();
+                           loaderhide();
                         }
 
                     },
@@ -812,11 +809,9 @@
                             $.each(errors, function(key, value) {
                                 $('#modal-error-' + key).text(value[0]);
                             });
-                            $('#modal_submitBtn').show();
-                            $('#modal_resetbtn').show();
-                            // Show the loader
-                            $("#modal_loader").hide();
+                           loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

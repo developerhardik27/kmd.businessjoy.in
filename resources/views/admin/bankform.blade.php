@@ -67,8 +67,9 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-
-
+        
+            loaderhide();
+         
             @isset($message)
                 alert('you have not any bank account so first add bank account');
             @endisset
@@ -78,10 +79,7 @@
             $('#bankdetailform').submit(function(event) {
                 event.preventDefault();
                 $('.error-msg').text('');
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
+               loadershow();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
@@ -90,16 +88,14 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.bank') }}";
 
                         } else {
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                           loaderhide();
 
                         }
 
@@ -111,14 +107,12 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                          loaderhide();
                         } else {
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );
+                            loaderhide();
                         }
                     }
                 })

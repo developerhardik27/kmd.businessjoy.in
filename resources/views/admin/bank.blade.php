@@ -74,6 +74,7 @@
             var global_response = '';
             // load bank details data in table 
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('bank.index') }}',
@@ -84,6 +85,7 @@
                     success: function(response) {
                         if (response.status == 200 && response.bankdetail != '') {
                             global_response = response;
+                            loaderhide();
                             var id = 1;
                             $.each(response.bankdetail, function(key, value) {
                                 $('#data').append(`<tr>
@@ -120,12 +122,14 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else {
+                            loaderhide();
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
                         }
                         // You can update your HTML with the data here if needed
                     },
                     error: function(error) {
-                        console.error('Error:', error);
+                        loaderhide();
+                       toastr.error('Something Went Wrong!');
                     }
                 });
             }
@@ -136,6 +140,7 @@
             //  bank status update deactive              
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
+                    loadershow();
                     var statusid = $(this).data('status');
                     $.ajax({
                         type: 'put',
@@ -146,6 +151,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
@@ -153,6 +159,7 @@
                                 );
                             } else {
                                 toastr.error('something went wrong !');
+                                loaderhide();
                             }
                         }
                     });
@@ -162,6 +169,7 @@
             //  bank status update  active            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
+                    loadershow();
                     var statusid = $(this).data('status');
                     $.ajax({
                         type: 'put',
@@ -172,12 +180,14 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
                             } else {
+                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
                         }
@@ -188,6 +198,7 @@
             // delete bank             
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
+                    loadershow();
                     var deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
@@ -198,11 +209,12 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 toastr.success('succesfully deleted');
                                 $(row).closest("tr").fadeOut();
                             } else {
+                                loaderhide();
                                 toastr.error('something went wrong !');
-
                             }
                         }
                     });

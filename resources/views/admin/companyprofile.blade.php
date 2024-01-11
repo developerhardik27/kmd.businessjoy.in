@@ -102,6 +102,7 @@
                 },
                 success: function(response) {
                     if (response.status == 200 && response.company != '') {
+                        loaderhide();
                       var company = response.company[0] ;
                       $('#companyname').text(company.name);
                       $('#companyemail').text(company.email);
@@ -116,11 +117,13 @@
                         $('#profile_img').prepend(imgElement);
                       
                     } else {
-                       
+                        loaderhide();
+                       toastr.error('Something Went Wrong!');
                     }
                 },
                 error: function(error) {
                     console.error('Error:', error);
+                    loaderhide();
                 }
             });
         });

@@ -140,11 +140,12 @@
                         city = response.customer.city_id;
                         loadstate(country, state);
                         loadcity(state, city);
-
+                        loaderhide();
                     }
 
                 },
                 error: function(error) {
+                    loaderhide();
                     console.error('Error:', error);
                 }
             });
@@ -155,7 +156,6 @@
                 url: '{{ route('country.index') }}',
                 data:{token: "{{ session()->get('api_token') }}"},
                 success: function(response) {
-
                     if (response.status == 200 && response.country != '') {
                         // You can update your HTML with the data here if needed
                         $.each(response.country, function(key, value) {
@@ -165,7 +165,7 @@
                         });
                         $('#country').val(country);
                     } else {
-                        $('#country').append(`<option disabled> No Data Found</option>`)
+                        $('#country').append(`<option disabled> No Data Found</option>`);
                     }
 
 
@@ -189,7 +189,7 @@
                                     )
                             });
                         } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`)
+                            $('#state').append(`<option disabled> No Data Found</option>`);
                         }
                         $('#state').val(state);
 
@@ -216,7 +216,7 @@
                                 )
                             });
                         } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`)
+                            $('#city').append(`<option disabled> No Data Found</option>`);
                         }
                         $('#city').val(city);
                     },
@@ -229,6 +229,7 @@
 
             // load state data of selected country when country change
             $('#country').on('change', function() {
+                loadershow();
                 // var country = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
@@ -237,6 +238,7 @@
                     data:{token: "{{ session()->get('api_token') }}"},
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
+                            loaderhide();
                             // You can update your HTML with the data here if needed
                              $.each(response.state,function(key,value){
                                 $('#state').append(
@@ -244,12 +246,14 @@
                                 )
                              })
                         } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`)
+                            loaderhide();
+                            $('#state').append(`<option disabled> No Data Found</option>`);
                         }
 
 
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -257,6 +261,7 @@
             
             // load city data of selected state when state change
             $('#state').on('change', function() {
+                loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
                 $.ajax({
@@ -265,6 +270,7 @@
                     data:{token: "{{ session()->get('api_token') }}"},
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
+                            loaderhide();
                             $.each(response.city, function(key, value) {
                                 $('#city').append(
                                     `<option value='${value.id}'> ${value.city_name}</option>`
@@ -273,13 +279,15 @@
                             });
                         }
                         else {
-                            $('#city').append(`<option disabled> No Data Found</option>`)
+                            loaderhide();
+                            $('#city').append(`<option disabled> No Data Found</option>`);
                         }
 
 
                         // You can update your HTML with the data here if needed
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -288,11 +296,8 @@
             // subimt form
             $('#customerupdateform').submit(function(event) {
                 event.preventDefault();
+                loadershow();
                 $('.error-msg').text('');
-                $('#submitBtn').hide();
-                $('#resetbtn').hide();
-                // Show the loader
-                $("#loader").show();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'put',
@@ -301,16 +306,14 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.customer') }}";
 
                         } else {
+                            loaderhide();
                             toastr.error(response.message);
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -320,11 +323,9 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            $('#submitBtn').show();
-                            $('#resetbtn').show();
-                            // Show the loader
-                            $("#loader").hide();
+                          loaderhide();
                         } else {
+                            loaderhide();
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'
                             );

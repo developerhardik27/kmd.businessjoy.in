@@ -127,53 +127,7 @@
                 <td colspan="2"></td>
                 <td colspan="2" valign=bottom style="text-align: center"> signature</td>
             </tr> 
-             {{-- <tr>
-                 <td style="text-align: ">Payment Date:{{ $payment['created_at'] }} <br></td>
-                 <td colspan="">
-                     Payment Received from:- <input type="text" value='{{ $payment['paid_by'] }}'
-                         class="bottom-border-input" style="width: 33%">of Rs. <input type="text" style="width: 33%"
-                         value='{{ $invdata['grand_total'] }}.00/-' class="bottom-border-input"><br>
-                 </td>
-             </tr>
-             <tr>
-                 <td colspan="">
-                     for:-
-                     <input type="text" class="bottom-border-input" style="width:92%"
-                         value = 'Invoice No:-{{ $invdata['inv_no'] }}'><br>
-                 </td>
-             </tr>
-             <tr>
-                 <td colspan="">
-                     Payment Received in:- <input type="text" class="bottom-border-input" style="width:76%"
-                         value = '{{ $payment['paid_type'] }}'><br>
-                 </td>
-             </tr>
-             <tr>
-                 <td>Payment Details:
-                     <table width='100%' border="1px solid" cellspacing=0 cellpadding=0>
-                         <tr>
-                             <td>Invoice Amount</td>
-                             <td>{{ $invdata['grand_total'] }}.00 Rs</td>
-                         </tr>
-                         <tr>
-                             <td>Paid Amount</td>
-                             <td>{{ $invdata['grand_total'] }}.00 Rs</td>
-                         </tr>
-                         <tr>
-                             <td>Pending Amout</td>
-                             <td>0</td>
-                         </tr>
-                     </table>
-                 </td>
-                 <td style="text-align: center" colspan="2">
-                     <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/logo.png'))) }}"
-                         class="rounded mt-auto mx-auto d-block" alt="logo" height="100px"><br>
-                 </td>
-             </tr>
-             <tr>
-                 <td></td>
-                 <td colspan="2" valign=bottom style="text-align: center"> signature</td>
-             </tr> --}}
+            
          </table>
      </div>
  </body>

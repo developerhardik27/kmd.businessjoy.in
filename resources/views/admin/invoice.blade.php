@@ -159,6 +159,7 @@
             var global_response = '';
             // function for  get customers data and set it table
             function loaddata() {
+                loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('invoice.inv_list') }}',
@@ -244,12 +245,14 @@
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
-
+                           loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
+                        loaderhide();
                         console.error('Error:', error);
                     }
                 });
@@ -261,6 +264,7 @@
             // record delte 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
+                    loadershow();
                     var $deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
@@ -271,6 +275,7 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
+                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             }
                         }
@@ -295,6 +300,7 @@
             });
             //status change function
             function statuschange(id, value) {
+                loadershow();
                 $.ajax({
                     type: 'put',
                     url: '/api/inv_status/' + id,
@@ -309,14 +315,18 @@
                                 $('#reciept_' + id).append(
                                     `<a href='/admin/generatereceipt/${id}'><button  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >download</button></a>`
                                 );
+                                loaderhide();
                             } else {
                                 $('#reciept_' + id).html('');
+                                loaderhide();
                             }
                         } else {
-                            toastr.error('Status not Updated')
+                            loaderhide();
+                            toastr.error('Status not Updated');
                         }
                     },
                     error: function(error) {
+                        loaderhide();
                         // Handle errors here
                         console.error('Error:', error);
                     }
@@ -336,6 +346,7 @@
                         $('#paymentform').submit(function(event) {
                             $('#modal_error-msg').text('');
                             event.preventDefault();
+                            loadershow();
                             const formdata = $(this).serialize();
                             $.ajax({
                                 type: 'POST',
@@ -347,7 +358,9 @@
                                         statuschange(statusid, status);
                                         document.getElementById("paymentform").reset();
                                         $("#myModal").css("display", "none");
+                                        loaderhide();
                                     } else {
+                                        loaderhide();
                                         toastr.error(response.message);
                                     }
                                 },
@@ -359,7 +372,9 @@
                                             $('#error-' + key).text(value[
                                                 0]);
                                         });
+                                        loaderhide();
                                     } else {
+                                        loaderhide();
                                         toastr.error(
                                             'An error occurred while processing your request. Please try again later.'
                                         );
@@ -372,6 +387,7 @@
                     }
                 } else {
                     statuschange(statusid, status);
+                    loaderhide();
                 }
             });
 
