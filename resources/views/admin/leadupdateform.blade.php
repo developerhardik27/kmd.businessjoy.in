@@ -16,14 +16,13 @@
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <label class="form-label" for="name">Name:</label>
-                    <input type="text"  class="form-control" name="name" id="name" placeholder="Name"
-                        required />
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Name" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="email">Email:</label>
-                    <input type="email"  class="form-control" name="email" id="email"
-                        placeholder="Professional Email"  />
+                    <input type="email" class="form-control" name="email" id="email"
+                        placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -32,22 +31,22 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="contact_no">Mobile Number:</label>
-                    <input type="text"  class="form-control" name="contact_no" id="contact_no"
+                    <input type="text" class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" maxlength="13" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="title">Job Title:</label>
-                    <select name="title" class="form-control" id="modal_title" >
+                    <select name="title" class="form-control" id="title">
                         <option disabled selected>Select Title</option>
                         <option value="Student">Student</option>
                         <option value="Employee">Employee</option>
                         <option value="Manager">Manager</option>
                         <option value="Business Owner">Business Owner</option>
                         <option value="Self Employeed">Self Employeed</option>
-                        <option value=" Other"> Other</option>
+                        <option value="Other"> Other</option>
                     </select>
-                    <span class="error-title" id="error-price_per_unit" style="color: red"></span>
+                    <span class="error-msg" id="error-title" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -55,17 +54,17 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="budget">Budget:</label>
-                    <select name="budget" class="form-control" id="budget" >
+                    <select name="budget" class="form-control" id="budget">
                         <option value="" disabled selected>Select Your Budget</option>
                         <option value="10000-20000">10000 To 20000</option>
                         <option value="20000-30000">20000 To 30000</option>
                         <option value="greater than 30000">Greater Than 30000</option>
                     </select>
-                    <span class="error-budget" id="error-description" style="color: red"></span>
+                    <span class="error-msg" id="error-budget" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="status">Status:</label>
-                    <select name="status" class="form-control" id="status" >
+                    <select name="status" class="form-control" id="status">
                         <option value="" disabled selected>Status</option>
                         <option value='Not Interested'>Not Interested</option>
                         <option value='Not Receiving'>Not Receiving</option>
@@ -77,12 +76,10 @@
                         <option value='Wrong Number'>Wrong Number</option>
                         <option value='By Mistake'>By Mistake</option>
                         <option value='Positive'>Positive</option>
-                        <option value='Rejected'>Rejected</option>
-                        <option value='Sale'>Sale</option>
                         <option value='Busy'>Busy</option>
                         <option value='Call Back'>Call Back</option>
                     </select>
-                    <span class="error-status" id="error-description" style="color: red"></span>
+                    <span class="error-msg" id="error-status" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -90,17 +87,16 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="audience_type">Audience Type:</label>
-                    <input type="text"  class="form-control" name="audience_type" id="audience_type"
+                    <input type="text" class="form-control" name="audience_type" id="audience_type"
                         placeholder="Audience Type" />
                     <span class="error-msg" id="error-audience_type" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="customer_type">Customer Type:</label>
-                    <select  class="form-control" name="customer_type" id="customer_type"
-                        placeholder="Customer Type" >
+                    <select class="form-control" name="customer_type" id="customer_type" placeholder="Customer Type">
                         <option value="Global">Global</option>
                         <option value="local">Local</option>
-                    </select>    
+                    </select>
                     <span class="error-msg" id="error-customer_type" style="color: red"></span>
                 </div>
             </div>
@@ -125,14 +121,14 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="no_of_follow_up">Number Of Follow Up:</label>
-                    <input type="number" class="form-control" value="0" name="number_of_follow_up" min="0" max="10" id="no_of_follow_up">
-                    <span class="error-number_of_follow_up" id="error-description" style="color: red"></span>
+                    <input type="number" class="form-control" value="0" name="number_of_follow_up" min="0"
+                        max="10" id="no_of_follow_up">
+                    <span class="error-msg" id="error-number_of_follow_up" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="source">Source:</label>
-                    <input type="text" class="form-control" name="source" id="source" placeholder="source"
-                         />
-                    <span class="error-source" id="error-description" style="color: red"></span>
+                    <input type="text" class="form-control" name="source" id="source" placeholder="source" />
+                    <span class="error-msg" id="error-source" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -141,7 +137,7 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="created_at">Created At:</label>
                     <input type="datetime" readonly class="form-control" name="created_at" id="created_at"
-                        placeholder="Created at"  />
+                        placeholder="Created at" />
                     <span class="error-msg" id="error-created_at" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -154,12 +150,19 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6 mt-4">
-                    <label class="form-label" for="is_active">Qualified:</label>
-                    <input type="checkbox" value="1" class="form-control-checkbox" name="is_active" id="is_active" />
-                    <span class="error-msg" id="error-is_active" style="color: red"></span>
+                <div class="col-sm-6">
+                    <label class="form-label" for="leadstage">Lead Stage:</label>
+                    <select name="leadstage" class="form-control" id="leadstage">
+                        <option value="" disabled selected>LeadStage</option>
+                        <option value='New Lead'>New Lead</option>
+                        <option value='Requirement Ghathering'>Requirement Ghathering</option>
+                        <option value='Quotation'>Quotation</option>
+                        <option value='Sale'>Sale</option>
+                        <option value='Cancelled'>Cancelled</option>
+                        <option value='Disqualified'>Disqualified</option>
+                    </select>
+                    <span class="error-msg" id="error-leadstage" style="color: red"></span>
                 </div>
-                
                 <div class="col-sm-6">
                     <label class="form-label" for="ip">Ip:</label>
                     <input type="text" readonly class="form-control" name="ip" id="ip"
@@ -175,13 +178,11 @@
                     <textarea name="notes" placeholder="notes" class="form-control" id="notes" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-notes" style="color: red"></span>
                 </div>
-                
             </div>
         </div>
         <div class="button-container">
             <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
+            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Cancel</button>
         </div>
     </form>
 @endsection
@@ -189,6 +190,12 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            
+            $('#resetbtn').on('click', function() {
+                loadershow();
+                window.location.href = "{{ route('admin.lead') }}";
+            })
+
             var edit_id = @json($edit_id);
             // show old data in fields
             $.ajax({
@@ -198,7 +205,7 @@
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
-                     data = response.lead[0]
+                    data = response.lead[0]
                     if (response.status == 200) {
                         // You can update your HTML with the data here if needed
                         $('#name').val(data.name);
@@ -213,13 +220,13 @@
                         $('#next_follow_up').val(data.next_follow_up);
                         $('#no_of_follow_up').val(data.number_of_follow_up);
                         $('#notes').val(data.notes);
+                        $('#leadstage').val(data.lead_stage);
                         $('#created_at').val(data.created_at_formatted);
                         $('#updated_at').val(data.updated_at_formatted);
                         $('#source').val(data.source);
                         $('#ip').val(data.ip);
-                        (data.is_active == 1) ?  $('#is_active').attr('checked',true) : $('#is_active').attr('checked',false) ;
                     }
-                  loaderhide();
+                    loaderhide();
                 },
                 error: function(error) {
                     loaderhide();
@@ -258,7 +265,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

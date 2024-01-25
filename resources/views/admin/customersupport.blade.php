@@ -1,14 +1,14 @@
 @extends('admin.mastertable')
 
 @section('page_title')
-    Lead
+    Customer Support
 @endsection
 @section('table_title')
-    Lead
+    Customer Support
 @endsection
 
 @section('style')
-    {{-- lead style --}}
+    {{-- customersupport style --}}
     <style>
         .ui-widget-header {
             background: #1518b117 !important;
@@ -128,25 +128,9 @@
     <div id="mySidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <div class="row p-3">
-            <div class="col-md-12" id="assignedtodiv">
-                <label for="assignedto" class="form-label float-left ">Assigned To:</label>
-                <select name="assignedto" class="form-control multiple" id="assignedto" multiple>
-                    <option value="" disabled selected>User</option>
-                </select>
-            </div>
-            <div class="col-md-12 mt-3" id="sourcecolumndiv">
-                <label for="source" class="form-label float-left ">Source:</label>
-                <select name="source" class="form-control multiple" id="source" multiple>
-                    <option value="" disabled selected>Source</option>
-                </select>
-            </div>
             <div class="col-md-12">
-                <label for="last_followup" class="form-label float-left  ">Last FollowUp:</label>
-                <input type="date" id="last_followup" class="form-input form-control  ">
-            </div>
-            <div class="col-md-12">
-                <label for="next_followup" class="form-label float-left ">Next FollowUp:</label>
-                <input type="date" id="next_followup" class="form-input form-control ">
+                <label for="last_call" class="form-label float-left  ">Last Call:</label>
+                <input type="date" id="last_call" class="form-input form-control  ">
             </div>
             <div class="col-md-12">
                 <label for="fromdate" class="form-label float-left ">From:</label>
@@ -164,36 +148,12 @@
         </div>
     </div>
     <div class="col-md-12 text-right pr-5">
-        <input type="radio" class="is_active advancefilter" id="qualified" name="status" value="1">
-        <label for="qualified">Qualified</label>
-        <input type="radio" class="is_active advancefilter" id="disqualified" name="status" value="0">
-        <label for="disqualified">Disqualified</label>
-        <input type="radio" class="is_active advancefilter" value="all" checked id="all" name="status">
-        <label for="all">All</label>
         <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
-            <option disabled selected>-- status --</option>
-            <option value='Not Interested'>Not Interested</option>
-            <option value='Not Receiving'>Not Receiving</option>
-            <option value='New Lead'>New Lead</option>
-            <option value='Interested'>Interested</option>
-            <option value='Switch Off'>Switch Off</option>
-            <option value='Does Not Exist'>Does Not Exist</option>
-            <option value='Email Sent'>Email Sent</option>
-            <option value='Wrong Number'>Wrong Number</option>
-            <option value='By Mistake'>By Mistake</option>
-            <option value='Positive'>Positive</option>
-            <option value='Busy'>Busy</option>
-            <option value='Call Back'>Call Back</option>
-        </select>
-        <select class="advancefilter multiple form-control w-100" id="leadstagestatus" multiple="multiple">
-            <option disabled selected>-- Lead Stage --</option>
-            <option value='New Lead'>New Lead</option>
-            <option value='Requirement Ghathering'>Requirement Ghathering</option>
-            <option value='Quotation'>Quotation</option>
-            <option value='In Followup'>In Followup</option>
-            <option value='Sale'>Sale</option>
+            <option disabled selected>status</option>
+            <option value='Open'>Open</option>
+            <option value='In Progress'>In Progress</option>
+            <option value='Resolved'>Resolved</option>
             <option value='Cancelled'>Cancelled</option>
-            <option value='Disqualified'>Disqualified</option>
         </select>
         <!-- Use any element to open the sidenav -->
         <button title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
@@ -204,13 +164,13 @@
         </button>
     </div>
 
-    @if (session('user_permissions.leadmodule.lead.add') === '1')
+    @if (session('user_permissions.customersupportmodule.customersupport.add') === '1')
         @section('addnew')
-            {{ route('admin.addlead') }}
+            {{ route('admin.addcustomersupport') }}
         @endsection
         @section('addnewbutton')
             <button title="Add Lead" class="btn btn-sm btn-primary">
-                <span class="">+ Lead</span>
+                <span class="">+ Ticket</span>
             </button>
         @endsection
     @endif
@@ -225,11 +185,11 @@
             <tr>
                 <th>Sr.</th>
                 <th>Details</th>
-                <th>Lead Stage</th>
+                <th>Complain Desc.</th>
+                <th>Status</th>
                 <th>&nbsp;&nbsp;&nbsp;History&nbsp;&nbsp;&nbsp;</th>
-                <th>createdat</th>
-                <th>followup</th>
-                <th>Source</th>
+                <th>createdon</th>
+                <th>no.of calls</th>
                 <th>&nbsp;&nbsp;&nbsp;Action&nbsp;&nbsp;&nbsp;</th>
             </tr>
         </thead>
@@ -249,11 +209,11 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="leadhistoryform">
+                <form id="customersupporthistoryform">
                     <div class="modal-body">
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
-                            <input type="hidden" name="leadid" id="leadid">
+                            <input type="hidden" name="csid" id="csid">
                             <input type="hidden" name="created_by" id="created_by">
                             <input type="hidden" name="token" id="token">
                             <div class="col-12">
@@ -264,25 +224,18 @@
                             <br />
                             <div class="col-12">
                                 Notes:
-                                <textarea name="history_notes" id="history_notes" cols="10" rows="1" class="form-control"></textarea>
+                                <textarea name="history_notes" id="history_notes" cols="10" rows="5" class="form-control"></textarea>
                                 <span class="error-msg" id="error-history_notes" style="color: red"></span>
                             </div>
                             <br />
                             <div class="col-12">
                                 Status:
                                 <select class="form-control" id="call_status" name="call_status">
-                                    <option value='Not Interested'>Not Interested</option>
-                                    <option value='Not Receiving'>Not Receiving</option>
-                                    <option value='New Lead'>New Lead</option>
-                                    <option value='Interested'>Interested</option>
-                                    <option value='Switch Off'>Switch Off</option>
-                                    <option value='Does Not Exist'>Does Not Exist</option>
-                                    <option value='Email Sent'>Email Sent</option>
-                                    <option value='Wrong Number'>Wrong Number</option>
-                                    <option value='By Mistake'>By Mistake</option>
-                                    <option value='Positive'>Positive</option>
-                                    <option value='Busy'>Busy</option>
-                                    <option value='Call Back'>Call Back</option>
+                                    <option disabled selected>status</option>
+                                    <option value='Open'>Open</option>
+                                    <option value='In Progress'>In Progress</option>
+                                    <option value='Resolved'>Resolved</option>
+                                    <option value='Cancelled'>Cancelled</option>
                                 </select>
                                 <span class="error-msg" id="error-call_status" style="color: red"></span>
                             </div>
@@ -345,9 +298,7 @@
                     if (value != ' ') {
                         $('#' + key).val(value);
                     }
-                    if (key === 'activestatusvalue') {
-                        $('input[name="status"][value="' + value + '"]').prop('checked', true);
-                    }
+                    
                 });
                 advancefilters();
                 sessionStorage.removeItem('filterData');
@@ -355,81 +306,26 @@
                 loaddata();
             }
 
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('user.index') }}',
-                data: {
-                    user_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.user != '') {
-                        // You can update your HTML with the data here if needed     
-                        $.each(response.user, function(key, value) {
-                            var optionValue = value.firstname + ' ' + value .lastname;
-                            $('#assignedto').append(
-                                `<option value="${optionValue}">${optionValue}</option>`);
-                        });
-                        $('#assignedto').multiselect('rebuild'); // Rebuild multiselect after appending options
-                        loaderhide();
-                    } else {
-                        $('#assignedto').append(`<option> No User Found </option>`);
-                        loaderhide();
-                    }
-                },
-                error: function(error) {
-                    loaderhide();
-                    console.error('Error:', error);
-                }
-            });
 
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('lead.sourcecolumn') }}',
-                data: {
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.sourcecolumn != '') {
-                        console.log(response.sourcecolumn);
-                        // You can update your HTML with the data here if needed     
-                        $.each(response.sourcecolumn, function(key, value) {
-                            var optionValue = value
-                            $('#source').append(
-                                `<option value="${optionValue}">${optionValue}</option>`);
-                        });
-                        $('#source').multiselect('rebuild'); // Rebuild multiselect after appending options
-                        loaderhide();
-                    } else {
-                        $('#source').append(`<option> No User Found </option>`);
-                        loaderhide();
-                    }
-                },
-                error: function(error) {
-                    loaderhide();
-                    console.error('Error:', error);
-                }
-            });
             var global_response = '';
             $('#advancestatus').multiselect();
-            $('#leadstagestatus').multiselect();
 
             function loaddata() {
                 loadershow();
                 $.ajax({
                     type: 'GET',
-                    url: '{{ route('lead.index') }}',
+                    url: '{{ route('customersupport.index') }}',
                     data: {
                         user_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 && response.lead != '') {
+                        if (response.status == 200 && response.customersupport != '') {
                             $('#data').DataTable().destroy();
                             $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
-                            $.each(response.lead, function(key, value) {
+                            $.each(response.customersupport, function(key, value) {
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
@@ -445,66 +341,46 @@
                                                         <span>
                                                             <b>Contact:</b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                        </span>  
+                                                    </td>
+                                                    <td title="${value.notes}" >
+                                                        <span  class="d-inline-block text-truncate" style="max-width: 150px;">
+                                                        ${value.notes}
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Title:</b> ${value.title === null ? '-':value.title}
-                                                        </span>
-                                                        <br/>    
-                                                        <span>
-                                                            <b>Status:</b> 
-                                                             @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                <option value='Not Interested'>Not Interested</option>
-                                                                <option value='Not Receiving'>Not Receiving</option>
-                                                                <option value='New Lead'>New Lead</option>
-                                                                <option value='Interested'>Interested</option>
-                                                                <option value='Switch Off'>Switch Off</option>
-                                                                <option value='Does Not Exist'>Does Not Exist</option>
-                                                                <option value='Email Sent'>Email Sent</option>
-                                                                <option value='Wrong Number'>Wrong Number</option>
-                                                                <option value='By Mistake'>By Mistake</option>
-                                                                <option value='Positive'>Positive</option>
-                                                                <option value='Busy'>Busy</option>
-                                                                <option value='Call Back'>Call Back</option>
+                                                                <option disabled selected>status</option>
+                                                                <option value='Open'>Open</option>
+                                                                <option value='In Progress'>In Progress</option>
+                                                                <option value='Resolved'>Resolved</option>
+                                                                <option value='Cancelled'>Cancelled</option>
                                                             </select>
                                                        @else
                                                          -
                                                        @endif
-                                                        </span>    
                                                     </td>
-                                                    <td> 
-                                                        <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid=${value.id} id="lead_stage_${value.id}" name="lead_stage_${value.id}">
-                                                            <option value='New Lead'>New Lead</option>
-                                                            <option value='Requirement Ghathering'>Requirement Ghathering</option>
-                                                            <option value='Quotation'>Quotation</option>
-                                                            <option value='In Followup'>In Followup</option>
-                                                            <option value='Sale'>Sale</option>
-                                                            <option value='Cancelled'>Cancelled</option>
-                                                            <option value='Disqualified'>Disqualified</option>
-                                                        </select>
-                                                    </td>    
                                                     <td>
-                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary leadid' ><i class='ri-time-fill'></i></button>
+                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button>
                                                         <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button>
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
-                                                    <td>${value.number_of_follow_up}</td>
-                                                    <td>${value.source}</td>
+                                                    <td>${value.number_of_call}</td>
                                                     <td>
                                                         <span>
                                                             <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
                                                             <span>
                                                                  <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
-                                                        @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') === '1')
                                                             <span>
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
                                                                     <i class="ri-delete-bin-fill"></i>
@@ -514,7 +390,6 @@
                                                     </td>    
                                                 </tr>`)
                                 $('#status_' + value.id).val(value.status);
-                                $('#lead_stage_' + value.id).val(value.lead_stage);
                                 id++;
                             });
                             var search = {!! json_encode($search) !!}
@@ -528,7 +403,7 @@
                             });
                             loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='11' >No Data Found</td></tr>`);
+                            $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
                             loaderhide();
                         }
                         // You can update your HTML with the data here if needed
@@ -548,69 +423,44 @@
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.lead, function(key, lead) {
-                    if (lead.id == data) {
-
+                $.each(global_response.customersupport, function(key, ticket) {
+                    if (ticket.id == data) {
                         $('#details').append(`
                                                 <tr> 
+                                                    <td>Ticket Number</td>
+                                                    <th>${ticket.ticket}</th>
+                                                </tr> 
+                                                <tr> 
                                                     <td>name</td>
-                                                    <th>${lead.name}</th>
+                                                    <th>${ticket.name}</th>
                                                 </tr> 
                                                 <tr>
                                                     <td>email</td>
-                                                    <th>${lead.email}</th>
+                                                    <th>${ticket.email}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>contact Number</td>
-                                                    <th>${lead.contact_no}</th>
-                                                    </tr>
-                                                <tr>
-                                                    <td>Title</td>
-                                                    <th>${lead.title}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Budget</td>
-                                                    <th>${lead.budget}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Audience Type</td>
-                                                    <th>${lead.audience_type}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Customer Type</td>
-                                                    <th>${lead.customer_type}</th>
+                                                    <th>${ticket.contact_no}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Status</td>
-                                                    <th>${lead.status}</th>
+                                                    <th>${ticket.status}</th>
                                                 </tr>
                                                 <tr>
-                                                    <td>Last Follow Up</td>
-                                                    <th>${lead.last_follow_up}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Next Follow Up</td>
-                                                    <th>${lead.next_follow_up}</th>
+                                                    <td>Last Call</td>
+                                                    <th>${ticket.last_call}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Follow up</td>
-                                                    <th>${lead.number_of_follow_up}</th>
+                                                    <th>${ticket.number_of_call}</th>
                                                 </tr>
                                                <tr>
                                                     <td>Created On</td>
-                                                    <th>${lead.created_at_formatted}</th>
+                                                    <th>${ticket.created_at_formatted}</th>
                                                 </tr>
-                                                <tr> 
-                                                    <td>Assigned To</td>
-                                                    <th>${lead.assigned_to}</th>
-                                                <tr>
-                                                <tr> 
-                                                    <td>Source</td>
-                                                    <th>${lead.source}</th>
-                                                <tr>
                                                 <tr>
                                                     <td >Notes</td>
-                                                    <th class='text-wrap'>${lead.notes}</th>
+                                                    <th class='text-wrap'>${ticket.notes}</th>
                                                 </tr>
                      `);
                     }
@@ -627,7 +477,7 @@
                     $(this).data('original-value', statusvalue);
                     $.ajax({
                         type: 'PUT',
-                        url: "{{ route('lead.changestatus') }}",
+                        url: "{{ route('customersupport.changestatus') }}",
                         data: {
                             statusid: statusid,
                             statusvalue: statusvalue,
@@ -649,67 +499,26 @@
                     $('#' + fieldid).val(oldstatus);
                 }
             })
-            $(document).on('change', '.leadstage', function() {
-                var oldstatus = $(this).data('original-value');
-                if (confirm('Are you Sure That to change lead stage status  ?')) {
-                    loadershow();
-                    var leadstageid = $(this).data('leadstageid');
-                    var fieldid = $(this).attr('id');
-                    var leadstagevalue = $('#' + fieldid).val();
-                    $(this).data('original-value', leadstagevalue);
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('lead.changeleadstage')}}",
-                        data: {
-                            leadstageid,
-                            leadstagevalue,
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message);
-                            } else {
-                                toastr.success(data.message);
-                                advancefilters();
-                            }
-                        }
-                    });
-                } else {
-                    loaderhide();
-                    var leadstageid = $(this).attr('id');
-                    $('#' + leadstageid).val(oldstatus);
-                }
-            })
             $(document).on("click", '.editbtn', function() {
                 editid = $(this).data('id');
                 // loadershow();
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
-                assignedto = $('#assignedto').val();
-                source = $('#source').val();
-                leadstagestatus = $('#leadstagestatus').val();
-                last_followup = $('#last_followup').val();
-                next_followup = $('#next_followup').val();
-                activestatusvalue = $('input[name="status"]:checked').val();
+                last_call = $('#last_call').val();
+              
 
                 data = {
                     fromdate,
                     todate,
                     advancestatus,
-                    assignedto,
-                    source,
-                    leadstagestatus,
-                    last_followup,
-                    next_followup,
-                    activestatusvalue
+                    last_call,
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
                 // console.log(data);
-                window.location.href = "EditLead/" + editid;
+                window.location.href = "Editcustomersupport/" + editid;
             });
 
             $(document).on("click", ".dltbtn", function() {
@@ -720,7 +529,7 @@
                     var row = this;
 
                     $.ajax({
-                        url: "{{ route('lead.delete') }}",
+                        url: "{{ route('customersupport.delete') }}",
                         type: 'PUT',
                         data: {
                             id: id,
@@ -744,12 +553,7 @@
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
-                assignedto = $('#assignedto').val();
-                source = $('#source').val();
-                leadstagestatus = $('#leadstagestatus').val();
-                LastFollowUpDate = $('#last_followup').val();
-                NextFollowUpDate = $('#next_followup').val();
-                activestatusvalue = $('input[name="status"]:checked').val();
+                LastCall = $('#last_call').val();
                 var fromDate = new Date(fromdate);
                 var toDate = new Date(todate);
 
@@ -770,46 +574,30 @@
                 if (advancestatus != '') {
                     data.status = advancestatus;
                 }
-                if (assignedto != '') {
-                    data.assignedto = assignedto;
+                if (LastCall != '') {
+                    data.lastcall = LastCall;
                 }
-                if (source != '') {
-                    data.source = source;
-                }
-                if (leadstagestatus != '') {
-                    data.leadstagestatus = leadstagestatus;
-                }
-                if (LastFollowUpDate != '') {
-                    data.lastfollowupdate = LastFollowUpDate;
-                }
-                if (NextFollowUpDate != '') {
-                    data.nextfollowupdate = NextFollowUpDate;
-                }
-                if (activestatusvalue != '') {
-                    data.activestatusvalue = activestatusvalue;
-                }
-
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && source == '' && leadstagestatus == '' && LastFollowUpDate == '' &&
-                    NextFollowUpDate == '' && activestatusvalue == '') {
+               
+                if (fromdate == '' && todate == '' && advancestatus == '' && LastCall == '') {
                     loaddata();
                 }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto != '' || source != '' || leadstagestatus != '' ||
-                    LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '') {
+                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' ||
+                    LastCall != '' ) {
                     loadershow();
                     $.ajax({
                         type: 'GET',
-                        url: '{{ route('lead.index') }}',
+                        url: '{{ route('customersupport.index') }}',
                         data: data,
                         success: function(response) {
-                            if (response.status == 200 && response.lead != '') {
+                            if (response.status == 200 && response.customersupport != '') {
                                 $('#data').DataTable().destroy();
                                 $('#tabledata').empty();
                                 global_response = response;
                                 var id = 1;
-                                $.each(response.lead, function(key, value) {
+                                $.each(response.customersupport, function(key, value) {
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
-                                                    <td class="text-left" >
+                                                    <td class="text-left" title="${value.notes}" >
                                                         <span style="cursor:pointer;" class="view-btn" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable">
                                                             <b>Name:</b> ${value.name}
                                                         </span>
@@ -822,66 +610,47 @@
                                                         <span>
                                                             <b>Contact:</b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                        </span>   
+                                                    </td> 
+                                                    <td title="${value.notes}" >
+                                                        <span  class="d-inline-block text-truncate" style="max-width: 150px;">
+                                                        ${value.notes}
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Title:</b> ${value.title === null ? '-':value.title}
-                                                        </span> 
-                                                        <br/>    
-                                                        <span>
-                                                            <b>Status:</b> @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                <option value='Not Interested'>Not Interested</option>
-                                                                <option value='Not Receiving'>Not Receiving</option>
-                                                                <option value='New Lead'>New Lead</option>
-                                                                <option value='Interested'>Interested</option>
-                                                                <option value='Switch Off'>Switch Off</option>
-                                                                <option value='Does Not Exist'>Does Not Exist</option>
-                                                                <option value='Email Sent'>Email Sent</option>
-                                                                <option value='Wrong Number'>Wrong Number</option>
-                                                                <option value='By Mistake'>By Mistake</option>
-                                                                <option value='Positive'>Positive</option>
-                                                                <option value='Busy'>Busy</option>
-                                                                <option value='Call Back'>Call Back</option>
+                                                                <option disabled selected>status</option>
+                                                                <option value='Open'>Open</option>
+                                                                <option value='In Progress'>In Progress</option>
+                                                                <option value='Resolved'>Resolved</option>
+                                                                <option value='Cancelled'>Cancelled</option>
                                                             </select>
                                                        @else
                                                          -
                                                        @endif
-                                                        </span>    
                                                     </td>
                                                     <td>
-                                                        <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid=${value.id} id="lead_stage_${value.id}" name="lead_stage_${value.id}">
-                                                            <option value='New Lead'>New Lead</option>
-                                                            <option value='Requirement Ghathering'>Requirement Ghathering</option>
-                                                            <option value='Quatation'>Quotation</option>
-                                                            <option value='In Followup'>In Followup</option>
-                                                            <option value='Sale'>Sale</option>
-                                                            <option value='Cancelled'>Cancelled</option>
-                                                            <option value='Disqualified'>Disqualified</option>
-                                                        </select>
-                                                    </td>  
-                                                    <td>
-                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary leadid' ><i class='ri-time-fill'></i></button>
+                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button>
                                                         <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button>
                                                     </td>
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
-                                                    <td>${value.number_of_follow_up}</td>
-                                                    <td>${value.source}</td>
+                                                    <td>${value.number_of_call}</td>
                                                     <td>
                                                         <span>
                                                             <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
                                                             <span>
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
-                                                        @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') === '1')
                                                             <span>
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
                                                                     <i class="ri-delete-bin-fill"></i>
@@ -891,7 +660,6 @@
                                                     </td>    
                                                 </tr>`)
                                     $('#status_' + value.id).val(value.status);
-                                    $('#lead_stage_' + value.id).val(value.lead_stage);
                                     id++;
                                 });
                                 var search = {!! json_encode($search) !!}
@@ -937,52 +705,34 @@
             $('.removepopupfilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
-                $('#last_followup').val('');
-                $('#next_followup').val('');
+                $('#last_call').val('');
                 $('#invaliddate').text(' ');
-                $('#assignedto option').prop('selected', false);
-                $('#assignedto option:first').prop('selected', true);
-                $('#assignedto').multiselect('refresh');
-                $('#source option').prop('selected', false);
-                $('#source option:first').prop('selected', true);
-                $('#source').multiselect('refresh');
                 advancefilters();
             });
 
             $('.removefilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
-                $('#last_followup').val('');
-                $('#next_followup').val('');
+                $('#last_call').val('');
                 $('#invaliddate').text(' ');
-                $("input[name='status'][value='all']").prop("checked", true);
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
-                $('#assignedto option').prop('selected', false);
-                $('#source option').prop('selected', false);
-                $('#leadstagestatus option').prop('selected', false);
 
                 // Check only the first option
                 $('#advancestatus option:first').prop('selected', true);
-                $('#assignedto option:first').prop('selected', true);
-                $('#source option:first').prop('selected', true);
-                $('#leadstagestatus option:first').prop('selected', true);
 
                 // Refresh the multiselect dropdown to reflect changes
                 $('#advancestatus').multiselect('refresh');
-                $('#assignedto').multiselect('refresh');
-                $('#source').multiselect('refresh');
-                $('#leadstagestatus').multiselect('refresh');
                 loaddata();
 
             });
 
 
-            //    leadhistory 
+            //    customersupporthistory 
 
-            $(document).on('click', '.leadid', function() {
-                leadid = $(this).data('id');
-                $('#leadid').val(leadid);
+            $(document).on('click', '.csid', function() {
+                csid = $(this).data('id');
+                $('#csid').val(csid);
                 var currentDateTime = new Date().toISOString().slice(0, 16);
                 $('#call_date').val(currentDateTime);
                 $('#created_by').val("{{ session()->get('user_id') }}");
@@ -996,19 +746,19 @@
                 var historyid = $(this).data('id');
                 $.ajax({
                     type: 'get',
-                    url: "/api/leadhistory/search/" + historyid,
+                    url: "/api/customersupporthistory/search/" + historyid,
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 & response.leadhistory != '') {
-                            $.each(response.leadhistory, function(key, value) {
+                        if (response.status == 200 & response.customersupporthistory != '') {
+                            $.each(response.customersupporthistory, function(key, value) {
                                 $('.historyrecord').append(`
                                 <div class="col-12">
                                     <b>Status:</b> ${value.call_status} <br>
                                     <b>Complain Description:</b>  ${value.history_notes} <br>
                                     <small> ${value.call_date}</small>
-                                    <hr>
+                                    <hr/>
                                 </div>
                             `);
                             });
@@ -1031,20 +781,20 @@
             });
 
             $(document).on('click', '.resethistoryform', function() {
-                $('#leadhistoryform')[0].reset();
+                $('#customersupporthistoryform')[0].reset();
             })
 
-            // leadhistoryform submit 
+            // customersupporthistoryform submit 
 
 
-            $('#leadhistoryform').submit(function(e) {
+            $('#customersupporthistoryform').submit(function(e) {
                 e.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
-                    url: "{{ route('leadhistory.store') }}",
+                    url: "{{ route('customersupporthistory.store') }}",
                     data: formdata,
                     success: function(response) {
                         // Handle the response from the server
@@ -1052,7 +802,7 @@
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            $('#leadhistoryform')[0].reset();
+                            $('#customersupporthistoryform')[0].reset();
                             $('#addcallhistory').modal('hide');
                         } else {
                             loaderhide();

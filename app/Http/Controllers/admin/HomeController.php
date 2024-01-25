@@ -35,6 +35,7 @@ class HomeController extends Controller
             'invoice',
             'menu',
             'lead',
+            'customersupport',
             'user_permissions'
         ]);
         Auth::guard('admin')->logout();

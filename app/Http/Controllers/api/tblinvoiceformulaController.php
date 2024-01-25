@@ -16,7 +16,10 @@ class tblinvoiceformulaController extends Controller
     {
         $userId = $request->input('user_id');
 
-        $invoiceformula = tbl_invoice_formula::all()->where('company_id', $userId)->where('is_deleted', 0);
+        $invoiceformula = tbl_invoice_formula::where('company_id', $userId)
+                        ->orderBy('formula_order')
+                        ->where('is_deleted', 0)
+                        ->get();
 
         if ($invoiceformula->count() > 0) {
             return response()->json([
@@ -43,33 +46,32 @@ class tblinvoiceformulaController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    { 
-       
-            $formuladata = $request['formuladata'];
-            foreach($formuladata as $key => $value){
-                $invoiceformula = tbl_invoice_formula::create([
-                    'first_column' => $value[0],
-                    'operation' => $value[1],
-                    'second_column' =>$value[2],
-                    'output_column' => $value[3],
-                    'company_id' => $request->company_id,
-                    'created_by' => $request->created_by,
-                ]);
-            }
-           
+    {
 
-            if ($invoiceformula) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Invoice Formula  succesfully added'
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Invoice Formula not succesfully added'
-                ]);
-            }
-        
+        $formuladata = $request['formuladata'];
+        foreach ($formuladata as $key => $value) {
+            $invoiceformula = tbl_invoice_formula::create([
+                'first_column' => $value[0],
+                'operation' => $value[1],
+                'second_column' => $value[2],
+                'output_column' => $value[3],
+                'company_id' => $request->company_id,
+                'created_by' => $request->created_by,
+            ]);
+        }
+
+
+        if ($invoiceformula) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Invoice Formula  succesfully added'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Invoice Formula not succesfully added'
+            ]);
+        }
     }
 
     /**
@@ -116,8 +118,8 @@ class tblinvoiceformulaController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    { 
-           
+    {
+
         $validator = Validator::make($request->all(), [
             'first_column' => 'required|string|max:50',
             'operation' => 'required|string|max:50',
@@ -182,6 +184,40 @@ class tblinvoiceformulaController extends Controller
             return response()->json([
                 'status' => 404,
                 'message' => 'No Such Invoice Formula Found!'
+            ]);
+        }
+    }
+
+    /**
+     * set column order.
+     */
+    public function formulaorder(Request $request)
+    {
+        $successCount = 0;
+        $errorCount = 0;
+
+        foreach ($request->formulaorders as $key => $formulaorder) {
+            if ($formulaorder !== null) {
+                $updateResult =  tbl_invoice_formula::where('id', $key)
+                    ->update(['formula_order' => $formulaorder]);
+
+                if ($updateResult) {
+                    $successCount++;
+                } else {
+                    $errorCount++;
+                }
+            }
+        }
+
+        if ($successCount > 0) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Formula Order Succesfully updated'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Formula Order Not Succesfully upadated'
             ]);
         }
     }

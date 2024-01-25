@@ -235,6 +235,41 @@
                         </div>
                     </div>
                 </div>
+                <div class="iq-card">
+                    <div class="iq-card-header d-flex justify-content-between">
+                        <div class="iq-header-title">
+                            <h4 class="card-title">Customer Support Modules</h4>
+                        </div>
+                    </div>
+                    <div class="iq-card-body">
+                        <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width:15%">Show/Hide</th>
+                                    <th scope="col">Menus</th>
+                                    <th scope="col">Add</th>
+                                    <th scope="col">View</th>
+                                    <th scope="col">Edit</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody >
+                                <tr>
+                                    <td> <input type="checkbox" id="showcustomersupportmenu" name="showcustomersupportmenu" value="1"></td>
+                                    <td>Customer Support</td>
+                                    <td><input type="checkbox" id="addcustomersupport" name="addcustomersupport" value="1"></td>
+                                    <td><input type="checkbox" id="viewcustomersupport" name="viewcustomersupport" value="1"></td>
+                                    <td><input type="checkbox" id="editcustomersupport" name="editcustomersupport" value="1"></td>
+                                    <td><input type="checkbox" id="deletecustomersupport" name="deletecustomersupport" value="1"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="button-container">
+                            <button type="submit" class="btn btn-primary submitBtn" id="">Submit</button>
+                            <button id="" type="reset" class="btn iq-bg-danger resetbtn">Reset</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </form>

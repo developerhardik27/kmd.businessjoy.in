@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class tbllead extends Model
+class customer_support extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbllead';
+    protected $table = 'customer_support';
 
     protected $fillable = [
         'name',
@@ -20,13 +20,11 @@ class tbllead extends Model
         'audience_type',
         'customer_type',
         'status',
-        'last_follow_up',
-        'next_follow_up',
-        'number_of_follow_up',
+        'last_call',
+        'next_call',
+        'number_of_call',
         'notes',
-        'lead_stage',
-        'assigned_to',
-        'assigned_by',
+        'ticket',
         'created_at',
         'updated_at',
         'is_active',

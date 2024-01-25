@@ -1,25 +1,23 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Add New Lead
+    Add New Customer Support
 @endsection
 @section('title')
-    New Lead
+    New Customer Support
 @endsection
 
 
 @section('form-content')
-    <form id="leadform" name="leadform">
+    <form id="ticketform" name="ticketform">
         @csrf
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                        placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <label class="form-label" for="name">Full Name:</label> <span style="color:red;">*</span>
-                    <input type="text" class="form-control" name="leadname" id="name" placeholder="Name" required />
+                    <label class="form-label" for="name">Name:</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Name" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -33,50 +31,52 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label class="form-label" for="contact_no">Mobile Number:</label> <span style="color:red;">*</span>
+                    <label class="form-label" for="contact_no">Mobile Number:</label>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" maxlength="13" onkeypress="return isNumberKey(event);"
                         onkeyup="numberMobile(event);" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="customer_type">Customer Type:</label>
-                    <select name="customer_type" class="form-control" id="customer_type">
-                        <option disabled selected>Select Customer Type</option>
-                        <option value="local">Local</option>
-                        <option value="Global">Global</option>
+                    <label class="form-label" for="status">Status:</label>
+                    <select name="status" class="form-control" id="status">
+                        <option value="" disabled selected>Status</option>
+                        <option value='Open'>Open</option>
+                        <option value='In Progress'>In Progress</option>
+                        <option value='Resolved'>Resolved</option>
+                        <option value='Cancelled'>Cancelled</option>
                     </select>
-                    <span class="error-msg" id="error-customer_type" style="color: red"></span>
+                    <span class="error-msg" id="error-status" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label class="form-label" for="title">Job Title:</label>
-                    <select name="title" class="form-control" id="title">
-                        <option value="" disabled selected>Select Title</option>
-                        <option value=" Student">Student</option>
-                        <option value="Employee">Employee</option>
-                        <option value="Manager">Manager</option>
-                        <option value="Business Owner">Business Owner</option>
-                        <option value="Self Employeed">Self Employeed</option>
-                        <option value=" Other"> Other</option>
-                    </select>
-                    <span class="error-msg" id="error-title" style="color: red"></span>
+                    <label class="form-label" for="last_call">Last Call:</label>
+                    <input type="date" class="form-control" name="last_call" id="last_call"
+                        placeholder="Last Call" />
+                    <span class="error-msg" id="error-last_call" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="assignedto">Assigned To:</label><br/>
-                    <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
-                        <option value="" disabled selected>Select User</option>
-                    </select>
-                    <span class="error-msg" id="error-assignedto" style="color: red"></span>
+                    <label class="form-label" for="number_of_call">Number Of Call:</label>
+                    <input type="number" class="form-control" value="0" name="number_of_call" min="0"
+                        max="10" id="number_of_call">
+                    <span class="error-msg" id="error-number_of_call" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
+                    <label class="form-label" for="notes">Notes:</label>
+                    <textarea name="notes" placeholder="notes" class="form-control" id="notes" cols="" rows="2"></textarea>
+                    <span class="error-msg" id="error-notes" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="button-container">
             <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <div id="loader" class="loader"></div>
             <button id="resetbtn" type="reset" class="btn iq-bg-danger">Cancel</button>
         </div>
     </form>
@@ -84,7 +84,6 @@
 
 
 @push('ajax')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
         // mobile number validation
         function isNumberKey(e) {
@@ -111,49 +110,21 @@
         }
 
         $('document').ready(function() {
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('user.index') }}',
-                data: {
-                    user_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.user != '') {
-                        global_response = response;
-                        // You can update your HTML with the data here if needed     
-                        $.each(response.user, function(key, value) {
-                            var optionValue = value.firstname + ' ' + value .lastname;
-                            $('#assignedto').append(
-                                `<option value="${optionValue}">${optionValue}</option>`);
-                        });
-                        $('#assignedto').multiselect('rebuild'); // Rebuild multiselect after appending options
-                        loaderhide();
-                    } else {
-                        $('#assignedto').append(`<option> No User Found </option>`);
-                        loaderhide();
-                    }
-                },
-                error: function(error) {
-                    loaderhide();
-                    console.error('Error:', error);
-                }
-            });
+            loaderhide();
 
-
-            $('#resetbtn').on('click', function() {
+            $('#resetbtn').on('click',function(){
                 loadershow();
-                window.location.href = "{{ route('admin.lead') }}";
+                window.location.href= "{{route('admin.customersupport')}}";
             })
             // submit form data
-            $('#leadform').submit(function(event) {
+            $('#ticketform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
-                    url: "{{ route('lead.store') }}",
+                    url: "{{ route('customersupport.store') }}",
                     data: formdata,
                     success: function(response) {
                         // Handle the response from the server
@@ -161,7 +132,7 @@
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.lead') }}";
+                            window.location = "{{ route('admin.customersupport') }}";
 
                         } else {
                             loaderhide();

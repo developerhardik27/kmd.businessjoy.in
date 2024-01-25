@@ -60,11 +60,18 @@
                 <th>Operation</th>
                 <th>Second Column</th>
                 <th>Output Column</th>
+                <th>Formula Order</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody id="tabledata">
         </tbody>
+        <tr>
+            <td colspan="7">
+                <button class="btn btn-sm btn-primary saveformulaorder float-right" title="Save formula order"><i
+                        class="ri-check-line"></i></button>
+            </td>
+        </tr>
     </table>
 @endsection
 
@@ -73,9 +80,10 @@
         $('document').ready(function() {
 
             let allColumnNames = [];
+            // formula column list for make forula 
             $.ajax({
                 type: "GET",
-                url: "{{ route('invoicecolumn.index') }}",
+                url: "{{ route('invoicecolumn.formulacolumnlist') }}",
                 data: {
                     user_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
@@ -97,12 +105,19 @@
                         $('#add_new_div').append(`
                                             <tr class="iteam_row">
                                                 <td>
-                                                    <select name="firstcolumn_${id}" class="form-control firstcolumn" id="firstcolumn_${id}">
+                                                    <select name="firstcolumn_1" class="form-control firstcolumn" id="firstcolumn_1">
+                                                        <optgroup label='Your Column'>
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
+                                                        </optgroup>
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <select name="operation_${id}" class="form-control operation" id="operation_${id}">
+                                                    <select name="operation_1" class="form-control operation" id="operation_1">
                                                         <option disabled selected>operator</option>
                                                         <option value="+">+</option>
                                                         <option value="-">-</option>
@@ -111,23 +126,79 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <select name="secondcolumn_${id}" class="form-control secondcolumn" id="secondcolumn_${id}">
+                                                    <select name="secondcolumn_1" class="form-control secondcolumn" id="secondcolumn_1">
+                                                        <optgroup label='Your Column'>
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
+                                                        </optgroup>
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <select name="output_${id}" class="form-control output " id="output_${id}">
+                                                    <select name="output_1" class="form-control output " id="output_1">
+                                                        <optgroup label='Your Column'>
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
+                                                        </optgroup>
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="${id}"><button data-id="${id}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
 
                     } else {
-                        $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                        $('#add_new_div').append(`
+                                            <tr class="iteam_row">
+                                                <td>
+                                                    <select name="firstcolumn_1" class="form-control firstcolumn" id="firstcolumn_1">
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="operation_1" class="form-control operation" id="operation_1">
+                                                        <option disabled selected>operator</option>
+                                                        <option value="+">+</option>
+                                                        <option value="-">-</option>
+                                                        <option value="*">*</option>
+                                                        <option value="/">/</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="secondcolumn_1" class="form-control secondcolumn" id="secondcolumn_1">
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="output_1" class="form-control output " id="output_1">
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                </td>
+                                            </tr>
+                        `);
                     }
                 },
                 error: function(error) {
@@ -139,45 +210,116 @@
             // code for add row,totalrow and delete add row and totalrow
             var addname = 1; // for use to this variable is give to dynamic name and id to input type
             addnamedltbtn = 1;
+            // call function to add new row of columnlist for make formula 
             $('.add_div').on('click', function() {
                 addname++;
                 adddiv();
             });
             // function for add new row in table 
             function adddiv() {
-                $('#add_new_div').append(`<tr class="iteam_row">
-                            <td>
-                                <select name="firstcolumn_${addname}"  class="form-control firstcolumn" id="firstcolumn_${addname}">
-                                    ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
-                                </select>
-                            </td>
-                            <td>
-                                <select name="operation_${addname}" class="form-control operation" id="operation_${addname}">
-                                    <option disabled selected>operator</option>
-                                    <option value="+">+</option>
-                                    <option value="-">-</option>
-                                    <option value="*">*</option>
-                                    <option value="/">/</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="secondcolumn_${addname}" class="form-control secondcolumn" id="secondcolumn_${addname}">
-                                    ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
-                                </select>
-                            </td>
-                            <td>
-                                <select name="output_${addname}" class="form-control output" id="output_${addname}">
-                                    ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
-                                </select>
-                            </td>
-                            <td>
-                                <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button"
-                                        class="btn iq-bg-danger btn-rounded btn-sm my-0"><i
-                                            class="ri-delete-bin-2-line"></i></button></span>
-                            </td>
-                </tr>`);
+                if (allColumnNames.length > 0) {
+                    $('#add_new_div').append(`
+                                            <tr class="iteam_row">
+                                                <td>
+                                                    <select name="firstcolumn_${addname}" class="form-control firstcolumn" id="firstcolumn_${addname}">
+                                                        <optgroup label='Your Column'>
+                                                        ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
+                                                        </optgroup>
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="operation_${addname}" class="form-control operation" id="operation_${addname}">
+                                                        <option disabled selected>operator</option>
+                                                        <option value="+">+</option>
+                                                        <option value="-">-</option>
+                                                        <option value="*">*</option>
+                                                        <option value="/">/</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="secondcolumn_${addname}" class="form-control secondcolumn" id="secondcolumn_${addname}">
+                                                        <optgroup label='Your Column'>
+                                                        ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
+                                                        </optgroup>
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="output_${addname}" class="form-control output " id="output_${addname}">
+                                                        <optgroup label='Your Column'>
+                                                        ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
+                                                        </optgroup>
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                </td>
+                                            </tr>
+                        `);
+                } else {
+                    $('#add_new_div').append(`
+                                            <tr class="iteam_row">
+                                                <td>
+                                                    <select name="firstcolumn_${addname}" class="form-control firstcolumn" id="firstcolumn_${addname}">
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="operation_${addname}" class="form-control operation" id="operation_${addname}">
+                                                        <option disabled selected>operator</option>
+                                                        <option value="+">+</option>
+                                                        <option value="-">-</option>
+                                                        <option value="*">*</option>
+                                                        <option value="/">/</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="secondcolumn_${addname}" class="form-control secondcolumn" id="secondcolumn_${addname}">
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="output_${addname}" class="form-control output " id="output_${addname}">
+                                                        <optgroup label='Default Column'>
+                                                            <option value='Amount'>Amount</option>
+                                                            <option value='Total'>Total</option>
+                                                            <option value='Gst'>Gst</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                </td>
+                                            </tr>
+                        `);
+
+                }
+
             }
 
+            // remove row of make formula
             $(document).on('click', '.remove-row', function() {
                 if (confirm('Are you sure to delete this formula?')) {
                     $(this).parents("tr").detach();
@@ -210,6 +352,7 @@
                                                         <td>${value.operation}</td>
                                                         <td>${value.second_column}</td>
                                                         <td>${value.output_column}</td>
+                                                        <td><input type='text' placeholder='Set Formula Order' data-id='${value.id}' value='${value.formula_order}'  class='formulaorder'></td>
                                                         <td>
                                                             <span>
                                                                 <button type="button" data-id='${value.id}'
@@ -260,7 +403,6 @@
                                 loaderhide();
                                 $('#updated_by').val("{{ session()->get('user_id') }}");
                                 $('#created_by').val("");
-                                $('#company_id').val("");
                                 $('#edit_id').val(editid);
                                 $('#firstcolumn_1').val(invoiceformula.first_column).focus();
                                 $('#operation_1').val(invoiceformula.operation);
@@ -302,6 +444,41 @@
                         }
                     });
                 }
+            });
+
+
+
+            $('.saveformulaorder').on('click', function() {
+                var formulaorders = [];
+                $('input.formulaorder').each(function() {
+                    formulaid = $(this).data('id');
+                    formulaorder = $(this).val();
+                    if (formulaid != null && formulaorder != null) {
+                        formulaorders[formulaid] = formulaorder;
+                    }
+                });
+                $.ajax({
+                    type: 'Post',
+                    url: '{{ route('invoiceformula.formulaorder') }}',
+                    data: {
+                        formulaorders,
+                        token: "{{ session()->get('api_token') }}",
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                            loaderhide();
+                            loaddata();
+                        } else {
+                            toastr.error(response.message);
+                            loaderhide();
+                        }
+                    },
+                    error: function(error) {
+                        loaderhide();
+                        toastr.error('Something Went Wrong !');
+                    }
+                });
             });
 
             var formula_data = [];
@@ -428,6 +605,7 @@
                             },
                             success: function(response) {
                                 if (response.status == 200) {
+                                    $('#edit_id').val('');
                                     loaderhide();
                                     // You can perform additional actions, such as showing a success message or redirecting the user
                                     toastr.success(response.message);

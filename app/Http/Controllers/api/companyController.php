@@ -6,31 +6,35 @@ use App\Http\Controllers\Controller;
 use App\Mail\sendmail;
 use App\Models\company;
 use App\Models\company_detail;
+use App\Models\user_permission;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class companyController extends Controller
 {
-  
-    public function companydetailspdf($id){
-        
-        $companydetails =  DB::table('company_details')
-        ->join('country','company_details.country_id','=','country.id')
-        ->join('state','company_details.state_id','=','state.id')
-        ->join('city','company_details.city_id','=','city.id')
-        ->select('company_details.name','company_details.email','company_details.contact_no','company_details.address','company_details.gst_no','company_details.pincode','company_details.img','country.country_name','state.state_name','city.city_name')
-                         ->where('company_details.id',$id)->get() ;
 
-        if($companydetails->count() > 0){
+    public function companydetailspdf($id)
+    {
+
+        $companydetails =  DB::table('company_details')
+            ->join('country', 'company_details.country_id', '=', 'country.id')
+            ->join('state', 'company_details.state_id', '=', 'state.id')
+            ->join('city', 'company_details.city_id', '=', 'city.id')
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->where('company_details.id', $id)->get();
+
+        if ($companydetails->count() > 0) {
             return response()->json([
                 'status' => 200,
                 'companydetails' => $companydetails
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 404,
                 'companydetails' => 'No Records Found'
@@ -48,8 +52,8 @@ class companyController extends Controller
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode','company_details.img', 'country.country_name', 'state.state_name', 'city.city_name')
-            ->where('company.id', $companyId)   
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->where('company.id', $companyId)
             ->get();
 
         if ($company->count() > 0) {
@@ -94,8 +98,6 @@ class companyController extends Controller
                 ->where('company.is_deleted', 0)->where('company.is_active', 1)->where('company.id', $userId)
                 ->get();
         }
-
-
 
         if ($company->count() > 0) {
             return response()->json([
@@ -155,11 +157,11 @@ class companyController extends Controller
             if ($request->hasFile('img') && $request->file('img') != '') {
                 $image = $request->file('img');
                 $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
-                if (!file_exists(public_path('uploads'))) {
-                    mkdir(public_path('uploads'), 0755, true);
+                if (!file_exists('uploads/')) {
+                    mkdir('uploads/', 0755, true);
                 }
                 // Save the image to the uploads directory
-                if ($image->move(public_path('uploads'), $imageName)) {
+                if ($image->move('uploads/', $imageName)) {
 
                     $company_details = DB::table('company_details')->insertGetId([
                         'name' => $request->name,
@@ -172,7 +174,8 @@ class companyController extends Controller
                         'pincode' => $request->pincode,
                         'gst_no' => $request->gst_number,
                         'img' => $imageName,
-                        'created_by' => $request->created_by
+                        'created_by' => $request->created_by,
+                        'dbname' => DB::connection()->getDatabaseName()
                     ]);
 
                     if ($company_details) {
@@ -186,28 +189,81 @@ class companyController extends Controller
                             $password = Str::random(8);
                             $hashpassword =  Hash::make($password);
                             $company_id = $company;
-                            $user = DB::table('users')->insert([
-                                'firstname' => $request->name,
-                                'email' => $request->email,
-                                'password' => $hashpassword,
-                                'role' => 2,
-                                'contact_no' => $request->contact_number,
-                                'country_id' => $request->country,
-                                'state_id' => $request->state,
-                                'city_id' => $request->city,
-                                'pincode' => $request->pincode,
-                                'company_id' => $company_id,
-                                'created_by' => $request->created_by,
-                            ]);
 
-                            if ($user) {
+                            $tableName = 'mng_col_' . $company_id;
 
-                                Mail::to($request->email)->send(new sendmail($request->email, $password));
+                            // Create the table if it doesn't exist
+                            if (!Schema::hasTable($tableName)) {
+                                Schema::create($tableName, function (Blueprint $table) {
+                                    $table->id(); // Auto-incrementing primary key
+                                    $table->integer('invoice_id');
+                                    $table->integer('created_by');
+                                    $table->integer('updated_by')->nullable();
+                                    $table->dateTime('created_at');
+                                    $table->dateTime('updated_at')->nullable();
+                                    $table->integer('is_active')->default(1);
+                                    $table->integer('is_deleted')->default(0);
+                                });
+                                $user = DB::table('users')->insertGetId([
+                                    'firstname' => $request->name,
+                                    'email' => $request->email,
+                                    'password' => $hashpassword,
+                                    'role' => 2,
+                                    'contact_no' => $request->contact_number,
+                                    'country_id' => $request->country,
+                                    'state_id' => $request->state,
+                                    'city_id' => $request->city,
+                                    'pincode' => $request->pincode,
+                                    'company_id' => $company_id,
+                                    'created_by' => $request->created_by,
+                                ]);
+                                if ($user) {
+                                    $userid = $user;
+                                    $rp = [
+                                        "invoicemodule" => [
+                                            "invoice" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                            "company" => ["show" => 1, "add" => null, "view" => 1, "edit" =>1, "delete" => 1],
+                                            "bank" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                            "user" => ["show" => 1, "add" => 1, "view" =>1, "edit" => 1, "delete" =>1],
+                                            "customer" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                            "product" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                            "purchase" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                                        ],
+                                        "leadmodule" => [
+                                            "lead" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                                        ],
+                                        "customersupportmodule" => [
+                                            "customersupport" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                                        ]
+                                    ];
 
-                                return response()->json([
-                                    'status' => 200,
-                                    'message' => 'succesfully added'
-                                ], 200);
+                                    $rpjson = json_encode($rp);
+
+                                    $userrp = user_permission::create([
+                                        'user_id' => $userid,
+                                        'rp' => $rpjson
+                                    ]);
+
+                                    if ($userrp) {
+                                        Mail::to($request->email)->cc('parthdeveloper9@gmail.com')->send(new sendmail($request->email, $password));
+                                        return response()->json([
+                                            'status' => 200,
+                                            'message' => 'Company succesfully added'
+                                        ], 200);
+                                    } else {
+                                        return response()->json([
+                                            'status' => 500,
+                                            'message' => 'User Permission Not succesfully added'
+                                        ], 500);
+                                    }
+                                } else {
+                                    return response()->json([
+                                        'status' => 500,
+                                        'message' => 'User Not succesfully added'
+                                    ], 500);
+                                }
+                            } else {
+                                return response()->json(['message' => 'Table already exists']);
                             }
                         } else {
                             $id = $company;
@@ -247,6 +303,7 @@ class companyController extends Controller
                     'city_id' => $request->city,
                     'pincode' => $request->pincode,
                     'gst_no' => $request->gst_number,
+                    'dbname' => DB::connection()->getDatabaseName()
                 ]);
 
                 if ($company_details) {
@@ -260,28 +317,81 @@ class companyController extends Controller
                         $password = Str::random(8);
                         $hashpassword =  Hash::make($password);
                         $company_id = $company;
-                        $user = DB::table('users')->insert([
-                            'firstname' => $request->name,
-                            'email' => $request->email,
-                            'password' => $hashpassword,
-                            'role' => 2,
-                            'contact_no' => $request->contact_number,
-                            'country_id' => $request->country,
-                            'state_id' => $request->state,
-                            'city_id' => $request->city,
-                            'pincode' => $request->pincode,
-                            'company_id' => $company_id,
-                            'created_by' => $request->created_by,
-                        ]);
 
-                        if ($user) {
+                        $tableName = 'mng_col_' . $company_id;
 
-                            Mail::to($request->email)->send(new sendmail($request->email, $password));
+                        // Create the table if it doesn't exist
+                        if (!Schema::hasTable($tableName)) {
+                            Schema::create($tableName, function (Blueprint $table) {
+                                $table->id(); // Auto-incrementing primary key
+                                $table->integer('invoice_id');
+                                $table->integer('created_by');
+                                $table->integer('updated_by')->nullable();
+                                $table->dateTime('created_at');
+                                $table->dateTime('updated_at')->nullable();
+                                $table->integer('is_active')->default(1);
+                                $table->integer('is_deleted')->default(0);
+                            });
+                            $user = DB::table('users')->insertGetId([
+                                'firstname' => $request->name,
+                                'email' => $request->email,
+                                'password' => $hashpassword,
+                                'role' => 2,
+                                'contact_no' => $request->contact_number,
+                                'country_id' => $request->country,
+                                'state_id' => $request->state,
+                                'city_id' => $request->city,
+                                'pincode' => $request->pincode,
+                                'company_id' => $company_id,
+                                'created_by' => $request->created_by,
+                            ]);
+                            if ($user) {
+                                $userid = $user;
+                                $rp = [
+                                    "invoicemodule" => [
+                                        "invoice" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                        "company" => ["show" => 1, "add" => 1, "view" => 1, "edit" =>1, "delete" => 1],
+                                        "bank" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                        "user" => ["show" => 1, "add" => 1, "view" =>1, "edit" => 1, "delete" =>1],
+                                        "customer" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                        "product" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
+                                        "purchase" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                                    ],
+                                    "leadmodule" => [
+                                        "lead" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                                    ],
+                                    "customersupportmodule" => [
+                                        "customersupport" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                                    ]
+                                ];
 
-                            return response()->json([
-                                'status' => 200,
-                                'message' => 'succesfully added'
-                            ], 200);
+                                $rpjson = json_encode($rp);
+
+                                $userrp = user_permission::create([
+                                    'user_id' => $userid,
+                                    'rp' => $rpjson
+                                ]);
+
+                                if ($userrp) {
+                                    Mail::to($request->email)->cc('parthdeveloper9@gmail.com')->send(new sendmail($request->email, $password));
+                                    return response()->json([
+                                        'status' => 200,
+                                        'message' => 'Company succesfully added'
+                                    ], 200);
+                                } else {
+                                    return response()->json([
+                                        'status' => 500,
+                                        'message' => 'User Permission Not succesfully added'
+                                    ], 500);
+                                }
+                            } else {
+                                return response()->json([
+                                    'status' => 500,
+                                    'message' => 'User Not succesfully added'
+                                ], 500);
+                            }
+                        } else {
+                            return response()->json(['message' => 'Table already exists']);
                         }
                     } else {
                         $id = $company;
@@ -312,7 +422,7 @@ class companyController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {   
+    {
         $company = DB::table('company')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->where('company.id', $id)
@@ -336,7 +446,7 @@ class companyController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {  
+    {
 
         $company = DB::table('company')->join('company_details', 'company.company_details_id', '=', 'company_details.id')->where('company.id', $id)->get();
         if ($company) {
@@ -386,7 +496,7 @@ class companyController extends Controller
             if ($request->hasFile('img') && $request->hasFile('img') != '') {
                 $image = $request->file('img');
                 $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
-               
+
                 // $company = company::join('company_details','company.company_details_id','=','company_details.id')
                 //            ->select('company_details.img')->where('company.id',$id)
                 //            ->get();
@@ -397,7 +507,7 @@ class companyController extends Controller
                 //     }
                 // }
 
-                if ($image->move(public_path('uploads'), $imageName)) {
+                if ($image->move('uploads/', $imageName)) {
                     $company_details = DB::table('company_details')->insertGetId([
                         'name' => $request->name,
                         'email' => $request->email,
@@ -408,19 +518,19 @@ class companyController extends Controller
                         'city_id' => $request->city,
                         'pincode' => $request->pincode,
                         'gst_no' => $request->gst_number,
-                        'img'=>$imageName
+                        'img' => $imageName
                     ]);
                     if ($company_details) {
                         $company_details_id = $company_details;
                         $company = company::find($id);
                         if ($company) {
-    
+
                             $companyupdate =  $company->update([
                                 'company_details_id' => $company_details_id,
                                 'updated_by' => $request->updated_by,
-    
+
                             ]);
-    
+
                             if ($companyupdate) {
                                 return response()->json([
                                     'status' => 200,
@@ -453,9 +563,9 @@ class companyController extends Controller
                     ]);
                 }
             } else {
-                $company = company::join('company_details','company.company_details_id','=','company_details.id')
-                ->select('company_details.img')->where('company.id',$id)
-                ->get();
+                $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
+                    ->select('company_details.img')->where('company.id', $id)
+                    ->get();
                 $company_details = DB::table('company_details')->insertGetId([
                     'name' => $request->name,
                     'email' => $request->email,
@@ -466,7 +576,7 @@ class companyController extends Controller
                     'city_id' => $request->city,
                     'pincode' => $request->pincode,
                     'gst_no' => $request->gst_number,
-                    'img'=> $company[0]->img
+                    'img' => $company[0]->img
                 ]);
                 if ($company_details) {
                     $company_details_id = $company_details;

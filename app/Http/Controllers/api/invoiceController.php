@@ -105,6 +105,48 @@ class invoiceController extends Controller
             ]);
         }
     }
+
+
+
+  //get dynamic column name
+  public function columnname(Request $request)
+  {    
+      $companyid = $request->user_id;
+      $columnname = DB::table('tbl_invoice_columns')->select('id','column_name','column_type','is_hide')->where('is_active', 1)->where('is_deleted', 0)->where('company_id',$companyid)->orderBy('column_order')->get();
+
+      if ($columnname->count() > 0) {
+          return response()->json([
+              'status' => 200,
+              'columnname' => $columnname
+          ], 200);
+      } else {
+          return response()->json([
+              'status' => 404,
+              'columnname' => 'No Records Found'
+          ], 404);
+      }
+  }
+
+
+   //get column name whose data type nubmer
+   public function numbercolumnname(Request $request)
+   {    
+       $companyid = $request->user_id;
+       $columnname = DB::table('tbl_invoice_columns')->select('column_name')->whereIn('column_type',['number','decimal','percentage'])->where('is_active', 1)->where('is_deleted', 0)->where('company_id',$companyid)->get();
+ 
+       if ($columnname->count() > 0) {
+           return response()->json([
+               'status' => 200,
+               'columnname' => $columnname
+           ], 200);
+       } else {
+           return response()->json([
+               'status' => 404,
+               'columnname' => 'No Records Found'
+           ], 404);
+       }
+   }
+
     /**
      * Display a listing of the resource.
      */
@@ -134,6 +176,7 @@ class invoiceController extends Controller
         }
     }
 
+
     /**
      * Show the form for creating a new resource.
      */
@@ -154,11 +197,7 @@ class invoiceController extends Controller
         $validator = Validator::make($request->data, $request->iteam_data, [
             "payment_mode" => 'required',
             "acc_details" => 'required',
-            "product_id_1" => 'required',
-            "quantity_1" => 'required',
-            "item_description_1" => 'required',
             "customer_id" => 'required',
-            "price_1" => 'required',
             "total_amount" => 'required|numeric',
             "gst" => 'required|numeric',
             "currency_id" => 'required|numeric',

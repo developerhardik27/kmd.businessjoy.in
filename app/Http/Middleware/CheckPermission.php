@@ -32,6 +32,9 @@ class CheckPermission
        if($module == 'leadmodule'){
         $menu = 'lead';
        }
+       if($module == 'customersupportmodule'){
+        $menu = 'Customer support';
+       }
      
         // Check if the user has permission for the given module and action
         if (isset($rp[$module][$submodule][$action]) && $rp[$module][$submodule][$action] === '1' && Session::get('menu') == $menu ) {

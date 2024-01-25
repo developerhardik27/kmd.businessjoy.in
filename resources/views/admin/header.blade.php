@@ -23,20 +23,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
     <style>
-        .loader {
-            display: none;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #3498db;
-            width: 30px;
-            height: 30px;
-            animation: spin 2s linear infinite;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-
+     
         .button-container {
             position: relative;
             display: inline-block;
@@ -86,6 +73,10 @@
             100% {
                 transform: rotate(360deg);
             }
+        }
+
+        .btn-danger{
+            border-radius: 5px !important ;
         }
     </style>
     @yield('style')

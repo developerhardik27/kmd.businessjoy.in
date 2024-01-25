@@ -6,6 +6,9 @@ use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\companyController;
 use App\Http\Controllers\api\countryController;
 use App\Http\Controllers\api\customerController;
+use App\Http\Controllers\api\customersupportController;
+use App\Http\Controllers\api\customersupporthistory;
+use App\Http\Controllers\api\customersupporthistoryController;
 use App\Http\Controllers\api\invoiceController;
 use App\Http\Controllers\api\mailcontroller;
 use App\Http\Controllers\api\PaymentController;
@@ -15,6 +18,7 @@ use App\Http\Controllers\api\stateController;
 use App\Http\Controllers\api\tblinvoicecolumnController;
 use App\Http\Controllers\api\tblinvoiceformulaController;
 use App\Http\Controllers\api\tblleadController;
+use App\Http\Controllers\api\tblleadhistoryController;
 use App\Http\Controllers\api\userController;
 use App\Models\tbl_invoice_column;
 use Illuminate\Http\Request;
@@ -107,7 +111,7 @@ Route::middleware('checkToken')->group(function () {
         Route::put('/state/update/{id}', 'update')->name('state.update');
         Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
     });
-    
+
     //city route
     Route::controller(cityController::class)->group(function () {
         Route::get('/city', 'index')->name('city.index');
@@ -132,6 +136,8 @@ Route::middleware('checkToken')->group(function () {
     Route::controller(invoiceController::class)->group(function () {
         Route::get('/currency', 'currency')->name('invoice.currency');
         Route::get('/bdetails', 'bdetails')->name('invoice.bankacc');
+        Route::get('/columnname', 'columnname')->name('invoice.columnname');
+        Route::get('/numbercolumnname', 'numbercolumnname')->name('invoice.numbercolumnname');
         Route::get('/inv_list', 'inv_list')->name('invoice.inv_list');
         Route::put('/inv_status/{id}', 'status')->name('invoice.status');
         Route::get('/invoice/{id}', 'index')->name('invoice.index');
@@ -160,21 +166,25 @@ Route::middleware('checkToken')->group(function () {
         Route::post('/purchase/update/{id}', 'update')->name('purchase.update');
         Route::put('/purchase/delete/{id}', 'destroy')->name('purchase.delete');
     });
-    
+
     // tbl_invoice_column route 
     Route::controller(tblinvoicecolumnController::class)->group(function () {
+        Route::get('/formulacolumnlist', 'formula')->name('invoicecolumn.formulacolumnlist');
         Route::get('/invoicecolumn', 'index')->name('invoicecolumn.index');
         Route::post('/invoicecolumn/insert', 'store')->name('invoicecolumn.store');
+        Route::post('/invoicecolumn/columnorder', 'columnorder')->name('invoicecolumn.columnorder');
         Route::get('/invoicecolumn/search/{id}', 'show')->name('invoicecolumn.search');
         Route::get('/invoicecolumn/edit/{id}', 'edit')->name('invoicecolumn.edit');
         Route::post('/invoicecolumn/update/{id}', 'update')->name('invoicecolumn.update');
         Route::put('/invoicecolumn/delete/{id}', 'destroy')->name('invoicecolumn.delete');
+        Route::put('/invoicecolumn/hide/{id}', 'hide')->name('invoicecolumn.hide');
     });
-    
+
     // tbl_invoice_formula route 
     Route::controller(tblinvoiceformulaController::class)->group(function () {
         Route::get('/invoiceformula', 'index')->name('invoiceformula.index');
         Route::post('/invoiceformula/insert', 'store')->name('invoiceformula.store');
+        Route::post('/invoiceformula/formulaorder', 'formulaorder')->name('invoiceformula.formulaorder');
         Route::get('/invoiceformula/search/{id}', 'show')->name('invoiceformula.search');
         Route::get('/invoiceformula/edit/{id}', 'edit')->name('invoiceformula.edit');
         Route::post('/invoiceformula/update/{id}', 'update')->name('invoiceformula.update');
@@ -185,12 +195,45 @@ Route::middleware('checkToken')->group(function () {
     Route::controller(tblleadController::class)->group(function () {
         Route::get('/lead', 'index')->name('lead.index');
         Route::post('/lead/insert', 'store')->name('lead.store');
+        Route::get('/lead/sourcecolumn', 'sourcevalue')->name('lead.sourcecolumn');
         Route::get('/lead/search/{id}', 'show')->name('lead.search');
         Route::get('/lead/edit/{id}', 'edit')->name('lead.edit');
         Route::post('/lead/update/{id}', 'update')->name('lead.update');
         Route::put('/lead/delete', 'destroy')->name('lead.delete');
         Route::put('/lead/changestatus', 'changestatus')->name('lead.changestatus');
+        Route::put('/lead/changeleadstage', 'changeleadstage')->name('lead.changeleadstage');
     });
+
+    // lead call history route
+    Route::controller(tblleadhistoryController::class)->group(function () {
+        Route::get('/leadhistory', 'index')->name('leadhistory.index');
+        Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
+        Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
+        Route::get('/leadhistory/edit/{id}', 'edit')->name('leadhistory.edit');
+        Route::post('/leadhistory/update/{id}', 'update')->name('leadhistory.update');
+        Route::put('/leadhistory/delete', 'destroy')->name('leadhistory.delete');
+    });
+    
+    // customer suppport route 
+    Route::controller(customersupportController::class)->group(function () {
+        Route::get('/customersupport', 'index')->name('customersupport.index');
+        Route::post('/customersupport/insert', 'store')->name('customersupport.store');
+        Route::get('/customersupport/search/{id}', 'show')->name('customersupport.search');
+        Route::get('/customersupport/edit/{id}', 'edit')->name('customersupport.edit');
+        Route::post('/customersupport/update/{id}', 'update')->name('customersupport.update');
+        Route::put('/customersupport/delete', 'destroy')->name('customersupport.delete');
+        Route::put('/customersupport/changestatus', 'changestatus')->name('customersupport.changestatus');
+        Route::put('/customersupport/changeleadstage', 'changeleadstage')->name('customersupport.changeleadstage');
+    });
+
+    // customer support call history route
+    Route::controller(customersupporthistoryController::class)->group(function () {
+        Route::get('/customersupporthistory', 'index')->name('customersupporthistory.index');
+        Route::post('/customersupporthistory/insert', 'store')->name('customersupporthistory.store');
+        Route::get('/customersupporthistory/search/{id}', 'show')->name('customersupporthistory.search');
+        Route::get('/customersupporthistory/edit/{id}', 'edit')->name('customersupporthistory.edit');
+        Route::post('/customersupporthistory/update/{id}', 'update')->name('customersupporthistory.update');
+        Route::put('/customersupporthistory/delete', 'destroy')->name('customersupporthistory.delete');
+    });
+
 });
-
-

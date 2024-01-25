@@ -143,7 +143,7 @@
                                     </a>
                                 </li>
                             @endif
-                        @else
+                        @elseif(Session::has('menu') && Session::get('menu') == 'lead')
                             @if (session('user_permissions.leadmodule.lead.show') === '1')
                                 <li class="{{ request()->routeIs('admin.lead') ? 'active' : '' }}">
                                     <a href="{{ route('admin.lead') }}" class="iq-waves-effect">
@@ -152,6 +152,15 @@
                                     </a>
                                 </li>
                             @endif
+                        @else    
+                        @if (session('user_permissions.customersupportmodule.customersupport.show') === '1')
+                        <li class="{{ request()->routeIs('admin.customersupport') ? 'active' : '' }}">
+                            <a href="{{ route('admin.customersupport') }}" class="iq-waves-effect">
+                                <i class="ri-customer-service-fill"></i>
+                                <span>cusotmer Support</span>
+                            </a>
+                        </li>
+                    @endif
                         @endif
                         <li>
                             <a href="{{ route('admin.logout') }}" class="iq-waves-effect">

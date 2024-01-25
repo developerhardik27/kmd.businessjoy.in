@@ -63,12 +63,16 @@
                                     href="#">Menu<i class="ri-arrow-down-s-line"></i></a>
                                 <div class="iq-sub-dropdown">
                                     @if (Session::has('invoice') && Session::get('invoice') == 'yes')
-                                    <a class="iq-sub-card changemenu " href="#" data-value="invoice"><i
-                                            class="ri-file-list-3-line"></i> Invoice</a>
+                                        <a class="iq-sub-card changemenu " href="#" data-value="invoice"><i
+                                                class="ri-file-list-3-line"></i> Invoice</a>
                                     @endif
-                                            @if (Session::has('lead') && Session::get('lead') == 'yes')
-                                            <a class="iq-sub-card changemenu" href="#" data-value="lead"> <i
-                                                    class="ri-globe-fill"></i> Lead</a>
+                                    @if (Session::has('lead') && Session::get('lead') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="lead"> <i
+                                                class="ri-globe-fill"></i> Lead</a>
+                                    @endif
+                                    @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="Customer support">
+                                            <i class="ri-customer-service-fill"></i> Customer Support</a>
                                     @endif
                                 </div>
                             </li>

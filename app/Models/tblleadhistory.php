@@ -5,22 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class tbl_invoice_formula extends Model
+class tblleadhistory extends Model
 {
     use HasFactory;
 
+    protected $table = 'tblleadhistory';
+
     protected $fillable = [
-        'first_column',
-        'operation',
-        'second_column',
-        'output_column',
-        'formula_order',
-        'company_id',
-        'created_by',
-        'updated_by',
+        'call_date',
+        'history_notes',
+        'call_status',
+        'leadid',
+        'companyid',
         'created_at',
         'updated_at',
+        'created_by',
+        'updated_by',
         'is_active',
-        'is_deleted'
+        'is_deleted',
     ];
 }

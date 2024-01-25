@@ -80,14 +80,18 @@ class AdminLoginController extends Controller
                             }
                             if(hasPermission($rp, "leadmodule")){
                                 session(['lead' => "yes"]);
-                                if(!(Session::has('menu') && Session::get('menu') == 'invoice')){
+                                if(!(Session::has('menu') && (Session::get('menu') == 'invoice' || Session::get('menu') == 'customersupport'))){
                                     session([ 'menu' => 'lead']);
+                                }
+                            }
+                            if(hasPermission($rp,"customersupportmodule")){
+                                session(['customersupport' => "yes"]);
+                                if(!(Session::has('menu') && (Session::get('menu') == 'invoice' || Session::get('menu') == 'lead'))){
+                                    session([ 'menu' => 'customersupport']);
                                 }
                             }
                             
                         }
-
-
                         $request->session()->put([
                             'admin_role' => $admin->role,
                             'company_id' => $admin->company_id,
@@ -171,11 +175,7 @@ class AdminLoginController extends Controller
     public function setmenusession(Request $request)
     {
 
-
-
         $value = $request->input('value');
-
-
         // Set the session value
         $request->session()->forget('menu');
         $request->session()->put('menu', $value);

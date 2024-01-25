@@ -50,11 +50,18 @@
                 <th>Sr</th>
                 <th>Column Name</th>
                 <th>Column Type</th>
+                <th>Order</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody id="tabledata">
         </tbody>
+        <tr>
+            <td colspan="5">
+                <button class="btn btn-sm btn-primary savecolumnorder float-right" title="Save column order"><i
+                        class="ri-check-line"></i></button>
+            </td>
+        </tr>
     </table>
 @endsection
 
@@ -62,9 +69,6 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-
-         
-           
 
             function loaddata() {
                 loadershow();
@@ -87,7 +91,14 @@
                                                         <td>${id}</td>
                                                         <td>${value.column_name}</td>
                                                         <td>${value.column_type}</td>
+                                                        <td><input type='text' placeholder='Set Coumn Order' data-id='${value.id}' value=${value.column_order} class='columnorder'></td>
                                                         <td>
+                                                            <span>
+                                                                <button type="button" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'
+                                                                     class="btn hide-btn btn-outline-${(value.is_hide == 0 )? "info" : "danger"} btn-rounded btn-sm my-0">
+                                                                    ${(value.is_hide == 0 )? "Show" : "Hide"}
+                                                                </button>
+                                                            </span>
                                                             <span>
                                                                 <button type="button" data-id='${value.id}'
                                                                      class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
@@ -106,7 +117,7 @@
                             });
                         } else {
                             loaderhide();
-                            $('#tabledata').append(`<tr><td colspan='4' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
                         }
                         // You can update your HTML with the data here if needed
                     },
@@ -119,6 +130,39 @@
 
             //call function for loaddata
             loaddata();
+
+
+            $(document).on("click", '.hide-btn', function() {
+                hidevalue = $(this).val();
+                var columnid = $(this).data('id');
+                if (confirm('Are you really want to Update this Column ?')) {
+                    var row = this;
+                    loadershow();
+                    $.ajax({
+                        type: 'put',
+                        url: '/api/invoicecolumn/hide/' + columnid,
+                        data: {
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: {{ session()->get('company_id') }},
+                            hidevalue
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                toastr.success(response.message);
+                                loaderhide();
+                                loaddata();
+                            } else {
+                                toastr.error(response.message);
+                                loaderhide();
+                            }
+                        },
+                        error: function(error) {
+                            loaderhide();
+                            toastr.error('Something Went Wrong !');
+                        }
+                    });
+                }
+            });
 
             $(document).on("click", ".edit-btn", function() {
                 if (confirm("You want edit this Column ?")) {
@@ -135,8 +179,6 @@
                                 var invoicecolumndata = response.invoicecolumn;
                                 loaderhide();
                                 $('#updated_by').val("{{ session()->get('user_id') }}");
-                                $('#created_by').val("");
-                                $('#company_id').val("");
                                 $('#edit_id').val(editid);
                                 $('#column_name').val(invoicecolumndata.column_name);
                                 $('#column_type').val(invoicecolumndata.column_type);
@@ -161,27 +203,66 @@
                         type: 'put',
                         url: '/api/invoicecolumn/delete/' + deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: {{ session()->get('company_id') }}
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                toastr.success('Invoice Column succesfully deleted');
+                                toastr.success(response.message);
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else {
-                                toastr.error('something went wrong !');
+                                toastr.error(response.message);
                                 loaderhide();
                             }
+                        },
+                        error: function(error) {
+                            loaderhide();
+                            toastr.error('Something Went Wrong !');
                         }
                     });
                 }
             });
 
 
+            $('.savecolumnorder').on('click', function() {
+                var columnorders = [];
+                $('input.columnorder').each(function() {
+                    columnid = $(this).data('id');
+                    columnorder = $(this).val();
+                    if(columnid != null && columnorder != null){
+                        columnorders[columnid] = columnorder;
+                    }
+                });
+                $.ajax({
+                    type: 'Post',
+                    url: '{{ route('invoicecolumn.columnorder') }}',
+                    data: {
+                        columnorders,
+                        token: "{{ session()->get('api_token') }}",
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                            loaderhide();
+                            loaddata();
+                        } else {
+                            toastr.error(response.message);
+                            loaderhide();
+                        }
+                    },
+                    error: function(error) {
+                        loaderhide();
+                        toastr.error('Something Went Wrong !');
+                    }
+                });
+            });
+
+
             $('#columnform').submit(function(e) {
                 e.preventDefault();
                 loadershow();
-                var editid =$('#edit_id').val()
+                var editid = $('#edit_id').val()
                 if (editid != '') {
                     var columndata = $(this).serialize();
                     $.ajax({
@@ -189,11 +270,14 @@
                         url: "/api/invoicecolumn/update/" + editid,
                         data: columndata,
                         success: function(response) {
+
                             if (response.status == 200) {
+                                $('#edit_id').val('');
                                 loaderhide();
                                 // You can perform additional actions, such as showing a success message or redirecting the user
                                 toastr.success(response.message);
                                 $('#columnform')[0].reset();
+
                                 loaddata();
                             } else if (response.status == 422) {
                                 loaderhide();

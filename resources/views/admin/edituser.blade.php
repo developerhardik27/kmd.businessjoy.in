@@ -32,6 +32,8 @@
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6">
+                            <input type="hidden" name="editrole" class="form-control" value=1
+                            placeholder="token" required />
                             <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                             placeholder="token" required />
                             <input type="hidden" value="{{ $user_id }}" name="updated_by" class="form-control">

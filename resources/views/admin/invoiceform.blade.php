@@ -76,61 +76,34 @@
                 </div>
             </div>
         </div>
-        <div id="table" class="table-editable">
+        <div id="table" class="table-editable" style="overflow-x:auto">
             <span class="add_div float-right mb-3 mr-2">
                 <button type="button" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span class="pl-1">Add
                             New Item</span></i>
                 </button>
             </span>
-            <table id="add_new_div" class="table table-bordered table-responsive-md table-striped text-center">
+            <table id="data" class="table table-bordered  table-striped text-center">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Amount</th>
-                        <th>Sort</th>
-                        <th>Remove</th>
+                    <tr id="columnname" style="text-transform: uppercase">
+
+                       
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="iteam_row">
-
-                        <td>
-                            <input type="hidden" name="product_id_1" id="product_id_1" class="iteam_id" value="1" required>
-                            <input type="text" class="form-control iteam_name" placeholder="Name" name="product_1"
-                                id="product_1" required>
-                        </td>
-                        <td>
-                            <textarea class="form-control iteam_description" rows="1" id="item_description_1" name="item_description_1"
-                                required></textarea>
-                        </td>
-                        <td><input type="number" class="form-control iteam_quantity counttotal" placeholder="quantity"
-                                id="quantity_1" value="1" name='quantity_1' required></td>
-                        <td><input type="number" class="form-control iteam_price changeprice" id="price_1"
-                                placeholder="Amount" name='price_1' required>
-                        </td>
-                        <td>
-                            <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up"
-                                        aria-hidden="true"></i></a></span>
-                            <span class="table-down"><a href="#!" class="indigo-text"><i
-                                        class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
-                        </td>
-                        <td>
-                            <span class="remove-row" data-id="1"><button data-id="1" type="button"
-                                    class="btn iq-bg-danger btn-rounded btn-sm my-0"><i
-                                        class="ri-delete-bin-2-line"></i></button></span>
-                        </td>
-                    </tr>
+                <tbody  id="add_new_div">
+                    
                 </tbody>
-                <tr>
-                    <th colspan="3">total amount</th>
+                <tr class="text-right">
+                    <th class="automaticcolspan">Sub total</th>
                     <td id=""><input type="number" name="total_amount" id="totalamount" readonly required>
                     </td>
                 </tr>
-                <tr id="gstline">
-                    <th colspan="3">GST</th>
+                <tr id="gstline" class="text-right">
+                    <th class="automaticcolspan">Total GST</th>
                     <td><input type="number" name="gst" id="gst" readonly required></td>
+                </tr>
+                <tr id="grandtotalline" class="text-right">
+                    <th class="automaticcolspan font-weight-bold">Total</th>
+                    <td><input type="number" name="grandtotal" id="grandtotal" readonly required></td>
                 </tr>
             </table>
         </div>
@@ -181,13 +154,15 @@
                                         <label for="firstname">FirstName</label>
                                         <input type="text" class="form-control" id="firstname" name='firstname'
                                             placeholder="First name" required>
-                                        <span class="modal-error-msg" id="modal-error-firstname" style="color: red"></span>
+                                        <span class="modal-error-msg" id="modal-error-firstname"
+                                            style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
                                         <label for="lastname">LastName</label>
                                         <input type="text" class="form-control" id="lastname" name='lastname'
                                             placeholder="Last name" required>
-                                        <span class="modal-error-msg" id="modal-error-lastname" style="color: red"></span>
+                                        <span class="modal-error-msg" id="modal-error-lastname"
+                                            style="color: red"></span>
                                     </div>
                                 </div>
                             </div>
@@ -195,15 +170,17 @@
                                 <div class="form-row">
                                     <div class="col-sm-6">
                                         <label for="company_name">Company Name</label>
-                                        <input type="text" class="form-control" id="company_name" name='company_name' id=""
-                                            placeholder="Company name" required>
-                                        <span class="modal-error-msg" id="modal-error-company_name" style="color: red"></span>
+                                        <input type="text" class="form-control" id="company_name" name='company_name'
+                                            id="" placeholder="Company name" required>
+                                        <span class="modal-error-msg" id="modal-error-company_name"
+                                            style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
                                         <label for="gst_number">GST Number</label>
                                         <input type="text" class="form-control" name='gst_number' id="gst_number"
                                             placeholder="GST Number">
-                                        <span class="modal-error-msg" id="modal-error-gst_number" style="color: red"></span>
+                                        <span class="modal-error-msg" id="modal-error-gst_number"
+                                            style="color: red"></span>
                                     </div>
                                 </div>
                             </div>
@@ -219,7 +196,8 @@
                                         <label for="modal_exampleInputphone">Contact Number</label>
                                         <input type="tel" class="form-control" name='contact_number'
                                             id="modal_exampleInputphone" placeholder="0123456789" required>
-                                        <span class="modal-error-msg" id="modal-error-contact_number" style="color: red"></span>
+                                        <span class="modal-error-msg" id="modal-error-contact_number"
+                                            style="color: red"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -229,14 +207,16 @@
                                             <select class="form-control" name='country' id="modal_country" required>
                                                 <option selected="" disabled="">Select your Country</option>
                                             </select>
-                                            <span class="modal-error-msg" id="modal-error-country" style="color: red"></span>
+                                            <span class="modal-error-msg" id="modal-error-country"
+                                                style="color: red"></span>
                                         </div>
                                         <div class="col-sm-6">
                                             <label for="modal_state">Select State</label>
                                             <select class="form-control" name='state' id="modal_state" required>
                                                 <option selected="" disabled="">Select your State</option>
                                             </select>
-                                            <span class="modal-error-msg" id="modal-error-state" style="color: red"></span>
+                                            <span class="modal-error-msg" id="modal-error-state"
+                                                style="color: red"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -247,13 +227,15 @@
                                             <select class="form-control" name='city' id="modal_city" required>
                                                 <option selected="" disabled="">Select your City</option>
                                             </select>
-                                            <span class="modal-error-msg" id="modal-error-city" style="color: red"></span>
+                                            <span class="modal-error-msg" id="modal-error-city"
+                                                style="color: red"></span>
                                         </div>
                                         <div class="col-sm-6">
                                             <label for="modal_pincode">Pincode</label>
                                             <input type="text" id="modal_pincode" name='pincode' class="form-control"
                                                 placeholder="Pin Code">
-                                            <span class="modal-error-msg" id="modal-error-pincode" style="color: red"></span>
+                                            <span class="modal-error-msg" id="modal-error-pincode"
+                                                style="color: red"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -262,7 +244,8 @@
                                         <div class="col-sm-12">
                                             <label for="modal_address">Address</label>
                                             <textarea class="form-control" required name='address' id="modal_address" rows="2"></textarea>
-                                            <span class="modal-error-msg" id="modal-error-address" style="color: red"></span>
+                                            <span class="modal-error-msg" id="modal-error-address"
+                                                style="color: red"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -280,11 +263,128 @@
             </div>
         </div>
     </div>
+    
 @endsection
 
 @push('ajax')
     <script>
         $('document').ready(function() {
+            let allColumnData = [];
+            let allColumnNames = [];
+            let formula = [];
+
+            // $.ajax({
+            //     type: 'GET',
+            //     url: '{{ route('invoice.numbercolumnname') }}',
+            //     data: {
+            //         user_id: {{ session()->get('company_id') }},
+            //         token: "{{ session()->get('api_token') }}"
+            //     },
+            //     success: function(response) {
+            //         if (response.status == 200 && response.columnname != '') {
+            //            console.log(response.columnname);
+            //         }
+            //     },
+            //     error: function(error) {
+            //         console.error('Error:', error);
+            //     }
+            // });
+
+
+            $.ajax({
+                    type: 'GET',
+                    url: '{{ route('invoiceformula.index') }}',
+                    data: {
+                        user_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.invoiceformula != '') {
+                            formula = response.invoiceformula;
+                        }
+                    },
+                    error: function(error) {
+                        loaderhide();
+                        console.error('Error:', error);
+                    }
+                });
+
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('invoice.columnname') }}',
+                data: {
+                    user_id: {{ session()->get('company_id') }},
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                     allColumnData = response.columnname;
+                    if (response.status == 200 && response.columnname != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(response.columnname, function(key, value) {
+                            $.each(value, function(innerKey, innerValue) {
+                                if (innerKey === 'column_name') {
+                                    allColumnNames.push(innerValue);
+                                }
+                            });
+                        });
+                        
+                        $('#columnname').prepend(
+                            `${allColumnNames.map(columnName => `<td>${columnName}</td>`).join('')} 
+                                <th>Amount</th>
+                                <th>Sort</th>
+                                <th>Remove</th>
+                            `
+                            );
+
+
+                        const targetRow = $('#add_new_div');
+
+                        // Append input elements dynamically to the target row
+                        targetRow.append(`
+                             <tr class="iteam_row_1">
+                                 ${allColumnData.map(columnData => {
+                                            var inputcontent = null ;
+                                            if (columnData.column_type === 'time') {
+                                                return `<td><input type="time" name="${columnData.column_name}_1" id="${columnData.column_name}_1" class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
+                                            } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
+                                                return `<td ><input type="number" name="${columnData.column_name}_1" id="${columnData.column_name}_1" data-id="1" class="form-control iteam_${columnData.column_name} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
+                                            } else if (columnData.column_type === 'longtext') {
+                                                return `<td><textarea name="${columnData.column_name}_1" id="${columnData.column_name}_1" class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
+                                            } else {
+                                                return `<td><input type="text" name="${columnData.column_name}_1" id="${columnData.column_name}_1" class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
+                                            }
+                                        }).join('')
+                                 }
+                                <td><input type="number" data-id="1" class="form-control iteam_Amount changeprice calculation" id="Amount_1"
+                                        placeholder="Amount" name='Amount_1' min=0 required>
+                                </td>
+                                <td>
+                                    <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up"
+                                                aria-hidden="true"></i></a></span>
+                                    <span class="table-down"><a href="#!" class="indigo-text"><i
+                                                class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
+                                </td>
+                                <td>
+                                    <span class="remove-row" data-id="1"><button data-id="1" type="button"
+                                            class="btn iq-bg-danger btn-rounded btn-sm my-0"><i
+                                                class="ri-delete-bin-2-line"></i></button></span>
+                                </td>
+                             </tr>
+                        `);
+
+                    } else {
+                        $('#columnname').append(` <th>Name</th>
+                        <th>Description</th>
+                        <th>Quantity</th>`);
+                    }
+                       $('.automaticcolspan').attr('colspan',allColumnNames.length);
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+          
+
             // account data fetch and set account detials dropdown
             $.ajax({
                 type: 'GET',
@@ -360,7 +460,7 @@
                     console.error('Error:', error);
                 }
             });
-             loaderhide();
+            loaderhide();
             // customer data fetch and set customer dropdown
             function customers(customerid = 0) {
                 loadershow();
@@ -407,11 +507,11 @@
                 if (gstno != null) {
                     $('#type').val(1);
                     $('#gstline').show();
+                    dynamiccalculaton();
                 } else {
                     $('#type').val(2);
                     $('#gstline').hide();
-
-
+                    dynamiccalculaton();
                 }
                 $.ajax({
                     type: 'GET',
@@ -448,162 +548,121 @@
 
             // function for add new row in table 
             function adddiv() {
-                $('#add_new_div').append(`<tr class="iteam_row">
-                                        <td>
-                                          <input type="hidden" name="product_id_${addname}" id="product_id_${addname}" class="iteam_id" value="${addname}">
-                                          <input type="text" name="product_${addname}" id="product_${addname}" class="form-control iteam_name" placeholder="Name" required>
-                                         </td>
-                                      <td><textarea name="item_description_${addname}" id="item_description_${addname}" class="form-control iteam_description" id="notes" rows="1" required></textarea></td>
-                                      <td><input name="quantity_${addname}" id="quantity_${addname}" type="number"  class="form-control iteam_quantity counttotal" placeholder="Quantity" value='1' required></td>
-                                      <td><input type="number" id="price_${addname}" name="price_${addname}" class="form-control iteam_price changeprice" placeholder="Amount" required></td>   
-                                      <td>
-                                        <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
-                                        <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
-                                      </td>
-                                      <td>
-                                        <span class='remove-row'><button type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span>
-                                      </td>
-                                     </tr>`);                    
-            }
-
-            // function for fill value on select product 
-            function fillvalue(product) {
-                $.ajax({
-                    type: 'GET',
-                    url: '/api/product/search/' + product,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200) {
-                         
-                            var poldname =  $(`#product_${addname}`).val(); 
-                            var polddesc =  $(`#item_description_${addname}`).val(); 
-                            var poldamount =  $(`#price_${addname}`).val(); 
-                           if(poldname != ''|| polddesc != ''|| poldamount != '' ){
-                            addname++;
-                            adddiv();
-                            $(`#product_id_${addname}`).val(response.product.id);
-                            $(`#product_${addname}`).val(response.product.name);
-                            $(`#item_description_${addname}`).val(response.product
-                                .description);
-                            $(`#price_${addname}`).val(parseFloat(response.product
-                                .price_per_unit));
-                            total();
-                            $('#products').val('selected');
-                           }else{
-                            $(`#product_id_${addname}`).val(response.product.id);
-                            $(`#product_${addname}`).val(response.product.name);
-                            $(`#item_description_${addname}`).val(response.product
-                                .description);
-                            $(`#price_${addname}`).val(parseFloat(response.product
-                                .price_per_unit));
-                            total();
-                            $('#products').val('selected');
-                           }
+                $('#add_new_div').append(`
+                    <tr class="iteam_row_${addname}">
+                        ${allColumnData.map(columnData => {
+                                var inputcontent = null ;
+                                if (columnData.column_type === 'time') {
+                                    return `<td><input type="time" name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
+                                } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
+                                    return `<td><input type="number" name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' data-id = ${addname} class="form-control iteam_${columnData.column_name} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
+                                } else if (columnData.column_type === 'longtext') {
+                                    return `<td><textarea name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
+                                } else {
+                                    return `<td><input type="text" name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
+                                }
+                            }).join('')
                         }
-
-                        // You can update your HTML with the data here if needed
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
-                    }
-                });
+                        <td>
+                            <input type="number"  data-id = ${addname} id="Amount_${addname}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
+                        </td>   
+                        <td>
+                            <span class="table-up">
+                                <a href="#!" class="indigo-text">
+                                    <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
+                                </a>
+                            </span>
+                            <span class="table-down">
+                                <a href="#!" class="indigo-text">
+                                    <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
+                                </a>
+                            </span>
+                        </td>
+                        <td>
+                            <span class='remove-row'>
+                                <button type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0">
+                                <i class="ri-delete-bin-2-line"></i>
+                                </button>
+                            </span>
+                        </td>
+                    </tr>
+                `);
             }
 
-
-            // call function on products select and  filldata 
-            var changeid = 0; // this variable is use for check conditon when products select
-            $('#products').on('change', function() {
-                loadershow();
-                var product_id = $(this).val();
-                if (changeid < addname) {
-                    fillvalue(product_id);
-                    changeid++;
-                } else {
-                    addname++;
-                    adddiv();
-                    fillvalue(product_id);
-                }
-               loaderhide();
-            });
-
+           
             // total amount counting with quantity functions start
-            $(document).on('keyup', '.counttotal', function() {
-                total();
-            });
-            $(document).on('change', '.counttotal', function() {
-                total();
-            });
-            $(document).on('keyup', '.changeprice', function() {
-                total();
-            });
-            $(document).on('change', '.changeprice', function() {
-                total();
-            });
+            // $(document).on('keyup', '.counttotal', function() {
+            //     total();
+            // });
+            // $(document).on('change', '.counttotal', function() {
+            //     total();
+            // });
+            // $(document).on('keyup', '.changeprice', function() {
+            //     total();
+            // });
+            // $(document).on('change', '.changeprice', function() {
+            //     total();
+            // });
             // total amount counting with quantity functions end
 
 
 
             // delete row 
             $(document).on('click', '.remove-row', function() {
-                var $deleteid = $(this).data('id');
-               if(confirm('Are you really want to delete this ?')) {
-                if ($deleteid == 1) {
-                    $(this).parents("tr").detach();
-                    total();
-                } else {
-                    // changeid--;
-                    // addname--;
-                    $(this).parents("tr").detach();
-                    total();
+                if (confirm('Are you really want to delete this ?')) {
+                        $(this).parents("tr").detach();
+                        dynamiccalculaton();
                 }
-               }
             });
 
             // call function for gst or without gst counting
             $('#type').on('change', function() {
                 if ($(this).val() == 2) {
                     $('#gstline').hide();
+                    $('#grandtotal').val($('#totalamount').val());
+                    $('#gst').val(0);
                 } else {
                     $('#gstline').show();
+                    dynamiccalculaton();
                 }
-                total();
             })
 
             //function for count gst and total of all products
-            function total() {
-                var totalamount = 0;
+            // function total() {
+            //     var totalamount = 0;
 
-                for (var i = addname; i >= 1; i--) {
-                    if (isNaN($(`#price_${i}`).val())) {
-                        totalamount = totalamount + 0;
-                    } else {
+            //     for (var i = addname; i >= 1; i--) {
+            //         if (isNaN($(`#price_${i}`).val())) {
+            //             totalamount = totalamount + 0;
+            //         } else {
 
-                        totalamount = totalamount + parseFloat(($(`#quantity_${i}`).val() * $(`#price_${i}`)
-                            .val()));
-                        // alert($(`#quantity_${i}`).val() * $(`#price_${i}`).val() );
-                    }
-                }
+            //             totalamount = totalamount + parseFloat(($(`#quantity_${i}`).val() * $(`#price_${i}`)
+            //                 .val()));
+            //             // alert($(`#quantity_${i}`).val() * $(`#price_${i}`).val() );
+            //         }
+            //     }
 
-                if ($('#type').val() != 2) {
-                    var gst = (totalamount * 18) / 100;
-                    $('#gst').val(gst);
-                } else {
-                    $('#gst').val(0);
+            //     if ($('#type').val() != 2) {
+            //         var gst = (totalamount * 18) / 100;
+            //         $('#gst').val(gst);
+            //     } else {
+            //         $('#gst').val(0);
 
-                }
+            //     }
 
-                $('#totalamount').val(totalamount);
-            }
+            //     $('#totalamount').val(totalamount);
+            // }
+           
+
+            
 
             // submit form 
-            var iteam_data = new Array();
+            
             $('#invoiceform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
-              $('.error-msg').text('');
-
+                $('.error-msg').text('');
+ 
                 var i = 0;
                 $('table tr.iteam_row').each(function() {
                     iteam_data[i] = new Array();
@@ -653,7 +712,7 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.invoice') }}";
 
-                        }  else {
+                        } else {
                             loaderhide();
                             toastr.error(response.message);
                         }
@@ -666,7 +725,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(
@@ -676,6 +735,72 @@
                     }
                 });
             });
+           
+
+
+            // dynamic calculation 
+            function dynamiccalculaton(targetdata){
+                var editid = $(targetdata).data('id');
+                var rowData = {};
+                $.each(allColumnNames, function (key, value) {
+                    $(`table tr.iteam_row_${editid} td`).find(`input[type="number"]#${value}_${editid}`).each(function () {
+                        rowData[value] = $(this).val();
+                    });
+                });
+                // rowData['Amount'] = $('#Amount_'+editid).val();
+                var iteam_data = new Array();
+                iteam_data.push(rowData);
+                // console.log(iteam_data);
+                 
+
+                function performCalculation(operation, value1, value2) {
+                        switch (operation) {
+                            case '*':
+                                return value1 * value2;
+                             break;
+                            case '/':
+                                return value1 / value2;
+                              break;
+                            case '+':
+                                return value1 + value2;
+                             break;
+                            case '-':
+                                return value1 - value2;
+                              break;
+                            default:
+                                return 0;
+                        }
+                }
+                   
+                    var results = {};
+
+                        formula.forEach(function (formula) {
+                            var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
+                            var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
+                             outputvalue =  performCalculation(formula.operation, value1, value2)
+                            iteam_data[0][formula.output_column] = outputvalue
+                            results[formula.output_column] = outputvalue;
+                            $(`#${formula.output_column}_${editid}`).val(outputvalue);
+                        });
+                         var total = 0;
+                         $('input.changeprice').each(function(){
+                              total += parseFloat($(this).val());
+                         });
+                         $('#totalamount').val(total);
+                         if($('#type').val()==1){
+                             var gst = (total * 18) / 100;
+                             $('#gst').val(Math.round(gst));
+                             var grandtotal = total + gst ;
+                             $('#grandtotal').val(Math.round(grandtotal));
+                         }else{
+                            $('#grandtotal').val(Math.round(total));
+                         }
+                         
+            }
+                $(document).on('change','.calculation',function(){
+                
+                        dynamiccalculaton(this);
+                });
 
 
             // for add new customer
@@ -728,7 +853,8 @@
                             loaderhide();
                         } else {
                             loaderhide();
-                            $('#modal_state').append(`<option disabled> No Data Found</option>`);
+                            $('#modal_state').append(
+                            `<option disabled> No Data Found</option>`);
                         }
 
 
@@ -774,7 +900,7 @@
                 });
             });
 
-       
+
             // submit new customer  form
             $('#customerform').submit(function(event) {
                 event.preventDefault();
@@ -798,7 +924,7 @@
 
                         } else {
                             toastr.error(response.message);
-                           loaderhide();
+                            loaderhide();
                         }
 
                     },
@@ -809,7 +935,7 @@
                             $.each(errors, function(key, value) {
                                 $('#modal-error-' + key).text(value[0]);
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

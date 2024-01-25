@@ -4,6 +4,7 @@ use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\BankDetailsController;
 use App\Http\Controllers\admin\CompanyController;
 use App\Http\Controllers\admin\CustomerController;
+use App\Http\Controllers\admin\CustomerSupportController;
 use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\admin\InvoiceController;
 use App\Http\Controllers\admin\PdfController;
@@ -149,6 +150,16 @@ Route::group(['prefix' => 'admin'], function () {
             Route::get('/EditLead/{id}', 'edit')->name('admin.editlead')->middleware('checkPermission:leadmodule,lead,edit');
             Route::put('/UpdateLead/{id}', 'update')->name('admin.updatelead')->middleware('checkPermission:leadmodule,lead,edit');
             Route::put('/DeleteLead/{id}', 'destroy')->name('admin.deletelead')->middleware('checkPermission:leadmodule,lead,delete');
+        });
+        
+        Route::controller(CustomerSupportController::class)->group(function () {
+            Route::get('/customersupport', 'index')->name('admin.customersupport')->middleware('checkPermission:customersupportmodule,customersupport,show');
+            Route::get('/AddNewcustomersupport', 'create')->name('admin.addcustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,add');
+            Route::post('/StoreNewcustomersupport', 'store')->name('admin.storecustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,add');
+            Route::get('/Searchcustomersupport/{id}', 'show')->name('admin.searchcustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,view');
+            Route::get('/Editcustomersupport/{id}', 'edit')->name('admin.editcustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,edit');
+            Route::put('/Updatecustomersupport/{id}', 'update')->name('admin.updatecustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,edit');
+            Route::put('/Deletecustomersupport/{id}', 'destroy')->name('admin.deletecustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,delete');
         });
 
         Route::get('/generatepdf/{id}', [PdfController::class, 'generatepdf'])->name('invoice.generatepdf')->middleware('checkPermission:invoicemodule,invoice,view');

@@ -13,6 +13,8 @@ class tbl_invoice_column extends Model
     protected $fillable = [
         'column_name',
         'column_type',
+        'column_order',
+        'is_hide',
         'company_id',
         'created_by',
         'updated_by',
