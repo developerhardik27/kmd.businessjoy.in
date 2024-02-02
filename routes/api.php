@@ -5,10 +5,12 @@ use App\Http\Controllers\api\bankdetailsController;
 use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\companyController;
 use App\Http\Controllers\api\countryController;
+use App\Http\Controllers\api\commonController;
 use App\Http\Controllers\api\customerController;
 use App\Http\Controllers\api\customersupportController;
 use App\Http\Controllers\api\customersupporthistory;
 use App\Http\Controllers\api\customersupporthistoryController;
+use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\invoiceController;
 use App\Http\Controllers\api\mailcontroller;
 use App\Http\Controllers\api\PaymentController;
@@ -236,4 +238,15 @@ Route::middleware('checkToken')->group(function () {
         Route::put('/customersupporthistory/delete', 'destroy')->name('customersupporthistory.delete');
     });
 
+    //common controller route
+
+    Route::controller(commonController::class)->group(function(){
+          Route::get('/getdbname/{id}','dbname')->name('getdbanme');
+    });
+
 });
+ 
+
+Route::get('/dbscript',[dbscriptController::class,'dbscript'])->name('dbscript');
+
+

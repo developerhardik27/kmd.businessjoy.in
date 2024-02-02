@@ -76,13 +76,14 @@ class UserSeeder extends Seeder
             'rp' => $rpjson
         ]); 
 
-        $tableName = 'mng_col_1';
+        $tableName = 'mng_col';
 
         // Create the table if it doesn't exist
         if (!Schema::hasTable($tableName)) {
             Schema::create($tableName, function (Blueprint $table) {
                 $table->id(); // Auto-incrementing primary key
                 $table->integer('invoice_id');
+                $table->integer('amount');
                 $table->integer('created_by');
                 $table->integer('updated_by')->nullable();
                 $table->dateTime('created_at');

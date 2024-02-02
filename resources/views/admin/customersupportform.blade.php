@@ -7,6 +7,13 @@
     New Customer Support
 @endsection
 
+@section('style')
+    <style>
+        .multiselect {
+            border: 0.5px solid #00000073;
+        }
+    </style>
+@endsection
 
 @section('form-content')
     <form id="ticketform" name="ticketform">
@@ -14,6 +21,10 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
+                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                        placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <label class="form-label" for="name">Name:</label>
@@ -54,8 +65,7 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="last_call">Last Call:</label>
-                    <input type="date" class="form-control" name="last_call" id="last_call"
-                        placeholder="Last Call" />
+                    <input type="date" class="form-control" name="last_call" id="last_call" placeholder="Last Call" />
                     <span class="error-msg" id="error-last_call" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -66,6 +76,18 @@
                 </div>
             </div>
         </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="assignedto">Assigned To:</label><br />
+                    <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
+                        <option value="" disabled selected>Select User</option>
+                    </select>
+                    <span class="error-msg" id="error-assignedto" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
@@ -84,6 +106,7 @@
 
 
 @push('ajax')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
         // mobile number validation
         function isNumberKey(e) {
@@ -110,11 +133,43 @@
         }
 
         $('document').ready(function() {
-            loaderhide();
 
-            $('#resetbtn').on('click',function(){
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.index') }}',
+                data: {
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.user != '') {
+                        global_response = response;
+                        // You can update your HTML with the data here if needed     
+                        $.each(response.user, function(key, value) {
+                            var optionValue = value.firstname + ' ' + value.lastname;
+                            $('#assignedto').append(
+                                `<option value="${optionValue}">${optionValue}</option>`);
+                        });
+                        $('#assignedto').multiselect(
+                        'rebuild'); // Rebuild multiselect after appending options
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
+                    } else {
+                        $('#assignedto').append(`<option> No User Found </option>`);
+                        loaderhide();
+                    }
+                },
+                error: function(error) {
+                    loaderhide();
+                    console.error('Error:', error);
+                }
+            });
+
+            $('#resetbtn').on('click', function() {
                 loadershow();
-                window.location.href= "{{route('admin.customersupport')}}";
+                window.location.href = "{{ route('admin.customersupport') }}";
             })
             // submit form data
             $('#ticketform').submit(function(event) {
@@ -134,6 +189,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.customersupport') }}";
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);

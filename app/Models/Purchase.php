@@ -9,7 +9,8 @@ class Purchase extends Model
 {
     use HasFactory;
 
-
+    protected $connection = 'dynamic_connection';
+    
     protected $table = 'purchases';
 
     protected $fillable = [

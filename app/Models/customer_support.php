@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class customer_support extends Model
 {
     use HasFactory;
-
+    protected $connection = 'dynamic_connection';
     protected $table = 'customer_support';
 
     protected $fillable = [
@@ -25,6 +25,10 @@ class customer_support extends Model
         'number_of_call',
         'notes',
         'ticket',
+        'assigned_to',
+        'assigned_by',
+        'created_by',
+        'updated_by',
         'created_at',
         'updated_at',
         'is_active',

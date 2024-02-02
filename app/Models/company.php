@@ -13,6 +13,7 @@ class company extends Model
 
     protected $fillable = [
        'company_details_id',
+       'dbname',
        'created_by',
        'updated_by',
        'created_at',

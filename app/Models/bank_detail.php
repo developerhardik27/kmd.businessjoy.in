@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class bank_detail extends Model
 {
     use HasFactory;
-  
+    
+    protected $connection = 'dynamic_connection';
+
     protected $table = 'bank_details';
 
 

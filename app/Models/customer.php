@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class customer extends Model
 {
     use HasFactory;
+    
+    protected $connection = 'dynamic_connection';
 
     protected $table = 'customers';
 

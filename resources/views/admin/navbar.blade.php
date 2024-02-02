@@ -23,15 +23,15 @@
                                     class="nav-link font-weight-bold search-box-toggle"><i
                                         class="ri-home-4-line"></i></a>
                             </li>
-                            @if (session('user_permissions.invoicemodule.invoice.show') === '1')
+                            @if (session('user_permissions.invoicemodule.invoice.show') == '1')
                                 <li><a href="{{ route('admin.invoice') }}" class="nav-link"> <i
                                             class="ri-file-list-line"></i></a></li>
                             @endif
-                            @if (session('user_permissions.invoicemodule.product.show') === '1')
+                            @if (session('user_permissions.invoicemodule.product.show') == '1')
                                 <li><a href="{{ route('admin.product') }}" class="nav-link"> <i
                                             class="ri-product-hunt-line"></i></a></li>
                             @endif
-                            @if (session('user_permissions.invoicemodule.purchase.show') === '1')
+                            @if (session('user_permissions.invoicemodule.purchase.show') == '1')
                                 <li><a href="{{ route('admin.purchase') }}"
                                         class="nav-link router-link-exact-active router-link-active"><i
                                             class="ri-bank-card-2-line"></i></a></li>
@@ -59,8 +59,10 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ml-auto navbar-list">
                             <li class="nav-item">
-                                <a id="menuOption" class="search-toggle iq-waves-effect language-title"
-                                    href="#">Menu<i class="ri-arrow-down-s-line"></i></a>
+                                @if (session('menu') != null)
+                                    <a id="menuOption" class="search-toggle iq-waves-effect language-title"
+                                        href="#">Menu<i class="ri-arrow-down-s-line"></i></a>
+                                @endif
                                 <div class="iq-sub-dropdown">
                                     @if (Session::has('invoice') && Session::get('invoice') == 'yes')
                                         <a class="iq-sub-card changemenu " href="#" data-value="invoice"><i

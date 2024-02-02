@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-   Update Customer
+    Update Customer
 @endsection
 @section('title')
     Update Customer
@@ -14,21 +14,21 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                    placeholder="token" required />
-                    <input type="hidden" value="{{ $user_id }}" class="form-control" name="updated_by"
+                        placeholder="token" required />
+                    <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id"
                         placeholder="updated_by">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id"
                         placeholder="company_id">
                     <label for="firstname">FirstName</label>
                     <input type="text" id="firstname" class="form-control" name='firstname' placeholder="First name"
                         required>
-                        <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-firstname" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="lastname">LastName</label>
                     <input type="text" id="lastname" class="form-control" name='lastname' placeholder="Last name"
                         required>
-                        <span class="error-msg" id="error-lastname" style="color: red"></span>
+                    <span class="error-msg" id="error-lastname" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -38,13 +38,13 @@
                     <label for="company_name">Company Name</label>
                     <input type="text" class="form-control" name='company_name' id="company_name" value=""
                         placeholder="Company name" required>
-                        <span class="error-msg" id="error-company_name" style="color: red"></span>
+                    <span class="error-msg" id="error-company_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="gst_no">GST Number</label>
                     <input type="text" class="form-control" name='gst_number' id="gst_no" value=""
-                        placeholder="GST Number" >
-                        <span class="error-msg" id="error-gst_number" style="color: red"></span>
+                        placeholder="GST Number">
+                    <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -54,13 +54,13 @@
                     <label for="email">Email</label>
                     <input type="email" class="form-control" name="email" id="email" value=""
                         placeholder="Enter Email" required>
-                        <span class="error-msg" id="error-email" style="color: red"></span>
+                    <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="contact_no">Contact Number</label>
                     <input type="tel" class="form-control" name='contact_number' id="contact_no" value=""
                         placeholder="0123456789" required>
-                        <span class="error-msg" id="error-contact_number" style="color: red"></span>
+                    <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -94,7 +94,7 @@
                         <label for="pincode">Pincode</label>
                         <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
                             required>
-                            <span class="error-msg" id="error-pincode" style="color: red"></span>
+                        <span class="error-msg" id="error-pincode" style="color: red"></span>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,10 @@
             $.ajax({
                 type: 'GET',
                 url: '/api/customer/search/' + edit_id,
-                data:{token: "{{ session()->get('api_token') }}"},
+                data: {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}"
+                },
                 success: function(response) {
                     if (response.status == 200) {
                         // You can update your HTML with the data here if needed
@@ -141,6 +144,9 @@
                         loadstate(country, state);
                         loadcity(state, city);
                         loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     }
 
                 },
@@ -154,7 +160,9 @@
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
-                data:{token: "{{ session()->get('api_token') }}"},
+                data: {
+                    token: "{{ session()->get('api_token') }}",
+                },
                 success: function(response) {
                     if (response.status == 200 && response.country != '') {
                         // You can update your HTML with the data here if needed
@@ -179,14 +187,16 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/state/search/" + country,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
                             // You can update your HTML with the data here if needed
                             $.each(response.state, function(key, value) {
                                 $('#state').append(
                                     `<option  value='${value.id}'> ${value.state_name}</option>`
-                                    )
+                                )
                             });
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`);
@@ -206,7 +216,9 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/city/search/" + state,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
                             $.each(response.city, function(key, value) {
@@ -235,16 +247,18 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/state/search/" + country,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
                             loaderhide();
                             // You can update your HTML with the data here if needed
-                             $.each(response.state,function(key,value){
+                            $.each(response.state, function(key, value) {
                                 $('#state').append(
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
-                             })
+                            })
                         } else {
                             loaderhide();
                             $('#state').append(`<option disabled> No Data Found</option>`);
@@ -258,7 +272,7 @@
                     }
                 });
             });
-            
+
             // load city data of selected state when state change
             $('#state').on('change', function() {
                 loadershow();
@@ -267,7 +281,9 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/city/search/" + state,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
                             loaderhide();
@@ -277,8 +293,7 @@
                                 )
 
                             });
-                        }
-                        else {
+                        } else {
                             loaderhide();
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }
@@ -311,6 +326,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.customer') }}";
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);
@@ -323,7 +341,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                          loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

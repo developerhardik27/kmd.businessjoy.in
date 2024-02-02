@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\company;
 use App\Models\customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +50,14 @@ class CustomerController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {
+    {  
+        $dbname = company::find(Session::get('company_id'));
+        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+        // Establish connection to the dynamic database
+        DB::purge('dynamic_connection');
+        DB::reconnect('dynamic_connection');
+
         $customer = customer::findOrFail($id);
         $this->authorize('view', $customer);
 

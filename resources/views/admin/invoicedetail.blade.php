@@ -1,3 +1,15 @@
+@php
+    // echo  (count($products[0])-2);
+    // echo "<pre>";
+    // print_r($productscolumn);
+    // print_r($products);
+    // print_r($invdata);
+    // print_r($companydetails);
+    // print_r($bankdetails);
+    // die();
+@endphp
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,7 +42,7 @@
         .bglightblue {
             background-color: rgb(32, 55, 100, 1);
             color: rgb(255, 253, 253);
-            border: none!important;
+            border: none !important;
         }
 
         .bgsilver {
@@ -60,7 +72,7 @@
             border-bottom: 1px solid transparent;
         }
 
-       
+
 
         #data td {
             border-bottom: 1px solid black;
@@ -124,12 +136,15 @@
                     <td rowspan="" colspan="2" style="padding:px;"><span class=" textblue firstrow"
                             style="display:block;" id="cname">{{ $companydetails['name'] }}</span>
                         <span style="display:block;">{{ $companydetails['address'] }}</span>
-                        <span style="display:block;">{{ $companydetails['city_name'] }}, {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
+                        <span style="display:block;">{{ $companydetails['city_name'] }},
+                            {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
                         <span style="display:block;">Email: {{ $companydetails['email'] }}</span>
                         {{-- <span ><b>GSTIN No: 24DMLPP9818M1Z6</b></span> --}}
                     </td>
                     <td colspan="2" class="" style="text-align: center">
-                        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/'. $companydetails['img']))) }}"
+                        <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
+                        @else
+                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}" @endif
                             class="rounded mt-auto mx-auto d-block" alt="logo" height="100px">
                     </td>
                 </tr>
@@ -188,23 +203,23 @@
                             <tbody style="text-align: left">
                                 <tr class="bgsilver">
                                     <td>Holder Name</td>
-                                    <td>{{$bankdetails['holder_name']}}</td>
+                                    <td>{{ $bankdetails['holder_name'] }}</td>
                                 </tr>
                                 <tr>
                                     <td>A/c No</td>
-                                    <td>{{$bankdetails['account_no']}}</td>
+                                    <td>{{ $bankdetails['account_no'] }}</td>
                                 </tr>
                                 <tr class="bgsilver">
                                     <td>Swift Code</td>
-                                    <td>{{$bankdetails['swift_code']}}</td>
+                                    <td>{{ $bankdetails['swift_code'] }}</td>
                                 </tr>
                                 <tr>
                                     <td>IFSC Code</td>
-                                    <td>{{$bankdetails['ifsc_code']}}</td>
+                                    <td>{{ $bankdetails['ifsc_code'] }}</td>
                                 </tr>
                                 <tr class="bgsilver">
                                     <td>Branch Name</td>
-                                    <td>{{$bankdetails['branch_name']}}
+                                    <td>{{ $bankdetails['branch_name'] }}
                                     </td>
                                 </tr>
                             </tbody>
@@ -213,90 +228,88 @@
                 </tr>
                 <tr>
                     <td colspan="4" style="padding: 0" id="data">
-                        <table id="data" cellspacing=0 cellpaddin=0 class=" horizontal-border" width="100%">
+                        <table id="data" cellspacing=0 cellpadding=0 class=" horizontal-border" width="100">
                             <thead>
                                 <tr class="bgblue">
                                     <th>#</th>
-                                    <th>Iteam</th>
-                                    <th>Description</th>
-                                    <th class="right">Unit Cost</th>
-                                    <th class="center">Qty</th>
-                                    <th style="text-align: right">Total</th>
+                                    @forelse ($productscolumn as $val)
+                                        @php
+                                            $columnname = strtoupper(str_replace('_', ' ', $val));
+                                        @endphp
+                                        <th>{{ $columnname }}</th>
+                                    @empty
+                                        <th>-</th>
+                                    @endforelse
                                 </tr>
                             </thead>
                             <tbody>
                                 @php $srno = 0 ; @endphp
-                                @forelse ($products as $item)
+
+                                @foreach ($products as $row)
                                     @php $srno++ ; @endphp
                                     <tr>
-                                        <td> {{ $srno }}</td>
-                                        <td> {{ $item['product_name'] }}</td>
-                                        <td> {{ $item['item_description'] }}</td>
-                                        <td style="text-align: center">{{ $item['price'] }}</td>
-                                        <td style="text-align: center">{{ $item['quantity'] }}</td>
-                                        <td style="text-align: right"> {{ $item['total_amount'] }}.00</td>
+                                        <td>{{ $srno }}</td>
+                                        @foreach ($row as $val)
+                                            <td style="text-align: center">{{ $val }}</td>
+                                        @endforeach
                                     </tr>
-
-                                @empty
-                                    <tr>
-                                        <td colspan="6">No products found</td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                                 @for ($i = 0; $i < 15 - $srno; $i++)
                                     <tr style="text-align: center">
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>-</td>
-                                        <td></td>
-                                        <td></td>
+                                        @for ($j = 0; $j < count($products[0]); $j++) 
+                                            @if ($j == ceil(count($products[0])/2))
+                                                <td style="text-align: center">-</td>
+                                            @endif
+                                            <td></td>
+                                        @endfor
                                     </tr>
                                 @endfor
-                              <tr c>
-                                <td colspan="3" style="text-align: right" class="left removeborder  ">
-                                Subtotal
-                                </td>
-                                <td class="removeborder"> </td>
-                                <td class="removeborder"></td>
-                                <td style="text-align: right" class="right removeborder " id="subtotal">
-                                    {{ $invdata['total'] }}.00</td>
-                              </tr>
-                              <tr class=" " >
-                                <td colspan="3" style="text-align: right"
-                                    class="left removeborder ">
-                                    GST(18%)
-                                </td>
-                                <td class="removeborder"></td>
-                                <td class="removeborder"></td>
-                                <td style="text-align: right" class=" "
-                                    id="gst">
-                                    {{ $invdata['gst'] }}.00</td>
-                            </tr>
-                            <tr class="" style="font-size:15px;text-align: right">
-                                <td colspan="3" class="left removeborder"><b>Total</b></td>
-                                <td class="removeborder "></td>
-                                <td class="removeborder"></td>
-                                <td style="text-align: right" class="right   ">
+                                <tr>
+                                    <td colspan="@php echo (count($products[0])-2); @endphp" style="text-align: right"
+                                        class="left removeborder  ">
+                                        Subtotal
+                                    </td>
+                                    <td class="removeborder"></td>
+                                    <td class="removeborder"></td>
+                                    <td style="text-align: center" class="right removeborder " id="subtotal">
+                                        {{ $invdata['total'] }}.00</td>
+                                </tr>
+                                <tr class=" ">
+                                    <td colspan="@php echo (count($products[0])-2); @endphp" style="text-align: right"
+                                        class="left removeborder ">
+                                        GST(18%)
+                                    </td>
+                                    <td class="removeborder"></td>
+                                    <td class="removeborder"></td>
+                                    <td style="text-align: center" class=" " id="gst">
+                                        {{ $invdata['gst'] }}.00</td>
+                                </tr>
+                                <tr class="" style="font-size:15px;text-align: right">
+                                    <td colspan="@php echo (count($products[0])-2); @endphp"
+                                        class="left removeborder"><b>Total</b></td>
+                                    <td class="removeborder "></td>
+                                    <td class="removeborder"></td>
+                                    <td style="text-align: center" class="right   ">
                                         {{ $invdata['grand_total'] }}.00
-                                </td>
-                            </tr>
-                            
+                                    </td>
+                                </tr>
+
                                 <tr class="removeborder">
-                                    <td rowspan="" colspan="6" class="bgblue removeborder bgspecial"
+                                    <td rowspan="" colspan="@php echo (count($products[0])+1); @endphp" class="bgblue  bgspecial"
                                         style="vertical-align: middle; text-align: center;font-style:italic">
                                         <strong class="">Thank You For Your business!</strong>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center" colspan="6">&nbsp;</td>
+                                    <td style="text-align: center" colspan="@php echo (count($products[0])+1); @endphp">&nbsp;</td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center;color:rgb(159, 157, 157)" colspan="6">Notes: Any
+                                    <td style="text-align: center;color:rgb(159, 157, 157)" colspan="@php echo (count($products[0])+1); @endphp">Notes: Any
                                         changes in future will be
                                         chargeable.</td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center" colspan="6"> For any query, Please contact <br>
+                                    <td style="text-align: center" colspan="@php echo (count($products[0])+1); @endphp"> For any query, Please contact <br>
                                         <b> [Jay Patel, +91 9998-1118-74, info@oceanmnc.com]</b>
                                     </td>
                                 </tr>
@@ -308,4 +321,5 @@
         </table>
     </div>
 </body>
+
 </html>

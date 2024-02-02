@@ -16,6 +16,7 @@
                 <div class="col-sm-5">
                     <input type="hidden" name="token" id="token" value="{{ session('api_token') }}">
                     <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
+                    <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
                     <input type="hidden" name="updated_by" id="updated_by">
                     <input type="hidden" name="edit_id" id="edit_id">
                     <input type="hidden" name="created_by" id="created_by" value="{{ $user_id }}">
@@ -78,8 +79,8 @@
                     type: 'GET',
                     url: '{{ route('invoicecolumn.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 && response.invoicecolumn != '') {
@@ -115,6 +116,9 @@
                                                     </tr>`)
                                 id++;
                             });
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
@@ -151,6 +155,9 @@
                                 toastr.success(response.message);
                                 loaderhide();
                                 loaddata();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.error(response.message);
                                 loaderhide();
@@ -172,7 +179,8 @@
                         type: 'get',
                         url: '/api/invoicecolumn/edit/' + editid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200 && response.invoicecolumn != '') {
@@ -182,6 +190,9 @@
                                 $('#edit_id').val(editid);
                                 $('#column_name').val(invoicecolumndata.column_name);
                                 $('#column_type').val(invoicecolumndata.column_type);
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.error(response.message);
                             }
@@ -211,6 +222,9 @@
                                 toastr.success(response.message);
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.error(response.message);
                                 loaderhide();
@@ -230,7 +244,7 @@
                 $('input.columnorder').each(function() {
                     columnid = $(this).data('id');
                     columnorder = $(this).val();
-                    if(columnid != null && columnorder != null){
+                    if (columnid != null && columnorder != null) {
                         columnorders[columnid] = columnorder;
                     }
                 });
@@ -240,12 +254,16 @@
                     data: {
                         columnorders,
                         token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200) {
                             toastr.success(response.message);
                             loaderhide();
                             loaddata();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             toastr.error(response.message);
                             loaderhide();
@@ -270,7 +288,6 @@
                         url: "/api/invoicecolumn/update/" + editid,
                         data: columndata,
                         success: function(response) {
-
                             if (response.status == 200) {
                                 $('#edit_id').val('');
                                 loaderhide();
@@ -279,6 +296,9 @@
                                 $('#columnform')[0].reset();
 
                                 loaddata();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else if (response.status == 422) {
                                 loaderhide();
                                 $('.error-msg').text('');
@@ -322,6 +342,9 @@
                                 toastr.success(response.message);
                                 $('#columnform')[0].reset();
                                 loaddata();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else if (response.status == 422) {
                                 loaderhide();
                                 $('.error-msg').text('');

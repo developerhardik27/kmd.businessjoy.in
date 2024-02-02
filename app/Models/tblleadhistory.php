@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class tblleadhistory extends Model
 {
     use HasFactory;
-
+    protected $connection = 'dynamic_connection'; 
     protected $table = 'tblleadhistory';
 
     protected $fillable = [

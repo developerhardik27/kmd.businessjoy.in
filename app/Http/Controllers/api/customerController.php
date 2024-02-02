@@ -8,28 +8,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class customerController extends Controller
-{    
+class customerController extends commonController
+{
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
 
 
-     public function invoicecustomer(Request $request){
-        $userId = $request->input('user_id');
-        $companyid = $request->input('company_id');
-        if ($userId == 1){
-            $customers = customer::join('country', 'customers.country_id', '=', 'country.id')
-                ->join('state', 'customers.state_id', '=', 'state.id')
-                ->join('city', 'customers.city_id', '=', 'city.id')
+    public function invoicecustomer(Request $request)
+    {
+        
+       
+            $customers = customer::join($this->masterdbname.'.country', 'customers.country_id', '=', $this->masterdbname.'.country.id')
+                ->join($this->masterdbname.'.state', 'customers.state_id', '=',$this->masterdbname. '.state.id')
+                ->join($this->masterdbname.'.city', 'customers.city_id', '=', $this->masterdbname.'.city.id')
                 ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at')
                 ->where('customers.is_deleted', 0)->where('customers.is_active', 1)
                 ->get();
-        } else {
-            $customers = customer::join('country', 'customers.country_id', '=', 'country.id')
-                ->join('state', 'customers.state_id', '=', 'state.id')
-                ->join('city', 'customers.city_id', '=', 'city.id')
-                ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at')
-                ->where('customers.is_deleted', 0)->where('customers.is_active', 1)->where('company_id', $companyid)
-                ->get();
-        }
 
         if ($customers->count() > 0) {
             return response()->json([
@@ -42,29 +44,21 @@ class customerController extends Controller
                 'customer' => 'No Records Found'
             ]);
         }
-     }
+    }
 
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $userId = $request->input('user_id');
-        if ($userId == 1){
-            $customers = customer::join('country', 'customers.country_id', '=', 'country.id')
-                ->join('state', 'customers.state_id', '=', 'state.id')
-                ->join('city', 'customers.city_id', '=', 'city.id')
-                ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at' , 'customers.is_active')
-                ->where('customers.is_deleted', 0)
-                ->get();
-        } else {
-            $customers = customer::join('country', 'customers.country_id', '=', 'country.id')
-                ->join('state', 'customers.state_id', '=', 'state.id')
-                ->join('city', 'customers.city_id', '=', 'city.id')
-                ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at', 'customers.is_active')
-                ->where('customers.is_deleted', 0)->where('company_id', $userId)
-                ->get();
-        }
+
+
+        $customers = customer::join($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
+            ->join($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
+            ->join($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
+            ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at', 'customers.is_active')
+            ->where('customers.is_deleted', 0)
+            ->get();
 
         if ($customers->count() > 0) {
             return response()->json([
@@ -74,7 +68,7 @@ class customerController extends Controller
         } else {
             return response()->json([
                 'status' => 404,
-                'customer' => 'No Records Found'
+                'customer' => 'No Records Found!'
             ]);
         }
     }
@@ -104,7 +98,7 @@ class customerController extends Controller
             'state' => 'required|numeric',
             'city' => 'required|numeric',
             'gst_number' => 'nullable|alpha_num',
-            'created_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'updated_by',
             'created_at',
             'updated_at',
@@ -119,7 +113,7 @@ class customerController extends Controller
             ], 422);
         } else {
 
-            $customer = DB::table('customers')->insertGetId([
+            $customer = DB::connection('dynamic_connection')->table('customers')->insertGetId([
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
                 'company_name' => $request->company_name,
@@ -131,8 +125,8 @@ class customerController extends Controller
                 'city_id' => $request->city,
                 'pincode' => $request->pincode,
                 'gst_no' => $request->gst_number,
-                'company_id' => $request->company_id,
-                'created_by' => $request->created_by,
+                'company_id' => $this->companyId,
+                'created_by' => $this->userId,
 
             ]);
 
@@ -145,7 +139,7 @@ class customerController extends Controller
             } else {
                 return response()->json([
                     'status' => 500,
-                    'message' => 'customer not succesfully added'
+                    'message' => 'customer not succesfully added !'
                 ], 500);
             }
         }
@@ -156,6 +150,7 @@ class customerController extends Controller
      */
     public function show(string $id)
     {
+
         $customer = customer::find($id);
         if ($customer) {
             return response()->json([
@@ -176,6 +171,7 @@ class customerController extends Controller
      */
     public function edit(string $id)
     {
+
         $customer = customer::find($id);
         if ($customer) {
             return response()->json([
@@ -208,7 +204,7 @@ class customerController extends Controller
             'pincode' => 'required|numeric|digits:6',
             'gst_number' => 'nullable|alpha_num|max:50',
             'created_by',
-            'updated_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'created_at',
             'updated_at',
             'is_active',
@@ -223,10 +219,7 @@ class customerController extends Controller
         } else {
             $customer = customer::find($id);
 
-
-
             if ($customer) {
-
                 $customer->update([
                     'firstname' => $request->firstname,
                     'lastname' => $request->lastname,
@@ -239,11 +232,10 @@ class customerController extends Controller
                     'city_id' => $request->city,
                     'pincode' => $request->pincode,
                     'gst_no' => $request->gst_number,
-                    'company_id' => $request->company_id,
-                    'updated_by' => $request->updated_by,
+                    'company_id' => $this->companyId,
+                    'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d')
                 ]);
-
                 return response()->json([
                     'status' => 200,
                     'message' => 'customer succesfully updated'
@@ -256,11 +248,11 @@ class customerController extends Controller
             }
         }
     }
-    
-    // customer status update 
-    public function statusupdate(Request $request , string $id){
-        $customer = customer::find($id);
 
+    // customer status update 
+    public function statusupdate(Request $request, string $id)
+    {
+        $customer = customer::find($id);
         if ($customer) {
             $customer->update([
                 'is_active' => $request->status

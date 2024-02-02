@@ -17,15 +17,15 @@
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <input type="hidden" name="created_by" class="form-control" value="{{ $user_id }}"
-                        placeholder="created_by" required />
-                    <label for="">Name</label>
+                        placeholder="created_by" required >
+                    <label for="name">Name</label>
                     <input id="name" type="text" name="name" class="form-control" placeholder="company name"
-                        required />
+                        required >
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="exampleInputEmail3">Email</label>
-                    <input type="email" name="email" class="form-control" id="exampleInputEmail3" value=""
+                    <label for="email">Email</label>
+                    <input type="email" name="email" class="form-control" id="email" value=""
                         placeholder="Enter Email" required />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
@@ -34,14 +34,14 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="exampleInputphone">Contact Number</label>
-                    <input type="tel" name="contact_number" class="form-control" id="exampleInputphone" value=""
+                    <label for="contact_no">Contact Number</label>
+                    <input type="tel" name="contact_number" class="form-control" id="contact_no" value=""
                         placeholder="0123456789" required />
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">GST Number</label>
-                    <input type="text" name="gst_number" class="form-control" placeholder="GST Number" required />
+                    <label for="gst">GST Number</label>
+                    <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number" required />
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -74,8 +74,8 @@
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">Pincode</label>
-                    <input type="text" name="pincode" class="form-control" placeholder="Pin Code" required />
+                    <label for="pincode">Pincode</label>
+                    <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code" required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
             </div>
@@ -83,14 +83,14 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="exampleFormControlTextarea1">Address</label>
-                    <textarea class="form-control" name="address" id="exampleFormControlTextarea1" rows="2" required></textarea>
+                    <label for="address">Address</label>
+                    <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <div class="col-sm-6">
-                        <label for="">Image</label><br>
-                        <input type="file" name="img" id="" width="100%" />
+                        <label for="img">Image</label><br>
+                        <input type="file" name="img" id="img" width="100%" />
                         <span class="error-msg" id="error-img" style="color: red"></span>
                     </div>
                 </div>

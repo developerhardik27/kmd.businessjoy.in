@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class tbl_invoice_column extends Model
 {
     use HasFactory;
-
+    
+    protected $connection = 'dynamic_connection';
 
     protected $fillable = [
         'column_name',

@@ -36,7 +36,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.user.add') === '1')
+@if (session('user_permissions.invoicemodule.user.add') == '1')
     @section('addnew')
         {{ route('admin.adduser') }}
     @endsection
@@ -78,7 +78,7 @@
                     type: 'GET',
                     url: '{{ route('user.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -96,14 +96,14 @@
                                                         <td>${value.company_name}</td>
                                                         <td>${value.user_role}</td>
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.user.edit') === '1') 
-                                                                ${value.is_active === 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                            @if(session('user_permissions.invoicemodule.user.edit') == '1') 
+                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.user.view') === '1') 
+                                                            @if(session('user_permissions.invoicemodule.user.view') == '1') 
                                                                 <span>
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
@@ -113,9 +113,9 @@
                                                               -    
                                                             @endif
                                                         </td>
-                                                        @if (session('user_permissions.invoicemodule.user.edit') === '1' || session('user_permissions.invoicemodule.user.delete') === '1')
+                                                        @if (session('user_permissions.invoicemodule.user.edit') == '1' || session('user_permissions.invoicemodule.user.delete') == '1')
                                                             <td>
-                                                                @if(session('user_permissions.invoicemodule.user.edit') === '1') 
+                                                                @if(session('user_permissions.invoicemodule.user.edit') == '1') 
                                                                     <span>
                                                                         <a href='EditUser/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -124,7 +124,7 @@
                                                                         </a>
                                                                     </span>
                                                                 @endif
-                                                                @if(session('user_permissions.invoicemodule.user.delete') === '1') 
+                                                                @if(session('user_permissions.invoicemodule.user.delete') == '1') 
                                                                     <span class="">
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>

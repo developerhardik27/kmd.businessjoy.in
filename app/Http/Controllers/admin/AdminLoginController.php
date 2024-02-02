@@ -37,11 +37,9 @@ class AdminLoginController extends Controller
         if ($validator->passes()) {
 
             if (User::where('email', '=', $request->email)->first()) {
-                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
+                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password,'is_deleted'=>0])) {
                     $admin = Auth::guard('admin')->user();
                     $api_token = Str::random(60);
-
-
 
 
                     DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]);
@@ -64,7 +62,7 @@ class AdminLoginController extends Controller
                                     foreach ($json[$module] as $key => $value) {
                                         foreach ($value as $key2 => $value2) {
                                             if ($key2 === "show") {
-                                                if($value2 === "1"){
+                                                if($value2 == "1"){
                                                     return true;
                                                 }
                                             }
@@ -72,7 +70,7 @@ class AdminLoginController extends Controller
                                     }
                                 }
                             }
-
+                              
                             if(hasPermission($rp, "invoicemodule")){
                                 session(['invoice' => "yes"]);
                                 session([ 'menu' => 'invoice']);

@@ -5,10 +5,25 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Models\bank_detail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class bankdetailsController extends Controller
+class bankdetailsController extends commonController
 {
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {   
+        if(session()->get('company_id')){
+            $this->dbname(session()->get('company_id'));
+        }else{
+            $this->dbname($request->company_id);
+        }
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     public function bankdetailspdf(string $id)
     {
 
@@ -29,7 +44,7 @@ class bankdetailsController extends Controller
     public function bank_details(string $id)
     {
 
-        $bankdetail = bank_detail::all()->where('created_by', $id)->where('is_deleted', 0);
+        $bankdetail = bank_detail::all()->where('is_deleted', 0);
         if ($bankdetail->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -48,10 +63,8 @@ class bankdetailsController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->input('user_id');
 
-        $bankdetail = bank_detail::all()->where('created_by', $userId)->where('is_deleted', 0);
-
+        $bankdetail = bank_detail::all()->where('is_deleted', 0);
         if ($bankdetail->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -78,13 +91,14 @@ class bankdetailsController extends Controller
      */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'holder_name' => 'required|string|max:50',
             'branch_name' => 'required|string|max:50',
             'account_number' => 'required|numeric',
             'swift_code' => 'required|string|max:50',
             'ifsc_code' => 'required|string|min:6',
-            'created_by' => 'required|numeric',
+            'company_id' => 'required|numeric',
             'updated_by',
             'created_at',
             'updated_at',
@@ -98,7 +112,6 @@ class bankdetailsController extends Controller
                 'errors' => $validator->messages()
             ]);
         } else {
-
             $bankdetail = bank_detail::create([
                 'holder_name' => $request->holder_name,
                 'branch_name' => $request->branch_name,
@@ -106,7 +119,7 @@ class bankdetailsController extends Controller
                 'swift_code' => $request->swift_code,
                 'ifsc_code' => $request->ifsc_code,
                 'address' => $request->address,
-                'created_by' => $request->created_by,
+                'created_by' => $this->userId,
 
             ]);
 
@@ -147,7 +160,7 @@ class bankdetailsController extends Controller
     {
 
 
-        
+
         $bankdetail = bank_detail::find($id);
 
         if ($bankdetail) {
@@ -169,8 +182,9 @@ class bankdetailsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+
         $bankdetail = bank_detail::find($id);
 
         if ($bankdetail) {

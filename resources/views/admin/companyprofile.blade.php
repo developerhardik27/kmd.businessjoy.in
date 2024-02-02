@@ -33,14 +33,18 @@
                                 <div class="iq-header-title">
                                     <h4 class="card-title">Company Profile</h4>
                                 </div>
-                                <div >
-                                    <a href="{{route('admin.editcompanyprofile',['id'=>Session::get('company_id')])}}"><i id="editicon" class="ri-pencil-fill float-right"></i></a>  
-                                  </div>
+                                <div>
+                                    @if (session('user_permissions.invoicemodule.company.edit') == '1')
+                                        <a
+                                            href="{{ route('admin.editcompanyprofile', ['id' => Session::get('company_id')]) }}"><i
+                                                id="editicon" class="ri-pencil-fill float-right"></i></a>
+                                    @endif
+                                </div>
                             </div>
                             <div class="iq-card-body">
                                 <div class="user-detail text-center">
                                     <div class="user-profile" id="profile_img">
-                                        
+
                                     </div>
                                     <div class="profile-detail mt-3">
                                         <h3 class="d-inline-block" id="name"></h3>
@@ -66,16 +70,16 @@
                                     <h6>Email: <span id="companyemail"></span></h6>
                                 </div>
                                 <div class="mt-2">
-                                    <h6>Contact: <span id="companycontact"></span></h6>                                  
+                                    <h6>Contact: <span id="companycontact"></span></h6>
                                 </div>
                                 <div class="mt-2">
-                                    <h6>Address: <span id="companyaddress"></span></h6>                                  
+                                    <h6>Address: <span id="companyaddress"></span></h6>
                                 </div>
                                 <div class="mt-2">
-                                    <h6>City:  <span id="companycity"></span></h6>                   
+                                    <h6>City: <span id="companycity"></span></h6>
                                 </div>
                                 <div class="mt-2">
-                                    <h6>State:  <span id="companystate"></span></h6>
+                                    <h6>State: <span id="companystate"></span></h6>
                                 </div>
                                 <div class="mt-2">
                                     <h6>Country: <span id="companycountry"></span></h6>
@@ -103,22 +107,22 @@
                 success: function(response) {
                     if (response.status == 200 && response.company != '') {
                         loaderhide();
-                      var company = response.company[0] ;
-                      $('#companyname').text(company.name);
-                      $('#companyemail').text(company.email);
-                      $('#companycontact').text(company.contact_no);
-                      $('#companyaddress').text(company.address+','+company.pincode);
-                      $('#companycity').text(company.city_name);
-                      $('#companystate').text(company.state_name);
-                      $('#companycountry').text(company.country_name);
-                    
-                      var imgElement = $('<img>').attr('src', '/uploads/' + company.img).attr(
+                        var company = response.company[0];
+                        $('#companyname').text(company.name);
+                        $('#companyemail').text(company.email);
+                        $('#companycontact').text(company.contact_no);
+                        $('#companyaddress').text(company.address + ',' + company.pincode);
+                        $('#companycity').text(company.city_name);
+                        $('#companystate').text(company.state_name);
+                        $('#companycountry').text(company.country_name);
+
+                        var imgElement = $('<img>').attr('src', '/uploads/' + company.img).attr(
                             'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         $('#profile_img').prepend(imgElement);
-                      
+
                     } else {
                         loaderhide();
-                       toastr.error('Something Went Wrong!');
+                        toastr.error('Something Went Wrong!');
                     }
                 },
                 error: function(error) {

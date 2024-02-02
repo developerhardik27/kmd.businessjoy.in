@@ -9,16 +9,26 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 
-class tblinvoicecolumnController extends Controller
+class tblinvoicecolumnController extends commonController
 {
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    { 
+
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
 
     //  for formula list
 
     public function formula(Request $request)
     {
-        $userId = $request->input('user_id');
 
-        $invoicecolumn = tbl_invoice_column::all()->whereIn('column_type', ['decimal', 'percentage', 'number'])->where('company_id', $userId)->where('is_deleted', 0);
+        $invoicecolumn = tbl_invoice_column::all()->whereIn('column_type', ['decimal', 'percentage', 'number'])->where('is_deleted', 0);
 
         if ($invoicecolumn->count() > 0) {
             return response()->json([
@@ -38,10 +48,8 @@ class tblinvoicecolumnController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->input('user_id');
 
-        $invoicecolumn = tbl_invoice_column::where('company_id', $userId)
-            ->orderBy('column_order')
+        $invoicecolumn = tbl_invoice_column::orderBy('column_order')
             ->where('is_deleted', 0)
             ->get();
 
@@ -76,7 +84,7 @@ class tblinvoicecolumnController extends Controller
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
             'company_id' => 'required|numeric',
-            'created_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'updated_by',
             'created_at',
             'updated_at',
@@ -93,7 +101,6 @@ class tblinvoicecolumnController extends Controller
 
             $invoicecolumn = tbl_invoice_column::all()
                 ->where('column_name', $request->column_name)
-                ->where('company_id', $request->company_id)
                 ->where('is_deleted', 0);
             if ($invoicecolumn->count() > 0) {
                 return response()->json([
@@ -119,14 +126,14 @@ class tblinvoicecolumnController extends Controller
                 // Validate the request
                 $request->validate($rules);
                 $columnType = $columnTypes[$request->column_type];
-                $tablename = 'mng_col_' . $request->company_id;
+                $tablename = 'mng_col';
                 $columnname = str_replace(' ', '_', $request->column_name);
-                if (DB::statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType")) {
+                if (DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType")) {
                     $invoicecolumn = tbl_invoice_column::create([
                         'column_name' => $request->column_name,
                         'column_type' =>  $request->column_type,
                         'company_id' => $request->company_id,
-                        'created_by' => $request->created_by,
+                        'created_by' => $this->userId,
 
                     ]);
 
@@ -156,7 +163,7 @@ class tblinvoicecolumnController extends Controller
      */
     public function show(string $id)
     {
-        $invoicecolumn = tbl_invoice_column::get()->where('company_id', $id);
+        $invoicecolumn = tbl_invoice_column::get();
         if ($invoicecolumn->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -200,7 +207,7 @@ class tblinvoicecolumnController extends Controller
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
-            'updated_by'  => 'required|numeric',
+            'user_id'  => 'required|numeric',
             'created_by',
             'created_at',
             'updated_at',
@@ -221,7 +228,7 @@ class tblinvoicecolumnController extends Controller
                 $invoicecolumn->update([
                     'column_name' => $request->column_name,
                     'column_type' => $request->column_type,
-                    'updated_by' => $request->updated_by,
+                    'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
@@ -245,13 +252,13 @@ class tblinvoicecolumnController extends Controller
     {
 
         //  $tablename = 'mng_tbl_'.$request->company_id;
-        $fetchcolumnname = DB::table('tbl_invoice_columns')->select('column_name')->where('id', $id)->first();
+        $fetchcolumnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('column_name')->where('id', $id)->first();
         if ($fetchcolumnname) {
             $columname = $fetchcolumnname->column_name;
-            $tablename = 'mng_col_8';
+            $tablename = 'mng_col';
 
-            if (Schema::hasColumn($tablename, $columname)) {
-                $checkrec = DB::table($tablename)->select($columname)->get();
+            if (Schema::connection('dynamic_connection')->hasColumn($tablename, $columname)) {
+                $checkrec = DB::connection('dynamic_connection')->table($tablename)->select($columname)->get();
                 if ($checkrec->count() > 0) {
                     return response()->json([
                         'status' => 404,
@@ -259,7 +266,7 @@ class tblinvoicecolumnController extends Controller
                     ]);
                 } else {
 
-                    DB::statement("ALTER TABLE $tablename DROP COLUMN $columname");
+                    DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename DROP COLUMN $columname");
                     $invoicecolumn = tbl_invoice_column::find($id);
                     $invoicecolumn->update([
                         'is_deleted' => 1

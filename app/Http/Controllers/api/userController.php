@@ -68,8 +68,8 @@ class userController extends Controller
     public function index(Request $request)
     {
 
-        $userId = $request->input('user_id');
-        if ($userId == 1) {
+        $companyId = $request->input('company_id');
+        if ($companyId == 1) {
             $users = DB::table('users')
                 ->join('country', 'users.country_id', '=', 'country.id')
                 ->join('state', 'users.state_id', '=', 'state.id')
@@ -88,7 +88,7 @@ class userController extends Controller
                 ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
                 ->join('user_role', 'users.role', '=', 'user_role.id')
                 ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
-                ->where('users.is_deleted', 0)->where('users.company_id', $userId)->get();
+                ->where('users.is_deleted', 0)->where('users.company_id', $companyId)->get();
         }
         if ($users->count() > 0) {
             return response()->json([
@@ -313,7 +313,7 @@ class userController extends Controller
      */
     public function update(Request $request, string $id)
     {
-      
+    
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
@@ -440,28 +440,37 @@ class userController extends Controller
                                 'updated_at' => date('Y-m-d')
                             ]);
                             if ($user) {
-                                $searchuserrp = user_permission::where('user_id', $id)->first();
-                                if ($searchuserrp) {
-                                    $rpupdate =  $searchuserrp->update([
-                                        "rp" => $rpjson
-                                    ]);
 
-                                    if ($rpupdate) {
-                                        return response()->json([
-                                            'status' => 200,
-                                            'message' => 'user succesfully updated'
+                                if ($request->editrole == 1) {
+
+                                    return response()->json([
+                                        'status' => 200,
+                                        'message' => 'user succesfully updated'
+                                    ]);
+                                } else {
+                                    $searchuserrp = user_permission::where('user_id', $id)->first();
+                                    if ($searchuserrp) {
+                                        $rpupdate =  $searchuserrp->update([
+                                            "rp" => $rpjson
                                         ]);
+
+                                        if ($rpupdate) {
+                                            return response()->json([
+                                                'status' => 200,
+                                                'message' => 'user succesfully updated'
+                                            ]);
+                                        } else {
+                                            return response()->json([
+                                                'status' => 404,
+                                                'message' => 'user role & permissions not succesfully updated!'
+                                            ]);
+                                        }
                                     } else {
                                         return response()->json([
                                             'status' => 404,
-                                            'message' => 'user role & permissions not succesfully updated!'
+                                            'message' => 'No Such roles & permissions Found!'
                                         ]);
                                     }
-                                } else {
-                                    return response()->json([
-                                        'status' => 404,
-                                        'message' => 'No Such roles & permissions Found!'
-                                    ]);
                                 }
                             } else {
                                 return response()->json([
@@ -553,28 +562,35 @@ class userController extends Controller
                         ]);
 
                         if ($user) {
-                            $searchuserrp = user_permission::where('user_id', $id)->first();
-                            if ($searchuserrp) {
-                                $rpupdate =  $searchuserrp->update([
-                                    "rp" => $rpjson
+                            if ($request->editrole == 1) {
+                                return response()->json([
+                                    'status' => 200,
+                                    'message' => 'user succesfully updated'
                                 ]);
-
-                                if ($rpupdate) {
-                                    return response()->json([
-                                        'status' => 200,
-                                        'message' => 'user succesfully updated'
+                            } else {
+                                $searchuserrp = user_permission::where('user_id', $id)->first();
+                                if ($searchuserrp) {
+                                    $rpupdate =  $searchuserrp->update([
+                                        "rp" => $rpjson
                                     ]);
+
+                                    if ($rpupdate) {
+                                        return response()->json([
+                                            'status' => 200,
+                                            'message' => 'user succesfully updated'
+                                        ]);
+                                    } else {
+                                        return response()->json([
+                                            'status' => 404,
+                                            'message' => 'user role & permissions not succesfully updated!'
+                                        ]);
+                                    }
                                 } else {
                                     return response()->json([
                                         'status' => 404,
-                                        'message' => 'user role & permissions not succesfully updated!'
+                                        'message' => 'No Such roles & permissions  Found!'
                                     ]);
                                 }
-                            } else {
-                                return response()->json([
-                                    'status' => 404,
-                                    'message' => 'No Such roles & permissions  Found!'
-                                ]);
                             }
                         } else {
                             return response()->json([

@@ -8,8 +8,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class customersupporthistoryController extends Controller
+class customersupporthistoryController extends commonController
 {
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -30,7 +40,7 @@ class customersupporthistoryController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    { 
+    {
 
         $validator = Validator::make($request->all(), [
             'call_date' => 'required',
@@ -48,9 +58,9 @@ class customersupporthistoryController extends Controller
                 'call_date' => $request->call_date,
                 'history_notes' => $request->history_notes,
                 'call_status' => $request->call_status,
-                'created_by' => $request->created_by,
+                'created_by' => $this->userId,
                 'csid' => $request->csid,
-                'companyid' => $request->company_id
+                'companyid' => $this->companyId
             ]);
 
             if ($customersupporthistory) {
@@ -72,9 +82,10 @@ class customersupporthistoryController extends Controller
      */
     public function show(string $id)
     {
-        $customersupporthistory = DB::table('customersupporthistory')
+        $customersupporthistory = DB::connection('dynamic_connection')->table('customersupporthistory')
             ->select('id', 'call_date', 'history_notes', 'call_status')
             ->where('csid', $id)
+            ->orderBy('id', 'DESC')
             ->get();
 
         if ($customersupporthistory->count() > 0) {

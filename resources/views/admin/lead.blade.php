@@ -118,6 +118,28 @@
         .sidenav {
             right: 0;
         }
+
+        .multiselect-container {
+            width: 300px;
+            /* Set your desired width here */
+        }
+
+        .sidenav .btn-group {
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidenav .btn-group .multiselect {
+            text-align: left;
+        }
+
+        .sidenav .btn-group li label {
+            font-size: 15px;
+        }
+
+        span.multiselect-selected-text {
+            text-wrap: wrap;
+        }
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
@@ -129,15 +151,15 @@
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <div class="row p-3">
             <div class="col-md-12" id="assignedtodiv">
-                <label for="assignedto" class="form-label float-left ">Assigned To:</label>
+                <label for="assignedto" class="form-label float-left mt-1">Assigned To : </label>
                 <select name="assignedto" class="form-control multiple" id="assignedto" multiple>
-                    <option value="" disabled selected>User</option>
+                    <option value="" disabled selected>-- User --</option>
                 </select>
             </div>
             <div class="col-md-12 mt-3" id="sourcecolumndiv">
-                <label for="source" class="form-label float-left ">Source:</label>
+                <label for="source" class="form-label float-left mt-1">Source : </label>
                 <select name="source" class="form-control multiple" id="source" multiple>
-                    <option value="" disabled selected>Source</option>
+                    <option value="" disabled selected>-- Source --</option>
                 </select>
             </div>
             <div class="col-md-12">
@@ -204,7 +226,7 @@
         </button>
     </div>
 
-    @if (session('user_permissions.leadmodule.lead.add') === '1')
+    @if (session('user_permissions.leadmodule.lead.add') == '1')
         @section('addnew')
             {{ route('admin.addlead') }}
         @endsection
@@ -226,7 +248,6 @@
                 <th>Sr.</th>
                 <th>Details</th>
                 <th>Lead Stage</th>
-                <th>&nbsp;&nbsp;&nbsp;History&nbsp;&nbsp;&nbsp;</th>
                 <th>createdat</th>
                 <th>followup</th>
                 <th>Source</th>
@@ -244,7 +265,7 @@
         <div class="modal-dialog modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addcallhistoryTitle">Call History</h5>
+                    <h5 class="modal-title" id="addcallhistoryTitle"><b>Call History</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -254,7 +275,7 @@
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="leadid" id="leadid">
-                            <input type="hidden" name="created_by" id="created_by">
+                            <input type="hidden" name="user_id" id="created_by">
                             <input type="hidden" name="token" id="token">
                             <div class="col-12">
                                 Datetime:
@@ -304,7 +325,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewcallhistoryTitle">Call History</h5>
+                    <h5 class="modal-title" id="viewcallhistoryTitle"><b>Call History</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -338,7 +359,6 @@
     </script>
     <script>
         $(document).ready(function() {
-
             var filterData = JSON.parse(sessionStorage.getItem('filterData'));
             if (filterData) {
                 $.each(filterData, function(key, value) {
@@ -359,18 +379,22 @@
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
-                    user_id: "{{ session()->get('company_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
                     if (response.status == 200 && response.user != '') {
                         // You can update your HTML with the data here if needed     
                         $.each(response.user, function(key, value) {
-                            var optionValue = value.firstname + ' ' + value .lastname;
+                            var optionValue = value.firstname + ' ' + value.lastname;
                             $('#assignedto').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#assignedto').multiselect('rebuild'); // Rebuild multiselect after appending options
+                        $('#assignedto').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -387,18 +411,22 @@
                 type: 'GET',
                 url: '{{ route('lead.sourcecolumn') }}',
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }} "
                 },
                 success: function(response) {
                     if (response.status == 200 && response.sourcecolumn != '') {
-                        console.log(response.sourcecolumn);
                         // You can update your HTML with the data here if needed     
                         $.each(response.sourcecolumn, function(key, value) {
                             var optionValue = value
                             $('#source').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#source').multiselect('rebuild'); // Rebuild multiselect after appending options
+                        $('#source').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                         loaderhide();
                     } else {
                         $('#source').append(`<option> No User Found </option>`);
@@ -420,7 +448,7 @@
                     type: 'GET',
                     url: '{{ route('lead.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -453,7 +481,7 @@
                                                         <br/>    
                                                         <span>
                                                             <b>Status:</b> 
-                                                             @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                             @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 <option value='Not Interested'>Not Interested</option>
                                                                 <option value='Not Receiving'>Not Receiving</option>
@@ -483,28 +511,30 @@
                                                             <option value='Cancelled'>Cancelled</option>
                                                             <option value='Disqualified'>Disqualified</option>
                                                         </select>
-                                                    </td>    
-                                                    <td>
-                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary leadid' ><i class='ri-time-fill'></i></button>
-                                                        <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button>
-                                                    </td>
+                                                    </td> 
                                                     <td>${value.created_at_formatted}</td>
                                                     <td>${value.number_of_follow_up}</td>
                                                     <td>${value.source}</td>
                                                     <td>
                                                         <span>
+                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 leadid' ><i class='ri-time-fill'></i></button>
+                                                        </span>
+                                                        <span>
+                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                        </span>
+                                                        <span>
                                                             <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                        @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <span>
                                                                  <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
-                                                        @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                        @if (session('user_permissions.leadmodule.lead.delete') == '1')
                                                             <span>
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
                                                                     <i class="ri-delete-bin-fill"></i>
@@ -526,6 +556,9 @@
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
+                            loaderhide();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
                             loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='11' >No Data Found</td></tr>`);
@@ -631,12 +664,16 @@
                         data: {
                             statusid: statusid,
                             statusvalue: statusvalue,
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: " {{ session()->get('company_id') }} "
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.success(data.message);
                                 advancefilters();
@@ -659,16 +696,20 @@
                     $(this).data('original-value', leadstagevalue);
                     $.ajax({
                         type: 'PUT',
-                        url: "{{ route('lead.changeleadstage')}}",
+                        url: "{{ route('lead.changeleadstage') }}",
                         data: {
                             leadstageid,
                             leadstagevalue,
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.success(data.message);
                                 advancefilters();
@@ -724,12 +765,16 @@
                         type: 'PUT',
                         data: {
                             id: id,
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message)
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.success(data.message);
                                 $(row).closest("tr").fadeOut();
@@ -760,7 +805,7 @@
                 }
 
                 var data = {
-                    user_id: "{{ session()->get('company_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 };
                 if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
@@ -789,11 +834,13 @@
                     data.activestatusvalue = activestatusvalue;
                 }
 
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && source == '' && leadstagestatus == '' && LastFollowUpDate == '' &&
+                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && source == '' &&
+                    leadstagestatus == '' && LastFollowUpDate == '' &&
                     NextFollowUpDate == '' && activestatusvalue == '') {
                     loaddata();
                 }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto != '' || source != '' || leadstagestatus != '' ||
+                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
+                    '' || source != '' || leadstagestatus != '' ||
                     LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '') {
                     loadershow();
                     $.ajax({
@@ -829,7 +876,7 @@
                                                         </span> 
                                                         <br/>    
                                                         <span>
-                                                            <b>Status:</b> @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                            <b>Status:</b> @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 <option value='Not Interested'>Not Interested</option>
                                                                 <option value='Not Receiving'>Not Receiving</option>
@@ -853,35 +900,36 @@
                                                         <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid=${value.id} id="lead_stage_${value.id}" name="lead_stage_${value.id}">
                                                             <option value='New Lead'>New Lead</option>
                                                             <option value='Requirement Ghathering'>Requirement Ghathering</option>
-                                                            <option value='Quatation'>Quotation</option>
+                                                            <option value='Quotation'>Quotation</option>
                                                             <option value='In Followup'>In Followup</option>
                                                             <option value='Sale'>Sale</option>
                                                             <option value='Cancelled'>Cancelled</option>
                                                             <option value='Disqualified'>Disqualified</option>
                                                         </select>
-                                                    </td>  
-                                                    <td>
-                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary leadid' ><i class='ri-time-fill'></i></button>
-                                                        <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button>
-                                                    </td>
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
                                                     <td>${value.number_of_follow_up}</td>
                                                     <td>${value.source}</td>
                                                     <td>
                                                         <span>
+                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 leadid' ><i class='ri-time-fill'></i></button>
+                                                        </span>
+                                                        <span>
+                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                        </span>
+                                                        <span>
                                                             <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') === '1')
+                                                        @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <span>
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
-                                                        @if (session('user_permissions.leadmodule.lead.delete') === '1')
+                                                        @if (session('user_permissions.leadmodule.lead.delete') == '1')
                                                             <span>
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
                                                                     <i class="ri-delete-bin-fill"></i>
@@ -903,6 +951,9 @@
                                     },
                                     "destroy": true, //use for reinitialize datatable
                                 });
+                                loaderhide();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
                                 loaderhide();
                             } else {
                                 $('#data').DataTable().destroy();
@@ -983,8 +1034,14 @@
             $(document).on('click', '.leadid', function() {
                 leadid = $(this).data('id');
                 $('#leadid').val(leadid);
-                var currentDateTime = new Date().toISOString().slice(0, 16);
-                $('#call_date').val(currentDateTime);
+                var now = new Date();
+                var formattedDateTime = now.getFullYear() + '-' +
+                    ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+                    ('0' + now.getDate()).slice(-2) + 'T' +
+                    ('0' + now.getHours()).slice(-2) + ':' +
+                    ('0' + now.getMinutes()).slice(-2);
+
+                $('#call_date').val(formattedDateTime);
                 $('#created_by').val("{{ session()->get('user_id') }}");
                 $('#company_id').val("{{ session()->get('company_id') }}");
                 $('#token').val("{{ session()->get('api_token') }}");
@@ -998,7 +1055,8 @@
                     type: 'get',
                     url: "/api/leadhistory/search/" + historyid,
                     data: {
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 & response.leadhistory != '') {
@@ -1012,10 +1070,13 @@
                                 </div>
                             `);
                             });
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             $('.historyrecord').append(`
                                 <div class="col-12">
-                                   No history Found
+                                   No history Found 
                                 </div>
                             `);
                         }
@@ -1054,6 +1115,10 @@
                             toastr.success(response.message);
                             $('#leadhistoryform')[0].reset();
                             $('#addcallhistory').modal('hide');
+                            advancefilters();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);
@@ -1077,8 +1142,6 @@
                     }
                 })
             });
-
-
 
         });
     </script>

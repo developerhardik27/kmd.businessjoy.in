@@ -36,7 +36,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.product.add') === '1')
+@if (session('user_permissions.invoicemodule.product.add') == '1')
     @section('addnew')
         {{ route('admin.addproduct') }}
     @endsection
@@ -91,7 +91,7 @@
                                                     <td>${value.price_per_unit}</td>
                                                     <td>${value.company_name}</td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.product.view') === '1')
+                                                        @if (session('user_permissions.invoicemodule.product.view') == '1')
                                                             <span>
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -101,9 +101,9 @@
                                                           -    
                                                         @endif
                                                     </td>
-                                                    @if(session('user_permissions.invoicemodule.product.edit') === '1' || session('user_permissions.invoicemodule.product.delete') === '1')
+                                                    @if(session('user_permissions.invoicemodule.product.edit') == '1' || session('user_permissions.invoicemodule.product.delete') == '1')
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.product.edit') === '1')
+                                                            @if (session('user_permissions.invoicemodule.product.edit') == '1')
                                                                 <span>
                                                                     <a href='EditProduct/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -112,7 +112,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif
-                                                            @if (session('user_permissions.invoicemodule.product.delete') === '1')
+                                                            @if (session('user_permissions.invoicemodule.product.delete') == '1')
                                                                 <span>
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>

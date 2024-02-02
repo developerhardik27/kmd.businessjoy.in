@@ -9,6 +9,8 @@ class tbl_invoice_formula extends Model
 {
     use HasFactory;
 
+    protected $connection = 'dynamic_connection';
+
     protected $fillable = [
         'first_column',
         'operation',

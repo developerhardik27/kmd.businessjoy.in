@@ -38,7 +38,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.bank.add') === '1')
+@if (session('user_permissions.invoicemodule.bank.add') == '1')
     @section('addnew')
         {{ route('admin.addbank') }}
     @endsection
@@ -46,7 +46,7 @@
         <button class="btn btn-sm btn-primary">
             <span class="">+ Add New</span>
         </button>
-    @endsection 
+    @endsection
 @endif
 @section('table-content')
     <table id="data" class="table  table-bordered display table-responsive-md table-striped text-center">
@@ -79,10 +79,11 @@
                     type: 'GET',
                     url: '{{ route('bank.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
+                        console.log(response);
                         if (response.status == 200 && response.bankdetail != '') {
                             global_response = response;
                             loaderhide();
@@ -94,14 +95,14 @@
                                                         <td>${value.account_no}</td>
                                                         <td>${value.branch_name}</td>
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.bank.edit') === '1')
-                                                                ${value.is_active === 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></div>'}
+                                                            @if (session('user_permissions.invoicemodule.bank.edit') == '1')
+                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></div>'}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.bank.view') === '1')
+                                                            @if (session('user_permissions.invoicemodule.bank.view') == '1')
                                                                 <span class=""><button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
                                                             @else
                                                               -
@@ -109,7 +110,7 @@
                                                         </td>
                                                         
                                                         <td> 
-                                                            @if (session('user_permissions.invoicemodule.bank.delete') === '1')
+                                                            @if (session('user_permissions.invoicemodule.bank.delete') == '1')
                                                                 <span class=""><button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-fill"></i></button></span>
                                                             @else
                                                               -
@@ -121,6 +122,9 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
@@ -129,7 +133,7 @@
                     },
                     error: function(error) {
                         loaderhide();
-                       toastr.error('Something Went Wrong!');
+                        toastr.error('Something Went Wrong!');
                     }
                 });
             }
@@ -147,7 +151,8 @@
                         url: '/api/bank/update/' + statusid,
                         data: {
                             status: '0',
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -157,6 +162,9 @@
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>'
                                 );
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.error('something went wrong !');
                                 loaderhide();
@@ -176,7 +184,8 @@
                         url: '/api/bank/update/' + statusid,
                         data: {
                             status: '1',
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -186,6 +195,9 @@
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
@@ -205,13 +217,17 @@
                         type: 'put',
                         url: '/api/bank/delete/' + deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 loaderhide();
                                 toastr.success('succesfully deleted');
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');

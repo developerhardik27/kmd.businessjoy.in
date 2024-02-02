@@ -89,7 +89,7 @@
     </style>
 @endsection
 
-@if (session('user_permissions.invoicemodule.invoice.add') === '1')
+@if (session('user_permissions.invoicemodule.invoice.add') == '1')
     @section('addnew')
         {{ route('admin.addinvoice') }}
     @endsection
@@ -127,6 +127,8 @@
             <div class="modal-body">
                 <form id="paymentform">
                     @csrf
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <input type="hidden" name="inv_id" value="" id="inv_id">
@@ -164,8 +166,9 @@
                     type: 'GET',
                     url: '{{ route('invoice.inv_list') }}',
                     data: {
-                        user_id: {{ session()->get('user_id') }},
-                        token: "{{ session()->get('api_token') }}"
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }} "
                     },
                     success: function(response) {
                         if (response.status == 200 && response.invoice != '') {
@@ -177,7 +180,7 @@
                                                         <td>${value.firstname} ${value.lastname}</td>
                                                         <td>${value.grand_total}</td>
                                                         <td> 
-                                                            @if(session('user_permissions.invoicemodule.invoice.edit') === '1')
+                                                            @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
                                                                 <select data-status='${value.id}' class="status" id="status_${value.id}" name="" required >
                                                                     <option value='paid'>paid</option>
                                                                     <option value='pending'>pending</option>
@@ -189,7 +192,7 @@
                                                             @endif
                                                         </td>
                                                         <td> 
-                                                            @if(session('user_permissions.invoicemodule.invoice.view') === '1')
+                                                            @if (session('user_permissions.invoicemodule.invoice.view') == '1')
                                                                 <span class="">
                                                                     <a href='/admin/invoiceview/${value.id}' target='_blank'>
                                                                         <button type="button" data-view='${value.id}' data-toggle="modal" class="view-btn btn btn-info btn-rounded btn-sm my-0">
@@ -202,25 +205,25 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.invoice.view') === '1')
+                                                            @if (session('user_permissions.invoicemodule.invoice.view') == '1')
                                                                 <span class="">
                                                                     <a href='/admin/generatepdf/${value.id}' target='_blank' id='pdf'>
-                                                                        <button type="button" data-toggle="modal" class="download-btn btn btn-info btn-rounded btn-sm my-0">Download</button>
+                                                                        <button type="button"  class="download-btn btn btn-info btn-rounded btn-sm my-0">Download</button>
                                                                     </a>
                                                                 </span>
                                                             @else
                                                               -    
                                                             @endif
                                                         </td>
-                                                        <td>
-                                                            @if(session('user_permissions.invoicemodule.invoice.view') === '1')
-                                                                ${value.status === 'paid' ? '<div id=reciept_'+value.id+ '> <a href=/admin/generatereciept/'+value.id+ '><button  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >download</button></a></div>'  : ' '}
+                                                        <td id='reciept_${value.id}'>
+                                                            @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                                                ${value.status == 'paid' ? '<div > <a href=/admin/generatereciept/'+value.id+ '><button  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >download</button></a></div>'  : ' '}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.invoice.delete') === '1')
+                                                            @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
                                                                 <span class="">
                                                                     <button type="button" data-id='${value.id}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -235,17 +238,17 @@
 
                                 $(`#status_${value.id}`).val(value.status);
                             });
-                       
+
                             var search = {!! json_encode($search) !!}
-                       
+
                             $('#data').DataTable({
-                                
+
                                 "search": {
                                     "search": search
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                             loaderhide();
@@ -271,7 +274,8 @@
                         type: 'put',
                         url: '/api/invoice/delete/' + $deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: " {{ session()->get('company_id') }} "
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -306,20 +310,24 @@
                     url: '/api/inv_status/' + id,
                     data: {
                         status: value,
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200) {
                             toastr.success(response.message)
                             if (value == 'paid') {
-                                $('#reciept_' + id).append(
-                                    `<a href='/admin/generatereceipt/${id}'><button  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >download</button></a>`
+                                $('#reciept_' + id).html(
+                                    `<div><a href='/admin/generatereciept/${id}'><button  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >download</button></a><div>`
                                 );
                                 loaderhide();
                             } else {
                                 $('#reciept_' + id).html('');
                                 loaderhide();
                             }
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error('Status not Updated');
@@ -358,6 +366,9 @@
                                         statuschange(statusid, status);
                                         document.getElementById("paymentform").reset();
                                         $("#myModal").css("display", "none");
+                                        loaderhide();
+                                    } else if (response.status == 500) {
+                                        toastr.error(response.message);
                                         loaderhide();
                                     } else {
                                         loaderhide();

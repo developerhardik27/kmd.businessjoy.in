@@ -3,15 +3,24 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\company;
 use App\Models\invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class InvoiceController extends Controller
 {
     public function invoiceview(string $id)
     {
+      
+        $dbname = company::find(Session::get('company_id'));
+        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+        // Establish connection to the dynamic database
+        DB::purge('dynamic_connection');
+        DB::reconnect('dynamic_connection');
 
         $invoice = invoice::findOrFail($id);
         $this->authorize('view', $invoice);
@@ -64,8 +73,9 @@ class InvoiceController extends Controller
      */
 
     public function create()
-    {
-        $jsonbankdetails =  app('App\Http\Controllers\api\bankdetailsController')->bank_details(Session::get('company_id'));
+    {  
+        $company_id = Session::get('company_id');
+        $jsonbankdetails =  app('App\Http\Controllers\api\bankdetailsController')->bank_details($company_id);
         $bdetailscontent = $jsonbankdetails->getContent();
         $bdetails = json_decode($bdetailscontent);
 

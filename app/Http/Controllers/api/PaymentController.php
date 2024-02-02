@@ -8,15 +8,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class PaymentController extends Controller
-{
+class PaymentController extends commonController
+{ 
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        if(session()->get('company_id')){
+            $this->dbname(session()->get('company_id'));
+        }else{
+            $this->dbname($request->company_id);
+        }
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(string $id)
     {
       
-        $payment = DB::table('payment_details')
+        $payment = DB::connection('dynamic_connection')->table('payment_details')
                     ->where('inv_id', $id)
                     ->get();
 

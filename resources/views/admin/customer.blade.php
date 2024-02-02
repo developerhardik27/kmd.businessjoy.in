@@ -37,7 +37,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.customer.add') === '1')
+@if (session('user_permissions.invoicemodule.customer.add') == '1')
     @section('addnew')
         {{ route('admin.addcustomer') }}
     @endsection
@@ -79,7 +79,8 @@
                     type: 'GET',
                     url: '{{ route('customer.index') }}',
                     data: {
-                        user_id: {{ session()->get('company_id') }},
+                        user_id: {{ session()->get('user_id') }},
+                        company_id: {{ session()->get('company_id') }},
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -96,14 +97,14 @@
                                                     <td>${value.company_name}</td>
                                                     <td>${value.contact_no}</td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.customer.edit') === '1')
-                                                            ${value.is_active === 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                        @if (session('user_permissions.invoicemodule.customer.edit') == '1')
+                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                         @else
                                                           -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.customer.view') === '1')
+                                                        @if (session('user_permissions.invoicemodule.customer.view') == '1')
                                                             <span class="">
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -113,10 +114,10 @@
                                                           -    
                                                         @endif
                                                     </td>
-                                                    @if (session('user_permissions.invoicemodule.customer.edit') === '1' ||
-                                                            session('user_permissions.invoicemodule.customer.delete') === '1')
+                                                    @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                            session('user_permissions.invoicemodule.customer.delete') == '1')
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.customer.edit') === '1')
+                                                            @if (session('user_permissions.invoicemodule.customer.edit') == '1')
                                                                 <span class="">
                                                                     <a href='EditCustomer/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -125,7 +126,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif
-                                                            @if(session('user_permissions.invoicemodule.customer.delete') === '1')
+                                                            @if(session('user_permissions.invoicemodule.customer.delete') == '1')
                                                                 <span class="">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -143,7 +144,10 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else {
+                        } else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                        }else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                             loaderhide();
                         }
@@ -167,7 +171,8 @@
                         url: '/api/customer/statusupdate/' + statusid,
                         data: {
                             status: '0',
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -177,7 +182,10 @@
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
-                            } else {
+                            }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                        } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
                             }
@@ -196,7 +204,8 @@
                         url: '/api/customer/statusupdate/' + statusid,
                         data: {
                             status: '1',
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id:"{{session()->get('company_id')}}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -206,7 +215,10 @@
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
-                            } else {
+                            }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                        } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
                             }
@@ -226,7 +238,8 @@
                         type: 'put',
                         url: '/api/customer/delete/' + $deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id:"{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {

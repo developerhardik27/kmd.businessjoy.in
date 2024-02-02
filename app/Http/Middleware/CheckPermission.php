@@ -37,7 +37,7 @@ class CheckPermission
        }
      
         // Check if the user has permission for the given module and action
-        if (isset($rp[$module][$submodule][$action]) && $rp[$module][$submodule][$action] === '1' && Session::get('menu') == $menu ) {
+        if (isset($rp[$module][$submodule][$action]) && $rp[$module][$submodule][$action] == '1' && Session::get('menu') == $menu ) {
             return $next($request);
         }
     

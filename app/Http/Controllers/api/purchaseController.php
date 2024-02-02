@@ -8,28 +8,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class purchaseController extends Controller
+class purchaseController extends commonController
 {
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
 
-        $user_id = $request->input('user_id');
-        if ($user_id == 1) {
-            $purchases = DB::table('purchases')
-                ->join('company', 'purchases.company_id', '=', 'company.id')
-                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->select('purchases.id', 'purchases.name', 'purchases.description', 'purchases.amount', 'purchases.amount_type', 'purchases.date', 'company_details.name as company_name', 'purchases.img', 'purchases.created_by', 'purchases.updated_by', 'purchases.is_active')
-                ->where('purchases.is_deleted', 0)->get();
-        } else {
-            $purchases = DB::table('purchases')
-                ->join('company', 'purchases.company_id', '=', 'company.id')
-                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->select('purchases.id', 'purchases.name', 'purchases.description', 'purchases.amount', 'purchases.amount_type', 'purchases.date', 'company_details.name as company_name', 'purchases.img', 'purchases.created_by', 'purchases.updated_by', 'purchases.is_active')
-                ->where('purchases.is_deleted', 0)->where('purchases.company_id', $user_id)->get();
-        }
+
+        $purchases = Purchase::join($this->masterdbname.'.company', 'purchases.company_id', '=', $this->masterdbname.'.company.id')
+            ->join($this->masterdbname.'.company_details', $this->masterdbname.'.company.company_details_id', '=', $this->masterdbname.'.company_details.id')
+            ->select('purchases.id', 'purchases.name', 'purchases.description', 'purchases.amount', 'purchases.amount_type', 'purchases.date', 'company_details.name as company_name', 'purchases.img', 'purchases.created_by', 'purchases.updated_by', 'purchases.is_active')
+            ->where('purchases.is_deleted', 0)->get();
+
         if ($purchases->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -64,7 +67,7 @@ class purchaseController extends Controller
             'amount_type' => 'required|string',
             'date' => 'required|date',
             'company_id' => 'required|numeric',
-            'created_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'img' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
             'updated_by',
             'created_at',
@@ -96,8 +99,8 @@ class purchaseController extends Controller
                         'amount_type' => $request->amount_type,
                         'date' => $request->date,
                         'img' => $imageName,
-                        'company_id' => $request->company_id,
-                        'created_by' => $request->created_by,
+                        'company_id' => $this->companyId,
+                        'created_by' => $this->userId,
                     ]);
 
 
@@ -125,8 +128,8 @@ class purchaseController extends Controller
                     'amount' => $request->amount,
                     'amount_type' => $request->amount_type,
                     'date' => $request->date,
-                    'company_id' => $request->company_id,
-                    'created_by' => $request->created_by,
+                    'company_id' => $this->companyId,
+                    'created_by' => $this->userId,
                 ]);
 
 
@@ -195,7 +198,7 @@ class purchaseController extends Controller
             'amount' => 'required|numeric',
             'amount_type' => 'required|string',
             'date' => 'required|date',
-            'updated_by'=> 'required|numeric',
+            'user_id' => 'required|numeric',
             'img' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
             'created_at',
             'updated_at',
@@ -228,7 +231,7 @@ class purchaseController extends Controller
                             'amount_type' => $request->amount_type,
                             'date' => $request->date,
                             'img' => $imageName,
-                            'updated_by' => $request->updated_by,
+                            'updated_by' => $this->userId,
                             'updated_at' => date('Y-m-d')
                         ]);
                         return response()->json([
@@ -257,7 +260,7 @@ class purchaseController extends Controller
                         'amount' => $request->amount,
                         'amount_type' => $request->amount_type,
                         'date' => $request->date,
-                        'updated_by' => $request->updated_by,
+                        'updated_by' => $this->userId,
                         'updated_at' => date('Y-m-d')
                     ]);
                     return response()->json([

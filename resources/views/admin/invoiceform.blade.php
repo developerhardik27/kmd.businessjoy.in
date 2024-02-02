@@ -148,7 +148,7 @@
                                         <input type="hidden" name="token" class="form-control"
                                             value="{{ session('api_token') }}" placeholder="token" required />
                                         <input type="hidden" value="{{ $user_id }}" class="form-control"
-                                            name="created_by">
+                                            name="user_id">
                                         <input type="hidden" value="{{ $company_id }}" class="form-control"
                                             name="company_id">
                                         <label for="firstname">FirstName</label>
@@ -273,34 +273,20 @@
             let allColumnNames = [];
             let formula = [];
 
-            // $.ajax({
-            //     type: 'GET',
-            //     url: '{{ route('invoice.numbercolumnname') }}',
-            //     data: {
-            //         user_id: {{ session()->get('company_id') }},
-            //         token: "{{ session()->get('api_token') }}"
-            //     },
-            //     success: function(response) {
-            //         if (response.status == 200 && response.columnname != '') {
-            //            console.log(response.columnname);
-            //         }
-            //     },
-            //     error: function(error) {
-            //         console.error('Error:', error);
-            //     }
-            // });
-
-
+        
             $.ajax({
                     type: 'GET',
                     url: '{{ route('invoiceformula.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 && response.invoiceformula != '') {
                             formula = response.invoiceformula;
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                         }
                     },
                     error: function(error) {
@@ -313,7 +299,7 @@
                 type: 'GET',
                 url: '{{ route('invoice.columnname') }}',
                 data: {
-                    user_id: {{ session()->get('company_id') }},
+                    company_id: {{ session()->get('company_id') }},
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
@@ -343,15 +329,16 @@
                         targetRow.append(`
                              <tr class="iteam_row_1">
                                  ${allColumnData.map(columnData => {
+                                    var columnName = columnData.column_name.replace(/\s+/g, '_');
                                             var inputcontent = null ;
                                             if (columnData.column_type === 'time') {
-                                                return `<td><input type="time" name="${columnData.column_name}_1" id="${columnData.column_name}_1" class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
+                                                return `<td class='invoicesubmit'><input type="time" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
                                             } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                                return `<td ><input type="number" name="${columnData.column_name}_1" id="${columnData.column_name}_1" data-id="1" class="form-control iteam_${columnData.column_name} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
+                                                return `<td class='invoicesubmit'><input type="number" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
                                             } else if (columnData.column_type === 'longtext') {
-                                                return `<td><textarea name="${columnData.column_name}_1" id="${columnData.column_name}_1" class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
+                                                return `<td class='invoicesubmit'><textarea name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
                                             } else {
-                                                return `<td><input type="text" name="${columnData.column_name}_1" id="${columnData.column_name}_1" class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
+                                                return `<td class='invoicesubmit'><input type="text" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
                                             }
                                         }).join('')
                                  }
@@ -372,7 +359,10 @@
                              </tr>
                         `);
 
-                    } else {
+                    } else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                    }else {
                         $('#columnname').append(` <th>Name</th>
                         <th>Description</th>
                         <th>Quantity</th>`);
@@ -390,7 +380,7 @@
                 type: 'GET',
                 url: '{{ route('invoice.bankacc') }}',
                 data: {
-                    user_id: {{ session()->get('company_id') }},
+                    company_id: {{ session()->get('company_id') }},
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
@@ -401,6 +391,9 @@
                                 `<option ${response.bank.length === 1 ? 'selected' : ''} value='${value.id}'>${value.account_no} - ${value.branch_name}</option>`
                             );
                         });
+                    }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                     } else {
                         $('#acc_details').append(
                             `<option disabled '>No Data found </option>`);
@@ -416,7 +409,8 @@
                 type: 'GET',
                 url: '{{ route('invoice.currency') }}',
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    company_id : " {{session()->get('company_id')}} "
                 },
                 success: function(response) {
                     if (response.status == 200 && response.currency != '') {
@@ -483,6 +477,9 @@
                             });
                             $('#customer').val(customerid);
                             loaderhide();
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             $('#customer').append(`<option disabled '>No Data found </option>`);
                             loaderhide();
@@ -517,7 +514,8 @@
                     type: 'GET',
                     url: "/api/customer/search/" + id,
                     data: {
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id')}}"
                     },
                     success: function(response) {
                         // You can update your HTML with the data here if needed
@@ -529,6 +527,9 @@
                             } else {
                                 $('#currency').val('');
                             }
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                         }
                         loaderhide();
                     },
@@ -551,15 +552,16 @@
                 $('#add_new_div').append(`
                     <tr class="iteam_row_${addname}">
                         ${allColumnData.map(columnData => {
+                            var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
                                 if (columnData.column_type === 'time') {
-                                    return `<td><input type="time" name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
+                                    return `<td class='invoicesubmit'><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td><input type="number" name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' data-id = ${addname} class="form-control iteam_${columnData.column_name} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
+                                    return `<td class='invoicesubmit'><input type="number" name="${columnName}_${addname}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
                                 } else if (columnData.column_type === 'longtext') {
-                                    return `<td><textarea name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
+                                    return `<td class='invoicesubmit'><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
                                 } else {
-                                    return `<td><input type="text" name="${columnData.column_name}_${addname}" id='${columnData.column_name}_${addname}' class="form-control iteam_${columnData.column_name} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
+                                    return `<td class='invoicesubmit'><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
                                 }
                             }).join('')
                         }
@@ -589,23 +591,6 @@
                 `);
             }
 
-           
-            // total amount counting with quantity functions start
-            // $(document).on('keyup', '.counttotal', function() {
-            //     total();
-            // });
-            // $(document).on('change', '.counttotal', function() {
-            //     total();
-            // });
-            // $(document).on('keyup', '.changeprice', function() {
-            //     total();
-            // });
-            // $(document).on('change', '.changeprice', function() {
-            //     total();
-            // });
-            // total amount counting with quantity functions end
-
-
 
             // delete row 
             $(document).on('click', '.remove-row', function() {
@@ -627,51 +612,28 @@
                 }
             })
 
-            //function for count gst and total of all products
-            // function total() {
-            //     var totalamount = 0;
-
-            //     for (var i = addname; i >= 1; i--) {
-            //         if (isNaN($(`#price_${i}`).val())) {
-            //             totalamount = totalamount + 0;
-            //         } else {
-
-            //             totalamount = totalamount + parseFloat(($(`#quantity_${i}`).val() * $(`#price_${i}`)
-            //                 .val()));
-            //             // alert($(`#quantity_${i}`).val() * $(`#price_${i}`).val() );
-            //         }
-            //     }
-
-            //     if ($('#type').val() != 2) {
-            //         var gst = (totalamount * 18) / 100;
-            //         $('#gst').val(gst);
-            //     } else {
-            //         $('#gst').val(0);
-
-            //     }
-
-            //     $('#totalamount').val(totalamount);
-            // }
-           
-
-            
-
             // submit form 
-            
             $('#invoiceform').submit(function(event) {
+                iteam_data = new Array();
                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
- 
-                var i = 0;
-                $('table tr.iteam_row').each(function() {
-                    iteam_data[i] = new Array();
-                    iteam_data[i][0] = $(this).find('td').find('.iteam_id').val();
-                    iteam_data[i][1] = $(this).find('td').find('.iteam_name').val();
-                    iteam_data[i][2] = $(this).find('td').find('.iteam_description').val();
-                    iteam_data[i][3] = $(this).find('td').find('.iteam_quantity').val();
-                    iteam_data[i][4] = $(this).find('td').find('.iteam_price').val();
-                    i++;
+
+                $('tbody#add_new_div tr').each(function(index, row) {
+                    var rowData = {};
+
+                    // Extract the row number from the class of the current row element
+                    var rowNumber = $(row).attr('class').match(/\d+/)[0];
+
+                    // Iterate over each column name
+                    $.each(allColumnNames, function (key, columnName) {
+                        var columnNameWithUnderscores = columnName.replace(/\s+/g, '_');
+                        // Find the input within the current row by using the row number
+                        var inputValue = $(row).find(`#${columnNameWithUnderscores}_${rowNumber}`).val();
+                        rowData[columnNameWithUnderscores] = inputValue;
+                    });
+                      rowData['amount'] = $(row).find('#Amount_'+ rowNumber).val();
+                    iteam_data.push(rowData);
                 });
                 var country = $('#country').val();
                 var created = $('#created_by').val();
@@ -682,10 +644,11 @@
                 var customer = $('#customer').val();
                 var total = $('#totalamount').val();
                 var gst = $('#gst').val();
+                var grandtotal = $('#grandtotal').val();
                 var notes = $('#notes').val();
                 var data = {
                     country_id: country,
-                    created_by: created,
+                    user_id: created,
                     company_id: company_id,
                     payment_mode: payment_type,
                     acc_details: account,
@@ -693,16 +656,19 @@
                     customer_id: customer,
                     total_amount: total,
                     gst: gst,
+                    grandtotal : grandtotal,
                     notes: notes
                 };
-
+                
+                
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('invoice.store') }}",
                     data: {
                         data,
                         iteam_data,
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        company_id : " {{ session()->get('company_id')}}"
                     },
                     success: function(response) {
                         // Handle the response from the server
@@ -712,6 +678,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.invoice') }}";
 
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);
@@ -809,7 +778,7 @@
                 type: 'GET',
                 url: '{{ route('country.index') }}',
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
                 },
                 success: function(response) {
 
@@ -840,7 +809,7 @@
                     type: 'GET',
                     url: "/api/state/search/" + country_id,
                     data: {
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
                     },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
@@ -875,7 +844,7 @@
                     type: 'GET',
                     url: "/api/city/search/" + state_id,
                     data: {
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
                     },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
@@ -915,13 +884,15 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             $('#customerform')[0].reset();
-                            $('#exampleModalScrollable').toggle();
-                            $('.modal-backdrop').toggle();
+                            $('#exampleModalScrollable').modal('hide');
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             customers(response.customerid);
                             loaderhide();
                             toastr.success(response.message);
 
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             toastr.error(response.message);
                             loaderhide();

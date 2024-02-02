@@ -294,7 +294,7 @@
                         $.each(rp,function(key,value){
                              $.each(value,function(key2,value2){
                                    $.each(value2,function(key3,value3){
-                                    if(value3 != null){
+                                    if(value3 == 1){
                                         if(key3 == "show"){
                                            $(`#show${key2}menu`).attr('checked',true)
                                         }else{

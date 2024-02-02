@@ -69,7 +69,7 @@
                  <td style="text-align:center " colspan="2">
                      <span class=" textblue firstrow cname" style="display:block;" id="">Bill To</span>
                      <span style="display:block;"> {{ $invdata['firstname'] }} {{ $invdata['lastname'] }}</span>
-                     <span style="display:block;">2/225 Arved Transcube Plaza,Ranip</span>
+                     <span style="display:block;">{{ $invdata['address'] }}</span>
                      <span
                          style="display:block;">{{ $invdata['city_name'] }},{{ $invdata['state_name'] }},{{ $invdata['pincode'] }}</span>
                      <span style="display:block;">{{ $invdata['email'] }}</span>

@@ -3,13 +3,26 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\tbllead;
 use App\Models\tblleadhistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class tblleadhistoryController extends Controller
+class tblleadhistoryController extends commonController
 {
+
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -47,12 +60,20 @@ class tblleadhistoryController extends Controller
                 'call_date' => $request->call_date,
                 'history_notes' => $request->history_notes,
                 'call_status' => $request->call_status,
-                'created_by' => $request->created_by, 
+                'created_by' => $this->userId, 
                 'leadid' => $request->leadid,
-                'companyid' => $request->company_id
+                'companyid' => $this->companyId
             ]);
 
             if ($leadhistory) {
+
+                $lead = tbllead::find($request->leadid);
+
+                if($lead){
+                    $lead->status = $request->call_status;
+                    $lead->notes = $request->history_notes;
+                    $lead->save();
+                }
                 return response()->json([
                     'status' => 200,
                     'message' => 'leadhistory succesfully created'
@@ -71,9 +92,10 @@ class tblleadhistoryController extends Controller
      */
     public function show(string $id)
     {
-        $lead = DB::table('tblleadhistory')
+        $lead = DB::connection('dynamic_connection')->table('tblleadhistory')
         ->select('id', 'call_date', 'history_notes','call_status')
         ->where('leadid', $id)
+        ->orderBy('id','DESC')
         ->get();
 
     if ($lead->count() > 0) {

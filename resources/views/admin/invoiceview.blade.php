@@ -1,3 +1,8 @@
+{{-- @php
+print_r($data);
+    die();
+@endphp --}}
+
 @section('page_title')
     Invoice Details
 @endsection
@@ -9,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>invoiceView</title>
+    <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
     {{-- <link rel="stylesheet" href="{{ asset('admin/css/bootstrap.min.css') }}"> 
     <link rel="stylesheet" href="{{ asset('admin/css/typography.css') }}"> --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
@@ -77,8 +83,10 @@
                             <table class="w-100 float-right">
                                 <tr class="">
                                     <td> <img
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $data['companydetails']['img']))) }}"
-                                            class="rounded mt-auto mx-auto d-block" alt="logo" height="100px"></td>
+                                            @if ($data['companydetails']['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $data['companydetails']['img']))) }}"
+                                            @else   
+                                              src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}" @endif
+                                            class="rounded mt-auto mx-auto d-block" alt="logo" height="150px"></td>
                                 </tr>
                             </table>
 
@@ -156,21 +164,17 @@
                             <table id="data" class="table-responsive-sm table table-striped table-bordered"
                                 style="width: 100%;">
                                 <thead>
-                                    <tr class="bgblue">
+                                    <tr class="bgblue" id="dynamiccol">
                                         <th class="center">#</th>
-                                        <th>Item</th>
-                                        <th>Description</th>
-                                        <th class="right">Unit Cost</th>
-                                        <th class="center">Qty</th>
-                                        <th class="right">Total</th>
+
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="dynamicval">
                                 </tbody>
                                 <tbody>
                                     <tr class="bglightblue">
-                                        <td rowspan="4" colspan="4" class="bgblue"
-                                            style="vertical-align: middle; text-align: center;">
+                                        <td rowspan="4"  colspan="" class="bgblue"
+                                            style="vertical-align: middle; text-align: center;" id="dynamiccolspan">
                                             <strong class="">Thank You For Your business!</strong>
                                         </td>
                                         <td class="left bgblue ">
@@ -208,26 +212,37 @@
                 type: 'GET',
                 url: '/api/invoice/inv_details/' + {{ $id }},
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: " {{ session()->get('company_id') }} "
                 },
                 success: function(response) {
                     if (response.status == 200 && response.invoice != '') {
                         // You can update your HTML with the data here if needed
+                        
+                        $('#dynamiccolspan').attr('colspan',(response.columns.length-1));
+
+                        $.each(response.columns, function(key, value) {
+                            var columnName = value.replace(/_/g, ' ');
+                            $('#dynamiccol').append(`
+                                   <th class='center'>${columnName}</th>
+                            `);
+                        })
+
                         var srno = 0;
                         $.each(response.invoice, function(key, value) {
                             srno++;
-                            $('#data').append(`<tr>
-                                                    <td>${srno}</td>
-                                                    <td>${value.product_name}</td>
-                                                    <td>${value.item_description}</td>
-                                                    <td>${value.price}</td>
-                                                    <td>${value.quantity}</td>
-                                                    <td>${value.total_amount}.00</td>
-                                                    </tr>`)
-
+                            var row = `<tr><td>${srno}</td>`;
+                            $.each(response.columns, function(key2, val) {
+                                row += `<td>${value[val]}</td>`;
+                            });
+                            row += `</tr>`;
+                            $('#data').append(row);
                         });
+                    }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                     } else {
-                        $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
+                        $('#dynamicval').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                     }
                 },
                 error: function(error) {
@@ -238,10 +253,10 @@
                 type: 'GET',
                 url: '/api/invoice/' + {{ $id }},
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: " {{ session()->get('company_id') }} "
                 },
                 success: function(response) {
-                    console.log(response);
                     if (response.status == 200 && response.invoice != '') {
                         $.each(response.invoice, function(key, value) {
                             $('#status').append(value.status);
@@ -259,6 +274,9 @@
                             $('#total').append(value.grand_total + '.00 Rs');
                         })
 
+                    }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                     } else {
                         $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
                     }
@@ -267,6 +285,5 @@
                     console.error('Error:', error);
                 }
             });
-            loaderhide();
         })
     </script>

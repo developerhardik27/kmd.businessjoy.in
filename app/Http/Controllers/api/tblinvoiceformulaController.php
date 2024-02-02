@@ -3,21 +3,32 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\tbl_invoice_formula;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class tblinvoiceformulaController extends Controller
+class tblinvoiceformulaController extends commonController
 {
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    { 
+
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $userId = $request->input('user_id');
 
-        $invoiceformula = tbl_invoice_formula::where('company_id', $userId)
-                        ->orderBy('formula_order')
+        $invoiceformula = tbl_invoice_formula::orderBy('formula_order')
                         ->where('is_deleted', 0)
                         ->get();
 
@@ -55,8 +66,8 @@ class tblinvoiceformulaController extends Controller
                 'operation' => $value[1],
                 'second_column' => $value[2],
                 'output_column' => $value[3],
-                'company_id' => $request->company_id,
-                'created_by' => $request->created_by,
+                'company_id' => $this->companyId,
+                'created_by' => $this->userId,
             ]);
         }
 
@@ -79,7 +90,7 @@ class tblinvoiceformulaController extends Controller
      */
     public function show(string $id)
     {
-        $invoiceformula = tbl_invoice_formula::get()->where('company_id', $id);
+        $invoiceformula = tbl_invoice_formula::get();
         if ($invoiceformula->count() > 0) {
             return response()->json([
                 'status' => 200,

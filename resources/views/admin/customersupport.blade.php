@@ -149,11 +149,14 @@
     </div>
     <div class="col-md-12 text-right pr-5">
         <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
-            <option disabled selected>status</option>
+            <option disabled selected>-- status --</option>
             <option value='Open'>Open</option>
             <option value='In Progress'>In Progress</option>
             <option value='Resolved'>Resolved</option>
             <option value='Cancelled'>Cancelled</option>
+        </select>
+        <select name="assignedto" class="form-control multiple advancefilter" id="assignedto" multiple>
+            <option value="" disabled selected>-- Assigned To --</option>
         </select>
         <!-- Use any element to open the sidenav -->
         <button title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
@@ -164,7 +167,7 @@
         </button>
     </div>
 
-    @if (session('user_permissions.customersupportmodule.customersupport.add') === '1')
+    @if (session('user_permissions.customersupportmodule.customersupport.add') == '1')
         @section('addnew')
             {{ route('admin.addcustomersupport') }}
         @endsection
@@ -204,7 +207,7 @@
         <div class="modal-dialog modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addcallhistoryTitle">Call History</h5>
+                    <h5 class="modal-title" id="addcallhistoryTitle"><b>Call History</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -214,7 +217,7 @@
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="csid" id="csid">
-                            <input type="hidden" name="created_by" id="created_by">
+                            <input type="hidden" name="user_id" id="created_by">
                             <input type="hidden" name="token" id="token">
                             <div class="col-12">
                                 Datetime:
@@ -257,7 +260,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewcallhistoryTitle">Call History</h5>
+                    <h5 class="modal-title" id="viewcallhistoryTitle"><b>Call History</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -281,7 +284,7 @@
     <script>
         /* Simple appearence with animation AN-1*/
         function openNav() {
-            document.getElementById("mySidenav").style.width = "25%";
+            document.getElementById("mySidenav").style.width = "30%";
         }
 
         function closeNav() {
@@ -298,17 +301,50 @@
                     if (value != ' ') {
                         $('#' + key).val(value);
                     }
-                    
+
                 });
                 advancefilters();
                 sessionStorage.removeItem('filterData');
             } else {
                 loaddata();
             }
-
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.index') }}',
+                data: {
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.user != '') {
+                        // You can update your HTML with the data here if needed     
+                        $.each(response.user, function(key, value) {
+                            var optionValue = value.firstname + ' ' + value.lastname;
+                            $('#assignedto').append(
+                                `<option value="${optionValue}">${optionValue}</option>`);
+                        });
+                        $('#assignedto').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
+                    } else {
+                        $('#assignedto').append(`<option> No User Found </option>`);
+                        loaderhide();
+                    }
+                },
+                error: function(error) {
+                    loaderhide();
+                    console.error('Error:', error);
+                }
+            });
 
             var global_response = '';
             $('#advancestatus').multiselect();
+            $('#assignedto').multiselect();
+
+
 
             function loaddata() {
                 loadershow();
@@ -316,7 +352,7 @@
                     type: 'GET',
                     url: '{{ route('customersupport.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -349,7 +385,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 <option disabled selected>status</option>
                                                                 <option value='Open'>Open</option>
@@ -373,14 +409,14 @@
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                             <span>
                                                                  <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
                                                             <span>
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
                                                                     <i class="ri-delete-bin-fill"></i>
@@ -401,6 +437,9 @@
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
+                            loaderhide();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
                             loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
@@ -458,6 +497,10 @@
                                                     <td>Created On</td>
                                                     <th>${ticket.created_at_formatted}</th>
                                                 </tr>
+                                                <tr> 
+                                                    <td>Assigned To</td>
+                                                    <th>${ticket.assigned_to}</th>
+                                                <tr>
                                                 <tr>
                                                     <td >Notes</td>
                                                     <th class='text-wrap'>${ticket.notes}</th>
@@ -481,12 +524,16 @@
                         data: {
                             statusid: statusid,
                             statusvalue: statusvalue,
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.success(data.message);
                                 advancefilters();
@@ -505,13 +552,15 @@
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
+                assignedto = $('#assignedto').val();
                 last_call = $('#last_call').val();
-              
+
 
                 data = {
                     fromdate,
                     todate,
                     advancestatus,
+                    assignedto,
                     last_call,
                 }
 
@@ -533,12 +582,16 @@
                         type: 'PUT',
                         data: {
                             id: id,
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message)
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.success(data.message);
                                 $(row).closest("tr").fadeOut();
@@ -553,6 +606,7 @@
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
+                assignedto = $('#assignedto').val();
                 LastCall = $('#last_call').val();
                 var fromDate = new Date(fromdate);
                 var toDate = new Date(todate);
@@ -564,7 +618,7 @@
                 }
 
                 var data = {
-                    user_id: "{{ session()->get('company_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 };
                 if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
@@ -574,15 +628,19 @@
                 if (advancestatus != '') {
                     data.status = advancestatus;
                 }
+                if (assignedto != '') {
+                    data.assignedto = assignedto;
+                }
                 if (LastCall != '') {
                     data.lastcall = LastCall;
                 }
-               
-                if (fromdate == '' && todate == '' && advancestatus == '' && LastCall == '') {
+
+                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '') {
                     loaddata();
                 }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' ||
-                    LastCall != '' ) {
+                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
+                    '' ||
+                    LastCall != '') {
                     loadershow();
                     $.ajax({
                         type: 'GET',
@@ -618,7 +676,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 <option disabled selected>status</option>
                                                                 <option value='Open'>Open</option>
@@ -643,14 +701,14 @@
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                             <span>
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') === '1')
+                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
                                                             <span>
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
                                                                     <i class="ri-delete-bin-fill"></i>
@@ -671,6 +729,9 @@
                                     },
                                     "destroy": true, //use for reinitialize datatable
                                 });
+                                loaderhide();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
                                 loaderhide();
                             } else {
                                 $('#data').DataTable().destroy();
@@ -717,12 +778,15 @@
                 $('#invaliddate').text(' ');
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
+                $('#assignedto option').prop('selected', false);
 
                 // Check only the first option
                 $('#advancestatus option:first').prop('selected', true);
+                $('#assignedto option:first').prop('selected', true);
 
                 // Refresh the multiselect dropdown to reflect changes
                 $('#advancestatus').multiselect('refresh');
+                $('#assignedto').multiselect('refresh');
                 loaddata();
 
             });
@@ -733,8 +797,14 @@
             $(document).on('click', '.csid', function() {
                 csid = $(this).data('id');
                 $('#csid').val(csid);
-                var currentDateTime = new Date().toISOString().slice(0, 16);
-                $('#call_date').val(currentDateTime);
+                var now = new Date();
+                var formattedDateTime = now.getFullYear() + '-' +
+                    ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+                    ('0' + now.getDate()).slice(-2) + 'T' +
+                    ('0' + now.getHours()).slice(-2) + ':' +
+                    ('0' + now.getMinutes()).slice(-2);
+
+                $('#call_date').val(formattedDateTime);
                 $('#created_by').val("{{ session()->get('user_id') }}");
                 $('#company_id').val("{{ session()->get('company_id') }}");
                 $('#token').val("{{ session()->get('api_token') }}");
@@ -748,7 +818,8 @@
                     type: 'get',
                     url: "/api/customersupporthistory/search/" + historyid,
                     data: {
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 & response.customersupporthistory != '') {
@@ -762,6 +833,9 @@
                                 </div>
                             `);
                             });
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             $('.historyrecord').append(`
                                 <div class="col-12">
@@ -804,6 +878,9 @@
                             toastr.success(response.message);
                             $('#customersupporthistoryform')[0].reset();
                             $('#addcallhistory').modal('hide');
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);

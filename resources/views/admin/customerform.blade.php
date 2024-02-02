@@ -15,7 +15,7 @@
                 <div class="col-sm-6">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <input type="hidden" value="{{ $user_id }}" class="form-control" name="created_by">
+                    <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id">
                     <label for="">FirstName</label>
                     <input type="text" class="form-control" name='firstname' placeholder="First Name" required>
@@ -34,7 +34,7 @@
                     <label for="">Company Name</label>
                     <input type="text" class="form-control" name='company_name' id="" placeholder="Company Name"
                         required>
-                        <span class="error-msg" id="error-company_name" style="color: red"></span>    
+                    <span class="error-msg" id="error-company_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="">GST Number</label>
@@ -49,13 +49,13 @@
                     <label for="email">Email</label>
                     <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email"
                         required>
-                        <span class="error-msg" id="error-email" style="color: red"></span>
+                    <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="exampleInputphone">Contact Number</label>
                     <input type="tel" class="form-control" name='contact_number' id="exampleInputphone"
                         placeholder="0123456789" required>
-                        <span class="error-msg" id="error-contact_number" style="color: red"></span>
+                    <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -129,6 +129,9 @@
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     } else {
                         loaderhide();
                         $('#country').append(`<option disabled> No Data Found</option>`);
@@ -162,6 +165,9 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             $('#state').append(`<option disabled> No Data Found</option>`);
@@ -197,6 +203,9 @@
                                 )
                             });
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             $('#city').append(`<option disabled> No Data Found</option>`);
@@ -228,6 +237,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.customer') }}";
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);
@@ -241,7 +253,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

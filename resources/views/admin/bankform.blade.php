@@ -14,10 +14,12 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
+                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                        placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <input type="hidden" name="created_by" class="form-control" value="{{ $company_id }}"
-                        placeholder="created_by" required />
+                    <input type="hidden" name="company_id" class="form-control" value="{{ $company_id }}"
+                        placeholder="company_id" required />
                     <label for="">Holder Name</label>
                     <input id="name" type="text" name="holder_name" class="form-control" placeholder="Holder Name"
                         required />
@@ -93,6 +95,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.bank') }}";
 
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             toastr.error(response.message);
                            loaderhide();

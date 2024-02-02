@@ -20,7 +20,7 @@
         <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
         <input type="hidden" name="updated_by" id="updated_by">
         <input type="hidden" name="edit_id" id="edit_id">
-        <input type="hidden" name="created_by" id="created_by" value="{{ $user_id }}">
+        <input type="hidden" name="user_id" id="user_id" value="{{ $user_id }}">
         <span class="add_div float-right mb-3 mr-2">
             <button type="button" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span
                         class="pl-1">Formula</span></i>
@@ -85,7 +85,7 @@
                 type: "GET",
                 url: "{{ route('invoicecolumn.formulacolumnlist') }}",
                 data: {
-                    user_id: "{{ session()->get('company_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
@@ -155,6 +155,9 @@
                                             </tr>
                         `);
 
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     } else {
                         $('#add_new_div').append(`
                                             <tr class="iteam_row">
@@ -337,7 +340,7 @@
                     type: 'GET',
                     url: '{{ route('invoiceformula.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -370,6 +373,9 @@
                                                     </tr>`)
                                 id++;
                             });
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             $('#tabledata').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
@@ -395,19 +401,22 @@
                         type: 'get',
                         url: '/api/invoiceformula/edit/' + editid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: " {{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200 && response.invoiceformula != '') {
                                 var invoiceformula = response.invoiceformula;
                                 loaderhide();
                                 $('#updated_by').val("{{ session()->get('user_id') }}");
-                                $('#created_by').val("");
                                 $('#edit_id').val(editid);
                                 $('#firstcolumn_1').val(invoiceformula.first_column).focus();
                                 $('#operation_1').val(invoiceformula.operation);
                                 $('#secondcolumn_1').val(invoiceformula.second_column);
                                 $('#output_1').val(invoiceformula.output_column);
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.error('Something Went Wrong! please try again later ');
                             }
@@ -430,13 +439,17 @@
                         type: 'put',
                         url: '/api/invoiceformula/delete/' + deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: " {{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success('Formula succesfully deleted');
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 toastr.error('something went wrong !');
                                 loaderhide();
@@ -463,12 +476,16 @@
                     data: {
                         formulaorders,
                         token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200) {
                             toastr.success(response.message);
                             loaderhide();
                             loaddata();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             toastr.error(response.message);
                             loaderhide();
@@ -601,7 +618,8 @@
                                 output_column,
                                 editid,
                                 updated_by,
-                                token: "{{ session()->get('api_token') }}"
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}"
                             },
                             success: function(response) {
                                 if (response.status == 200) {
@@ -614,6 +632,9 @@
                                 } else if (response.status == 422) {
                                     loaderhide();
                                     toastr.error('something Went wrong! Please try again later')
+                                } else if (response.status == 500) {
+                                    toastr.error(response.message);
+                                    loaderhide();
                                 } else {
                                     loaderhide();
                                     toastr.error(response.message);
@@ -640,7 +661,7 @@
                             i++;
                         });
                         var company_id = $('#company_id').val();
-                        var created_by = $('#created_by').val();
+                        var created_by = $('#user_id').val();
                         if (formuladata != '') {
                             $.ajax({
                                 type: "post",
@@ -649,7 +670,7 @@
                                     formuladata,
                                     token: "{{ session()->get('api_token') }}",
                                     company_id: company_id,
-                                    created_by: created_by
+                                    user_id: created_by
                                 },
                                 success: function(response) {
                                     if (response.status == 200) {
@@ -658,6 +679,9 @@
                                         toastr.success(response.message);
                                         $('#formulaform')[0].reset();
                                         loaddata();
+                                    } else if (response.status == 500) {
+                                        toastr.error(response.message);
+                                        loaderhide();
                                     } else if (response.status == 422) {
                                         loaderhide();
                                     } else {

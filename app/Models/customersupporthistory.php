@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class customersupporthistory extends Model
 {
     use HasFactory;
-
+    protected $connection = 'dynamic_connection';
     protected $table = 'customersupporthistory';
 
     protected $fillable = [

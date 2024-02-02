@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class payment_details extends Model
 {
     use HasFactory;
+   
+    protected $connection = 'dynamic_connection';
+
     protected $table = 'payment_details';
 
     protected $fillable = [

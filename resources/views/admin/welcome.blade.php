@@ -3,13 +3,13 @@
 @include('admin.navbar')
 
 @section('page_title')
-   Welcome
+    Welcome
 @endsection
 
 <style>
-     .loader-container {
-            display: none;
-     }   
+    .loader-container {
+        display: none;
+    }
 </style>
 <div id="content-page" class="content-page">
     <div class="container-fluid">
@@ -22,9 +22,14 @@
                         </div>
                     </div>
                     <div class="iq-card-body">
-                        <p>You have logged in <span id="pagemenu">Invoice</span> Module Succesfully </p>
+                        <p id='nothasmenu'>You have logged in <span id="pagemenu">Invoice</span> Module Succesfully </p>
                         <!-- HTML to write -->
-                        <a href="{{route('admin.index')}}" class="btn btn-sm btn-primary text-white" data-placement="bottom" data-toggle="tooltip" title="Go To Dashboard">Go to Dashboard ></a>
+                        @if (session('menu') != null)
+                            <a href="{{ route('admin.index') }}" id='dashboardbtn' class="btn btn-sm btn-primary text-white" data-placement="bottom" data-toggle="tooltip" title="Go To Dashboard">
+                                Go to Dashboard >
+                            </a>
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -32,4 +37,3 @@
     </div>
 </div>
 @include('admin.footer')
-

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\company;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class PurchaseController extends Controller
@@ -45,6 +47,13 @@ class PurchaseController extends Controller
      */
     public function edit(string $id)
     { 
+        
+        $dbname = company::find(Session::get('company_id'));
+        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+        // Establish connection to the dynamic database
+        DB::purge('dynamic_connection');
+        DB::reconnect('dynamic_connection');
 
         $Purchase = Purchase::findOrFail($id);
         $this->authorize('view', $Purchase);

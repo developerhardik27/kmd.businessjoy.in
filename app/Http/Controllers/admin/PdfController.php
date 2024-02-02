@@ -4,8 +4,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\company;
 use App\Models\invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 
@@ -14,6 +17,13 @@ class PdfController extends Controller
 {
    public function generatepdf(string $id)
    {
+
+      $dbname = company::find(Session::get('company_id'));
+      config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+      // Establish connection to the dynamic database
+      DB::purge('dynamic_connection');
+      DB::reconnect('dynamic_connection');
 
       $invoice = invoice::findOrFail($id);
     $this->authorize('view', $invoice);
@@ -38,6 +48,7 @@ class PdfController extends Controller
       // dd($companydetailsdata);
 
       $data = [
+         'productscolumn' => $productdata['columns'],
          'products' => $productdata['invoice'],
          'invdata' => $invdata['invoice'][0],
          'companydetails' =>  $companydetailsdata['companydetails'][0],
@@ -65,6 +76,14 @@ class PdfController extends Controller
    }
    public function generatereciept(string $id)
    {
+
+      
+      $dbname = company::find(Session::get('company_id'));
+      config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+      // Establish connection to the dynamic database
+      DB::purge('dynamic_connection');
+      DB::reconnect('dynamic_connection');
 
       $invoice = invoice::findOrFail($id);
       $this->authorize('view', $invoice);

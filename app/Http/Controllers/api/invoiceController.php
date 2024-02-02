@@ -5,20 +5,36 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Models\company;
 use App\Models\invoice;
+use App\Models\tbl_invoice_column;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
-class invoiceController extends Controller
+class invoiceController extends commonController
 {
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        if(session()->get('company_id')){
+            $this->dbname(session()->get('company_id'));
+        }else{
+            $this->dbname($request->company_id);
+        }
+
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     // chart monthly invoice counting
     public function monthlyInvoiceChart(Request $request)
     {
-        $userId = $request->input('user_id');
-        $invoices = DB::table('invoices')
+        $invoices = DB::connection('dynamic_connection')->table('invoices')
         ->select(DB::raw("MONTH(created_at) as month, COUNT(*) as total_invoices, SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_invoices"))
-        ->groupBy(DB::raw("MONTH(created_at)"))->where('created_by', $userId)
+        ->groupBy(DB::raw("MONTH(created_at)"))->where('created_by', $this->userId)
         ->get();
         
         return $invoices;
@@ -28,11 +44,10 @@ class invoiceController extends Controller
     //status vise invoice list
     public function status_list(Request $request)
     {
-        $userId = $request->input('user_id');
         $currentMonth = Carbon::now()->format('Y-m');
 
-        $invoices = DB::table('invoices')->whereYear('created_at', Carbon::now()->year)
-        ->whereMonth('created_at', Carbon::now()->month)->where('created_by', $userId)
+        $invoices = DB::connection('dynamic_connection')->table('invoices')->whereYear('created_at', Carbon::now()->year)
+        ->whereMonth('created_at', Carbon::now()->month)->where('created_by', $this->userId)
         ->get();
         $groupedInvoices = $invoices->groupBy('status');
         return $groupedInvoices;
@@ -58,8 +73,7 @@ class invoiceController extends Controller
     //get bank details
     public function bdetails(Request $request)
     {    
-        $userId = $request->user_id;
-        $bank = DB::table('bank_details')->get()->where('is_active', 1)->where('is_deleted', 0)->where('created_by',$userId);
+        $bank = DB::connection('dynamic_connection')->table('bank_details')->get()->where('is_active', 1)->where('is_deleted', 0);
 
         if ($bank->count() > 0) {
             return response()->json([
@@ -76,22 +90,14 @@ class invoiceController extends Controller
 
     public function inv_list(Request $request)
     {
-        $userId = $request->input('user_id');
-        if ($userId == 1) {
-            $invoice = DB::table('invoices')->join('customers', 'invoices.customer_id', '=', 'customers.id')
-                ->join('country', 'customers.country_id', '=', 'country.id')
-                ->join('state', 'customers.state_id', '=', 'state.id')
-                ->join('city', 'customers.city_id', '=', 'city.id')
+      
+            $invoice = DB::connection('dynamic_connection')->table('invoices')->join('customers', 'invoices.customer_id', '=', 'customers.id')
+                ->join($this->masterdbname.'.country', 'customers.country_id', '=', $this->masterdbname.'.country.id')
+                ->join($this->masterdbname.'.state', 'customers.state_id', '=', $this->masterdbname.'.state.id')
+                ->join($this->masterdbname.'.city', 'customers.city_id', '=',$this->masterdbname.'.city.id')
                 ->select('invoices.*', 'customers.address', 'customers.firstname', 'customers.lastname', 'country.country_name', 'state.state_name', 'city.city_name')
                 ->get()->where('is_deleted', 0)->where('is_active', 1);
-        } else {
-            $invoice = DB::table('invoices')->join('customers', 'invoices.customer_id', '=', 'customers.id')
-                ->join('country', 'customers.country_id', '=', 'country.id')
-                ->join('state', 'customers.state_id', '=', 'state.id')
-                ->join('city', 'customers.city_id', '=', 'city.id')
-                ->select('invoices.*', 'customers.address', 'customers.firstname', 'customers.lastname', 'country.country_name', 'state.state_name', 'city.city_name')
-                ->get()->where('is_deleted', 0)->where('is_active', 1)->where('created_by', $userId);
-        }
+      
 
         if ($invoice->count() > 0) {
             return response()->json([
@@ -111,8 +117,8 @@ class invoiceController extends Controller
   //get dynamic column name
   public function columnname(Request $request)
   {    
-      $companyid = $request->user_id;
-      $columnname = DB::table('tbl_invoice_columns')->select('id','column_name','column_type','is_hide')->where('is_active', 1)->where('is_deleted', 0)->where('company_id',$companyid)->orderBy('column_order')->get();
+    
+      $columnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('id','column_name','column_type','is_hide')->where('is_active', 1)->where('is_deleted', 0)->orderBy('column_order')->get();
 
       if ($columnname->count() > 0) {
           return response()->json([
@@ -131,8 +137,8 @@ class invoiceController extends Controller
    //get column name whose data type nubmer
    public function numbercolumnname(Request $request)
    {    
-       $companyid = $request->user_id;
-       $columnname = DB::table('tbl_invoice_columns')->select('column_name')->whereIn('column_type',['number','decimal','percentage'])->where('is_active', 1)->where('is_deleted', 0)->where('company_id',$companyid)->get();
+       
+       $columnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('column_name')->whereIn('column_type',['number','decimal','percentage'])->where('is_active', 1)->where('is_deleted', 0)->get();
  
        if ($columnname->count() > 0) {
            return response()->json([
@@ -152,14 +158,14 @@ class invoiceController extends Controller
      */
     public function index(string $id)
     {
-        $invoice =  DB::table('invoices')
+        $invoice =  DB::connection('dynamic_connection')->table('invoices')
             ->join('customers', 'invoices.customer_id', '=', 'customers.id')
-            ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-            ->join('country', 'customers.country_id', '=', 'country.id')
-            ->join('state', 'customers.state_id', '=', 'state.id')
-            ->join('city', 'customers.city_id', '=', 'city.id')
+            ->join('mng_col', 'invoices.id', '=', 'mng_col.invoice_id')
+            ->join($this->masterdbname.'.country', 'customers.country_id', '=', $this->masterdbname.'.country.id')
+            ->join($this->masterdbname.'.state', 'customers.state_id', '=', $this->masterdbname.'.state.id')
+            ->join($this->masterdbname.'.city', 'customers.city_id', '=', $this->masterdbname.'.city.id')
             ->select('invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total','invoices.status', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id as cid', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'state.state_name', 'city.city_name')
-            ->groupBy('invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total','invoices.status', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'invoice_details.invoice_id')
+            ->groupBy('invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total','invoices.status', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'mng_col.invoice_id')
             ->where('invoices.is_active', 1)->where('invoices.is_deleted', 0)->where('invoices.id', $id)
             ->get();
 
@@ -192,8 +198,7 @@ class invoiceController extends Controller
     {
         $data =   $request->data;
         $itemdata =   $request->iteam_data;
-
-
+       
         $validator = Validator::make($request->data, $request->iteam_data, [
             "payment_mode" => 'required',
             "acc_details" => 'required',
@@ -202,7 +207,7 @@ class invoiceController extends Controller
             "gst" => 'required|numeric',
             "currency_id" => 'required|numeric',
             "country_id" => 'required|numeric',
-            "created_by" => 'required|numeric',
+            "user_id" => 'required|numeric',
             'notes',
             'updated_by',
             'created_at',
@@ -217,9 +222,26 @@ class invoiceController extends Controller
                 'errors' => $validator->messages()
             ], 422);
         } else {
+            
 
+            //fetch all column for add details into manage column table and add show column into invoice table
+             $column = [] ; // array for show column 
+             $mngcol = tbl_invoice_column::orderBy('column_order')->where('is_deleted',0)->where('is_hide',0)->get();
+             
+             foreach($mngcol as $key => $val){
+                    array_push($column,$val->column_name); // push value in show column array
+             }
+
+            
+            // show array modification 
+            $columnwithunderscore = array_map(function($value) {
+                return str_replace(' ', '_', $value); // replace (space) = (_)
+            }, $column);
+
+            $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for hidden column
+             
             // fetch last record from invoice tbl for generate dynamic inv no
-            $lastrec = DB::table('invoices')->orderBy('id', 'desc')->first();
+            $lastrec = DB::connection('dynamic_connection')->table('invoices')->orderBy('id', 'desc')->first();
             if ($lastrec) {
                 $lastinv_no = explode('-', $lastrec->inv_no);
                 $lastinv_no_id = $lastinv_no[2];
@@ -245,39 +267,47 @@ class invoiceController extends Controller
             if($company_details){
 
                 $company_details_id = $company_details->company_details_id;
-                $invoice = DB::table('invoices')->insertGetId([
+
+                $invoice = DB::connection('dynamic_connection')->table('invoices')->insertGetId([
                     'inv_no' => $inv_no,
                     'customer_id' => $data['customer_id'],
                     'notes' => $data['notes'],
                     'total' =>  $data['total_amount'],
                     'gst' =>  $data['gst'],
-                    'grand_total' => ceil($data['total_amount'] + $data['gst']),
+                    'grand_total' => $data['grandtotal'],
                     'currency_id' =>  $data['currency_id'],
                     'payment_type' =>  $data['payment_mode'],
                     'account_id' =>  $data['acc_details'],
-                    'company_id' =>  $data['company_id'],
+                    'company_id' =>  $this->companyId,
                     'company_details_id' =>  $company_details_id,
-                    'created_by' =>  $data['created_by']
+                    'created_by' =>  $data['user_id'],
+                    'show_col' => $showcolumnstring
                 ]);
     
                 if ($invoice) {
                     $inv_id = $invoice;
-                    foreach ($itemdata as $key => $value) {
-                        $invoice_details = DB::table('invoice_details')->insert([
-                            'invoice_id' => $inv_id,
-                            'product_id' => $value[0],
-                            'product_name' => $value[1],
-                            'item_description' => $value[2],
-                            'quantity' => $value[3],
-                            'price' => $value[4],
-                            'total_amount' => ($value[3] * $value[4]),
-                            'currency_id' => $data['currency_id'],
-                            'created_by' => $data['created_by']
-                        ]);
+
+
+
+                    foreach ($itemdata as $row) {
+                        $dynamicdata = [];
+                    
+                        // Map the values to the corresponding columns
+                        foreach ($columnwithunderscore as $column) {
+                            $dynamicdata[$column] = $row[$column];
+                        }
+                    
+                        // Add additional columns and their values
+                        $dynamicdata['invoice_id'] = $inv_id;
+                        $dynamicdata['amount'] = $row['amount'];
+                        $dynamicdata['created_by'] = $data['user_id'];
+                        // Add more columns as needed
+                    
+                        // Insert the record into the database
+                     $mng_col =  DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata);
                     }
     
-    
-                    if ($invoice_details) {
+                    if ($mng_col) {
                         return response()->json([
                             'status' => 200,
                             'message' => 'invoice  succesfully created'
@@ -317,11 +347,11 @@ class invoiceController extends Controller
      */
     public function show(string $id)
     {
-        $invoice = DB::table('invoices')
+        $invoice = DB::connection('dynamic_connection')->table('invoices')
             ->join('customers', 'invoices.customer_id', '=', 'customers.id')
-            ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-            ->join('products', 'invoice_details.product_id', '=', 'products.id')
-            ->select('invoices.*', 'customers.firstname', 'customers.lastname', 'invoice_details.item_description', 'invoice_details.price', 'products.price_per_unit')
+            ->join('mng_col', 'invoices.id', '=', 'mng_col.invoice_id')
+            ->join('products', 'mng_col.product_id', '=', 'products.id')
+            ->select('invoices.*', 'customers.firstname', 'customers.lastname', 'mng_col.item_description', 'mng_col.price', 'products.price_per_unit')
             ->get()->where('is_deleted', 0)->where('is_active', 1)->where('id', $id);
     }
 
@@ -346,20 +376,20 @@ class invoiceController extends Controller
      */
     public function destroy(string $id)
     {
-        $invoices = DB::table('invoices')
+        $invoices = DB::connection('dynamic_connection')->table('invoices')
             ->where('id', $id)
             ->update([
                 'is_deleted' => 1
             ]);
         if ($invoices) {
-            $invoice_details =  DB::table('invoice_details')
+            $mng_col =  DB::connection('dynamic_connection')->table('mng_col')
                 ->where('invoice_id', $id)
                 ->update([
                     'is_deleted' => 1
                 ]);
 
 
-            if ($invoice_details) {
+            if ($mng_col) {
                 return response()->json([
                     'status' => 200,
                     'message' => 'invoice succesfully deleted'
@@ -380,14 +410,22 @@ class invoiceController extends Controller
 
 
     public function inv_details(string $id)
-    {
-        $invoice = DB::table('invoice_details')
-            ->get()->where('invoice_id', $id);
+    {   
+
+        $columnname =  invoice::find($id);
+        $column = explode(',',$columnname->show_col);
+    
+
+        $columnarray = array_merge($column, ['amount']);
+
+        $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
+            ->where('invoice_id', $id)->get();
 
         if ($invoice->count() > 0) {
             return response()->json([
                 'status' => 200,
-                'invoice' => $invoice
+                'invoice' => $invoice,
+                'columns' => $columnarray
             ]);
         } else {
             return response()->json([
@@ -399,7 +437,7 @@ class invoiceController extends Controller
 
     public function status(Request $request, string $id)
     {
-        $invoices = DB::table('invoices')
+        $invoices = DB::connection('dynamic_connection')->table('invoices')
             ->where('id', $id)
             ->update([
                 'status' => $request->status

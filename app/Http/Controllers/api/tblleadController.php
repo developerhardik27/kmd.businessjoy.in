@@ -9,10 +9,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-use function PHPUnit\Framework\isNull;
 
-class tblleadController extends Controller
-{
+class tblleadController extends commonController
+{ 
+   
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -31,8 +41,8 @@ class tblleadController extends Controller
             $activestatus = $request->activestatusvalue;
         }
         
-        $leadquery =  DB::table('tbllead')
-                        ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes','lead_stage','assigned_to','created_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+        $leadquery =  DB::connection('dynamic_connection')->table('tbllead')
+                        ->select('id', 'name', 'email', 'contact_no', 'title', 'budget','company', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes','lead_stage','assigned_to','created_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
                         ->where('is_deleted',0);
 
         if (isset($activestatus)) {
@@ -68,7 +78,7 @@ class tblleadController extends Controller
             }
         }
         
-        $lead = $leadquery->get();
+        $lead = $leadquery->orderBy('id','DESC')->get();
 
         if ($lead->count() > 0) {
             return response()->json([
@@ -99,9 +109,12 @@ class tblleadController extends Controller
         
         $validator = Validator::make($request->all(), [
             'leadname' => 'required|string',
-            'email' => 'email',
+            'email',
             'contact_no' => 'required',
-            'title'
+            'budget',
+            'title',
+            'assignedto',
+            'company'
         ]);
 
         if ($validator->fails()) {
@@ -118,8 +131,10 @@ class tblleadController extends Controller
                 'title' => $request->title,
                 'customer_type' => $request->customer_type,
                 'assigned_to' => $assignedto,
-                'assigned_by' => $request->user_id,
-                'created_by' => $request->user_id,
+                'assigned_by' => $this->userId,
+                'created_by' => $this->userId,
+                'budget' => $request->budget,
+                'company' => $request->company,
                 'audience_type' => 'cool',
                 'source' => 'Manual',
                 'lead_stage' => 'New Lead'
@@ -144,8 +159,8 @@ class tblleadController extends Controller
      */
     public function show(string $id)
     {
-        $lead = DB::table('tbllead')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes','lead_stage', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
+        $lead = DB::connection('dynamic_connection')->table('tbllead')
+            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'assigned_to', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'notes','lead_stage', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
             ->where('id', $id)
             ->get();
 
@@ -185,19 +200,22 @@ class tblleadController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
+    { 
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'email' => 'required|email',
+            'email',
             'contact_no' => 'required',
             'title' ,
             'budget',
+            'company',
             'audience_type',
             'customer_type',
             'status',
             'last_follow_up',
             'next_follow_up',
             'number_of_follow_up',
+            'assignedto',
             'notes',
             'leadstage',
             'created_at',
@@ -216,12 +234,14 @@ class tblleadController extends Controller
         } else {
             $lead = tbllead::find($id);
             if ($lead) {
+                $assignedto = implode(',', $request->assignedto);
                 $lead->update([
                     'name'  =>  $request->name,
                     'email' =>  $request->email,
                     'contact_no' =>  $request->contact_no,
                     'title'  =>  $request->title,
                     'budget'  =>  $request->budget,
+                    'company'  =>  $request->company,
                     'status' =>  $request->status,
                     'audience_type' =>  $request->audience_type,
                     'customer_type' =>  $request->customer_type,
@@ -231,7 +251,10 @@ class tblleadController extends Controller
                     'notes'  =>  $request->notes,
                     'lead_stage'  =>  $request->leadstage,
                     'updated_at' => date('Y-m-d'),
+                    'updated_by' => $this->userId,
                     'source'  =>  $request->source,
+                    'assigned_to' => $assignedto,
+                    'assigned_by' => $this->userId
                 ]);
 
                 return response()->json([
@@ -274,11 +297,12 @@ class tblleadController extends Controller
     // change status 
 
     public function changestatus(Request $request)
-    {
-        $lead = DB::table('tbllead')->where('id', $request->statusid)->get();
+    {  
+
+        $lead = DB::connection('dynamic_connection')->table('tbllead')->where('id', $request->statusid)->get();
         if ($lead) {
 
-            DB::table('tbllead')
+            DB::connection('dynamic_connection')->table('tbllead')
                 ->where('id', $request->statusid)
                 ->update(['status' => $request->statusvalue]);
 
@@ -296,10 +320,10 @@ class tblleadController extends Controller
 
     public function changeleadstage(Request $request)
     {
-        $lead = DB::table('tbllead')->where('id', $request->leadstageid)->get();
+        $lead = DB::connection('dynamic_connection')->table('tbllead')->where('id', $request->leadstageid)->get();
         if ($lead) {
 
-            DB::table('tbllead')
+            DB::connection('dynamic_connection')->table('tbllead')
                 ->where('id', $request->leadstageid)
                 ->update(['lead_stage' => $request->leadstagevalue]);
 
@@ -317,7 +341,7 @@ class tblleadController extends Controller
 
     public function sourcevalue(){
 
-        $uniqueSources = TblLead::distinct()->pluck('source');
+        $uniqueSources = tblLead::distinct()->pluck('source');
        
         if($uniqueSources->count() > 0){
             return response()->json([

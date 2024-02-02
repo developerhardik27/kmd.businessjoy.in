@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class tbllead extends Model
 {
     use HasFactory;
+    
+    protected $connection = 'dynamic_connection';
 
     protected $table = 'tbllead';
 
@@ -17,6 +19,7 @@ class tbllead extends Model
         'contact_no',
         'title',
         'budget',
+        'company',
         'audience_type',
         'customer_type',
         'status',

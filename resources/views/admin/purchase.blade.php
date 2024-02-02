@@ -36,7 +36,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.purchase.add') === '1')
+@if (session('user_permissions.invoicemodule.purchase.add') == '1')
     @section('addnew')
         {{ route('admin.addpurchase') }}
     @endsection
@@ -76,7 +76,7 @@
                     type: 'GET',
                     url: '{{ route('purchase.index') }}',
                     data: {
-                        user_id: "{{ session()->get('company_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -93,7 +93,7 @@
                                                         <td>${value.amount_type}</td>
                                                         <td>${value.company_name}</td>                                                
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.purchase.view') === '1') 
+                                                            @if (session('user_permissions.invoicemodule.purchase.view') == '1') 
                                                                 <span>
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
@@ -103,9 +103,10 @@
                                                               -    
                                                             @endif
                                                         </td>
-                                                        @if (session('user_permissions.invoicemodule.purchase.edit') === '1'|| session('user_permissions.invoicemodule.purchase.delete') === '1' )
+                                                        @if (session('user_permissions.invoicemodule.purchase.edit') == '1' ||
+                                                                session('user_permissions.invoicemodule.purchase.delete') == '1')
                                                         <td>
-                                                                @if(session('user_permissions.invoicemodule.purchase.edit') === '1') 
+                                                                @if (session('user_permissions.invoicemodule.purchase.edit') == '1') 
                                                                     <span>
                                                                         <a href='EditPurchase/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -114,7 +115,7 @@
                                                                         </a>
                                                                     </span>
                                                                 @endif
-                                                                @if(session('user_permissions.invoicemodule.purchase.delete') === '1') 
+                                                                @if (session('user_permissions.invoicemodule.purchase.delete') == '1') 
                                                                     <span >
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>
@@ -132,7 +133,10 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
-                           loaderhide(); 
+                            loaderhide();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
                             loaderhide();
@@ -158,12 +162,16 @@
                         type: 'put',
                         url: '/api/purchase/delete/' + $deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             }
                         }
                     });

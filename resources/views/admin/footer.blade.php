@@ -25,8 +25,12 @@
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 
 <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
+<script type="text/javascript" src="https://cdn.datatables.net/r/ju-1.11.4/jqc-1.11.3,dt-1.10.8/datatables.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="{{ asset('admin/js/popper.min.js') }}"></script>
 <script src="{{ asset('admin/js/bootstrap.min.js') }}"></script>
+
 <!-- Appear JavaScript -->
 <script src="{{ asset('admin/js/jquery.appear.js') }}"></script>
 <!-- Countdown JavaScript -->
@@ -70,9 +74,7 @@
 <script async src="{{ asset('admin/js/chart-custom.js') }}"></script>
 <!-- Custom JavaScript -->
 <script src="{{ asset('admin/js/custom.js') }}"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/r/ju-1.11.4/jqc-1.11.3,dt-1.10.8/datatables.min.js">
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
 <script>
        // function for loader hide and show 
        function loadershow() {
@@ -93,8 +95,9 @@
             type: 'get',
             url: " /api/username",
             data: {
-                user_id: {{ session()->get('user_id') }},
-                token: "{{ session()->get('api_token') }}"
+                user_id: "{{ session()->get('user_id') }}",
+                token: "{{ session()->get('api_token') }}",
+                company_id:"{{session()->get('company_id')}}"
             },
             success: function(response) {
                 var user = response.user[0];
@@ -110,7 +113,7 @@
                 }
             },
             error: function(xhr) {
-                if (xhr.responseJSON.error === 'Invalid token') {
+                if (xhr.responseJSON.error == 'Invalid token') {
                     window.location.href = "{{ route('admin.singlelogout') }}";
                 }
             }
@@ -123,8 +126,10 @@
             var url = "{{ route('admin.invoice') }}?search=" + encodeURIComponent(search);
             if ("{{ session()->get('menu') }}" == 'invoice') {
                 var url = "{{ route('admin.invoice') }}?search=" + encodeURIComponent(search);
-            } else {
+            } else if("{{ session()->get('menu') }}" == 'lead') {
                 var url = "{{ route('admin.lead') }}?search=" + encodeURIComponent(search);
+            }else{
+                var url = "{{ route('admin.customersupport') }}?search=" + encodeURIComponent(search);
             }
             window.location.href = url;
         })
@@ -151,10 +156,16 @@
 
 
         var selectedMenuFromSession = "{{ session()->get('menu') }}";
+       
+        if(selectedMenuFromSession){
+            $('#pagemenu').text(selectedMenuFromSession);
+        }else{
+           $('#nothasmenu').text('Welcome to business joy, Ask your admin for required module access.');
+        }
+        
         $('#pagemenu').text(selectedMenuFromSession);
         // Check if the server-side session variable is set
         if (selectedMenuFromSession) {
-
             var selectedMenuElement = $('.changemenu[data-value="' + selectedMenuFromSession + '"]');
             var selectedMenuHTML = selectedMenuElement.html();
             selectedMenuHTML += '<i class="ri-arrow-down-s-line"></i>';

@@ -9,10 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-use function PHPUnit\Framework\isNull;
 
-class customersupportController extends Controller
+class customersupportController extends commonController
 {
+
+    public $userId, $companyId, $masterdbname;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname =  DB::connection()->getDatabaseName();
+    }
     /**
      * Display a listing of the resource.
      */
@@ -22,69 +31,33 @@ class customersupportController extends Controller
         $todate = Carbon::parse($request->todate);
         $status = $request->status;
         $lastcall = $request->lastcall;
+        $assignedto = $request->assignedto;
         // if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
         //     $activestatus = $request->activestatusvalue;
         // }
 
-        if (isset($fromdate) && isset($todate) && isset($status)) {
-            $customersupportquery = DB::table('customer_support')
-                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-                ->whereBetween('created_at', [$fromdate, $todate->addDay()])
-                ->whereIn('status', $status)
-                ->where('is_deleted', 0);
+        $customersupportquery = DB::connection('dynamic_connection')->table('customer_support')
+            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+            ->where('is_deleted', 0)->orderBy('id', 'DESC');
 
-            // if (isset($activestatus)) {
-            //     $customersupportquery->where('is_active', $activestatus);
-            // }
-            $customersupport = $customersupportquery->get();
-        } elseif (isset($fromdate) && isset($todate) && isNull($status)) {
-            $customersupportquery = DB::table('customer_support')
-                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-                ->whereBetween('created_at', [$fromdate, $todate->addDay()])
-                ->where('is_deleted', 0);
-            // if (isset($activestatus)) {
-            //     $customersupportquery->where('is_active', $activestatus);
-            // }
-            $customersupport = $customersupportquery->get();
-        } elseif (isset($status) && isNull($fromdate) && isNull($todate)) {
-            $customersupportquery = DB::table('customer_support')
-                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-                ->whereIn('status', $status)
-                ->where('is_deleted', 0);
-            // if (isset($activestatus)) {
-            //     $customersupportquery->where('is_active', $activestatus);
-            // }
-            $customersupport = $customersupportquery->get();
-        } elseif (isset($lastcall) && isset($status)) {
-            $customersupportquery = DB::table('customer_support')
-                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-                ->whereIn('status', $status)
-                ->where('last_call', $lastcall)
-                ->where('is_deleted', 0);
-            // if (isset($activestatus)) {
-            //     $customersupportquery->where('is_active', $activestatus);
-            // }
-            $customersupport = $customersupportquery->get();
-        }  elseif (isset($lastcall)) {
-            $customersupportquery = DB::table('customer_support')
-                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-                ->where('last_call', $lastcall)
-                ->where('is_deleted', 0);
-            // if (isset($activestatus)) {
-            //     $customersupportquery->where('is_active', $activestatus);
-            // }
-            $customersupport = $customersupportquery->get();
-        } else {
-            $customersupportquery = customer_support::orderBy('id', 'desc')
-                ->where('is_deleted', 0)
-                ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip');
-            // if (isset($activestatus)) {
-            //     $customersupportquery->where('is_active', $activestatus);
-            // }
-            $customersupport = $customersupportquery->get();
+        if (isset($fromdate) && isset($todate)) {
+            $customersupportquery->whereBetween('created_at', [$fromdate, $todate->addDay()]);
         }
-
-
+        if (isset($status)) {
+            $customersupportquery->whereIn('status', $status);
+        }
+        if (isset($assignedto)) {
+            foreach ($assignedto as $value) {
+                $customersupportquery->where('assigned_to', 'LIKE', '%' . $value . '%');
+            }
+        }
+        if (isset($lastcall)) {
+            $customersupportquery->where('last_call', $lastcall);
+        }
+        // if (isset($activestatus)) {
+        //     $customersupportquery->where('is_active', $activestatus);
+        // }
+        $customersupport = $customersupportquery->get();
 
         if ($customersupport->count() > 0) {
             return response()->json([
@@ -115,11 +88,12 @@ class customersupportController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'email' => 'required|email',
+            'email' ,
             'contact_no' => 'required',
             'status',
             'last_call',
             'number_of_call',
+            'assignedto',
             'notes',
             'ticket',
             'created_at',
@@ -134,7 +108,7 @@ class customersupportController extends Controller
                 'errors' => $validator->messages()
             ], 422);
         } else {
-
+            $assignedto = implode(',', $request->assignedto);
             $customersupport = customer_support::insertGetId([
                 'name'  =>  $request->name,
                 'email' =>  $request->email,
@@ -142,6 +116,9 @@ class customersupportController extends Controller
                 'status' =>  $request->status,
                 'last_call' =>  $request->last_call,
                 'number_of_call'  =>  $request->number_of_call,
+                'assigned_to' => $assignedto,
+                'assigned_by' => $this->userId,
+                'created_by' => $this->userId,
                 'notes'  =>  $request->notes,
             ]);
 
@@ -183,8 +160,8 @@ class customersupportController extends Controller
      */
     public function show(string $id)
     {
-        $customersupport = DB::table('customer_support')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes','ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
+        $customersupport = DB::connection('dynamic_connection')->table('customer_support')
+            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call','assigned_to', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
             ->where('id', $id)
             ->get();
 
@@ -227,7 +204,7 @@ class customersupportController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'email' => 'required|email',
+            'email' ,
             'contact_no' => 'required',
             'status',
             'last_call',
@@ -248,6 +225,7 @@ class customersupportController extends Controller
         } else {
             $ticket = customer_support::find($id);
             if ($ticket) {
+                $assignedto = implode(',', $request->assignedto);
                 $ticket->update([
                     'name'  =>  $request->name,
                     'email' =>  $request->email,
@@ -255,6 +233,9 @@ class customersupportController extends Controller
                     'status' =>  $request->status,
                     'last_call' =>  $request->last_call,
                     'number_of_call'  =>  $request->number_of_call,
+                    'assigned_to' => $assignedto,
+                    'assigned_by' => $this->userId,
+                    'updated_by' => $this->userId,
                     'notes'  =>  $request->notes,
                     'ticket'  =>  $request->ticket,
                     'updated_at' => date('Y-m-d H:i:s'),
@@ -301,10 +282,10 @@ class customersupportController extends Controller
 
     public function changestatus(Request $request)
     {
-        $customersupport = DB::table('customer_support')->where('id', $request->statusid)->get();
+        $customersupport = DB::connection('dynamic_connection')->table('customer_support')->where('id', $request->statusid)->get();
         if ($customersupport) {
 
-            DB::table('customer_support')
+            DB::connection('dynamic_connection')->table('customer_support')
                 ->where('id', $request->statusid)
                 ->update(['status' => $request->statusvalue]);
 
@@ -322,10 +303,10 @@ class customersupportController extends Controller
 
     public function changecustomersupportstage(Request $request)
     {
-        $customersupport = DB::table('customer_support')->where('id', $request->customersupportstageid)->get();
+        $customersupport = DB::connection('dynamic_connection')->table('customer_support')->where('id', $request->customersupportstageid)->get();
         if ($customersupport) {
 
-            DB::table('customer_support')
+            DB::connection('dynamic_connection')->table('customer_support')
                 ->where('id', $request->customersupportstageid)
                 ->update(['customersupport_stage' => $request->customersupportstagevalue]);
 

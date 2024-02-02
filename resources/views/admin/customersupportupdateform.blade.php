@@ -18,6 +18,10 @@
                     <span class="error-msg" id="error-ticket" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
+                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                        placeholder="user_id" required />
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <label class="form-label" for="name">Name:</label>
@@ -54,6 +58,13 @@
                         <option value='Cancelled'>Cancelled</option>
                     </select>
                     <span class="error-status" id="error-description" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="assignedto">Assigned To:</label><br />
+                    <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
+                        <option value="" disabled selected>Select User</option>
+                    </select>
+                    <span class="error-msg" id="error-assignedto" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -105,6 +116,7 @@
 @endsection
 
 @push('ajax')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
         $('document').ready(function() {
 
@@ -113,13 +125,47 @@
                 window.location.href = "{{ route('admin.customersupport') }}";
             })
 
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.index') }}',
+                data: {
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.user != '') {
+                        global_response = response;
+                        // You can update your HTML with the data here if needed     
+                        $.each(response.user, function(key, value) {
+                            var optionValue = value.firstname + ' ' + value.lastname;
+                            $('#assignedto').append(
+                                `<option value="${optionValue}">${optionValue}</option>`);
+                        });
+                        $('#assignedto').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
+                    } else {
+                        $('#assignedto').append(`<option> No User Found </option>`);
+                        loaderhide();
+                    }
+                },
+                error: function(error) {
+                    loaderhide();
+                    console.error('Error:', error);
+                }
+            });
+
             var edit_id = @json($edit_id);
             // show old data in fields
             $.ajax({
                 type: 'GET',
                 url: '/api/customersupport/search/' + edit_id,
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: " {{ session()->get('company_id') }} "
                 },
                 success: function(response) {
                     data = response.customersupport[0]
@@ -136,6 +182,15 @@
                         $('#notes').val(data.notes);
                         $('#created_at').val(data.created_at_formatted);
                         $('#updated_at').val(data.updated_at_formatted);
+                        assignedto = data.assigned_to;
+                        assignedtoarray = assignedto.split(',');
+                        assignedtoarray.forEach(function(value) {
+                            $('#assignedto').multiselect('select', value);
+                        });
+                        $('#assignedto').multiselect();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     }
                     loaderhide();
                 },
@@ -144,6 +199,8 @@
                     console.error('Error:', error);
                 }
             });
+
+
             //submit form
             $('#ticketupdateform').submit(function(event) {
                 event.preventDefault();
@@ -164,6 +221,9 @@
 
                         } else if (response.status == 422) {
                             toastr.error(response.errors);
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             toastr.error(response.message);
                         }

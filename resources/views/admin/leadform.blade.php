@@ -7,6 +7,13 @@
     New Lead
 @endsection
 
+@section('style')
+    <style>
+        .multiselect {
+            border: 0.5px solid #00000073;
+        }
+    </style>
+@endsection
 
 @section('form-content')
     <form id="leadform" name="leadform">
@@ -16,6 +23,8 @@
                 <div class="col-sm-6">
                     <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
                         placeholder="user_id" required />
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <label class="form-label" for="name">Full Name:</label> <span style="color:red;">*</span>
@@ -66,11 +75,31 @@
                     <span class="error-msg" id="error-title" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="assignedto">Assigned To:</label><br/>
+                    <label class="form-label" for="assignedto">Assigned To:</label><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
                         <option value="" disabled selected>Select User</option>
                     </select>
                     <span class="error-msg" id="error-assignedto" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="budget">Budget:</label>
+                    <select name="budget" class="form-control" id="budget">
+                        <option value="" disabled selected>Select budget</option>
+                        <option value="10,000 to 50,000">₹10,000 to 50,000</option>
+                        <option value="More tan 50,000">More tan ₹50,000</option>
+                        <option value="More than 1,00,000">More than ₹ 1,00,000</option>
+                    </select>
+                    <span class="error-msg" id="error-budget" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="company">Company Name:</label>
+                    <input type="text" class="form-control" name="company" id="company"
+                        placeholder="Company Name" />
+                    <span class="error-msg" id="error-company" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -111,11 +140,12 @@
         }
 
         $('document').ready(function() {
+
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
-                    user_id: "{{ session()->get('company_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
@@ -123,11 +153,12 @@
                         global_response = response;
                         // You can update your HTML with the data here if needed     
                         $.each(response.user, function(key, value) {
-                            var optionValue = value.firstname + ' ' + value .lastname;
+                            var optionValue = value.firstname + ' ' + value.lastname;
                             $('#assignedto').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#assignedto').multiselect('rebuild'); // Rebuild multiselect after appending options
+                        $('#assignedto').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -163,6 +194,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.lead') }}";
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);

@@ -13,6 +13,10 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
+                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                        placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <label class="form-label" for="name">Name:</label>
@@ -56,9 +60,9 @@
                     <label class="form-label" for="budget">Budget:</label>
                     <select name="budget" class="form-control" id="budget">
                         <option value="" disabled selected>Select Your Budget</option>
-                        <option value="10000-20000">10000 To 20000</option>
-                        <option value="20000-30000">20000 To 30000</option>
-                        <option value="greater than 30000">Greater Than 30000</option>
+                        <option value="10,000 to 50,000">₹10,000 to 50,000</option>
+                        <option value="More tan 50,000">More tan ₹50,000</option>
+                        <option value="More than 1,00,000">More than ₹ 1,00,000</option>
                     </select>
                     <span class="error-msg" id="error-budget" style="color: red"></span>
                 </div>
@@ -164,10 +168,21 @@
                     <span class="error-msg" id="error-leadstage" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="ip">Ip:</label>
-                    <input type="text" readonly class="form-control" name="ip" id="ip"
-                        placeholder="Ip " />
-                    <span class="error-msg" id="error-ip" style="color: red"></span>
+                    <label class="form-label" for="assignedto">Assigned To:</label><br />
+                    <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
+                        <option value="" disabled selected>Select User</option>
+                    </select>
+                    <span class="error-msg" id="error-assignedto" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="company">Company Name:</label>
+                    <input type="text" class="form-control" name="company" id="company"
+                        placeholder="Company Name" />
+                    <span class="error-msg" id="error-company" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -188,13 +203,47 @@
 @endsection
 
 @push('ajax')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
         $('document').ready(function() {
-            
+
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.lead') }}";
             })
+
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.index') }}',
+                data: {
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.user != '') {
+                        global_response = response;
+                        // You can update your HTML with the data here if needed     
+                        $.each(response.user, function(key, value) {
+                            var optionValue = value.firstname + ' ' + value.lastname;
+                            $('#assignedto').append(
+                                `<option value="${optionValue}">${optionValue}</option>`);
+                        });
+                        $('#assignedto').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
+                    } else {
+                        $('#assignedto').append(`<option> No User Found </option>`);
+                        loaderhide();
+                    }
+                },
+                error: function(error) {
+                    loaderhide();
+                    console.error('Error:', error);
+                }
+            });
 
             var edit_id = @json($edit_id);
             // show old data in fields
@@ -202,7 +251,8 @@
                 type: 'GET',
                 url: '/api/lead/search/' + edit_id,
                 data: {
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: " {{ session()->get('company_id') }} "
                 },
                 success: function(response) {
                     data = response.lead[0]
@@ -211,7 +261,7 @@
                         $('#name').val(data.name);
                         $('#email').val(data.email);
                         $('#contact_no').val(data.contact_no);
-                        $('#modal_title').val(data.title);
+                        $('#title').val(data.title);
                         $('#budget').val(data.budget);
                         $('#audience_type').val(data.audience_type);
                         $('#customer_type').val(data.customer_type)
@@ -224,7 +274,16 @@
                         $('#created_at').val(data.created_at_formatted);
                         $('#updated_at').val(data.updated_at_formatted);
                         $('#source').val(data.source);
-                        $('#ip').val(data.ip);
+                        $('#company').val(data.company);
+                        assignedto = data.assigned_to;
+                        assignedtoarray = assignedto.split(',');
+                        assignedtoarray.forEach(function(value) {
+                            $('#assignedto').multiselect('select', value);
+                        });
+                        $('#assignedto').multiselect();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     }
                     loaderhide();
                 },
@@ -251,6 +310,9 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.lead') }}";
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else if (response.status == 422) {
                             toastr.error(response.errors);
                         } else {

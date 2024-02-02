@@ -14,13 +14,12 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                    placeholder="token" required />
-                    <input type="hidden" value="{{ $user_id }}" name="created_by" class="form-control">
+                        placeholder="token" required />
+                    <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
                     <input type="hidden" value="{{ $company_id }}" name="company_id" class="form-control">
                     <label for="name">Name</label>
-                    <input type="text" id="name" name='name' class="form-control" placeholder="Name"
-                        required />
-                        <span class="error-msg" id="error-name" style="color: red"></span>
+                    <input type="text" id="name" name='name' class="form-control" placeholder="Name" required />
+                    <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="description">Description</label>
@@ -35,7 +34,7 @@
                     <label for="exampleInputEmail3">Amount</label>
                     <input type="text" name='amount' class="form-control" id="exampleInputEmail3" value=""
                         placeholder="Amount" required />
-                        <span class="error-msg" id="error-amount" style="color: red"></span>
+                    <span class="error-msg" id="error-amount" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="amount_type">Select Amount Type</label>
@@ -52,7 +51,7 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="date">Date</label>
-                    <input type="date" name='date' class="form-control"  required />
+                    <input type="date" name='date' class="form-control" required />
                     <span class="error-msg" id="error-date" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -73,7 +72,7 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-           loaderhide();
+            loaderhide();
             //submit form
             $('#purchaseform').submit(function(event) {
                 event.preventDefault();
@@ -83,7 +82,7 @@
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('purchase.store') }}",
-                    data:formdata,
+                    data: formdata,
                     processData: false,
                     contentType: false,
                     success: function(response) {
@@ -93,10 +92,15 @@
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.purchase') }}";
-                        }  else {
+
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
+                        } else {
                             loaderhide();
                             toastr.error(response.message);
                         }
+
                     },
                     error: function(xhr, status, error) {
                         // Handle error response and display validation errors

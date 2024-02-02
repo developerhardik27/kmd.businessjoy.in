@@ -144,8 +144,9 @@
                 type: 'get',
                 url: '{{ route('invoice.status_list') }}',
                 data: {
-                    user_id: {{ session()->get('user_id') }},
-                    token: "{{ session()->get('api_token') }}"
+                    user_id: "{{ session()->get('user_id') }}",
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}"
                 },
                 success: function(response) {
                     var totalinv = 0;
@@ -180,8 +181,13 @@
                     if (totalinv != '') {
                         $('#total_inv').text(totalinv);
                     }
+                    if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
+                    }
                 }
             });
+
             function paidd() {
                 $('#data').html('');
                 $('#status_title').text('paid');
@@ -291,8 +297,9 @@
                     url: '/api/chart', // Replace this with your Laravel backend endpoint
                     method: 'GET',
                     data: {
-                        user_id: {{ session()->get('user_id') }},
-                        token: "{{ session()->get('api_token') }}"
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }} "
                     },
                     success: function(invoicesData) {
                         // Ensure invoicesData is an array of objects with the expected properties

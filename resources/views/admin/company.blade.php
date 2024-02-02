@@ -39,7 +39,7 @@
     </style>
 @endsection
 
-@if (session('user_permissions.invoicemodule.company.add') === '1')
+@if (session('user_permissions.invoicemodule.company.add') == '1')
     @section('addnew')
         {{ route('admin.addcompany') }}
     @endsection
@@ -96,7 +96,7 @@
                                                     <td>${value.email}</td>
                                                     <td>${value.contact_no}</td>
                                                     <td>
-                                                        @if(session('user_permissions.invoicemodule.company.view') === '1')
+                                                        @if(session('user_permissions.invoicemodule.company.view') == '1')
                                                             <span>
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -106,10 +106,10 @@
                                                           -
                                                         @endif
                                                     </td>
-                                                    @if(session('user_permissions.invoicemodule.company.edit') === '1' ||
-                                                            session('user_permissions.invoicemodule.company.delete') === '1')
+                                                    @if(session('user_permissions.invoicemodule.company.edit') == '1' ||
+                                                            session('user_permissions.invoicemodule.company.delete') == '1')
                                                         <td> 
-                                                            @if(session('user_permissions.invoicemodule.company.edit') === '1')
+                                                            @if(session('user_permissions.invoicemodule.company.edit') == '1')
                                                                 <span class="">
                                                                     <a href='EditCompany/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -118,7 +118,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif                                                        
-                                                            @if(session('user_permissions.invoicemodule.company.delete') === '1')
+                                                            @if(session('user_permissions.invoicemodule.company.delete') == '1')
                                                                 <span class="">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -136,7 +136,10 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else {
+                        } else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                        }else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                             loaderhide();
                         }
