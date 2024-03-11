@@ -54,7 +54,8 @@
                 <table id="details" width='100%' class="table table-bordered table-responsive-md table-striped">
                 </table>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" >
+                <span id="addfooterbutton"></span>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>

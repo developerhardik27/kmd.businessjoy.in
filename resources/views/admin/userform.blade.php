@@ -15,7 +15,7 @@
                 <div class="col-sm-6">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <input type="hidden" value="{{ $user_id }}" name="created_by" class="form-control">
+                    <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
                     <input type="hidden" value="{{ $company_id }}" name="company_id" class="form-control">
                     <label for="firstname">FirstName</label>
                     <input type="text" id="firstname" name='firstname' class="form-control" placeholder="First name"
@@ -85,7 +85,8 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="pincode">Pincode</label>
-                    <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code" required />
+                    <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
+                        required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -96,9 +97,9 @@
             </div>
         </div>
         <div class="button-container">
-            <button type="submit" class="btn btn-primary submitBtn"  id="">Submit</button>
+            <button type="submit" class="btn btn-primary submitBtn" id="formsubmit">Submit</button>
             <div id="loader" class="loader"></div>
-            <button id="" type="reset" class="btn iq-bg-danger resetbtn">Reset</button>
+            <button type="reset" class="btn iq-bg-danger resetbtn" id="formreset">Reset</button>
         </div>
         <div class="row">
             <div class="col-sm-12">
@@ -112,77 +113,342 @@
                         <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
                             <thead>
                                 <tr>
+                                    <th colspan="7" class="text-right">
+                                        <b>Select All </b>
+                                        <input type="checkbox" id="invoiceallcheck">
+                                    </th>
+                                </tr>
+                                <tr>
                                     <th scope="col" style="width:15% ;">Show/Hide</th>
                                     <th scope="col">Menus</th>
                                     <th scope="col">Add</th>
                                     <th scope="col">View</th>
                                     <th scope="col">Edit</th>
                                     <th scope="col">Delete</th>
+                                    <th scope="col">All Record</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td> <input type="checkbox" id="showinvoicemenu"  name="showinvoicemenu" value="1"></td>
+                            <tbody id="invoicecheckboxes">
+                                <tr id="invoice">
+                                    <td> <input type="checkbox" class="clickmenu" data-value='invoice'
+                                            id="showinvoicemenu" name="showinvoicemenu" value="1"></td>
                                     <td>Invoice</td>
-                                    <td><input type="checkbox" id="addinvoice"  name="addinvoice" value="1"></td>
-                                    <td><input type="checkbox" id="viewinvoice" name="viewinvoice" value="1"></td>
-                                    <td><input type="checkbox" id="editinvoice" name="editinvoice" value="1"></td>
-                                    <td><input type="checkbox" id="deleteinvoice" name="deleteinvoice" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
+                                            id="addinvoice" name="addinvoice" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
+                                            id="viewinvoice" name="viewinvoice" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
+                                            id="editinvoice" name="editinvoice" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
+                                            id="deleteinvoice" name="deleteinvoice" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.invoice.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
+                                                id="alldatainvoice" name="alldatainvoice" value="1">
+                                        @else
+                                            -
+                                        @endif
+
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td> <input type="checkbox" id="showcompanymenu"  name="showcompanymenu" value="1"></td>
-                                    <td>Company</td>
-                                    <td><input type="checkbox" id="addcompany" name="addcompany" value="1"></td>
-                                    <td><input type="checkbox" id="viewcompany" name="viewcompany" value="1"></td>
-                                    <td><input type="checkbox" id="editcompany" name="editcompany" value="1"></td>
-                                    <td><input type="checkbox" id="deletecompany" name="deletecompany" value="1"></td>
+                                <tr id="mngcol">
+                                    <td> <input type="checkbox" class="clickmenu" data-value='mngcol'
+                                            id="showmngcolmenu" name="showmngcolmenu" value="1">
+                                    </td>
+                                    <td>Manage Invoice Column</td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
+                                            id="addmngcol" name="addmngcol" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
+                                            id="viewmngcol" name="viewmngcol" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
+                                            id="editmngcol" name="editmngcol" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
+                                            id="deletemngcol" name="deletemngcol" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.mngcol.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu"
+                                                data-value='showmngcolmenu' id="alldatamngcol"
+                                                name="alldatamngcol" value="1">
+                                        @else
+                                            -
+                                        @endif
+
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td> <input type="checkbox" id="showbankmenu" name="showbankmenu" value="1"></td>
+                                <tr id="formula">
+                                    <td> <input type="checkbox" class="clickmenu" data-value='formula'
+                                            id="showformulamenu" name="showformulamenu" value="1">
+                                    </td>
+                                    <td>Invoice Formula</td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
+                                            id="addformula" name="addformula" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
+                                            id="viewformula" name="viewformula" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
+                                            id="editformula" name="editformula" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
+                                            id="deleteformula" name="deleteformula" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.formula.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu"
+                                                data-value='showinvoicesettingmenu' id="alldataformula"
+                                                name="alldataformula" value="1">
+                                        @else
+                                            -
+                                        @endif
+
+                                    </td>
+                                </tr>
+                                <tr id="invoicesetting">
+                                    <td> <input type="checkbox" class="clickmenu" data-value='invoicesetting'
+                                            id="showinvoicesettingmenu" name="showinvoicesettingmenu" value="1">
+                                    </td>
+                                    <td>Invoice/Settings</td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
+                                            id="addinvoicesetting" name="addinvoicesetting" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
+                                            id="viewinvoicesetting" name="viewinvoicesetting" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
+                                            id="editinvoicesetting" name="editinvoicesetting" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
+                                            id="deleteinvoicesetting" name="deleteinvoicesetting" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.invoicesetting.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu"
+                                                data-value='showinvoicesettingmenu' id="alldatainvoicesetting"
+                                                name="alldatainvoicesetting" value="1">
+                                        @else
+                                            -
+                                        @endif
+
+                                    </td>
+                                </tr>
+                                @if (session('user_permissions.invoicemodule.company.add') == '1')
+                                    <tr id="company">
+                                        <td> <input type="checkbox" class="clickmenu" data-value='company'
+                                                id="showcompanymenu" name="showcompanymenu" value="1"></td>
+                                        <td>Company</td>
+                                        <td>
+                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
+                                                id="addcompany" name="addcompany" value="1">
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
+                                                id="viewcompany" name="viewcompany" value="1">
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
+                                                id="editcompany" name="editcompany" value="1">
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
+                                                id="deletecompany" name="deletecompany" value="1">
+                                        </td>
+                                        <td>
+                                            @if (session('user_permissions.invoicemodule.company.alldata') == '1')
+                                                <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
+                                                    id="alldatacompany" name="alldatacompany" value="1">
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endif
+                                <tr id="bank">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='bank' id="showbankmenu"
+                                            name="showbankmenu" value="1">
+                                    </td>
                                     <td>Bank</td>
-                                    <td><input type="checkbox" id="addbank" name="addbank" value="1"></td>
-                                    <td><input type="checkbox" id="viewbank" name="viewbank" value="1"></td>
-                                    <td><input type="checkbox" id="editbank" name="editbank" value="1"></td>
-                                    <td><input type="checkbox" id="deletebank" name="deletebank" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
+                                            id="addbank" name="addbank" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
+                                            id="viewbank" name="viewbank" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
+                                            id="editbank" name="editbank" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
+                                            id="deletebank" name="deletebank" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.bank.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
+                                                id="alldatabank" name="alldatabank" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td> <input type="checkbox" id="showusermenu"  name="showusermenu" value="1"></td>
+                                <tr id="user">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='user' id="showusermenu"
+                                            name="showusermenu" value="1">
+                                    </td>
                                     <td>User</td>
-                                    <td><input type="checkbox" id="adduser" name="adduser" value="1"></td>
-                                    <td><input type="checkbox" id="viewuser" name="viewuser" value="1"></td>
-                                    <td><input type="checkbox" id="edituser" name="edituser" value="1"></td>
-                                    <td><input type="checkbox" id="deleteuser" name="deleteuser" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
+                                            id="adduser" name="adduser" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
+                                            id="viewuser" name="viewuser" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
+                                            id="edituser" name="edituser" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
+                                            id="deleteuser" name="deleteuser" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.user.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
+                                                id="alldatauser" name="alldatauser" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td> <input type="checkbox" id="showcustomermenu"  name="showcustomermenu" value="1"></td>
+                                <tr id="customer">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='customer'
+                                            id="showcustomermenu" name="showcustomermenu" value="1">
+                                    </td>
                                     <td>Customer</td>
-                                    <td><input type="checkbox" id="addcustomer" name="addcustomer" value="1"></td>
-                                    <td><input type="checkbox" id="viewcustomer" name="viewcustomer" value="1"></td>
-                                    <td><input type="checkbox" id="editcustomer" name="editcustomer" value="1"></td>
-                                    <td><input type="checkbox" id="deletecustomer" name="deletecustomer" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
+                                            id="addcustomer" name="addcustomer" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
+                                            id="viewcustomer" name="viewcustomer" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
+                                            id="editcustomer" name="editcustomer" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
+                                            id="deletecustomer" name="deletecustomer" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.customer.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
+                                                id="alldatacustomer" name="alldatacustomer" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td> <input type="checkbox" id="showproductmenu" name="showproductmenu" value="1"></td>
+                                <tr id="product">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='product'
+                                            id="showproductmenu" name="showproductmenu" value="1">
+                                    </td>
                                     <td>Product</td>
-                                    <td><input type="checkbox" id="addproduct" name="addproduct" value="1"></td>
-                                    <td><input type="checkbox" id="viewproduct" name="viewproduct" value="1"></td>
-                                    <td><input type="checkbox" id="editproduct" name="editproduct" value="1"></td>
-                                    <td><input type="checkbox" id="deleteproduct" name="deleteproduct" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
+                                            id="addproduct" name="addproduct" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
+                                            id="viewproduct" name="viewproduct" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
+                                            id="editproduct" name="editproduct" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
+                                            id="deleteproduct" name="deleteproduct" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.product.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
+                                                id="alldataproduct" name="alldataproduct" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td> <input type="checkbox" id="showpurchasemenu" name="showpurchasemenu" value="1"></td>
+                                <tr id="purchase">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='purchase'
+                                            id="showpurchasemenu" name="showpurchasemenu" value="1">
+                                    </td>
                                     <td>Purchase</td>
-                                    <td><input type="checkbox" id="addpurchase" name="addpurchase" value="1"></td>
-                                    <td><input type="checkbox" id="viewpurchase" name="viewpurchase" value="1"></td>
-                                    <td><input type="checkbox" id="editpurchase" name="editpurchase" value="1"></td>
-                                    <td><input type="checkbox" id="deletepurchase" name="deletepurchase" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
+                                            id="addpurchase" name="addpurchase" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
+                                            id="viewpurchase" name="viewpurchase" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
+                                            id="editpurchase" name="editpurchase" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
+                                            id="deletepurchase" name="deletepurchase" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.invoicemodule.purchase.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
+                                                id="alldatapurchase" name="alldatapurchase" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="button-container">
-                            <button type="submit" class="btn btn-primary submitBtn" id="">Submit</button>
+                            <button type="submit" class="btn btn-primary submitBtn"
+                                id="invoicemodulesubmit">Submit</button>
                             <div id="loader" class="loader"></div>
-                            <button id="" type="reset" class="btn iq-bg-danger resetbtn">Reset</button>
+                            <button type="reset" class="btn iq-bg-danger resetbtn"
+                                id="invoicemodulereset">Reset</button>
                         </div>
                     </div>
                 </div>
@@ -196,29 +462,58 @@
                         <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
                             <thead>
                                 <tr>
+                                    <th colspan="7" class="text-right"><b>Select All </b> <input type="checkbox"
+                                            id="leadallcheck"></th>
+                                </tr>
+                                <tr>
                                     <th scope="col" style="width:15%">Show/Hide</th>
                                     <th scope="col">Menus</th>
                                     <th scope="col">Add</th>
                                     <th scope="col">View</th>
                                     <th scope="col">Edit</th>
                                     <th scope="col">Delete</th>
+                                    <th scope="col">All Record</th>
                                 </tr>
                             </thead>
-                            <tbody >
-                                <tr>
-                                    <td> <input type="checkbox" id="showleadmenu" name="showleadmenu" value="1"></td>
+                            <tbody id="leadcheckboxes">
+                                <tr id="lead">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='lead' id="showleadmenu"
+                                            name="showleadmenu" value="1">
+                                    </td>
                                     <td>Lead</td>
-                                    <td><input type="checkbox" id="addlead" name="addlead" value="1"></td>
-                                    <td><input type="checkbox" id="viewlead" name="viewlead" value="1"></td>
-                                    <td><input type="checkbox" id="editlead" name="editlead" value="1"></td>
-                                    <td><input type="checkbox" id="deletelead" name="deletelead" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
+                                            id="addlead" name="addlead" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
+                                            id="viewlead" name="viewlead" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
+                                            id="editlead" name="editlead" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
+                                            id="deletelead" name="deletelead" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.leadmodule.lead.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
+                                                id="alldatalead" name="alldatalead" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="button-container">
-                            <button type="submit" class="btn btn-primary submitBtn" id="">Submit</button>
+                            <button type="submit" class="btn btn-primary submitBtn"
+                                id="leadmodulesubmit">Submit</button>
                             <div id="loader" class="loader"></div>
-                            <button id="" type="reset" class="btn iq-bg-danger resetbtn">Reset</button>
+                            <button type="reset" class="btn iq-bg-danger resetbtn" id="leadmodulereset">Reset</button>
                         </div>
                     </div>
                 </div>
@@ -232,28 +527,59 @@
                         <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
                             <thead>
                                 <tr>
+                                    <th colspan="7" class="text-right"><b>Select All </b> <input type="checkbox"
+                                            id="customersupportallcheck"></th>
+                                </tr>
+                                <tr>
                                     <th scope="col" style="width:15%">Show/Hide</th>
                                     <th scope="col">Menus</th>
                                     <th scope="col">Add</th>
                                     <th scope="col">View</th>
                                     <th scope="col">Edit</th>
                                     <th scope="col">Delete</th>
+                                    <th scope="col">All Record</th>
                                 </tr>
                             </thead>
-                            <tbody >
-                                <tr>
-                                    <td> <input type="checkbox" id="showcustomersupportmenu" name="showcustomersupportmenu" value="1"></td>
+                            <tbody id="customersupportcheckboxes">
+                                <tr id="customersupport">
+                                    <td>
+                                        <input type="checkbox" class="clickmenu" data-value='customersupport'
+                                            id="showcustomersupportmenu" name="showcustomersupportmenu" value="1">
+                                    </td>
                                     <td>Customer Support</td>
-                                    <td><input type="checkbox" id="addcustomersupport" name="addcustomersupport" value="1"></td>
-                                    <td><input type="checkbox" id="viewcustomersupport" name="viewcustomersupport" value="1"></td>
-                                    <td><input type="checkbox" id="editcustomersupport" name="editcustomersupport" value="1"></td>
-                                    <td><input type="checkbox" id="deletecustomersupport" name="deletecustomersupport" value="1"></td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
+                                            id="addcustomersupport" name="addcustomersupport" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
+                                            id="viewcustomersupport" name="viewcustomersupport" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
+                                            id="editcustomersupport" name="editcustomersupport" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
+                                            id="deletecustomersupport" name="deletecustomersupport" value="1">
+                                    </td>
+                                    <td>
+                                        @if (session('user_permissions.customersupportmodule.customersupport.alldata') == '1')
+                                            <input type="checkbox" class="clicksubmenu"
+                                                data-value='showcustomersupportmenu' id="alldatacustomersupport"
+                                                name="alldatadeletecustomersupport" value="1">
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="button-container">
-                            <button type="submit" class="btn btn-primary submitBtn" id="">Submit</button>
-                            <button id="" type="reset" class="btn iq-bg-danger resetbtn">Reset</button>
+                            <button type="submit" class="btn btn-primary submitBtn"
+                                id="customersupportmodulesubmit">Submit</button>
+                            <button type="reset" class="btn iq-bg-danger resetbtn"
+                                id="customersupportmodulereset">Reset</button>
                         </div>
                     </div>
                 </div>
@@ -265,6 +591,11 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             // show country data in dropdown
             $.ajax({
                 type: 'GET',
@@ -358,6 +689,54 @@
                 });
             });
 
+           // invoicemodule - check all checkboxes of invoicemodule on click select all
+            $('#invoiceallcheck').change(function() {
+                if (!$(this).prop('checked')) {
+                    $('#invoicecheckboxes input[type="checkbox"]').prop('checked', false);
+                } else {
+                    $('#invoicecheckboxes input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+                }
+
+            });
+
+            // leadmodule - check all checkboxes of leadmodule on click select all
+            $('#leadallcheck').change(function() {
+                if (!$(this).prop('checked')) {
+                    $('#leadcheckboxes input[type="checkbox"]').prop('checked', false);
+                } else {
+                    $('#leadcheckboxes input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+                }
+
+            });
+
+            // customersupportmodule - check all checkboxes of customersupportmodule on click select all
+            $('#customersupportallcheck').change(function() {
+                if (!$(this).prop('checked')) {
+                    $('#customersupportcheckboxes input[type="checkbox"]').prop('checked', false);
+                } else {
+                    $('#customersupportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
+                        'checked'));
+                }
+
+            });
+
+           // check all checkboxes in the row if click on any menu
+            $(document).on('change', '.clickmenu', function() {
+                value = $(this).data('value');
+                if (!$(this).prop('checked')) {
+                    $(`#${value} input[type="checkbox"]`).prop('checked', false);
+                } else {
+                    $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
+                }
+            })
+            
+            // check menu if check any submenu(edit,delete,add...)
+            $(document).on('change', '.clicksubmenu', function() {
+                value = $(this).data('value');
+                if (!$(`#${value}`).prop('checked')) {
+                    $(`#${value}`).prop('checked', true);
+                }
+            })
             //submit form
             $('#userform').submit(function(event) {
                 event.preventDefault();
@@ -381,6 +760,9 @@
                         } else if (response.status == 422) {
                             loaderhide();
                             toastr.error(response.errors);
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(response.message);
@@ -393,7 +775,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                          loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-    Update Lead
+{{ config('app.name') }} - Update Lead
 @endsection
 @section('title')
     Update Lead
@@ -130,9 +130,10 @@
                     <span class="error-msg" id="error-number_of_follow_up" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="source">Source:</label>
-                    <input type="text" class="form-control" name="source" id="source" placeholder="source" />
-                    <span class="error-msg" id="error-source" style="color: red"></span>
+                    <label class="form-label" for="no_of_attempt">Number Of Attempt:</label>
+                    <input type="number" class="form-control" value="0" name="number_of_attempt" min="0"
+                     id="no_of_attempt">
+                    <span class="error-msg" id="error-no_of_attempt" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -161,6 +162,7 @@
                         <option value='New Lead'>New Lead</option>
                         <option value='Requirement Ghathering'>Requirement Ghathering</option>
                         <option value='Quotation'>Quotation</option>
+                        <option value="In Followup">In Followup</option>
                         <option value='Sale'>Sale</option>
                         <option value='Cancelled'>Cancelled</option>
                         <option value='Disqualified'>Disqualified</option>
@@ -168,7 +170,8 @@
                     <span class="error-msg" id="error-leadstage" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="assignedto">Assigned To:</label><br />
+                    <label class="form-label" for="assignedto">Assigned To:</label><span
+                        style="color:red;">*</span><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
                         <option value="" disabled selected>Select User</option>
                     </select>
@@ -183,6 +186,11 @@
                     <input type="text" class="form-control" name="company" id="company"
                         placeholder="Company Name" />
                     <span class="error-msg" id="error-company" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="source">Source:</label>
+                    <input type="text" class="form-control" name="source" id="source" placeholder="source" />
+                    <span class="error-msg" id="error-source" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -206,16 +214,46 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
+            // redirect on lead list page on click cancel button
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.lead') }}";
             })
+           
 
+            // last follow up and next follow up date validation
+            $("#last_follow_up").on("change", function() {
+                var lastDate = new Date($(this).val());
+                var nextDateInput = $("#next_follow_up");
+                var nextDate = new Date(nextDateInput.val());
+
+                if (nextDate < lastDate) {
+                    nextDateInput.val($(this).val());
+                }
+
+                nextDateInput.attr("min", $(this).val());
+            });
+
+            $("#next_follow_up").on("change", function() {
+                var lastDate = new Date($("#last_follow_up").val());
+                var nextDate = new Date($(this).val());
+
+                if (nextDate < lastDate) {
+                    $(this).val(lastDate.toISOString().slice(0, 10));
+                }
+            });
+           
+            //get user data for assinged  to field
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -252,11 +290,12 @@
                 url: '/api/lead/search/' + edit_id,
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: " {{ session()->get('company_id') }} "
+                    company_id: " {{ session()->get('company_id') }} ",
+                    user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
-                    data = response.lead[0]
                     if (response.status == 200) {
+                        data = response.lead[0]
                         // You can update your HTML with the data here if needed
                         $('#name').val(data.name);
                         $('#email').val(data.email);
@@ -269,6 +308,7 @@
                         $('#last_follow_up').val(data.last_follow_up);
                         $('#next_follow_up').val(data.next_follow_up);
                         $('#no_of_follow_up').val(data.number_of_follow_up);
+                        $('#no_of_attempt').val(data.attempt_lead);
                         $('#notes').val(data.notes);
                         $('#leadstage').val(data.lead_stage);
                         $('#created_at').val(data.created_at_formatted);

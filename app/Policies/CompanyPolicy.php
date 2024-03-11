@@ -23,6 +23,6 @@ class CompanyPolicy
         if ($authenticatedUser->role === 3) {
             return false; // denny access
         }
-        return $authenticatedUser->company_id === $requestedCompany->id;
+        return $authenticatedUser->company_id === $requestedCompany->id || $authenticatedUser->id === $requestedCompany->created_by ;
     }
 }

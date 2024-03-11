@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Update Purchase
+    {{ config('app.name') }} - Update Purchase
 @endsection
 @section('title')
     Update Purchase
@@ -73,6 +73,11 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             var edit_id = @json($edit_id);
             // show old data in fields
             $.ajax({
@@ -80,7 +85,8 @@
                 url: '/api/purchase/search/' + edit_id,
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: "{{ session()->get('company_id') }}"
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: "{{ session()->get('user_id') }}",
                 },
                 success: function(response) {
                     if (response.status == 200 && response.purchases != '') {

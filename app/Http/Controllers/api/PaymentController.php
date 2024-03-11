@@ -3,26 +3,63 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\invoice;
 use App\Models\payment_details;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends commonController
-{ 
+{
 
     public $userId, $companyId, $masterdbname;
 
     public function __construct(Request $request)
     {
-        if(session()->get('company_id')){
+        if (session()->get('company_id')) {
             $this->dbname(session()->get('company_id'));
-        }else{
+        } else {
             $this->dbname($request->company_id);
         }
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname =  DB::connection()->getDatabaseName();
+        $this->masterdbname = DB::connection()->getDatabaseName();
+    }
+
+
+    public function paymentdetailsforpdf(string $id)
+    {
+
+        $paymentdetail = payment_details::find($id);
+
+        if ($paymentdetail->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'paymentdetail' => $paymentdetail
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No Records Found'
+            ]);
+        }
+    }
+    public function paymentdetail(string $id)
+    {
+
+        $paymentdetail = payment_details::where('inv_id', $id)->get();
+
+        if ($paymentdetail->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'paymentdetail' => $paymentdetail
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No Records Found'
+            ]);
+        }
     }
 
     /**
@@ -30,10 +67,10 @@ class PaymentController extends commonController
      */
     public function index(string $id)
     {
-      
+
         $payment = DB::connection('dynamic_connection')->table('payment_details')
-                    ->where('inv_id', $id)
-                    ->get();
+            ->where('inv_id', $id)
+            ->get();
 
         if ($payment->count() > 0) {
             return response()->json([
@@ -46,7 +83,7 @@ class PaymentController extends commonController
                 'payment' => 'No Records Found'
             ]);
         }
-    
+
     }
 
     /**
@@ -61,13 +98,12 @@ class PaymentController extends commonController
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {  
+    {
 
 
         $validator = Validator::make($request->all(), [
             'inv_id' => 'required',
-            'transid' => 'required|string|max:50',
-
+            'transid' => 'required|string|max:50'
         ]);
 
         if ($validator->fails()) {
@@ -77,29 +113,105 @@ class PaymentController extends commonController
             ]);
         } else {
 
-            $payment_details = payment_details::updateOrCreate(
-                ['inv_id' => $request->inv_id],
-                [
-                    'transaction_id' => $request->transid,
-                    'paid_by' => $request->paid_by,
-                    'paid_type' => $request->payment_type
-                ]
-            );
+            $invoiceammount = invoice::find($request->inv_id);
+            $invoicepaidamount = payment_details::where('inv_id', $request->inv_id)->where('part_payment', 1)->get();
 
-            if ($payment_details) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'payment_details succesfully created'
-                ]);
+            if ($invoicepaidamount->count() > 0) {
+                $total_paided_amount = 0;
+                foreach ($invoicepaidamount as $value) {
+                    $total_paided_amount = $total_paided_amount + $value->paid_amount;
+                }
+                if ($invoiceammount->grand_total == $total_paided_amount) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'payment Already Paided'
+                    ]);
+                }
+                if ($invoiceammount->count() > 0) {
+                    $total = $invoiceammount->grand_total;
+                    $paidamount = $request->paidamount;
+                    $pendingamount = $total - $paidamount - $total_paided_amount;
+
+                    $payment_details = payment_details::insert(
+                        [
+                            'inv_id' => $request->inv_id,
+                            'transaction_id' => $request->transid,
+                            'amount' => $total,
+                            'paid_amount' => $paidamount,
+                            'pending_amount' => $pendingamount,
+                            'paid_by' => $request->paid_by,
+                            'paid_type' => $request->payment_type,
+                            'part_payment' => 1
+                        ]
+                    );
+
+                    if ($pendingamount == 0) {
+                        $invoiceammount->status = 'paid';
+                        $invoiceammount->save();
+                    }
+                }
+                if ($payment_details) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'payment details succesfully created'
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'payment details not succesfully create'
+                    ]);
+                }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'payment_details not succesfully create'
-                ]);
+                if ($invoiceammount->count() > 0) {
+                    $total = $invoiceammount->grand_total;
+                    $paidamount = $request->paidamount;
+                    $pendingamount = $total - $paidamount;
+                    if ($pendingamount > 0) {
+                        $payment_details = payment_details::insert(
+                            [
+                                'inv_id' => $request->inv_id,
+                                'transaction_id' => $request->transid,
+                                'amount' => $total,
+                                'paid_amount' => $paidamount,
+                                'pending_amount' => $pendingamount,
+                                'paid_by' => $request->paid_by,
+                                'paid_type' => $request->payment_type,
+                                'part_payment' => 1
+                            ]
+                        );
+                        $invoiceammount->status = 'part_payment';
+                        $invoiceammount->save();
+                    } else {
+                        $payment_details = payment_details::insert(
+                            [
+                                'inv_id' => $request->inv_id,
+                                'transaction_id' => $request->transid,
+                                'amount' => $total,
+                                'paid_amount' => $paidamount,
+                                'pending_amount' => $pendingamount,
+                                'paid_by' => $request->paid_by,
+                                'paid_type' => $request->payment_type
+                            ]
+                        );
+
+                        $invoiceammount->status = 'paid';
+                        $invoiceammount->save();
+                    }
+                    if ($payment_details) {
+                        return response()->json([
+                            'status' => 200,
+                            'message' => 'payment details succesfully created'
+                        ]);
+                    } else {
+                        return response()->json([
+                            'status' => 500,
+                            'message' => 'payment details not succesfully create'
+                        ]);
+                    }
+                }
             }
         }
     }
-
     /**
      * Display the specified resource.
      */

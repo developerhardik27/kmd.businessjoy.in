@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-    Create New Invoice
+{{ config('app.name') }} - Create New Invoice
 @endsection
 @section('title')
     Create Invoice
@@ -26,7 +26,7 @@
                 </div>
                 <div class="col-sm-4">
                     <input type="hidden" name="country_id" id="country" class="form-control" value="" />
-                    <input type="hidden" name="created_by" id="created_by" class="form-control"
+                    <input type="hidden" name="user_id" id="created_by" class="form-control"
                         value="{{ $user_id }}" />
                     <input type="hidden" name="company_id" id="company_id" class="form-control"
                         value="{{ $company_id }}" />
@@ -269,15 +269,22 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             let allColumnData = [];
             let allColumnNames = [];
             let formula = [];
 
-        
+            // fetch invoice formula for calculation 
             $.ajax({
                     type: 'GET',
                     url: '{{ route('invoiceformula.index') }}',
                     data: {
+                        user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -294,11 +301,13 @@
                         console.error('Error:', error);
                     }
                 });
-
+            
+            // fetch users own columnname and set it into table 
             $.ajax({
                 type: 'GET',
                 url: '{{ route('invoice.columnname') }}',
                 data: {
+                    user_id: {{ session()->get('user_id') }},
                     company_id: {{ session()->get('company_id') }},
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -380,6 +389,7 @@
                 type: 'GET',
                 url: '{{ route('invoice.bankacc') }}',
                 data: {
+                    user_id: {{ session()->get('user_id') }},
                     company_id: {{ session()->get('company_id') }},
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -404,13 +414,14 @@
                 }
             });
 
-            // currency data fetch and set currendy dropdown
+            // currency data fetch and set currensy dropdown
             $.ajax({
                 type: 'GET',
                 url: '{{ route('invoice.currency') }}',
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id : " {{session()->get('company_id')}} "
+                    company_id : " {{session()->get('company_id')}} ",
+                    user_id : " {{session()->get('user_id')}} ",
                 },
                 success: function(response) {
                     if (response.status == 200 && response.currency != '') {
@@ -435,6 +446,7 @@
                 type: 'GET',
                 url: '{{ route('product.index') }}',
                 data: {
+                    user_id: {{ session()->get('user_id') }},
                     company_id: {{ session()->get('company_id') }},
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -445,6 +457,9 @@
                             $('#products').append(
                                 `<option value='${value.id}'>${value.name} </option>`);
                         });
+                    } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                     } else {
                         $('#products').append(
                             `<option disabled '>No Data found </option>`);
@@ -515,7 +530,8 @@
                     url: "/api/customer/search/" + id,
                     data: {
                         token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id')}}"
+                        company_id: " {{ session()->get('company_id')}}",
+                        user_id: " {{ session()->get('user_id')}}"
                     },
                     success: function(response) {
                         // You can update your HTML with the data here if needed
@@ -668,7 +684,8 @@
                         data,
                         iteam_data,
                         token: "{{ session()->get('api_token') }}",
-                        company_id : " {{ session()->get('company_id')}}"
+                        company_id : " {{ session()->get('company_id')}}",
+                        user_id : " {{ session()->get('user_id')}}",
                     },
                     success: function(response) {
                         // Handle the response from the server
@@ -772,7 +789,8 @@
                 });
 
 
-            // for add new customer
+            // for add new customer 
+
             // set country data in country dropdown
             $.ajax({
                 type: 'GET',

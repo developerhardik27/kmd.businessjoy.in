@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
 use App\Models\customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+
 class customerController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname;
+    public $userId, $companyId, $masterdbname,$rp;
 
     public function __construct(Request $request)
     {
@@ -19,25 +19,38 @@ class customerController extends commonController
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
         $this->masterdbname =  DB::connection()->getDatabaseName();
+
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $permissions = json_decode($user_rp, true);
+        $this->rp = json_decode($permissions[0]['rp'], true);
     }
 
 
     public function invoicecustomer(Request $request)
     {
-        
-       
-            $customers = customer::join($this->masterdbname.'.country', 'customers.country_id', '=', $this->masterdbname.'.country.id')
+            $customersres = customer::join($this->masterdbname.'.country', 'customers.country_id', '=', $this->masterdbname.'.country.id')
                 ->join($this->masterdbname.'.state', 'customers.state_id', '=',$this->masterdbname. '.state.id')
                 ->join($this->masterdbname.'.city', 'customers.city_id', '=', $this->masterdbname.'.city.id')
                 ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at')
-                ->where('customers.is_deleted', 0)->where('customers.is_active', 1)
-                ->get();
+                ->where('customers.is_deleted', 0)->where('customers.is_active', 1);
+            
+            if( $this->rp['invoicemodule']['customer']['alldata'] != 1){
+                $customersres->where('customers.created_by',$this->userId);
+            }
+            $customers = $customersres->get();
 
         if ($customers->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'customer' => $customers
-            ], 200);
+            if( $this->rp['invoicemodule']['customer']['view'] == 1){
+                return response()->json([
+                    'status' => 200,
+                    'customer' => $customers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,
@@ -51,20 +64,33 @@ class customerController extends commonController
      */
     public function index(Request $request)
     {
-
-
-        $customers = customer::join($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
+         
+      
+        $customersres = customer::join($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->join($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->join($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at', 'customers.is_active')
-            ->where('customers.is_deleted', 0)
-            ->get();
+            ->where('customers.is_deleted', 0);
+
+            if( $this->rp['invoicemodule']['customer']['alldata'] != 1){
+                $customersres->where('customers.created_by',$this->userId);
+            }
+    
+            $customers = $customersres->get();
 
         if ($customers->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'customer' => $customers
-            ], 200);
+            if( $this->rp['invoicemodule']['customer']['view'] == 1){
+                return response()->json([
+                    'status' => 200,
+                    'customer' => $customers
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+           
         } else {
             return response()->json([
                 'status' => 404,
@@ -112,36 +138,42 @@ class customerController extends commonController
                 'errors' => $validator->messages()
             ], 422);
         } else {
-
-            $customer = DB::connection('dynamic_connection')->table('customers')->insertGetId([
-                'firstname' => $request->firstname,
-                'lastname' => $request->lastname,
-                'company_name' => $request->company_name,
-                'email' => $request->email,
-                'contact_no' => $request->contact_number,
-                'address' => $request->address,
-                'country_id' => $request->country,
-                'state_id' => $request->state,
-                'city_id' => $request->city,
-                'pincode' => $request->pincode,
-                'gst_no' => $request->gst_number,
-                'company_id' => $this->companyId,
-                'created_by' => $this->userId,
-
-            ]);
-
-            if ($customer) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer  succesfully added',
-                    'customerid' => $customer
-                ], 200);
-            } else {
+            if( $this->rp['invoicemodule']['customer']['add'] == 1){
+                $customer = DB::connection('dynamic_connection')->table('customers')->insertGetId([
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'company_name' => $request->company_name,
+                    'email' => $request->email,
+                    'contact_no' => $request->contact_number,
+                    'address' => $request->address,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
+                    'pincode' => $request->pincode,
+                    'gst_no' => $request->gst_number,
+                    'company_id' => $this->companyId,
+                    'created_by' => $this->userId,
+    
+                ]);
+    
+                if ($customer) {
+                    return response()->json([
+                        'status' => 200,
+                        'customer' => $customer
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'customer not succesfully added !'
+                    ], 500);
+                }
+            }else{
                 return response()->json([
                     'status' => 500,
-                    'message' => 'customer not succesfully added !'
-                ], 500);
+                    'message' => 'You are Unauthorized'
+                ]);
             }
+           
         }
     }
 
@@ -150,13 +182,27 @@ class customerController extends commonController
      */
     public function show(string $id)
     {
-
         $customer = customer::find($id);
+        if($this->rp['invoicemodule']['customer']['alldata'] != 1){
+            if( $customer->created_by != $this->userId){
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
         if ($customer) {
-            return response()->json([
-                'status' => 200,
-                'customer' => $customer
-            ]);
+            if( $this->rp['invoicemodule']['customer']['view'] == 1){
+                return response()->json([
+                    'status' => 200,
+                    'customer' => $customer
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,
@@ -171,13 +217,27 @@ class customerController extends commonController
      */
     public function edit(string $id)
     {
-
         $customer = customer::find($id);
+        if($this->rp['invoicemodule']['customer']['alldata'] != 1){
+            if($customer->created_by != $this->userId){
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
         if ($customer) {
-            return response()->json([
-                'status' => 200,
-                'customer' => $customer
-            ], 200);
+            if( $this->rp['invoicemodule']['customer']['edit'] == 1){
+                return response()->json([
+                    'status' => 200,
+                    'customer' => $customer
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,
@@ -218,28 +278,43 @@ class customerController extends commonController
             ], 422);
         } else {
             $customer = customer::find($id);
-
+            if($this->rp['invoicemodule']['customer']['alldata'] != 1){
+                if( $customer->created_by != $this->userId){
+                    return response()->json([
+                        'status' => 500,
+                        'message' => "You are Unauthorized!"
+                    ]);
+                }
+            }
             if ($customer) {
-                $customer->update([
-                    'firstname' => $request->firstname,
-                    'lastname' => $request->lastname,
-                    'company_name' => $request->company_name,
-                    'email' => $request->email,
-                    'contact_no' => $request->contact_number,
-                    'address' => $request->address,
-                    'country_id' => $request->country,
-                    'state_id' => $request->state,
-                    'city_id' => $request->city,
-                    'pincode' => $request->pincode,
-                    'gst_no' => $request->gst_number,
-                    'company_id' => $this->companyId,
-                    'updated_by' => $this->userId,
-                    'updated_at' => date('Y-m-d')
-                ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer succesfully updated'
-                ], 200);
+                if( $this->rp['invoicemodule']['customer']['edit'] == 1){
+                    $customer->update([
+                        'firstname' => $request->firstname,
+                        'lastname' => $request->lastname,
+                        'company_name' => $request->company_name,
+                        'email' => $request->email,
+                        'contact_no' => $request->contact_number,
+                        'address' => $request->address,
+                        'country_id' => $request->country,
+                        'state_id' => $request->state,
+                        'city_id' => $request->city,
+                        'pincode' => $request->pincode,
+                        'gst_no' => $request->gst_number,
+                        'company_id' => $this->companyId,
+                        'updated_by' => $this->userId,
+                        'updated_at' => date('Y-m-d')
+                    ]);
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'customer succesfully updated'
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'You are Unauthorized'
+                    ]);
+                }
+               
             } else {
                 return response()->json([
                     'status' => 404,
@@ -253,14 +328,29 @@ class customerController extends commonController
     public function statusupdate(Request $request, string $id)
     {
         $customer = customer::find($id);
+        if($this->rp['invoicemodule']['customer']['alldata'] != 1){
+            if( $customer->created_by != $this->userId){
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
         if ($customer) {
-            $customer->update([
-                'is_active' => $request->status
-            ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'customer status succesfully updated'
-            ]);
+            if( $this->rp['invoicemodule']['customer']['edit'] == 1){
+                $customer->update([
+                    'is_active' => $request->status
+                ]);
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'customer status succesfully updated'
+                ]);
+            }else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,
@@ -274,16 +364,29 @@ class customerController extends commonController
     public function destroy(string $id)
     {
         $customer = customer::find($id);
-
+        if($this->rp['invoicemodule']['customer']['alldata'] != 1){
+            if( $customer->created_by != $this->userId){
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
         if ($customer) {
-            $customer->update([
-                'is_deleted' => 1
-
-            ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'customer succesfully deleted'
-            ], 200);
+            if( $this->rp['invoicemodule']['customer']['delete'] == 1){
+                $customer->update([
+                    'is_deleted' => 1
+                ]);
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'customer succesfully deleted'
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,

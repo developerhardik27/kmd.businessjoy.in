@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-   Add New Product
+{{ config('app.name') }} - Add New Product
 @endsection
 @section('title')
     New Product
@@ -15,8 +15,8 @@
                 <div class="col-sm-6">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                     placeholder="token" required />
-                    <input type="hidden" value="{{ $user_id }}" class="form-control" name="created_by"
-                        placeholder="created_by">
+                    <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id"
+                        placeholder="user_id">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id"
                         placeholder="company_id">
                     <label for="name">Product Name</label>
@@ -67,6 +67,10 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             loaderhide();
             // submit form
             $('#productform').submit(function(event) {
@@ -86,10 +90,13 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.product') }}";
 
-                        } else {
-                            loaderhide();
-                            toastr.error(response.message);
-                        }
+                        } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
+                            } else {
+                                loaderhide();
+                                toastr.error('something went wrong !');
+                            }
 
                     },
                     error: function(xhr, status, error) {

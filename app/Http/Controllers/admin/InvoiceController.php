@@ -51,6 +51,9 @@ class InvoiceController extends Controller
     public function formula(){
         return view('admin.formula',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
+    public function othersettings(){
+        return view('admin.othersettings',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+    }
    
     /**
      * Display a listing of the resource.

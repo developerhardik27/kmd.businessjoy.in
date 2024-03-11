@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Add New Company
+    {{ config('app.name') }} - Add New Company
 @endsection
 @section('title')
     New Company
@@ -14,13 +14,12 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                        placeholder="token" required />
-                    <input type="hidden" name="created_by" class="form-control" value="{{ $user_id }}"
-                        placeholder="created_by" required >
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}" required />
+                    <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}" required />
+                    <input type="hidden" name="user_id" class="form-control" value="{{ $user_id }}" required>
                     <label for="name">Name</label>
                     <input id="name" type="text" name="name" class="form-control" placeholder="company name"
-                        required >
+                        required>
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -41,7 +40,8 @@
                 </div>
                 <div class="col-sm-6">
                     <label for="gst">GST Number</label>
-                    <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number" required />
+                    <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number"
+                        required />
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -75,7 +75,8 @@
                 </div>
                 <div class="col-sm-6">
                     <label for="pincode">Pincode</label>
-                    <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code" required />
+                    <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code"
+                        required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
             </div>
@@ -88,11 +89,18 @@
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <div class="col-sm-6">
-                        <label for="img">Image</label><br>
-                        <input type="file" name="img" id="img" width="100%" />
-                        <span class="error-msg" id="error-img" style="color: red"></span>
-                    </div>
+                    <label for="img">Company Logo Image</label><br>
+                    <input type="file" name="img" id="img" width="100%" />
+                    <span class="error-msg" id="error-img" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label for="sign_img">Company Signature Image</label><br>
+                    <input type="file" name="sign_img" id="sign_img" width="100%" />
+                    <span class="error-msg" id="error-sign_img" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -108,6 +116,11 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
             // fetch country data and show in dropdown
             $.ajax({
@@ -136,7 +149,7 @@
                 }
             });
 
-            // load state in dropdown when country select
+            // load state in dropdown when country select/change
             $('#country').on('change', function() {
                 loadershow();
                 var country_id = $(this).val();
@@ -168,7 +181,7 @@
                 });
             });
 
-            // load city in dropdown when state select
+            // load city in dropdown when state select/change
             $('#state').on('change', function() {
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
@@ -220,8 +233,11 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.company') }}";
 
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
-                           loaderhide();
+                            loaderhide();
                             toastr.error(response.message);
                         }
 
@@ -233,7 +249,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
+use App\Models\company;
 use App\Models\User;
-use App\Models\user_permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,16 +37,24 @@ class AdminLoginController extends Controller
         if ($validator->passes()) {
 
             if (User::where('email', '=', $request->email)->first()) {
-                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password,'is_deleted'=>0])) {
+                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0])) {
                     $admin = Auth::guard('admin')->user();
                     $api_token = Str::random(60);
+
 
 
                     DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]);
 
                     if ((($admin->role == 1) or ($admin->role == 2)) && ($admin->is_active == 1)) {
 
-                        $rpdetailsjson = DB::table('user_permissions')->select('rp')->where('user_id', $admin->id)->get();
+                        $dbname = company::find($admin->company_id);
+                        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+                        // Establish connection to the dynamic database
+                        DB::purge('dynamic_connection');
+                        DB::reconnect('dynamic_connection');
+
+                        $rpdetailsjson = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $admin->id)->get();
 
                         if ($rpdetailsjson->count() > 0) {
                             // Decode the JSON data
@@ -55,14 +63,13 @@ class AdminLoginController extends Controller
                             // Store the decoded data in the session
                             session(['user_permissions' => $rp]);
 
-
                             function hasPermission($json, $module)
                             {
                                 if (isset($json[$module]) && !empty($module)) {
                                     foreach ($json[$module] as $key => $value) {
                                         foreach ($value as $key2 => $value2) {
                                             if ($key2 === "show") {
-                                                if($value2 == "1"){
+                                                if ($value2 == "1") {
                                                     return true;
                                                 }
                                             }
@@ -70,25 +77,25 @@ class AdminLoginController extends Controller
                                     }
                                 }
                             }
-                              
-                            if(hasPermission($rp, "invoicemodule")){
+
+                            if (hasPermission($rp, "invoicemodule")) {
                                 session(['invoice' => "yes"]);
-                                session([ 'menu' => 'invoice']);
+                                session(['menu' => 'invoice']);
 
                             }
-                            if(hasPermission($rp, "leadmodule")){
+                            if (hasPermission($rp, "leadmodule")) {
                                 session(['lead' => "yes"]);
-                                if(!(Session::has('menu') && (Session::get('menu') == 'invoice' || Session::get('menu') == 'customersupport'))){
-                                    session([ 'menu' => 'lead']);
+                                if (!(Session::has('menu') && (Session::get('menu') == 'invoice' || Session::get('menu') == 'customersupport'))) {
+                                    session(['menu' => 'lead']);
                                 }
                             }
-                            if(hasPermission($rp,"customersupportmodule")){
+                            if (hasPermission($rp, "customersupportmodule")) {
                                 session(['customersupport' => "yes"]);
-                                if(!(Session::has('menu') && (Session::get('menu') == 'invoice' || Session::get('menu') == 'lead'))){
-                                    session([ 'menu' => 'customersupport']);
+                                if (!(Session::has('menu') && (Session::get('menu') == 'invoice' || Session::get('menu') == 'lead'))) {
+                                    session(['menu' => 'customersupport']);
                                 }
                             }
-                            
+
                         }
                         $request->session()->put([
                             'admin_role' => $admin->role,

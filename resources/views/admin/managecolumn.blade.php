@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Manage Columns
+{{ config('app.name') }} -  Manage Columns
 @endsection
 @section('title')
     Manage Columns
@@ -70,7 +70,20 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
+           // validation for column name
+            $('#column_name').on('input', function() {
+                var name = $(this).val();
+                var filteredName = name.replace(/[^A-Za-z_ ]/g, ''); // Remove any characters not in the allowed set
+                $(this).val(filteredName); // Update the input value with the filtered name
+            });
+            
+
+            // fetch column name and append into column list table
             function loaddata() {
                 loadershow();
                 $('#tabledata').empty();
@@ -80,7 +93,8 @@
                     url: '{{ route('invoicecolumn.index') }}',
                     data: {
                         token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}"
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 && response.invoicecolumn != '') {
@@ -135,7 +149,7 @@
             //call function for loaddata
             loaddata();
 
-
+           // hide column will be not show into invoice its use for only calculation
             $(document).on("click", '.hide-btn', function() {
                 hidevalue = $(this).val();
                 var columnid = $(this).data('id');
@@ -148,6 +162,7 @@
                         data: {
                             token: "{{ session()->get('api_token') }}",
                             company_id: {{ session()->get('company_id') }},
+                            user_id: {{ session()->get('user_id') }},
                             hidevalue
                         },
                         success: function(response) {
@@ -170,17 +185,21 @@
                     });
                 }
             });
+            
 
+            // edit column if it is not used for any invoice
             $(document).on("click", ".edit-btn", function() {
                 if (confirm("You want edit this Column ?")) {
                     loadershow();
+                    $('#column_name').prop('readonly', true);
                     var editid = $(this).data('id');
                     $.ajax({
                         type: 'get',
                         url: '/api/invoicecolumn/edit/' + editid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200 && response.invoicecolumn != '') {
@@ -198,13 +217,16 @@
                             }
                         },
                         error: function(error) {
+                            $('#column_name').prop('readonly', false);
                             loaderhide();
                             console.error('Error:', error);
                         }
                     });
                 }
             });
+            
 
+            // delete column if it is not has data of any invoice
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this Column ?')) {
                     var deleteid = $(this).data('id');
@@ -215,7 +237,8 @@
                         url: '/api/invoicecolumn/delete/' + deleteid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id: {{ session()->get('company_id') }}
+                            company_id: {{ session()->get('company_id') }},
+                            user_id: {{ session()->get('user_id') }},
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -238,7 +261,7 @@
                 }
             });
 
-
+            // manage column order 
             $('.savecolumnorder').on('click', function() {
                 var columnorders = [];
                 $('input.columnorder').each(function() {
@@ -254,7 +277,8 @@
                     data: {
                         columnorders,
                         token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}"
+                        company_id: " {{ session()->get('company_id') }}",
+                        user_id: " {{ session()->get('user_id') }}",
                     },
                     success: function(response) {
                         if (response.status == 200) {
@@ -276,7 +300,7 @@
                 });
             });
 
-
+           // add or edit column form submit
             $('#columnform').submit(function(e) {
                 e.preventDefault();
                 loadershow();
@@ -288,6 +312,7 @@
                         url: "/api/invoicecolumn/update/" + editid,
                         data: columndata,
                         success: function(response) {
+                            $('#column_name').prop('readonly', false);
                             if (response.status == 200) {
                                 $('#edit_id').val('');
                                 loaderhide();

@@ -1,7 +1,7 @@
 @extends('admin.mastertable')
 
 @section('page_title')
-    Company
+    {{ config('app.name') }} - Company
 @endsection
 @section('table_title')
     Company
@@ -73,18 +73,25 @@
     <script>
         $('document').ready(function() {
 
-            var global_response = '';
-            // load data in table 
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
+            var global_response = ''; // declare global variable for using company detail globally
+            // function for get company data and load into table
             function loaddata() {
                 loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('company.index') }}',
                     data: {
-                        user_id: {{ session()->get('company_id') }},
+                        user_id: {{ session()->get('user_id') }},
+                        company_id: {{ session()->get('company_id') }},
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
+                        // You can update your HTML with the data here if needed
                         if (response.status == 200 && response.company != '') {
                             loaderhide();
                             global_response = response;
@@ -96,7 +103,7 @@
                                                     <td>${value.email}</td>
                                                     <td>${value.contact_no}</td>
                                                     <td>
-                                                        @if(session('user_permissions.invoicemodule.company.view') == '1')
+                                                        @if (session('user_permissions.invoicemodule.company.view') == '1')
                                                             <span>
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -106,10 +113,10 @@
                                                           -
                                                         @endif
                                                     </td>
-                                                    @if(session('user_permissions.invoicemodule.company.edit') == '1' ||
+                                                    @if (session('user_permissions.invoicemodule.company.edit') == '1' ||
                                                             session('user_permissions.invoicemodule.company.delete') == '1')
                                                         <td> 
-                                                            @if(session('user_permissions.invoicemodule.company.edit') == '1')
+                                                            @if (session('user_permissions.invoicemodule.company.edit') == '1')
                                                                 <span class="">
                                                                     <a href='EditCompany/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -118,7 +125,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif                                                        
-                                                            @if(session('user_permissions.invoicemodule.company.delete') == '1')
+                                                            @if (session('user_permissions.invoicemodule.company.delete') == '1')
                                                                 <span class="">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -134,16 +141,16 @@
                                 id++;
                             });
                             $('#data').DataTable({
-                                "destroy": true, //use for reinitialize datatable
+                                "destroy": true, //use for reinitialize jquery datatable
                             });
-                        } else if(response.status == 500){
+                        } else if (response.status == 500) {
                             toastr.error(response.message);
                             loaderhide();
-                        }else {
+                        } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                             loaderhide();
                         }
-                        // You can update your HTML with the data here if needed
+                       
                     },
                     error: function(error) {
                         console.error('Error:', error);
@@ -152,8 +159,8 @@
                 });
             }
 
-            //call function for loaddata
-            loaddata();
+            //call loaddata function for make ajax call
+            loaddata(); // this function is for get company details
 
 
 
@@ -167,12 +174,20 @@
                         type: 'post',
                         url: '/api/company/delete/' + $deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
+                            } else {
+                                loaderhide();
+                                toastr.error('something went wrong !');
                             }
                         }
                     });

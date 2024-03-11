@@ -9,18 +9,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Models\company;
 
 
 class userController extends Controller
 {
 
+    public $db, $companyId, $userId, $rp, $masterdbname;
+    public function __construct(Request $request)
+    {
+
+        if (isset($request->company_id)) {
+            $dbname = company::find($request->company_id);
+        } else {
+            $dbname = company::find(1);
+        }
+
+        $this->db = $dbname->dbname;
+
+        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+        // Establish connection to the dynamic database
+        DB::purge('dynamic_connection');
+        DB::reconnect('dynamic_connection');
+
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname = DB::connection()->getDatabaseName();
+
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $permissions = json_decode($user_rp, true);
+        $this->rp = json_decode($permissions[0]['rp'], true);
+    }
+
     public function username(Request $request)
     {
-        $userId = $request->input('user_id');
+
         $user = DB::table('users')
             ->join('company', 'users.company_id', '=', 'company.id')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-            ->select('users.firstname', 'users.lastname', 'users.img', 'company_details.name')->where('users.id', $userId)->get();
+            ->select('users.firstname', 'users.lastname', 'users.img', 'company_details.name')->where('users.id', $this->userId)->get();
         if ($user->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -37,18 +65,31 @@ class userController extends Controller
     public function userprofile(Request $request)
     {
 
-        $userId = $request->input('user_id');
         $users = DB::table('users')
             ->join('country', 'users.country_id', '=', 'country.id')
             ->join('state', 'users.state_id', '=', 'state.id')
             ->join('city', 'users.city_id', '=', 'city.id')
             ->join('company', 'users.company_id', '=', 'company.id')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-            ->select('users.firstname', 'users.lastname', 'users.email', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name', 'users.img')
-            ->where('users.is_active', '1')->where('users.is_deleted', '0')->where('users.id', $userId)
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name', 'users.img', 'users.created_by')
+            ->where('users.is_active', '1')->where('users.is_deleted', '0')->where('users.id', $request->id)
             ->get();
 
 
+        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['invoicemodule']['user']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized!'
+            ]);
+        }
 
         if ($users->count() > 0) {
             return response()->json([
@@ -68,8 +109,7 @@ class userController extends Controller
     public function index(Request $request)
     {
 
-        $companyId = $request->input('company_id');
-        if ($companyId == 1) {
+        if ($this->companyId == 1) {
             $users = DB::table('users')
                 ->join('country', 'users.country_id', '=', 'country.id')
                 ->join('state', 'users.state_id', '=', 'state.id')
@@ -80,7 +120,7 @@ class userController extends Controller
                 ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
                 ->where('users.is_deleted', 0)->get();
         } else {
-            $users = DB::table('users')
+            $usersres = DB::table('users')
                 ->join('country', 'users.country_id', '=', 'country.id')
                 ->join('state', 'users.state_id', '=', 'state.id')
                 ->join('city', 'users.city_id', '=', 'city.id')
@@ -88,8 +128,22 @@ class userController extends Controller
                 ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
                 ->join('user_role', 'users.role', '=', 'user_role.id')
                 ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
-                ->where('users.is_deleted', 0)->where('users.company_id', $companyId)->get();
+                ->where('users.is_deleted', 0)->where('users.company_id', $this->companyId);
+
+            if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+                $usersres->where('users.created_by', $this->userId);
+            }
+
+            $users = $usersres->get();
         }
+
+        if ($this->rp['invoicemodule']['user']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+
         if ($users->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -117,8 +171,6 @@ class userController extends Controller
     public function store(Request $request)
     {
 
-
-
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
@@ -130,7 +182,7 @@ class userController extends Controller
             'city' => 'required|numeric',
             'pincode' => 'required|numeric|digits:6',
             'company_id' => 'required|numeric',
-            'created_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'updated_by',
             'created_at',
@@ -145,123 +197,90 @@ class userController extends Controller
                 'errors' => $validator->messages()
             ]);
         } else {
-
+            if ($this->rp['invoicemodule']['user']['add'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
             $rp = [
                 "invoicemodule" => [
-                    "invoice" => ["show" => $request->showinvoicemenu, "add" => $request->addinvoice, "view" => $request->viewinvoice, "edit" => $request->editinvoice, "delete" => $request->deleteinvoice],
-                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany],
-                    "bank" => ["show" => $request->showbankmenu, "add" => $request->addbank, "view" => $request->viewbank, "edit" => $request->editbank, "delete" => $request->deletebank],
-                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser],
-                    "customer" => ["show" => $request->showcustomermenu, "add" => $request->addcustomer, "view" => $request->viewcustomer, "edit" => $request->editcustomer, "delete" => $request->deletecustomer],
-                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct],
-                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase]
+                    "invoice" => ["show" => $request->showinvoicemenu, "add" => $request->addinvoice, "view" => $request->viewinvoice, "edit" => $request->editinvoice, "delete" => $request->deleteinvoice, "alldata" => $request->alldatainvoice],
+                    "mngcol" => ["show" => $request->showmngcolmenu, "add" => $request->addmngcol, "view" => $request->viewmngcol, "edit" => $request->editmngcol, "delete" => $request->deletemngcol, "alldata" => $request->alldatamngcol],
+                    "formula" => ["show" => $request->showformulamenu, "add" => $request->addformula, "view" => $request->viewformula, "edit" => $request->editformula, "delete" => $request->deleteformula, "alldata" => $request->alldataformula],
+                    "invoicesetting" => ["show" => $request->showinvoicesettingmenu, "add" => $request->addinvoicesetting, "view" => $request->viewinvoicesetting, "edit" => $request->editinvoicesetting, "delete" => $request->deleteinvoicesetting, "alldata" => $request->alldatainvoicesetting],
+                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany, "alldata" => $request->alldatacompany],
+                    "bank" => ["show" => $request->showbankmenu, "add" => $request->addbank, "view" => $request->viewbank, "edit" => $request->editbank, "delete" => $request->deletebank, "alldata" => $request->alldatabank],
+                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser, "alldata" => $request->alldatauser],
+                    "customer" => ["show" => $request->showcustomermenu, "add" => $request->addcustomer, "view" => $request->viewcustomer, "edit" => $request->editcustomer, "delete" => $request->deletecustomer, "alldata" => $request->alldatacustomer],
+                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct, "alldata" => $request->alldataproduct],
+                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase, "alldata" => $request->alldatapurchase]
                 ],
                 "leadmodule" => [
-                    "lead" => ["show" => $request->showleadmenu, "add" => $request->addlead, "view" => $request->viewlead, "edit" => $request->editlead, "delete" => $request->deletelead]
+                    "lead" => ["show" => $request->showleadmenu, "add" => $request->addlead, "view" => $request->viewlead, "edit" => $request->editlead, "delete" => $request->deletelead, "alldata" => $request->alldatalead]
                 ],
                 "customersupportmodule" => [
-                    "customersupport" => ["show" => $request->showcustomersupportmenu, "add" => $request->addcustomersupport, "view" => $request->viewcustomersupport, "edit" => $request->editcustomersupport, "delete" => $request->deletecustomersupport]
+                    "customersupport" => ["show" => $request->showcustomersupportmenu, "add" => $request->addcustomersupport, "view" => $request->viewcustomersupport, "edit" => $request->editcustomersupport, "delete" => $request->deletecustomersupport, "alldata" => $request->alldatacustomersupport]
                 ]
             ];
 
             $rpjson = json_encode($rp);
 
-            if ($request->hasFile('img') && $request->file('img') != '') {
+
+            $userdata = [];
+            if ($request->hasFile('img') && $request->hasFile('img') != '') {
                 $image = $request->file('img');
                 $imageName = $request->firstname . time() . '.' . $image->getClientOriginalExtension();
+
                 if (!file_exists('uploads/')) {
                     mkdir('uploads/', 0755, true);
                 }
                 // Save the image to the uploads directory
                 if ($image->move('uploads/', $imageName)) {
+                    $userdata['img'] = $imageName;
+                }
 
-                    $users = User::insertGetId([
-                        'firstname' => $request->firstname,
-                        'lastname' => $request->lastname,
-                        'email' => $request->email,
-                        'password' => Hash::make($request->password),
-                        'contact_no' => $request->contact_number,
-                        'country_id' => $request->country,
-                        'state_id' => $request->state,
-                        'city_id' => $request->city,
-                        'pincode' => $request->pincode,
-                        'img' => $imageName,
-                        'company_id' => $request->company_id,
-                        'created_by' => $request->created_by,
+            }
+
+            $user = array_merge($userdata, [
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'contact_no' => $request->contact_number,
+                'country_id' => $request->country,
+                'state_id' => $request->state,
+                'city_id' => $request->city,
+                'pincode' => $request->pincode,
+                'company_id' => $this->companyId,
+                'created_by' => $this->userId
+            ]);
+
+            $users = User::insertgetId($user);
+
+            if ($users) {
+                $userrp = user_permission::create([
+                    'user_id' => $users,
+                    'rp' => $rpjson
+                ]);
+
+                if ($userrp) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'user succesfully created'
                     ]);
-
-
-                    if ($users) {
-
-                        $userrp = user_permission::create([
-                            'user_id' => $users,
-                            'rp' => $rpjson
-                        ]);
-
-                        if ($userrp) {
-                            return response()->json([
-                                'status' => 200,
-                                'message' => 'user succesfully created'
-                            ]);
-                        } else {
-                            User::where('id', $users)->delete();
-                            return response()->json([
-                                'status' => 500,
-                                'message' => 'User Roles & Permissions not succesfully create'
-                            ]);
-                        }
-                    } else {
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'user not succesfully create'
-                        ]);
-                    }
                 } else {
+                    User::where('id', $users)->delete();
                     return response()->json([
                         'status' => 500,
-                        'message' => 'image not succesfully upload'
+                        'message' => 'User Roles & Permissions not succesfully create'
                     ]);
                 }
             } else {
-                $users = User::insertGetId([
-                    'firstname' => $request->firstname,
-                    'lastname' => $request->lastname,
-                    'email' => $request->email,
-                    'password' => Hash::make($request->password),
-                    'contact_no' => $request->contact_number,
-                    'country_id' => $request->country,
-                    'state_id' => $request->state,
-                    'city_id' => $request->city,
-                    'pincode' => $request->pincode,
-                    'company_id' => $request->company_id,
-                    'created_by' => $request->created_by,
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'user not succesfully create'
                 ]);
-
-
-                if ($users) {
-                    $userrp = user_permission::create([
-                        'user_id' => $users,
-                        'rp' => $rpjson
-                    ]);
-
-                    if ($userrp) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'user succesfully created'
-                        ]);
-                    } else {
-                        User::where('id', $users)->delete();
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'User Roles & Permissions not succesfully create'
-                        ]);
-                    }
-                } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'user not succesfully create'
-                    ]);
-                }
             }
         }
     }
@@ -271,11 +290,30 @@ class userController extends Controller
      */
     public function show(string $id)
     {
+
+        $user = User::find($id);
+        $dbname = company::find($user->company_id);
+
         $users = DB::table('users')
-            ->join('user_permissions', 'users.id', '=', 'user_permissions.user_id')
+            ->join($dbname->dbname . '.user_permissions', 'users.id', '=', $dbname->dbname . '.user_permissions.user_id')
             ->select('users.*', 'user_permissions.rp')
             ->where('users.id', $id)->get();
 
+
+        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['invoicemodule']['user']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
         if ($users) {
             return response()->json([
                 'status' => 200,
@@ -295,6 +333,20 @@ class userController extends Controller
     public function edit(string $id)
     {
         $users = User::find($id);
+        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+            if ($users->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['invoicemodule']['user']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
         if ($users) {
             return response()->json([
                 'status' => 200,
@@ -313,7 +365,7 @@ class userController extends Controller
      */
     public function update(Request $request, string $id)
     {
-    
+
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
@@ -326,7 +378,7 @@ class userController extends Controller
             'pincode' => 'required|numeric|digits:6',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'created_by',
-            'updated_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'created_at',
             'updated_at',
             'is_active',
@@ -340,271 +392,120 @@ class userController extends Controller
             ]);
         } else {
 
+            if ($this->rp['invoicemodule']['user']['edit'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
+            $user = User::find($id);
+            $dbname = company::find($user->company_id);
+            config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+            // Establish connection to the dynamic database
+            DB::purge('dynamic_connection');
+            DB::reconnect('dynamic_connection');
+
             $rp = [
                 "invoicemodule" => [
-                    "invoice" => ["show" => $request->showinvoicemenu, "add" => $request->addinvoice, "view" => $request->viewinvoice, "edit" => $request->editinvoice, "delete" => $request->deleteinvoice],
-                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany],
-                    "bank" => ["show" => $request->showbankmenu, "add" => $request->addbank, "view" => $request->viewbank, "edit" => $request->editbank, "delete" => $request->deletebank],
-                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser],
-                    "customer" => ["show" => $request->showcustomermenu, "add" => $request->addcustomer, "view" => $request->viewcustomer, "edit" => $request->editcustomer, "delete" => $request->deletecustomer],
-                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct],
-                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase]
+                    "invoice" => ["show" => $request->showinvoicemenu, "add" => $request->addinvoice, "view" => $request->viewinvoice, "edit" => $request->editinvoice, "delete" => $request->deleteinvoice, "alldata" => $request->alldatainvoice],
+                    "mngcol" => ["show" => $request->showmngcolmenu, "add" => $request->addmngcol, "view" => $request->viewmngcol, "edit" => $request->editmngcol, "delete" => $request->deletemngcol, "alldata" => $request->alldatamngcol],
+                    "formula" => ["show" => $request->showformulamenu, "add" => $request->addformula, "view" => $request->viewformula, "edit" => $request->editformula, "delete" => $request->deleteformula, "alldata" => $request->alldataformula],
+                    "invoicesetting" => ["show" => $request->showinvoicesettingmenu, "add" => $request->addinvoicesetting, "view" => $request->viewinvoicesetting, "edit" => $request->editinvoicesetting, "delete" => $request->deleteinvoicesetting, "alldata" => $request->alldatainvoicesetting],
+                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany, "alldata" => $request->alldatacompany],
+                    "bank" => ["show" => $request->showbankmenu, "add" => $request->addbank, "view" => $request->viewbank, "edit" => $request->editbank, "delete" => $request->deletebank, "alldata" => $request->alldatabank],
+                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser, "alldata" => $request->alldatauser],
+                    "customer" => ["show" => $request->showcustomermenu, "add" => $request->addcustomer, "view" => $request->viewcustomer, "edit" => $request->editcustomer, "delete" => $request->deletecustomer, "alldata" => $request->alldatacustomer],
+                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct, "alldata" => $request->alldataproduct],
+                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase, "alldata" => $request->alldatapurchase]
                 ],
                 "leadmodule" => [
-                    "lead" => ["show" => $request->showleadmenu, "add" => $request->addlead, "view" => $request->viewlead, "edit" => $request->editlead, "delete" => $request->deletelead]
+                    "lead" => ["show" => $request->showleadmenu, "add" => $request->addlead, "view" => $request->viewlead, "edit" => $request->editlead, "delete" => $request->deletelead, "alldata" => $request->alldatalead]
                 ],
                 "customersupportmodule" => [
-                    "customersupport" => ["show" => $request->showcustomersupportmenu, "add" => $request->addcustomersupport, "view" => $request->viewcustomersupport, "edit" => $request->editcustomersupport, "delete" => $request->deletecustomersupport]
+                    "customersupport" => ["show" => $request->showcustomersupportmenu, "add" => $request->addcustomersupport, "view" => $request->viewcustomersupport, "edit" => $request->editcustomersupport, "delete" => $request->deletecustomersupport, "alldata" => $request->alldatacustomersupport]
                 ]
             ];
 
+
             $rpjson = json_encode($rp);
+            $users = User::find($id);
+            $userupdatedata = [];
             if ($request->hasFile('img') && $request->hasFile('img') != '') {
                 $image = $request->file('img');
                 $imageName = $request->firstname . time() . '.' . $image->getClientOriginalExtension();
 
-                // Save the image to the uploads directory
                 if ($image->move('uploads/', $imageName)) {
-                    $users = User::find($id);
-                    if ($users) {
-                        $imagePath = 'uploads/' . $users->img;
-                        if (is_file($imagePath)) {
-                            unlink($imagePath);  // old img remove
-                        }
-                        if ($request->password == '') {
-                            $user =   $users->update([
-                                'firstname' => $request->firstname,
-                                'lastname' => $request->lastname,
-                                'email' => $request->email,
-                                'contact_no' => $request->contact_number,
-                                'country_id' => $request->country,
-                                'state_id' => $request->state,
-                                'city_id' => $request->city,
-                                'pincode' => $request->pincode,
-                                'img' => $imageName,
-                                'updated_by' => $request->updated_by,
-                                'updated_at' => date('Y-m-d')
-
-                            ]);
-                            if ($user) {
-                                if ($request->editrole == 1) {
-
-                                    return response()->json([
-                                        'status' => 200,
-                                        'message' => 'user succesfully updated'
-                                    ]);
-                                } else {
-                                    $searchuserrp = user_permission::where('user_id', $id)->first();
-                                    if ($searchuserrp) {
-                                        $rpupdate =  $searchuserrp->update([
-                                            "rp" => $rpjson
-                                        ]);
-
-                                        if ($rpupdate) {
-                                            return response()->json([
-                                                'status' => 200,
-                                                'message' => 'user succesfully updated'
-                                            ]);
-                                        } else {
-                                            return response()->json([
-                                                'status' => 404,
-                                                'message' => 'user role & permissions not succesfully updated!'
-                                            ]);
-                                        }
-                                    } else {
-                                        return response()->json([
-                                            'status' => 404,
-                                            'message' => 'No Such roles & permissions Found!'
-                                        ]);
-                                    }
-                                }
-                            } else {
-                                return response()->json([
-                                    'status' => 404,
-                                    'message' => 'user not succesfully updated!'
-                                ]);
-                            }
-                        } else {
-                            $user =  $users->update([
-                                'firstname' => $request->firstname,
-                                'lastname' => $request->lastname,
-                                'email' => $request->email,
-                                'password' =>  Hash::make($request->password),
-                                'contact_no' => $request->contact_number,
-                                'country_id' => $request->country,
-                                'state_id' => $request->state,
-                                'city_id' => $request->city,
-                                'pincode' => $request->pincode,
-                                'img' => $imageName,
-                                'updated_by' => $request->updated_by,
-                                'updated_at' => date('Y-m-d')
-                            ]);
-                            if ($user) {
-
-                                if ($request->editrole == 1) {
-
-                                    return response()->json([
-                                        'status' => 200,
-                                        'message' => 'user succesfully updated'
-                                    ]);
-                                } else {
-                                    $searchuserrp = user_permission::where('user_id', $id)->first();
-                                    if ($searchuserrp) {
-                                        $rpupdate =  $searchuserrp->update([
-                                            "rp" => $rpjson
-                                        ]);
-
-                                        if ($rpupdate) {
-                                            return response()->json([
-                                                'status' => 200,
-                                                'message' => 'user succesfully updated'
-                                            ]);
-                                        } else {
-                                            return response()->json([
-                                                'status' => 404,
-                                                'message' => 'user role & permissions not succesfully updated!'
-                                            ]);
-                                        }
-                                    } else {
-                                        return response()->json([
-                                            'status' => 404,
-                                            'message' => 'No Such roles & permissions Found!'
-                                        ]);
-                                    }
-                                }
-                            } else {
-                                return response()->json([
-                                    'status' => 404,
-                                    'message' => 'user not succesfully updated!'
-                                ]);
-                            }
-                        }
-                    } else {
-                        return response()->json([
-                            'status' => 404,
-                            'message' => 'No Such user Found!'
-                        ]);
+                    $imagePath = 'uploads/' . $users->img;
+                    if (is_file($imagePath)) {
+                        unlink($imagePath);  // old img remove
                     }
-                } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'image not succesfully upload'
-                    ]);
+                    $userupdatedata['img'] = $imageName;
                 }
-            } else {
-                $users = User::find($id);
-                if ($users) {
-                    if ($request->password == '') {
-                        $user =  $users->update([
-                            'firstname' => $request->firstname,
-                            'lastname' => $request->lastname,
-                            'email' => $request->email,
-                            'contact_no' => $request->contact_number,
-                            'country_id' => $request->country,
-                            'state_id' => $request->state,
-                            'city_id' => $request->city,
-                            'pincode' => $request->pincode,
-                            'updated_by' => $request->updated_by,
-                            'updated_at' => date('Y-m-d')
+            }
 
+            if ($users) {
+                $userupdatedata = array_merge($userupdatedata, [
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'email' => $request->email,
+                    'contact_no' => $request->contact_number,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
+                    'pincode' => $request->pincode,
+                    'updated_by' => $this->userId,
+                    'updated_at' => date('Y-m-d')
+                ]);
+
+                if ($request->password != '') {
+                    $userupdatedata['password'] = Hash::make($request->password);
+                }
+                $user = $users->update($userupdatedata);
+                if ($user) {
+                    if ($request->editrole == 1) {
+                        return response()->json([
+                            'status' => 200,
+                            'message' => 'user succesfully updated'
                         ]);
-
-                        if ($user) {
-                            if ($request->editrole == 1) {
-                                return response()->json([
-                                    'status' => 200,
-                                    'message' => 'user succesfully updated'
-                                ]);
-                            } else {
-                                $searchuserrp = user_permission::where('user_id', $id)->first();
-                                if ($searchuserrp) {
-                                    $rpupdate =  $searchuserrp->update([
-                                        "rp" => $rpjson
-                                    ]);
-
-                                    if ($rpupdate) {
-                                        return response()->json([
-                                            'status' => 200,
-                                            'message' => 'user succesfully updated'
-                                        ]);
-                                    } else {
-                                        return response()->json([
-                                            'status' => 404,
-                                            'message' => 'user role & permissions not succesfully updated!'
-                                        ]);
-                                    }
-                                } else {
-                                    return response()->json([
-                                        'status' => 404,
-                                        'message' => 'No Such roles & permissions  Found!'
-                                    ]);
-                                }
-                            }
-                        } else {
-                            return response()->json([
-                                'status' => 404,
-                                'message' => 'user not succesfully updated!'
-                            ]);
-                        }
                     } else {
-                        $user =  $users->update([
-                            'firstname' => $request->firstname,
-                            'lastname' => $request->lastname,
-                            'email' => $request->email,
-                            'password' =>  Hash::make($request->password),
-                            'contact_no' => $request->contact_number,
-                            'country_id' => $request->country,
-                            'state_id' => $request->state,
-                            'city_id' => $request->city,
-                            'pincode' => $request->pincode,
-                            'updated_by' => $request->updated_by,
-                            'updated_at' => date('Y-m-d')
-                        ]);
+                        $searchuserrp = user_permission::where('user_id', $id)->first();
+                        if ($searchuserrp) {
+                            $rpupdate = $searchuserrp->update([
+                                "rp" => $rpjson
+                            ]);
 
-                        if ($user) {
-                            if ($request->editrole == 1) {
+                            if ($rpupdate) {
                                 return response()->json([
                                     'status' => 200,
                                     'message' => 'user succesfully updated'
                                 ]);
                             } else {
-                                $searchuserrp = user_permission::where('user_id', $id)->first();
-                                if ($searchuserrp) {
-                                    $rpupdate =  $searchuserrp->update([
-                                        "rp" => $rpjson
-                                    ]);
-
-                                    if ($rpupdate) {
-                                        return response()->json([
-                                            'status' => 200,
-                                            'message' => 'user succesfully updated'
-                                        ]);
-                                    } else {
-                                        return response()->json([
-                                            'status' => 404,
-                                            'message' => 'user role & permissions not succesfully updated!'
-                                        ]);
-                                    }
-                                } else {
-                                    return response()->json([
-                                        'status' => 404,
-                                        'message' => 'No Such roles & permissions  Found!'
-                                    ]);
-                                }
+                                return response()->json([
+                                    'status' => 404,
+                                    'message' => 'user role & permissions not succesfully updated!'
+                                ]);
                             }
                         } else {
                             return response()->json([
                                 'status' => 404,
-                                'message' => 'user not succesfully updated!'
+                                'message' => 'No Such roles & permissions  Found!'
                             ]);
                         }
                     }
                 } else {
                     return response()->json([
                         'status' => 404,
-                        'message' => 'No Such user Found!'
+                        'message' => 'user not succesfully updated!'
                     ]);
                 }
+
+            } else {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No Such user Found!'
+                ]);
             }
         }
     }
@@ -615,7 +516,20 @@ class userController extends Controller
     public function destroy(string $id)
     {
         $users = User::find($id);
-
+        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+            if ($users->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['invoicemodule']['user']['delete'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
         if ($users) {
             $users->update([
                 'is_deleted' => 1
@@ -637,6 +551,20 @@ class userController extends Controller
     public function statusupdate(Request $request, string $id)
     {
         $user = User::find($id);
+        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+            if ($user->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['invoicemodule']['user']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
         if ($user) {
             $user->update([
                 'is_active' => $request->status

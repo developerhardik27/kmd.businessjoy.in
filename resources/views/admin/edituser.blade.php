@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Update user details
+{{ config('app.name') }} - Update user details
 @endsection
 @section('title')
     Update User details
@@ -23,7 +23,7 @@
                         <div class="profile-img-edit" id="userprofile">
                             <div class="p-image">
                                 <i class="ri-pencil-line upload-button"></i>
-                                <input type="file" class="file-upload" id="img"  name="img" >
+                                <input type="file" class="file-upload" id="img" name="img">
                                 <span class="error-msg" id="error-img" style="color: red"></span>
                             </div>
                         </div>
@@ -32,21 +32,22 @@
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6">
-                            <input type="hidden" name="editrole" class="form-control" value=1
-                            placeholder="token" required />
+                            <input type="hidden" name="editrole" class="form-control" value=1 placeholder="token"
+                                required />
                             <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                            placeholder="token" required />
-                            <input type="hidden" value="{{ $user_id }}" name="updated_by" class="form-control">
+                                placeholder="token" required />
+                            <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                            <input type="hidden" value="{{ session('company_id') }}" name="company_id" class="form-control">
                             <label for="firstname">FirstName</label>
                             <input type="text" id="firstname" name='firstname' class="form-control"
                                 placeholder="First name" required>
-                                <span class="error-msg" id="error-firstname" style="color: red"></span>
+                            <span class="error-msg" id="error-firstname" style="color: red"></span>
                         </div>
                         <div class="col-sm-6">
                             <label for="lastname">LastName</label>
                             <input type="text" id="lastname" name='lastname' class="form-control"
                                 placeholder="Last name" required>
-                                <span class="error-msg" id="error-lastname" style="color: red"></span>
+                            <span class="error-msg" id="error-lastname" style="color: red"></span>
                         </div>
                     </div>
                 </div>
@@ -56,14 +57,14 @@
                             <label for="email">Email</label>
                             <input type="email" name='email' class="form-control" id="email" value=""
                                 placeholder="Enter Email" required>
-                                <span class="error-msg" id="error-email" style="color: red"></span>
+                            <span class="error-msg" id="error-email" style="color: red"></span>
                         </div>
                         <div class="col-sm-6">
                             <label for="password">Password</label>
                             <input type="text" id="password" name='password' class="form-control"
                                 id="exampleInputPassword3" value="" placeholder="update Password (not mandatory)">
-                                <span class="error-msg" id="error-password" style="color: red"></span>
-                            </div>
+                            <span class="error-msg" id="error-password" style="color: red"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -72,7 +73,7 @@
                             <label for="contact_no">Contact Number</label>
                             <input type="tel" name='contact_number' class="form-control" id="contact_no" value=""
                                 placeholder="0123456789" required>
-                                <span class="error-msg" id="error-contact_number" style="color: red"></span>
+                            <span class="error-msg" id="error-contact_number" style="color: red"></span>
                         </div>
                         <div class="col-sm-6">
                             <label for="country">Select Country</label>
@@ -105,9 +106,9 @@
                     <div class="form-row">
                         <div class="col-sm-6">
                             <label for="pincode">Pincode</label>
-                            <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
-                                required>
-                                <span class="error-msg" id="error-pincode" style="color: red"></span>
+                            <input type="text" id="pincode" name='pincode' class="form-control"
+                                placeholder="Pin Code" required>
+                            <span class="error-msg" id="error-pincode" style="color: red"></span>
                         </div>
                     </div>
                 </div>
@@ -124,12 +125,21 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             var edit_id = @json($edit_id);
-            // show old data in fields
+            // show user old data in the form input fields
             $.ajax({
                 type: 'GET',
                 url: '/api/user/search/' + edit_id,
-                data:{token: "{{ session()->get('api_token') }}"},
+                data: {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: "{{ session()->get('user_id') }}"
+                },
                 success: function(response) {
                     if (response.status == 200 && response.user != '') {
                         user = response.user[0];
@@ -150,9 +160,12 @@
                         loadstate(country, state);
                         loadcity(state, city);
                         loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     } else {
                         loaderhide();
-                        alert('Something went wrong');
+                        toastr.error('something went wrong !');
                     }
                 },
                 error: function(error) {
@@ -166,7 +179,9 @@
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('country.index') }}',
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.country != '') {
                             // You can update your HTML with the data here if needed
@@ -191,7 +206,9 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/state/search/" + country,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
                             // You can update your HTML with the data here if needed
@@ -216,7 +233,9 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/city/search/" + state,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
                             // You can update your HTML with the data here if needed
@@ -244,7 +263,9 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/state/search/" + country,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
                             // You can update your HTML with the data here if needed
@@ -274,7 +295,9 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/city/search/" + state,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
                         if (response.status == 200) {
                             // You can update your HTML with the data here if needed
@@ -299,22 +322,26 @@
                 event.preventDefault();
                 loaderhide();
                 $('.error-msg').text('');
-                var formData =new FormData($(this)[0]);       
+                var formData = new FormData($(this)[0]);
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('user.update', $edit_id) }}",
-                    data:  formData,
-                    cache:false,
+                    data: formData,
+                    cache: false,
                     contentType: false,
                     processData: false,
-                    dataType:'json',
+                    dataType: 'json',
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.userprofile', ['id' => Session::get('user_id')]) }}";
+                            window.location =
+                                "{{ route('admin.userprofile', ['id' => Session::get('user_id')]) }}";
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             toastr.error(response.message);
                             loaderhide();
@@ -327,7 +354,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                           loaderhide();
+                            loaderhide();
                         } else {
                             loaderhide();
                             toastr.error(

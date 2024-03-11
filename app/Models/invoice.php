@@ -29,6 +29,8 @@ class invoice extends Model
         'company_id',
         'company_details_id',
         'show_col',
+        'overdue_date',
+        't_and_c_id',
         'created_by',
         'updated_by',
         'created_at',

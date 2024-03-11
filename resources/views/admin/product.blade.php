@@ -1,6 +1,6 @@
 @extends('admin.mastertable')
 @section('page_title')
-    Products
+    {{ config('app.name') }} - Products
 @endsection
 @section('table_title')
     Products
@@ -68,6 +68,10 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             var global_response = '';
             // fetch & show products data in table
             function loaddata() {
@@ -76,6 +80,7 @@
                     type: 'GET',
                     url: '{{ route('product.index') }}',
                     data: {
+                        user_id: {{ session()->get('user_id') }},
                         company_id: {{ session()->get('company_id') }},
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -101,7 +106,8 @@
                                                           -    
                                                         @endif
                                                     </td>
-                                                    @if(session('user_permissions.invoicemodule.product.edit') == '1' || session('user_permissions.invoicemodule.product.delete') == '1')
+                                                    @if (session('user_permissions.invoicemodule.product.edit') == '1' ||
+                                                            session('user_permissions.invoicemodule.product.delete') == '1')
                                                         <td>
                                                             @if (session('user_permissions.invoicemodule.product.edit') == '1')
                                                                 <span>
@@ -130,6 +136,9 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                             loaderhide();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                             loaderhide();
@@ -154,15 +163,23 @@
                     var $deleteid = $(this).data('id');
                     var row = this;
                     $.ajax({
-                        type: 'post',
+                        type: 'put',
                         url: '/api/product/delete/' + $deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
+                            } else {
+                                loaderhide();
+                                toastr.error('something went wrong !');
                             }
                         }
                     });

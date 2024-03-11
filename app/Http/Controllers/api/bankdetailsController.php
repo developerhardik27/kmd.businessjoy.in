@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
 use App\Models\bank_detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,29 +9,50 @@ use Illuminate\Support\Facades\Validator;
 
 class bankdetailsController extends commonController
 {
-    public $userId, $companyId, $masterdbname;
+    public $userId, $companyId, $masterdbname, $rp;
 
     public function __construct(Request $request)
-    {   
-        if(session()->get('company_id')){
+    {
+        if (session()->get('company_id')) {
             $this->dbname(session()->get('company_id'));
-        }else{
+        } else {
             $this->dbname($request->company_id);
         }
+        if (session()->get('user_id')) {
+            $this->userId = session()->get('user_id');
+        } else {
+            $this->userId = $request->user_id;
+        }
         $this->companyId = $request->company_id;
-        $this->userId = $request->user_id;
-        $this->masterdbname =  DB::connection()->getDatabaseName();
+        $this->masterdbname = DB::connection()->getDatabaseName();
+
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $permissions = json_decode($user_rp, true);
+        $this->rp = json_decode($permissions[0]['rp'], true);
     }
 
     public function bankdetailspdf(string $id)
     {
+        $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('id', $id);
 
-        $bankdetail = bank_detail::all()->where('id', $id);
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            $bankdetailres->where('created_by', $this->userId);
+        }
+        $bankdetail = $bankdetailres->get();
+
         if ($bankdetail->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'bankdetail' => $bankdetail
-            ], 200);
+            if ($this->rp['invoicemodule']['bank']['view'] == 1) {
+                return response()->json([
+                    'status' => 200,
+                    'bankdetail' => $bankdetail
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,
@@ -43,13 +63,27 @@ class bankdetailsController extends commonController
 
     public function bank_details(string $id)
     {
+        if ($this->rp['invoicemodule']['bank']['view'] != 1) {
 
-        $bankdetail = bank_detail::all()->where('is_deleted', 0);
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+        $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            $bankdetailres->where('created_by', $this->userId);
+        }
+        $bankdetail = $bankdetailres->get();
+
         if ($bankdetail->count() > 0) {
+
             return response()->json([
                 'status' => 200,
                 'bankdetail' => $bankdetail
             ], 200);
+
         } else {
             return response()->json([
                 'status' => 404,
@@ -64,12 +98,26 @@ class bankdetailsController extends commonController
     public function index(Request $request)
     {
 
-        $bankdetail = bank_detail::all()->where('is_deleted', 0);
+        $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            $bankdetailres->where('created_by', $this->userId);
+        }
+        $bankdetail = $bankdetailres->get();
+
         if ($bankdetail->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'bankdetail' => $bankdetail
-            ], 200);
+            if ($this->rp['invoicemodule']['bank']['view'] == 1) {
+                return response()->json([
+                    'status' => 200,
+                    'bankdetail' => $bankdetail
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
         } else {
             return response()->json([
                 'status' => 404,
@@ -112,28 +160,38 @@ class bankdetailsController extends commonController
                 'errors' => $validator->messages()
             ]);
         } else {
-            $bankdetail = bank_detail::create([
-                'holder_name' => $request->holder_name,
-                'branch_name' => $request->branch_name,
-                'account_no' => $request->account_number,
-                'swift_code' => $request->swift_code,
-                'ifsc_code' => $request->ifsc_code,
-                'address' => $request->address,
-                'created_by' => $this->userId,
 
-            ]);
+            if ($this->rp['invoicemodule']['bank']['add'] == 1) {
+                $bankdetail = bank_detail::create([
+                    'holder_name' => $request->holder_name,
+                    'branch_name' => $request->branch_name,
+                    'account_no' => $request->account_number,
+                    'swift_code' => $request->swift_code,
+                    'ifsc_code' => $request->ifsc_code,
+                    'address' => $request->address,
+                    'created_by' => $this->userId,
 
-            if ($bankdetail) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Bank Details  succesfully added'
-                ], 200);
+                ]);
+
+                if ($bankdetail) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Bank Details  succesfully added'
+                    ], 200);
+
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Bank Details not succesfully added'
+                    ]);
+                }
             } else {
                 return response()->json([
                     'status' => 500,
-                    'message' => 'Bank Details not succesfully added'
+                    'message' => 'You are Unauthorized'
                 ]);
             }
+
         }
     }
 
@@ -158,19 +216,32 @@ class bankdetailsController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
-
-
         $bankdetail = bank_detail::find($id);
 
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            if ($bankdetail->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
         if ($bankdetail) {
-            $bankdetail->update([
-                'is_active' => $request->status
-            ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'status succesfully updated'
-            ]);
+            if ($this->rp['invoicemodule']['bank']['edit'] == 1) {
+                $bankdetail->update([
+                    'is_active' => $request->status
+                ]);
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'status succesfully updated'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
         } else {
             return response()->json([
                 'status' => 404,
@@ -187,14 +258,29 @@ class bankdetailsController extends commonController
 
         $bankdetail = bank_detail::find($id);
 
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            if ($bankdetail->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
         if ($bankdetail) {
-            $bankdetail->update([
-                'is_deleted' => 1
-            ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'bankdetail succesfully deleted'
-            ]);
+            if ($this->rp['invoicemodule']['bank']['delete'] == 1) {
+                $bankdetail->update([
+                    'is_deleted' => 1
+                ]);
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'bankdetail succesfully deleted'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => 404,

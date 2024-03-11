@@ -2,36 +2,54 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
 use App\Models\product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 
-class productController extends Controller
+class productController extends commonController
 {
+
+    public $userId, $companyId, $masterdbname, $rp;
+
+    public function __construct(Request $request)
+    {
+        $this->dbname($request->company_id);
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        $this->masterdbname = DB::connection()->getDatabaseName();
+
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $permissions = json_decode($user_rp, true);
+        $this->rp = json_decode($permissions[0]['rp'], true);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $companyid = $request->input('company_id');
-        
-        if ($companyid == 1) {
-            $product = product::join('company','products.company_id','=','company.id')
-            ->join('company_details','company.company_details_id','=','company_details.id')
-            ->select('products.id','products.name','products.description','products.product_code','products.unit','products.price_per_unit','company_details.name as company_name','products.created_by','products.updated_by','products.created_at','products.updated_at','products.is_active','products.is_deleted')
-            ->get()
-            ->where('is_deleted', 0)->where('is_active', 1);
-        }else{
 
-            $product = product::join('company','products.company_id','=','company.id')
-            ->join('company_details','company.company_details_id','=','company_details.id')
-            ->select('products.id','products.name','products.description','products.product_code','products.unit','products.price_per_unit','company_details.name as company_name','products.created_by','products.updated_by','products.created_at','products.updated_at','products.is_active','products.is_deleted')
-            ->where('products.is_deleted', 0)->where('products.is_active', 1)->where('products.company_id',$companyid)
-            ->get();
+        $productres = product::join($this->masterdbname . '.company', 'products.company_id', '=', $this->masterdbname . '.company.id')
+            ->join($this->masterdbname . '.company_details', $this->masterdbname . '.company.company_details_id', '=', $this->masterdbname . '.company_details.id')
+            ->select('products.id', 'products.name', 'products.description', 'products.product_code', 'products.unit', 'products.price_per_unit', 'company_details.name as company_name', 'products.created_by', 'products.updated_by', 'products.created_at', 'products.updated_at', 'products.is_active', 'products.is_deleted')
+            ->where('products.is_deleted', 0)->where('products.is_active', 1);
+
+        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+            $productres->where('products.created_by', $this->userId);
         }
-            
+
+        $product = $productres->get();
+
+        // condition for check if user has permission to view records
+        if ($this->rp['invoicemodule']['product']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
         if ($product->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -66,7 +84,7 @@ class productController extends Controller
             'unit' => 'required',
             'price_per_unit' => 'required|numeric',
             'company_id' => 'required|numeric',
-            'created_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'updated_by',
             'created_at',
             'updated_at',
@@ -81,14 +99,22 @@ class productController extends Controller
             ], 422);
         } else {
 
+            // condition for check if user has permission to add new records
+            if ($this->rp['invoicemodule']['product']['add'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
             $product = product::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'product_code' => $request->product_code,
                 'unit' => $request->unit,
                 'price_per_unit' => $request->price_per_unit,
-                'company_id' => $request->company_id,
-                'created_by' => $request->created_by,
+                'company_id' => $this->companyId,
+                'created_by' => $this->userId,
             ]);
 
             if ($product) {
@@ -111,7 +137,22 @@ class productController extends Controller
     public function show(string $id)
     {
         $product = product::find($id);
-        
+
+        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+            if ($product->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        //condition for check if user has permission to search record
+        if ($this->rp['invoicemodule']['product']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
         if ($product) {
             return response()->json([
                 'status' => 200,
@@ -131,6 +172,22 @@ class productController extends Controller
     public function edit(string $id)
     {
         $product = product::find($id);
+
+        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+            if ($product->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        //condition for check if user has permission to edit record
+        if ($this->rp['invoicemodule']['product']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
         if ($product) {
             return response()->json([
                 'status' => 200,
@@ -157,7 +214,7 @@ class productController extends Controller
             'unit' => 'required',
             'price_per_unit' => 'required|numeric',
             'created_by',
-            'updated_by' => 'required|numeric',
+            'user_id' => 'required|numeric',
             'created_at',
             'updated_at',
             'is_active',
@@ -172,6 +229,21 @@ class productController extends Controller
         } else {
             $product = product::find($id);
 
+            if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+                if ($product->created_by != $this->userId) {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => "You are Unauthorized!"
+                    ]);
+                }
+            }
+            //condition for check if user has permission to edit record
+            if ($this->rp['invoicemodule']['product']['edit'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
             if ($product) {
 
                 $product->update([
@@ -180,7 +252,7 @@ class productController extends Controller
                     'product_code' => $request->product_code,
                     'unit' => $request->unit,
                     'price_per_unit' => $request->price_per_unit,
-                    'updated_by' => $request->updated_by,
+                    'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d')
                 ]);
 
@@ -203,10 +275,24 @@ class productController extends Controller
     public function destroy(string $id)
     {
         $product = product::find($id);
-
+        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+            if ($product->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        //condition for check if user has permission to delete record
+        if ($this->rp['invoicemodule']['product']['delete'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
         if ($product) {
-            $product->update([ 
-               'is_deleted' => 1
+            $product->update([
+                'is_deleted' => 1
 
             ]);
             return response()->json([

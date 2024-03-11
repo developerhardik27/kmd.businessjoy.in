@@ -109,7 +109,7 @@
                                                 </div>
                                             </div>
                                         </a>
-                                        @if (Session::get('admin_role') != 3)
+                                        @if (session('user_permissions.invoicemodule.company.show') == '1')
                                             <a href="{{ route('admin.companyprofile', ['id' => Session::get('company_id')]) }}"
                                                 class="iq-sub-card iq-bg-primary-hover">
                                                 <div class="media align-items-center">
@@ -135,8 +135,6 @@
                         </li>
                     </ul>
                 </nav>
-
-
             </div>
         </div>
         <!-- TOP Nav Bar END -->

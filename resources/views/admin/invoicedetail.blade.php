@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>invoicePDf</title>
+    <title>{{ config('app.name') }} - invoicePDf</title>
     {{-- <link rel="stylesheet" href="{{ asset('admin/css/bootstrap.min.css') }}"> 
     <link rel="stylesheet" href="{{ asset('admin/css/typography.css') }}"> --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
@@ -139,7 +139,7 @@
                         <span style="display:block;">{{ $companydetails['city_name'] }},
                             {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
                         <span style="display:block;">Email: {{ $companydetails['email'] }}</span>
-                        {{-- <span ><b>GSTIN No: 24DMLPP9818M1Z6</b></span> --}}
+                        <span><b>GSTIN No: {{ $companydetails['gst_no'] }}</b></span>
                     </td>
                     <td colspan="2" class="" style="text-align: center">
                         <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
@@ -244,20 +244,19 @@
                             </thead>
                             <tbody>
                                 @php $srno = 0 ; @endphp
-
                                 @foreach ($products as $row)
                                     @php $srno++ ; @endphp
                                     <tr>
-                                        <td>{{ $srno }}</td>
+                                        <td style="text-align: center"> {{ $srno }}</td>
                                         @foreach ($row as $val)
                                             <td style="text-align: center">{{ $val }}</td>
                                         @endforeach
                                     </tr>
                                 @endforeach
-                                @for ($i = 0; $i < 15 - $srno; $i++)
+                                @for ($i = 0; $i < 10 - $srno; $i++)
                                     <tr style="text-align: center">
-                                        @for ($j = 0; $j < count($products[0]); $j++) 
-                                            @if ($j == ceil(count($products[0])/2))
+                                        @for ($j = 0; $j < count($products[0]); $j++)
+                                            @if ($j == ceil(count($products[0]) / 2))
                                                 <td style="text-align: center">-</td>
                                             @endif
                                             <td></td>
@@ -293,27 +292,36 @@
                                         {{ $invdata['grand_total'] }}.00
                                     </td>
                                 </tr>
-
                                 <tr class="removeborder">
-                                    <td rowspan="" colspan="@php echo (count($products[0])+1); @endphp" class="bgblue  bgspecial"
+                                    <td colspan="@php echo (count($products[0])+1); @endphp" class="bgblue  bgspecial"
                                         style="vertical-align: middle; text-align: center;font-style:italic">
                                         <strong class="">Thank You For Your business!</strong>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="text-align: center" colspan="@php echo (count($products[0])+1); @endphp">&nbsp;</td>
+                                <tr class="removeborder">
+                                    <td colspan="@php echo (count($products[0])+1); @endphp"
+                                        style="vertical-align: middle; text-align:left;white-space: pre-line;">
+                                        Terms And Condtions :- </br> {{ $invdata['t_and_c'] }}
+                                    </td>
+                                </tr>
+                                {{-- <tr>
+                                    <td style="text-align: center"
+                                        colspan="@php echo (count($products[0])+1); @endphp">&nbsp;</td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center;color:rgb(159, 157, 157)" colspan="@php echo (count($products[0])+1); @endphp">Notes: Any
+                                    <td style="text-align: center;color:rgb(159, 157, 157)"
+                                        colspan="@php echo (count($products[0])+1); @endphp">Notes: Any
                                         changes in future will be
                                         chargeable.</td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center" colspan="@php echo (count($products[0])+1); @endphp"> For any query, Please contact <br>
+                                    <td style="text-align: center"
+                                        colspan="@php echo (count($products[0])+1); @endphp"> For any query, Please
+                                        contact <br>
                                         <b> [Jay Patel, +91 9998-1118-74, info@oceanmnc.com]</b>
                                     </td>
-                                </tr>
-                            </tbody>
+                                </tr> --}}
+                            </tbody>  
                         </table>
                     </td>
                 </tr>

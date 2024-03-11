@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Add New Lead
+{{ config('app.name') }} - Add New Lead
 @endsection
 @section('title')
     New Lead
@@ -49,19 +49,6 @@
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="customer_type">Customer Type:</label>
-                    <select name="customer_type" class="form-control" id="customer_type">
-                        <option disabled selected>Select Customer Type</option>
-                        <option value="local">Local</option>
-                        <option value="Global">Global</option>
-                    </select>
-                    <span class="error-msg" id="error-customer_type" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
                     <label class="form-label" for="title">Job Title:</label>
                     <select name="title" class="form-control" id="title">
                         <option value="" disabled selected>Select Title</option>
@@ -73,13 +60,6 @@
                         <option value=" Other"> Other</option>
                     </select>
                     <span class="error-msg" id="error-title" style="color: red"></span>
-                </div>
-                <div class="col-sm-6">
-                    <label class="form-label" for="assignedto">Assigned To:</label><br />
-                    <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
-                        <option value="" disabled selected>Select User</option>
-                    </select>
-                    <span class="error-msg" id="error-assignedto" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -96,10 +76,110 @@
                     <span class="error-msg" id="error-budget" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
+                    <label class="form-label" for="status">Status:</label>
+                    <select name="status" class="form-control" id="status">
+                        <option value="" disabled selected>Status</option>
+                        <option value='Not Interested'>Not Interested</option>
+                        <option value='Not Receiving'>Not Receiving</option>
+                        <option value='New Lead'>New Lead</option>
+                        <option value='Interested'>Interested</option>
+                        <option value='Switch Off'>Switch Off</option>
+                        <option value='Does Not Exist'>Does Not Exist</option>
+                        <option value='Email Sent'>Email Sent</option>
+                        <option value='Wrong Number'>Wrong Number</option>
+                        <option value='By Mistake'>By Mistake</option>
+                        <option value='Positive'>Positive</option>
+                        <option value='Busy'>Busy</option>
+                        <option value='Call Back'>Call Back</option>
+                    </select>
+                    <span class="error-msg" id="error-status" style="color: red"></span>
+                </div>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
                     <label class="form-label" for="company">Company Name:</label>
                     <input type="text" class="form-control" name="company" id="company"
                         placeholder="Company Name" />
                     <span class="error-msg" id="error-company" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="customer_type">Customer Type:</label>
+                    <select name="customer_type" class="form-control" id="customer_type">
+                        <option disabled selected>Select Customer Type</option>
+                        <option value="local">Local</option>
+                        <option value="Global">Global</option>
+                    </select>
+                    <span class="error-msg" id="error-customer_type" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="last_follow_up">Last Follow Up:</label>
+                    <input type="date" class="form-control" name="last_follow_up" id="last_follow_up"
+                        placeholder="Last_follow_up" />
+                    <span class="error-msg" id="error-last_follow_up" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="next_follow_up">Next Follow Up:</label>
+                    <input type="date" class="form-control" name="next_follow_up" id="next_follow_up"
+                        placeholder="Next_follow_up" />
+                    <span class="error-msg" id="error-next_follow_up" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="no_of_follow_up">Number Of Follow Up:</label>
+                    <input type="number" class="form-control" value="0" name="number_of_follow_up" min="0"
+                        max="10" id="no_of_follow_up">
+                    <span class="error-msg" id="error-number_of_follow_up" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="source">Source:</label>
+                    <input type="text" class="form-control" name="source" id="source" placeholder="source"
+                        value='Manual' />
+                    <span class="error-msg" id="error-source" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="leadstage">Lead Stage:</label>
+                    <select name="leadstage" class="form-control" id="leadstage">
+                        <option value="" disabled selected>LeadStage</option>
+                        <option value='New Lead'>New Lead</option>
+                        <option value='Requirement Ghathering'>Requirement Ghathering</option>
+                        <option value='Quotation'>Quotation</option>
+                        <option value="In Followup">In Followup</option>
+                        <option value='Sale'>Sale</option>
+                        <option value='Cancelled'>Cancelled</option>
+                        <option value='Disqualified'>Disqualified</option>
+                    </select>
+                    <span class="error-msg" id="error-leadstage" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="assignedto">Assigned To:</label> <span
+                        style="color:red;">*</span><br />
+                    <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
+                        <option value="" disabled selected>Select User</option>
+                    </select>
+                    <span class="error-msg" id="error-assignedto" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
+                    <label class="form-label" for="notes">Notes:</label>
+                    <textarea name="notes" placeholder="notes" class="form-control" id="notes" cols="" rows="2"></textarea>
+                    <span class="error-msg" id="error-notes" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -140,11 +220,17 @@
         }
 
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
+            // get user data for assigned to field
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -160,6 +246,9 @@
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
                         loaderhide();
@@ -171,7 +260,7 @@
                 }
             });
 
-
+           // redirect on lead list page if click on cancel button
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.lead') }}";

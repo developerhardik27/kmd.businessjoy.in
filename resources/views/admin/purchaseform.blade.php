@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-    Add New Purchase
+    {{ config('app.name') }} - Add New Purchase
 @endsection
 @section('title')
     New Purchase
@@ -72,6 +72,10 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             loaderhide();
             //submit form
             $('#purchaseform').submit(function(event) {

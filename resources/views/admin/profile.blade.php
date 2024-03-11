@@ -20,7 +20,7 @@
     </style>
 @endsection
 @section('page_title')
-    user profile
+    {{ config('app.name') }} - user profile
 @endsection
 
 @section('page-content')
@@ -35,9 +35,13 @@
                                 <div class="iq-header-title">
                                     <h4 class="card-title">Profile</h4>
                                 </div>
-                                <div >
-                                  <a href="{{route('admin.edituserdetail',['id'=>Session::get('user_id')])}}"><i id="editicon" class="ri-pencil-fill float-right"></i></a>  
-                                </div>
+                                @if (session('user_permissions.invoicemodule.user.edit') == '1')
+                                    <div>
+                                        <a href="{{ route('admin.edituserdetail', ['id' => $id]) }}">
+                                            <i id="editicon" class="ri-pencil-fill float-right"></i>
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                             <div class="iq-card-body">
                                 <div class="user-detail text-center">
@@ -98,12 +102,21 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
+            // get user data
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.profile') }}',
                 data: {
+                    company_id: {{ session()->get('company_id') }},
                     user_id: {{ session()->get('user_id') }},
-                    token: "{{ session()->get('api_token') }}"
+                    token: "{{ session()->get('api_token') }}",
+                    id: {{ $id }}
                 },
                 success: function(response) {
 
@@ -119,10 +132,13 @@
                         var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
                             'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         $('#profile_img').append(imgElement);
-                       loaderhide();
+                        loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     } else {
                         loaderhide();
-                        toastr.error('Something Went Wrong!');
+                        toastr.error('something went wrong !');
                     }
                 },
                 error: function(error) {

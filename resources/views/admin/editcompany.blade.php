@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Update company details
+    {{ config('app.name') }} - Update company details
 @endsection
 @section('title')
     Update compnay details
@@ -14,20 +14,21 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                    placeholder="token" required />
-                    <input type="hidden" name="updated_by" class="form-control" value="{{ $user_id }}"
+                        placeholder="token" required />
+                    <input type="hidden" name="user_id" class="form-control" value="{{ $user_id }}"
                         placeholder="updated_by" required />
                     <label for="">Name</label>
                     <input id="name" type="text" name="name" value="" class="form-control"
                         placeholder="company name" required />
-                        <span class="error-msg" id="error-name" style="color: red"></span>
+                    <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="email">Email</label>
                     <input type="email" name="email" class="form-control" id="email" value=""
                         placeholder="Enter Email" required />
-                        <span class="error-msg" id="error-email" style="color: red"></span>
+                    <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -37,13 +38,13 @@
                     <label for="contact_no">Contact Number</label>
                     <input type="tel" name="contact_number" class="form-control" id="contact_no" value=""
                         placeholder="0123456789" required />
-                        <span class="error-msg" id="error-contact_number" style="color: red"></span>
+                    <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="gst_no">GST Number</label>
                     <input type="text" value="" id="gst_no" name="gst_number" class="form-control"
                         placeholder="GST Number" required />
-                        <span class="error-msg" id="error-gst_number" style="color: red"></span>
+                    <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -78,7 +79,7 @@
                     <label for="pincode">Pincode</label>
                     <input type="text" id="pincode" value="" name="pincode" class="form-control"
                         placeholder="Pin Code" required />
-                        <span class="error-msg" id="error-pincode" style="color: red"></span>
+                    <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -107,12 +108,21 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-            // get data from api and set input data
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
+            // getcompany  data from api and set in the form inputs 
             var edit_id = @json($edit_id);
             $.ajax({
                 type: 'GET',
                 url: '/api/company/search/' + edit_id,
-                data:{token: "{{ session()->get('api_token') }}"},
+                data: {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: "{{ session()->get('user_id') }}"
+                },
                 success: function(response) {
                     console.log(response);
                     if (response.status == 200 && response.company != '') {
@@ -129,9 +139,12 @@
                         loadstate(country, state);
                         loadcity(state, city);
                         loaderhide();
-                    }else{
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                         loaderhide();
-                        alert('Something went wrong');
+                    } else {
+                        loaderhide();
+                        toastr.error('something went wrong !');
                     }
 
                     // You can update your HTML with the data here if needed
@@ -146,7 +159,9 @@
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
-                data:{token: "{{ session()->get('api_token') }}"},
+                data: {
+                    token: "{{ session()->get('api_token') }}"
+                },
                 success: function(response) {
                     if (response.status == 200 && response.country != '') {
                         $.each(response.country, function(key, value) {
@@ -175,13 +190,15 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/state/search/" + country,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
-                        if (response.status == 200 &&  response.state != '' ) {
+                        if (response.status == 200 && response.state != '') {
                             $.each(response.state, function(key, value) {
                                 $('#state').append(
                                     `<option  value='${value.id}'> ${value.state_name}</option>`
-                                    )
+                                )
                             });
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`)
@@ -200,9 +217,11 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/city/search/" + state,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
-                        if (response.status == 200 && response.city != '' ) {
+                        if (response.status == 200 && response.city != '') {
                             $.each(response.city, function(key, value) {
                                 $('#city').append(
                                     `<option value='${value.id}'> ${value.city_name}</option>`
@@ -231,13 +250,15 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/state/search/" + country,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
-                        if (response.status == 200 && response.state != '' ) {
-                            $.each(response.state,function(key,value){                               
-                                    $('#state').append(
-                                        `<option value='${value.id}'> ${value.state_name}</option>`
-                                    )                           
+                        if (response.status == 200 && response.state != '') {
+                            $.each(response.state, function(key, value) {
+                                $('#state').append(
+                                    `<option value='${value.id}'> ${value.state_name}</option>`
+                                )
                             });
                             loaderhide();
                         } else {
@@ -254,7 +275,7 @@
                     }
                 });
             });
-             
+
             // set city data for selected state in dropdown      
             $('#state').on('change', function() {
                 loadershow();
@@ -263,13 +284,15 @@
                 $.ajax({
                     type: 'GET',
                     url: "/api/city/search/" + state,
-                    data:{token: "{{ session()->get('api_token') }}"},
+                    data: {
+                        token: "{{ session()->get('api_token') }}"
+                    },
                     success: function(response) {
-                        if (response.status == 200 && response.city != '' ) {
-                            $.each(response.city,function(key,value){  
+                        if (response.status == 200 && response.city != '') {
+                            $.each(response.city, function(key, value) {
                                 $('#city').append(
                                     `<option value='${value.id}'> ${value.city_name}</option>`
-                                )                                                            
+                                )
                             });
                             loaderhide();
                         } else {
@@ -303,9 +326,13 @@
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.companyprofile', ['id' => Session::get('company_id')]) }}";
+                            window.location =
+                                "{{ route('admin.companyprofile', ['id' => Session::get('company_id')]) }}";
 
-                        }  else {
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
+                        } else {
                             loaderhide();
                             toastr.error(response.message);
                         }

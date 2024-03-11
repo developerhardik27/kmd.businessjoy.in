@@ -17,16 +17,17 @@ class UserPolicy
     }
 
     public function view(User $authenticatedUser, User $requestedUser)
-    {  
+    {
 
         if ($authenticatedUser->role === 1) {
             return true; // Allow access
         }
         return $authenticatedUser->id === $requestedUser->created_by
-        || $authenticatedUser->id === $requestedUser->id;
+                 || $authenticatedUser->id === $requestedUser->id 
+                 || $authenticatedUser->company_id === $requestedUser->company_id;
     }
-   
-  /**
+
+    /**
      * Handle unauthorized access.
      *
      * @return JsonResponse
@@ -35,5 +36,5 @@ class UserPolicy
     {
         return response()->json(['error' => 'Unauthorized'], 403);
     }
-   
+
 }

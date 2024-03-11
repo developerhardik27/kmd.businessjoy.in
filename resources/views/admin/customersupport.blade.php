@@ -1,7 +1,7 @@
 @extends('admin.mastertable')
 
 @section('page_title')
-    Customer Support
+    {{ config('app.name') }} - Customer Support
 @endsection
 @section('table_title')
     Customer Support
@@ -129,6 +129,9 @@
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <div class="row p-3">
             <div class="col-md-12">
+                <h4>Advanced Filters</h4>
+            </div>
+            <div class="col-md-12">
                 <label for="last_call" class="form-label float-left  ">Last Call:</label>
                 <input type="date" id="last_call" class="form-input form-control  ">
             </div>
@@ -149,14 +152,14 @@
     </div>
     <div class="col-md-12 text-right pr-5">
         <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
-            <option disabled selected>-- status --</option>
+            <option disabled selected>-- Select status --</option>
             <option value='Open'>Open</option>
             <option value='In Progress'>In Progress</option>
             <option value='Resolved'>Resolved</option>
             <option value='Cancelled'>Cancelled</option>
         </select>
         <select name="assignedto" class="form-control multiple advancefilter" id="assignedto" multiple>
-            <option value="" disabled selected>-- Assigned To --</option>
+            <option value="" disabled selected>-- Select Assigned To --</option>
         </select>
         <!-- Use any element to open the sidenav -->
         <button title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
@@ -242,6 +245,10 @@
                                 </select>
                                 <span class="error-msg" id="error-call_status" style="color: red"></span>
                             </div>
+                            <br>
+                            <div class="col-12">
+                                No.Of Calls : <input type="checkbox" name="no_of_calls" id="no_of_calls" value="1">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -282,6 +289,7 @@
 @push('ajax')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
+        // advance filter sidebar
         /* Simple appearence with animation AN-1*/
         function openNav() {
             document.getElementById("mySidenav").style.width = "30%";
@@ -294,7 +302,12 @@
     </script>
     <script>
         $(document).ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
+            // set old filterdata if filter had been use otherwise filter is refresh
             var filterData = JSON.parse(sessionStorage.getItem('filterData'));
             if (filterData) {
                 $.each(filterData, function(key, value) {
@@ -304,14 +317,19 @@
 
                 });
                 advancefilters();
+                $('#advancestatus option:first').prop('selected', true);
+                $('#assignedto option:first').prop('selected', true);
                 sessionStorage.removeItem('filterData');
             } else {
                 loaddata();
             }
+
+            // get and set user into advanced filter dropdown
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -341,17 +359,19 @@
             });
 
             var global_response = '';
+            // make multiple dropdown to designable multiple dropdown
             $('#advancestatus').multiselect();
             $('#assignedto').multiselect();
 
 
-
+           // get and set customer support history list in the table
             function loaddata() {
                 loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('customersupport.index') }}',
                     data: {
+                        user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -435,7 +455,7 @@
                                 "search": {
                                     "search": search
                                 },
-                                "destroy": true, //use for reinitialize datatable
+                                "destroy": true, //use for reinitialize jquery datatable
                             });
                             loaderhide();
                         } else if (response.status == 500) {
@@ -453,12 +473,14 @@
                     }
                 });
             }
+            
 
+            // its commented because it is called in advancefilter condition who has been start of the script
             //call function for loaddata
             // loaddata();
 
 
-
+           // show individual customer support history record into the popupbox
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
@@ -510,6 +532,8 @@
                 });
             });
 
+
+           // change customer support status
             $(document).on('change', '.status', function() {
                 var oldstatus = $(this).data('original-value');
                 if (confirm('Are you Sure That to change status  ?')) {
@@ -526,13 +550,14 @@
                             statusvalue: statusvalue,
                             token: "{{ session()->get('api_token') }}",
                             company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
+                            } else if (data.status == 500) {
+                                toastr.error(data.message);
                                 loaderhide();
                             } else {
                                 toastr.success(data.message);
@@ -546,6 +571,9 @@
                     $('#' + fieldid).val(oldstatus);
                 }
             })
+
+            //  on click edit button this will be save advanced filter data on 
+            // local server session and redirect update page
             $(document).on("click", '.editbtn', function() {
                 editid = $(this).data('id');
                 // loadershow();
@@ -569,7 +597,9 @@
                 // console.log(data);
                 window.location.href = "Editcustomersupport/" + editid;
             });
+           
 
+            // delete customer support record
             $(document).on("click", ".dltbtn", function() {
 
                 if (confirm("Are you Sure that to delete this record")) {
@@ -584,13 +614,14 @@
                             id: id,
                             token: "{{ session()->get('api_token') }}",
                             company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message)
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
+                            } else if (data.status == 500) {
+                                toastr.error(data.message);
                                 loaderhide();
                             } else {
                                 toastr.success(data.message);
@@ -601,7 +632,9 @@
                     });
                 }
             })
+            
 
+            // record filter 
             function advancefilters() {
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
@@ -618,6 +651,7 @@
                 }
 
                 var data = {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 };
@@ -762,7 +796,7 @@
                 closeNav()
             });
 
-
+            // remover all filter who has been in the advance filter sidevar
             $('.removepopupfilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
@@ -770,7 +804,8 @@
                 $('#invaliddate').text(' ');
                 advancefilters();
             });
-
+            
+            // remove all filters
             $('.removefilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
@@ -792,11 +827,17 @@
             });
 
 
-            //    customersupporthistory 
+            //    customersupporthistory form
 
             $(document).on('click', '.csid', function() {
                 csid = $(this).data('id');
                 $('#csid').val(csid);
+                $.each(global_response.customersupport, function(key, ticket) {
+                    if (ticket.id == csid) {
+                        $('#addcallhistoryTitle').html(`${ticket.name}<br/> - <b>Call History</b>`);
+                    }
+                });
+                // make current date and time and set in the customer support history form intput
                 var now = new Date();
                 var formattedDateTime = now.getFullYear() + '-' +
                     ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
@@ -809,17 +850,26 @@
                 $('#company_id').val("{{ session()->get('company_id') }}");
                 $('#token').val("{{ session()->get('api_token') }}");
             });
+           
 
+            // view call history
             $(document).on('click', '.viewcallhistory', function() {
                 $('.historyrecord').html(' ');
                 loadershow();
                 var historyid = $(this).data('id');
+                $.each(global_response.customersupport, function(key, ticket) {
+                    if (ticket.id == historyid) {
+                        $('#viewcallhistoryTitle').html(
+                        `${ticket.name}<br/> - <b>Call History</b>`);
+                    }
+                });
                 $.ajax({
                     type: 'get',
                     url: "/api/customersupporthistory/search/" + historyid,
                     data: {
                         token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}"
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 & response.customersupporthistory != '') {
@@ -844,7 +894,6 @@
                             `);
                         }
 
-
                         loaderhide();
                     },
                     error: function(error) {
@@ -856,11 +905,10 @@
 
             $(document).on('click', '.resethistoryform', function() {
                 $('#customersupporthistoryform')[0].reset();
-            })
+            });
+
 
             // customersupporthistoryform submit 
-
-
             $('#customersupporthistoryform').submit(function(e) {
                 e.preventDefault();
                 loadershow();
@@ -878,6 +926,7 @@
                             toastr.success(response.message);
                             $('#customersupporthistoryform')[0].reset();
                             $('#addcallhistory').modal('hide');
+                            loaddata();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
                             loaderhide();
@@ -904,9 +953,6 @@
                     }
                 })
             });
-
-
-
         });
     </script>
 @endpush

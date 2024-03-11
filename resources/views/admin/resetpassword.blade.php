@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('admin/css/bootstrap.min.css') }}">
     {{-- <link rel="stylesheet" href="{{asset('admin/css/typography.css')}} "> --}}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice | Reset Password</title>
+    <title>{{ config('app.name') }} | Reset Password</title>
     <link rel="stylesheet" href="{{asset('admin/css/login.css')}}">
 
 </head>

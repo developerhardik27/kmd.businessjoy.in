@@ -13,7 +13,7 @@ class tblleadhistoryController extends commonController
 {
 
 
-    public $userId, $companyId, $masterdbname;
+    public $userId, $companyId, $masterdbname,$rp;
 
     public function __construct(Request $request)
     {
@@ -21,6 +21,11 @@ class tblleadhistoryController extends commonController
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
         $this->masterdbname =  DB::connection()->getDatabaseName();
+
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $permissions = json_decode($user_rp, true);
+        $this->rp = json_decode($permissions[0]['rp'], true);
     }
 
     /**
@@ -56,6 +61,14 @@ class tblleadhistoryController extends commonController
                 'errors' => $validator->messages()
             ], 422);
         } else {
+
+            if($this->rp['leadmodule']['lead']['add'] != 1){
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
             $leadhistory = tblleadhistory::create([
                 'call_date' => $request->call_date,
                 'history_notes' => $request->history_notes,
@@ -66,12 +79,17 @@ class tblleadhistoryController extends commonController
             ]);
 
             if ($leadhistory) {
-
+                 $followup  = 0 ;
+                 if($request->followup != ''){
+                    $followup = $request->followup ;
+                 }
                 $lead = tbllead::find($request->leadid);
-
+               
                 if($lead){
+                    // $lead->last_follow_up = $request->call_date;
+                    // $lead->notes = $request->history_notes;
+                    // $lead->number_of_follow_up = $lead->number_of_follow_up +  $followup;
                     $lead->status = $request->call_status;
-                    $lead->notes = $request->history_notes;
                     $lead->save();
                 }
                 return response()->json([
@@ -97,7 +115,23 @@ class tblleadhistoryController extends commonController
         ->where('leadid', $id)
         ->orderBy('id','DESC')
         ->get();
+ 
 
+        if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
+            if ($lead[0]->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['leadmodule']['lead']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+        
     if ($lead->count() > 0) {
         return response()->json([
             'status' => 200,

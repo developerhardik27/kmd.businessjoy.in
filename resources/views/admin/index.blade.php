@@ -1,6 +1,6 @@
 @extends('admin.masterpage')
 @section('page_title')
-    Dashboard
+    {{ config('app.name') }} - Dashboard
 @endsection
 @section('style')
     <style>
@@ -136,10 +136,16 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             var paiddata = '';
             var pendingdata = '';
             var canceldata = '';
             var duedata = '';
+            // get all invoice
             $.ajax({
                 type: 'get',
                 url: '{{ route('invoice.status_list') }}',
@@ -187,7 +193,8 @@
                     }
                 }
             });
-
+            
+            // paid invoices
             function paidd() {
                 $('#data').html('');
                 $('#status_title').text('paid');
@@ -207,7 +214,7 @@
                 }
 
             }
-
+            // pending invoices
             function pendingd() {
                 $('#data').html('');
                 $('#status_title').text('pending');
@@ -229,7 +236,8 @@
             }
             //call pending function when document load
             pendingd();
-
+             
+            // cancled invoices
             function canceld() {
                 $('#data').html('');
                 $('#status_title').text('canceld');
@@ -248,7 +256,8 @@
                     $('#data').append(`<tr><td colspan=6>still not any invoice cancel in this month</td></tr>`)
                 }
             }
-
+            
+            // overdue invoices
             function dued() {
                 $('#data').html('');
                 $('#status_title').text('over due');

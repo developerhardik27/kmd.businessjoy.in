@@ -4,7 +4,7 @@ print_r($data);
 @endphp --}}
 
 @section('page_title')
-    Invoice Details
+{{ config('app.name') }} - Invoice View
 @endsection
 <!DOCTYPE html>
 <html lang="en">
@@ -208,12 +208,20 @@ print_r($data);
     <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
+            // get invoice details and set in the fields
+
             $.ajax({
                 type: 'GET',
                 url: '/api/invoice/inv_details/' + {{ $id }},
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: " {{ session()->get('company_id') }} "
+                    company_id: " {{ session()->get('company_id') }} ",
+                    user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
                     if (response.status == 200 && response.invoice != '') {
@@ -249,12 +257,15 @@ print_r($data);
                     console.error('Error:', error);
                 }
             });
+
+            // invoices data 
             $.ajax({
                 type: 'GET',
                 url: '/api/invoice/' + {{ $id }},
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: " {{ session()->get('company_id') }} "
+                    company_id: " {{ session()->get('company_id') }} ", 
+                    user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
                     if (response.status == 200 && response.invoice != '') {

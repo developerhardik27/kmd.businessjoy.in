@@ -1,9 +1,9 @@
 @extends('admin.masterlayout')
 @section('page_title')
-    Update Lead
+{{ config('app.name') }} - Update Ticket
 @endsection
 @section('title')
-    Update Lead
+    Update Ticket
 @endsection
 
 
@@ -24,7 +24,7 @@
                         placeholder="company_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <label class="form-label" for="name">Name:</label>
+                    <label class="form-label" for="name">Name:</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Name" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
@@ -39,7 +39,7 @@
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="contact_no">Mobile Number:</label>
+                    <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" maxlength="13" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
@@ -60,7 +60,7 @@
                     <span class="error-status" id="error-description" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="assignedto">Assigned To:</label><br />
+                    <label class="form-label" for="assignedto">Assigned To:</label><span style="color:red;">*</span><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
                         <option value="" disabled selected>Select User</option>
                     </select>
@@ -119,16 +119,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
         $('document').ready(function() {
-
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.customersupport') }}";
             })
-
+            
+             // get & set user data into form input for assing to ticket 
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -159,17 +164,18 @@
             });
 
             var edit_id = @json($edit_id);
-            // show old data in fields
+            // show old customer support data in fields
             $.ajax({
                 type: 'GET',
                 url: '/api/customersupport/search/' + edit_id,
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: " {{ session()->get('company_id') }} "
+                    company_id: " {{ session()->get('company_id') }} ",
+                    user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
-                    data = response.customersupport[0]
                     if (response.status == 200) {
+                        data = response.customersupport[0]
                         // You can update your HTML with the data here if needed
                         $('#name').val(data.name);
                         $('#email').val(data.email);

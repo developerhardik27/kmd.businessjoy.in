@@ -5,7 +5,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Invoice - @yield('page_title') </title>
+    {{-- dynamic page title  --}}
+    <title> @yield('page_title') </title>
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
     <!-- Bootstrap CSS -->

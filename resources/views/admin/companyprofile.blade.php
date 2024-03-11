@@ -19,7 +19,7 @@
     </style>
 @endsection
 @section('page_title')
-    Company profile
+    {{ config('app.name') }} - Company profile
 @endsection
 
 @section('page-content')
@@ -37,7 +37,8 @@
                                     @if (session('user_permissions.invoicemodule.company.edit') == '1')
                                         <a
                                             href="{{ route('admin.editcompanyprofile', ['id' => Session::get('company_id')]) }}"><i
-                                                id="editicon" class="ri-pencil-fill float-right"></i></a>
+                                                id="editicon" class="ri-pencil-fill float-right"></i>
+                                        </a>
                                     @endif
                                 </div>
                             </div>
@@ -97,10 +98,18 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+            
+            // get user company data
             $.ajax({
                 type: 'GET',
                 url: '{{ route('company.profile') }}',
                 data: {
+                    user_id: {{ session()->get('user_id') }},
                     company_id: {{ session()->get('company_id') }},
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -120,9 +129,12 @@
                             'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         $('#profile_img').prepend(imgElement);
 
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                        loaderhide();
                     } else {
                         loaderhide();
-                        toastr.error('Something Went Wrong!');
+                        toastr.error('something went wrong !');
                     }
                 },
                 error: function(error) {

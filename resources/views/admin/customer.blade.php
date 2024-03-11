@@ -1,6 +1,6 @@
 @extends('admin.mastertable')
 @section('page_title')
-    Customers
+{{ config('app.name') }} - Customers
 @endsection
 @section('table_title')
     Customers
@@ -70,9 +70,15 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+
+              // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             var global_response = '';
 
-            // function for  get customers data and set it table
+            // function for  get customers data and set it into table
             function loaddata() {
                 loadershow();
                 $.ajax({
@@ -126,7 +132,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif
-                                                            @if(session('user_permissions.invoicemodule.customer.delete') == '1')
+                                                            @if (session('user_permissions.invoicemodule.customer.delete') == '1')
                                                                 <span class="">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -144,10 +150,10 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if(response.status == 500){
+                        } else if (response.status == 500) {
                             toastr.error(response.message);
                             loaderhide();
-                        }else {
+                        } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                             loaderhide();
                         }
@@ -161,7 +167,7 @@
             //call data function for load customer data
             loaddata();
 
-            //  customer status update deactive              
+            //  customer status update active to deactive              
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
@@ -173,6 +179,7 @@
                             status: '0',
                             token: "{{ session()->get('api_token') }}",
                             company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -182,10 +189,10 @@
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
-                            }else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
-                        } else {
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
+                            } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
                             }
@@ -194,7 +201,7 @@
                 }
             });
 
-            //  customer status update  active            
+            //  customer status update  deactive to active            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
@@ -205,7 +212,8 @@
                         data: {
                             status: '1',
                             token: "{{ session()->get('api_token') }}",
-                            company_id:"{{session()->get('company_id')}}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -215,10 +223,10 @@
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
-                            }else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
-                        } else {
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
+                            } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
                             }
@@ -228,7 +236,7 @@
             });
 
 
-            // record delte 
+            // record delete 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
                     loadershow();
@@ -239,12 +247,16 @@
                         url: '/api/customer/delete/' + $deleteid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id:"{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             }
                         }
                     });

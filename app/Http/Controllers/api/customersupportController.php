@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
+
 use App\Models\customer_support;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class customersupportController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname;
+    public $userId, $companyId, $masterdbname,$rp;
 
     public function __construct(Request $request)
     {
@@ -21,6 +21,11 @@ class customersupportController extends commonController
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
         $this->masterdbname =  DB::connection()->getDatabaseName();
+
+         // **** for checking user has permission to action on all data 
+         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+         $permissions = json_decode($user_rp, true);
+         $this->rp = json_decode($permissions[0]['rp'], true);
     }
     /**
      * Display a listing of the resource.
@@ -37,7 +42,7 @@ class customersupportController extends commonController
         // }
 
         $customersupportquery = DB::connection('dynamic_connection')->table('customer_support')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'notes', 'ticket','created_by','updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
             ->where('is_deleted', 0)->orderBy('id', 'DESC');
 
         if (isset($fromdate) && isset($todate)) {
@@ -57,7 +62,18 @@ class customersupportController extends commonController
         // if (isset($activestatus)) {
         //     $customersupportquery->where('is_active', $activestatus);
         // }
+
+        if($this->rp['customersupportmodule']['customersupport']['alldata'] != 1){
+            $customersupportquery->where('created_by',$this->userId);
+        }
         $customersupport = $customersupportquery->get();
+
+        if($this->rp['customersupportmodule']['customersupport']['view'] != 1){
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
 
         if ($customersupport->count() > 0) {
             return response()->json([
@@ -93,7 +109,7 @@ class customersupportController extends commonController
             'status',
             'last_call',
             'number_of_call',
-            'assignedto',
+            'assignedto' => 'required',
             'notes',
             'ticket',
             'created_at',
@@ -108,6 +124,15 @@ class customersupportController extends commonController
                 'errors' => $validator->messages()
             ], 422);
         } else {
+
+            if($this->rp['customersupportmodule']['customersupport']['add'] != 1){
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
+
             $assignedto = implode(',', $request->assignedto);
             $customersupport = customer_support::insertGetId([
                 'name'  =>  $request->name,
@@ -161,9 +186,24 @@ class customersupportController extends commonController
     public function show(string $id)
     {
         $customersupport = DB::connection('dynamic_connection')->table('customer_support')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call','assigned_to', 'notes', 'ticket', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
+            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call','assigned_to', 'notes', 'ticket','created_by','updated_by',DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
             ->where('id', $id)
             ->get();
+        
+            if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
+                if ($customersupport[0]->created_by != $this->userId) {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => "You are Unauthorized!"
+                    ]);
+                }
+            }
+            if ($this->rp['customersupportmodule']['customersupport']['view'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
 
         if ($customersupport->count() > 0) {
             return response()->json([
@@ -184,6 +224,21 @@ class customersupportController extends commonController
     public function edit(string $id)
     {
         $customersupport = customer_support::find($id);
+
+        if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
+            if ($customersupport->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
         if ($customersupport) {
             return response()->json([
                 'status' => 200,
@@ -209,6 +264,7 @@ class customersupportController extends commonController
             'status',
             'last_call',
             'number_of_call',
+            'assignedto' => 'required',
             'notes',
             'ticket',
             'created_at',
@@ -223,6 +279,14 @@ class customersupportController extends commonController
                 'errors' => $validator->messages()
             ], 422);
         } else {
+
+            if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
+
             $ticket = customer_support::find($id);
             if ($ticket) {
                 $assignedto = implode(',', $request->assignedto);
@@ -261,6 +325,21 @@ class customersupportController extends commonController
     {
         $customersupport = customer_support::find($request->id);
 
+        if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
+            if ($customersupport->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['customersupportmodule']['customersupport']['delete'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+
         if ($customersupport) {
             $customersupport->update([
                 'is_deleted' => 1
@@ -283,6 +362,22 @@ class customersupportController extends commonController
     public function changestatus(Request $request)
     {
         $customersupport = DB::connection('dynamic_connection')->table('customer_support')->where('id', $request->statusid)->get();
+        
+        if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
+            if ($customersupport[0]->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+       
         if ($customersupport) {
 
             DB::connection('dynamic_connection')->table('customer_support')
@@ -304,6 +399,22 @@ class customersupportController extends commonController
     public function changecustomersupportstage(Request $request)
     {
         $customersupport = DB::connection('dynamic_connection')->table('customer_support')->where('id', $request->customersupportstageid)->get();
+        
+        if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
+            if ($customersupport[0]->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+
         if ($customersupport) {
 
             DB::connection('dynamic_connection')->table('customer_support')

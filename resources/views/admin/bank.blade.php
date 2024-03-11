@@ -1,7 +1,7 @@
 @extends('admin.mastertable')
 
 @section('page_title')
-    Bank Details
+  Invoice -  Bank Details
 @endsection
 @section('table_title')
     Bank Details
@@ -71,6 +71,12 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+          
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             var global_response = '';
             // load bank details data in table 
             function loaddata() {
@@ -79,12 +85,14 @@
                     type: 'GET',
                     url: '{{ route('bank.index') }}',
                     data: {
-                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}", //user id is neccesary for fetch api data
+                        company_id: "{{ session()->get('company_id') }}", //compnay id is neccesary for fetch api data
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        console.log(response);
+                        // if response has data then it will be append into list table
                         if (response.status == 200 && response.bankdetail != '') {
+                            // You can update your HTML with the data here if needed
                             global_response = response;
                             loaderhide();
                             var id = 1;
@@ -122,16 +130,16 @@
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else if (response.status == 500) { // if database not found
                             toastr.error(response.message);
                             loaderhide();
-                        } else {
+                        } else {  // if request has not found any bank details record
                             loaderhide();
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
                         }
-                        // You can update your HTML with the data here if needed
+                        
                     },
-                    error: function(error) {
+                    error: function(error) { // if calling api request error 
                         loaderhide();
                         toastr.error('Something Went Wrong!');
                     }
@@ -141,7 +149,7 @@
             //call function for loaddata
             loaddata();
 
-            //  bank status update deactive              
+            //  bank status update active to  deactive              
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
@@ -152,7 +160,8 @@
                         data: {
                             status: '0',
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -174,7 +183,7 @@
                 }
             });
 
-            //  bank status update  active            
+            //  bank status update  deactive to  active            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
@@ -185,7 +194,8 @@
                         data: {
                             status: '1',
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -218,7 +228,8 @@
                         url: '/api/bank/delete/' + deleteid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200) {

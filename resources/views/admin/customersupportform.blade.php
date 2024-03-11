@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Add New Customer Support
+    {{ config('app.name') }} - Add New Customer Support
 @endsection
 @section('title')
     New Customer Support
@@ -27,7 +27,7 @@
                         placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <label class="form-label" for="name">Name:</label>
+                    <label class="form-label" for="name">Name:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Name" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
@@ -42,7 +42,7 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label class="form-label" for="contact_no">Mobile Number:</label>
+                    <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" maxlength="13" onkeypress="return isNumberKey(event);"
                         onkeyup="numberMobile(event);" required />
@@ -79,7 +79,8 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label class="form-label" for="assignedto">Assigned To:</label><br />
+                    <label class="form-label" for="assignedto">Assigned To:</label><span style="color:red;">
+                        *</span><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
                         <option value="" disabled selected>Select User</option>
                     </select>
@@ -134,10 +135,17 @@
 
         $('document').ready(function() {
 
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+ 
+            // get & set user data into form input for assing to ticket 
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -151,7 +159,7 @@
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
                         $('#assignedto').multiselect(
-                        'rebuild'); // Rebuild multiselect after appending options
+                            'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (response.status == 500) {
                         toastr.error(response.message);
@@ -166,7 +174,9 @@
                     console.error('Error:', error);
                 }
             });
+      
 
+            // user will be redirect if he is click on form cancel button
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.customersupport') }}";

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
+
 use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,14 +11,19 @@ use Illuminate\Support\Facades\Validator;
 class purchaseController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname;
+    public $userId, $companyId, $masterdbname, $rp;
 
     public function __construct(Request $request)
     {
         $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname =  DB::connection()->getDatabaseName();
+        $this->masterdbname = DB::connection()->getDatabaseName();
+
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $permissions = json_decode($user_rp, true);
+        $this->rp = json_decode($permissions[0]['rp'], true);
     }
 
     /**
@@ -28,10 +33,24 @@ class purchaseController extends commonController
     {
 
 
-        $purchases = Purchase::join($this->masterdbname.'.company', 'purchases.company_id', '=', $this->masterdbname.'.company.id')
-            ->join($this->masterdbname.'.company_details', $this->masterdbname.'.company.company_details_id', '=', $this->masterdbname.'.company_details.id')
+        $purchasesres = Purchase::join($this->masterdbname . '.company', 'purchases.company_id', '=', $this->masterdbname . '.company.id')
+            ->join($this->masterdbname . '.company_details', $this->masterdbname . '.company.company_details_id', '=', $this->masterdbname . '.company_details.id')
             ->select('purchases.id', 'purchases.name', 'purchases.description', 'purchases.amount', 'purchases.amount_type', 'purchases.date', 'company_details.name as company_name', 'purchases.img', 'purchases.created_by', 'purchases.updated_by', 'purchases.is_active')
-            ->where('purchases.is_deleted', 0)->get();
+            ->where('purchases.is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+            $purchasesres->where('purchases.created_by', $this->userId);
+        }
+
+        //condition for check if user has permission to view record
+        if ($this->rp['invoicemodule']['purchase']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+
+        $purchases = $purchasesres->get();
 
         if ($purchases->count() > 0) {
             return response()->json([
@@ -82,6 +101,14 @@ class purchaseController extends commonController
                 'errors' => $validator->messages()
             ]);
         } else {
+
+            //condition for check if user has permission to add new record
+            if ($this->rp['invoicemodule']['purchase']['add'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
 
             if ($request->hasFile('img') && $request->file('img') != '') {
                 $image = $request->file('img');
@@ -154,6 +181,22 @@ class purchaseController extends commonController
     public function show(string $id)
     {
         $purchases = Purchase::find($id);
+        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+            if ($purchases->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        //condition for check if user has permission to search record
+        if ($this->rp['invoicemodule']['purchase']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
+
         if ($purchases) {
             return response()->json([
                 'status' => 200,
@@ -173,6 +216,22 @@ class purchaseController extends commonController
     public function edit(string $id)
     {
         $purchases = Purchase::find($id);
+        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+            if ($purchases->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+
+        //condition for check if user has permission to edit record
+        if ($this->rp['invoicemodule']['purchase']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
         if ($purchases) {
             return response()->json([
                 'status' => 200,
@@ -212,6 +271,14 @@ class purchaseController extends commonController
                 'errors' => $validator->messages()
             ]);
         } else {
+            //condition for check if user has permission to edit record
+            if ($this->rp['invoicemodule']['purchase']['edit'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+
             if ($request->hasFile('img') && $request->hasFile('img') != '') {
                 $image = $request->file('img');
                 $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
@@ -283,6 +350,21 @@ class purchaseController extends commonController
     public function destroy(string $id)
     {
         $purchases = Purchase::find($id);
+        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+            if ($purchases->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+        }
+        //condition for check if user has permission to delete record
+        if ($this->rp['invoicemodule']['purchase']['delete'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
 
         if ($purchases) {
             $purchases->update([

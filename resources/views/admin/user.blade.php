@@ -1,6 +1,6 @@
 @extends('admin.mastertable')
 @section('page_title')
-    Users
+{{ config('app.name') }} - Users
 @endsection
 @section('table_title')
     Users
@@ -70,6 +70,11 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
             var global_response = '';
             // fetch & show user data in table
             function loaddata() {
@@ -78,6 +83,7 @@
                     type: 'GET',
                     url: '{{ route('user.index') }}',
                     data: {
+                        user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -96,14 +102,14 @@
                                                         <td>${value.company_name}</td>
                                                         <td>${value.user_role}</td>
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.user.edit') == '1') 
+                                                            @if (session('user_permissions.invoicemodule.user.edit') == '1') 
                                                                 ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if(session('user_permissions.invoicemodule.user.view') == '1') 
+                                                            @if (session('user_permissions.invoicemodule.user.view') == '1') 
                                                                 <span>
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
@@ -113,9 +119,10 @@
                                                               -    
                                                             @endif
                                                         </td>
-                                                        @if (session('user_permissions.invoicemodule.user.edit') == '1' || session('user_permissions.invoicemodule.user.delete') == '1')
+                                                        @if (session('user_permissions.invoicemodule.user.edit') == '1' ||
+                                                                session('user_permissions.invoicemodule.user.delete') == '1')
                                                             <td>
-                                                                @if(session('user_permissions.invoicemodule.user.edit') == '1') 
+                                                                @if (session('user_permissions.invoicemodule.user.edit') == '1') 
                                                                     <span>
                                                                         <a href='EditUser/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -124,7 +131,7 @@
                                                                         </a>
                                                                     </span>
                                                                 @endif
-                                                                @if(session('user_permissions.invoicemodule.user.delete') == '1') 
+                                                                @if (session('user_permissions.invoicemodule.user.delete') == '1') 
                                                                     <span class="">
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>
@@ -142,6 +149,9 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                             loaderhide();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
                             loaderhide();
@@ -156,7 +166,7 @@
             //call function for load user in table
             loaddata();
 
-            //  user status update deactive              
+            //  user status update active to deactive              
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
@@ -166,7 +176,9 @@
                         url: '/api/user/statusupdate/' + statusid,
                         data: {
                             status: '0',
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -176,6 +188,9 @@
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
+                            }else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
@@ -185,7 +200,7 @@
                 }
             });
 
-            //  user status update  active            
+            //  user status update deactive to  active            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
@@ -195,7 +210,9 @@
                         url: '/api/user/statusupdate/' + statusid,
                         data: {
                             status: '1',
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -205,6 +222,9 @@
                                     statusid +
                                     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
                                 );
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
                             } else {
                                 loaderhide();
                                 toastr.error('something went wrong !');
@@ -214,7 +234,7 @@
                 }
             });
 
-            // record delte 
+            // record delete 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
                     loadershow();
@@ -224,12 +244,20 @@
                         type: 'put',
                         url: '/api/user/delete/' + $deleteid,
                         data: {
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {
                                 loaderhide();
                                 $(row).closest("tr").fadeOut();
+                            }else if (response.status == 500) {
+                                toastr.error(response.message);
+                                loaderhide();
+                            } else {
+                                loaderhide();
+                                toastr.error('something went wrong !');
                             }
                         }
                     });

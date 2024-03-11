@@ -21,6 +21,7 @@ class company_detail extends Model
        'state_id',
        'city_id',
        'pincode',
-       'img'
+       'img',
+       'pr_sign_img',
     ];
 }

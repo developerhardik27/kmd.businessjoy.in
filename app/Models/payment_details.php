@@ -19,6 +19,10 @@ class payment_details extends Model
         'datetime',
         'paid_by',
         'paid_type',
+        'amount',
+        'paid_amount',
+        'pending_amount',
+        'part_payment',
         'created_at',
         'updated_at'
     ];

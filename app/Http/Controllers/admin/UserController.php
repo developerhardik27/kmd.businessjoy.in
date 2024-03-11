@@ -76,7 +76,7 @@ class UserController extends Controller
            $user = User::findOrFail($id);
         $this->authorize('view', $user);
 
-        return view('admin.profile',['user_id'=> Session::get('user_id')]);
+        return view('admin.profile',['user_id'=> Session::get('user_id'),'id'=>$id]);
     }
 
     /**

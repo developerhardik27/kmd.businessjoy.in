@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('admin/css/bootstrap.min.css') }}">
     {{-- <link rel="stylesheet" href="{{asset('admin/css/typography.css')}} "> --}}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice | Forgot Password</title>
+    <title>{{ config('app.name') }} | Forgot Password</title>
     <link href="{{asset('landing/img/favicon.png')}}" rel="icon">
     <link rel="stylesheet" href="{{asset('admin/css/login.css')}}">
 </head>

@@ -55,19 +55,22 @@ class UserSeeder extends Seeder
          
         $rp = [
             "invoicemodule" => [
-                "invoice" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
-                "company" => ["show" => 1, "add" => 1, "view" => 1, "edit" =>1, "delete" => 1],
-                "bank" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
-                "user" => ["show" => 1, "add" => 1, "view" =>1, "edit" => 1, "delete" =>1],
-                "customer" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
-                "product" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1],
-                "purchase" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                "invoice" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "mngcol" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "formula" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "invoicesetting" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "company" => ["show" => 1, "add" => 1, "view" => 1, "edit" =>1, "delete" => 1 , "alldata" => 1],
+                "bank" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "user" => ["show" => 1, "add" => 1, "view" =>1, "edit" => 1, "delete" =>1 , "alldata" => 1],
+                "customer" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "product" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1],
+                "purchase" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1]
             ],
             "leadmodule" => [
-                "lead" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                "lead" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1]
             ],
             "customersupportmodule" => [
-                "customersupport" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1]
+                "customersupport" => ["show" => 1, "add" => 1, "view" => 1, "edit" => 1, "delete" => 1 , "alldata" => 1]
             ]
         ];
         $rpjson = json_encode($rp);

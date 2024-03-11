@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\customer_support;
 use App\Models\customersupporthistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,8 @@ class customersupporthistoryController extends commonController
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+    { 
+
 
         $validator = Validator::make($request->all(), [
             'call_date' => 'required',
@@ -64,6 +66,20 @@ class customersupporthistoryController extends commonController
             ]);
 
             if ($customersupporthistory) {
+
+                $followup  = 0 ;
+                if($request->no_of_calls != ''){
+                   $followup = $request->no_of_calls ;
+                }
+               $customersupport = customer_support::find($request->csid);
+              
+               if($customersupport){
+                   $customersupport->last_call = $request->call_date;
+                   $customersupport->status = $request->call_status;
+                   $customersupport->notes = $request->history_notes;
+                   $customersupport->number_of_call = $customersupport->number_of_call +  $followup;
+                   $customersupport->save();
+               }
                 return response()->json([
                     'status' => 200,
                     'message' => 'customer history succesfully created'

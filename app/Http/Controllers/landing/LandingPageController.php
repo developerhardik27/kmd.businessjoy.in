@@ -17,9 +17,9 @@ class LandingPageController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'contact_no' => 'required'
-
+    
         ]);
 
         if ($validator->fails()) {

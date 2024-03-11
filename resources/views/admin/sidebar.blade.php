@@ -52,6 +52,7 @@
                                             'admin.invoicesettings',
                                             'admin.managecolumn',
                                             'admin.formula',
+                                            'admin.othersettings'
                                         )
                                             ? 'active'
                                             : '',
@@ -76,9 +77,21 @@
                                                 </a>
                                             </li>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                        @if (session('user_permissions.invoicemodule.invoicesetting.show') == '1' 
+                                            || session('user_permissions.invoicemodule.mngcol.show') == '1'
+                                            || session('user_permissions.invoicemodule.formula.show') == '1'
+                                        )
                                             <li
-                                                class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
+                                                class="{{ implode(' ', [
+                                                    request()->routeIs( 
+                                                        'admin.invoicesettings',
+                                                        'admin.managecolumn',
+                                                        'admin.formula',
+                                                        'admin.othersettings'
+                                                    )
+                                                        ? 'active'
+                                                        : '',
+                                                ]) }}">
                                                 <a href="#invoicesettinginfo" class="iq-waves-effect collapsed"
                                                     data-toggle="collapse" aria-expanded="false">
                                                     <i class="ri-list-settings-line"></i>
@@ -87,7 +100,7 @@
                                                 </a>
                                                 <ul id="invoicesettinginfo" class="iq-submenu collapse"
                                                     data-parent="#invoiceinfo">
-                                                    @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                                    @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
                                                         <li
                                                             class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}">
                                                             <a href="{{ route('admin.managecolumn') }}">
@@ -96,12 +109,21 @@
                                                             </a>
                                                         </li>
                                                     @endif
-                                                    @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                                    @if (session('user_permissions.invoicemodule.formula.view') == '1')
                                                         <li
                                                             class="{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
                                                             <a href="{{ route('admin.formula') }}">
                                                                 <i class="ri-file-list-line"></i>
                                                                 Set Formula
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                    @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
+                                                        <li
+                                                            class="{{ request()->routeIs('admin.othersettings') ? 'active' : '' }}">
+                                                            <a href="{{ route('admin.othersettings') }}">
+                                                                <i class="ri-settings-5-line"></i>
+                                                               Other Setting
                                                             </a>
                                                         </li>
                                                     @endif

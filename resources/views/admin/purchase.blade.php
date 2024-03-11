@@ -1,6 +1,6 @@
 @extends('admin.mastertable')
 @section('page_title')
-    Purchase
+    {{ config('app.name') }} - Purchase
 @endsection
 @section('table_title')
     Purchase
@@ -68,14 +68,19 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             var global_response = '';
-            // fetch & show user data in table
+            // fetch & show purchase data in table
             function loaddata() {
                 loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('purchase.index') }}',
                     data: {
+                        user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -148,11 +153,11 @@
                     }
                 });
             }
-            //call function for load user in table
+            //call function for load purchase in table
             loaddata();
 
 
-            // record delte 
+            // record delete 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
                     loadershow();
@@ -163,7 +168,8 @@
                         url: '/api/purchase/delete/' + $deleteid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(response) {
                             if (response.status == 200) {

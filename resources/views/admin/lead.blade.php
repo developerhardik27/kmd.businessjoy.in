@@ -1,7 +1,7 @@
 @extends('admin.mastertable')
 
 @section('page_title')
-    Lead
+{{ config('app.name') }} - Lead
 @endsection
 @section('table_title')
     Lead
@@ -144,22 +144,26 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
 @endsection
 
 @section('advancefilter')
     <div id="mySidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <div class="row p-3">
+            <div class="col-md-12">
+                <h4>Advanced Filters</h4>
+            </div>
             <div class="col-md-12" id="assignedtodiv">
                 <label for="assignedto" class="form-label float-left mt-1">Assigned To : </label>
                 <select name="assignedto" class="form-control multiple" id="assignedto" multiple>
-                    <option value="" disabled selected>-- User --</option>
+                    <option value="" disabled selected>-- Select User --</option>
                 </select>
             </div>
             <div class="col-md-12 mt-3" id="sourcecolumndiv">
                 <label for="source" class="form-label float-left mt-1">Source : </label>
                 <select name="source" class="form-control multiple" id="source" multiple>
-                    <option value="" disabled selected>-- Source --</option>
+                    <option value="" disabled selected>-- Select Source --</option>
                 </select>
             </div>
             <div class="col-md-12">
@@ -193,7 +197,7 @@
         <input type="radio" class="is_active advancefilter" value="all" checked id="all" name="status">
         <label for="all">All</label>
         <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
-            <option disabled selected>-- status --</option>
+            <option disabled selected>-- Select status --</option>
             <option value='Not Interested'>Not Interested</option>
             <option value='Not Receiving'>Not Receiving</option>
             <option value='New Lead'>New Lead</option>
@@ -208,7 +212,7 @@
             <option value='Call Back'>Call Back</option>
         </select>
         <select class="advancefilter multiple form-control w-100" id="leadstagestatus" multiple="multiple">
-            <option disabled selected>-- Lead Stage --</option>
+            <option disabled selected>-- Select Lead Stage --</option>
             <option value='New Lead'>New Lead</option>
             <option value='Requirement Ghathering'>Requirement Ghathering</option>
             <option value='Quotation'>Quotation</option>
@@ -242,7 +246,7 @@
 
 
 @section('table-content')
-    <table id="data" class="table table-bordered w-100  table-responsive-md table-striped text-center">
+    <table id="data" class="table table-bordered w-100  table-responsive-sm table-striped text-center">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -262,9 +266,10 @@
     {{-- modal for add call history module  --}}
     <div class="modal fade" id="addcallhistory" tabindex="-1" role="dialog" aria-labelledby="addcallhistoryTitle"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
+
                     <h5 class="modal-title" id="addcallhistoryTitle"><b>Call History</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -307,6 +312,10 @@
                                 </select>
                                 <span class="error-msg" id="error-call_status" style="color: red"></span>
                             </div>
+                            <br>
+                            <div class="col-12">
+                                FollowUp : <input type="checkbox" name="followup" id="followup" value="1">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -346,6 +355,7 @@
 
 @push('ajax')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <script>
         /* Simple appearence with animation AN-1*/
         function openNav() {
@@ -359,6 +369,16 @@
     </script>
     <script>
         $(document).ready(function() {
+      
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
+            $('#history_notes').summernote({
+                height: 200
+            });
+            // set advanced filter data if it is selected on lead edit time
             var filterData = JSON.parse(sessionStorage.getItem('filterData'));
             if (filterData) {
                 $.each(filterData, function(key, value) {
@@ -370,15 +390,23 @@
                     }
                 });
                 advancefilters();
+                 // Check only the first option
+                 $('#advancestatus option:first').prop('selected', true);
+                $('#assignedto option:first').prop('selected', true);
+                $('#source option:first').prop('selected', true);
+                $('#leadstagestatus option:first').prop('selected', true);
                 sessionStorage.removeItem('filterData');
             } else {
                 loaddata();
             }
+           
 
+            // get user data for advanced filters
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.index') }}',
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -406,13 +434,16 @@
                     console.error('Error:', error);
                 }
             });
+            
 
+            // get all sources for advanced filters
             $.ajax({
                 type: 'GET',
                 url: '{{ route('lead.sourcecolumn') }}',
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: "{{ session()->get('company_id') }} "
+                    company_id: "{{ session()->get('company_id') }} ",
+                    user_id: "{{ session()->get('user_id') }} "
                 },
                 success: function(response) {
                     if (response.status == 200 && response.sourcecolumn != '') {
@@ -442,12 +473,15 @@
             $('#advancestatus').multiselect();
             $('#leadstagestatus').multiselect();
 
+
+            // get lead data and set in the table
             function loaddata() {
                 loadershow();
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('lead.index') }}',
                     data: {
+                        user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -573,11 +607,12 @@
                 });
             }
 
+            // it is commented beacause it is called base on conditions 
             //call function for loaddata
             // loaddata();
 
-
-
+   
+            // view individual lead data
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
@@ -629,6 +664,10 @@
                                                     <td>Follow up</td>
                                                     <th>${lead.number_of_follow_up}</th>
                                                 </tr>
+                                                <tr>
+                                                    <td>Attempt</td>
+                                                    <th>${lead.attempt_lead}</th>
+                                                </tr>
                                                <tr>
                                                     <td>Created On</td>
                                                     <th>${lead.created_at_formatted}</th>
@@ -649,7 +688,9 @@
                     }
                 });
             });
+         
 
+            // change lead status
             $(document).on('change', '.status', function() {
                 var oldstatus = $(this).data('original-value');
                 if (confirm('Are you Sure That to change status  ?')) {
@@ -665,14 +706,15 @@
                             statusid: statusid,
                             statusvalue: statusvalue,
                             token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }} "
+                            company_id: " {{ session()->get('company_id') }} ",
+                            user_id: " {{ session()->get('user_id') }} ",
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
+                            } else if (data.status == 500) {
+                                toastr.error(data.message);
                                 loaderhide();
                             } else {
                                 toastr.success(data.message);
@@ -686,6 +728,8 @@
                     $('#' + fieldid).val(oldstatus);
                 }
             })
+
+            // change lead stage status
             $(document).on('change', '.leadstage', function() {
                 var oldstatus = $(this).data('original-value');
                 if (confirm('Are you Sure That to change lead stage status  ?')) {
@@ -701,14 +745,15 @@
                             leadstageid,
                             leadstagevalue,
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message);
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
+                            } else if (data.status == 500) {
+                                toastr.error(data.message);
                                 loaderhide();
                             } else {
                                 toastr.success(data.message);
@@ -722,6 +767,8 @@
                     $('#' + leadstageid).val(oldstatus);
                 }
             })
+
+            // lead edit redirect - save advanced filter data as it is on local storage session
             $(document).on("click", '.editbtn', function() {
                 editid = $(this).data('id');
                 // loadershow();
@@ -752,7 +799,8 @@
                 // console.log(data);
                 window.location.href = "EditLead/" + editid;
             });
-
+          
+            // lead delete
             $(document).on("click", ".dltbtn", function() {
 
                 if (confirm("Are you Sure that to delete this record")) {
@@ -766,14 +814,15 @@
                         data: {
                             id: id,
                             token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}"
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(data) {
                             loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message)
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
+                            } else if (data.status == 500) {
+                                toastr.error(data.message);
                                 loaderhide();
                             } else {
                                 toastr.success(data.message);
@@ -784,10 +833,18 @@
                     });
                 }
             })
+            
 
+            // advancefilters
             function advancefilters() {
+
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
+
+                if (fromdate != '' && todate == '') {
+                    todate = fromdate;
+                    $('#todate').val(todate);
+                }
                 advancestatus = $('#advancestatus').val();
                 assignedto = $('#assignedto').val();
                 source = $('#source').val();
@@ -805,6 +862,7 @@
                 }
 
                 var data = {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 };
@@ -957,12 +1015,10 @@
                                 loaderhide();
                             } else {
                                 $('#data').DataTable().destroy();
+                                $('#tabledata').empty();
                                 $('#data').DataTable({
                                     "destroy": true, //use for reinitialize datatable
                                 });
-                                $('#tabledata').html(' ');
-                                $('#data').append(
-                                    `<tr><td colspan='11' >No Data Found</td></tr>`);
                                 loaderhide();
                             }
                             // You can update your HTML with the data here if needed
@@ -984,7 +1040,7 @@
                 closeNav()
             });
 
-
+            //remove advnaced filtres only (sidebar filtres) 
             $('.removepopupfilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
@@ -999,7 +1055,8 @@
                 $('#source').multiselect('refresh');
                 advancefilters();
             });
-
+              
+           // remove all filters
             $('.removefilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
@@ -1030,10 +1087,16 @@
 
 
             //    leadhistory 
-
             $(document).on('click', '.leadid', function() {
                 leadid = $(this).data('id');
                 $('#leadid').val(leadid);
+
+                $.each(global_response.lead, function(key, lead) {
+                    if (lead.id == leadid) {
+                        $('#addcallhistoryTitle').html(`${lead.name}<br/> - <b>Call History</b>`);
+                    }
+                });
+
                 var now = new Date();
                 var formattedDateTime = now.getFullYear() + '-' +
                     ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
@@ -1046,17 +1109,26 @@
                 $('#company_id').val("{{ session()->get('company_id') }}");
                 $('#token').val("{{ session()->get('api_token') }}");
             });
-
+           
+            // view lead call history
             $(document).on('click', '.viewcallhistory', function() {
                 $('.historyrecord').html(' ');
                 loadershow();
                 var historyid = $(this).data('id');
+
+                $.each(global_response.lead, function(key, lead) {
+                    if (lead.id == historyid) {
+                        $('#viewcallhistoryTitle').html(`${lead.name}<br/> - <b>Call History</b>`);
+                    }
+                });
+
                 $.ajax({
                     type: 'get',
                     url: "/api/leadhistory/search/" + historyid,
                     data: {
                         token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}"
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200 & response.leadhistory != '') {
@@ -1090,14 +1162,14 @@
                     }
                 });
             });
+            
 
+            // reset call history form
             $(document).on('click', '.resethistoryform', function() {
                 $('#leadhistoryform')[0].reset();
             })
 
             // leadhistoryform submit 
-
-
             $('#leadhistoryform').submit(function(e) {
                 e.preventDefault();
                 loadershow();

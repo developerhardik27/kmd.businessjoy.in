@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Add New Bank Details
+{{ config('app.name') }} - Add New Bank Details
 @endsection
 @section('title')
     New Bank Details
@@ -69,9 +69,14 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-        
+
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             loaderhide();
-         
+
+            // if  company has not any bank account so user will be redirect here when he click on create invoice link
             @isset($message)
                 alert('you have not any bank account so first add bank account');
             @endisset
@@ -81,7 +86,7 @@
             $('#bankdetailform').submit(function(event) {
                 event.preventDefault();
                 $('.error-msg').text('');
-               loadershow();
+                loadershow();
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
@@ -95,12 +100,12 @@
                             toastr.success(response.message);
                             window.location = "{{ route('admin.bank') }}";
 
-                        }else if(response.status == 500){
+                        } else if (response.status == 500) { 
                             toastr.error(response.message);
                             loaderhide();
                         } else {
                             toastr.error(response.message);
-                           loaderhide();
+                            loaderhide();
 
                         }
 
@@ -112,7 +117,7 @@
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                          loaderhide();
+                            loaderhide();
                         } else {
                             toastr.error(
                                 'An error occurred while processing your request. Please try again later.'

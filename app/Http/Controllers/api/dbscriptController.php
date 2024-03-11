@@ -11,9 +11,8 @@ class dbscriptController extends Controller
 {
     public function dbscript()
     {   
-        $common_db_structure_query = 'ALTER TABLE `invoices` CHANGE `hidden_col` `show_col` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL' ;
+        $common_db_structure_query = "ALTER TABLE `invoice_other_settings` ADD `year_start` DATE NULL DEFAULT '2024-04-01' AFTER `overdue_day`;" ;
         $companies = Company::select('dbname')->where('is_deleted', 0)->get();
-
         foreach ($companies as $company) {
             $dbname = $company->dbname;
 

@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-    Add New Customer
+    {{ config('app.name') }} - Add New Customer
 @endsection
 @section('title')
     New Customer
@@ -112,8 +112,12 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
-            // set country data in country dropdown
+            // get and set country data in country dropdown
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
@@ -145,7 +149,7 @@
                 }
             });
 
-            // set state data when country select
+            // get and set state data when country select
             $('#country').on('change', function() {
                 loadershow();
                 var country_id = $(this).val();
@@ -182,7 +186,7 @@
                 });
             });
 
-            // set city data when state select
+            // get and set city data when select/change state
             $('#state').on('change', function() {
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
@@ -219,7 +223,9 @@
                     }
                 });
             });
+           
 
+            // submit form 
             $('#customerform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
@@ -235,7 +241,7 @@
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.customer') }}";
+                            window.location = "{{ route('admin.customer') }}"; // redirect on customer list page
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);

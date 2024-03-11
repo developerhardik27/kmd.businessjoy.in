@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\admin\PurchaseController;
 use App\Http\Controllers\api\bankdetailsController;
 use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\companyController;
@@ -8,7 +7,6 @@ use App\Http\Controllers\api\countryController;
 use App\Http\Controllers\api\commonController;
 use App\Http\Controllers\api\customerController;
 use App\Http\Controllers\api\customersupportController;
-use App\Http\Controllers\api\customersupporthistory;
 use App\Http\Controllers\api\customersupporthistoryController;
 use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\invoiceController;
@@ -19,10 +17,10 @@ use App\Http\Controllers\api\purchaseController as ApiPurchaseController;
 use App\Http\Controllers\api\stateController;
 use App\Http\Controllers\api\tblinvoicecolumnController;
 use App\Http\Controllers\api\tblinvoiceformulaController;
+use App\Http\Controllers\api\tblinvoiceothersettingController;
 use App\Http\Controllers\api\tblleadController;
 use App\Http\Controllers\api\tblleadhistoryController;
 use App\Http\Controllers\api\userController;
-use App\Models\tbl_invoice_column;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,8 +38,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-// mail routr
+// mail route
 Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
+
+// middleware route group 
 
 Route::middleware('checkToken')->group(function () {
 
@@ -157,7 +157,9 @@ Route::middleware('checkToken')->group(function () {
 
     Route::controller(PaymentController::class)->group(function () {
         Route::post('payment_details', 'store')->name('paymentdetails.store');
+        Route::get('paymentdetail/{id}', 'paymentdetail')->name('paymentdetails.search');
     });
+
 
     // purchases route 
     Route::controller(ApiPurchaseController::class)->group(function () {
@@ -215,7 +217,7 @@ Route::middleware('checkToken')->group(function () {
         Route::post('/leadhistory/update/{id}', 'update')->name('leadhistory.update');
         Route::put('/leadhistory/delete', 'destroy')->name('leadhistory.delete');
     });
-    
+
     // customer suppport route 
     Route::controller(customersupportController::class)->group(function () {
         Route::get('/customersupport', 'index')->name('customersupport.index');
@@ -240,13 +242,25 @@ Route::middleware('checkToken')->group(function () {
 
     //common controller route
 
-    Route::controller(commonController::class)->group(function(){
-          Route::get('/getdbname/{id}','dbname')->name('getdbanme');
+    Route::controller(commonController::class)->group(function () {
+        Route::get('/getdbname/{id}', 'dbname')->name('getdbanme');
+    });
+
+    Route::controller(tblinvoiceothersettingController::class)->group(function () {
+        Route::get('/getoverduedays', 'getoverduedays')->name('getoverduedays.index');
+        Route::post('/getoverduedays/update/{id}', 'overduedayupdate')->name('getoverduedays.update');
+        Route::get('/termsandconditions', 'termsandconditionsindex')->name('termsandconditions.index');
+        Route::post('/termsandconditions/insert', 'invoicetcstore')->name('termsandconditions.store');
+        Route::get('/termsandconditions/edit/{id}', 'tcedit')->name('termsandconditions.edit');
+        Route::post('/termsandconditions/update/{id}', 'tcupdate')->name('termsandconditions.update');
+        Route::put('/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('termsandconditions.statusupdate');
+        Route::put('/termsandconditions/delete/{id}', 'tcdestroy')->name('termsandconditions.delete');
+   
     });
 
 });
- 
 
-Route::get('/dbscript',[dbscriptController::class,'dbscript'])->name('dbscript');
+
+Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
 
 

@@ -1,6 +1,6 @@
 @extends('admin.masterlayout')
 @section('page_title')
-    Update Customer
+    {{ config('app.name') }} - Update Customer
 @endsection
 @section('title')
     Update Customer
@@ -118,14 +118,21 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
             // get selected customer data and show it into fields
+
+            // get & set customer old data in the form input
             var edit_id = @json($edit_id);
             $.ajax({
                 type: 'GET',
                 url: '/api/customer/search/' + edit_id,
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: "{{ session()->get('company_id') }}"
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
                     if (response.status == 200) {

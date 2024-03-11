@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class user_permission extends Model
 {
     use HasFactory;
-
+ 
+    protected $connection = 'dynamic_connection';
     protected $table = 'user_permissions';
 
     protected $fillable = [

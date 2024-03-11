@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>BusinessJoy</title>
+    <title>{{ config('app.name') }}</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -668,14 +668,14 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
+                                            <input type="text" class="form-control" maxlength="30" id="name" name="name" placeholder="Your Name" required>
                                             <label for="name">Your Name</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="email" class="form-control" id="email"
-                                               name="email"  placeholder="Your Email" required>
+                                               name="email"  placeholder="Your Email" maxlength="40" required>
                                             <label for="email">Your Email</label>
                                         </div>
                                     </div>
@@ -687,7 +687,7 @@
                                     </div>
                                     <div class="col-6">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="contact_no" name="contact_no" placeholder="Mobile number" required>
+                                            <input type="text" class="form-control" maxlength="12" id="contact_no" name="contact_no" placeholder="Mobile number" required>
                                             <label for="contact_no">Mobile Number</label>
                                         </div>
                                     </div>
@@ -811,6 +811,19 @@
     alert('Something Went Wrong! please try again later sometime later');
 </script>
 @endif
+<script>
+    $("document").ready(function(){
+        $('#contact_no').on('input', function() {
+        var inputValue = $(this).val();
+        var digitOnlyRegex = /^\d*$/; // Regular expression to allow only digits
+        
+        if (!digitOnlyRegex.test(inputValue)) {
+            // Remove non-digit characters from the input
+            $(this).val(inputValue.replace(/\D/g,''));
+        }
+    });
+    });
+</script>
 </body>
 
 </html>

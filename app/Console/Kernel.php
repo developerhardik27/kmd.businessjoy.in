@@ -9,7 +9,7 @@ class Kernel extends ConsoleKernel
 {   
     protected $commands = [
         // ...
-        Commands\UpdateInvoiceStatus::class,
+       \App\Console\Commands\UpdateInvoiceStatus::class,
     ];
     /**
      * Define the application's command schedule.
@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('invoices:update-status')->dailyAt('00:00');
+        $schedule->command('invoices:update-status')->dailyAt('10:00');
     }
 
     /**

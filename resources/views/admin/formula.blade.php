@@ -1,7 +1,7 @@
 @extends('admin.masterlayout')
 
 @section('page_title')
-    Formula
+{{ config('app.name') }} - Invoice Calculation Formula
 @endsection
 @section('title')
     Formula
@@ -78,13 +78,18 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
 
             let allColumnNames = [];
-            // formula column list for make forula 
+            // get column list for make formula 
             $.ajax({
                 type: "GET",
                 url: "{{ route('invoicecolumn.formulacolumnlist') }}",
                 data: {
+                    user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
@@ -340,6 +345,7 @@
                     type: 'GET',
                     url: '{{ route('invoiceformula.index') }}',
                     data: {
+                        user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -392,7 +398,7 @@
             //call function for loaddata
             loaddata();
 
-
+            // edit formula 
             $(document).on("click", ".edit-btn", function() {
                 if (confirm("You want edit this Formula ?")) {
                     loadershow();
@@ -402,7 +408,8 @@
                         url: '/api/invoiceformula/edit/' + editid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }}"
+                            company_id: " {{ session()->get('company_id') }}",
+                            user_id: " {{ session()->get('user_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200 && response.invoiceformula != '') {
@@ -429,7 +436,7 @@
                 }
             });
 
-
+            // delete formula
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this Formula ?')) {
                     var deleteid = $(this).data('id');
@@ -440,7 +447,8 @@
                         url: '/api/invoiceformula/delete/' + deleteid,
                         data: {
                             token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }}"
+                            company_id: " {{ session()->get('company_id') }}",
+                            user_id: " {{ session()->get('user_id') }}",
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -460,7 +468,7 @@
             });
 
 
-
+            // formula order submit
             $('.saveformulaorder').on('click', function() {
                 var formulaorders = [];
                 $('input.formulaorder').each(function() {
@@ -476,7 +484,8 @@
                     data: {
                         formulaorders,
                         token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}"
+                        company_id: " {{ session()->get('company_id') }}",
+                        user_id: " {{ session()->get('user_id') }}"
                     },
                     success: function(response) {
                         if (response.status == 200) {
@@ -497,7 +506,9 @@
                     }
                 });
             });
+            
 
+            // formula submit form (check formula conditions)
             var formula_data = [];
             $('#formulaform').submit(function(e) {
                 e.preventDefault();
@@ -619,7 +630,8 @@
                                 editid,
                                 updated_by,
                                 token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}"
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
                             },
                             success: function(response) {
                                 if (response.status == 200) {
@@ -702,10 +714,6 @@
 
                 }
             });
-
-
-
-
 
         });
     </script>
