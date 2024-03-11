@@ -621,7 +621,9 @@ class companyController extends Controller
                 ]);
                  
                 invoice_other_setting::create([
-                    
+                    'overdue_day' => 45,
+                    'year_start' => 01-04-2024,
+                    'created_by' => $this->userId,
                 ]);
         
                 if ($company) {
