@@ -15,7 +15,7 @@ class invoicePolicy
         //
     }
 
-    public function view(User $authenticatedUser, invoice $requestedinvoice)
+    public function view(User $authenticatedUser, $requestedinvoice)
     {  
 
         if ($authenticatedUser->role === 1) {

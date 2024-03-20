@@ -15,7 +15,7 @@ class Bank_DetailPolicy
         //
     }
 
-    public function view(User $authenticatedUser, bank_detail $requestedbank)
+    public function view(User $authenticatedUser, $requestedbank)
     {  
 
         if ($authenticatedUser->role === 1) {
@@ -24,7 +24,7 @@ class Bank_DetailPolicy
         if ($authenticatedUser->role === 3) {
             return false; // denny access
         }
-        return $authenticatedUser->company_id === $requestedbank->created_by;
+        return $authenticatedUser->id === $requestedbank->created_by;
         
     }
 }

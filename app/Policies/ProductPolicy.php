@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\product;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +15,7 @@ class ProductPolicy
         //
     }
 
-    public function view(User $authenticatedUser, product $requestedProduct)
+    public function view(User $authenticatedUser, $requestedProduct)
     {  
 
         if ($authenticatedUser->role === 1) {

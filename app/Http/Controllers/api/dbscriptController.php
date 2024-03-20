@@ -10,8 +10,21 @@ use Illuminate\Support\Facades\DB;
 class dbscriptController extends Controller
 {
     public function dbscript()
-    {   
-        $common_db_structure_query = "ALTER TABLE `invoice_other_settings` ADD `year_start` DATE NULL DEFAULT '2024-04-01' AFTER `overdue_day`;" ;
+    {
+        $common_db_structure_query = "INSERT INTO `leadstatus_name` (`leadstatus_name`) VALUES 
+        ('Not Interested'),
+         ('Not Receiving'),
+        ('New Lead'),
+        ('Interested'),
+        ('Switch Off'),
+        ('Does Not Exist'),
+        ('Email Sent'),
+        ('Wrong Number'),
+        ('By Mistake'),
+        ('Positive'),
+        ('Busy'),
+        ('Call Back')
+        ";
         $companies = Company::select('dbname')->where('is_deleted', 0)->get();
         foreach ($companies as $company) {
             $dbname = $company->dbname;

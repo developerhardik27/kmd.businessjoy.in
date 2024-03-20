@@ -32,7 +32,7 @@ class CheckToken
         //  if ($request->ajax()) {
         //     return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         //  }
-
+       
         return $next($request);
     }
 }

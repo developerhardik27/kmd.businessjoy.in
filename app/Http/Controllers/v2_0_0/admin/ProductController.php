@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Http\Controllers\v2_0_0\admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+
+class ProductController extends Controller
+{
+    public $version, $productmodel;
+    public function __construct()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+        $this->version = $_SESSION['folder_name'];
+
+        if (isset($_SESSION['folder_name'])) {
+            $this->productmodel = 'App\\Models\\' . $this->version . "\\product";
+        } else {
+            $this->productmodel = 'App\\Models\\v2_0_0\\product';
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+
+        return view($this->version . '.admin.product');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+
+        return view($this->version . '.admin.productform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+
+        $product = $this->productmodel::findOrFail($id);
+        $this->authorize('view', $product);
+
+        return view($this->version. '.admin.productupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}

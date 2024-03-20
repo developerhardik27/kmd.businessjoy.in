@@ -15,7 +15,7 @@ class PurchasePolicy
         //
     }
 
-    public function view(User $authenticatedUser, Purchase $requestedpurchase)
+    public function view(User $authenticatedUser, $requestedpurchase)
     {
 
         if ($authenticatedUser->role === 1) {

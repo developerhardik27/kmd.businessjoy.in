@@ -14,7 +14,7 @@ class CustomerPolicy
     {
         //
     }
-    public function view(User $authenticatedUser, customer $requestedCustomer)
+    public function view(User $authenticatedUser, $requestedCustomer)
     {  
 
         if ($authenticatedUser->role === 1) {

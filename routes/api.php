@@ -1,26 +1,11 @@
 <?php
 
-use App\Http\Controllers\api\bankdetailsController;
 use App\Http\Controllers\api\cityController;
-use App\Http\Controllers\api\companyController;
 use App\Http\Controllers\api\countryController;
-use App\Http\Controllers\api\commonController;
-use App\Http\Controllers\api\customerController;
-use App\Http\Controllers\api\customersupportController;
-use App\Http\Controllers\api\customersupporthistoryController;
 use App\Http\Controllers\api\dbscriptController;
-use App\Http\Controllers\api\invoiceController;
 use App\Http\Controllers\api\mailcontroller;
-use App\Http\Controllers\api\PaymentController;
-use App\Http\Controllers\api\productController;
-use App\Http\Controllers\api\purchaseController as ApiPurchaseController;
 use App\Http\Controllers\api\stateController;
-use App\Http\Controllers\api\tblinvoicecolumnController;
-use App\Http\Controllers\api\tblinvoiceformulaController;
-use App\Http\Controllers\api\tblinvoiceothersettingController;
-use App\Http\Controllers\api\tblleadController;
-use App\Http\Controllers\api\tblleadhistoryController;
-use App\Http\Controllers\api\userController;
+use App\Models\company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -43,54 +29,77 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 
 // middleware route group 
 
-Route::middleware('checkToken')->group(function () {
+$request = request();
+$version = $request->company_id ? company::find($request->company_id) : null;
+$versionexplode = $version ? $version->app_version : "v1_0_0"; // Default version is 1 if company not found
+
+$middlewareNamespace = 'App\\Http\\Middleware\\' . $versionexplode . '\\';
+
+$middleware = $middlewareNamespace . 'CheckToken';
+
+
+Route::middleware($middleware)->group(function () {
+
+    function getversion($controller)
+    {
+        $request = request();
+        $version = $request->company_id ? company::find($request->company_id) : null;
+        $versionexplode = $version ? $version->app_version : "v1_0_0";
+
+        return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
+    }
+    // Default version is 1 if company not found
 
     // customer route
-    Route::controller(customerController::class)->group(function () {
-        Route::get('/invoicecustomer', 'invoicecustomer')->name('customer.invoicecustomer');
-        Route::get('/customer', 'index')->name('customer.index');
-        Route::post('/customer/insert', 'store')->name('customer.store');
-        Route::get('/customer/search/{id}', 'show')->name('customer.search');
-        Route::get('/customer/edit/{id}', 'edit')->name('customer.edit');
-        Route::put('/customer/statusupdate/{id}', 'statusupdate')->name('customer.statusupdate');
-        Route::put('/customer/update/{id}', 'update')->name('customer.update');
-        Route::put('/customer/delete/{id}', 'destroy')->name('customer.delete');
+    $customerController = getversion('customerController');
+    Route::group([], function () use ($customerController) {
+        Route::get('/invoicecustomer', [$customerController, 'invoicecustomer'])->name('customer.invoicecustomer');
+        Route::get('/customer', [$customerController, 'index'])->name('customer.index');
+        Route::post('/customer/insert', [$customerController, 'store'])->name('customer.store');
+        Route::get('/customer/search/{id}', [$customerController, 'show'])->name('customer.search');
+        Route::get('/customer/edit/{id}', [$customerController, 'edit'])->name('customer.edit');
+        Route::put('/customer/statusupdate/{id}', [$customerController, 'statusupdate'])->name('customer.statusupdate');
+        Route::put('/customer/update/{id}', [$customerController, 'update'])->name('customer.update');
+        Route::put('/customer/delete/{id}', [$customerController, 'destroy'])->name('customer.delete');
     });
 
     // company route
-    Route::controller(companyController::class)->group(function () {
-        Route::get('/companyprofile', 'companyprofile')->name('company.profile');
-        Route::get('/company', 'index')->name('company.index');
-        Route::get('/companydata', 'joincompany')->name('company.joindata');
-        Route::post('/company/insert', 'store')->name('company.store');
-        Route::get('/company/search/{id}', 'show')->name('company.search');
-        Route::get('/company/edit/{id}', 'edit')->name('company.edit');
-        Route::post('/company/update/{id}', 'update')->name('company.update');
-        Route::post('/company/delete/{id}', 'destroy')->name('company.delete');
+    $companyController = getversion('companyController');
+    Route::group([], function () use ($companyController) {
+        Route::get('/companyprofile', [$companyController, 'companyprofile'])->name('company.profile');
+        Route::get('/company', [$companyController, 'index'])->name('company.index');
+        Route::get('/companydata', [$companyController, 'joincompany'])->name('company.joindata');
+        Route::post('/company/insert', [$companyController, 'store'])->name('company.store');
+        Route::get('/company/search/{id}', [$companyController, 'show'])->name('company.search');
+        Route::get('/company/edit/{id}', [$companyController, 'edit'])->name('company.edit');
+        Route::post('/company/update/{id}', [$companyController, 'update'])->name('company.update');
+        Route::post('/company/delete/{id}', [$companyController, 'destroy'])->name('company.delete');
     });
 
     // product route
-    Route::controller(productController::class)->group(function () {
-        Route::get('/product', 'index')->name('product.index');
-        Route::post('/product/insert', 'store')->name('product.store');
-        Route::get('/product/search/{id}', 'show')->name('product.search');
-        Route::get('/product/edit/{id}', 'edit')->name('product.edit');
-        Route::put('/product/update/{id}', 'update')->name('product.update');
-        Route::put('/product/delete/{id}', 'destroy')->name('product.delete');
+    $productController = getversion('productController');
+    Route::group([], function () use ($productController) {
+        Route::get('/product', [$productController, 'index'])->name('product.index');
+        Route::post('/product/insert', [$productController, 'store'])->name('product.store');
+        Route::get('/product/search/{id}', [$productController, 'show'])->name('product.search');
+        Route::get('/product/edit/{id}', [$productController, 'edit'])->name('product.edit');
+        Route::put('/product/update/{id}', [$productController, 'update'])->name('product.update');
+        Route::put('/product/delete/{id}', [$productController, 'destroy'])->name('product.delete');
     });
 
 
     // user route
-    Route::controller(userController::class)->group(function () {
-        Route::get('/username', 'username')->name('user.username');
-        Route::get('/userprofile', 'userprofile')->name('user.profile');
-        Route::get('/user', 'index')->name('user.index');
-        Route::post('/user/insert', 'store')->name('user.store');
-        Route::get('/user/search/{id}', 'show')->name('user.search');
-        Route::get('/user/edit/{id}', 'edit')->name('user.edit');
-        Route::put('/user/statusupdate/{id}', 'statusupdate')->name('user.statusupdate');
-        Route::post('/user/update/{id}', 'update')->name('user.update');
-        Route::put('/user/delete/{id}', 'destroy')->name('user.delete');
+    $userController = getversion('userController');
+    Route::group([], function () use ($userController) {
+        Route::get('/username', [$userController, 'username'])->name('user.username');
+        Route::get('/userprofile', [$userController, 'userprofile'])->name('user.profile');
+        Route::get('/user', [$userController, 'index'])->name('user.index');
+        Route::post('/user/insert', [$userController, 'store'])->name('user.store');
+        Route::get('/user/search/{id}', [$userController, 'show'])->name('user.search');
+        Route::get('/user/edit/{id}', [$userController, 'edit'])->name('user.edit');
+        Route::put('/user/statusupdate/{id}', [$userController, 'statusupdate'])->name('user.statusupdate');
+        Route::post('/user/update/{id}', [$userController, 'update'])->name('user.update');
+        Route::put('/user/delete/{id}', [$userController, 'destroy'])->name('user.delete');
     });
 
 
@@ -125,137 +134,149 @@ Route::middleware('checkToken')->group(function () {
     });
 
     //bank details route
-    Route::controller(bankdetailsController::class)->group(function () {
-        Route::get('/bank', 'index')->name('bank.index');
-        Route::post('/bank/insert', 'store')->name('bank.store');
-        Route::get('/bank/search/{id}', 'show')->name('bank.search');
-        Route::get('/bank/edit/{id}', 'edit')->name('bank.edit');
-        Route::put('/bank/update/{id}', 'update')->name('bank.update');
-        Route::put('/bank/delete/{id}', 'destroy')->name('bank.delete');
+    $bankdetailsController = getversion('bankdetailsController');
+    Route::group([], function () use ($bankdetailsController) {
+        Route::get('/bank', [$bankdetailsController, 'index'])->name('bank.index');
+        Route::post('/bank/insert', [$bankdetailsController, 'store'])->name('bank.store');
+        Route::get('/bank/search/{id}', [$bankdetailsController, 'show'])->name('bank.search');
+        Route::get('/bank/edit/{id}', [$bankdetailsController, 'edit'])->name('bank.edit');
+        Route::put('/bank/update/{id}', [$bankdetailsController, 'update'])->name('bank.update');
+        Route::put('/bank/delete/{id}', [$bankdetailsController, 'destroy'])->name('bank.delete');
     });
 
+    $invoiceController = getversion('invoiceController');
     //invoice route
-    Route::controller(invoiceController::class)->group(function () {
-        Route::get('/currency', 'currency')->name('invoice.currency');
-        Route::get('/bdetails', 'bdetails')->name('invoice.bankacc');
-        Route::get('/columnname', 'columnname')->name('invoice.columnname');
-        Route::get('/numbercolumnname', 'numbercolumnname')->name('invoice.numbercolumnname');
-        Route::get('/inv_list', 'inv_list')->name('invoice.inv_list');
-        Route::put('/inv_status/{id}', 'status')->name('invoice.status');
-        Route::get('/invoice/{id}', 'index')->name('invoice.index');
-        Route::post('/invoice/insert', 'store')->name('invoice.store');
-        Route::get('/invoice/search/{id}', 'show')->name('invoice.search');
-        Route::get('/invoice/inv_details/{id}', 'inv_details')->name('invoice.inv_details');
-        Route::get('/invoice/edit/{id}', 'edit')->name('invoice.edit');
-        Route::put('/invoice/update/{id}', 'update')->name('invoice.update');
-        Route::put('/invoice/delete/{id}', 'destroy')->name('invoice.delete');
-        Route::get('status_list', 'status_list')->name('invoice.status_list');
-        Route::get('chart', 'monthlyInvoiceChart')->name('invoice.chart');
+    Route::group([], function () use ($invoiceController) {
+        Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
+        Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');
+        Route::get('/columnname', [$invoiceController, 'columnname'])->name('invoice.columnname');
+        Route::get('/numbercolumnname', [$invoiceController, 'numbercolumnname'])->name('invoice.numbercolumnname');
+        Route::get('/inv_list', [$invoiceController, 'inv_list'])->name('invoice.inv_list');
+        Route::put('/inv_status/{id}', [$invoiceController, 'status'])->name('invoice.status');
+        Route::get('/invoice/{id}', [$invoiceController, 'index'])->name('invoice.index');
+        Route::post('/invoice/insert', [$invoiceController, 'store'])->name('invoice.store');
+        Route::get('/invoice/search/{id}', [$invoiceController, 'show'])->name('invoice.search');
+        Route::get('/invoice/inv_details/{id}', [$invoiceController, 'inv_details'])->name('invoice.inv_details');
+        Route::get('/invoice/edit/{id}', [$invoiceController, 'edit'])->name('invoice.edit');
+        Route::put('/invoice/update/{id}', [$invoiceController, 'update'])->name('invoice.update');
+        Route::put('/invoice/delete/{id}', [$invoiceController, 'destroy'])->name('invoice.delete');
+        Route::get('status_list', [$invoiceController, 'status_list'])->name('invoice.status_list');
+        Route::get('chart', [$invoiceController, 'monthlyInvoiceChart'])->name('invoice.chart');
     });
 
     //payment_details route 
-
-    Route::controller(PaymentController::class)->group(function () {
-        Route::post('payment_details', 'store')->name('paymentdetails.store');
-        Route::get('paymentdetail/{id}', 'paymentdetail')->name('paymentdetails.search');
+    $PaymentController = getversion('PaymentController');
+    Route::group([], function () use ($PaymentController) {
+        Route::post('payment_details', [$PaymentController, 'store'])->name('paymentdetails.store');
+        Route::get('paymentdetail/{id}', [$PaymentController, 'paymentdetail'])->name('paymentdetails.search');
     });
 
 
     // purchases route 
-    Route::controller(ApiPurchaseController::class)->group(function () {
-        Route::get('/purchase', 'index')->name('purchase.index');
-        Route::post('/purchase/insert', 'store')->name('purchase.store');
-        Route::get('/purchase/search/{id}', 'show')->name('purchase.search');
-        Route::get('/purchase/edit/{id}', 'edit')->name('purchase.edit');
-        Route::post('/purchase/update/{id}', 'update')->name('purchase.update');
-        Route::put('/purchase/delete/{id}', 'destroy')->name('purchase.delete');
+    $purchaseController = getversion('purchaseController');
+    Route::group([], function () use ($purchaseController) {
+        Route::get('/purchase', [$purchaseController, 'index'])->name('purchase.index');
+        Route::post('/purchase/insert', [$purchaseController, 'store'])->name('purchase.store');
+        Route::get('/purchase/search/{id}', [$purchaseController, 'show'])->name('purchase.search');
+        Route::get('/purchase/edit/{id}', [$purchaseController, 'edit'])->name('purchase.edit');
+        Route::post('/purchase/update/{id}', [$purchaseController, 'update'])->name('purchase.update');
+        Route::put('/purchase/delete/{id}', [$purchaseController, 'destroy'])->name('purchase.delete');
     });
 
     // tbl_invoice_column route 
-    Route::controller(tblinvoicecolumnController::class)->group(function () {
-        Route::get('/formulacolumnlist', 'formula')->name('invoicecolumn.formulacolumnlist');
-        Route::get('/invoicecolumn', 'index')->name('invoicecolumn.index');
-        Route::post('/invoicecolumn/insert', 'store')->name('invoicecolumn.store');
-        Route::post('/invoicecolumn/columnorder', 'columnorder')->name('invoicecolumn.columnorder');
-        Route::get('/invoicecolumn/search/{id}', 'show')->name('invoicecolumn.search');
-        Route::get('/invoicecolumn/edit/{id}', 'edit')->name('invoicecolumn.edit');
-        Route::post('/invoicecolumn/update/{id}', 'update')->name('invoicecolumn.update');
-        Route::put('/invoicecolumn/delete/{id}', 'destroy')->name('invoicecolumn.delete');
-        Route::put('/invoicecolumn/hide/{id}', 'hide')->name('invoicecolumn.hide');
+    $tblinvoicecolumnController = getversion('tblinvoicecolumnController');
+    Route::group([], function () use ($tblinvoicecolumnController) {
+        Route::get('/formulacolumnlist', [$tblinvoicecolumnController, 'formula'])->name('invoicecolumn.formulacolumnlist');
+        Route::get('/invoicecolumn', [$tblinvoicecolumnController, 'index'])->name('invoicecolumn.index');
+        Route::post('/invoicecolumn/insert', [$tblinvoicecolumnController, 'store'])->name('invoicecolumn.store');
+        Route::post('/invoicecolumn/columnorder', [$tblinvoicecolumnController, 'columnorder'])->name('invoicecolumn.columnorder');
+        Route::get('/invoicecolumn/search/{id}', [$tblinvoicecolumnController, 'show'])->name('invoicecolumn.search');
+        Route::get('/invoicecolumn/edit/{id}', [$tblinvoicecolumnController, 'edit'])->name('invoicecolumn.edit');
+        Route::post('/invoicecolumn/update/{id}', [$tblinvoicecolumnController, 'update'])->name('invoicecolumn.update');
+        Route::put('/invoicecolumn/delete/{id}', [$tblinvoicecolumnController, 'destroy'])->name('invoicecolumn.delete');
+        Route::put('/invoicecolumn/hide/{id}', [$tblinvoicecolumnController, 'hide'])->name('invoicecolumn.hide');
     });
 
     // tbl_invoice_formula route 
-    Route::controller(tblinvoiceformulaController::class)->group(function () {
-        Route::get('/invoiceformula', 'index')->name('invoiceformula.index');
-        Route::post('/invoiceformula/insert', 'store')->name('invoiceformula.store');
-        Route::post('/invoiceformula/formulaorder', 'formulaorder')->name('invoiceformula.formulaorder');
-        Route::get('/invoiceformula/search/{id}', 'show')->name('invoiceformula.search');
-        Route::get('/invoiceformula/edit/{id}', 'edit')->name('invoiceformula.edit');
-        Route::post('/invoiceformula/update/{id}', 'update')->name('invoiceformula.update');
-        Route::put('/invoiceformula/delete/{id}', 'destroy')->name('invoiceformula.delete');
+    $tblinvoiceformulaController = getversion('tblinvoiceformulaController');
+    Route::group([], function () use ($tblinvoiceformulaController) {
+        Route::get('/invoiceformula', [$tblinvoiceformulaController, 'index'])->name('invoiceformula.index');
+        Route::post('/invoiceformula/insert', [$tblinvoiceformulaController, 'store'])->name('invoiceformula.store');
+        Route::post('/invoiceformula/formulaorder', [$tblinvoiceformulaController, 'formulaorder'])->name('invoiceformula.formulaorder');
+        Route::get('/invoiceformula/search/{id}', [$tblinvoiceformulaController, 'show'])->name('invoiceformula.search');
+        Route::get('/invoiceformula/edit/{id}', [$tblinvoiceformulaController, 'edit'])->name('invoiceformula.edit');
+        Route::post('/invoiceformula/update/{id}', [$tblinvoiceformulaController, 'update'])->name('invoiceformula.update');
+        Route::put('/invoiceformula/delete/{id}', [$tblinvoiceformulaController, 'destroy'])->name('invoiceformula.delete');
     });
 
     // lead route 
-    Route::controller(tblleadController::class)->group(function () {
-        Route::get('/lead', 'index')->name('lead.index');
-        Route::post('/lead/insert', 'store')->name('lead.store');
-        Route::get('/lead/sourcecolumn', 'sourcevalue')->name('lead.sourcecolumn');
-        Route::get('/lead/search/{id}', 'show')->name('lead.search');
-        Route::get('/lead/edit/{id}', 'edit')->name('lead.edit');
-        Route::post('/lead/update/{id}', 'update')->name('lead.update');
-        Route::put('/lead/delete', 'destroy')->name('lead.delete');
-        Route::put('/lead/changestatus', 'changestatus')->name('lead.changestatus');
-        Route::put('/lead/changeleadstage', 'changeleadstage')->name('lead.changeleadstage');
+    $tblleadController = getversion('tblleadController');
+    Route::group([], function () use ($tblleadController) {
+        Route::get('/leadstatusname', [$tblleadController, 'leadstatusname'])->name('lead.leadstatusname');
+        Route::get('/leadstagename', [$tblleadController, 'leadstagename'])->name('lead.leadstagename');
+        Route::get('/lead', [$tblleadController, 'index'])->name('lead.index');
+        Route::post('/lead/insert', [$tblleadController, 'store'])->name('lead.store');
+        Route::get('/lead/sourcecolumn', [$tblleadController, 'sourcevalue'])->name('lead.sourcecolumn');
+        Route::get('/lead/search/{id}', [$tblleadController, 'show'])->name('lead.search');
+        Route::get('/lead/edit/{id}', [$tblleadController, 'edit'])->name('lead.edit');
+        Route::post('/lead/update/{id}', [$tblleadController, 'update'])->name('lead.update');
+        Route::put('/lead/delete', [$tblleadController, 'destroy'])->name('lead.delete');
+        Route::put('/lead/changestatus', [$tblleadController, 'changestatus'])->name('lead.changestatus');
+        Route::put('/lead/changeleadstage', [$tblleadController, 'changeleadstage'])->name('lead.changeleadstage');
     });
 
     // lead call history route
-    Route::controller(tblleadhistoryController::class)->group(function () {
-        Route::get('/leadhistory', 'index')->name('leadhistory.index');
-        Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
-        Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
-        Route::get('/leadhistory/edit/{id}', 'edit')->name('leadhistory.edit');
-        Route::post('/leadhistory/update/{id}', 'update')->name('leadhistory.update');
-        Route::put('/leadhistory/delete', 'destroy')->name('leadhistory.delete');
+    $tblleadhistoryController = getversion('tblleadhistoryController');
+    Route::group([], function () use ($tblleadhistoryController) {
+        Route::get('/leadhistory', [$tblleadhistoryController, 'index'])->name('leadhistory.index');
+        Route::post('/leadhistory/insert', [$tblleadhistoryController, 'store'])->name('leadhistory.store');
+        Route::get('/leadhistory/search/{id}', [$tblleadhistoryController, 'show'])->name('leadhistory.search');
+        Route::get('/leadhistory/edit/{id}', [$tblleadhistoryController, 'edit'])->name('leadhistory.edit');
+        Route::post('/leadhistory/update/{id}', [$tblleadhistoryController, 'update'])->name('leadhistory.update');
+        Route::put('/leadhistory/delete', [$tblleadhistoryController, 'destroy'])->name('leadhistory.delete');
     });
 
     // customer suppport route 
-    Route::controller(customersupportController::class)->group(function () {
-        Route::get('/customersupport', 'index')->name('customersupport.index');
-        Route::post('/customersupport/insert', 'store')->name('customersupport.store');
-        Route::get('/customersupport/search/{id}', 'show')->name('customersupport.search');
-        Route::get('/customersupport/edit/{id}', 'edit')->name('customersupport.edit');
-        Route::post('/customersupport/update/{id}', 'update')->name('customersupport.update');
-        Route::put('/customersupport/delete', 'destroy')->name('customersupport.delete');
-        Route::put('/customersupport/changestatus', 'changestatus')->name('customersupport.changestatus');
-        Route::put('/customersupport/changeleadstage', 'changeleadstage')->name('customersupport.changeleadstage');
+    $customersupportController = getversion('customersupportController');
+    Route::group([], function () use ($customersupportController) {
+        Route::get('/customersupport', [$customersupportController, 'index'])->name('customersupport.index');
+        Route::post('/customersupport/insert', [$customersupportController, 'store'])->name('customersupport.store');
+        Route::get('/customersupport/search/{id}', [$customersupportController, 'show'])->name('customersupport.search');
+        Route::get('/customersupport/edit/{id}', [$customersupportController, 'edit'])->name('customersupport.edit');
+        Route::post('/customersupport/update/{id}', [$customersupportController, 'update'])->name('customersupport.update');
+        Route::put('/customersupport/delete', [$customersupportController, 'destroy'])->name('customersupport.delete');
+        Route::put('/customersupport/changestatus', [$customersupportController, 'changestatus'])->name('customersupport.changestatus');
+        Route::put('/customersupport/changeleadstage', [$customersupportController, 'changeleadstage'])->name('customersupport.changeleadstage');
     });
 
     // customer support call history route
-    Route::controller(customersupporthistoryController::class)->group(function () {
-        Route::get('/customersupporthistory', 'index')->name('customersupporthistory.index');
-        Route::post('/customersupporthistory/insert', 'store')->name('customersupporthistory.store');
-        Route::get('/customersupporthistory/search/{id}', 'show')->name('customersupporthistory.search');
-        Route::get('/customersupporthistory/edit/{id}', 'edit')->name('customersupporthistory.edit');
-        Route::post('/customersupporthistory/update/{id}', 'update')->name('customersupporthistory.update');
-        Route::put('/customersupporthistory/delete', 'destroy')->name('customersupporthistory.delete');
+    $customersupporthistoryController = getversion('customersupporthistoryController');
+    Route::group([], function () use ($customersupporthistoryController) {
+        Route::get('/customersupporthistory', [$customersupporthistoryController, 'index'])->name('customersupporthistory.index');
+        Route::post('/customersupporthistory/insert', [$customersupporthistoryController, 'store'])->name('customersupporthistory.store');
+        Route::get('/customersupporthistory/search/{id}', [$customersupporthistoryController, 'show'])->name('customersupporthistory.search');
+        Route::get('/customersupporthistory/edit/{id}', [$customersupporthistoryController, 'edit'])->name('customersupporthistory.edit');
+        Route::post('/customersupporthistory/update/{id}', [$customersupporthistoryController, 'update'])->name('customersupporthistory.update');
+        Route::put('/customersupporthistory/delete', [$customersupporthistoryController, 'destroy'])->name('customersupporthistory.delete');
     });
 
     //common controller route
-
-    Route::controller(commonController::class)->group(function () {
-        Route::get('/getdbname/{id}', 'dbname')->name('getdbanme');
+    $commonController = getversion('commonController');
+    Route::group([], function () use ($commonController) {
+        Route::get('/getdbname/{id}', [$commonController, 'dbname'])->name('getdbanme');
     });
 
-    Route::controller(tblinvoiceothersettingController::class)->group(function () {
-        Route::get('/getoverduedays', 'getoverduedays')->name('getoverduedays.index');
-        Route::post('/getoverduedays/update/{id}', 'overduedayupdate')->name('getoverduedays.update');
-        Route::get('/termsandconditions', 'termsandconditionsindex')->name('termsandconditions.index');
-        Route::post('/termsandconditions/insert', 'invoicetcstore')->name('termsandconditions.store');
-        Route::get('/termsandconditions/edit/{id}', 'tcedit')->name('termsandconditions.edit');
-        Route::post('/termsandconditions/update/{id}', 'tcupdate')->name('termsandconditions.update');
-        Route::put('/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('termsandconditions.statusupdate');
-        Route::put('/termsandconditions/delete/{id}', 'tcdestroy')->name('termsandconditions.delete');
-   
+    $tblinvoiceothersettingController = getversion('tblinvoiceothersettingController');
+    Route::group([], function () use ($tblinvoiceothersettingController) {
+        Route::get('/getoverduedays', [$tblinvoiceothersettingController, 'getoverduedays'])->name('getoverduedays.index');
+        Route::post('/getoverduedays/update/{id}', [$tblinvoiceothersettingController, 'overduedayupdate'])->name('getoverduedays.update');
+        Route::get('/termsandconditions', [$tblinvoiceothersettingController, 'termsandconditionsindex'])->name('termsandconditions.index');
+        Route::post('/termsandconditions/insert', [$tblinvoiceothersettingController, 'invoicetcstore'])->name('termsandconditions.store');
+        Route::get('/termsandconditions/edit/{id}', [$tblinvoiceothersettingController, 'tcedit'])->name('termsandconditions.edit');
+        Route::post('/termsandconditions/update/{id}', [$tblinvoiceothersettingController, 'tcupdate'])->name('termsandconditions.update');
+        Route::put('/termsandconditions/statusupdate/{id}', [$tblinvoiceothersettingController, 'tcstatusupdate'])->name('termsandconditions.statusupdate');
+        Route::put('/termsandconditions/delete/{id}', [$tblinvoiceothersettingController, 'tcdestroy'])->name('termsandconditions.delete');
+
     });
 
 });

@@ -10,10 +10,21 @@ use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
+
+    public $version;
+    public function __construct()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+        $this->version = $_SESSION['folder_name'];
+
+
+    }
+
     public function index()
     {
 
-        return view('admin.index');
+        return view($this->version.'.admin.index');
     }
 
 
@@ -36,8 +47,11 @@ class HomeController extends Controller
             'menu',
             'lead',
             'customersupport',
-            'user_permissions'
+            'user_permissions',
+            'folder_name'
         ]);
+        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+        session_destroy();
         Auth::guard('admin')->logout();
 
         return redirect()->route('admin.login');
@@ -56,8 +70,12 @@ class HomeController extends Controller
             'invoice',
             'menu',
             'lead',
-            'user_permissions'
+            'customersupport',
+            'user_permissions',
+            'folder_name'
         ]);
+        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+        session_destroy();
         Auth::guard('admin')->logout();
 
         return redirect()->route('admin.login')->with('unauthorized','You are already logged in on a different device');

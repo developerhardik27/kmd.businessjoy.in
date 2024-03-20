@@ -41,8 +41,6 @@ class AdminLoginController extends Controller
                     $admin = Auth::guard('admin')->user();
                     $api_token = Str::random(60);
 
-
-
                     DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]);
 
                     if ((($admin->role == 1) or ($admin->role == 2)) && ($admin->is_active == 1)) {
@@ -97,14 +95,17 @@ class AdminLoginController extends Controller
                             }
 
                         }
+                     
                         $request->session()->put([
                             'admin_role' => $admin->role,
                             'company_id' => $admin->company_id,
                             'user_id' => $admin->id,
                             'name' => $admin->firstname . ' ' . $admin->lastname,
                             'api_token' => $api_token,
-                        ]);
-
+                            'folder_name' => $dbname->app_version,
+                    ]);
+                    if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+                        $_SESSION['folder_name'] = session('folder_name');
                         return redirect()->route('admin.welcome');
                     } else {
                         Auth::guard('admin')->logout();

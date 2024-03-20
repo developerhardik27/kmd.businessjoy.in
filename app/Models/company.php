@@ -14,6 +14,7 @@ class company extends Model
     protected $fillable = [
        'company_details_id',
        'dbname',
+       'app_version',
        'created_by',
        'updated_by',
        'created_at',
