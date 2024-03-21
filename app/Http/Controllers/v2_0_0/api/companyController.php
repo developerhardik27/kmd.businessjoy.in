@@ -600,7 +600,7 @@ class companyController extends commonController
                 $company = DB::table('company')->insertGetId([
                     'company_details_id' => $company_details_id,
                     'dbname' => $dbName,
-                    'app_version' => session('folder_name'),
+                    'app_version' => $_SESSION['folder_name'],
                     'created_by' => $this->userId,
                 ]);
 

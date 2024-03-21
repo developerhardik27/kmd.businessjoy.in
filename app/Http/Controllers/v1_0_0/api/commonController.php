@@ -4,7 +4,6 @@ namespace App\Http\Controllers\v1_0_0\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\company;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class commonController extends Controller

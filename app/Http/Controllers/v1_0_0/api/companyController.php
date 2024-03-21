@@ -175,7 +175,6 @@ class companyController extends commonController
     public function store(Request $request)
     {
 
-
         $validator = Validator::make($request->all(), [
 
             'name' => 'required|string|max:50',
@@ -600,7 +599,7 @@ class companyController extends commonController
                 $company = DB::table('company')->insertGetId([
                     'company_details_id' => $company_details_id,
                     'dbname' => $dbName,
-                    'app_version' => session('folder_name'),
+                    'app_version' => $_SESSION['folder_name'],
                     'created_by' => $this->userId,
                 ]);
 
