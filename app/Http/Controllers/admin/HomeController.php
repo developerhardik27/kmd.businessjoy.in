@@ -16,7 +16,12 @@ class HomeController extends Controller
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
-        $this->version = $_SESSION['folder_name'];
+
+            if(isset($_SESSION['folder_name'])){
+                $this->version = $_SESSION['folder_name'];
+            }else{
+                $this->version = "v1_0_0";
+            }
 
 
     }

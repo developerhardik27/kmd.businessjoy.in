@@ -14,11 +14,11 @@ use App\Models\company;
 class userController extends commonController
 {
 
-    public $db, $companyId, $userId, $rp, $masterdbname,$user_permissionModel;
+    public $db, $companyId, $userId, $rp, $masterdbname, $user_permissionModel;
     public function __construct(Request $request)
     {
 
-        if (isset($request->company_id)) {
+        if (isset ($request->company_id)) {
             $dbname = company::find($request->company_id);
         } else {
             $dbname = company::find(1);
@@ -39,7 +39,7 @@ class userController extends commonController
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
         $this->rp = json_decode($permissions[0]['rp'], true);
-        
+
         $this->user_permissionModel = $this->getmodel('user_permission');
 
     }
@@ -302,8 +302,8 @@ class userController extends commonController
             ->where('users.id', $id)->get();
 
 
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
+        if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
+            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"

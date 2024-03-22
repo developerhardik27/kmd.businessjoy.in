@@ -123,7 +123,7 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/StoreNewUser', [$UserController, 'store'])->name('admin.storeuser')->middleware('checkPermission:invoicemodule,user,add');
             Route::get('/SearchUser/{id}', [$UserController, 'show'])->name('admin.searchuser')->middleware('checkPermission:invoicemodule,user,view');
             Route::get('/EditUser/{id}', [$UserController, 'edit'])->name('admin.edituser')->middleware('checkPermission:invoicemodule,user,edit');
-            Route::get('/EditUserdetail/{id}', [$UserController, 'edit'])->name('admin.edituserdetail')->middleware('checkPermission:invoicemodule,user,edit');
+            Route::get('/EditUserdetail/{id}', [$UserController, 'edituser'])->name('admin.edituserdetail')->middleware('checkPermission:invoicemodule,user,edit');
             Route::get('/userprofile/{id}', [$UserController, 'profile'])->name('admin.userprofile');
             Route::put('/UpdateUser/{id}', [$UserController, 'update'])->name('admin.updateuser')->middleware('checkPermission:invoicemodule,user,edit');
             Route::put('/DeleteUser/{id}', [$UserController, 'destroy'])->name('admin.deleteuser')->middleware('checkPermission:invoicemodule,user,delete');

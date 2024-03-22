@@ -6,6 +6,7 @@ use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\mailcontroller;
 use App\Http\Controllers\api\stateController;
 use App\Models\company;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +31,8 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 // middleware route group 
 
 $request = request();
-$version = $request->company_id ? company::find($request->company_id) : null;
+$user = User::find($request->user_id);
+$version = $user ? company::find($user->company_id) : null;
 $versionexplode = $version ? $version->app_version : "v1_0_0"; // Default version is 1 if company not found
 
 $middlewareNamespace = 'App\\Http\\Middleware\\' . $versionexplode . '\\';
@@ -43,9 +45,9 @@ Route::middleware($middleware)->group(function () {
     function getversion($controller)
     {
         $request = request();
-        $version = $request->company_id ? company::find($request->company_id) : null;
+        $user = User::find($request->user_id);
+        $version = $user ? company::find($user->company_id) : null;
         $versionexplode = $version ? $version->app_version : "v1_0_0";
-
         return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
     // Default version is 1 if company not found

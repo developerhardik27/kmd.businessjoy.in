@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1_0_0\api;
 
 use App\Mail\sendmail;
 use App\Models\company;
+use App\Models\User;
 use App\Models\company_detail;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ use Illuminate\Support\Str;
 
 class companyController extends commonController
 {
-    public $userId, $companyId, $rp,$invoice_other_settingModel,$user_permissionModel;
+    public $userId, $companyId, $rp,$user,$invoice_other_settingModel,$user_permissionModel;
     public function __construct(Request $request)
     {
 
@@ -31,7 +32,8 @@ class companyController extends commonController
             $this->userId = $request->user_id;
         }
 
-        $dbname = company::find($this->companyId);
+        $this->user = User::find($this->userId);
+        $dbname = company::find($this->user->company_id);
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
         // Establish connection to the dynamic database
@@ -73,17 +75,23 @@ class companyController extends commonController
 
     public function companyprofile(Request $request)
     {
-
-        $companyId = $request->input('company_id');
-
         $company = DB::table('company')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
             ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'country.country_name', 'state.state_name', 'city.city_name')
-            ->where('company.id', $companyId)
+            ->where('company.id', $this->companyId)
             ->get();
+
+
+         $user = User::find($this->userId);   
+        if (($this->rp['invoicemodule']['company']['alldata'] != 1) && $this->companyId != $user->company_id) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized!'
+            ]);
+        }
 
         if ($this->rp['invoicemodule']['company']['view'] != 1) {
             return response()->json([

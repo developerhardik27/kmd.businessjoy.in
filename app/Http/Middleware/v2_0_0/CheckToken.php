@@ -29,9 +29,9 @@ class CheckToken
             return response()->json(['error' => 'Invalid token'], 401);
         }
 
-        //  if ($request->ajax()) {
-        //     return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-        //  }
+         if (!$request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+         }
        
         return $next($request);
     }

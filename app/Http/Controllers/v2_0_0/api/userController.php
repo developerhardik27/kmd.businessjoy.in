@@ -13,11 +13,11 @@ use App\Models\company;
 class userController extends commonController
 {
 
-    public $db, $companyId, $userId, $rp, $masterdbname,$user_permissionModel;
+    public $db, $companyId, $userId, $rp, $masterdbname, $user_permissionModel;
     public function __construct(Request $request)
     {
 
-        if (isset($request->company_id)) {
+        if (isset ($request->company_id)) {
             $dbname = company::find($request->company_id);
         } else {
             $dbname = company::find(1);
@@ -75,8 +75,8 @@ class userController extends commonController
             ->get();
 
 
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
+            if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
+                if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"
@@ -258,7 +258,7 @@ class userController extends commonController
             $users = User::insertgetId($user);
 
             if ($users) {
-                $userrp =  $this->user_permissionModel::create([
+                $userrp = $this->user_permissionModel::create([
                     'user_id' => $users,
                     'rp' => $rpjson
                 ]);
@@ -298,9 +298,8 @@ class userController extends commonController
             ->select('users.*', 'user_permissions.rp')
             ->where('users.id', $id)->get();
 
-
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
+        if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
+            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"
@@ -332,8 +331,8 @@ class userController extends commonController
     public function edit(string $id)
     {
         $users = User::find($id);
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-            if ($users->created_by != $this->userId) {
+        if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($users->company_id != $this->companyId)) {
+            if ($users->created_by != $this->userId && $users->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"
@@ -469,7 +468,7 @@ class userController extends commonController
                             'message' => 'user succesfully updated'
                         ]);
                     } else {
-                        $searchuserrp =  $this->user_permissionModel::where('user_id', $id)->first();
+                        $searchuserrp = $this->user_permissionModel::where('user_id', $id)->first();
                         if ($searchuserrp) {
                             $rpupdate = $searchuserrp->update([
                                 "rp" => $rpjson
@@ -515,8 +514,8 @@ class userController extends commonController
     public function destroy(string $id)
     {
         $users = User::find($id);
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-            if ($users->created_by != $this->userId) {
+        if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($users->company_id != $this->companyId)) {
+            if ($users->created_by != $this->userId && $users->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"
@@ -550,8 +549,8 @@ class userController extends commonController
     public function statusupdate(Request $request, string $id)
     {
         $user = User::find($id);
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-            if ($user->created_by != $this->userId) {
+        if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($user->company_id != $this->companyId)) {
+            if ($user->created_by != $this->userId && $user->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"

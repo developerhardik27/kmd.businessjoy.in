@@ -613,7 +613,7 @@
 
                     if (response.status == 200 && response.user != '') {
                         var user = response.user[0];
-                        var rp = JSON.parse(user.rp);
+                        var rp = JSON.parse(user.rp); // user role and permissions
                         $.each(rp, function(key, value) {
                             $.each(value, function(key2, value2) {
                                 $.each(value2, function(key3, value3) {

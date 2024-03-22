@@ -54,6 +54,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
+    
         $user = User::findOrFail($id);
         $this->authorize('view', $user);
 
@@ -65,7 +66,6 @@ class UserController extends Controller
     }
     public function edituser(string $id)
     {
-
         $user = User::findOrFail($id);
         $this->authorize('view', $user);
 
