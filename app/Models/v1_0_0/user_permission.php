@@ -15,7 +15,8 @@ class user_permission extends Model
 
     protected $fillable = [
         "user_id",
-        "rp"
+        "rp",
+        "created_by",
     ];
 
     public function user()

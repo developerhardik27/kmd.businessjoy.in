@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 @section('page_title')
     {{ config('app.name') }} - Add New Purchase
 @endsection
@@ -20,12 +20,12 @@
                         placeholder="token" required />
                     <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
                     <input type="hidden" value="{{ $company_id }}" name="company_id" class="form-control">
-                    <label for="name">Name</label>
+                    <label for="name">Name</label><span style="color:red;">*</span>
                     <input type="text" id="name" name='name' class="form-control" placeholder="Name" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="description">Description</label>
+                    <label for="description">Description</label><span style="color:red;">*</span>
                     <textarea class="form-control" required name='description' id="description" rows="1"></textarea>
                     <span class="error-msg" id="error-description" style="color: red"></span>
                 </div>
@@ -34,13 +34,13 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="exampleInputEmail3">Amount</label>
-                    <input type="text" name='amount' class="form-control" id="exampleInputEmail3" value=""
+                    <label for="amount">Amount</label><span style="color:red;">*</span>
+                    <input type="text" name='amount' class="form-control" id="amount" value=""
                         placeholder="Amount" required />
                     <span class="error-msg" id="error-amount" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="amount_type">Select Amount Type</label>
+                    <label for="amount_type">Select Amount Type</label><span style="color:red;">*</span>
                     <select id="amount_type" class="form-control" name='amount_type' required>
                         <option selected="" disabled="">Select Amount Type</option>
                         <option value="gst">GST</option>
@@ -53,22 +53,25 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="date">Date</label>
+                    <label for="date">Date</label><span style="color:red;">*</span>
                     <input type="date" name='date' class="form-control" required />
                     <span class="error-msg" id="error-date" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">Image</label><br>
-                    <input type="file" name="img" id="" width="100%" />
+                    <label for="img">Image</label><br>
+                    <input type="file" name="img" id="img" width="100%" />
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
             </div>
         </div>
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                 </div>
+            </div>
+         </div>
     </form>
 @endsection
 
@@ -95,33 +98,35 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.purchase') }}";
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
-
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

@@ -19,6 +19,8 @@ class invoice extends Model
         'customer_id',
         'notes',
         'total',
+        'sgst',
+        'cgst',
         'gst',
         'grand_total',
         'currency_id',

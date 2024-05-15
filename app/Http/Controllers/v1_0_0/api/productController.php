@@ -38,14 +38,14 @@ class productController extends commonController
             ->select('products.id', 'products.name', 'products.description', 'products.product_code', 'products.unit', 'products.price_per_unit', 'company_details.name as company_name', 'products.created_by', 'products.updated_by', 'products.created_at', 'products.updated_at', 'products.is_active', 'products.is_deleted')
             ->where('products.is_deleted', 0)->where('products.is_active', 1);
 
-        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+        if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             $productres->where('products.created_by', $this->userId);
         }
 
         $product = $productres->get();
 
         // condition for check if user has permission to view records
-        if ($this->rp['invoicemodule']['product']['view'] != 1) {
+        if ($this->rp['inventorymodule']['product']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -101,7 +101,7 @@ class productController extends commonController
         } else {
 
             // condition for check if user has permission to add new records
-            if ($this->rp['invoicemodule']['product']['add'] != 1) {
+            if ($this->rp['inventorymodule']['product']['add'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized'
@@ -139,7 +139,7 @@ class productController extends commonController
     {
         $product = $this->productModel::find($id);
 
-        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+        if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             if ($product->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -148,7 +148,7 @@ class productController extends commonController
             }
         }
         //condition for check if user has permission to search record
-        if ($this->rp['invoicemodule']['product']['view'] != 1) {
+        if ($this->rp['inventorymodule']['product']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => "You are Unauthorized!"
@@ -174,7 +174,7 @@ class productController extends commonController
     {
         $product = $this->productModel::find($id);
 
-        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+        if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             if ($product->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -183,7 +183,7 @@ class productController extends commonController
             }
         }
         //condition for check if user has permission to edit record
-        if ($this->rp['invoicemodule']['product']['edit'] != 1) {
+        if ($this->rp['inventorymodule']['product']['edit'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => "You are Unauthorized!"
@@ -230,7 +230,7 @@ class productController extends commonController
         } else {
             $product = $this->productModel::find($id);
 
-            if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+            if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
                 if ($product->created_by != $this->userId) {
                     return response()->json([
                         'status' => 500,
@@ -239,7 +239,7 @@ class productController extends commonController
                 }
             }
             //condition for check if user has permission to edit record
-            if ($this->rp['invoicemodule']['product']['edit'] != 1) {
+            if ($this->rp['inventorymodule']['product']['edit'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"
@@ -276,7 +276,7 @@ class productController extends commonController
     public function destroy(string $id)
     {
         $product = $this->productModel::find($id);
-        if ($this->rp['invoicemodule']['product']['alldata'] != 1) {
+        if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             if ($product->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -285,7 +285,7 @@ class productController extends commonController
             }
         }
         //condition for check if user has permission to delete record
-        if ($this->rp['invoicemodule']['product']['delete'] != 1) {
+        if ($this->rp['inventorymodule']['product']['delete'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => "You are Unauthorized!"

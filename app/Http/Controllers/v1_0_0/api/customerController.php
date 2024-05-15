@@ -118,7 +118,7 @@ class customerController extends commonController
             'lastname' => 'required|string|max:50',
             'company_name' => 'required|string|max:50',
             'email' => 'required|email|max:50',
-            'pincode' => 'required|numeric|digits:6',
+            'pincode' => 'required|numeric',
             'contact_number' => 'required|numeric|digits:10',
             'address' => 'required|string|max:191',
             'country' => 'required|numeric',
@@ -154,13 +154,13 @@ class customerController extends commonController
                     'gst_no' => $request->gst_number,
                     'company_id' => $this->companyId,
                     'created_by' => $this->userId,
-    
                 ]);
     
                 if ($customer) {
                     return response()->json([
                         'status' => 200,
-                        'customer' => $customer
+                        'customer' => $customer,
+                        'message' => 'customer succesfully added'
                     ], 200);
                 } else {
                     return response()->json([
@@ -262,7 +262,7 @@ class customerController extends commonController
             'country' => 'required|numeric',
             'state' => 'required|numeric',
             'city' => 'required|numeric',
-            'pincode' => 'required|numeric|digits:6',
+            'pincode' => 'required|numeric',
             'gst_number' => 'nullable|alpha_num|max:50',
             'created_by',
             'user_id' => 'required|numeric',

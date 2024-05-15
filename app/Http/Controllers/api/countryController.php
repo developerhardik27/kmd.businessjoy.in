@@ -14,7 +14,7 @@ class countryController extends Controller
      */
     public function index()
     {   
-        $country = country::all()->where('is_deleted', 0)->where('is_active', 1);
+        $country = country::all();
 
         if ($country->count() > 0) {
             return response()->json([

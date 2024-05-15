@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\v1_0_0\api;
 
 
+use App\Mail\sendmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\company;
-
+use Illuminate\Support\Str;
 
 class userController extends commonController
 {
@@ -18,7 +20,7 @@ class userController extends commonController
     public function __construct(Request $request)
     {
 
-        if (isset ($request->company_id)) {
+        if (isset($request->company_id)) {
             $dbname = company::find($request->company_id);
         } else {
             $dbname = company::find(1);
@@ -78,7 +80,7 @@ class userController extends commonController
             ->get();
 
 
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -86,7 +88,7 @@ class userController extends commonController
                 ]);
             }
         }
-        if ($this->rp['invoicemodule']['user']['view'] != 1) {
+        if ($this->rp['adminmodule']['user']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized!'
@@ -105,41 +107,147 @@ class userController extends commonController
             ]);
         }
     }
+
+    public function customersupportuser()
+    {
+        $usersres = DB::table('users')
+            ->join('country', 'users.country_id', '=', 'country.id')
+            ->join('state', 'users.state_id', '=', 'state.id')
+            ->join('city', 'users.city_id', '=', 'city.id')
+            ->join('company', 'users.company_id', '=', 'company.id')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->join('user_role', 'users.role', '=', 'user_role.id')
+            ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
+            ->where('users.is_deleted', 0)
+            ->where($this->db . '.user_permissions.rp', 'LIKE', '%"customersupport":{"show":"1","add":"1"%');
+
+        if ($this->companyId != 1) {
+            $users = $usersres->where('users.company_id', $this->companyId);
+        }
+
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
+            $usersres->where('users.created_by', $this->userId)->orWhere('users.id', $this->userId);
+        }
+
+        $users = $usersres->get();
+
+
+        if ($users->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'user' => $users
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'user' => 'No Records Found'
+            ]);
+        }
+    }
+
+    public function leaduser()
+    {
+        $usersres = DB::table('users')
+            ->join('country', 'users.country_id', '=', 'country.id')
+            ->join('state', 'users.state_id', '=', 'state.id')
+            ->join('city', 'users.city_id', '=', 'city.id')
+            ->join('company', 'users.company_id', '=', 'company.id')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->join('user_role', 'users.role', '=', 'user_role.id')
+            ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
+            ->where('users.is_deleted', 0)
+            ->where($this->db . '.user_permissions.rp', 'LIKE', '%"lead":{"show":"1","add":"1"%');
+
+        if ($this->companyId != 1) {
+            $users = $usersres->where('users.company_id', $this->companyId);
+        }
+
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
+            $usersres->where('users.created_by', $this->userId)->orWhere('users.id', $this->userId);
+        }
+
+        $users = $usersres->get();
+
+        if ($users->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'user' => $users
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'user' => 'No Records Found'
+            ]);
+        }
+    }
+    public function techsupportuser()
+    {
+
+        $usersres = DB::table('users')
+            ->join('country', 'users.country_id', '=', 'country.id')
+            ->join('state', 'users.state_id', '=', 'state.id')
+            ->join('city', 'users.city_id', '=', 'city.id')
+            ->join('company', 'users.company_id', '=', 'company.id')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->join('user_role', 'users.role', '=', 'user_role.id')
+            ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
+            ->where('users.is_deleted', 0)
+            ->where($this->db . '.user_permissions.rp', 'LIKE', '%"techsupport":{"show":"1","add":"1","view":"1","edit":"1"%');
+
+        if ($this->companyId != 1) {
+            $users = $usersres->where('users.company_id', $this->companyId);
+        }
+
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
+            $usersres->where('users.created_by', $this->userId)->orWhere('users.id', $this->userId);
+        }
+
+        $users = $usersres->get();
+
+        if ($users->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'user' => $users
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'user' => 'No Records Found'
+            ]);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
 
-        if ($this->companyId == 1) {
-            $users = DB::table('users')
-                ->join('country', 'users.country_id', '=', 'country.id')
-                ->join('state', 'users.state_id', '=', 'state.id')
-                ->join('city', 'users.city_id', '=', 'city.id')
-                ->join('company', 'users.company_id', '=', 'company.id')
-                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->join('user_role', 'users.role', '=', 'user_role.id')
-                ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
-                ->where('users.is_deleted', 0)->get();
-        } else {
-            $usersres = DB::table('users')
-                ->join('country', 'users.country_id', '=', 'country.id')
-                ->join('state', 'users.state_id', '=', 'state.id')
-                ->join('city', 'users.city_id', '=', 'city.id')
-                ->join('company', 'users.company_id', '=', 'company.id')
-                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->join('user_role', 'users.role', '=', 'user_role.id')
-                ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
-                ->where('users.is_deleted', 0)->where('users.company_id', $this->companyId);
+        $usersres = DB::table('users')
+            ->join('country', 'users.country_id', '=', 'country.id')
+            ->join('state', 'users.state_id', '=', 'state.id')
+            ->join('city', 'users.city_id', '=', 'city.id')
+            ->join('company', 'users.company_id', '=', 'company.id')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->join('user_role', 'users.role', '=', 'user_role.id')
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
+            ->where('users.is_deleted', 0);
 
-            if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
-                $usersres->where('users.created_by', $this->userId);
-            }
-
-            $users = $usersres->get();
+        if ($this->companyId != 1) {
+            $users = $usersres->where('users.company_id', $this->companyId);
         }
 
-        if ($this->rp['invoicemodule']['user']['view'] != 1) {
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
+            $usersres->where('users.created_by', $this->userId)->orWhere('users.id', $this->userId);
+        }
+
+        $users = $usersres->get();
+
+
+        if ($this->rp['adminmodule']['user']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -173,16 +281,29 @@ class userController extends commonController
     public function store(Request $request)
     {
 
+        $company = company::find($this->companyId);
+        $user = User::where('company_id', '=', $company->id)->get();
+
+        $companymaxuser = $company->max_users;
+
+
+        if ($user->count() >= $companymaxuser) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are reached your limits to create user'
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
             'email' => 'required|email|max:50',
-            'password' => 'required|string|max:70',
+            'password' => 'nullable|string|max:70',
             'contact_number' => 'required|numeric|digits:10',
             'country' => 'required|numeric',
             'state' => 'required|numeric',
             'city' => 'required|numeric',
-            'pincode' => 'required|numeric|digits:6',
+            'pincode' => 'required|numeric',
             'company_id' => 'required|numeric',
             'user_id' => 'required|numeric',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -197,9 +318,9 @@ class userController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ], 422);
         } else {
-            if ($this->rp['invoicemodule']['user']['add'] != 1) {
+            if ($this->rp['adminmodule']['user']['add'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized'
@@ -211,24 +332,35 @@ class userController extends commonController
                     "mngcol" => ["show" => $request->showmngcolmenu, "add" => $request->addmngcol, "view" => $request->viewmngcol, "edit" => $request->editmngcol, "delete" => $request->deletemngcol, "alldata" => $request->alldatamngcol],
                     "formula" => ["show" => $request->showformulamenu, "add" => $request->addformula, "view" => $request->viewformula, "edit" => $request->editformula, "delete" => $request->deleteformula, "alldata" => $request->alldataformula],
                     "invoicesetting" => ["show" => $request->showinvoicesettingmenu, "add" => $request->addinvoicesetting, "view" => $request->viewinvoicesetting, "edit" => $request->editinvoicesetting, "delete" => $request->deleteinvoicesetting, "alldata" => $request->alldatainvoicesetting],
-                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany, "alldata" => $request->alldatacompany],
                     "bank" => ["show" => $request->showbankmenu, "add" => $request->addbank, "view" => $request->viewbank, "edit" => $request->editbank, "delete" => $request->deletebank, "alldata" => $request->alldatabank],
-                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser, "alldata" => $request->alldatauser],
                     "customer" => ["show" => $request->showcustomermenu, "add" => $request->addcustomer, "view" => $request->viewcustomer, "edit" => $request->editcustomer, "delete" => $request->deletecustomer, "alldata" => $request->alldatacustomer],
-                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct, "alldata" => $request->alldataproduct],
-                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase, "alldata" => $request->alldatapurchase]
                 ],
                 "leadmodule" => [
                     "lead" => ["show" => $request->showleadmenu, "add" => $request->addlead, "view" => $request->viewlead, "edit" => $request->editlead, "delete" => $request->deletelead, "alldata" => $request->alldatalead]
                 ],
                 "customersupportmodule" => [
                     "customersupport" => ["show" => $request->showcustomersupportmenu, "add" => $request->addcustomersupport, "view" => $request->viewcustomersupport, "edit" => $request->editcustomersupport, "delete" => $request->deletecustomersupport, "alldata" => $request->alldatacustomersupport]
+                ],
+                "adminmodule" => [
+                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany, "alldata" => $request->alldatacompany],
+                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser, "alldata" => $request->alldatauser, "max" => $request->maxuser],
+                    "techsupport" => ["show" => $request->showtechsupportmenu, "add" => $request->addtechsupport, "view" => $request->viewtechsupport, "edit" => $request->edittechsupport, "delete" => $request->deletetechsupport, "alldata" => $request->alldatatechsupport]
+                ],
+                "inventorymodule" => [
+                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct, "alldata" => $request->alldataproduct]
+                ],
+                "accountmodule" => [
+                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase, "alldata" => $request->alldatapurchase]
+                ],
+                "remindermodule" => [
+                    "reminder" => ["show" => $request->showremindermenu, "add" => $request->addreminder, "view" => $request->viewreminder, "edit" => $request->editreminder, "delete" => $request->deletereminder, "alldata" => $request->alldatareminder],
+                    "remindercustomer" => ["show" => $request->showremindercustomermenu, "add" => $request->addremindercustomer, "view" => $request->viewremindercustomer, "edit" => $request->editremindercustomer, "delete" => $request->deleteremindercustomer, "alldata" => $request->alldataremindercustomer]
                 ]
             ];
 
             $rpjson = json_encode($rp);
 
-
+            $passwordtoken = str::random(40);
             $userdata = [];
             if ($request->hasFile('img') && $request->hasFile('img') != '') {
                 $image = $request->file('img');
@@ -254,6 +386,7 @@ class userController extends commonController
                 'state_id' => $request->state,
                 'city_id' => $request->city,
                 'pincode' => $request->pincode,
+                'pass_token'=> $passwordtoken,
                 'company_id' => $this->companyId,
                 'created_by' => $this->userId
             ]);
@@ -263,10 +396,13 @@ class userController extends commonController
             if ($users) {
                 $userrp = $this->user_permissionModel::create([
                     'user_id' => $users,
-                    'rp' => $rpjson
+                    'rp' => $rpjson,
+                    'created_by' => $this->userId
                 ]);
 
                 if ($userrp) {
+                     $name = $request->firstname . ' ' . $request->lastname ;
+                    Mail::to($request->email)->bcc('parthdeveloper9@gmail.com')->send(new sendmail($passwordtoken, $name,$request->email));
                     return response()->json([
                         'status' => 200,
                         'message' => 'user succesfully created'
@@ -302,7 +438,7 @@ class userController extends commonController
             ->where('users.id', $id)->get();
 
 
-        if (($this->rp['invoicemodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
+        if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
             if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
                 return response()->json([
                     'status' => 500,
@@ -310,7 +446,7 @@ class userController extends commonController
                 ]);
             }
         }
-        if ($this->rp['invoicemodule']['user']['view'] != 1) {
+        if ($this->rp['adminmodule']['user']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -335,7 +471,7 @@ class userController extends commonController
     public function edit(string $id)
     {
         $users = User::find($id);
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($users->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -343,7 +479,7 @@ class userController extends commonController
                 ]);
             }
         }
-        if ($this->rp['invoicemodule']['user']['edit'] != 1) {
+        if ($this->rp['adminmodule']['user']['edit'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -377,7 +513,7 @@ class userController extends commonController
             'country' => 'required|numeric',
             'state' => 'required|numeric',
             'city' => 'required|numeric',
-            'pincode' => 'required|numeric|digits:6',
+            'pincode' => 'required|numeric',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'created_by',
             'user_id' => 'required|numeric',
@@ -391,10 +527,10 @@ class userController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ], 422);
         } else {
 
-            if ($this->rp['invoicemodule']['user']['edit'] != 1) {
+            if ($this->rp['adminmodule']['user']['edit'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized'
@@ -415,18 +551,29 @@ class userController extends commonController
                     "mngcol" => ["show" => $request->showmngcolmenu, "add" => $request->addmngcol, "view" => $request->viewmngcol, "edit" => $request->editmngcol, "delete" => $request->deletemngcol, "alldata" => $request->alldatamngcol],
                     "formula" => ["show" => $request->showformulamenu, "add" => $request->addformula, "view" => $request->viewformula, "edit" => $request->editformula, "delete" => $request->deleteformula, "alldata" => $request->alldataformula],
                     "invoicesetting" => ["show" => $request->showinvoicesettingmenu, "add" => $request->addinvoicesetting, "view" => $request->viewinvoicesetting, "edit" => $request->editinvoicesetting, "delete" => $request->deleteinvoicesetting, "alldata" => $request->alldatainvoicesetting],
-                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany, "alldata" => $request->alldatacompany],
                     "bank" => ["show" => $request->showbankmenu, "add" => $request->addbank, "view" => $request->viewbank, "edit" => $request->editbank, "delete" => $request->deletebank, "alldata" => $request->alldatabank],
-                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser, "alldata" => $request->alldatauser],
                     "customer" => ["show" => $request->showcustomermenu, "add" => $request->addcustomer, "view" => $request->viewcustomer, "edit" => $request->editcustomer, "delete" => $request->deletecustomer, "alldata" => $request->alldatacustomer],
-                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct, "alldata" => $request->alldataproduct],
-                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase, "alldata" => $request->alldatapurchase]
                 ],
                 "leadmodule" => [
                     "lead" => ["show" => $request->showleadmenu, "add" => $request->addlead, "view" => $request->viewlead, "edit" => $request->editlead, "delete" => $request->deletelead, "alldata" => $request->alldatalead]
                 ],
                 "customersupportmodule" => [
                     "customersupport" => ["show" => $request->showcustomersupportmenu, "add" => $request->addcustomersupport, "view" => $request->viewcustomersupport, "edit" => $request->editcustomersupport, "delete" => $request->deletecustomersupport, "alldata" => $request->alldatacustomersupport]
+                ],
+                "adminmodule" => [
+                    "company" => ["show" => $request->showcompanymenu, "add" => $request->addcompany, "view" => $request->viewcompany, "edit" => $request->editcompany, "delete" => $request->deletecompany, "alldata" => $request->alldatacompany],
+                    "user" => ["show" => $request->showusermenu, "add" => $request->adduser, "view" => $request->viewuser, "edit" => $request->edituser, "delete" => $request->deleteuser, "alldata" => $request->alldatauser, "max" => $request->maxuser],
+                    "techsupport" => ["show" => $request->showtechsupportmenu, "add" => $request->addtechsupport, "view" => $request->viewtechsupport, "edit" => $request->edittechsupport, "delete" => $request->deletetechsupport, "alldata" => $request->alldatatechsupport]
+                ],
+                "inventorymodule" => [
+                    "product" => ["show" => $request->showproductmenu, "add" => $request->addproduct, "view" => $request->viewproduct, "edit" => $request->editproduct, "delete" => $request->deleteproduct, "alldata" => $request->alldataproduct]
+                ],
+                "accountmodule" => [
+                    "purchase" => ["show" => $request->showpurchasemenu, "add" => $request->addpurchase, "view" => $request->viewpurchase, "edit" => $request->editpurchase, "delete" => $request->deletepurchase, "alldata" => $request->alldatapurchase]
+                ],
+                "remindermodule" => [
+                    "reminder" => ["show" => $request->showremindermenu, "add" => $request->addreminder, "view" => $request->viewreminder, "edit" => $request->editreminder, "delete" => $request->deletereminder, "alldata" => $request->alldatareminder],
+                    "remindercustomer" => ["show" => $request->showremindercustomermenu, "add" => $request->addremindercustomer, "view" => $request->viewremindercustomer, "edit" => $request->editremindercustomer, "delete" => $request->deleteremindercustomer, "alldata" => $request->alldataremindercustomer]
                 ]
             ];
 
@@ -518,7 +665,7 @@ class userController extends commonController
     public function destroy(string $id)
     {
         $users = User::find($id);
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($users->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -526,7 +673,7 @@ class userController extends commonController
                 ]);
             }
         }
-        if ($this->rp['invoicemodule']['user']['delete'] != 1) {
+        if ($this->rp['adminmodule']['user']['delete'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -553,7 +700,7 @@ class userController extends commonController
     public function statusupdate(Request $request, string $id)
     {
         $user = User::find($id);
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($user->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -561,7 +708,7 @@ class userController extends commonController
                 ]);
             }
         }
-        if ($this->rp['invoicemodule']['user']['edit'] != 1) {
+        if ($this->rp['adminmodule']['user']['edit'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'

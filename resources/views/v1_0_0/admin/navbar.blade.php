@@ -1,5 +1,4 @@
         <!-- TOP Nav Bar -->
-
         <div class="iq-top-navbar">
             <div class="iq-navbar-custom">
                 <div class="iq-sidebar-logo">
@@ -20,27 +19,113 @@
                         <ul id="topbar-data-icon" class="d-flex p-0 topbar-menu-icon">
                             <li class="nav-item">
                                 <a href="{{ route('admin.index') }}"
-                                    class="nav-link font-weight-bold search-box-toggle"><i
-                                        class="ri-home-4-line"></i></a>
+                                    class="nav-link font-weight-bold search-box-toggle">
+                                    <i class="ri-home-4-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Dashboard"></i>
+                                </a>
                             </li>
-                            @if (session('user_permissions.invoicemodule.invoice.show') == '1')
-                                <li><a href="{{ route('admin.invoice') }}" class="nav-link"> <i
-                                            class="ri-file-list-line"></i></a></li>
+                            @if (session('menu') == 'invoice')
+                                @if (session('user_permissions.invoicemodule.invoice.show') == '1')
+                                    <li>
+                                        <a href="{{ route('admin.invoice') }}" class="nav-link">
+                                            <i class="ri-file-list-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Invoice List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if (session('user_permissions.invoicemodule.bank.show') == '1')
+                                    <li>
+                                        <a href="{{ route('admin.bank') }}" class="nav-link">
+                                            <i class="ri-bank-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Bank Account List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if (session('user_permissions.invoicemodule.customer.show') == '1')
+                                    <li>
+                                        <a href="{{ route('admin.customer') }}" class="nav-link">
+                                            <i class="ri-group-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Customers List"></i>
+                                        </a>
+                                    </li>
+                                @endif
                             @endif
-                            @if (session('user_permissions.invoicemodule.product.show') == '1')
-                                <li><a href="{{ route('admin.product') }}" class="nav-link"> <i
-                                            class="ri-product-hunt-line"></i></a></li>
+                            @if (session('menu') == 'inventory')
+                                @if (session('user_permissions.inventorymodule.product.show') == '1')
+                                    <li>
+                                        <a href="{{ route('admin.product') }}" class="nav-link">
+                                            <i class="ri-product-hunt-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Products List"></i>
+                                        </a>
+                                    </li>
+                                @endif
                             @endif
-                            @if (session('user_permissions.invoicemodule.purchase.show') == '1')
-                                <li><a href="{{ route('admin.purchase') }}"
-                                        class="nav-link router-link-exact-active router-link-active"><i
-                                            class="ri-bank-card-2-line"></i></a></li>
+                            @if (session('menu') == 'account')
+                                @if (session('user_permissions.accountmodule.purchase.show') == '1')
+                                    <li>
+                                        <a href="{{ route('admin.purchase') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-bank-card-2-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Purchases List" title="Purchases List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endif
+                            @if (session('menu') == 'lead')
+                                @if (session('user_permissions.leadmodule.lead.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.lead') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-globe-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Leads List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endif
+                            @if (session('menu') == 'Customer support')
+                                @if (session('user_permissions.customersupportmodule.customersupport.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.customersupport') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-customer-service-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Customer Support Complain List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endif
+                            @if (session('menu') == 'admin')
+                                @if (session('user_permissions.adminmodule.company.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.company') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-government-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Companies List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if (session('user_permissions.adminmodule.user.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.user') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-user-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Users List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endif
+                            @if (session('menu') == 'reminder')
+                                @if (session('user_permissions.remindermodule.reminder.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.reminder') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-alarm-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Reminders List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if (session('user_permissions.remindermodule.remindercustomer.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.remindercustomer') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-customer-service-2-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Customers List"></i>
+                                        </a>
+                                    </li>
+                                @endif
                             @endif
                         </ul>
                         <div class="iq-search-bar d-none d-md-block">
                             <form action="" class="searchbox">
                                 <input type="text" name="search" class="text search-input"
-                                    placeholder="Type here to search " required>
+                                    placeholder="Type here to search {{ session('menu') }} data" required>
                                 <a href="" class="search-link "> <i class="ri-search-line"></i> </a>
                             </form>
                         </div>
@@ -52,8 +137,12 @@
                     </button>
                     <div class="iq-menu-bt align-self-center">
                         <div class="wrapper-menu">
-                            <div class="main-circle"><i class="ri-arrow-left-s-line"></i></div>
-                            <div class="hover-circle"><i class="ri-arrow-right-s-line"></i></div>
+                            <div class="main-circle">
+                                <i class="ri-menu-fill" data-toggle="tooltip" data-placement="bottom" data-original-title="Menu"></i>
+                            </div>
+                            <div class="hover-circle">
+                                <i class="ri-menu-fill" data-toggle="tooltip" data-placement="bottom" data-original-title="Menu"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -70,11 +159,27 @@
                                     @endif
                                     @if (Session::has('lead') && Session::get('lead') == 'yes')
                                         <a class="iq-sub-card changemenu" href="#" data-value="lead"> <i
-                                                class="ri-globe-fill"></i> Lead</a>
+                                                class="ri-globe-line"></i> Lead</a>
                                     @endif
                                     @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
                                         <a class="iq-sub-card changemenu" href="#" data-value="Customer support">
-                                            <i class="ri-customer-service-fill"></i> Customer Support</a>
+                                            <i class="ri-customer-service-line"></i> Customer Support</a>
+                                    @endif
+                                    @if (Session::has('admin') && Session::get('admin') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="admin">
+                                            <i class="ri-admin-line"></i> Admin</a>
+                                    @endif
+                                    @if (Session::has('account') && Session::get('account') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="account">
+                                            <i class="ri-calculator-line"></i> Account</a>
+                                    @endif
+                                    @if (Session::has('inventory') && Session::get('inventory') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="inventory">
+                                            <i class="ri-list-check-2"></i> Inventory</a>
+                                    @endif
+                                    @if (Session::has('reminder') && Session::get('reminder') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="reminder">
+                                            <i class="ri-alarm-line"></i> Reminder</a>
                                     @endif
                                 </div>
                             </li>
@@ -109,7 +214,7 @@
                                                 </div>
                                             </div>
                                         </a>
-                                        @if (session('user_permissions.invoicemodule.company.show') == '1')
+                                        @if (session('user_permissions.adminmodule.company.show') == '1')
                                             <a href="{{ route('admin.companyprofile', ['id' => Session::get('company_id')]) }}"
                                                 class="iq-sub-card iq-bg-primary-hover">
                                                 <div class="media align-items-center">
@@ -124,6 +229,10 @@
                                             </a>
                                         @endif
                                         <div class="d-inline-block w-100 text-center p-3">
+                                            <a style="color: white !important"
+                                                class="btn btn-primary dark-btn-primary"
+                                                href=" {{ route('admin.techsupport') }}" role="button">My Ticket<i
+                                                    class="ri-question-line ml-1"></i></a>
                                             <a style="color: white !important"
                                                 class="btn btn-primary dark-btn-primary"
                                                 href=" {{ route('admin.logout') }}" role="button">Sign out<i

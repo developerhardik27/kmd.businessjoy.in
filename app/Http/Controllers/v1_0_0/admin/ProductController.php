@@ -13,9 +13,9 @@ class ProductController extends Controller
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
-        $this->version = $_SESSION['folder_name'];
 
         if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
             $this->productmodel = 'App\\Models\\' . $this->version . "\\product";
         } else {
             $this->productmodel = 'App\\Models\\v1_0_0\\product';
@@ -25,10 +25,15 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if (isset($request->search)) {
+            $search = $request->search;
+        } else {
+            $search = '';
+        }
 
-        return view($this->version . '.admin.product');
+        return view($this->version . '.admin.product', ["search" => $search]);
     }
 
     /**
@@ -62,10 +67,10 @@ class ProductController extends Controller
     public function edit(string $id)
     {
 
-        $product = $this->productmodel::findOrFail($id);
-        $this->authorize('view', $product);
+        // $product = $this->productmodel::findOrFail($id);
+        // $this->authorize('view', $product);
 
-        return view($this->version. '.admin.productupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
+        return view($this->version . '.admin.productupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
 
     /**

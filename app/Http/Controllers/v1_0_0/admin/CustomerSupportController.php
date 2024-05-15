@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 class CustomerSupportController extends Controller
 {
 
-    public $version,$customersupportModel;
+    public $version, $customersupportModel;
     public function __construct()
     {
-        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->version =  $_SESSION['folder_name'];
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
         if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
             $this->customersupportModel = 'App\\Models\\' . $this->version . "\\customersupporthistory";
         } else {
             $this->customersupportModel = 'App\\Models\\v1_0_0\\customersupporthistory';
@@ -24,12 +25,12 @@ class CustomerSupportController extends Controller
      */
     public function index(Request $request)
     {
-        if(isset($request->search)){
+        if (isset($request->search)) {
             $search = $request->search;
-        } else{
+        } else {
             $search = '';
         }
-        return view($this->version.'.admin.customersupport',['search' => $search]);
+        return view($this->version . '.admin.customersupport', ['search' => $search]);
     }
 
     /**
@@ -37,7 +38,7 @@ class CustomerSupportController extends Controller
      */
     public function create()
     {
-        return view($this->version.'.admin.customersupportform');
+        return view($this->version . '.admin.customersupportform');
     }
 
     /**
@@ -61,7 +62,7 @@ class CustomerSupportController extends Controller
      */
     public function edit(string $id)
     {
-        return view($this->version.'.admin.customersupportupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.customersupportupdateform', ['edit_id' => $id]);
     }
 
     /**

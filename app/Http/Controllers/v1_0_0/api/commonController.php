@@ -41,7 +41,6 @@ class commonController extends Controller
             return 'App\\Models\\' . $version . "\\" . $model ;
         } else {
             return 'App\\Models\\v1_0_0\\' . $model;
-    
         }
     }
 }

@@ -1,9 +1,9 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 @section('page_title')
-{{ config('app.name') }} - Customers
+    {{ config('app.name') }} - Customers
 @endsection
 @section('table_title')
     Customers
@@ -51,7 +51,7 @@
     @endsection
 @endif
 @section('table-content')
-    <table id="data" class="table display table-bordered table-responsive-md table-striped text-center">
+    <table id="data" class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -74,7 +74,7 @@
     <script>
         $('document').ready(function() {
 
-              // companyId and userId both are required in every ajax request for all action *************
+            // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
@@ -94,7 +94,6 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.customer != '') {
-                            loaderhide();
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
@@ -155,15 +154,22 @@
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
-                            loaderhide();
+                            $('#data').append(`<tr><td colspan='8' >No Data Found</td></tr>`);
                         }
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
                         loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -186,7 +192,6 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
@@ -194,11 +199,23 @@
                                 );
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -220,7 +237,6 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
@@ -228,11 +244,23 @@
                                 );
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -254,13 +282,25 @@
                             user_id: "{{ session()->get('user_id') }}",
                         },
                         success: function(response) {
+                            loaderhide();
                             if (response.status == 200) {
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             }
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -272,12 +312,50 @@
                 var data = $(this).data('view');
                 $.each(global_response.customer, function(key, customer) {
                     if (customer.id == data) {
-                        $.each(customer, function(fields, value) {
-                            $('#details').append(`<tr>
-                                    <th>${fields}</th>       
-                                    <td>${value}</td>
-                                    </tr>`)
-                        })
+                        
+                            $('#details').append(`
+                                <tr>
+                                    <th>Customer Company Name</th>       
+                                    <td>${customer.company_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Customer Name</th>       
+                                    <td>${customer.firstname} ${customer.lastname}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>       
+                                    <td>${customer.email}</td>
+                                </tr>
+                                <tr>
+                                    <th>Contact Number</th>       
+                                    <td>${customer.contact_no}</td>
+                                </tr>
+                                <tr>
+                                    <th>GST Number</th>       
+                                    <td>${customer.gst_no}</td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>       
+                                    <td>${customer.address}</td>
+                                </tr>
+                                <tr>
+                                    <th>Pincode</th>       
+                                    <td>${customer.pincode}</td>
+                                </tr>
+                                <tr>
+                                    <th>City</th>       
+                                    <td>${customer.city_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>State</th>       
+                                    <td>${customer.state_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Country</th>       
+                                    <td>${customer.country_name}</td>
+                                </tr>
+                            `);
+                    
 
                     }
                 });

@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 @section('page_title')
     {{ config('app.name') }} - Update Customer
 @endsection
@@ -22,13 +22,13 @@
                         placeholder="updated_by">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id"
                         placeholder="company_id">
-                    <label for="firstname">FirstName</label>
+                    <label for="firstname">FirstName</label><span style="color:red;">*</span>
                     <input type="text" id="firstname" class="form-control" name='firstname' placeholder="First name"
                         required>
                     <span class="error-msg" id="error-firstname" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="lastname">LastName</label>
+                    <label for="lastname">LastName</label><span style="color:red;">*</span>
                     <input type="text" id="lastname" class="form-control" name='lastname' placeholder="Last name"
                         required>
                     <span class="error-msg" id="error-lastname" style="color: red"></span>
@@ -38,7 +38,7 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="company_name">Company Name</label>
+                    <label for="company_name">Company Name</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name='company_name' id="company_name" value=""
                         placeholder="Company name" required>
                     <span class="error-msg" id="error-company_name" style="color: red"></span>
@@ -54,67 +54,71 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="email">Email</label>
+                    <label for="email">Email</label><span style="color:red;">*</span>
                     <input type="email" class="form-control" name="email" id="email" value=""
                         placeholder="Enter Email" required>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="contact_no">Contact Number</label>
+                    <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
                     <input type="tel" class="form-control" name='contact_number' id="contact_no" value=""
                         placeholder="0123456789" required>
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
-                        <label for="country">Select Country</label>
-                        <select class="form-control" name='country' id="country" required>
-                            <option selected="" disabled="">Select your Country</option>
-                        </select>
-                        <span class="error-msg" id="error-country" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6">
-                        <label for="state">Select State</label>
-                        <select class="form-control" name='state' id="state" required>
-                            <option selected="" disabled="">Select your State</option>
-                        </select>
-                        <span class="error-msg" id="error-state" style="color: red"></span>
-                    </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label for="country">Select Country</label><span style="color:red;">*</span>
+                    <select class="form-control" name='country' id="country" required>
+                        <option selected="" disabled="">Select your Country</option>
+                    </select>
+                    <span class="error-msg" id="error-country" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label for="state">Select State</label><span style="color:red;">*</span>
+                    <select class="form-control" name='state' id="state" required>
+                        <option selected="" disabled="">Select your State</option>
+                    </select>
+                    <span class="error-msg" id="error-state" style="color: red"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
-                        <label for="city">Select City</label>
-                        <select class="form-control" name='city' id="city" required>
-                            <option selected="" disabled="">Select your City</option>
-                        </select>
-                        <span class="error-msg" id="error-city" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6">
-                        <label for="pincode">Pincode</label>
-                        <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
-                            required>
-                        <span class="error-msg" id="error-pincode" style="color: red"></span>
-                    </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label for="city">Select City</label><span style="color:red;">*</span>
+                    <select class="form-control" name='city' id="city" required>
+                        <option selected="" disabled="">Select your City</option>
+                    </select>
+                    <span class="error-msg" id="error-city" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label for="pincode">Pincode</label><span style="color:red;">*</span>
+                    <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
+                        required>
+                    <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-12">
-                        <label for="address">Address</label>
-                        <textarea class="form-control" name='address' id="address" rows="2" required></textarea>
-                        <span class="error-msg" id="error-address" style="color: red"></span>
-                    </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
+                    <label for="address">Address</label><span style="color:red;">*</span>
+                    <textarea class="form-control" name='address' id="address" rows="2" required></textarea>
+                    <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
             </div>
-            <div class="button-container">
-                <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-                <div id="loader" class="loader"></div>
-                <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                 </div>
             </div>
+         </div>
     </form>
 @endsection
 
@@ -153,12 +157,10 @@
                         city = response.customer.city_id;
                         loadstate(country, state);
                         loadcity(state, city);
-                        loaderhide();
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     }
-
+                    loaderhide();
                 },
                 error: function(error) {
                     loaderhide();
@@ -252,7 +254,7 @@
             // load state data of selected country when country change
             $('#country').on('change', function() {
                 loadershow();
-                // var country = $(this).val();
+                var country = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
                     type: 'GET',
@@ -262,7 +264,6 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
-                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.state, function(key, value) {
                                 $('#state').append(
@@ -270,11 +271,9 @@
                                 )
                             })
                         } else {
-                            loaderhide();
                             $('#state').append(`<option disabled> No Data Found</option>`);
                         }
-
-
+                        loaderhide();
                     },
                     error: function(error) {
                         loaderhide();
@@ -296,19 +295,15 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
-                            loaderhide();
                             $.each(response.city, function(key, value) {
                                 $('#city').append(
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
-
                             });
                         } else {
-                            loaderhide();
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }
-
-
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
                     error: function(error) {
@@ -331,32 +326,35 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.customer') }}";
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

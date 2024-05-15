@@ -1,6 +1,11 @@
 @php
     $folder = session('folder_name');
 @endphp
+<style>
+    #details th ,  td {
+        text-transform: none !important;
+    }
+</style>
 
 @include($folder.'.admin.header')
 @include($folder.'.admin.sidebar')
@@ -24,7 +29,6 @@
                                 </a>
                             </div>
                         </div>
-                        
                     </div>
                     <div class="row">
                         @yield('advancefilter')
@@ -54,7 +58,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <table id="details" width='100%' class="table table-bordered table-responsive-md table-striped">
+                <table id="details" width='100%'  class="table table-bordered table-responsive-md table-striped">
                 </table>
             </div>
             <div class="modal-footer" >

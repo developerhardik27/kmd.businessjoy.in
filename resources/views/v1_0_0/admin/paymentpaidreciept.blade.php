@@ -52,7 +52,6 @@
     <div class="container">
         <table width='100%' cellspacing=0 cellpadding=0>
             <tr>
-
                 <td colspan="4" class=" textblue firstrow cname" style="text-align:center ">
                     <input type="text" value='PAYMENT RECEIPT' class="bottom-border-input" style="width: 100%">
                 </td>
@@ -64,9 +63,10 @@
                     <span style="display:block;">{{ $companydetails['city_name'] }},
                         {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
                     <span style="display:block;">Email: {{ $companydetails['email'] }}</span>
-                    <span><b>GSTIN No: {{ $companydetails['gst_no'] }}</b></span>
-
-
+                    <span style="display:block;">Contact: {{ $companydetails['contact_no'] }}</span>
+                    @if (isset($companydetails['gst_no']))
+                        <span><b>GSTIN No: {{ $companydetails['gst_no'] }}</b></span>
+                    @endif
                 </td>
                 <td style="text-align:center " colspan="2">
                     <span class=" textblue firstrow cname" style="display:block;" id="">Bill To</span>
@@ -78,7 +78,6 @@
                     <span>{{ $invdata['contact_no'] }}</span><br><br>
                 </td>
             </tr>
-
             <br>
             <tr>
                 <td style="text-align: "><b>Payment Date</b></td>
@@ -128,10 +127,8 @@
                 </td>
                 <td style="text-align: center" colspan="2">
                     <div style="display: inline-block;">
-                        <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
-                        @else
-                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}" @endif
-                            class="rounded mt-auto mx-auto d-block" alt="logo" height="100px">
+                        <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
+                            class="rounded mt-auto mx-auto d-block" alt="signature" height="100px">
                     </div>
                 </td>
             </tr>

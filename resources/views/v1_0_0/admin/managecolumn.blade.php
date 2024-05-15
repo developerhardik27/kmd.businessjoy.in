@@ -1,21 +1,20 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 
 @section('page_title')
-{{ config('app.name') }} -  Manage Columns
+    {{ config('app.name') }} - Manage Columns
 @endsection
 @section('title')
     Manage Columns
 @endsection
 
-
 @section('form-content')
     <form id="columnform" name="columnform">
         @csrf
         <div class="form-group">
-            <div class="form-row">
+            <div id="newColForm" class="form-row d-none">
                 <div class="col-sm-5">
                     <input type="hidden" name="token" id="token" value="{{ session('api_token') }}">
                     <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
@@ -39,30 +38,37 @@
                     <span class="error-msg" id="error-column_type" style="color: red"></span>
                 </div>
                 <div class="col-sm-2 mt--2">
-                    <button type="submit" class="btn btn-primary" id="submitBtn"><i class="ri-check-line"></i></button>
-                    <div id="loader" class="loader"></div>
-                    <button id="resetbtn" type="reset" class="btn iq-bg-danger"><i class="ri-refresh-line"></i></button>
+                    <button type="submit" class="btn btn-primary"><i class="ri-check-line"></i></button>
+                    <button type="reset" class="btn iq-bg-danger"><i class="ri-refresh-line"></i></button>
+                </div>
+            </div>
+            <div id="newColBtnDiv" class="form-row ">
+                <div class="col-sm-12">
+                    <button type="btn" id="newColBtn" class="btn btn-primary">+ Add New Column</button>
                 </div>
             </div>
         </div>
 
     </form>
     <hr>
-    <table id="data" class="table  table-bordered display table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
         <thead>
             <tr>
                 <th>Sr</th>
                 <th>Column Name</th>
                 <th>Column Type</th>
-                <th>Order</th>
+                <th>Sequence</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody id="tabledata">
         </tbody>
         <tr>
-            <td colspan="5">
-                <button class="btn btn-sm btn-primary savecolumnorder float-right" title="Save column order"><i
+            <td colspan="3" style="border:none;">
+            </td>
+            <td class="text-center" style="border-left: none">
+                <button class="btn btn-sm btn-primary savecolumnorder" title="Save column order"><i
                         class="ri-check-line"></i></button>
             </td>
         </tr>
@@ -78,13 +84,26 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-           // validation for column name
+
+            @isset($message)
+                alert('Required minimum one column to create invoice. Kindly, Create your columns');
+            @endisset
+
+
+            $('#newColBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#newColForm').removeClass('d-none');
+                $('#newColBtnDiv').addClass('d-none');
+            })
+
+            // validation for column name
             $('#column_name').on('input', function() {
                 var name = $(this).val();
-                var filteredName = name.replace(/[^A-Za-z_ ]/g, ''); // Remove any characters not in the allowed set
+                var filteredName = name.replace(/[^A-Za-z_ ]/g,
+                    ''); // Remove any characters not in the allowed set
                 $(this).val(filteredName); // Update the input value with the filtered name
             });
-            
+
 
             // fetch column name and append into column list table
             function loaddata() {
@@ -101,7 +120,6 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.invoicecolumn != '') {
-                            loaderhide();
                             global_response = response;
                             var id = 1;
                             $.each(response.invoicecolumn, function(key, value) {
@@ -109,23 +127,23 @@
                                                         <td>${id}</td>
                                                         <td>${value.column_name}</td>
                                                         <td>${value.column_type}</td>
-                                                        <td><input type='text' placeholder='Set Coumn Order' data-id='${value.id}' value=${value.column_order} class='columnorder'></td>
+                                                        <td><input type='text' oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Order' data-id='${value.id}' value="${value.column_order}" class='columnorder'></td>
                                                         <td>
                                                             <span>
                                                                 <button type="button" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'
-                                                                     class="btn hide-btn btn-outline-${(value.is_hide == 0 )? "info" : "danger"} btn-rounded btn-sm my-0">
+                                                                     class="btn hide-btn btn-outline-${(value.is_hide == 0 )? "info" : "danger"} btn-rounded btn-sm my-1">
                                                                     ${(value.is_hide == 0 )? "Show" : "Hide"}
                                                                 </button>
                                                             </span>
                                                             <span>
                                                                 <button type="button" data-id='${value.id}'
-                                                                     class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
+                                                                     class="btn edit-btn iq-bg-success btn-rounded btn-sm my-1">
                                                                     <i class="ri-edit-fill"></i>
                                                                 </button>
                                                             </span>
                                                             <span>
                                                                 <button type="button" data-id= '${value.id}'
-                                                                    class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
+                                                                    class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -135,11 +153,10 @@
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
                     error: function(error) {
@@ -152,7 +169,7 @@
             //call function for loaddata
             loaddata();
 
-           // hide column will be not show into invoice its use for only calculation
+            // hide column will be not show into invoice its use for only calculation
             $(document).on("click", '.hide-btn', function() {
                 hidevalue = $(this).val();
                 var columnid = $(this).data('id');
@@ -171,15 +188,13 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                loaderhide();
                                 loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error(response.message);
-                                loaderhide();
                             }
+                            loaderhide();
                         },
                         error: function(error) {
                             loaderhide();
@@ -188,7 +203,7 @@
                     });
                 }
             });
-            
+
 
             // edit column if it is not used for any invoice
             $(document).on("click", ".edit-btn", function() {
@@ -196,6 +211,8 @@
                     loadershow();
                     $('#column_name').prop('readonly', true);
                     var editid = $(this).data('id');
+                    $('#newColForm').removeClass('d-none');
+                    $('#newColBtnDiv').addClass('d-none');
                     $.ajax({
                         type: 'get',
                         url: '/api/invoicecolumn/edit/' + editid,
@@ -207,17 +224,16 @@
                         success: function(response) {
                             if (response.status == 200 && response.invoicecolumn != '') {
                                 var invoicecolumndata = response.invoicecolumn;
-                                loaderhide();
                                 $('#updated_by').val("{{ session()->get('user_id') }}");
                                 $('#edit_id').val(editid);
                                 $('#column_name').val(invoicecolumndata.column_name);
                                 $('#column_type').val(invoicecolumndata.column_type);
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error(response.message);
                             }
+                            loaderhide();
                         },
                         error: function(error) {
                             $('#column_name').prop('readonly', false);
@@ -227,7 +243,7 @@
                     });
                 }
             });
-            
+
 
             // delete column if it is not has data of any invoice
             $(document).on("click", ".del-btn", function() {
@@ -246,15 +262,13 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error(response.message);
-                                loaderhide();
                             }
+                            loaderhide();
                         },
                         error: function(error) {
                             loaderhide();
@@ -286,15 +300,13 @@
                     success: function(response) {
                         if (response.status == 200) {
                             toastr.success(response.message);
-                            loaderhide();
                             loaddata();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             toastr.error(response.message);
-                            loaderhide();
                         }
+                        loaderhide();
                     },
                     error: function(error) {
                         loaderhide();
@@ -303,7 +315,7 @@
                 });
             });
 
-           // add or edit column form submit
+            // add or edit column form submit
             $('#columnform').submit(function(e) {
                 e.preventDefault();
                 loadershow();
@@ -318,41 +330,37 @@
                             $('#column_name').prop('readonly', false);
                             if (response.status == 200) {
                                 $('#edit_id').val('');
-                                loaderhide();
+                                $('#newColForm').addClass('d-none');
+                                $('#newColBtnDiv').removeClass('d-none');
                                 // You can perform additional actions, such as showing a success message or redirecting the user
                                 toastr.success(response.message);
                                 $('#columnform')[0].reset();
-
                                 loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
-                            } else if (response.status == 422) {
-                                loaderhide();
-                                $('.error-msg').text('');
-                                $.each(response.errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
                             } else {
-                                loaderhide();
-
                                 toastr.error(response.message);
                             }
-
-                        },
-                        error: function(xhr, status, error) {
                             loaderhide();
-                            // Handle error response and display validation errors
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
                             if (xhr.status === 422) {
                                 var errors = xhr.responseJSON.errors;
                                 $.each(errors, function(key, value) {
                                     $('#error-' + key).text(value[0]);
                                 });
                             } else {
-                                loaderhide();
-                                toastr.error(
-                                    'An error occurred while processing your request. Please try again later.'
-                                );
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                toastr.error(errorMessage);
                             }
                         }
 
@@ -365,40 +373,42 @@
                         data: columndata,
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
+                                $('#newColForm').addClass('d-none');
+                                $('#newColBtnDiv').removeClass('d-none');
                                 // You can perform additional actions, such as showing a success message or redirecting the user
                                 toastr.success(response.message);
                                 $('#columnform')[0].reset();
                                 loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else if (response.status == 422) {
-                                loaderhide();
                                 $('.error-msg').text('');
                                 $.each(response.errors, function(key, value) {
                                     $('#error-' + key).text(value[0]);
                                 });
                             } else {
-                                loaderhide();
-
                                 toastr.error(response.message);
                             }
-
-                        },
-                        error: function(xhr, status, error) {
                             loaderhide();
-                            // Handle error response and display validation errors
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
                             if (xhr.status === 422) {
                                 var errors = xhr.responseJSON.errors;
                                 $.each(errors, function(key, value) {
                                     $('#error-' + key).text(value[0]);
                                 });
                             } else {
-                                loaderhide();
-                                toastr.error(
-                                    'An error occurred while processing your request. Please try again later.'
-                                );
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                toastr.error(errorMessage);
                             }
                         }
 

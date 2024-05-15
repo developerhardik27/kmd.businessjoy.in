@@ -83,6 +83,12 @@
         .note-editing-area .card-block {
             display: block !important;
         }
+        .multiselect-container {
+            width: 300px;
+            max-height: 300px;
+            overflow: auto;
+            /* Set your desired width here */
+        }
     </style>
    
     @yield('style')

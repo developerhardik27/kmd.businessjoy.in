@@ -42,6 +42,7 @@
 
                         <li class="iq-menu-title"><i class="ri-subtract-line"></i><span>Apps</span></li>
                         <!-- <li><a href="todo.html" class="iq-waves-effect" aria-expanded="false"><i class="ri-chat-check-line"></i><span>Todo</span></a></li> -->
+
                         @if (Session::has('menu') && Session::get('menu') == 'invoice')
                             @if (session('user_permissions.invoicemodule.invoice.show') == '1')
                                 <li
@@ -49,10 +50,6 @@
                                         request()->routeIs(
                                             'admin.invoice',
                                             'admin.addinvoice',
-                                            'admin.invoicesettings',
-                                            'admin.managecolumn',
-                                            'admin.formula',
-                                            'admin.othersettings'
                                         )
                                             ? 'active'
                                             : '',
@@ -77,83 +74,63 @@
                                                 </a>
                                             </li>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.invoicesetting.show') == '1' 
-                                            || session('user_permissions.invoicemodule.mngcol.show') == '1'
-                                            || session('user_permissions.invoicemodule.formula.show') == '1'
-                                        )
-                                            <li
-                                                class="{{ implode(' ', [
-                                                    request()->routeIs( 
-                                                        'admin.invoicesettings',
-                                                        'admin.managecolumn',
-                                                        'admin.formula',
-                                                        'admin.othersettings'
-                                                    )
-                                                        ? 'active'
-                                                        : '',
-                                                ]) }}">
-                                                <a href="#invoicesettinginfo" class="iq-waves-effect collapsed"
-                                                    data-toggle="collapse" aria-expanded="false">
-                                                    <i class="ri-list-settings-line"></i>
-                                                    <span> Invoice Settings</span>
-                                                    <i class="ri-arrow-right-s-line iq-arrow-right"></i>
-                                                </a>
-                                                <ul id="invoicesettinginfo" class="iq-submenu collapse"
-                                                    data-parent="#invoiceinfo">
-                                                    @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
-                                                        <li
-                                                            class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}">
-                                                            <a href="{{ route('admin.managecolumn') }}">
-                                                                <i class="ri-file-add-line"></i>
-                                                                Manage Columns
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                    @if (session('user_permissions.invoicemodule.formula.view') == '1')
-                                                        <li
-                                                            class="{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
-                                                            <a href="{{ route('admin.formula') }}">
-                                                                <i class="ri-file-list-line"></i>
-                                                                Set Formula
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                    @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
-                                                        <li
-                                                            class="{{ request()->routeIs('admin.othersettings') ? 'active' : '' }}">
-                                                            <a href="{{ route('admin.othersettings') }}">
-                                                                <i class="ri-settings-5-line"></i>
-                                                               Other Setting
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                </ul>
-                                            </li>
-                                        @endif
                                     </ul>
                                 </li>
                             @endif
-                            @if (session('user_permissions.invoicemodule.company.show') == '1')
-                                <li class="{{ request()->routeIs('admin.company') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.company') }}" class="iq-waves-effect">
-                                        <i class="ri-government-line"></i>
-                                        <span>company</span>
-                                    </a>
-                                </li>
+                            @if (Session::has('menu') && Session::get('menu') == 'invoice')
+                                @if (session('user_permissions.invoicemodule.invoicesetting.show') == '1' ||
+                                        session('user_permissions.invoicemodule.mngcol.show') == '1' ||
+                                        session('user_permissions.invoicemodule.formula.show') == '1')
+                                    <li
+                                        class="{{ implode(' ', [
+                                            request()->routeIs('admin.invoicesettings', 'admin.managecolumn', 'admin.formula', 'admin.othersettings')
+                                                ? 'active'
+                                                : '',
+                                        ]) }}">
+                                        <a href="#invoicesettinginfo" class="iq-waves-effect collapsed"
+                                            data-toggle="collapse" aria-expanded="false">
+                                            <i class="ri-list-settings-line"></i>
+                                            <span> Invoice Settings</span>
+                                            <i class="ri-arrow-right-s-line iq-arrow-right"></i>
+                                        </a>
+                                        <ul id="invoicesettinginfo" class="iq-submenu collapse"
+                                            data-parent="#invoiceinfo">
+                                            @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
+                                                <li
+                                                    class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}">
+                                                    <a href="{{ route('admin.managecolumn') }}">
+                                                        <i class="ri-file-add-line"></i>
+                                                        Manage Columns
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if (session('user_permissions.invoicemodule.formula.view') == '1')
+                                                <li class="{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
+                                                    <a href="{{ route('admin.formula') }}">
+                                                        <i class="ri-file-list-line"></i>
+                                                        Set Formula
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
+                                                <li
+                                                    class="{{ request()->routeIs('admin.othersettings') ? 'active' : '' }}">
+                                                    <a href="{{ route('admin.othersettings') }}">
+                                                        <i class="ri-settings-5-line"></i>
+                                                        Other Setting
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </li>
+                                @endif
+
                             @endif
                             @if (session('user_permissions.invoicemodule.bank.show') == '1')
                                 <li class="{{ request()->routeIs('admin.bank') ? 'active' : '' }}">
                                     <a href="{{ route('admin.bank') }}" class="iq-waves-effect">
                                         <i class="ri-bank-line"></i>
                                         <span>Bank Details</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if (session('user_permissions.invoicemodule.user.show') == '1')
-                                <li class="{{ request()->routeIs('admin.user') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.user') }}" class="iq-waves-effect">
-                                        <i class="ri-user-line"></i>
-                                        <span>User</span>
                                     </a>
                                 </li>
                             @endif
@@ -165,15 +142,42 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.invoicemodule.product.show') == '1')
-                                <li class="{{ request()->routeIs('admin.product') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.product') }}" class="iq-waves-effect">
-                                        <i class="ri-product-hunt-line"></i>
-                                        <span>products</span>
+                        @elseif(Session::has('menu') && Session::get('menu') == 'lead')
+                            @if (session('user_permissions.leadmodule.lead.show') == '1')
+                                <li class="{{ request()->routeIs('admin.lead') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.lead') }}" class="iq-waves-effect">
+                                        <i class="ri-globe-fill"></i>
+                                        <span>lead</span>
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.invoicemodule.purchase.show') == '1')
+                        @elseif(Session::has('menu') && Session::get('menu') == 'admin')
+                            @if (session('user_permissions.adminmodule.company.show') == '1')
+                                <li class="{{ request()->routeIs('admin.company') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.company') }}" class="iq-waves-effect">
+                                        <i class="ri-government-line"></i>
+                                        <span>company</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (session('user_permissions.adminmodule.user.show') == '1')
+                                <li class="{{ request()->routeIs('admin.user') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.user') }}" class="iq-waves-effect">
+                                        <i class="ri-user-line"></i>
+                                        <span>User</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (session('user_permissions.adminmodule.user.show') == '1')
+                                <li class="{{ request()->routeIs('admin.techsupport') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.techsupport') }}" class="iq-waves-effect">
+                                        <i class="ri-mail-line"></i>
+                                        <span>Tech Support</span>
+                                    </a>
+                                </li>
+                            @endif
+                        @elseif(Session::has('menu') && Session::get('menu') == 'account')
+                            @if (session('user_permissions.accountmodule.purchase.show') == '1')
                                 <li class="{{ request()->routeIs('admin.purchase') ? 'active' : '' }}">
                                     <a href="{{ route('admin.purchase') }}" class="iq-waves-effect">
                                         <i class="ri-bank-card-2-line"></i>
@@ -181,12 +185,29 @@
                                     </a>
                                 </li>
                             @endif
-                        @elseif(Session::has('menu') && Session::get('menu') == 'lead')
-                            @if (session('user_permissions.leadmodule.lead.show') == '1')
-                                <li class="{{ request()->routeIs('admin.lead') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.lead') }}" class="iq-waves-effect">
-                                        <i class="ri-globe-fill"></i>
-                                        <span>lead</span>
+                        @elseif(Session::has('menu') && Session::get('menu') == 'inventory')
+                            @if (session('user_permissions.inventorymodule.product.show') == '1')
+                                <li class="{{ request()->routeIs('admin.product') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.product') }}" class="iq-waves-effect">
+                                        <i class="ri-product-hunt-line"></i>
+                                        <span>products</span>
+                                    </a>
+                                </li>
+                            @endif
+                        @elseif(Session::has('menu') && Session::get('menu') == 'reminder')
+                            @if (session('user_permissions.remindermodule.reminder.show') == '1')
+                                <li class="{{ request()->routeIs('admin.reminder') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.reminder') }}" class="iq-waves-effect">
+                                        <i class="ri-alarm-line"></i>
+                                        <span>reminder</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (session('user_permissions.remindermodule.reminder.show') == '1')
+                                <li class="{{ request()->routeIs('admin.remindercustomer') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.remindercustomer') }}" class="iq-waves-effect">
+                                        <i class="ri-user-3-line"></i>
+                                        <span>Customer</span>
                                     </a>
                                 </li>
                             @endif

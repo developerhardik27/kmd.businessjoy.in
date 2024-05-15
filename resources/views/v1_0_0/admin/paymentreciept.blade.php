@@ -64,7 +64,10 @@
                     <span style="display:block;">{{ $companydetails['city_name'] }},
                         {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
                     <span style="display:block;">Email: {{ $companydetails['email'] }}</span>
-                    <span><b>GSTIN No: {{ $companydetails['gst_no'] }}</b></span>
+                    <span style="display:block;">Contact: {{ $companydetails['contact_no'] }}</span>
+                    @if (isset($companydetails['gst_no']))
+                        <span><b>GSTIN No: {{ $companydetails['gst_no'] }}</b></span>
+                    @endif
                 </td>
                 <td style="text-align:center " colspan="2">
                     <span class=" textblue firstrow cname" style="display:block;" id="">Bill To</span>
@@ -123,9 +126,7 @@
                 </td>
                 <td style="text-align: center" colspan="2">
                     <div style="display: inline-block;">
-                        <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
-                        @else
-                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}" @endif
+                        <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
                             class="rounded mt-auto mx-auto d-block" alt="logo" height="100px">
                     </div>
                 </td>

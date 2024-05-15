@@ -38,13 +38,14 @@ class customersupportController extends commonController
         $todate = Carbon::parse($request->todate);
         $status = $request->status;
         $lastcall = $request->lastcall;
+        $callcount = $request->callcount;
         $assignedto = $request->assignedto;
         // if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
         //     $activestatus = $request->activestatusvalue;
         // }
 
         $customersupportquery = DB::connection('dynamic_connection')->table('customer_support')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call','assigned_to', 'number_of_call', 'notes', 'ticket','created_by','updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+            ->select('id', 'first_name', 'last_name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call','assigned_to', 'number_of_call', 'notes', 'ticket', 'web_url','created_by','updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
             ->where('is_deleted', 0)->orderBy('id', 'DESC');
 
         if (isset($fromdate) && isset($todate)) {
@@ -62,6 +63,9 @@ class customersupportController extends commonController
         }
         if (isset($lastcall)) {
             $customersupportquery->where('last_call', $lastcall);
+        }
+        if (isset($callcount)) {
+            $customersupportquery->where('number_of_call', $callcount);
         }
         // if (isset($activestatus)) {
         //     $customersupportquery->where('is_active', $activestatus);
@@ -107,15 +111,17 @@ class customersupportController extends commonController
     {
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'email' ,
-            'contact_no' => 'required',
+            'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
             'status',
             'last_call',
             'number_of_call',
             'assignedto' => 'required',
             'notes',
             'ticket',
+            'web_url',
             'created_at',
             'updated_at',
             'is_active',
@@ -139,12 +145,14 @@ class customersupportController extends commonController
 
             $assignedto = implode(',', $request->assignedto);
             $customersupport = $this->customer_supportModel::insertGetId([
-                'name'  =>  $request->name,
+                'first_name'  =>  $request->first_name,
+                'last_name'  =>  $request->last_name,
                 'email' =>  $request->email,
                 'contact_no' =>  $request->contact_no,
                 'status' =>  $request->status,
                 'last_call' =>  $request->last_call,
                 'number_of_call'  =>  $request->number_of_call,
+                'web_url'  =>  $request->web_url,
                 'assigned_to' => $assignedto,
                 'assigned_by' => $this->userId,
                 'created_by' => $this->userId,
@@ -190,7 +198,7 @@ class customersupportController extends commonController
     public function show(string $id)
     {
         $customersupport = DB::connection('dynamic_connection')->table('customer_support')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call','assigned_to', 'notes', 'ticket','created_by','updated_by',DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
+            ->select('id', 'first_name', 'last_name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call','assigned_to', 'notes', 'ticket', 'web_url','created_by','updated_by',DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),  DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
             ->where('id', $id)
             ->get();
         
@@ -262,15 +270,17 @@ class customersupportController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'email' ,
-            'contact_no' => 'required',
+            'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
             'status',
             'last_call',
             'number_of_call',
             'assignedto' => 'required',
             'notes',
             'ticket',
+            'web_url',
             'created_at',
             'updated_at',
             'is_active',
@@ -295,12 +305,14 @@ class customersupportController extends commonController
             if ($ticket) {
                 $assignedto = implode(',', $request->assignedto);
                 $ticket->update([
-                    'name'  =>  $request->name,
+                    'first_name'  =>  $request->first_name,
+                    'last_name'  =>  $request->last_name,
                     'email' =>  $request->email,
                     'contact_no' =>  $request->contact_no,
                     'status' =>  $request->status,
                     'last_call' =>  $request->last_call,
                     'number_of_call'  =>  $request->number_of_call,
+                    'web_url'  =>  $request->web_url,
                     'assigned_to' => $assignedto,
                     'assigned_by' => $this->userId,
                     'updated_by' => $this->userId,

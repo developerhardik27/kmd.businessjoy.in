@@ -65,6 +65,28 @@ class PaymentController extends commonController
     /**
      * Display a listing of the resource.
      */
+    public function pendingpayment(string $id)
+    {
+
+        $payment = DB::connection('dynamic_connection')->table('payment_details')
+            ->where('inv_id', $id)
+            ->orderBy('id','desc')
+            ->limit(1)
+            ->get();
+
+        if ($payment->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'payment' => $payment
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'payment' => 'No Records Found'
+            ]);
+        }
+
+    }
     public function index(string $id)
     {
 
@@ -110,7 +132,7 @@ class PaymentController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ],422);
         } else {
 
             $invoiceammount = $this->invoiceModel::find($request->inv_id);

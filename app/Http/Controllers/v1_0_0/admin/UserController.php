@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1_0_0\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -14,15 +15,23 @@ class UserController extends Controller
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
-            session_start();
-        $this->version = $_SESSION['folder_name'];
+        session_start();
+        if(isset($_SESSION['folder_name'])){
+            $this->version =  $_SESSION['folder_name'];
+        }
     }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        return view($this->version.'.admin.user');
+        if(isset($request->search)){
+            $search = $request->search;
+        } else{
+            $search = '';
+        }
+
+        return view($this->version.'.admin.user',['search' => $search]);
     }
 
     /**
@@ -30,7 +39,19 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view($this->version.'.admin.userform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        $company = company::find(Session::get('company_id'));
+        $user = User::where('company_id','=',$company->id)->get();
+
+        $companymaxuser = $company->max_users ;
+ 
+       
+        if($user->count() >= $companymaxuser){
+            $allow = "no" ;
+        }else{
+            $allow = "yes" ;
+        }
+
+        return view($this->version.'.admin.userform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'),'allow' => $allow]);
     }
 
     /**

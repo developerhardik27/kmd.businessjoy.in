@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 
 @section('page_title')
     {{ config('app.name') }} - Update Purchase
@@ -36,8 +36,8 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="amount">Amount</label>
-                    <input type="text" name='amount' class="form-control" id="amount" value=""
-                        placeholder="Amount" required />
+                    <input type="text" name='amount' class="form-control" id="amount" placeholder="Amount"
+                        required />
                     <span class="error-msg" id="error-amount" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -59,17 +59,20 @@
                     <span class="error-msg" id="error-date" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">Image</label><br>
-                    <input type="file" name="img" id="" width="100%" />
+                    <label for="img">Image</label><br>
+                    <input type="file" name="img" id="img" width="100%" />
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
             </div>
         </div>
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                 </div>
+            </div>
+         </div>
     </form>
 @endsection
 
@@ -101,17 +104,25 @@
                         $('#amount_type').val(response.purchases.amount_type);
                         $('#date').val(response.purchases.date);
                         company = response.purchases.company_id;
-                        loaderhide();
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
                         toastr.error('Something went wrong');
                     }
-                },
-                error: function(error) {
                     loaderhide();
-                    console.error('Error:', error);
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -133,31 +144,34 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.purchase') }}";
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

@@ -1,9 +1,9 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 @section('page_title')
-{{ config('app.name') }} - Add New Product
+    {{ config('app.name') }} - Add New Product
 @endsection
 @section('title')
     New Product
@@ -17,53 +17,56 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                    placeholder="token" required />
+                        placeholder="token" required />
                     <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id"
                         placeholder="user_id">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id"
                         placeholder="company_id">
-                    <label for="name">Product Name</label>
+                    <label for="name">Product Name</label><span style="color:red;">*</span>
                     <input type="text" id="name" name='name' class="form-control" placeholder="product name">
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="product_code">Product code</label>
+                    <label for="product_code">Product code</label><span style="color:red;">*</span>
                     <input type="text" id="product_code" name='product_code' class="form-control"
                         placeholder="product code">
-                        <span class="error-msg" id="error-product_code" style="color: red"></span>
+                    <span class="error-msg" id="error-product_code" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="Unit">Unit</label>
+                    <label for="Unit">Unit</label><span style="color:red;">*</span>
                     <input type="text" name='unit' class="form-control" id="Unit" value=""
                         placeholder="enter Unit">
-                        <span class="error-msg" id="error-unit" style="color: red"></span>
+                    <span class="error-msg" id="error-unit" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="price_per_unit">Price</label>
+                    <label for="price_per_unit">Price</label><span style="color:red;">*</span>
                     <input type="text" id="price_per_unit" name='price_per_unit' class="form-control"
                         placeholder="Price per Unit">
-                        <span class="error-msg" id="error-price_per_unit" style="color: red"></span>
+                    <span class="error-msg" id="error-price_per_unit" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <label for="description">Description</label>
+                    <label for="description">Description</label><span style="color:red;">*</span>
                     <textarea class="form-control" name='description' id="description" rows="2"></textarea>
                     <span class="error-msg" id="error-description" style="color: red"></span>
                 </div>
             </div>
         </div>
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                 </div>
+            </div>
+         </div>
     </form>
 @endsection
 
@@ -88,33 +91,36 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.product') }}";
 
                         } else if (response.status == 500) {
-                                toastr.error(response.message);
-                                loaderhide();
-                            } else {
-                                loaderhide();
-                                toastr.error('something went wrong !');
-                            }
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
+                        }
+                        loaderhide();
 
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                           loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

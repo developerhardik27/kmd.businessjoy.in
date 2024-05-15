@@ -14,7 +14,8 @@ class tbllead extends Model
     protected $table = 'tbllead';
 
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'contact_no',
         'title',
@@ -29,6 +30,7 @@ class tbllead extends Model
         'number_of_follow_up',
         'notes',
         'lead_stage',
+        'web_url',
         'assigned_to',
         'assigned_by',
         'created_by',
@@ -38,6 +40,7 @@ class tbllead extends Model
         'is_active',
         'is_deleted',
         'source',
-        'ip'
+        'ip',
+        'upload'
     ];
 }

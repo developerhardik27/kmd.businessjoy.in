@@ -4,7 +4,7 @@ print_r($data);
 @endphp --}}
 
 @section('page_title')
-{{ config('app.name') }} - Invoice View
+    {{ config('app.name') }} - Invoice View
 @endsection
 <!DOCTYPE html>
 <html lang="en">
@@ -64,15 +64,22 @@ print_r($data);
                                     </tr>
                                     <tr>
                                         <td>
-                                            <span
-                                                class="w-100 float-left">{{ $data['companydetails']['address'] }}</span>
-                                            <span class="w-100 float-left">{{ $data['companydetails']['city_name'] }},
+                                            <span class="w-100 float-left">
+                                                {{ $data['companydetails']['address'] }}
+                                            </span>
+                                            <span class="w-100 float-left">
+                                                {{ $data['companydetails']['city_name'] }},
                                                 {{ $data['companydetails']['state_name'] }},
-                                                {{ $data['companydetails']['pincode'] }}</span>
-                                            <span class="w-100 float-left">Email:
-                                                {{ $data['companydetails']['email'] }}</span>
-                                            <span class="w-100 float-left">Phone:
-                                                {{ $data['companydetails']['contact_no'] }}</span>
+                                                {{ $data['companydetails']['pincode'] }}
+                                            </span>
+                                            <span class="w-100 float-left">
+                                                Email:
+                                                {{ $data['companydetails']['email'] }}
+                                            </span>
+                                            <span class="w-100 float-left">
+                                                Phone:
+                                                {{ $data['companydetails']['contact_no'] }}
+                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -82,11 +89,15 @@ print_r($data);
                         <td class="w-50">
                             <table class="w-100 float-right">
                                 <tr class="">
-                                    <td> <img
-                                            @if ($data['companydetails']['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $data['companydetails']['img']))) }}"
+                                    <td>
+                                        <img 
+                                            @if ($data['companydetails']['img'] != '')
+                                              src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $data['companydetails']['img']))) }}"
                                             @else   
-                                              src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}" @endif
-                                            class="rounded mt-auto mx-auto d-block" alt="logo" height="150px"></td>
+                                              src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}"
+                                            @endif
+                                            class="rounded mt-auto mx-auto d-block" alt="logo" height="150px">
+                                    </td>
                                 </tr>
                             </table>
 
@@ -173,7 +184,7 @@ print_r($data);
                                 </tbody>
                                 <tbody>
                                     <tr class="bglightblue">
-                                        <td rowspan="4"  colspan="" class="bgblue"
+                                        <td rowspan="4" colspan="" class="bgblue"
                                             style="vertical-align: middle; text-align: center;" id="dynamiccolspan">
                                             <strong class="">Thank You For Your business!</strong>
                                         </td>
@@ -214,7 +225,6 @@ print_r($data);
             // response status == 422 that means api has not got valid or required data
 
             // get invoice details and set in the fields
-
             $.ajax({
                 type: 'GET',
                 url: '/api/invoice/inv_details/' + {{ $id }},
@@ -226,8 +236,8 @@ print_r($data);
                 success: function(response) {
                     if (response.status == 200 && response.invoice != '') {
                         // You can update your HTML with the data here if needed
-                        
-                        $('#dynamiccolspan').attr('colspan',(response.columns.length-1));
+
+                        $('#dynamiccolspan').attr('colspan', (response.columns.length - 1));
 
                         $.each(response.columns, function(key, value) {
                             var columnName = value.replace(/_/g, ' ');
@@ -246,15 +256,24 @@ print_r($data);
                             row += `</tr>`;
                             $('#data').append(row);
                         });
-                    }else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                     } else {
                         $('#dynamicval').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                     }
                 },
-                error: function(error) {
-                    console.error('Error:', error);
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -264,7 +283,7 @@ print_r($data);
                 url: '/api/invoice/' + {{ $id }},
                 data: {
                     token: "{{ session()->get('api_token') }}",
-                    company_id: " {{ session()->get('company_id') }} ", 
+                    company_id: " {{ session()->get('company_id') }} ",
                     user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
@@ -285,15 +304,24 @@ print_r($data);
                             $('#total').append(value.grand_total + '.00 Rs');
                         })
 
-                    }else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                     } else {
-                        $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                        $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                     }
                 },
-                error: function(error) {
-                    console.error('Error:', error);
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
         })

@@ -11,13 +11,14 @@ use Illuminate\Support\Facades\Session;
 class PurchaseController extends Controller
 {
 
-    public $version,$purchaseModel;
+    public $version, $purchaseModel;
     public function __construct()
     {
-        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->version =  $_SESSION['folder_name'];
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
 
         if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
             $this->purchaseModel = 'App\\Models\\' . $this->version . "\\Purchase";
         } else {
             $this->purchaseModel = 'App\\Models\\v1_0_0\\Purchase';
@@ -26,9 +27,15 @@ class PurchaseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view($this->version.'.admin.purchase');
+
+        if (isset($request->search)) {
+            $search = $request->search;
+        } else {
+            $search = '';
+        }
+        return view($this->version . '.admin.purchase', ['search' => $search]);
     }
 
     /**
@@ -36,7 +43,7 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        return view($this->version.'.admin.purchaseform', ['company_id' => Session::get('company_id'),'user_id'=>Session::get('user_id')]);
+        return view($this->version . '.admin.purchaseform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id')]);
     }
 
     /**
@@ -58,8 +65,8 @@ class PurchaseController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    { 
-        
+    {
+
         $dbname = company::find(Session::get('company_id'));
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
@@ -70,7 +77,7 @@ class PurchaseController extends Controller
         $Purchase = $this->purchaseModel::findOrFail($id);
         $this->authorize('view', $Purchase);
 
-        return view($this->version.'.admin.purchaseupdateform', ['company_id' => Session::get('company_id'),'user_id'=>Session::get('user_id'), 'edit_id' => $id]);
+        return view($this->version . '.admin.purchaseupdateform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
 
     /**

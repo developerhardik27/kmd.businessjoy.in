@@ -15,6 +15,7 @@ class company extends Model
        'company_details_id',
        'dbname',
        'app_version',
+       'max_users',
        'created_by',
        'updated_by',
        'created_at',

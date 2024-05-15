@@ -19,9 +19,6 @@
         return redirect()->route('admin.index');
     @endif
 
-
-
-
     <div class="container" id="container">
         
         <div class="form-container sign-in">

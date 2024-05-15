@@ -137,6 +137,10 @@ NOTE: This file contains the styling for responsive Template.
 	body.icon-with-text .iq-sidebar-menu .iq-menu li a[aria-expanded="true"] .iq-arrow-right, body.icon-with-text .iq-sidebar-menu .iq-menu li.menu-open .iq-arrow-right, body.icon-with-text .iq-sidebar-menu .iq-menu li.active .iq-arrow-right { transform: rotate(0deg); }
 	body.icon-with-text .iq-top-navbar { width: calc(100% - 210px); }
 	body.icon-with-text .iq-top-navbar.fixed-header { width: calc(100% - 150px); }
+
+	.navbar-left{
+		margin: 0px;
+	}
 }
 @media(max-width:1399px) {
 	.animation-card .an-img .bodymovin { margin-bottom: -28px; }
@@ -158,7 +162,7 @@ NOTE: This file contains the styling for responsive Template.
 	.iq-sidebar { display: inline-block; z-index: 99; left: -260px; }
 	.iq-top-navbar .iq-navbar-custom .navbar-breadcrumb { display: none; }
 	.iq-sidebar-logo { width: auto; }
-	.iq-top-navbar .iq-navbar-custom .iq-menu-bt { display: inline-block; position: absolute; right: 440px; opacity: 1; color: #475cc7; background: var(--iq-bg-light-color); }
+	.iq-top-navbar .iq-navbar-custom .iq-menu-bt { display: inline-block; position: absolute; left: 5px; opacity: 1; color: #475cc7; background: var(--iq-bg-light-color); } /* right:440px */
 	body.sidebar-main .iq-top-navbar .iq-sidebar-logo a span { opacity: 1; display: inline-block; }
 	body.sidebar-main .iq-sidebar { width: 260px; left: 0; z-index: 999; }
 	body.sidebar-main .iq-sidebar .iq-sidebar-menu .iq-menu li a span { display: inline-block; opacity: 1; }
@@ -176,7 +180,7 @@ NOTE: This file contains the styling for responsive Template.
 	.sidebar-main .iq-sidebar:hover .iq-submenu li a { font-size: 14px; }
 	body.sidebar-main .iq-top-navbar.fixed-header { left: 0; right: 0; width: 100%; }
 	body.sidebar-main .iq-sidebar .iq-sidebar-menu .iq-menu li a span, body.sidebar-main .iq-sidebar-logo a span, body.sidebar-main .iq-sidebar-menu .iq-menu li a .badge { opacity: 1; display: block; }
-	.iq-page-menu-horizontal .iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 320px; }
+	/* .iq-page-menu-horizontal .iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 320px; } */
 	body.two-sidebar.sidebar-main .content-page, body.two-sidebar .content-page { margin-left: 70px; }
 	.two-sidebar .iq-footer { margin-left: 60px; }
 	body.two-sidebar .iq-top-navbar { width: calc(100% - 70px); left: auto; }
@@ -230,7 +234,7 @@ NOTE: This file contains the styling for responsive Template.
 	.iq-top-navbar .navbar-toggler { right: 100px; top: 18px; position: absolute; color: var(--iq-primary); background: var(--iq-bg-light-color); border: none; padding: 7px 10px; border-radius: 8px; font-size: 24px; }
 	.navbar-collapse { position: absolute; top: 75px; left: 0; width: 100%; background: var(--iq-white); -webkit-box-shadow: 0px 5px 12px 0px rgba(55, 73, 72, 0.15); -moz-box-shadow: 0px 5px 12px 0px rgba(55, 73, 72, 0.15); box-shadow: 0px 5px 12px 0px rgba(55, 73, 72, 0.15); }
 	.navbar-nav.navbar-list { float: right; display: inline-block; }
-	.iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 145px; top: 18px; }
+	.iq-top-navbar .iq-navbar-custom .iq-menu-bt {top: 18px; }
 	.animation-card .an-img .bodymovin { margin-bottom: 0; margin-left: 0; width: 100%; }
 	.iq-footer, .iq-footer .col-lg-6.text-right { text-align: center !important; }
 	.iq-booking-index { overflow-x: scroll; }
@@ -262,7 +266,7 @@ NOTE: This file contains the styling for responsive Template.
 	.navbar-list li img { margin-right: 0 !important; }
 	.iq-page-menu-horizontal .iq-top-navbar .navbar { display: inherit; }
 	body.sidebar-main .iq-sidebar-logo a span { opacity: 1; display: block; }
-	.iq-page-menu-horizontal .iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 145px; }
+	/* .iq-page-menu-horizontal .iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 145px; } */
 	body.iq-page-menu-horizontal .iq-navbar-custom.d-flex { display: flex !important; }
 	body.iq-page-menu-horizontal .iq-top-navbar .navbar-toggler { right: 100px; }
 	.iq-page-menu-horizontal .iq-sidebar-logo { padding-top: 0px; }
@@ -379,3 +383,11 @@ NOTE: This file contains the styling for responsive Template.
 
 @media(max-width:359px) { }
 
+
+/* add this css on 26-04-2024 for sidebar menu in small screen */
+
+@media screen and (min-width: 320px) and (max-width: 480px) {
+	.navbar-left {
+		margin-left: 10px;
+	}
+}

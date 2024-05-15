@@ -27,7 +27,7 @@ class LandingPageMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Business Joy',
+            subject: 'Business Joy New Lead',
         );
     }
 
@@ -37,10 +37,8 @@ class LandingPageMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.landing',
-            with: [
-                    'user' => $this->user,
-            ],
+            view: 'emails.landing',
+            
         );
     }
 

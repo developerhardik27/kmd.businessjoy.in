@@ -9,6 +9,14 @@
     Create Invoice
 @endsection
 
+@section('style')
+ <style>
+    .disableinput{
+        border: none;
+    }
+ </style>
+@endsection
+
 @section('form-content')
     <form id="invoiceform" name="invoiceform">
         @csrf
@@ -16,16 +24,18 @@
             <div class="form-row">
                 <div class="col-sm-4">
                     <span class=" float-right mb-3 mr-2">
-                        <button type="button" data-toggle="modal" data-target="#exampleModalScrollable"
+                        {{-- <button type="button" data-toggle="modal" data-target="#exampleModalScrollable"
                             class="btn btn-sm bg-primary "><i class="ri-add-fill"><span class="pl-1">Add
                                     customer</span></i>
-                        </button>
+                        </button> --}}
                     </span>
-                    <label for="customer">Customer</label>
-                    <select class="form-control" id="customer" name="customer_id" required>
+                    <label for="customer">Customer</label><span
+                    style="color:red;">*</span>
+                    <select class="form-control" id="customer" name="customer" required>
                         <option selected="" disabled=""> Select Customer</option>
+                        <option  value="add_customer" > Add New Customer </option>
                     </select>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-customer" style="color: red"></span>
                 </div>
                 <div class="col-sm-4">
                     <input type="hidden" name="country_id" id="country" class="form-control" value="" />
@@ -33,58 +43,51 @@
                         value="{{ $user_id }}" />
                     <input type="hidden" name="company_id" id="company_id" class="form-control"
                         value="{{ $company_id }}" />
-                    <label for="payment">Payment Mode</label>
-                    <select class="form-control" id="payment" name="payment_mode">
+                    <label for="payment">Payment Mode</label><span
+                    style="color:red;">*</span>
+                    <select class="form-control" id="payment" name="payment" required>
                         <option selected="" disabled="">Select your Payment Way</option>
                         <option value="Online Payment">Online Payment</option>
                         <option value="Cash">Cash</option>
                         <option value="Net-Banking">Net-Banking</option>
                         <option value="Check">Check</option>
                     </select>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-payment_mode" style="color: red"></span>
                 </div>
                 <div class="col-sm-4">
-                    <label for="type">Tax-Type</label>
-                    <select class="form-control" id="type" name="tax_type">
+                    <label for="type">Tax-Type</label><span
+                    style="color:red;">*</span>
+                    <select class="form-control" id="type" name="type" required>
                         <option selected="" disabled="">Select Type</option>
                         <option value="1">GST</option>
                         <option value="2">Without GST</option>
                     </select>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-tax_type" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-4">
-                    <label for="currency">Currency</label>
-                    <select class="form-control" id="currency" name="currency_id">
+                    <label for="currency">Currency</label><span
+                    style="color:red;">*</span>
+                    <select class="form-control" id="currency" name="currency" required>
                         <option selected="" disabled=""> Select Currency</option>
                     </select>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-currency" style="color: red"></span>
                 </div>
                 <div class="col-sm-4">
-                    <label for="acc_details">Bank Account </label>
-                    <select class="form-control" id="acc_details" name="acc_details">
+                    <label for="acc_details">Bank Account </label><span
+                    style="color:red;">*</span>
+                    <select class="form-control" id="acc_details" name="acc_details" required>
                         <option selected="" disabled="">Select Account</option>
                     </select>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
-                </div>
-                <div class="col-sm-4">
-                    <label for="products">Add From Existing Items</label>
-                    <select class="form-control iq-bg-success" id="products" name="products">
-                        <option value="selected" selected="" disabled=""> Select Item</option>
-                    </select>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-bank_account" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div id="table" class="table-editable" style="overflow-x:auto">
-            <span class="add_div float-right mb-3 mr-2">
-                <button type="button" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span class="pl-1">Add
-                            New Item</span></i>
-                </button>
-            </span>
+            
             <table id="data" class="table table-bordered  table-striped text-center">
                 <thead>
                     <tr id="columnname" style="text-transform: uppercase">
@@ -95,19 +98,51 @@
                 <tbody  id="add_new_div">
                     
                 </tbody>
+                <tr>
+                    <th class="newdivautomaticcolspan"><span class="add_div mb-3 mr-2">
+                        <button type="button" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span class="pl-1">Add
+                                    New Item</span></i>
+                        </button>
+                    </span></th>
+                </tr>
                 <tr class="text-right">
                     <th class="automaticcolspan">Sub total</th>
-                    <td id=""><input type="number" name="total_amount" id="totalamount" readonly required>
+                    <td id=""><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="total_amount" id="totalamount" readonly required>
                     </td>
                 </tr>
+                <tr id="sgstline" class="text-right">
+                    <th class="automaticcolspan">SGST <span id="sgstpercentage"></span></th>
+                    <td><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="sgst" id="sgst" readonly required></td>
+                </tr>
+                <tr id="cgstline" class="text-right">
+                    <th class="automaticcolspan">CGST <span id="cgstpercentage"></span></th>
+                    <td><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="cgst" id="cgst" readonly required></td>
+                </tr>
                 <tr id="gstline" class="text-right">
-                    <th class="automaticcolspan">Total GST</th>
-                    <td><input type="number" name="gst" id="gst" readonly required></td>
+                    <th class="automaticcolspan">Total GST <span id="gstpercentage"></span></th>
+                    <td><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="gst" id="gst" readonly required></td>
+                </tr>
+                <tr id="roundoffline" class="text-right">
+                    <th class="automaticcolspan">Roundoff</th>
+                    <td>
+                        <b>
+                            <span class="currentcurrencysymbol"></span>
+                        </b> 
+                        <input class="disableinput" type="text" name="roundoff" id="roundoff" readonly required></td>
                 </tr>
                 <tr id="grandtotalline" class="text-right">
                     <th class="automaticcolspan font-weight-bold">Total</th>
-                    <td><input type="number" name="grandtotal" id="grandtotal" readonly required></td>
+                    <td>
+                        <b>
+                            <span class="currentcurrencysymbol"></span>
+                        </b> 
+                        <input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal" readonly required></td>
                 </tr>
+                {{-- <tr id="grandtotalline" class="text-right">
+                    <th class="automaticcolspan font-weight-bold">Total (in Words)</th>
+                    <td id="totalinwords" colspan="4"  style="text-align: center;vertical-align: middle;"></td>
+     
+                </tr> --}}
             </table>
         </div>
         <div class="form-group">
@@ -115,16 +150,17 @@
                 <div class="col-sm-12">
                     <label for="notes">Notes</label>
                     <textarea class="form-control" name="notes" id="notes" rows="2"></textarea>
-                    <span class="error-msg" id="error-firstname" style="color: red"></span>
+                    <span class="error-msg" id="error-notes" style="color: red"></span>
                 </div>
             </div>
         </div>
-
-
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
+        <div class="form-group">
+           <div class="form-row">
+                <div class="col-sm-12">
+                    <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                    <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                </div>
+           </div>
         </div>
 
     </form>
@@ -142,7 +178,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="details" width='100%' class="table table-bordered table-responsive-md table-striped">
+                    <table id="details" width='100%' class="table table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped">
                         <form id="customerform">
                             @csrf
                             <div class="form-group">
@@ -154,14 +190,14 @@
                                             name="user_id">
                                         <input type="hidden" value="{{ $company_id }}" class="form-control"
                                             name="company_id">
-                                        <label for="firstname">FirstName</label>
+                                        <label for="firstname">FirstName</label><span style="color:red;">*</span>
                                         <input type="text" class="form-control" id="firstname" name='firstname'
                                             placeholder="First name" required>
                                         <span class="modal-error-msg" id="modal-error-firstname"
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="lastname">LastName</label>
+                                        <label for="lastname">LastName</label><span style="color:red;">*</span>
                                         <input type="text" class="form-control" id="lastname" name='lastname'
                                             placeholder="Last name" required>
                                         <span class="modal-error-msg" id="modal-error-lastname"
@@ -172,7 +208,7 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="company_name">Company Name</label>
+                                        <label for="company_name">Company Name</label><span style="color:red;">*</span>
                                         <input type="text" class="form-control" id="company_name" name='company_name'
                                             id="" placeholder="Company name" required>
                                         <span class="modal-error-msg" id="modal-error-company_name"
@@ -190,13 +226,13 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="modal_email">Email</label>
+                                        <label for="modal_email">Email</label><span style="color:red;">*</span>
                                         <input type="email" class="form-control" name="email" id="modal_email"
                                             placeholder="Enter Email" required />
                                         <span class="modal-error-msg" id="modal-error-email" style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="modal_exampleInputphone">Contact Number</label>
+                                        <label for="modal_exampleInputphone">Contact Number</label><span style="color:red;">*</span>
                                         <input type="tel" class="form-control" name='contact_number'
                                             id="modal_exampleInputphone" placeholder="0123456789" required>
                                         <span class="modal-error-msg" id="modal-error-contact_number"
@@ -206,7 +242,7 @@
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-sm-6">
-                                            <label for="modal_country">Select Country</label>
+                                            <label for="modal_country">Select Country</label><span style="color:red;">*</span>
                                             <select class="form-control" name='country' id="modal_country" required>
                                                 <option selected="" disabled="">Select your Country</option>
                                             </select>
@@ -214,7 +250,7 @@
                                                 style="color: red"></span>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label for="modal_state">Select State</label>
+                                            <label for="modal_state">Select State</label><span style="color:red;">*</span>
                                             <select class="form-control" name='state' id="modal_state" required>
                                                 <option selected="" disabled="">Select your State</option>
                                             </select>
@@ -226,7 +262,7 @@
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-sm-6">
-                                            <label for="modal_city">Select City</label>
+                                            <label for="modal_city">Select City</label><span style="color:red;">*</span>
                                             <select class="form-control" name='city' id="modal_city" required>
                                                 <option selected="" disabled="">Select your City</option>
                                             </select>
@@ -234,7 +270,7 @@
                                                 style="color: red"></span>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label for="modal_pincode">Pincode</label>
+                                            <label for="modal_pincode">Pincode</label><span style="color:red;">*</span>
                                             <input type="text" id="modal_pincode" name='pincode' class="form-control"
                                                 placeholder="Pin Code">
                                             <span class="modal-error-msg" id="modal-error-pincode"
@@ -245,24 +281,20 @@
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-sm-12">
-                                            <label for="modal_address">Address</label>
+                                            <label for="modal_address">Address</label><span style="color:red;">*</span>
                                             <textarea class="form-control" required name='address' id="modal_address" rows="2"></textarea>
                                             <span class="modal-error-msg" id="modal-error-address"
                                                 style="color: red"></span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="button-container">
-                                    <button type="submit" class="btn btn-primary" id="modal_submitBtn">Submit</button>
-                                    <div id="modal_loader" class="loader"></div>
-                                    <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-                                </div>
-                        </form>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" id="modal_submitBtn">Submit</button>
+                            <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
+                        </div>
+                    </form>
             </div>
         </div>
     </div>
@@ -280,7 +312,66 @@
 
             let allColumnData = [];
             let allColumnNames = [];
+            let hiddencolumn = 0 ;
             let formula = [];
+            let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
+
+            // fetch gst settings 
+            $.ajax({
+                    type: 'GET',
+                    url: '{{ route('getoverduedays.index') }}',
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.overdueday != '') {
+                            sgst = response.overdueday[0]['sgst'];
+                            cgst = response.overdueday[0]['cgst'];
+                            gst = response.overdueday[0]['gst'];
+                            totalgstpercentage = sgst + cgst ;
+                            if (sgst % 1 === 0) { // Checks if sgst is an integer
+                                    $('#sgstpercentage').text(`(${sgst}.00 %)`);
+                            } else {
+                                $('#sgstpercentage').text(`(${sgst} %)`);
+                            }
+                            if (cgst % 1 === 0) { // Checks if cgst is an integer
+                                    $('#cgstpercentage').text(`(${cgst}.00 %)`);
+                            } else {
+                                $('#cgstpercentage').text(`(${cgst} %)`);
+                            }
+                            if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
+                                    $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
+                            } else {
+                                $('#gstpercentage').text(`(${totalgstpercentage} %)`);
+                            }
+                            if(gst != 0){
+                                $('#sgstline,#cgstline').hide();
+                            }else{
+                                $('#gstline').hide();
+                            }
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        }
+                        loaderhide();
+                        // You can update your HTML with the data here if needed
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+
 
             // fetch invoice formula for calculation 
             $.ajax({
@@ -299,11 +390,20 @@
                             loaderhide();
                         }
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
-                });
+            });
             
             // fetch users own columnname and set it into table 
             $.ajax({
@@ -327,7 +427,7 @@
                         });
                         
                         $('#columnname').prepend(
-                            `${allColumnNames.map(columnName => `<td>${columnName}</td>`).join('')} 
+                            `${allColumnData.map(columnName => `<th style="${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
                                 <th>Amount</th>
                                 <th>Sort</th>
                                 <th>Remove</th>
@@ -336,25 +436,26 @@
 
 
                         const targetRow = $('#add_new_div');
-
+                      
                         // Append input elements dynamically to the target row
                         targetRow.append(`
                              <tr class="iteam_row_1">
                                  ${allColumnData.map(columnData => {
                                     var columnName = columnData.column_name.replace(/\s+/g, '_');
                                             var inputcontent = null ;
+                                           ( columnData.is_hide === 1 )? hiddencolumn++ : '';
                                             if (columnData.column_type === 'time') {
-                                                return `<td class='invoicesubmit'><input type="time" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
+                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}"></td>`;
                                             } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                                return `<td class='invoicesubmit'><input type="number" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
+                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation" value=1 min=0></td>`;
                                             } else if (columnData.column_type === 'longtext') {
-                                                return `<td class='invoicesubmit'><textarea name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
+                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" rows="1"></textarea></td>`;
                                             } else {
-                                                return `<td class='invoicesubmit'><input type="text" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
+                                                return `<td class="invoicesubmit  ${(columnData.is_hide === 1)? 'd-none' :''} "><input type="text" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}"></td>`;
                                             }
                                         }).join('')
                                  }
-                                <td><input type="number" data-id="1" class="form-control iteam_Amount changeprice calculation" id="Amount_1"
+                                <td><input type="number" step="any" data-id="1" class="form-control iteam_Amount changeprice calculation" id="Amount_1"
                                         placeholder="Amount" name='Amount_1' min=0 required>
                                 </td>
                                 <td>
@@ -379,11 +480,22 @@
                         <th>Description</th>
                         <th>Quantity</th>`);
                     }
-                       $('.automaticcolspan').attr('colspan',allColumnNames.length);
+                       $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
+                       $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3);
                 },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
+                error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
             });
           
 
@@ -412,26 +524,36 @@
                             `<option disabled '>No Data found </option>`);
                     }
                 },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
+                error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
             });
 
             // currency data fetch and set currensy dropdown
             $.ajax({
                 type: 'GET',
-                url: '{{ route('invoice.currency') }}',
+                url: '{{ route('country.index') }}',
                 data: {
                     token: "{{ session()->get('api_token') }}",
                     company_id : " {{session()->get('company_id')}} ",
                     user_id : " {{session()->get('user_id')}} ",
                 },
                 success: function(response) {
-                    if (response.status == 200 && response.currency != '') {
+                    if (response.status == 200 && response.country != '') {
                         // You can update your HTML with the data here if needed
-                        $.each(response.currency, function(key, value) {
+                        $.each(response.country, function(key, value) {
                             $('#currency').append(
-                                `<option value='${value.id}'>${value.country} -${value.currency} - ${value.code} - ${value.symbol} </option>`
+                                `<option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>`
                             );
                         });
                     } else {
@@ -439,44 +561,30 @@
                             `<option disabled '>No Data found </option>`);
                     }
                 },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
+                error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
             });
 
-            // product data fetch and set product dropdown
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('product.index') }}',
-                data: {
-                    user_id: {{ session()->get('user_id') }},
-                    company_id: {{ session()->get('company_id') }},
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.product != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.product, function(key, value) {
-                            $('#products').append(
-                                `<option value='${value.id}'>${value.name} </option>`);
-                        });
-                    } else if (response.status == 500) {
-                                toastr.error(response.message);
-                                loaderhide();
-                    } else {
-                        $('#products').append(
-                            `<option disabled '>No Data found </option>`);
-                    }
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
+           
             loaderhide();
             // customer data fetch and set customer dropdown
             function customers(customerid = 0) {
                 loadershow();
-                $('#customer').html(`<option selected="" value=0 disabled=""> Select Customer</option>`);
+                $('#customer').html(`
+                   <option selected="" value=0 disabled=""> Select Customer</option>
+                   <option value="add_customer" > Add New Customer </option>
+                `);
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('customer.invoicecustomer') }}',
@@ -494,38 +602,55 @@
                                 )
                             });
                             $('#customer').val(customerid);
-                            loaderhide();
                         }else if(response.status == 500){
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             $('#customer').append(`<option disabled '>No Data found </option>`);
-                            loaderhide();
                         }
-                    },
-                    error: function(error) {
                         loaderhide();
-                        console.error('Error:', error);
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
 
             customers();
 
-
             // fetch contry id from selected customer and set input value for hidden file
             $('#customer').on('change', function() {
                 loadershow();
                 var selectedOption = $(this).find('option:selected');
+               
                 var id = $(this).val();
+                if(id == 'add_customer'){
+                    $('#exampleModalScrollable').modal('show');
+                }
                 var gstno = selectedOption.data('gstno');
                 if (gstno != null) {
                     $('#type').val(1);
-                    $('#gstline').show();
+                    if(gst != 0){
+                        $('#sgstline,#cgstline').hide();
+                        $('#gstline').show();
+                    }else{
+                        $('#gstline').hide();
+                        $('#sgstline,#cgstline').show();
+
+                    }
                     dynamiccalculaton();
                 } else {
                     $('#type').val(2);
-                    $('#gstline').hide();
+                    $('#sgstline,#cgstline,#gstline').hide();
                     dynamiccalculaton();
                 }
                 $.ajax({
@@ -541,24 +666,37 @@
                         if (response.status == 200 && response.customers != '') {
                             var countryid = response.customer.country_id
                             $('#country').val(countryid);
-                            if (countryid == 1) {
-                                $('#currency').val(53);
-                            } else {
-                                $('#currency').val('');
-                            }
+                            $('#currency').val(countryid);
+                            currentcurrency = $('#currency option:selected').data('currency');
+                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
                         }else if(response.status == 500){
                             toastr.error(response.message);
-                            loaderhide();
                         }
                         loaderhide();
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
 
+
+            $('#currency').on('change',function(){
+                currentcurrency = $('#currency option:selected').data('currency');
+                currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                $('.currentcurrencysymbol').text(currentcurrencysymbol);
+            });
             // call function to append row in table  on click add new button 
             var addname = 1; // for use to this variable is give to dynamic name and id to input type
             $('.add_div').on('click', function() {
@@ -574,18 +712,18 @@
                             var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
                                 if (columnData.column_type === 'time') {
-                                    return `<td class='invoicesubmit'><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}"></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td class='invoicesubmit'><input type="number" name="${columnName}_${addname}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation ${(columnData.is_hide === 1)?'border-danger':''}" value=1 min=0></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation" value=1 min=0></td>`;
                                 } else if (columnData.column_type === 'longtext') {
-                                    return `<td class='invoicesubmit'><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" rows="1"></textarea></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1"></textarea></td>`;
                                 } else {
-                                    return `<td class='invoicesubmit'><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ${(columnData.is_hide === 1)?'border-danger':''}" placeholder="${columnData.column_name}"></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
                                 }
                             }).join('')
                         }
                         <td>
-                            <input type="number"  data-id = ${addname} id="Amount_${addname}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
+                            <input type="number" step="any" data-id = ${addname} id="Amount_${addname}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
                         </td>   
                         <td>
                             <span class="table-up">
@@ -622,11 +760,33 @@
             // call function for gst or without gst counting
             $('#type').on('change', function() {
                 if ($(this).val() == 2) {
-                    $('#gstline').hide();
-                    $('#grandtotal').val($('#totalamount').val());
+                    $('#sgstline,#cgstline,#gstline').hide();
+                    var totalval = $('#totalamount').val() ;
+                    grandtotalval = Math.round($('#totalamount').val());
+                    if(grandtotalval >= totalval){
+                       var roundoffval = grandtotalval - totalval ;
+                       $('#roundoff').val(`+ ${roundoffval.toFixed(2)}`)
+                    }else{
+                        var roundoffval = totalval - grandtotalval ;
+                        $('#roundoff').val(`- ${roundoffval.toFixed(2)}`)
+                    }
+                    $('#grandtotal').val(grandtotalval);
+
+                    if(gst != 0){
+                        $('#gst').val(0);
+                    }else{
+                        $('#sgstline,#cgstline').val(0);
+                    }
                     $('#gst').val(0);
                 } else {
-                    $('#gstline').show();
+                    if(gst != 0){
+                        $('#sgstline,#cgstline').hide();
+                        $('#gstline').show();
+
+                    }else{
+                        $('#sgstline,#cgstline').show();
+                        $('#gstline').hide();
+                    }
                     dynamiccalculaton();
                 }
             })
@@ -660,25 +820,36 @@
                 var payment_type = $('#payment').val();
                 var account = $('#acc_details').val();
                 var currency = $('#currency').val();
+                var type = $('#type').val();
                 var customer = $('#customer').val();
-                var total = $('#totalamount').val();
-                var gst = $('#gst').val();
+                var total_amount = $('#totalamount').val();
+                var sgstval = $('#sgst').val();
+                var cgstval = $('#cgst').val();
+                var gstval = $('#gst').val();
                 var grandtotal = $('#grandtotal').val();
                 var notes = $('#notes').val();
+
+                
                 var data = {
                     country_id: country,
                     user_id: created,
                     company_id: company_id,
                     payment_mode: payment_type,
-                    acc_details: account,
-                    currency_id: currency,
-                    customer_id: customer,
-                    total_amount: total,
-                    gst: gst,
+                    bank_account: account,
+                    currency: currency,
+                    customer: customer,
+                    total_amount: total_amount,
                     grandtotal : grandtotal,
+                    tax_type : type,
                     notes: notes
                 };
-                
+
+                if(gst == 0){
+                    data['sgst'] = sgstval ;
+                    data['cgst'] = cgstval ;
+                }else{
+                    data['gst'] = gstval ;
+                }
                 
                 $.ajax({
                     type: 'POST',
@@ -693,33 +864,35 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location = "{{ route('admin.invoice') }}";
 
                         }else if(response.status == 500){
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
-
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });
@@ -745,7 +918,7 @@
                 function performCalculation(operation, value1, value2) {
                         switch (operation) {
                             case '*':
-                                return value1 * value2;
+                                return  value1 * value2;
                              break;
                             case '/':
                                 return value1 / value2;
@@ -767,26 +940,53 @@
                             var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
                             var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
                              outputvalue =  performCalculation(formula.operation, value1, value2)
-                            iteam_data[0][formula.output_column] = outputvalue
-                            results[formula.output_column] = outputvalue;
-                            $(`#${formula.output_column}_${editid}`).val(outputvalue);
+                            iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
+                            results[formula.output_column] = outputvalue.toFixed(2);
+                            $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
                         });
                          var total = 0;
                          $('input.changeprice').each(function(){
                               total += parseFloat($(this).val());
                          });
+                         total = total.toFixed(2);
                          $('#totalamount').val(total);
                          if($('#type').val()==1){
-                             var gst = (total * 18) / 100;
-                             $('#gst').val(Math.round(gst));
-                             var grandtotal = total + gst ;
-                             $('#grandtotal').val(Math.round(grandtotal));
+
+                            var sgstvalue = ((total * sgst) / 100);
+                            var cgstvalue = ((total * cgst) / 100);
+                            sgstvalue = sgstvalue.toFixed(2);
+                            cgstvalue = cgstvalue.toFixed(2);
+                            if(gst == 0){
+                             $('#sgst').val(sgstvalue);
+                             $('#cgst').val(cgstvalue);
+                            }else{
+                                $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
+                            }
+                             var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue);
+                             grandtotalval = Math.round(totalval)
+                             if(grandtotalval >= totalval){
+                                  roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
+                                  $('#roundoff').val(`+ ${roundoffval}`);
+                             }else{
+                                roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
+                                  $('#roundoff').val(`- ${roundoffval}`);
+                             }
+                             $('#grandtotal').val(grandtotalval);
                          }else{
                             $('#grandtotal').val(Math.round(total));
+                            var totalval = parseFloat(total);
+                             grandtotalval = Math.round(totalval)
+                             if(grandtotalval >= totalval){
+                                  roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
+                                  $('#roundoff').val(`+ ${roundoffval}`);
+                             }else{
+                                roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
+                                  $('#roundoff').val(`- ${roundoffval}`);
+                             }
                          }
                          
             }
-                $(document).on('change','.calculation',function(){
+                $(document).on('keyup change','.calculation',function(){
                 
                         dynamiccalculaton(this);
                 });
@@ -816,9 +1016,19 @@
 
 
                 },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
+                error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
             });
 
             // set state data when country select
@@ -840,18 +1050,25 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
                             $('#modal_state').append(
                             `<option disabled> No Data Found</option>`);
                         }
-
+                        loaderhide();
 
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
@@ -874,18 +1091,25 @@
                                 $('#modal_city').append(
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
-                            });
-                            loaderhide();
+                            }); 
                         } else {
-                            $('#modal_city').append(`<option disabled> No Data Found</option>`);
-                            loaderhide();
+                            $('#modal_city').append(`<option disabled> No Data Found</option>`); 
                         }
-
+                        loaderhide();
 
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
@@ -907,32 +1131,34 @@
                             $('#customerform')[0].reset();
                             $('#exampleModalScrollable').modal('hide');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            customers(response.customerid);
-                            loaderhide();
+                            customers(response.customerid); 
                             toastr.success(response.message);
 
                         }else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
+                            toastr.error(response.message); 
                         } else {
-                            toastr.error(response.message);
-                            loaderhide();
+                            toastr.error(response.message); 
                         }
-
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#modal-error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

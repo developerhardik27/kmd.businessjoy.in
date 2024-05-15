@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 @section('page_title')
     {{ config('app.name') }} - Add New Customer
 @endsection
@@ -20,13 +20,15 @@
                         placeholder="token" required />
                     <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id">
-                    <label for="">FirstName</label>
-                    <input type="text" class="form-control" name='firstname' placeholder="First Name" required>
+                    <label for="firstname">FirstName</label><span style="color:red;">*</span>
+                    <input type="text" id="firstname" class="form-control" name='firstname' placeholder="First Name"
+                        required>
                     <span class="error-msg" id="error-firstname" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">LastName</label>
-                    <input type="text" class="form-control" name='lastname' placeholder="Last Name" required>
+                    <label for="lastname">LastName</label><span style="color:red;">*</span>
+                    <input type="text" id="lastname" class="form-control" name='lastname' placeholder="Last Name"
+                        required>
                     <span class="error-msg" id="error-lastname" style="color: red"></span>
                 </div>
             </div>
@@ -34,14 +36,15 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="">Company Name</label>
-                    <input type="text" class="form-control" name='company_name' id="" placeholder="Company Name"
-                        required>
+                    <label for="company_name">Company Name</label><span style="color:red;">*</span>
+                    <input type="text" id="company_name" class="form-control" name='company_name' id=""
+                        placeholder="Company Name" required>
                     <span class="error-msg" id="error-company_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">GST Number</label>
-                    <input type="text" class="form-control" name='gst_number' id="" placeholder="GST Number">
+                    <label for="gst_number">GST Number</label>
+                    <input type="text" id="gst_number" class="form-control" name='gst_number' id=""
+                        placeholder="GST Number">
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -49,29 +52,30 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="email">Email</label>
+                    <label for="email">Email</label><span style="color:red;">*</span>
                     <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email"
                         required>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="exampleInputphone">Contact Number</label>
-                    <input type="tel" class="form-control" name='contact_number' id="exampleInputphone"
+                    <label for="contact_number">Contact Number</label><span style="color:red;">*</span>
+                    <input type="tel" class="form-control" name='contact_number' id="contact_number"
                         placeholder="0123456789" required>
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
             </div>
+        </div>    
             <div class="form-group">
                 <div class="form-row">
                     <div class="col-sm-6">
-                        <label for="country">Select Country</label>
+                        <label for="country">Select Country</label><span style="color:red;">*</span>
                         <select class="form-control" name='country' id="country" required>
                             <option selected="" disabled="">Select your Country</option>
                         </select>
                         <span class="error-msg" id="error-country" style="color: red"></span>
                     </div>
                     <div class="col-sm-6">
-                        <label for="state">Select State</label>
+                        <label for="state">Select State</label><span style="color:red;">*</span>
                         <select class="form-control" name='state' id="state" required>
                             <option selected="" disabled="">Select your State</option>
                         </select>
@@ -82,15 +86,16 @@
             <div class="form-group">
                 <div class="form-row">
                     <div class="col-sm-6">
-                        <label for="city">Select City</label>
+                        <label for="city">Select City</label><span style="color:red;">*</span>
                         <select class="form-control" name='city' id="city" required>
                             <option selected="" disabled="">Select your City</option>
                         </select>
                         <span class="error-msg" id="error-city" style="color: red"></span>
                     </div>
                     <div class="col-sm-6">
-                        <label for="">Pincode</label>
-                        <input type="text" name='pincode' class="form-control" placeholder="Pin Code">
+                        <label for="pincode">Pincode</label><span style="color:red;">*</span>
+                        <input type="text" id="pincode" name='pincode' class="form-control"
+                            placeholder="Pin Code">
                         <span class="error-msg" id="error-pincode" style="color: red"></span>
                     </div>
                 </div>
@@ -98,17 +103,20 @@
             <div class="form-group">
                 <div class="form-row">
                     <div class="col-sm-12">
-                        <label for="address">Address</label>
+                        <label for="address">Address</label><span style="color:red;">*</span>
                         <textarea class="form-control" required name='address' id="address" rows="2"></textarea>
                         <span class="error-msg" id="error-address" style="color: red"></span>
                     </div>
                 </div>
             </div>
-            <div class="button-container">
-                <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-                <div id="loader" class="loader"></div>
-                <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-            </div>
+            <div class="form-group">
+                <div class="form-row">
+                     <div class="col-sm-12">
+                         <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                         <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                     </div>
+                </div>
+             </div>
     </form>
 @endsection
 
@@ -129,7 +137,6 @@
                 },
                 success: function(response) {
                     if (response.status == 200 && response.country != '') {
-                        loaderhide();
                         $.each(response.country, function(key, value) {
                             // You can update your HTML with the data here if needed
                             $('#country').append(
@@ -138,17 +145,24 @@
                         });
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
-                        loaderhide();
                         $('#country').append(`<option disabled> No Data Found</option>`);
                     }
-
+                    loaderhide();
 
                 },
-                error: function(error) {
+                error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
-                    console.error('Error:', error);
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -165,7 +179,6 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.state != '') {
-                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.state, function(key, value) {
                                 $('#state').append(
@@ -174,17 +187,23 @@
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             $('#state').append(`<option disabled> No Data Found</option>`);
                         }
-
-
-                    },
-                    error: function(error) {
                         loaderhide();
-                        console.error('Error:', error);
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
@@ -202,7 +221,6 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.city != '') {
-                            loaderhide();
                             // You can update your HTML with the data here if needed
                             $.each(response.city, function(key, value) {
                                 $('#city').append(
@@ -212,21 +230,28 @@
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }
-
+                        loaderhide();
 
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
-           
+
 
             // submit form 
             $('#customerform').submit(function(event) {
@@ -241,36 +266,39 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.customer') }}"; // redirect on customer list page
+                            window.location =
+                                "{{ route('admin.customer') }}"; // redirect on customer list page
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
+                        loaderhide();
 
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
-
                 });
             });
 

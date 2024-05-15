@@ -1,10 +1,10 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 
 @section('page_title')
-  Invoice -  Bank Details
+    Invoice - Bank Details
 @endsection
 @section('table_title')
     Bank Details
@@ -52,7 +52,7 @@
     @endsection
 @endif
 @section('table-content')
-    <table id="data" class="table  table-bordered display table-responsive-md table-striped text-center">
+    <table id="data" class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -74,7 +74,7 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-          
+
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
@@ -85,7 +85,7 @@
             function loaddata() {
                 loadershow();
                 $.ajax({
-                    type: 'GET',
+                    type: 'get',
                     url: '{{ route('bank.index') }}',
                     data: {
                         user_id: "{{ session()->get('user_id') }}", //user id is neccesary for fetch api data
@@ -97,7 +97,6 @@
                         if (response.status == 200 && response.bankdetail != '') {
                             // You can update your HTML with the data here if needed
                             global_response = response;
-                            loaderhide();
                             var id = 1;
                             $.each(response.bankdetail, function(key, value) {
                                 $('#data').append(`<tr>
@@ -135,16 +134,22 @@
                             });
                         } else if (response.status == 500) { // if database not found
                             toastr.error(response.message);
-                            loaderhide();
-                        } else {  // if request has not found any bank details record
-                            loaderhide();
+                        } else { // if request has not found any bank details record
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
                         }
-                        
-                    },
-                    error: function(error) { // if calling api request error 
                         loaderhide();
-                        toastr.error('Something Went Wrong!');
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -168,7 +173,6 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
@@ -176,11 +180,23 @@
                                 );
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error('something went wrong !');
-                                loaderhide();
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -202,7 +218,6 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
@@ -210,11 +225,23 @@
                                 );
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -236,16 +263,27 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success('succesfully deleted');
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -256,13 +294,29 @@
                 $('#details').html('');
                 var data = $(this).data('view');
                 $.each(global_response.bankdetail, function(key, bankdetail) {
-                    if (bankdetail.id == data) {
-                        $.each(bankdetail, function(fields, value) {
-                            $('#details').append(`<tr>
-                                    <td>${fields}</td>
-                                    <td>${value}</td>
-                                    </tr>`)
-                        })
+                    if (bankdetail.id == data) { 
+                            $('#details').append(`
+                                <tr>
+                                    <th>Holder Name</th>
+                                    <td>${bankdetail.holder_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Account Number</th>
+                                    <td>${bankdetail.account_no}</td>
+                                </tr>
+                                <tr>
+                                    <th>IFSC Code</th>
+                                    <td>${bankdetail.ifsc_code}</td>
+                                </tr>
+                                <tr>
+                                    <th>Swift Code</th>
+                                    <td>${bankdetail.swift_code}</td>
+                                </tr>
+                                <tr>
+                                    <th>Branch Name</th>
+                                    <td>${bankdetail.branch_name}</td>
+                                </tr>
+                        `); 
                     }
                 });
             });

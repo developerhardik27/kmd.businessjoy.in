@@ -72,12 +72,8 @@ class bankdetailsController extends commonController
                 'message' => 'You are Unauthorized'
             ]);
         }
-        $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0);
+        $bankdetail = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0)->get();;
 
-        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
-            $bankdetailres->where('created_by', $this->userId);
-        }
-        $bankdetail = $bankdetailres->get();
 
         if ($bankdetail->count() > 0) {
 
@@ -160,7 +156,7 @@ class bankdetailsController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ],422);
         } else {
 
             if ($this->rp['invoicemodule']['bank']['add'] == 1) {

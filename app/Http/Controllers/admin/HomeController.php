@@ -17,11 +17,11 @@ class HomeController extends Controller
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
 
-            if(isset($_SESSION['folder_name'])){
-                $this->version = $_SESSION['folder_name'];
-            }else{
-                $this->version = "v1_0_0";
-            }
+        if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
+        } else {
+            $this->version = "v1_0_0";
+        }
 
 
     }
@@ -29,7 +29,7 @@ class HomeController extends Controller
     public function index()
     {
 
-        return view($this->version.'.admin.index');
+        return view($this->version . '.admin.index');
     }
 
 
@@ -52,10 +52,15 @@ class HomeController extends Controller
             'menu',
             'lead',
             'customersupport',
+            'account',
+            'admin',
+            'inventory',
+            'reminder',
             'user_permissions',
             'folder_name'
         ]);
-        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
         session_destroy();
         Auth::guard('admin')->logout();
 
@@ -76,13 +81,17 @@ class HomeController extends Controller
             'menu',
             'lead',
             'customersupport',
+            'account',
+            'admin',
+            'inventory',
             'user_permissions',
             'folder_name'
         ]);
-        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
         session_destroy();
         Auth::guard('admin')->logout();
 
-        return redirect()->route('admin.login')->with('unauthorized','You are already logged in on a different device');
+        return redirect()->route('admin.login')->with('unauthorized', 'You are already logged in on a different device');
     }
 }

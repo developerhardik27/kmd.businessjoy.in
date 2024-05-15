@@ -4,6 +4,7 @@ use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\countryController;
 use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\mailcontroller;
+use App\Http\Controllers\api\otherapiController;
 use App\Http\Controllers\api\stateController;
 use App\Models\company;
 use App\Models\User;
@@ -31,10 +32,28 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 // middleware route group 
 
 $request = request();
-$user = User::find($request->user_id);
-$version = $user ? company::find($user->company_id) : null;
-$versionexplode = $version ? $version->app_version : "v1_0_0"; // Default version is 1 if company not found
+$user = null;
+$version = null;
 
+try {
+    // Check if the user exists
+    if ($request->has('user_id')) {
+        // Retrieve the user if the user_id exists in the request
+        $user = User::find($request->user_id);
+    }
+
+    // If the user exists, retrieve the company's version
+    if ($user) {
+        $version = Company::find($user->company_id);
+    }
+
+    // Determine the version based on whether the user and version exist
+    $versionexplode = $version ? $version->app_version : "v1_0_0";
+} catch (\Exception $e) {
+    // Handle database connection or query exception
+    // For example, log the error or display a friendly message
+    $versionexplode = "v1_0_0"; // Set a default version
+}
 $middlewareNamespace = 'App\\Http\\Middleware\\' . $versionexplode . '\\';
 
 $middleware = $middlewareNamespace . 'CheckToken';
@@ -45,9 +64,28 @@ Route::middleware($middleware)->group(function () {
     function getversion($controller)
     {
         $request = request();
-        $user = User::find($request->user_id);
-        $version = $user ? company::find($user->company_id) : null;
-        $versionexplode = $version ? $version->app_version : "v1_0_0";
+        $user = null;
+        $version = null;
+
+        try {
+            // Check if the user exists
+            if ($request->has('user_id')) {
+                // Retrieve the user if the user_id exists in the request
+                $user = User::find($request->user_id);
+            }
+
+            // If the user exists, retrieve the company's version
+            if ($user) {
+                $version = Company::find($user->company_id);
+            }
+
+            // Determine the version based on whether the user and version exist
+            $versionexplode = $version ? $version->app_version : "v1_0_0";
+        } catch (\Exception $e) {
+            // Handle database connection or query exception
+            // For example, log the error or display a friendly message
+            $versionexplode = "v1_0_0"; // Set a default version
+        }
         return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
     // Default version is 1 if company not found
@@ -76,6 +114,8 @@ Route::middleware($middleware)->group(function () {
         Route::get('/company/edit/{id}', [$companyController, 'edit'])->name('company.edit');
         Route::post('/company/update/{id}', [$companyController, 'update'])->name('company.update');
         Route::post('/company/delete/{id}', [$companyController, 'destroy'])->name('company.delete');
+        Route::put('/company/statusupdate/{id}', [$companyController, 'statusupdate'])->name('company.statusupdate');
+
     });
 
     // product route
@@ -95,6 +135,9 @@ Route::middleware($middleware)->group(function () {
     Route::group([], function () use ($userController) {
         Route::get('/username', [$userController, 'username'])->name('user.username');
         Route::get('/userprofile', [$userController, 'userprofile'])->name('user.profile');
+        Route::get('/customersupportuser', [$userController, 'customersupportuser'])->name('user.customersupportindex');
+        Route::get('/leaduser', [$userController, 'leaduser'])->name('user.leaduserindex');
+        Route::get('/techsupportuser', [$userController, 'techsupportuser'])->name('user.techsupportindex');
         Route::get('/user', [$userController, 'index'])->name('user.index');
         Route::post('/user/insert', [$userController, 'store'])->name('user.store');
         Route::get('/user/search/{id}', [$userController, 'show'])->name('user.search');
@@ -103,6 +146,20 @@ Route::middleware($middleware)->group(function () {
         Route::post('/user/update/{id}', [$userController, 'update'])->name('user.update');
         Route::put('/user/delete/{id}', [$userController, 'destroy'])->name('user.delete');
     });
+
+
+     // customer suppport route 
+     $techsupportController = getversion('techsupportController');
+     Route::group([], function () use ($techsupportController) {
+         Route::get('/techsupport', [$techsupportController, 'index'])->name('techsupport.index');
+         Route::post('/techsupport/insert', [$techsupportController, 'store'])->name('techsupport.store');
+         Route::get('/techsupport/search/{id}', [$techsupportController, 'show'])->name('techsupport.search');
+         Route::get('/techsupport/edit/{id}', [$techsupportController, 'edit'])->name('techsupport.edit');
+         Route::post('/techsupport/update/{id}', [$techsupportController, 'update'])->name('techsupport.update');
+         Route::put('/techsupport/delete', [$techsupportController, 'destroy'])->name('techsupport.delete');
+         Route::put('/techsupport/changestatus', [$techsupportController, 'changestatus'])->name('techsupport.changestatus');
+         Route::put('/techsupport/changeleadstage', [$techsupportController, 'changeleadstage'])->name('techsupport.changeleadstage');
+     });
 
 
     //country route
@@ -171,6 +228,7 @@ Route::middleware($middleware)->group(function () {
     Route::group([], function () use ($PaymentController) {
         Route::post('payment_details', [$PaymentController, 'store'])->name('paymentdetails.store');
         Route::get('paymentdetail/{id}', [$PaymentController, 'paymentdetail'])->name('paymentdetails.search');
+        Route::get('pendingpayment/{id}', [$PaymentController, 'pendingpayment'])->name('paymentdetails.pendingpayment');
     });
 
 
@@ -272,18 +330,52 @@ Route::middleware($middleware)->group(function () {
     Route::group([], function () use ($tblinvoiceothersettingController) {
         Route::get('/getoverduedays', [$tblinvoiceothersettingController, 'getoverduedays'])->name('getoverduedays.index');
         Route::post('/getoverduedays/update/{id}', [$tblinvoiceothersettingController, 'overduedayupdate'])->name('getoverduedays.update');
+        Route::post('/gstsettings/update/{id}', [$tblinvoiceothersettingController, 'gstsettingsupdate'])->name('gstsettingsupdate.update');
         Route::get('/termsandconditions', [$tblinvoiceothersettingController, 'termsandconditionsindex'])->name('termsandconditions.index');
         Route::post('/termsandconditions/insert', [$tblinvoiceothersettingController, 'invoicetcstore'])->name('termsandconditions.store');
         Route::get('/termsandconditions/edit/{id}', [$tblinvoiceothersettingController, 'tcedit'])->name('termsandconditions.edit');
         Route::post('/termsandconditions/update/{id}', [$tblinvoiceothersettingController, 'tcupdate'])->name('termsandconditions.update');
         Route::put('/termsandconditions/statusupdate/{id}', [$tblinvoiceothersettingController, 'tcstatusupdate'])->name('termsandconditions.statusupdate');
         Route::put('/termsandconditions/delete/{id}', [$tblinvoiceothersettingController, 'tcdestroy'])->name('termsandconditions.delete');
+    });
 
+
+    // reminder modules route 
+    // reminder customer route
+    $remindercustomerController = getversion('remindercustomerController');
+    Route::group([], function () use ($remindercustomerController) {
+        Route::get('/remidercustomer/count', [$remindercustomerController, 'counttotalcustomer'])->name('remindercustomer.count');
+        Route::get('/remindercustomer/customerreminders/{id}', [$remindercustomerController, 'customerreminders'])->name('remindercustomer.customerreminders');
+        Route::get('/remindercustomer/customers', [$remindercustomerController, 'remindercustomer'])->name('remindercustomer.customers');
+        Route::get('/remindercustomer/area', [$remindercustomerController, 'area'])->name('remindercustomer.area');
+        Route::get('/remindercustomer/city', [$remindercustomerController, 'cities'])->name('remindercustomer.city');
+        Route::get('/remindercustomer', [$remindercustomerController, 'index'])->name('remindercustomer.index');
+        Route::post('/remindercustomer/insert', [$remindercustomerController, 'store'])->name('remindercustomer.store');
+        Route::get('/remindercustomer/search/{id}', [$remindercustomerController, 'show'])->name('remindercustomer.search');
+        Route::get('/remindercustomer/edit/{id}', [$remindercustomerController, 'edit'])->name('remindercustomer.edit');
+        Route::put('/remindercustomer/statusupdate/{id}', [$remindercustomerController, 'statusupdate'])->name('remindercustomer.statusupdate');
+        Route::put('/remindercustomer/update/{id}', [$remindercustomerController, 'update'])->name('remindercustomer.update');
+        Route::put('/remindercustomer/delete/{id}', [$remindercustomerController, 'destroy'])->name('remindercustomer.delete');
+    });
+
+    // lead route 
+    $reminderController = getversion('reminderController');
+    Route::group([], function () use ($reminderController) {
+        Route::get('/reminder/reminderbydays', [$reminderController, 'getRemindersByDays'])->name('reminder.reminderbydays');
+        Route::get('/reminder', [$reminderController, 'index'])->name('reminder.index');
+        Route::post('/reminder/insert', [$reminderController, 'store'])->name('reminder.store');
+        Route::get('/reminder/search/{id}', [$reminderController, 'show'])->name('reminder.search');
+        Route::get('/reminder/edit/{id}', [$reminderController, 'edit'])->name('reminder.edit');
+        Route::post('/reminder/update/{id}', [$reminderController, 'update'])->name('reminder.update');
+        Route::put('/reminder/delete', [$reminderController, 'destroy'])->name('reminder.delete');
+        Route::put('/reminder/changestatus', [$reminderController, 'changestatus'])->name('reminder.changestatus');
+        Route::get('/reminder/status_list', [$reminderController, 'status_list'])->name('reminder.status_list');
+        Route::get('/reminder/chart', [$reminderController, 'monthlyInvoiceChart'])->name('reminder.chart');
     });
 
 });
 
 
 Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
-
+Route::post('/Addlead',[otherapiController::class,'oceanlead'])->name('ocean.lead');
 

@@ -12,7 +12,8 @@ class customer_support extends Model
     protected $table = 'customer_support';
 
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'contact_no',
         'title',
@@ -25,6 +26,7 @@ class customer_support extends Model
         'number_of_call',
         'notes',
         'ticket',
+        'web_url',
         'assigned_to',
         'assigned_by',
         'created_by',

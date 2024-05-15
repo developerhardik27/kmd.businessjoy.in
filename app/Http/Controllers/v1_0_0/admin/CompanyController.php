@@ -13,7 +13,9 @@ class CompanyController extends Controller
     public function __construct()
     {
         if(session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->version =  $_SESSION['folder_name'];
+        if(isset($_SESSION['folder_name'])){
+            $this->version =  $_SESSION['folder_name'];
+        }
     }
 
     /**
@@ -31,8 +33,7 @@ class CompanyController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {   
-        
+    {    
         return view($this->version.'.admin.companyform',['user_id'=> Session::get('user_id') ]);
     }
 

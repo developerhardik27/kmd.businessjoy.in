@@ -1,10 +1,10 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 
 @section('page_title')
-{{ config('app.name') }} - Invoice Calculation Formula
+    {{ config('app.name') }} - Invoice Calculation Formula
 @endsection
 @section('title')
     Formula
@@ -29,25 +29,11 @@
                         class="pl-1">Formula</span></i>
             </button>
         </span>
-        <table class="table  table-responsive-md  text-center">
+        <table class="table  table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl  text-center">
             <tbody id="add_new_div">
             </tbody>
         </table>
         <hr>
-
-        {{-- <table class="table table-responsive">
-            <tbody id="totalrow">
-                <tr>
-                    <td>Total</td>
-                    <td>0</td>
-                    <td>
-                        <button type="button" class="btn btn-sm iq-bg-success add_totalrow"><i class="ri-add-fill"><span
-                                    class="pl-1">Total's Formula</span></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table> --}}
         <div class="button-container">
             <button type="submit" class="btn btn-primary" id="submitBtn"><i class="ri-check-line"></i></button>
             <div id="loader" class="loader"></div>
@@ -55,7 +41,7 @@
         </div>
     </form>
     <hr>
-    <table id="data" class="table  table-bordered display table-responsive-md table-striped text-center">
+    <table id="data" class="table  table-bordered display table-responsive-lg table-responsive-md table-responsive-sm  table-striped text-center">
         <thead>
             <tr>
                 <th>Sr</th>
@@ -63,16 +49,19 @@
                 <th>Operation</th>
                 <th>Second Column</th>
                 <th>Output Column</th>
-                <th>Formula Order</th>
+                <th>Formula Sequence</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody id="tabledata">
         </tbody>
         <tr>
-            <td colspan="7">
-                <button class="btn btn-sm btn-primary saveformulaorder float-right" title="Save formula order"><i
-                        class="ri-check-line"></i></button>
+            <td colspan="5" style="border:none;">
+            </td>
+            <td>
+                <button class="btn btn-sm btn-primary saveformulaorder text-center" title="Save formula order">
+                    <i  class="ri-check-line"></i>
+                </button>
             </td>
         </tr>
     </table>
@@ -98,7 +87,6 @@
                 },
                 success: function(response) {
                     if (response.status == 200 && response.invoicecolumn != '') {
-                        loaderhide();
                         global_response = response;
                         var id = 1;
                         // Gather all column_name values
@@ -158,14 +146,13 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
 
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
                         $('#add_new_div').append(`
                                             <tr class="iteam_row">
@@ -173,8 +160,6 @@
                                                     <select name="firstcolumn_1" class="form-control firstcolumn" id="firstcolumn_1">
                                                         <optgroup label='Default Column'>
                                                             <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -191,8 +176,6 @@
                                                     <select name="secondcolumn_1" class="form-control secondcolumn" id="secondcolumn_1">
                                                         <optgroup label='Default Column'>
                                                             <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -200,21 +183,29 @@
                                                     <select name="output_1" class="form-control output " id="output_1">
                                                         <optgroup label='Default Column'>
                                                             <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
                                                         </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
                     }
-                },
-                error: function(error) {
                     loaderhide();
-                    console.error('Error:', error);
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -237,9 +228,7 @@
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
                                                         </optgroup>
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -258,9 +247,7 @@
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
                                                         </optgroup>
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -270,26 +257,22 @@
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
                                                         </optgroup>
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
-                        `);
+                            `);
                 } else {
                     $('#add_new_div').append(`
                                             <tr class="iteam_row">
                                                 <td>
                                                     <select name="firstcolumn_${addname}" class="form-control firstcolumn" id="firstcolumn_${addname}">
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -305,23 +288,19 @@
                                                 <td>
                                                     <select name="secondcolumn_${addname}" class="form-control secondcolumn" id="secondcolumn_${addname}">
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
                                                     <select name="output_${addname}" class="form-control output " id="output_${addname}">
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
@@ -354,46 +333,55 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.invoiceformula != '') {
-                            loaderhide();
                             global_response = response;
                             var id = 1;
                             $.each(response.invoiceformula, function(key, value) {
-                                $('#tabledata').append(` <tr>
-                                                        <td>${id}</td>
-                                                        <td>${value.first_column}</td>
-                                                        <td>${value.operation}</td>
-                                                        <td>${value.second_column}</td>
-                                                        <td>${value.output_column}</td>
-                                                        <td><input type='text' placeholder='Set Formula Order' data-id='${value.id}' value='${value.formula_order}'  class='formulaorder'></td>
-                                                        <td>
-                                                            <span>
-                                                                <button type="button" data-id='${value.id}'
-                                                                     class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                            <span>
-                                                                <button type="button" data-id= '${value.id}'
-                                                                    class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        </td>
-                                                    </tr>`)
+                                $('#tabledata').append(`
+                                     <tr>
+                                        <td>${id}</td>
+                                        <td>${value.first_column}</td>
+                                        <td>${value.operation}</td>
+                                        <td>${value.second_column}</td>
+                                        <td>${value.output_column}</td>
+                                        <td>
+                                            <input type='text' placeholder='Set Formula Order' data-id='${value.id}' value='${value.formula_order}'  class='formulaorder'>
+                                        </td>
+                                        <td>
+                                            <span>
+                                                <button type="button" data-id='${value.id}' class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </span>
+                                            <span>
+                                                <button type="button" data-id= '${value.id}' class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
+                                                    <i class="ri-delete-bin-fill"></i>
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `);
                                 id++;
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            $('#tabledata').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='7' >No Data Found</td></tr>`)
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -417,7 +405,6 @@
                         success: function(response) {
                             if (response.status == 200 && response.invoiceformula != '') {
                                 var invoiceformula = response.invoiceformula;
-                                loaderhide();
                                 $('#updated_by').val("{{ session()->get('user_id') }}");
                                 $('#edit_id').val(editid);
                                 $('#firstcolumn_1').val(invoiceformula.first_column).focus();
@@ -426,14 +413,23 @@
                                 $('#output_1').val(invoiceformula.output_column);
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error('Something Went Wrong! please try again later ');
                             }
-                        },
-                        error: function(error) {
                             loaderhide();
-                            console.error('Error:', error);
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -456,15 +452,26 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success('Formula succesfully deleted');
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error('something went wrong !');
-                                loaderhide();
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -493,23 +500,30 @@
                     success: function(response) {
                         if (response.status == 200) {
                             toastr.success(response.message);
-                            loaderhide();
                             loaddata();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             toastr.error(response.message);
-                            loaderhide();
                         }
-                    },
-                    error: function(error) {
                         loaderhide();
-                        toastr.error('Something Went Wrong !');
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
-            
+
 
             // formula submit form (check formula conditions)
             var formula_data = [];
@@ -639,30 +653,39 @@
                             success: function(response) {
                                 if (response.status == 200) {
                                     $('#edit_id').val('');
-                                    loaderhide();
                                     // You can perform additional actions, such as showing a success message or redirecting the user
                                     toastr.success(response.message);
                                     $('#formulaform')[0].reset();
                                     loaddata();
-                                } else if (response.status == 422) {
-                                    loaderhide();
-                                    toastr.error('something Went wrong! Please try again later')
                                 } else if (response.status == 500) {
                                     toastr.error(response.message);
-                                    loaderhide();
                                 } else {
-                                    loaderhide();
                                     toastr.error(response.message);
                                 }
+                                loaderhide();
 
                             },
-                            error: function(xhr, status, error) {
+                            error: function(xhr, status, error) { // if calling api request error 
                                 loaderhide();
-                                toastr.error(
-                                    'An error occurred while processing your request. Please try again later.'
-                                );
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                if (xhr.status === 422) {
+                                    var errors = xhr.responseJSON.errors;
+                                    $.each(errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    var errorMessage = "";
+                                    try {
+                                        var responseJSON = JSON.parse(xhr.responseText);
+                                        errorMessage = responseJSON.message ||
+                                            "An error occurred";
+                                    } catch (e) {
+                                        errorMessage = "An error occurred";
+                                    }
+                                    toastr.error(errorMessage);
+                                }
                             }
-
                         });
                     } else {
                         formuladata = [];
@@ -689,27 +712,39 @@
                                 },
                                 success: function(response) {
                                     if (response.status == 200) {
-                                        loaderhide();
                                         // You can perform additional actions, such as showing a success message or redirecting the user
                                         toastr.success(response.message);
                                         $('#formulaform')[0].reset();
                                         loaddata();
                                     } else if (response.status == 500) {
                                         toastr.error(response.message);
-                                        loaderhide();
-                                    } else if (response.status == 422) {
-                                        loaderhide();
                                     } else {
-                                        loaderhide();
                                         toastr.error(response.message);
                                     }
-
-                                },
-                                error: function(xhr, status, error) {
                                     loaderhide();
-                                    toastr.error(
-                                        'An error occurred while processing your request. Please try again later.'
-                                    );
+                                },
+                                error: function(xhr, status,
+                                    error) { // if calling api request error 
+                                    loaderhide();
+                                    console.log(xhr
+                                        .responseText
+                                    ); // Log the full error response for debugging
+                                    if (xhr.status === 422) {
+                                        var errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            $('#error-' + key).text(value[0]);
+                                        });
+                                    } else {
+                                        var errorMessage = "";
+                                        try {
+                                            var responseJSON = JSON.parse(xhr.responseText);
+                                            errorMessage = responseJSON.message ||
+                                                "An error occurred";
+                                        } catch (e) {
+                                            errorMessage = "An error occurred";
+                                        }
+                                        toastr.error(errorMessage);
+                                    }
                                 }
                             });
                         }

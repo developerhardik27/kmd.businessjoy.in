@@ -89,6 +89,7 @@ class tblleadController extends commonController
         $source = $request->source;
         $leadstagestatus = $request->leadstagestatus;
         $lastfollowup = $request->lastfollowupdate;
+        $followupcount = $request->followupcount;
         $nextfollowup = $request->nextfollowupdate;
         $assignedto = $request->assignedto;
         $activestatus = null;
@@ -97,7 +98,7 @@ class tblleadController extends commonController
         }
 
         $leadquery = DB::connection('dynamic_connection')->table('tbllead')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'attempt_lead', 'notes', 'lead_stage', 'assigned_to', 'created_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+            ->select('id', 'first_name','last_name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'attempt_lead', 'notes', 'lead_stage','web_url', 'assigned_to', 'created_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
             ->where('is_deleted', 0);
 
         if (isset ($activestatus)) {
@@ -121,6 +122,9 @@ class tblleadController extends commonController
         if (isset ($leadstagestatus)) {
             $leadquery->whereIn('lead_stage', $leadstagestatus);
         }
+        if (isset ($followupcount)) {
+            $leadquery->where('number_of_follow_up', $followupcount);
+        }
         if (isset ($nextfollowup)) {
             $leadquery->where('next_follow_up', $nextfollowup);
         }
@@ -137,9 +141,9 @@ class tblleadController extends commonController
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             $leadquery->where('created_by', $this->userId);
-        }
-
-        $lead = $leadquery->orderBy('created_at', 'DESC')->get();
+        }    
+       
+        $lead = $leadquery->orderBy('id', 'DESC')->distinct()->get();
 
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
             return response()->json([
@@ -175,9 +179,10 @@ class tblleadController extends commonController
     {
 
         $validator = Validator::make($request->all(), [
-            'leadname' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'email',
-            'contact_no' => 'required',
+            'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
             'budget',
             'title',
             'company',
@@ -186,6 +191,7 @@ class tblleadController extends commonController
             'last_follow_up',
             'next_follow_up',
             'number_of_follow_up',
+            'web_url',
             'assignedto' => 'required',
             'notes',
             'leadstage',
@@ -210,7 +216,8 @@ class tblleadController extends commonController
 
             $assignedto = implode(',', $request->assignedto);
             $lead = $this->tblleadModel::create([
-                'name' => $request->leadname,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
                 'email' => $request->email,
                 'contact_no' => $request->contact_no,
                 'title' => $request->title,
@@ -223,6 +230,7 @@ class tblleadController extends commonController
                 'number_of_follow_up' => $request->number_of_follow_up,
                 'source' => $request->source,
                 'lead_stage' => $request->leadstage,
+                'web_url' => $request->web_url,
                 'assigned_to' => $assignedto,
                 'notes' => $request->notes,
                 'assigned_by' => $this->userId,
@@ -251,7 +259,7 @@ class tblleadController extends commonController
     public function show(string $id)
     {
         $lead = DB::connection('dynamic_connection')->table('tbllead')
-            ->select('id', 'name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'assigned_to', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'attempt_lead', 'notes', 'lead_stage', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
+            ->select('id', 'first_name','last_name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'assigned_to', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'attempt_lead', 'notes', 'lead_stage','web_url', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
             ->where('id', $id)
             ->get();
 
@@ -323,9 +331,10 @@ class tblleadController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'email',
-            'contact_no' => 'required',
+            'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
             'title',
             'budget',
             'company',
@@ -335,6 +344,7 @@ class tblleadController extends commonController
             'last_follow_up',
             'next_follow_up',
             'number_of_follow_up',
+            'web_url',
             'assignedto' => 'required',
             'notes',
             'leadstage',
@@ -372,7 +382,8 @@ class tblleadController extends commonController
             if ($lead) {
                 $assignedto = implode(',', $request->assignedto);
                 $lead->update([
-                    'name' => $request->name,
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
                     'email' => $request->email,
                     'contact_no' => $request->contact_no,
                     'title' => $request->title,
@@ -387,6 +398,7 @@ class tblleadController extends commonController
                     'attempt_lead' => $request->number_of_attempt,
                     'notes' => $request->notes,
                     'lead_stage' => $request->leadstage,
+                    'web_url' => $request->web_url,
                     'updated_at' => date('Y-m-d'),
                     'updated_by' => $this->userId,
                     'source' => $request->source,
@@ -540,7 +552,7 @@ class tblleadController extends commonController
             return response()->json([
                 'status' => 404,
                 'message' => 'No any source value  Found!'
-            ], 404);
+            ]);
         }
 
     }

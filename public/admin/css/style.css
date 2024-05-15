@@ -1142,5 +1142,10 @@ input[type='search']{
   border: 0.9px solid #d3d3d3;
   border-radius: 5px;
 
+}
 
+/* changes in navabar */
+
+.navbar-left{
+  margin-left: 40px;
 }

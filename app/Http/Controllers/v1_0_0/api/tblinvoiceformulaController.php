@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class tblinvoiceformulaController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp,$tbl_invoice_formulaModel;
+    public $userId, $companyId, $masterdbname, $rp, $tbl_invoice_formulaModel;
 
     public function __construct(Request $request)
     {
@@ -77,37 +77,44 @@ class tblinvoiceformulaController extends commonController
     public function store(Request $request)
     {
 
-        //condition for check if user has permission to add record
-        if ($this->rp['invoicemodule']['formula']['add'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
-        }
+            //condition for check if user has permission to add record
+            if ($this->rp['invoicemodule']['formula']['add'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'You are Unauthorized'
+                ]);
+            }
 
-        $formuladata = $request['formuladata'];
-        foreach ($formuladata as $key => $value) {
-            $invoiceformula = $this->tbl_invoice_formulaModel::create([
-                'first_column' => $value[0],
-                'operation' => $value[1],
-                'second_column' => $value[2],
-                'output_column' => $value[3],
-                'company_id' => $this->companyId,
-                'created_by' => $this->userId,
-            ]);
-        }
+            $maxformulasequence = $this->tbl_invoice_formulaModel::where('is_deleted', 0)->max('formula_order');
+            $formulasequence = 1 ;
+            if($maxformulasequence){
+                $formulasequence = ++$formulasequence;
+             }
+            $formuladata = $request['formuladata'];
+            foreach ($formuladata as $key => $value) {
+                $invoiceformula = $this->tbl_invoice_formulaModel::create([
+                    'first_column' => $value[0],
+                    'operation' => $value[1],
+                    'second_column' => $value[2],
+                    'output_column' => $value[3],
+                    'formula_order' => $formulasequence,
+                    'company_id' => $this->companyId,
+                    'created_by' => $this->userId,
+                ]);
+                ++$formulasequence;
+            }
 
-        if ($invoiceformula) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'Invoice Formula  succesfully added'
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => 500,
-                'message' => 'Invoice Formula not succesfully added'
-            ]);
-        }
+            if ($invoiceformula) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Invoice Formula  succesfully added'
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Invoice Formula not succesfully added'
+                ]);
+            }
     }
 
     /**
@@ -210,7 +217,7 @@ class tblinvoiceformulaController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ], 422);
         } else {
 
             //condition for check if user has permission to search  record

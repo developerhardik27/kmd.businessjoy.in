@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 
 @section('page_title')
     {{ config('app.name') }} - Add New Customer Support
@@ -30,37 +30,33 @@
                         placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
-                    <label class="form-label" for="name">Name:</label><span style="color:red;"> *</span>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Name" required />
+                    <label class="form-label" for="first_name">First Name:</label><span style="color:red;"> *</span>
+                    <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First Name"
+                        required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
-                    <label class="form-label" for="email">Email:</label>
-                    <input type="email" class="form-control" name="email" id="email"
-                        placeholder="Professional Email" />
-                    <span class="error-msg" id="error-email" style="color: red"></span>
+                <div class="col-md-6">
+                    <label class="form-label" for="last_name">Last Name:</label><span style="color:red;"> *</span>
+                    <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name"
+                        required />
+                    <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;"> *</span>
-                    <input type="text" class="form-control" name="contact_no" id="contact_no"
-                        placeholder="Whatsapp Mobile Number" maxlength="13" onkeypress="return isNumberKey(event);"
-                        onkeyup="numberMobile(event);" required />
-                    <span class="error-msg" id="error-contact_no" style="color: red"></span>
+                    <label class="form-label" for="email">Email:</label>
+                    <input type="email" class="form-control" name="email" id="email"
+                        placeholder="Professional Email" />
+                    <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="status">Status:</label>
-                    <select name="status" class="form-control" id="status">
-                        <option value="" disabled selected>Status</option>
-                        <option value='Open'>Open</option>
-                        <option value='In Progress'>In Progress</option>
-                        <option value='Resolved'>Resolved</option>
-                        <option value='Cancelled'>Cancelled</option>
-                    </select>
-                    <span class="error-msg" id="error-status" style="color: red"></span>
+                    <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;"> *</span>
+                    <input type="text" class="form-control" name="contact_no" id="contact_no"
+                        placeholder="Whatsapp Mobile Number" minlength="10" maxlength="15" onkeypress="return isNumberKey(event);"
+                        onkeyup="numberMobile(event);" required />
+                    <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -68,7 +64,8 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label class="form-label" for="last_call">Last Call:</label>
-                    <input type="date" class="form-control" name="last_call" id="last_call" placeholder="Last Call" />
+                    <input type="datetime-local" class="form-control" name="last_call" id="last_call"
+                        placeholder="Last Call" />
                     <span class="error-msg" id="error-last_call" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -82,6 +79,17 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
+                    <label class="form-label" for="status">Status:</label>
+                    <select name="status" class="form-control" id="status">
+                        <option value="" disabled selected>Status</option>
+                        <option value='Open'>Open</option>
+                        <option value='In Progress'>In Progress</option>
+                        <option value='Resolved'>Resolved</option>
+                        <option value='Cancelled'>Cancelled</option>
+                    </select>
+                    <span class="error-msg" id="error-status" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
                     <label class="form-label" for="assignedto">Assigned To:</label><span style="color:red;">
                         *</span><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
@@ -91,7 +99,16 @@
                 </div>
             </div>
         </div>
-
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
+                    <label class="form-label" for="last_call">Website Url:</label>
+                    <input type="text" class="form-control" name="web_url" id="web_url"
+                        placeholder="Website Url" />
+                    <span class="error-msg" id="error-web_url" style="color: red"></span>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
@@ -101,10 +118,14 @@
                 </div>
             </div>
         </div>
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Cancel</button>
-        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                 </div>
+            </div>
+         </div>
     </form>
 @endsection
 
@@ -142,7 +163,17 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
- 
+
+            $('#assignedto').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                    '<option selected disabled>-- Select User --</option>'); // prepend "Please choose an option"
+                }
+                $('#assignedto').multiselect('rebuild');
+            });
+
             $('#notes').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -151,18 +182,17 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['height', ['height']],
                     ['insert', ['table']],
-                    ['view', ['fullscreen', 'codeview']],
-                    ['help', ['help']]
+                    ['view', ['fullscreen', 'codeview']]
                 ],
                 placeholder: 'Add Notes',
                 tabsize: 2,
                 height: 100
             });
 
-            // get & set user data into form input for assing to ticket 
+            // get & set user data into form input for assign to ticket 
             $.ajax({
                 type: 'GET',
-                url: '{{ route('user.index') }}',
+                url: '{{ route('user.customersupportindex') }}',
                 data: {
                     user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
@@ -177,7 +207,11 @@
                             $('#assignedto').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#assignedto').multiselect(
+                        $('#assignedto').multiselect({
+                                enableFiltering: true,
+                                includeSelectAllOption: true,
+                                enableCaseInsensitiveFiltering: true
+                            },
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (response.status == 500) {
@@ -193,13 +227,13 @@
                     console.error('Error:', error);
                 }
             });
-      
+
 
             // user will be redirect if he is click on form cancel button
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.customersupport') }}";
-            })
+            });
             // submit form data
             $('#ticketform').submit(function(event) {
                 event.preventDefault();

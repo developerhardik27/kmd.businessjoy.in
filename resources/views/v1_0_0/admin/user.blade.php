@@ -1,9 +1,9 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 @section('page_title')
-{{ config('app.name') }} - Users
+    {{ config('app.name') }} - Users
 @endsection
 @section('table_title')
     Users
@@ -39,7 +39,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.user.add') == '1')
+@if (session('user_permissions.adminmodule.user.add') == '1')
     @section('addnew')
         {{ route('admin.adduser') }}
     @endsection
@@ -51,7 +51,8 @@
 @endif
 
 @section('table-content')
-    <table id="data" class="table display table-bordered table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table display table-bordered table-responsive table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -105,14 +106,14 @@
                                                         <td>${value.company_name}</td>
                                                         <td>${value.user_role}</td>
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.user.edit') == '1') 
+                                                            @if (session('user_permissions.adminmodule.user.edit') == '1') 
                                                                 ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.user.view') == '1') 
+                                                            @if (session('user_permissions.adminmodule.user.view') == '1') 
                                                                 <span>
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
@@ -122,10 +123,10 @@
                                                               -    
                                                             @endif
                                                         </td>
-                                                        @if (session('user_permissions.invoicemodule.user.edit') == '1' ||
-                                                                session('user_permissions.invoicemodule.user.delete') == '1')
+                                                        @if (session('user_permissions.adminmodule.user.edit') == '1' ||
+                                                                session('user_permissions.adminmodule.user.delete') == '1')
                                                             <td>
-                                                                @if (session('user_permissions.invoicemodule.user.edit') == '1') 
+                                                                @if (session('user_permissions.adminmodule.user.edit') == '1') 
                                                                     <span>
                                                                         <a href='EditUser/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -134,7 +135,7 @@
                                                                         </a>
                                                                     </span>
                                                                 @endif
-                                                                @if (session('user_permissions.invoicemodule.user.delete') == '1') 
+                                                                @if (session('user_permissions.adminmodule.user.delete') == '1') 
                                                                     <span class="">
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>
@@ -148,21 +149,35 @@
                                                     </tr>`)
                                 id++;
                             });
+                            var search = {!! json_encode($search) !!}
+
                             $('#data').DataTable({
+
+                                "search": {
+                                    "search": search
+                                },
                                 "destroy": true, //use for reinitialize datatable
                             });
-                            loaderhide();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
-                            loaderhide();
                         }
-                    },
-                    error: function(error) {
                         loaderhide();
-                        console.error('Error:', error);
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -185,19 +200,30 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
-                            }else if (response.status == 500) {
+                            } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -219,7 +245,6 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $('#status_' + statusid).html('<button data-status= ' +
                                     statusid +
@@ -227,11 +252,23 @@
                                 );
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -253,15 +290,25 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
-                            }else if (response.status == 500) {
+                            } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -273,27 +320,44 @@
                 var data = $(this).data('view');
                 $.each(global_response.user, function(key, user) {
                     if (user.id == data) {
-                        $.each(user, function(fields, value) {
-                            if ((fields == 'created_by' && fields != null) || (fields ==
-                                    'updated_by' && fields != null)) {
-                                var name = value;
-                                $.each(global_response.user, function(userkey, username) {
-
-                                    if (username.id == name) {
-                                        $('#details').append(`<tr>
-                                    <th>${fields}</th>                         
-                                    <td>${username.firstname + ' ' + username.lastname}</td>
-                                    </tr>`)
-                                    }
-                                });
-                            } else {
-                                $('#details').append(`<tr>
-                                    <th>${fields}</th>                         
-                                    <td>${value}</td>
-                                    </tr>`)
-                            }
-
-                        })
+                        $('#details').append(`
+                                <tr>
+                                    <th>Name</th>                         
+                                    <td>${user.firstname} ${user.lastname}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>                         
+                                    <td>${user.email}</td>
+                                </tr>
+                                <tr>
+                                    <th>Contact</th>                         
+                                    <td>${user.contact_no}</td>
+                                </tr>
+                                <tr>
+                                    <th>Pincode</th>                         
+                                    <td>${user.pincode}</td>
+                                </tr>
+                                <tr>
+                                    <th>City</th>                         
+                                    <td>${user.city_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>State</th>                         
+                                    <td>${user.state_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Country</th>                         
+                                    <td>${user.country_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Company Name</th>                         
+                                    <td>${user.company_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Is Active</th>                         
+                                    <td>${user.is_active == 1 ? 'Yes' : ' No' }</td>
+                                </tr>
+                        `)
                     }
                 });
             });

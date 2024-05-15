@@ -14,7 +14,7 @@ class stateController extends Controller
      */
     public function index()
     {
-        $state = state::all()->where('is_deleted', 0)->where('is_active', 1);
+        $state = state::all();
 
         if ($state->count() > 0) {
             return response()->json([

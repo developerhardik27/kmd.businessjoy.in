@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class tblinvoiceothersettingController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp,$invoice_other_settingModel,$invoice_terms_and_conditionModel;
+    public $userId, $companyId, $masterdbname, $rp, $invoice_other_settingModel, $invoice_terms_and_conditionModel;
 
     public function __construct(Request $request)
     {
@@ -46,7 +46,7 @@ class tblinvoiceothersettingController extends commonController
 
         $overdueday = $this->invoice_other_settingModel::where('is_deleted', 0)->get();
 
-    
+
         if ($overdueday->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -88,7 +88,6 @@ class tblinvoiceothersettingController extends commonController
             ]);
         }
     }
-
     public function overduedayupdate(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
@@ -101,7 +100,7 @@ class tblinvoiceothersettingController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ], 422);
         } else {
 
             //condition for check if user has permission to search  record
@@ -145,6 +144,68 @@ class tblinvoiceothersettingController extends commonController
         }
     }
 
+    public function gstsettingsupdate(Request $request, string $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'sgst' => 'nullable|numeric',
+            'cgst' => 'nullable|numeric',
+            'gst' => 'nullable|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages()
+            ], 422);
+        } else {
+
+            if (isset($request->gst)) {
+                $gst = $request->gst;
+            } else {
+                $gst = 0;
+            }
+            //condition for check if user has permission to search  record
+            if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
+            }
+
+            $overdueday = $this->invoice_other_settingModel::find($id);
+
+            if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
+                if ($overdueday->created_by != $this->userId) {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => "You are Unauthorized!"
+                    ]);
+                }
+            }
+
+            if ($overdueday) {
+                date_default_timezone_set('Asia/Kolkata');
+
+                $overdueday->sgst = $request->sgst;
+                $overdueday->cgst = $request->cgst;
+                $overdueday->gst = $gst;
+                $overdueday->updated_by = $this->userId;
+                $overdueday->updated_at = date('Y-m-d H:i:s');
+                $overdueday->save();
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'GST ettings succesfully updated'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No Such GST Settig Found!'
+                ]);
+            }
+        }
+    }
+
     public function invoicetcstore(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -157,7 +218,7 @@ class tblinvoiceothersettingController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ], 422);
         } else {
 
             if ($this->rp['invoicemodule']['invoicesetting']['add'] != 1) {
@@ -166,12 +227,22 @@ class tblinvoiceothersettingController extends commonController
                     'message' => 'You are Unauthorized'
                 ]);
             }
-            $overdue = $this->invoice_terms_and_conditionModel::create([
+
+            $all_old_t_and_c = $this->invoice_terms_and_conditionModel::all();
+
+            if ($all_old_t_and_c->count() > 0) {
+                foreach ($all_old_t_and_c as $old_t_and_c) {
+                    $old_t_and_c->is_active = 0;
+                    $old_t_and_c->save();
+                }
+            }
+
+            $t_and_c = $this->invoice_terms_and_conditionModel::create([
                 't_and_c' => $request->t_and_c,
                 'created_by' => $this->userId,
             ]);
 
-            if ($overdue) {
+            if ($t_and_c) {
                 return response()->json([
                     'status' => 200,
                     'message' => 'Terms & Conditions succesfully added'
@@ -234,7 +305,7 @@ class tblinvoiceothersettingController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ], 422);
         } else {
 
             //condition for check if user has permission to search  record
@@ -290,6 +361,9 @@ class tblinvoiceothersettingController extends commonController
             }
         }
         if ($termsandcondition) {
+
+            $this->invoice_terms_and_conditionModel::where('id', '!=', $id)->update(['is_active' => 0]);
+
             if ($this->rp['invoicemodule']['invoicesetting']['edit'] == 1) {
                 $termsandcondition->update([
                     'is_active' => $request->status

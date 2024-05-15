@@ -29,7 +29,7 @@
                 @if (Session::has('unauthorized'))
                     <span style="color: red"><b> &#9888; {{ Session::get('unauthorized') }}</b></span>
                 @endif
-                <input type="email" id="username" name="email" placeholder="email" value='{{ old('email') }}'
+                <input type="email" id="username" name="email" placeholder="email" value='{{ session()->has("email") ? session("email") : old("email") }}'
                     required>
                 <input type="password" id="password" name="password" placeholder="password" value="" required>
                 @if (Session::has('success'))

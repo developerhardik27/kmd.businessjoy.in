@@ -1,10 +1,10 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 
 @section('page_title')
-{{ config('app.name') }} - Update user details
+    {{ config('app.name') }} - Update user details
 @endsection
 @section('title')
     Update User details
@@ -40,14 +40,15 @@
                             <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                                 placeholder="token" required />
                             <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
-                            <input type="hidden" value="{{ session('company_id') }}" name="company_id" class="form-control">
-                            <label for="firstname">FirstName</label>
+                            <input type="hidden" value="{{ session('company_id') }}" name="company_id"
+                                class="form-control">
+                            <label for="firstname">FirstName</label><span style="color:red;">*</span>
                             <input type="text" id="firstname" name='firstname' class="form-control"
                                 placeholder="First name" required>
                             <span class="error-msg" id="error-firstname" style="color: red"></span>
                         </div>
                         <div class="col-sm-6">
-                            <label for="lastname">LastName</label>
+                            <label for="lastname">LastName</label><span style="color:red;">*</span>
                             <input type="text" id="lastname" name='lastname' class="form-control"
                                 placeholder="Last name" required>
                             <span class="error-msg" id="error-lastname" style="color: red"></span>
@@ -57,7 +58,7 @@
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6">
-                            <label for="email">Email</label>
+                            <label for="email">Email</label><span style="color:red;">*</span>
                             <input type="email" name='email' class="form-control" id="email" value=""
                                 placeholder="Enter Email" required>
                             <span class="error-msg" id="error-email" style="color: red"></span>
@@ -73,13 +74,13 @@
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6">
-                            <label for="contact_no">Contact Number</label>
+                            <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
                             <input type="tel" name='contact_number' class="form-control" id="contact_no" value=""
                                 placeholder="0123456789" required>
                             <span class="error-msg" id="error-contact_number" style="color: red"></span>
                         </div>
                         <div class="col-sm-6">
-                            <label for="country">Select Country</label>
+                            <label for="country">Select Country</label><span style="color:red;">*</span>
                             <select id="country" class="form-control" name='country' required>
                                 <option selected="" disabled="">Select your Country</option>
                             </select>
@@ -90,14 +91,14 @@
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6">
-                            <label for="state">Select State</label>
+                            <label for="state">Select State</label><span style="color:red;">*</span>
                             <select class="form-control" name='state' id="state" required>
                                 <option selected="" disabled="">Select your State</option>
                             </select>
                             <span class="error-msg" id="error-state" style="color: red"></span>
                         </div>
                         <div class="col-sm-6">
-                            <label for="city">Select City</label>
+                            <label for="city">Select City</label><span style="color:red;">*</span>
                             <select class="form-control" name='city' id="city" required>
                                 <option selected="" disabled="">Select your City</option>
                             </select>
@@ -108,18 +109,21 @@
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6">
-                            <label for="pincode">Pincode</label>
+                            <label for="pincode">Pincode</label><span style="color:red;">*</span>
                             <input type="text" id="pincode" name='pincode' class="form-control"
                                 placeholder="Pin Code" required>
                             <span class="error-msg" id="error-pincode" style="color: red"></span>
                         </div>
                     </div>
                 </div>
-                <div class="button-container">
-                    <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
-                    <div id="loader" class="loader"></div>
-                    <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                         <div class="col-sm-12">
+                             <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                             <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                         </div>
+                    </div>
+                 </div>
             </form>
         </div>
     </div>
@@ -162,18 +166,24 @@
                         loadcountry(country);
                         loadstate(country, state);
                         loadcity(state, city);
-                        loaderhide();
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
-                        loaderhide();
                         toastr.error('something went wrong !');
                     }
-                },
-                error: function(error) {
                     loaderhide();
-                    console.error('Error:', error);
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr.responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -277,15 +287,23 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
-                            loaderhide();
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`);
-                            loaderhide();
                         }
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
                         loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
@@ -309,15 +327,24 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 );
                             });
-                            loaderhide();
                         } else {
                             $('#city').append(`<option disabled>No Data Found</option>`);
-                            loaderhide();
                         }
+                        loaderhide();
                     },
-                    // error: function(error) {
-                    //     console.error('Error:', error);
-                    // }
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
                 });
             });
             //submit form
@@ -337,32 +364,35 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location =
                                 "{{ route('admin.userprofile', ['id' => Session::get('user_id')]) }}";
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             toastr.error(response.message);
-                            loaderhide();
                         }
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

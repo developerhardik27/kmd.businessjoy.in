@@ -39,12 +39,12 @@ class purchaseController extends commonController
             ->select('purchases.id', 'purchases.name', 'purchases.description', 'purchases.amount', 'purchases.amount_type', 'purchases.date', 'company_details.name as company_name', 'purchases.img', 'purchases.created_by', 'purchases.updated_by', 'purchases.is_active')
             ->where('purchases.is_deleted', 0);
 
-        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             $purchasesres->where('purchases.created_by', $this->userId);
         }
 
         //condition for check if user has permission to view record
-        if ($this->rp['invoicemodule']['purchase']['view'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -100,11 +100,11 @@ class purchaseController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ],422);
         } else {
 
             //condition for check if user has permission to add new record
-            if ($this->rp['invoicemodule']['purchase']['add'] != 1) {
+            if ($this->rp['accountmodule']['purchase']['add'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized'
@@ -182,7 +182,7 @@ class purchaseController extends commonController
     public function show(string $id)
     {
         $purchases = $this->PurchaseModel::find($id);
-        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             if ($purchases->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -191,7 +191,7 @@ class purchaseController extends commonController
             }
         }
         //condition for check if user has permission to search record
-        if ($this->rp['invoicemodule']['purchase']['view'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => "You are Unauthorized!"
@@ -217,7 +217,7 @@ class purchaseController extends commonController
     public function edit(string $id)
     {
         $purchases = $this->PurchaseModel::find($id);
-        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             if ($purchases->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -227,7 +227,7 @@ class purchaseController extends commonController
         }
 
         //condition for check if user has permission to edit record
-        if ($this->rp['invoicemodule']['purchase']['edit'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['edit'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => "You are Unauthorized!"
@@ -270,10 +270,10 @@ class purchaseController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ],422);
         } else {
             //condition for check if user has permission to edit record
-            if ($this->rp['invoicemodule']['purchase']['edit'] != 1) {
+            if ($this->rp['accountmodule']['purchase']['edit'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => "You are Unauthorized!"
@@ -351,7 +351,7 @@ class purchaseController extends commonController
     public function destroy(string $id)
     {
         $purchases = $this->PurchaseModel::find($id);
-        if ($this->rp['invoicemodule']['purchase']['alldata'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             if ($purchases->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -360,7 +360,7 @@ class purchaseController extends commonController
             }
         }
         //condition for check if user has permission to delete record
-        if ($this->rp['invoicemodule']['purchase']['delete'] != 1) {
+        if ($this->rp['accountmodule']['purchase']['delete'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => "You are Unauthorized!"

@@ -14,7 +14,7 @@ class cityController extends Controller
      */
     public function index()
     {
-        $city = city::all()->where('is_deleted', 0)->where('is_active', 1);
+        $city = city::all()->orderBy('city_name');
 
         if ($city->count() > 0) {
             return response()->json([
@@ -86,7 +86,7 @@ class cityController extends Controller
      */
     public function show(string $id)
     {
-        $city = city::get()->where('state_id',$id);
+        $city = city::orderBy('city_name')->where('state_id',$id)->get();
 
         if ($city->count() > 0) {
             return response()->json([

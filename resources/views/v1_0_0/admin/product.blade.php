@@ -1,8 +1,7 @@
-
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 @section('page_title')
     {{ config('app.name') }} - Products
 @endsection
@@ -40,7 +39,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.product.add') == '1')
+@if (session('user_permissions.inventorymodule.product.add') == '1')
     @section('addnew')
         {{ route('admin.addproduct') }}
     @endsection
@@ -52,7 +51,8 @@
 @endif
 
 @section('table-content')
-    <table id="data" class="table display table-bordered table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table display table-bordered table-responsive-sm table-responsive-md table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -100,7 +100,7 @@
                                                     <td>${value.price_per_unit}</td>
                                                     <td>${value.company_name}</td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.product.view') == '1')
+                                                        @if (session('user_permissions.inventorymodule.product.view') == '1')
                                                             <span>
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -110,10 +110,10 @@
                                                           -    
                                                         @endif
                                                     </td>
-                                                    @if (session('user_permissions.invoicemodule.product.edit') == '1' ||
-                                                            session('user_permissions.invoicemodule.product.delete') == '1')
+                                                    @if (session('user_permissions.inventorymodule.product.edit') == '1' ||
+                                                            session('user_permissions.inventorymodule.product.delete') == '1')
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.product.edit') == '1')
+                                                            @if (session('user_permissions.inventorymodule.product.edit') == '1')
                                                                 <span>
                                                                     <a href='EditProduct/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -122,7 +122,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif
-                                                            @if (session('user_permissions.invoicemodule.product.delete') == '1')
+                                                            @if (session('user_permissions.inventorymodule.product.delete') == '1')
                                                                 <span>
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -136,23 +136,34 @@
                                                 </tr>`)
                                 id++;
                             });
+                            var search = {!! json_encode($search) !!}
+
                             $('#data').DataTable({
+
+                                "search": {
+                                    "search": search
+                                },
                                 "destroy": true, //use for reinitialize datatable
                             });
-                            loaderhide();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
-                            loaderhide();
                         }
-
-
-                    },
-                    error: function(error) {
                         loaderhide();
-                        console.error('Error:', error);
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -176,15 +187,26 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -196,19 +218,33 @@
                 var data = $(this).data('view');
                 $.each(global_response.product, function(key, product) {
                     if (product.id == data) {
-                        $.each(product, function(fields, value) {
-                            $('#details').append(`<tr>
-                                    <th>${fields}</th>
-                                    
-                                    <td>${value}</td>
-                                    </tr>`)
-                        })
-
+                        
+                            $('#details').append(`
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <td>${product.name}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Description</th>
+                                        <td>${product.description}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Product Code</th>
+                                        <td>${product.product_code}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Unit</th>
+                                        <td>${product.unit}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Price Per Unit</th>
+                                        <td>${product.price_per_unit}</td>
+                                    </tr>
+                            `);
+                        
                     }
                 });
-
             });
-
         });
     </script>
 @endpush

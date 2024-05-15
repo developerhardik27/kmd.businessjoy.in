@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Session;
 class CustomerController extends Controller
 {
 
-    public $version,$customerModel;
+    public $version, $customerModel;
     public function __construct()
     {
-        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->version =  $_SESSION['folder_name'];
-
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
         if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
             $this->customerModel = 'App\\Models\\' . $this->version . "\\customer";
         } else {
             $this->customerModel = 'App\\Models\\v1_0_0\\customer';
@@ -27,9 +27,9 @@ class CustomerController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    { 
+    {
 
-        return view($this->version.'.admin.customer');
+        return view($this->version . '.admin.customer');
     }
 
     /**
@@ -38,7 +38,7 @@ class CustomerController extends Controller
     public function create()
     {
 
-        return view($this->version.'.admin.customerform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.customerform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -61,7 +61,7 @@ class CustomerController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {  
+    {
         $dbname = company::find(Session::get('company_id'));
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
@@ -69,10 +69,10 @@ class CustomerController extends Controller
         DB::purge('dynamic_connection');
         DB::reconnect('dynamic_connection');
 
-        $customer =  $this->customerModel::findOrFail($id);
-        $this->authorize('view', $customer);
+        // $customer =  $this->customerModel::findOrFail($id);
+        // $this->authorize('view', $customer);
 
-        return view($this->version.'.admin.customerupdateform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'edit_id' => $id]);
+        return view($this->version . '.admin.customerupdateform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
 
     /**

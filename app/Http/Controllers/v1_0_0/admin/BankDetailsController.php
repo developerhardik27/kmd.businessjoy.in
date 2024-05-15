@@ -13,9 +13,8 @@ class BankDetailsController extends Controller
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
-        $this->version = $_SESSION['folder_name'];
-
         if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
             $this->bankdetailModel = 'App\\Models\\' . $this->version . "\\bank_detail";
         } else {
             $this->bankdetailModel = 'App\\Models\\v1_0_0\\bank_detail';

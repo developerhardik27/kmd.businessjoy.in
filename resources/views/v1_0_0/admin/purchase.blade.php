@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 @section('page_title')
     {{ config('app.name') }} - Purchase
 @endsection
@@ -39,7 +39,7 @@
         }
     </style>
 @endsection
-@if (session('user_permissions.invoicemodule.purchase.add') == '1')
+@if (session('user_permissions.accountmodule.purchase.add') == '1')
     @section('addnew')
         {{ route('admin.addpurchase') }}
     @endsection
@@ -51,7 +51,8 @@
 @endif
 
 @section('table-content')
-    <table id="data" class="table display table-bordered table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -101,7 +102,7 @@
                                                         <td>${value.amount_type}</td>
                                                         <td>${value.company_name}</td>                                                
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.purchase.view') == '1') 
+                                                            @if (session('user_permissions.accountmodule.purchase.view') == '1') 
                                                                 <span>
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
@@ -111,10 +112,10 @@
                                                               -    
                                                             @endif
                                                         </td>
-                                                        @if (session('user_permissions.invoicemodule.purchase.edit') == '1' ||
-                                                                session('user_permissions.invoicemodule.purchase.delete') == '1')
+                                                        @if (session('user_permissions.accountmodule.purchase.edit') == '1' ||
+                                                                session('user_permissions.accountmodule.purchase.delete') == '1')
                                                         <td>
-                                                                @if (session('user_permissions.invoicemodule.purchase.edit') == '1') 
+                                                                @if (session('user_permissions.accountmodule.purchase.edit') == '1') 
                                                                     <span>
                                                                         <a href='EditPurchase/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -123,7 +124,7 @@
                                                                         </a>
                                                                     </span>
                                                                 @endif
-                                                                @if (session('user_permissions.invoicemodule.purchase.delete') == '1') 
+                                                                @if (session('user_permissions.accountmodule.purchase.delete') == '1') 
                                                                     <span >
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>
@@ -138,27 +139,39 @@
                                                     </tr>`)
                                 id++;
                             });
+                            var search = {!! json_encode($search) !!}
+
                             $('#data').DataTable({
+
+                                "search": {
+                                    "search": search
+                                },
                                 "destroy": true, //use for reinitialize datatable
                             });
-                            loaderhide();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
-                            loaderhide();
                         }
-                    },
-                    error: function(error) {
                         loaderhide();
-                        console.error('Error:', error);
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
             //call function for load purchase in table
             loaddata();
-
 
             // record delete 
             $(document).on("click", ".del-btn", function() {
@@ -176,12 +189,24 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -193,15 +218,28 @@
                 var data = $(this).data('view');
                 $.each(global_response.purchase, function(key, purchase) {
                     if (purchase.id == data) {
-                        $.each(purchase, function(fields, value) {
-
-                            $('#details').append(`<tr>
-                                    <th>${fields}</th>                         
-                                    <td>${value}</td>
-                                    </tr>`)
-
-
-                        })
+                            $('#details').append(`
+                                <tr>
+                                    <th>Name</th>                         
+                                    <td>${purchase.name}</td>
+                                </tr>
+                                <tr>    
+                                    <th>Description</th>                         
+                                    <td>${purchase.description}</td>
+                                </tr>
+                                <tr>    
+                                    <th>Amount</th>                         
+                                    <td>${purchase.amount}</td>
+                                </tr>
+                                <tr>    
+                                    <th>Amount Type</th>                         
+                                    <td>${purchase.amount_type}</td>
+                                </tr>
+                                <tr>    
+                                    <th>Date</th>                         
+                                    <td>${purchase.date}</td>
+                                </tr>
+                            `);
                     }
                 });
             });

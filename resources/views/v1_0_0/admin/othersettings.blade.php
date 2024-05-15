@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterpage')
+@extends($folder . '.admin.masterpage')
 
 @section('page_title')
     {{ config('app.name') }} - Invoice Other Settings
@@ -28,14 +28,14 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-12 col-lg-12">
-                    <button title="Edit Other Settings" type="button" id="editoverdueday" class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Other Settings" type="button" id="editoverdueday"
+                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
                         <i class="ri-edit-fill"></i>
                     </button>
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
                                 <h4 class="card-title">Other Settings </h4>
-
                             </div>
                         </div>
                         <div class="iq-card-body" id="appendform">
@@ -53,14 +53,18 @@
                                             Invoice Overdue Days : <input type="number" id="overdue_day" name='overdue_day'
                                                 class="form-control" placeholder="overdue days" min="1" required />
                                             <span class="error-msg" id="error-overdue_day" style="color: red"></span><br>
-                                            <button type="submit" class="btn btn-primary">Update</button>
-                                            <button type="reset" id="overduereset" class="btn iq-bg-danger">Reset</button>
                                         </div>
                                         <div class="col-sm-6">
                                             Year Starting Date : <input type="date" id="year_start_date"
                                                 name='year_start_date' class="form-control" placeholder="Year starting date"
                                                 required />
                                             <span class="error-msg" id="error-year_start_date" style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-row mt-1">
+                                        <div class="col-sm-6">
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                            <button type="reset" id="overduereset" class="btn iq-bg-danger">Reset</button>
                                         </div>
                                     </div>
                                 </div>
@@ -71,6 +75,81 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-12 col-lg-12">
+                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit GST Settings" type="button" id="editgstsettings"
+                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                        <i class="ri-edit-fill"></i>
+                    </button>
+                    <div class="iq-card">
+                        <div class="iq-card-header d-flex justify-content-between">
+                            <div class="iq-header-title">
+                                <h4 class="card-title">Gst Settings</h4>
+                            </div>
+                        </div>
+                        <div class="iq-card-body" id="gstappendform">
+                            <form id="gstsettingsform" style="display: none">
+                                @csrf
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            <input type="hidden" name="token" class="form-control"
+                                                value="{{ session('api_token') }}" placeholder="token" required />
+                                            <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                class="form-control">
+                                            <input type="hidden" value="{{ $company_id }}" name="company_id"
+                                                class="form-control">
+                                            SGST : <input type="number" id="sgst" name='sgst' class="form-control"
+                                                placeholder="SGST" min="1" required />
+                                            <span class="error-msg" id="error-sgst" style="color: red"></span><br>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            CGST : <input type="number" id="cgst" name='cgst'
+                                                class="form-control" placeholder="CGST" required />
+                                            <span class="error-msg" id="error-cgst" style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-row mt-1">
+                                        <div class="col-sm-6">
+                                            GST : <div
+                                                class="custom-control custom-switch custom-switch-text custom-control-inline">
+                                                <div class="custom-switch-inner">
+                                                    <p class="mb-0">
+                                                        <input type="checkbox" name="gst"
+                                                            class="custom-control-input" id="gstswitch"
+                                                            value="1">
+                                                        <label class="custom-control-label" for="gstswitch"
+                                                            data-on-label="On" data-off-label="Off">
+                                                        </label>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row mt-1">
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <button type="submit" class="btn btn-primary">Update</button>
+                                                <button type="reset" id="gstsettingreset"
+                                                    class="btn iq-bg-danger">Reset</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                            </form>
+                            SGST : <span id="viewsgst"> </span> <br>
+                            CGST : <span id="viewcgst"> </span> <br>
+                            GST : <span id="viewgst">
+                                <div class="custom-control custom-switch custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" disabled="" checked=""
+                                        id="gstdisabledswitch">
+                                    <label class="custom-control-label"  for="gstdisabledswitch">active</label>
+                                </div>
+                            </span> <br>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
         <div class="container-fluid">
@@ -79,7 +158,7 @@
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
-                                <h4 class="card-title">Invoice Terms & condtions Settings </h4>
+                                <h4 class="card-title">Invoice Terms & conditions Settings </h4>
                             </div>
                         </div>
                         <div class="iq-card-body">
@@ -109,8 +188,8 @@
                             </form>
                             <hr>
                             <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                                <table id="data"
-                                    class="table  table-bordered display table-responsive-md table-striped text-center">
+                                <table
+                                    id="data"class="table  table-bordered display table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
                                     <thead>
                                         <tr>
                                             <th>Sr</th>
@@ -142,6 +221,23 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+
+
+            $('#t_and_c').summernote({
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['table']],
+                    ['view', ['fullscreen', 'codeview']]
+                ],
+                placeholder: 'Add Notes',
+                tabsize: 2,
+                height: 100
+            });
+
             loaderhide();
 
             var overdueday = '';
@@ -157,27 +253,55 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.overdueday != '') {
-                            loaderhide();
                             overdueday = response.overdueday[0]['overdue_day'];
                             year_start = response.overdueday[0]['year_start'];
-                            $('#overduedays').html(`<b>${overdueday}</b> `)
-                            $('#yearstartdate').html(`<b>${year_start}</b> `)
+                            sgst = response.overdueday[0]['sgst'];
+                            cgst = response.overdueday[0]['cgst'];
+                            gst = response.overdueday[0]['gst'];
+                            $('#overduedays').html(`<b>${overdueday}</b> `);
+                            $('#yearstartdate').html(`<b>${year_start}</b> `);
                             $('#overdue_day').val(overdueday);
                             $('#year_start_date').val(year_start);
                             $('#overdue_day').attr('data-id', response.overdueday[0]['id']);
+
+                            $('#viewsgst').html(`<b>${sgst}</b> `);
+                            $('#viewcgst').html(`<b>${cgst}</b> `);
+                            $('#sgst').val(sgst);
+                            $('#cgst').val(cgst);
+                            $('#sgst').attr('data-id', response.overdueday[0]['id']);
+
+                            if (gst == 1) {
+                                $('#gstswitch').prop('checked', true); // Check the checkbox
+                                $('#gstdisabledswitch').prop('checked', true); // Check the checkbox
+                            } else {
+                                $('#gstswitch').prop('checked', false); // Uncheck the checkbox
+                                $('#gstdisabledswitch').prop('checked', false); // Uncheck the checkbox
+                            }
+
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            $('#tabledata').append(
-                                `<tr><td colspan='3' >No Data Found</td></tr>`)
+                            $('#overduedays').html(`<b>Not set</b> `);
+                            $('#yearstartdate').html(`<b>Not set</b>`);
+                            $('#viewsgst').html(`<b>Not set</b>`);
+                            $('#viewcgst').html(`<b>Not set</b>`);
+                            $('#gstdisabledswitch').prop('checked', false); // Uncheck the checkbox
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -187,6 +311,11 @@
                 if (overdueday != '') {
                     $('#overduedaysform').show();
                 }
+            });
+
+            $('#editgstsettings').on('click', function() {
+                getoverduedays();
+                    $('#gstsettingsform').show();
             });
 
             $('#overduedaysform').submit(function(event) {
@@ -204,33 +333,83 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             $('#overduedaysform').hide();
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             $('#overduedaysform')[0].reset();
                             getoverduedays();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error('something went wrong !');
                         }
-
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
+            })
+            $('#gstsettingsform').submit(function(event) {
+                event.preventDefault();
+                loadershow();
+                editid = $('#sgst').data('id');
+                url = "/api/gstsettings/update/" + editid;
+                $('.error-msg').text('');
+                const formdata = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formdata,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.status == 200) {
+                            $('#gstsettingsform').hide();
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            toastr.success(response.message);
+                            $('#gstsettingsform')[0].reset();
+                            getoverduedays();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            $.each(errors, function(key, value) {
+                                $('#error-' + key).text(value[0]);
+                            });
+                        } else {
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });
@@ -250,7 +429,6 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.termsandconditions != '') {
-                            loaderhide();
                             global_response = response;
                             var id = 1;
                             $.each(response.termsandconditions, function(key, value) {
@@ -277,16 +455,24 @@
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -310,19 +496,31 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>'
-                                );
+                                // $('#status_' + statusid).html('<button data-status= ' +
+                                //     statusid +
+                                //     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>'
+                                // );
+                                loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 toastr.error('something went wrong !');
-                                loaderhide();
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -344,19 +542,31 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
-                                );
+                                // $('#status_' + statusid).html('<button data-status= ' +
+                                //     statusid +
+                                //     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
+                                // );
+                                loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -378,16 +588,27 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 toastr.success(response.message);
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -408,124 +629,40 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             $('#tcform')[0].reset();
+                            $('#t_and_c').summernote('code', '');
                             loaddata();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error('something went wrong !');
                         }
-
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });
-            })
-
-            // it will may be usefull (terms and conditions edit and save)
-            // $(document).on("click", ".edit-btn", function() {
-            //     if (confirm("You want edit this T & C ?")) {
-            //         loadershow();
-            //         var editid = $(this).data('id');
-            //         $.ajax({
-            //             type: 'get',
-            //             url: '/api/termsandconditions/edit/' + editid,
-            //             data: {
-            //                 token: "{{ session()->get('api_token') }}",
-            //                 company_id: " {{ session()->get('company_id') }}",
-            //                 user_id: " {{ session()->get('user_id') }}",
-            //             },
-            //             success: function(response) {
-            //                 if (response.status == 200 && response.termsandcondition != '') {
-            //                     var termsandcondition = response.termsandcondition;
-            //                     loaderhide();
-            //                     $('#edit_id').val(editid);
-            //                     $('#t_and_c').val(termsandcondition.t_and_c).focus();
-
-            //                 } else if (response.status == 500) {
-            //                     toastr.error(response.message);
-            //                     loaderhide();
-            //                 } else {
-            //                     toastr.error('Something Went Wrong! please try again later ');
-            //                 }
-            //             },
-            //             error: function(error) {
-            //                 loaderhide();
-            //                 console.error('Error:', error);
-            //             }
-            //         });
-            //     }
-            // });
-            // $('#tcform').submit(function(event) {
-            //     event.preventDefault();
-            //     loadershow();
-            //     editid =  $('#edit_id').val();
-
-            //     if(editid != ''){
-            //        url = "/api/termsandconditions/update/" + editid ;
-            //     }else{
-            //         url = "{{ route('termsandconditions.store') }}" ;
-            //     }
-            //     $('.error-msg').text('');
-            //     const formdata = $(this).serialize();
-            //     $.ajax({
-            //         type: 'POST',
-            //         url: url  ,
-            //         data: formdata,
-            //         success: function(response) {
-            //             // Handle the response from the server
-            //             if (response.status == 200) {
-            //                 loaderhide();
-            //                 // You can perform additional actions, such as showing a success message or redirecting the user
-            //                 toastr.success(response.message);
-            //                 $('#tcform')[0].reset();
-            //                 $('#edit_id').val(null);
-            //                 loaddata();
-            //             } else if (response.status == 500) {
-            //                 toastr.error(response.message);
-            //                 loaderhide();
-            //             } else {
-            //                 loaderhide();
-            //                 toastr.error('something went wrong !');
-            //             }
-
-            //         },
-            //         error: function(xhr, status, error) {
-            //             // Handle error response and display validation errors
-            //             if (xhr.status === 422) {
-            //                 var errors = xhr.responseJSON.errors;
-            //                 $.each(errors, function(key, value) {
-            //                     $('#error-' + key).text(value[0]);
-            //                 });
-            //                 loaderhide();
-            //             } else {
-            //                 loaderhide();
-            //                 toastr.error(
-            //                     'An error occurred while processing your request. Please try again later.'
-            //                 );
-            //             }
-            //         }
-            //     });
-            // })
-
+            });
         });
     </script>
 @endpush

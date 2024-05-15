@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class invoiceController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp,$invoiceModel,$tbl_invoice_columnModel,$invoice_other_settingModel;
+    public $userId, $companyId, $masterdbname, $rp, $invoiceModel, $tbl_invoice_columnModel, $invoice_other_settingModel;
 
     public function __construct(Request $request)
     {
@@ -57,7 +57,7 @@ class invoiceController extends commonController
         $currentMonth = Carbon::now()->format('Y-m');
 
         $invoices = DB::connection('dynamic_connection')->table('invoices')->whereYear('created_at', Carbon::now()->year)
-            ->whereMonth('created_at', Carbon::now()->month)->where('created_by', $this->userId)
+            ->whereMonth('created_at', Carbon::now()->month)->where('created_by', $this->userId)->where('is_deleted',0)
             ->get();
         $groupedInvoices = $invoices->groupBy('status');
         return $groupedInvoices;
@@ -114,10 +114,12 @@ class invoiceController extends commonController
             ->join($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftJoin('payment_details', function ($join) {
                 $join->on('invoices.id', '=', 'payment_details.inv_id')
-                    ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id LIMIT 1)');
+                    ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id ORDER BY id DESC LIMIT 1)');
             })
-            ->select('invoices.*', 'payment_details.part_payment', 'customers.address', 'customers.firstname', 'customers.lastname', 'country.country_name', 'state.state_name', 'city.city_name')
-            ->where('invoices.is_deleted', 0);
+            ->join($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
+            ->select('invoices.*', 'payment_details.part_payment','payment_details.pending_amount', 'customers.address', 'customers.firstname', 'customers.lastname', 'country.country_name','country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->where('invoices.is_deleted', 0)
+            ->orderBy('invoices.id','desc');
 
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
             $invoiceres->where('invoices.created_by', $this->userId);
@@ -210,8 +212,9 @@ class invoiceController extends commonController
             ->join($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->join($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftjoin('invoice_terms_and_conditions', 'invoices.t_and_c_id', '=', 'invoice_terms_and_conditions.id')
-            ->select('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id as cid', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'state.state_name', 'city.city_name')
-            ->groupBy('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'mng_col.invoice_id')
+            ->join($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
+            ->select('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id as cid', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name','country_details.currency','country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->groupBy('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.address', 'customers.pincode', 'customers.gst_no', 'country.country_name','country_details.currency','country_details.currency_symbol', 'state.state_name', 'city.city_name', 'mng_col.invoice_id')
             ->where('invoices.is_active', 1)->where('invoices.is_deleted', 0)->where('invoices.id', $id);
 
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
@@ -246,18 +249,22 @@ class invoiceController extends commonController
      */
     public function store(Request $request)
     {
+
         $data = $request->data;
         $itemdata = $request->iteam_data;
 
-        $validator = Validator::make($request->data, $request->iteam_data, [
+        $validator = Validator::make($data, [
             "payment_mode" => 'required',
-            "acc_details" => 'required',
-            "customer_id" => 'required',
+            "bank_account" => 'required',
+            "customer" => 'required',
             "total_amount" => 'required|numeric',
-            "gst" => 'required|numeric',
-            "currency_id" => 'required|numeric',
-            "country_id" => 'required|numeric',
-            "user_id" => 'required|numeric',
+            "sgst" => 'nullable|numeric',
+            "cgst" => 'nullable|numeric',
+            "gst" => 'nullable|numeric',
+            "currency" => 'required|numeric',
+            "tax_type" => 'required|numeric',
+            "country_id",
+            "user_id" ,
             'notes',
             'updated_by',
             'created_at',
@@ -298,9 +305,9 @@ class invoiceController extends commonController
 
             // fetch last record from invoice tbl for generate dynamic inv no
             $lastrec = DB::connection('dynamic_connection')->table('invoices')->orderBy('id', 'desc')->first();
-            
+
             $othersetting = $this->invoice_other_settingModel::find(1);
-             
+
             $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
             $currentMonth = date('m'); // Current month
             $currentDay = date('d'); // Current day
@@ -321,52 +328,59 @@ class invoiceController extends commonController
                 $lastinv_no = explode('-', $lastrec->inv_no);
                 $lastinv_no_id = $lastinv_no[2];
                 $inv_no = '';
-                    if ($data['country_id'] == 1) {
-                        $inv_no = "IND-" . $year . "-" . ($lastinv_no_id + 1);
-                    } else {
-                        $inv_no = "EXP-" . $year . "-" . ($lastinv_no_id + 1);
-                    }
+                if ($data['country_id'] == 101) {
+                    $inv_no = "IND-" . $year . "-" . ($lastinv_no_id + 1);
+                } else {
+                    $inv_no = "EXP-" . $year . "-" . ($lastinv_no_id + 1);
+                }
             } else {
-                if ($data['country_id'] == 1) {
+                if ($data['country_id'] == 101) {
                     $inv_no = "IND-" . $year . "-1";
                 } else {
                     $inv_no = "EXP-" . $year . "-1";
                 }
             }
-              
+
             $company_details = company::find($data['company_id']);
 
             if ($company_details) {
 
                 $company_details_id = $company_details->company_details_id;
 
-                if ($data["gst"] == '') {
-                    $gst = 0;
-                } else {
-                    $gst = $data["gst"];
-                }
-
-                $tclastrec = DB::connection('dynamic_connection')->table('invoice_terms_and_conditions')->select('id')->where('is_deleted', 0)->orderBy('id', 'desc')->first();
-
                 
 
-                $invoice = DB::connection('dynamic_connection')->table('invoices')->insertGetId([
+                $invoicerec = [
                     'inv_no' => $inv_no,
-                    'customer_id' => $data['customer_id'],
+                    'customer_id' => $data['customer'],
                     'notes' => $data['notes'],
                     'total' => $data['total_amount'],
-                    'gst' => $gst,
                     'grand_total' => $data['grandtotal'],
-                    'currency_id' => $data['currency_id'],
+                    'currency_id' => $data['currency'],
                     'payment_type' => $data['payment_mode'],
-                    'account_id' => $data['acc_details'],
+                    'account_id' => $data['bank_account'],
                     'company_id' => $this->companyId,
                     'company_details_id' => $company_details_id,
                     'created_by' => $data['user_id'],
                     'show_col' => $showcolumnstring,
-                    't_and_c_id' => $tclastrec->id,
                     'overdue_date' => $othersetting->overdue_day
-                ]);
+                ];
+
+                if(isset($data['gst'])){
+                    $invoicerec['gst'] = $data['gst'];
+                }else{
+                    $invoicerec['sgst'] = $data['sgst'];
+                    $invoicerec['cgst'] = $data['cgst'];
+                }
+                
+
+                $tclastrec = DB::connection('dynamic_connection')->table('invoice_terms_and_conditions')->select('id')->where('is_deleted', 0)->where('is_active',1)->orderBy('id', 'desc')->first();
+ 
+
+                if ($tclastrec) {
+                    $invoicerec['t_and_c_id'] = $tclastrec->id;
+                }
+
+                $invoice = DB::connection('dynamic_connection')->table('invoices')->insertGetId( $invoicerec);
 
                 if ($invoice) {
                     $inv_id = $invoice;
@@ -445,7 +459,7 @@ class invoiceController extends commonController
             ->select('invoices.*', 'customers.firstname', 'customers.lastname', 'mng_col.item_description', 'mng_col.price', 'products.price_per_unit')
             ->where('invoices.is_deleted', 0)->where('invoices.is_active', 1)->where('id', $id)->get();
 
-        if ($this->rp['invoicemodule']['user']['alldata'] != 1) {
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($invoice[0]->created_by != $this->userId) {
                 return response()->json([
                     'status' => 500,
@@ -529,11 +543,16 @@ class invoiceController extends commonController
         $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
             ->where('invoice_id', $id)->get();
 
+        $othersettingsdetails = DB::connection('dynamic_connection')->table('invoice_other_settings')
+                                ->select('sgst','cgst','gst')
+                                ->get(); 
+
         if ($invoice->count() > 0) {
             return response()->json([
                 'status' => 200,
                 'invoice' => $invoice,
-                'columns' => $columnarray
+                'columns' => $columnarray,
+                'othersettings' => $othersettingsdetails
             ]);
         } else {
             return response()->json([

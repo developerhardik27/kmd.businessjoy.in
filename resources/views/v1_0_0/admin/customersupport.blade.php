@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 
 @section('page_title')
     {{ config('app.name') }} - Customer Support
@@ -13,8 +13,6 @@
 @section('style')
     {{-- customersupport style --}}
     <style>
-
-
         .ui-widget-header {
             background: #1518b117 !important;
             border: 1px solid #e1ded9 !important;
@@ -137,6 +135,10 @@
                 <h4>Advanced Filters</h4>
             </div>
             <div class="col-md-12">
+                <label for="callcount" class="form-label float-left  ">Number Of Call:</label>
+                <input type="number" id="callcount" placeholder="Number Of Call" class="form-input form-control  ">
+            </div>
+            <div class="col-md-12">
                 <label for="last_call" class="form-label float-left  ">Last Call:</label>
                 <input type="date" id="last_call" class="form-input form-control  ">
             </div>
@@ -156,22 +158,22 @@
         </div>
     </div>
     <div class="col-md-12 text-right pr-5">
-        <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
+        <select class="advancefilter multiple form-control w-100 m-2" id="advancestatus" multiple="multiple">
             <option disabled selected>-- Select status --</option>
             <option value='Open'>Open</option>
             <option value='In Progress'>In Progress</option>
             <option value='Resolved'>Resolved</option>
             <option value='Cancelled'>Cancelled</option>
         </select>
-        <select name="assignedto" class="form-control multiple advancefilter" id="assignedto" multiple>
+        <select name="assignedto" class="form-control multiple advancefilter m-2" id="assignedto" multiple>
             <option value="" disabled selected>-- Select Assigned To --</option>
         </select>
         <!-- Use any element to open the sidenav -->
-        <button title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info m-2">
             <i class="ri-filter-line"></i>
         </button>
-        <button title="FilterRefresh" class="btn btn-info btn-sm removefilters">
-            <i class="fa fa-refresh"></i>
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh" class="btn btn-info btn-sm removefilters m-2">
+            <i class="ri-refresh-line"></i>
         </button>
     </div>
 
@@ -180,18 +182,17 @@
             {{ route('admin.addcustomersupport') }}
         @endsection
         @section('addnewbutton')
-            <button title="Add Lead" class="btn btn-sm btn-primary">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticket" class="btn btn-sm btn-primary">
                 <span class="">+ Ticket</span>
             </button>
         @endsection
     @endif
-
-
 @endsection
 
 
 @section('table-content')
-    <table id="data" class="table table-bordered w-100  table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table table-bordered w-100  table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -220,8 +221,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="customersupporthistoryform">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="customersupporthistoryform">
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="csid" id="csid">
@@ -233,14 +234,13 @@
                                 <span class="error-msg" id="error-call_date" style="color: red"></span>
                             </div>
                             <br />
-                            <div class="col-12">
+                            <div class="col-12 mt-2">
                                 Notes:
                                 <textarea name="history_notes" id="history_notes" cols="" rows="2" class="form-control"></textarea>
-        
                                 <span class="error-msg" id="error-history_notes" style="color: red"></span>
                             </div>
                             <br />
-                            <div class="col-12">
+                            <div class="col-12 mt-2">
                                 Status:
                                 <select class="form-control" id="call_status" name="call_status">
                                     <option disabled selected>status</option>
@@ -252,17 +252,18 @@
                                 <span class="error-msg" id="error-call_status" style="color: red"></span>
                             </div>
                             <br>
-                            <div class="col-12">
-                                No.Of Calls : <input type="checkbox" name="no_of_calls" id="no_of_calls" value="1">
+                            <div class="col-12 mt-2">
+                                <input type="checkbox" name="no_of_calls" id="no_of_calls" value="1"> <label
+                                    for="no_of_calls">Nubmer Of Calls</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" value="submit" class="btn btn-sm btn-primary">
-                        <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
-                        </button>
-                    </div>
-                </form>
+                        <div class="modal-footer">
+                            <input type="submit" value="submit" class="btn btn-sm btn-primary">
+                            <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -298,7 +299,19 @@
         // advance filter sidebar
         /* Simple appearence with animation AN-1*/
         function openNav() {
-            document.getElementById("mySidenav").style.width = "30%";
+            var screenWidth = window.innerWidth;
+            var width;
+
+            if (screenWidth >= 320 && screenWidth <= 768) {
+                width = "100%";
+            } else if (screenWidth >= 769 && screenWidth <= 1024) {
+                width = "50%";
+            } else if (screenWidth >= 1025 && screenWidth <= 1200) {
+                width = "30%";
+            } else {
+                width = "25%";
+            }
+            document.getElementById("mySidenav").style.width = width;
         }
 
         function closeNav() {
@@ -313,6 +326,26 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            $('#assignedto').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                        '<option selected disabled>-- Select User --</option>'
+                        ); // prepend "Please choose an option"
+                }
+                $('#assignedto').multiselect('rebuild');
+            });
+            $('#advancestatus').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                        '<option selected disabled>-- Select Status --</option>'
+                        ); // prepend "Please choose an option"
+                }
+                $('#advancestatus').multiselect('rebuild');
+            });
 
             $('#history_notes').summernote({
                 toolbar: [
@@ -322,8 +355,7 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['height', ['height']],
                     ['insert', ['table']],
-                    ['view', ['fullscreen', 'codeview']],
-                    ['help', ['help']]
+                    ['view', ['fullscreen', 'codeview']]
                 ],
                 placeholder: 'Add Notes',
                 tabsize: 2,
@@ -334,7 +366,7 @@
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'GET',
-                        url: '{{ route('user.index') }}',
+                        url: '{{ route('user.customersupportindex') }}',
                         data: {
                             user_id: "{{ session()->get('user_id') }}",
                             company_id: "{{ session()->get('company_id') }}",
@@ -422,10 +454,16 @@
 
             var global_response = '';
             // make multiple dropdown to designable multiple dropdown
-            $('#advancestatus').multiselect();
-            $('#assignedto').multiselect();
-
-
+            $('#assignedto').multiselect({
+                enableFiltering: true,
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true
+            });
+            $('#advancestatus').multiselect({
+                enableFiltering: true,
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true
+            });
             // get and set customer support history list in the table
             function loaddata() {
                 loadershow();
@@ -447,22 +485,20 @@
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b>Name:</b> ${value.name}
+                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Email:</b>
+                                                        <span class="d-flex mb-2">
+                                                            <b><i class="fas fa-envelope pr-2"></i></b>
                                                             <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Contact:</b>
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
                                                         </span>  
                                                     </td>
                                                     <td>
-                                                        <span  class="d-inline-block text-truncate" style="max-width: 150px;">
+                                                        <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px;">
                                                         <div> ${value.notes} </div>
                                                         </span>
                                                     </td>
@@ -487,20 +523,20 @@
                                                     <td>${value.number_of_call}</td>
                                                     <td>
                                                         <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                             <span>
-                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
+                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
                                                             <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -524,14 +560,23 @@
                             toastr.error(response.message);
                             loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
+                            $('#data').append(`<tr><td colspan='8' >No Data Found</td></tr>`);
                             loaderhide();
                         }
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -554,8 +599,18 @@
                                                     <th>${ticket.ticket}</th>
                                                 </tr> 
                                                 <tr> 
-                                                    <td>name</td>
-                                                    <th>${ticket.name}</th>
+                                                    <td>Website Url</td>
+                                                    <th style="text-transform: none;">
+                                                       <a href="${ticket.web_url}" target="_blank">${ticket.web_url}</a>
+                                                    </th>
+                                                </tr> 
+                                                <tr> 
+                                                    <td>first name</td>
+                                                    <th>${ticket.first_name}</th>
+                                                </tr> 
+                                                <tr> 
+                                                    <td>last name</td>
+                                                    <th>${ticket.last_name}</th>
                                                 </tr> 
                                                 <tr>
                                                     <td>email</td>
@@ -644,6 +699,7 @@
                 advancestatus = $('#advancestatus').val();
                 assignedto = $('#assignedto').val();
                 last_call = $('#last_call').val();
+                callcount = $('#callcount').val();
 
 
                 data = {
@@ -652,6 +708,7 @@
                     advancestatus,
                     assignedto,
                     last_call,
+                    callcount
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
@@ -703,6 +760,7 @@
                 advancestatus = $('#advancestatus').val();
                 assignedto = $('#assignedto').val();
                 LastCall = $('#last_call').val();
+                callcount = $('#callcount').val();
                 var fromDate = new Date(fromdate);
                 var toDate = new Date(todate);
 
@@ -730,13 +788,17 @@
                 if (LastCall != '') {
                     data.lastcall = LastCall;
                 }
+                if (callcount != '') {
+                    data.callcount = callcount;
+                }
 
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '') {
+                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '' &&
+                    callcount == '') {
                     loaddata();
                 }
                 if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
                     '' ||
-                    LastCall != '') {
+                    LastCall != '' || callcount != '') {
                     loadershow();
                     $.ajax({
                         type: 'GET',
@@ -751,23 +813,21 @@
                                 $.each(response.customersupport, function(key, value) {
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
-                                                    <td class="text-left"  >
-                                                        <span style="cursor:pointer;" class="view-btn" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable">
-                                                            <b>Name:</b> ${value.name}
+                                                    <td  class="text-left" >
+                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Email:</b>
+                                                        <span class="d-flex mb-2">
+                                                            <b><i class="fas fa-envelope pr-2"></i></b>
                                                             <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Contact:</b>
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                                        </span>   
-                                                    </td> 
+                                                        </span>  
+                                                    </td>
                                                     <td>
-                                                        <span  class="d-inline-block text-truncate" style="max-width: 150px; ">
+                                                        <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px; ">
                                                          <div> ${value.notes} </div>
                                                         </span>
                                                     </td>
@@ -793,20 +853,20 @@
                                                     <td>${value.number_of_call}</td>
                                                     <td>
                                                         <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                             <span>
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
+                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
                                                             <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -836,14 +896,23 @@
                                 });
                                 $('#tabledata').html(' ');
                                 $('#data').append(
-                                    `<tr><td colspan='11' >No Data Found</td></tr>`);
+                                    `<tr><td colspan='8' >No Data Found</td></tr>`);
                                 loaderhide();
                             }
                             // You can update your HTML with the data here if needed
                         },
-                        error: function(error) {
+                        error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
-                            console.error('Error:', error);
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -863,6 +932,7 @@
                 $('#fromdate').val('');
                 $('#todate').val('');
                 $('#last_call').val('');
+                $('#callcount').val('');
                 $('#invaliddate').text(' ');
                 advancefilters();
             });
@@ -872,10 +942,20 @@
                 $('#fromdate').val('');
                 $('#todate').val('');
                 $('#last_call').val('');
+                $('#callcount').val('');
                 $('#invaliddate').text(' ');
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
                 $('#assignedto option').prop('selected', false);
+
+                if ($("#advancestatus option:not(:disabled)").length > 0) {
+                    $("#advancestatus").prepend(
+                        '<option value="" disabled selected>-- Select Status --</option>');
+                }
+                if ($("#assignedto option:not(:disabled)").length > 0) {
+                    $("#assignedto").prepend(
+                        '<option value="" disabled selected>-- Select User --</option>');
+                }
 
                 // Check only the first option
                 $('#advancestatus option:first').prop('selected', true);
@@ -896,7 +976,8 @@
                 $('#csid').val(csid);
                 $.each(global_response.customersupport, function(key, ticket) {
                     if (ticket.id == csid) {
-                        $('#addcallhistoryTitle').html(`${ticket.name}<br/> - <b>Call History</b>`);
+                        $('#addcallhistoryTitle').html(
+                            `<b>Call History</b> - ${ticket.first_name} ${ticket.last_name}`);
                     }
                 });
                 // make current date and time and set in the customer support history form intput
@@ -907,6 +988,7 @@
                     ('0' + now.getHours()).slice(-2) + ':' +
                     ('0' + now.getMinutes()).slice(-2);
 
+                $('#history_notes').summernote('code', '');
                 $('#call_date').val(formattedDateTime);
                 $('#created_by').val("{{ session()->get('user_id') }}");
                 $('#company_id').val("{{ session()->get('company_id') }}");
@@ -922,7 +1004,7 @@
                 $.each(global_response.customersupport, function(key, ticket) {
                     if (ticket.id == historyid) {
                         $('#viewcallhistoryTitle').html(
-                            `${ticket.name}<br/> - <b>Call History</b>`);
+                            `<b>Call History</b> - ${ticket.first_name} ${ticket.last_name}`);
                     }
                 });
                 $.ajax({
@@ -958,15 +1040,25 @@
 
                         loaderhide();
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
 
             $(document).on('click', '.resethistoryform', function() {
                 $('#customersupporthistoryform')[0].reset();
+                $('#history_notes').summernote('code', '');
             });
 
 
@@ -978,7 +1070,7 @@
                 const formdata = $(this).serializeArray();
                 formdata.push({
                     name: "notes",
-                    value: $('#notes').summernote('code')
+                    value: $('#history_notes').summernote('code')
                 });
                 $.ajax({
                     type: 'POST',
@@ -987,6 +1079,7 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            $('#history_notes').summernote('code', '');
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
@@ -1002,19 +1095,25 @@
                         }
 
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        $('#history_notes').summernote('code', '');
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 })

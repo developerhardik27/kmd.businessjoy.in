@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\company_detail;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 
 class companyController extends commonController
 {
-    public $userId, $companyId, $rp,$user,$invoice_other_settingModel,$user_permissionModel;
+    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $user_permissionModel;
     public function __construct(Request $request)
     {
 
@@ -80,20 +81,20 @@ class companyController extends commonController
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company.max_users', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('company.id', $this->companyId)
             ->get();
 
 
-         $user = User::find($this->userId);   
-        if (($this->rp['invoicemodule']['company']['alldata'] != 1) && $this->companyId != $user->company_id) {
+        $user = User::find($this->userId);
+        if (($this->rp['adminmodule']['company']['alldata'] != 1) && $this->companyId != $user->company_id) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized!'
             ]);
         }
 
-        if ($this->rp['invoicemodule']['company']['view'] != 1) {
+        if ($this->rp['adminmodule']['company']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized!'
@@ -130,7 +131,7 @@ class companyController extends commonController
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
                 ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
-                ->where('company.is_deleted', 0)->where('company.is_active', 1)
+                ->where('company.is_deleted', 0)
                 ->get();
         } else {
             $companyres = DB::table('company')
@@ -141,7 +142,7 @@ class companyController extends commonController
                 ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)->where('company.is_active', 1);
 
-            if ($this->rp['invoicemodule']['company']['alldata'] != 1) {
+            if ($this->rp['adminmodule']['company']['alldata'] != 1) {
                 $companyres->where('company.id', $this->companyId);
             } else {
                 $companyres->where('company.created_by', $this->userId)->orWhere('company.id', $this->companyId);
@@ -149,7 +150,7 @@ class companyController extends commonController
             $company = $companyres->get();
         }
 
-        if ($this->rp['invoicemodule']['company']['view'] != 1) {
+        if ($this->rp['adminmodule']['company']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized!'
@@ -189,11 +190,12 @@ class companyController extends commonController
             'email' => 'required|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
             'address' => 'required|string|max:255',
-            'gst_number' => 'required|string|max:50',
+            'gst_number' => 'nullable|string|max:50',
             'country' => 'required|numeric',
             'state' => 'required|numeric',
             'city' => 'required|numeric',
-            'pincode' => 'required|numeric|digits:6',
+            'pincode' => 'required|numeric',
+            'maxuser' => 'nullable|numeric',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'user_id' => 'required|numeric',
@@ -211,15 +213,34 @@ class companyController extends commonController
             ], 422);
         } else {
 
-            if ($this->rp['invoicemodule']['company']['add'] != 1) {
+            if ($this->rp['adminmodule']['company']['add'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized!'
                 ]);
             }
 
+            $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
+
+            // If the cleaned name starts with a digit, prepend an underscore
+            if (ctype_digit(substr($modifiedname, 0, 1))) {
+                $modifiedname = '_' . $modifiedname;
+            }
             // Set the dynamic database name (sanitize and format if necessary)
-            $dbName = 'bj_' . $request->name . '_' . Str::lower(Str::random(3));
+            // $dbName = 'bj_' . $modifiedname . '_' . Str::lower(Str::random(3));
+
+            $host = $_SERVER['HTTP_HOST'];
+
+            if ($host === 'localhost') {
+                // If the host is localhost
+                $dbName = 'bj_' . $modifiedname . '_' . Str::lower(Str::random(3));
+            } elseif ($host === 'staging.businessjoy.in') {
+                // If the host is staging.businessjoy.in
+                $dbName = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+            } else {
+                // For any other host, provide a default
+                $dbName = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+            }
 
             // Create the dynamic database
 
@@ -242,312 +263,14 @@ class companyController extends commonController
                     'engine' => null,
                 ]
             ]);
-            // *** invoice module table start ***
-
-            // bank details table 
-            Schema::connection($dbName)->create('bank_details', function (Blueprint $table) {
-                $table->id();
-                $table->string('holder_name', 50);
-                $table->string('account_no', 50);
-                $table->string('swift_code', 20)->nullable();
-                $table->string('ifsc_code', 20);
-                $table->string('branch_name', 50);
-                $table->integer('created_by')->nullable();
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
 
 
-            // customers table 
-            Schema::connection($dbName)->create('customers', function (Blueprint $table) {
-                $table->id();
-                $table->string('firstname', 50);
-                $table->string('lastname', 50);
-                $table->string('company_name', 50);
-                $table->string('email', 50);
-                $table->string('contact_no', 15);
-                $table->string('address', 255);
-                $table->integer('country_id');
-                $table->integer('state_id');
-                $table->integer('city_id');
-                $table->integer('pincode');
-                $table->string('gst_no', 50)->nullable();
-                $table->integer('company_id');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-
-            // invoice table 
-            Schema::connection($dbName)->create('invoices', function (Blueprint $table) {
-                $table->id();
-                $table->string('inv_no', 30);
-                $table->date('inv_date')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->integer('customer_id');
-                $table->longText('notes')->nullable();
-                $table->float('total', 10, 2);
-                $table->float('gst');
-                $table->float('grand_total', 10, 2);
-                $table->integer('currency_id');
-                $table->string('payment_type', 30);
-                $table->string('status', 30)->default('pending');
-                $table->bigInteger('account_id');
-                $table->float('template_version')->default(1);
-                $table->integer('company_id');
-                $table->integer('company_details_id');
-                $table->longText('show_col')->nullable();
-                $table->integer('overdue_date')->nullable();
-                $table->integer('t_and_c_id')->nullable();
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // invoice_other_settings table
-            Schema::connection($dbName)->create('invoice_other_settings', function (Blueprint $table) {
-                $table->id();
-                $table->integer('overdue_day')->nullable();
-                $table->date('year_start')->nullable()->default('2024-04-01');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // invoice_terms_and_conditions table
-            Schema::connection($dbName)->create('invoice_terms_and_conditions', function (Blueprint $table) {
-                $table->id();
-                $table->longText('t_anc_c')->nullable();
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // tbl invoice column table 
-            Schema::connection($dbName)->create('tbl_invoice_columns', function (Blueprint $table) {
-                $table->id();
-                $table->string('column_name', 50);
-                $table->string('column_type', 50);
-                $table->integer('column_order')->nullable();
-                $table->tinyInteger('is_hide')->default(0);
-                $table->integer('company_id');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // tbl invoice formula table
-            Schema::connection($dbName)->create('tbl_invoice_formulas', function (Blueprint $table) {
-                $table->id();
-                $table->string('first_column', 50);
-                $table->char('operation', 1);
-                $table->string('second_column', 50);
-                $table->string('output_column', 50);
-                $table->integer('formula_order')->nullable();
-                $table->integer('company_id');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // purchases table 
-            Schema::connection($dbName)->create('purchases', function (Blueprint $table) {
-                $table->id();
-                $table->string('name', 50);
-                $table->mediumText('description');
-                $table->double('amount', 10, 2);
-                $table->string('amount_type', 20);
-                $table->date('date');
-                $table->string('img', 100)->nullable();
-                $table->integer('company_id');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // payment details table
-            Schema::connection($dbName)->create('payment_details', function (Blueprint $table) {
-                $table->id();
-                $table->integer('inv_id');
-                $table->string('transaction_id', 50)->nullable();
-                $table->date('datetime')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->string('paid_by', 30);
-                $table->string('paid_type', 30);
-                $table->double('amount', 10, 2);
-                $table->double('paid_amount', 10, 2);
-                $table->double('pending_amount', 10, 2);
-                $table->integer('part_payment')->default(0);
-                $table->date('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->date('updated_at')->nullable();
-            });
-
-            // products table 
-            Schema::connection($dbName)->create('products', function (Blueprint $table) {
-                $table->id();
-                $table->string('name', 50);
-                $table->longText('description');
-                $table->string('product_code', 50);
-                $table->string('unit', 10);
-                $table->double('price_per_unit', 10, 2);
-                $table->integer('company_id');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // manage column (for invoice details) dynamic table
-            Schema::connection($dbName)->create('mng_col', function (Blueprint $table) {
-                $table->id(); // Auto-incrementing primary key
-                $table->integer('invoice_id');
-                $table->integer('amount');
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-            });
-
-            // user permission table
-            Schema::connection($dbName)->create('user_permissions', function (Blueprint $table) {
-                $table->id(); // Auto-incrementing primary key
-                $table->integer('user_id');
-                $table->longText('rp');
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-            });
-
-            // *** invoice module table end ***
-            // -----------------------------------
-            // *** lead module table start ***
-
-            // tbl lead table 
-
-            Schema::connection($dbName)->create('tbllead', function (Blueprint $table) {
-                $table->id();
-                $table->string('name', 100)->nullable();
-                $table->string('email', 50)->nullable();
-                $table->string('contact_no', 13)->nullable();
-                $table->string('title', 100)->nullable();
-                $table->string('budget', 100)->nullable();
-                $table->string('company', 50)->nullable();
-                $table->string('audience_type', 50)->nullable();
-                $table->string('customer_type', 50)->nullable();
-                $table->string('status', 30)->default('New Lead');
-                $table->date('last_follow_up')->nullable();
-                $table->date('next_follow_up')->nullable();
-                $table->integer('number_of_follow_up')->default(0);
-                $table->longText('notes')->nullable();
-                $table->string('lead_stage', 30)->default('New Lead');
-                $table->mediumText('assigned_to')->nullable();
-                $table->integer('assigned_by')->nullable();
-                $table->integer('created_by')->nullable();
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-                $table->string('source', 100)->nullable();
-                $table->string('ip', 100)->nullable();
-                $table->text('country')->nullable();
-                $table->text('msg_from_lead')->nullable();
-                $table->integer('attempt_lead')->nullable();
-            });
-
-            // tbl lead history table
-            Schema::connection($dbName)->create('tblleadhistory', function (Blueprint $table) {
-                $table->id();
-                $table->dateTime('call_date');
-                $table->longText('history_notes')->nullable();
-                $table->string('call_status', 20)->nullable();
-                $table->tinyInteger('is_active')->default(1);
-                $table->tinyInteger('is_deleted')->default(0);
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->integer('leadid');
-                $table->integer('companyid')->nullable();
-            });
-
-            // *** lead module table end ***
-            // ---------------------------------
-            // *** customer support module table start ***
-            // customer support table 
-
-            Schema::connection($dbName)->create('customer_support', function (Blueprint $table) {
-                $table->id();
-                $table->string('name', 100)->nullable();
-                $table->string('email', 50)->nullable();
-                $table->string('contact_no', 13)->nullable();
-                $table->string('title', 100)->nullable();
-                $table->string('budget', 100)->nullable();
-                $table->string('audience_type', 50)->nullable();
-                $table->string('customer_type', 50)->nullable();
-                $table->string('status', 30)->default('Open');
-                $table->date('last_call')->nullable();
-                $table->date('next_call')->nullable();
-                $table->integer('number_of_call')->default(0);
-                $table->longText('notes')->nullable();
-                $table->string('ticket', 50)->nullable();
-                $table->mediumText('assigned_to')->nullable();
-                $table->integer('assigned_by')->nullable();
-                $table->integer('created_by')->nullable();
-                $table->integer('updated_by')->nullable();
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('is_active')->default(1);
-                $table->integer('is_deleted')->default(0);
-                $table->string('source', 100)->nullable();
-                $table->string('ip', 100)->nullable();
-                $table->text('country')->nullable();
-            });
-
-            // customer suppport history table 
-
-            Schema::connection($dbName)->create('customersupporthistory', function (Blueprint $table) {
-                $table->id();
-                $table->dateTime('call_date');
-                $table->longText('history_notes')->nullable();
-                $table->string('call_status', 20)->nullable();
-                $table->tinyInteger('is_active')->default(1);
-                $table->tinyInteger('is_deleted')->default(0);
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-                $table->dateTime('updated_at')->nullable();
-                $table->integer('created_by');
-                $table->integer('updated_by')->nullable();
-                $table->integer('csid');
-                $table->integer('companyid')->nullable();
-            });
-
-            // *** customer support module table end ***
+            $path = 'database/migrations/individualcompanydb';
+            // Run migrations only from the specified path
+            Artisan::call('migrate', [
+                '--path' => $path,
+                '--database' => $dbName,
+            ]);
 
 
             config(['database.connections.dynamic_connection.database' => $dbName]);
@@ -608,30 +331,34 @@ class companyController extends commonController
                     'company_details_id' => $company_details_id,
                     'dbname' => $dbName,
                     'app_version' => $_SESSION['folder_name'],
+                    'max_users' => $request->maxuser,
                     'created_by' => $this->userId,
                 ]);
 
                 $this->invoice_other_settingModel::create([
                     'overdue_day' => 45,
                     'year_start' => date('Y-m-d', strtotime('2024-04-01')),
+                    'sgst' => 9,
+                    'cgst' => 9,
+                    'gst' => 0,
                     'created_by' => $this->userId,
                 ]);
 
                 if ($company) {
-                    $password = Str::random(8);
-                    $hashpassword = Hash::make($password);
+
                     $company_id = $company;
 
+                    $passwordtoken = str::random(40);
                     $user = DB::table('users')->insertGetId([
                         'firstname' => $request->name,
                         'email' => $request->email,
-                        'password' => $hashpassword,
                         'role' => 2,
                         'contact_no' => $request->contact_number,
                         'country_id' => $request->country,
                         'state_id' => $request->state,
                         'city_id' => $request->city,
                         'pincode' => $request->pincode,
+                        'pass_token' => $passwordtoken,
                         'company_id' => $company_id,
                         'created_by' => $this->userId,
                     ]);
@@ -643,30 +370,41 @@ class companyController extends commonController
                                 "mngcol" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                                 "formula" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                                 "invoicesetting" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
-                                "company" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                                 "bank" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
-                                "user" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                                 "customer" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
-                                "product" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
-                                "purchase" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
                             ],
                             "leadmodule" => [
                                 "lead" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
                             ],
                             "customersupportmodule" => [
                                 "customersupport" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
+                            ],
+                            "adminmodule" => [
+                                "company" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
+                                "user" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0", "max" => "0"],
+                                "techsupport" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
+                            ],
+                            "inventorymodule" => [
+                                "product" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
+                            ],
+                            "accountmodule" => [
+                                "purchase" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
+                            ],
+                            "remindermodule" => [
+                                "reminder" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
+                                "remindercustomer" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                             ]
                         ];
 
                         $rpjson = json_encode($rp);
 
-                        $userrp =  $this->user_permissionModel::create([
+                        $userrp = $this->user_permissionModel::create([
                             'user_id' => $userid,
                             'rp' => $rpjson
                         ]);
 
                         if ($userrp) {
-                            Mail::to($request->email)->cc('parthdeveloper9@gmail.com')->send(new sendmail($request->email, $password));
+                            Mail::to($request->email)->send(new sendmail($passwordtoken, $request->name, $request->email));
                             return response()->json([
                                 'status' => 200,
                                 'message' => 'Company succesfully added'
@@ -718,7 +456,7 @@ class companyController extends commonController
             ->where('company.id', $id)
             ->get();
 
-        if ($this->rp['invoicemodule']['company']['view'] != 1) {
+        if ($this->rp['adminmodule']['company']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -746,7 +484,7 @@ class companyController extends commonController
     {
 
         $company = DB::table('company')->join('company_details', 'company.company_details_id', '=', 'company_details.id')->where('company.id', $id)->get();
-        if ($this->rp['invoicemodule']['company']['edit'] != 1) {
+        if ($this->rp['adminmodule']['company']['edit'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -777,11 +515,12 @@ class companyController extends commonController
             'email' => 'required|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
             'address' => 'required|string|max:255',
-            'gst_number' => 'required|string|max:50',
+            'gst_number' => 'nullable|string|max:50',
             'country' => 'required|numeric',
             'state' => 'required|numeric',
             'city' => 'required|numeric',
-            'pincode' => 'required|numeric|digits:6',
+            'pincode' => 'required|numeric',
+            'maxuser' => 'nullable|numeric',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'user_id' => 'numeric',
@@ -797,7 +536,7 @@ class companyController extends commonController
             ], 422);
         } else {
 
-            if ($this->rp['invoicemodule']['company']['edit'] != 1) {
+            if ($this->rp['adminmodule']['company']['edit'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized'
@@ -851,6 +590,7 @@ class companyController extends commonController
                 if ($company) {
                     $companyupdate = $company->update([
                         'company_details_id' => $company_details_id,
+                        'max_users' => $request->maxuser,
                         'updated_by' => $this->userId,
                     ]);
 
@@ -890,7 +630,7 @@ class companyController extends commonController
     {
         $company = company::find($id);
 
-        if ($this->rp['invoicemodule']['company']['delete'] != 1) {
+        if ($this->rp['adminmodule']['company']['delete'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized'
@@ -930,6 +670,44 @@ class companyController extends commonController
                 'status' => 404,
                 'company' => 'No Records Found'
             ], 404);
+        }
+    }
+
+    public function statusupdate(Request $request, string $id)
+    {
+
+        $company = company::find($id);
+
+        if ($company) {
+            $company->update([
+                'is_active' => $request->status
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No Such Company Found!'
+            ]);
+        }
+
+        $users = User::where('company_id',$id)->get();
+       
+        if ($this->rp['adminmodule']['company']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+
+        if ($users) {
+            $users->each(function ($user) use ($request) {
+                $user->update([
+                    'is_active' => $request->status
+                ]);
+            });
+            return response()->json([
+                'status' => 200,
+                'message' => 'Comapny status succesfully updated'
+            ]);
         }
     }
 }

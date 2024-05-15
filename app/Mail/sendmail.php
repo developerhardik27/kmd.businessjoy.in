@@ -12,15 +12,17 @@ class sendmail extends Mailable
 {
     use Queueable, SerializesModels;
     
-    public $username;
-    public $password;
+    public $passwordtoken;
+    public $companyname;
+    public $email;
     /**
      * Create a new message instance.
      */
-    public function __construct($username,$password)
+    public function __construct($passwordtoken,$companyname,$email)
     {   
-        $this->username = $username;
-        $this->password = $password;
+        $this->passwordtoken = $passwordtoken;
+        $this->companyname = $companyname;
+        $this->email = $email;
         //
     }
 
@@ -30,7 +32,7 @@ class sendmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome',
+            subject: $this->companyname. ',Welcome to business joy',
         );
     }
 

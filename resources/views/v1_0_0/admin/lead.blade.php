@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 
 @section('page_title')
     {{ config('app.name') }} - Lead
@@ -122,10 +122,13 @@
             right: 0;
         }
 
-        .multiselect-container {
-            width: 300px;
-            /* Set your desired width here */
-        }
+
+        /* .multiselect-container {
+                        width: 300px;
+                        max-height: 300px;
+                        overflow: auto;
+                    }
+                */
 
         .sidenav .btn-group {
             width: 100%;
@@ -143,15 +146,12 @@
         span.multiselect-selected-text {
             text-wrap: wrap;
         }
-
-       
     </style>
 
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    
- @endsection
+@endsection
 
 @section('advancefilter')
     <div id="mySidenav" class="sidenav">
@@ -171,6 +171,10 @@
                 <select name="source" class="form-control multiple" id="source" multiple>
                     <option value="" disabled selected>-- Select Source --</option>
                 </select>
+            </div>
+            <div class="col-md-12">
+                <label for="followupcount" class="form-label float-left">FollowUp:</label>
+                <input type="number" id="followupcount" placeholder="Number Of Followup" class="form-input form-control">
             </div>
             <div class="col-md-12">
                 <label for="last_followup" class="form-label float-left  ">Last FollowUp:</label>
@@ -196,44 +200,33 @@
         </div>
     </div>
     <div class="col-md-12 text-right pr-5">
-        <input type="radio" class="is_active advancefilter" id="qualified" name="status" value="1">
-        <label for="qualified">Qualified</label>
-        <input type="radio" class="is_active advancefilter" id="disqualified" name="status" value="0">
-        <label for="disqualified">Disqualified</label>
-        <input type="radio" class="is_active advancefilter" value="all" checked id="all" name="status">
-        <label for="all">All</label>
-        <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
-            <option disabled selected>-- Select status --</option>
-            {{-- <option value='Not Interested'>Not Interested</option>
-            <option value='Not Receiving'>Not Receiving</option>
-            <option value='New Lead'>New Lead</option>
-            <option value='Interested'>Interested</option>
-            <option value='Switch Off'>Switch Off</option>
-            <option value='Does Not Exist'>Does Not Exist</option>
-            <option value='Email Sent'>Email Sent</option>
-            <option value='Wrong Number'>Wrong Number</option>
-            <option value='By Mistake'>By Mistake</option>
-            <option value='Positive'>Positive</option>
-            <option value='Busy'>Busy</option>
-            <option value='Call Back'>Call Back</option> --}}
-        </select>
-        <select class="advancefilter multiple form-control w-100" id="leadstagestatus" multiple="multiple">
-            <option disabled selected>-- Select Lead Stage --</option>
-            {{-- <option value='New Lead'>New Lead</option>
-            <option value='Requirement Gathering'>Requirement Gathering</option>
-            <option value='Quotation'>Quotation</option>
-            <option value='In Followup'>In Followup</option>
-            <option value='Sale'>Sale</option>
-            <option value='Cancelled'>Cancelled</option>
-            <option value='Disqualified'>Disqualified</option> --}}
-        </select>
-        <!-- Use any element to open the sidenav -->
-        <button title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
-            <i class="ri-filter-line"></i>
-        </button>
-        <button title="FilterRefresh" class="btn btn-info btn-sm removefilters">
-            <i class="fa fa-refresh"></i>
-        </button>
+        <div class="m-2 float-right">
+            <!-- Use any element to open the sidenav -->
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
+                <i class="ri-filter-line"></i>
+            </button>
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh" class="btn btn-info btn-sm removefilters">
+                <i class="ri-refresh-line"></i>
+            </button>
+        </div>
+        <div class="m-2 float-right">
+            <select class="advancefilter multiple form-control w-100" id="leadstagestatus" multiple="multiple">
+                <option disabled selected>-- Select Lead Stage --</option>
+            </select>
+        </div>
+        <div class="m-2 float-right">
+            <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
+                <option disabled selected>-- Select status --</option>
+            </select>
+        </div>
+        <div class="m-2 float-right">
+            <input type="radio" class="is_active advancefilter" id="qualified" name="status" value="1">
+            <label for="qualified">Qualified</label>
+            <input type="radio" class="is_active advancefilter" id="disqualified" name="status" value="0">
+            <label for="disqualified">Disqualified</label>
+            <input type="radio" class="is_active advancefilter" value="all" checked id="all" name="status">
+            <label for="all">All</label>
+        </div>
     </div>
 
     @if (session('user_permissions.leadmodule.lead.add') == '1')
@@ -241,7 +234,7 @@
             {{ route('admin.addlead') }}
         @endsection
         @section('addnewbutton')
-            <button title="Add Lead" class="btn btn-sm btn-primary">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Lead" class="btn btn-sm btn-primary">
                 <span class="">+ Lead</span>
             </button>
         @endsection
@@ -252,7 +245,8 @@
 
 
 @section('table-content')
-    <table id="data" class="table table-bordered w-100  table-responsive-sm table-striped text-center">
+    <table id="data"
+        class="table table-bordered w-100 table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -275,14 +269,13 @@
         <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-
                     <h5 class="modal-title" id="addcallhistoryTitle"><b>Call History</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="leadhistoryform">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="leadhistoryform">
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="leadid" id="leadid">
@@ -292,6 +285,13 @@
                                 Datetime:
                                 <input type="datetime-local" name="call_date" id="call_date"class="form-control">
                                 <span class="error-msg" id="error-call_date" style="color: red"></span>
+                            </div>
+                            <br />
+                            <div class="col-12">
+                                Next FollowUp:
+                                <input type="datetime-local" name="next_call_date"
+                                    id="next_call_date"class="form-control">
+                                <span class="error-msg" id="error-next_call_date" style="color: red"></span>
                             </div>
                             <br />
                             <div class="col-12">
@@ -320,16 +320,18 @@
                                 <span class="error-msg" id="error-call_status" style="color: red"></span>
                             </div>
                             <br>
-                            <div class="col-12">
-                                FollowUp : <input type="checkbox" name="followup" id="followup" value="1">
+                            <div class="col-12 mt-2">
+                                <input type="checkbox" name="followup" id="followup" value="1"> <label
+                                    for="followup">FollowUp</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" value="submit" class="btn btn-sm btn-primary">
-                        <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
-                        </button>
-                    </div>
+
+                        <div class="modal-footer">
+                            <input type="submit" value="submit" class="btn btn-sm btn-primary">
+                            <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
+                            </button>
+                        </div>
+                </div>
                 </form>
             </div>
         </div>
@@ -365,7 +367,19 @@
     <script>
         /* Simple appearence with animation AN-1*/
         function openNav() {
-            document.getElementById("mySidenav").style.width = "25%";
+            var screenWidth = window.innerWidth;
+            var width;
+
+            if (screenWidth >= 320 && screenWidth <= 768) {
+                width = "100%";
+            } else if (screenWidth >= 769 && screenWidth <= 1024) {
+                width = "50%";
+            } else if (screenWidth >= 1025 && screenWidth <= 1200) {
+                width = "30%";
+            } else {
+                width = "25%";
+            }
+            document.getElementById("mySidenav").style.width = width;
         }
 
         function closeNav() {
@@ -382,6 +396,47 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            $('#assignedto').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                        '<option selected disabled>-- Select User --</option>'
+                    ); // prepend "Please choose an option"
+                }
+                $('#assignedto').multiselect('rebuild');
+            });
+            $('#source').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                        '<option selected disabled>-- Select Source --</option>'
+                    ); // prepend "Please choose an option"
+                }
+                $('#source').multiselect('rebuild');
+            });
+            $('#advancestatus').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                        '<option selected disabled>-- Select Status --</option>'
+                    ); // prepend "Please choose an option"
+                }
+                $('#advancestatus').multiselect('rebuild');
+            });
+            $('#leadstagestatus').change(function() {
+                if ($(this).val() !== null) {
+                    $(this).find('option:disabled').remove(); // remove disabled option
+                } else {
+                    $(this).prepend(
+                        '<option selected disabled>-- Select Lead Stage --</option>'
+                    ); // prepend "Please choose an option"
+                }
+                $('#leadstagestatus').multiselect('rebuild');
+            });
+
             $('#history_notes').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -390,8 +445,7 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['height', ['height']],
                     ['insert', ['table']],
-                    ['view', ['fullscreen', 'codeview']],
-                    ['help', ['help']]
+                    ['view', ['fullscreen', 'codeview']]
                 ],
                 placeholder: 'Add Notes',
                 tabsize: 2,
@@ -423,20 +477,29 @@
                                     );
                                 });
                                 $('#advancestatus').multiselect(
-                                    'rebuild'); // Rebuild multiselect after appending options
-                                loaderhide();
+                                    'rebuild'); // Rebuild multiselect after appending options 
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 $('#advancestatus').append(
                                     `<option> No Lead Status Found </option>`);
-                                loaderhide();
                             }
+                            loaderhide();
                             resolve();
                         },
-                        error: function(error) {
-                            reject(error);
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 });
@@ -464,20 +527,29 @@
                                     );
                                 });
                                 $('#leadstagestatus').multiselect(
-                                    'rebuild'); // Rebuild multiselect after appending options
-                                loaderhide();
+                                    'rebuild'); // Rebuild multiselect after appending options 
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
                                 $('#leadstagestatus').append(
                                     `<option> No Lead Stage Found </option>`);
-                                loaderhide();
                             }
+                            loaderhide();
                             resolve();
                         },
-                        error: function(error) {
-                            reject(error);
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 });
@@ -487,7 +559,7 @@
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'GET',
-                        url: '{{ route('user.index') }}',
+                        url: '{{ route('user.leaduserindex') }}',
                         data: {
                             user_id: "{{ session()->get('user_id') }}",
                             company_id: "{{ session()->get('company_id') }}",
@@ -496,8 +568,19 @@
                         success: function(response) {
                             resolve(response);
                         },
-                        error: function(error) {
-                            reject(error);
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 });
@@ -516,8 +599,19 @@
                         success: function(response) {
                             resolve(response);
                         },
-                        error: function(error) {
-                            resolve();
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 });
@@ -547,6 +641,7 @@
                         $('#advancestatus, #assignedto, #source, #leadstagestatus').multiselect('refresh');
 
                         sessionStorage.removeItem('filterData');
+                        loaderhide();
                         resolve(); // Resolve the promise here after all actions
                     } else {
                         // If no filter data, resolve immediately
@@ -555,6 +650,8 @@
                     }
                 });
             }
+
+
             async function initialize() {
                 try {
                     // Perform AJAX calls concurrently
@@ -577,14 +674,11 @@
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
                         $('#assignedto').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options
-                        loaderhide();
+                            'rebuild'); // Rebuild multiselect after appending options 
                     } else if (userDataResponse.status == 500) {
                         toastr.error(userDataResponse.message);
-                        loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
-                        loaderhide();
                     }
 
                     // Check if source data is successfully fetched
@@ -597,16 +691,15 @@
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
                         $('#source').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options
-                        loaderhide();
+                            'rebuild'); // Rebuild multiselect after appending options 
                     } else if (sourceDataResponse.status == 500) {
                         toastr.error(sourceDataResponse.message);
-                        loaderhide();
                     } else {
-                        $('#source').append(`<option> No User Found </option>`);
-                        loaderhide();
+                        $('#source').append(`<option disabled> No Source Found </option>`);
+                        $('#source').multiselect(
+                            'rebuild'); // Rebuild multiselect after appending options
                     }
-
+                    loaderhide();
                     // Load filters
                     await loadFilters();
 
@@ -623,10 +716,26 @@
             initialize();
 
             var global_response = '';
-            $('#assignedto').multiselect();
-            $('#source').multiselect();
-            $('#advancestatus').multiselect();
-            $('#leadstagestatus').multiselect();
+            $('#assignedto').multiselect({
+                enableFiltering: true,
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true
+            });
+            $('#source').multiselect({
+                enableFiltering: true,
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true
+            });
+            $('#advancestatus').multiselect({
+                enableFiltering: true,
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true
+            });
+            $('#leadstagestatus').multiselect({
+                enableFiltering: true,
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true
+            });
 
 
             // get lead data and set in the table
@@ -650,28 +759,23 @@
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b>Name:</b> ${value.name}
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-building pr-2"></i></b> ${value.company}
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Email:</b>
+                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                        </span>
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-envelope pr-2"></i></b>
                                                             <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Contact:</b>
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                                        </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Title:</b> ${value.title === null ? '-':value.title}
-                                                        </span>
-                                                        <br/>    
-                                                        <span>
-                                                            <b>Status:</b> 
+                                                        </span>  
+                                                        <span class='d-flex mb-2'>
                                                              @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                            <select class="ml-1 status form-control" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 ${ 
                                                                     leadstatusname.map(function(optionValue) {
                                                                             return `<option value="${optionValue}">${optionValue}</option>`;
@@ -697,26 +801,26 @@
                                                     <td>${value.source}</td>
                                                     <td>
                                                         <span>
-                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 leadid' ><i class='ri-time-fill'></i></button>
+                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
                                                         </span>
                                                         <span>
-                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
                                                         </span>
                                                         <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <span>
-                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
+                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.leadmodule.lead.delete') == '1')
                                                             <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -736,19 +840,26 @@
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
-                            loaderhide();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            $('#data').append(`<tr><td colspan='11' >No Data Found</td></tr>`);
-                            loaderhide();
+                            $('#tabledata').html(`<tr><td colspan='7' >No Data Found</td></tr>`);
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -767,8 +878,22 @@
 
                         $('#details').append(`
                                                 <tr> 
-                                                    <td>name</td>
-                                                    <th>${lead.name}</th>
+                                                    <td>Website Url</td>
+                                                    <th style="text-transform: none;">
+                                                       <a href="${lead.web_url}" target="_blank">${lead.web_url}</a>
+                                                    </th>
+                                                </tr> 
+                                                <tr> 
+                                                    <td>First name</td>
+                                                    <th>${lead.first_name}</th>
+                                                </tr> 
+                                                <tr> 
+                                                    <td>Last name</td>
+                                                    <th>${lead.last_name}</th>
+                                                </tr> 
+                                                <tr> 
+                                                    <td>Company name</td>
+                                                    <th>${lead.company}</th>
                                                 </tr> 
                                                 <tr>
                                                     <td>email</td>
@@ -866,6 +991,20 @@
                                 toastr.success(data.message);
                                 advancefilters();
                             }
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 } else {
@@ -905,6 +1044,20 @@
                                 toastr.success(data.message);
                                 advancefilters();
                             }
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 } else {
@@ -918,6 +1071,7 @@
             $(document).on("click", '.editbtn', function() {
                 editid = $(this).data('id');
                 // loadershow();
+                followupcount = $('#followupcount').val();
                 fromdate = $('#fromdate').val();
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
@@ -929,6 +1083,7 @@
                 activestatusvalue = $('input[name="status"]:checked').val();
 
                 data = {
+                    followupcount,
                     fromdate,
                     todate,
                     advancestatus,
@@ -949,7 +1104,7 @@
             // lead delete
             $(document).on("click", ".dltbtn", function() {
 
-                if (confirm("Are you Sure that to delete this record")) {
+                if (confirm("Are you Sure to delete this record")) {
                     loadershow();
                     var id = $(this).data('uid');
                     var row = this;
@@ -964,17 +1119,29 @@
                             user_id: "{{ session()->get('user_id') }}"
                         },
                         success: function(data) {
-                            loaderhide();
                             if (data.status == false) {
                                 toastr.error(data.message)
                             } else if (data.status == 500) {
                                 toastr.error(data.message);
-                                loaderhide();
                             } else {
                                 toastr.success(data.message);
                                 $(row).closest("tr").fadeOut();
                             }
-
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 }
@@ -991,6 +1158,7 @@
                     todate = fromdate;
                     $('#todate').val(todate);
                 }
+                followupcount = $('#followupcount').val();
                 advancestatus = $('#advancestatus').val();
                 assignedto = $('#assignedto').val();
                 source = $('#source').val();
@@ -1016,6 +1184,9 @@
                     data.fromdate = fromdate;
                     data.todate = todate;
                 }
+                if (followupcount != '') {
+                    data.followupcount = followupcount;
+                }
                 if (advancestatus != '') {
                     data.status = advancestatus;
                 }
@@ -1040,12 +1211,13 @@
 
                 if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && source == '' &&
                     leadstagestatus == '' && LastFollowUpDate == '' &&
-                    NextFollowUpDate == '' && activestatusvalue == '') {
+                    NextFollowUpDate == '' && activestatusvalue == '' && followupcount == '') {
                     loaddata();
                 }
                 if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
                     '' || source != '' || leadstagestatus != '' ||
-                    LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '') {
+                    LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '' || followupcount !=
+                    '') {
                     loadershow();
                     $.ajax({
                         type: 'GET',
@@ -1060,28 +1232,24 @@
                                 $.each(response.lead, function(key, value) {
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
-                                                    <td class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable">
-                                                            <b>Name:</b> ${value.name}
+                                                    <td  class="text-left" >
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-building pr-2"></i></b> ${value.company}
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Email:</b>
+                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                        </span>
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-envelope pr-2"></i></b>
                                                             <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
                                                         </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Contact:</b>
+                                                        <span class='d-flex mb-2'>
+                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                                        </span>
-                                                        <br/>
-                                                        <span>
-                                                            <b>Title:</b> ${value.title === null ? '-':value.title}
-                                                        </span> 
-                                                        <br/>    
-                                                        <span>
-                                                            <b>Status:</b> @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                        </span>  
+                                                        <span class='d-flex mb-2'>
+                                                             @if (session('user_permissions.leadmodule.lead.edit') == '1')
+                                                            <select class="ml-1 status form-control" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 ${ 
                                                                     leadstatusname.map(function(optionValue) {
                                                                             return `<option value="${optionValue}">${optionValue}</option>`;
@@ -1107,26 +1275,26 @@
                                                     <td>${value.source}</td>
                                                     <td>
                                                         <span>
-                                                            <button data-toggle="modal"  data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 leadid' ><i class='ri-time-fill'></i></button>
+                                                            <button data-toggle="modal"  data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
                                                         </span>
                                                         <span>
-                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
                                                         </span>
                                                         <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <span>
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-0 editbtn">
+                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.leadmodule.lead.delete') == '1')
                                                             <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-0">
+                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -1146,23 +1314,27 @@
                                     },
                                     "destroy": true, //use for reinitialize datatable
                                 });
-                                loaderhide();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                $('#data').DataTable({
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                                loaderhide();
+                                $('#tabledata').html(`<tr><td colspan='7' >No Data Found</td></tr>`);
                             }
+                            loaderhide();
                             // You can update your HTML with the data here if needed
                         },
-                        error: function(error) {
+                        error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
-                            console.error('Error:', error);
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                            reject(errorMessage);
                         }
                     });
                 }
@@ -1180,22 +1352,33 @@
 
             //remove advnaced filtres only (sidebar filtres) 
             $('.removepopupfilters').on('click', function() {
+                $('#followupcount').val('');
                 $('#fromdate').val('');
                 $('#todate').val('');
                 $('#last_followup').val('');
                 $('#next_followup').val('');
                 $('#invaliddate').text(' ');
                 $('#assignedto option').prop('selected', false);
-                $('#assignedto option:first').prop('selected', true);
-                $('#assignedto').multiselect('refresh');
                 $('#source option').prop('selected', false);
+
+                if ($("#assignedto option:not(:disabled)").length > 0) {
+                    $("#assignedto").prepend(
+                        '<option value="" disabled selected>-- Select User --</option>');
+                }
+                if ($("#source option:not(:disabled)").length > 0) {
+                    $("#source").prepend('<option value="" disabled selected>-- Select Source --</option>');
+                }
+
+                $('#assignedto option:first').prop('selected', true);
                 $('#source option:first').prop('selected', true);
+                $('#assignedto').multiselect('refresh');
                 $('#source').multiselect('refresh');
                 advancefilters();
             });
 
             // remove all filters
             $('.removefilters').on('click', function() {
+                $('#followupcount').val('');
                 $('#fromdate').val('');
                 $('#todate').val('');
                 $('#last_followup').val('');
@@ -1207,6 +1390,23 @@
                 $('#assignedto option').prop('selected', false);
                 $('#source option').prop('selected', false);
                 $('#leadstagestatus option').prop('selected', false);
+
+
+                if ($("#advancestatus option:not(:disabled)").length > 0) {
+                    $("#advancestatus").prepend(
+                        '<option value="" disabled selected>-- Select Status --</option>');
+                }
+                if ($("#assignedto option:not(:disabled)").length > 0) {
+                    $("#assignedto").prepend(
+                        '<option value="" disabled selected>-- Select User --</option>');
+                }
+                if ($("#source option:not(:disabled)").length > 0) {
+                    $("#source").prepend('<option value="" disabled selected>-- Select Source --</option>');
+                }
+                if ($("#leadstagestatus option:not(:disabled)").length > 0) {
+                    $("#leadstagestatus").prepend(
+                        '<option value="" disabled selected>-- Select Lead Stage --</option>');
+                }
 
                 // Check only the first option
                 $('#advancestatus option:first').prop('selected', true);
@@ -1220,20 +1420,22 @@
                 $('#source').multiselect('refresh');
                 $('#leadstagestatus').multiselect('refresh');
                 loaddata();
-
             });
 
 
             //    leadhistory 
             $(document).on('click', '.leadid', function() {
-
+                $('#history_notes').summernote('code', '');
                 leadid = $(this).data('id');
                 $('#leadid').val(leadid);
 
                 $.each(global_response.lead, function(key, lead) {
                     if (lead.id == leadid) {
-                        $('#addcallhistoryTitle').html(`${lead.name}<br/> - <b>Call History</b>`);
+                        $('#addcallhistoryTitle').html(
+                            `<b>Call History</b> - ${lead.first_name} ${lead.last_name}`);
+                        $('#next_call_date').val(`${lead.next_follow_up}`);
                     }
+
                 });
 
                 var now = new Date();
@@ -1257,7 +1459,8 @@
 
                 $.each(global_response.lead, function(key, lead) {
                     if (lead.id == historyid) {
-                        $('#viewcallhistoryTitle').html(`${lead.name}<br/> - <b>Call History</b>`);
+                        $('#viewcallhistoryTitle').html(
+                            `<b>Call History</b> - ${lead.first_name} ${lead.last_name}`);
                     }
                 });
 
@@ -1283,7 +1486,6 @@
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             $('.historyrecord').append(`
                                 <div class="col-12">
@@ -1291,13 +1493,21 @@
                                 </div>
                             `);
                         }
-
-
                         loaderhide();
                     },
-                    error: function(error) {
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.error('Error:', error);
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                        reject(errorMessage);
                     }
                 });
             });
@@ -1305,6 +1515,7 @@
 
             // reset call history form
             $(document).on('click', '.resethistoryform', function() {
+                $('#history_notes').summernote('code', '');
                 $('#leadhistoryform')[0].reset();
             })
 
@@ -1325,7 +1536,7 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
+                            $('#history_notes').summernote('code', '');
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             $('#leadhistoryform')[0].reset();
@@ -1333,26 +1544,30 @@
                             advancefilters();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
-
+                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        $('#history_notes').summernote('code', '');
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 })

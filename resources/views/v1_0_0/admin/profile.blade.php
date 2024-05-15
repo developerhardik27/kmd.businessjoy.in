@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterpage')
+@extends($folder . '.admin.masterpage')
 
 @section('style')
     <style>
@@ -38,7 +38,7 @@
                                 <div class="iq-header-title">
                                     <h4 class="card-title">Profile</h4>
                                 </div>
-                                @if (session('user_permissions.invoicemodule.user.edit') == '1')
+                                @if (session('user_permissions.adminmodule.user.edit') == '1' && session('menu') == 'admin')
                                     <div>
                                         <a href="{{ route('admin.edituserdetail', ['id' => $id]) }}">
                                             <i id="editicon" class="ri-pencil-fill float-right"></i>
@@ -122,7 +122,6 @@
                     id: {{ $id }}
                 },
                 success: function(response) {
-
                     if (response.status == 200 && response.user != '') {
                         var user = response.user[0];
                         $('#name').text(user.firstname + ' ' + user.lastname);
@@ -135,18 +134,25 @@
                         var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
                             'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         $('#profile_img').append(imgElement);
-                        loaderhide();
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
-                        loaderhide();
                         toastr.error('something went wrong !');
                     }
-                },
-                error: function(error) {
                     loaderhide();
-                    console.error('Error:', error);
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
         });

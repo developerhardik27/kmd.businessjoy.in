@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 class TblLeadController extends Controller
 {
 
-    public $version,$leadModel;
+    public $version, $leadModel;
     public function __construct()
     {
-        if(session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->version =  $_SESSION['folder_name'];
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
         if (isset($_SESSION['folder_name'])) {
+            $this->version = $_SESSION['folder_name'];
             $this->leadModel = 'App\\Models\\' . $this->version . "\\tbllead";
         } else {
             $this->leadModel = 'App\\Models\\v1_0_0\\tbllead';
@@ -24,12 +25,12 @@ class TblLeadController extends Controller
      */
     public function index(Request $request)
     {
-        if(isset($request->search)){
+        if (isset($request->search)) {
             $search = $request->search;
-        } else{
+        } else {
             $search = '';
         }
-        return view($this->version.'.admin.lead',['search' => $search]);
+        return view($this->version . '.admin.lead', ['search' => $search]);
     }
 
     /**
@@ -37,7 +38,7 @@ class TblLeadController extends Controller
      */
     public function create()
     {
-        return view($this->version.'.admin.leadform');
+        return view($this->version . '.admin.leadform');
     }
 
     /**
@@ -61,7 +62,7 @@ class TblLeadController extends Controller
      */
     public function edit(string $id)
     {
-        return view($this->version.'.admin.leadupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.leadupdateform', ['edit_id' => $id]);
     }
 
     /**

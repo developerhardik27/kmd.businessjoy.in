@@ -11,7 +11,7 @@ class tblleadhistoryController extends commonController
 {
 
 
-    public $userId, $companyId, $masterdbname, $rp,$tblleadModel,$tblleadhistoryModel;
+    public $userId, $companyId, $masterdbname, $rp, $tblleadModel, $tblleadhistoryModel;
 
     public function __construct(Request $request)
     {
@@ -25,8 +25,8 @@ class tblleadhistoryController extends commonController
         $permissions = json_decode($user_rp, true);
         $this->rp = json_decode($permissions[0]['rp'], true);
 
-        $this->tblleadModel = $this->getmodel('tbllead'); 
-        $this->tblleadhistoryModel = $this->getmodel('tblleadhistory'); 
+        $this->tblleadModel = $this->getmodel('tbllead');
+        $this->tblleadhistoryModel = $this->getmodel('tblleadhistory');
     }
 
     /**
@@ -87,10 +87,13 @@ class tblleadhistoryController extends commonController
                 $lead = $this->tblleadModel::find($request->leadid);
 
                 if ($lead) {
-                    // $lead->last_follow_up = $request->call_date;
                     // $lead->notes = $request->history_notes;
-                    // $lead->number_of_follow_up = $lead->number_of_follow_up +  $followup;
+                    $lead->number_of_follow_up = $lead->number_of_follow_up + $followup;
                     $lead->status = $request->call_status;
+                    $lead->last_follow_up = $request->call_date;
+                    if ($request->next_call_date != null) {
+                        $lead->next_follow_up = $request->next_call_date;
+                    }
                     $lead->save();
                 }
                 return response()->json([

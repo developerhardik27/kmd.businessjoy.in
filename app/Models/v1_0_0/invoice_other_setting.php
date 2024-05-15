@@ -13,15 +13,5 @@ class invoice_other_setting extends Model
 
     protected $table = 'invoice_other_settings';
 
-    protected $fillable = [
-        
-        'overdue_day',
-        'year_start',
-        'created_by',
-        'updated_by',
-        'created_at',
-        'updated_at',
-        'is_active',
-        'is_deleted'
-    ];
+    protected $guarded = [];
 }

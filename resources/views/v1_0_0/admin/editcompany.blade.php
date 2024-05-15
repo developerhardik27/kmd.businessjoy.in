@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterlayout')
+@extends($folder . '.admin.masterlayout')
 
 @section('page_title')
     {{ config('app.name') }} - Update company details
@@ -22,15 +22,15 @@
                         placeholder="token" required />
                     <input type="hidden" name="user_id" class="form-control" value="{{ $user_id }}"
                         placeholder="updated_by" required />
-                    <label for="">Name</label>
-                    <input id="name" type="text" name="name" value="" class="form-control"
-                        placeholder="company name" required />
+                    <label for="name">Name</label><span style="color:red;">*</span>
+                    <input id="name" type="text" name="name" class="form-control" placeholder="company name"
+                        required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="email">Email</label>
-                    <input type="email" name="email" class="form-control" id="email" value=""
-                        placeholder="Enter Email" required />
+                    <label for="email">Email</label><span style="color:red;">*</span>
+                    <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email"
+                        required />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -38,15 +38,15 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="contact_no">Contact Number</label>
-                    <input type="tel" name="contact_number" class="form-control" id="contact_no" value=""
+                    <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
+                    <input type="tel" name="contact_number" class="form-control" id="contact_no"
                         placeholder="0123456789" required />
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="gst_no">GST Number</label>
-                    <input type="text" value="" id="gst_no" name="gst_number" class="form-control"
-                        placeholder="GST Number" required />
+                    <input type="text" id="gst_no" name="gst_number" class="form-control" placeholder="GST Number"
+                        />
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -54,14 +54,14 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="country">Select Country</label>
+                    <label for="country">Select Country</label><span style="color:red;">*</span>
                     <select class="form-control" name="country" id="country" required>
                         <option selected="" disabled="">Select your Country</option>
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="state" required>Select State</label>
+                    <label for="state" required>Select State</label><span style="color:red;">*</span>
                     <select class="form-control" name="state" id="state">
                         <option selected disabled="">Select your State</option>
                     </select>
@@ -72,14 +72,14 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="city">Select City</label>
+                    <label for="city">Select City</label><span style="color:red;">*</span>
                     <select class="form-control" name="city" id="city" required>
                         <option selected disabled="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="pincode">Pincode</label>
+                    <label for="pincode">Pincode</label><span style="color:red;">*</span>
                     <input type="text" id="pincode" value="" name="pincode" class="form-control"
                         placeholder="Pin Code" required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
@@ -89,22 +89,26 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="address">Address</label>
+                    <label for="address">Address</label><span style="color:red;">*</span>
                     <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="">Image</label><br>
-                    <input type="file" name="img" id="" width="100%" />
+                    <label for="img">Image</label><br>
+                    <input type="file" class="form-control-file" name="img" id="img" width="100%" />
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB.</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
             </div>
         </div>
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="companysubmit">Save</button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
+                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                 </div>
+            </div>
+         </div>
     </form>
 @endsection
 
@@ -127,7 +131,6 @@
                     user_id: "{{ session()->get('user_id') }}"
                 },
                 success: function(response) {
-                    console.log(response);
                     if (response.status == 200 && response.company != '') {
                         var company = response.company[0];
                         $('#name').val(company.name);
@@ -141,20 +144,26 @@
                         city = company.city_id;
                         loadstate(country, state);
                         loadcity(state, city);
-                        loaderhide();
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
-                        loaderhide();
                         toastr.error('something went wrong !');
                     }
+                    loaderhide();
 
                     // You can update your HTML with the data here if needed
                 },
-                error: function(error) {
+                error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
-                    console.error('Error:', error);
+                    console.log(xhr.responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -173,18 +182,22 @@
                             )
                         });
                         $('#country').val(country);
-                        loaderhide();
                     } else {
                         $('#country').append(`<option disabled> No Data Found</option>`);
-                        loaderhide();
                     }
-
-
                     // You can update your HTML with the data here if needed
                 },
-                error: function(error) {
+                error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
-                    console.error('Error:', error);
+                    console.log(xhr.responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
 
@@ -209,8 +222,17 @@
                         $('#state').val(state);
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
-                        console.error('Error:', error);
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -238,8 +260,17 @@
 
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
-                        console.error('Error:', error);
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -263,18 +294,24 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
-                            loaderhide();
                         } else {
                             $('#state').append(`<option> No Data Found</option>`);
-                            loaderhide();
                         }
-
-
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
-                        console.error('Error:', error);
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
+                        console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
@@ -297,16 +334,24 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
                             $('#city').append(`<option disabled> No Data Found</option>`)
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
-                        console.error('Error:', error);
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
+                        console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });
@@ -326,7 +371,6 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location =
@@ -334,26 +378,30 @@
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
-                            loaderhide();
                             toastr.error(response.message);
                         }
+                        loaderhide();
 
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response and display validation errors
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
-                            loaderhide();
                         } else {
-                            loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     }
                 });

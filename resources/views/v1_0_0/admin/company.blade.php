@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.mastertable')
+@extends($folder . '.admin.mastertable')
 
 @section('page_title')
     {{ config('app.name') }} - Company
@@ -42,7 +42,7 @@
     </style>
 @endsection
 
-@if (session('user_permissions.invoicemodule.company.add') == '1')
+@if (session('user_permissions.adminmodule.company.add') == '1')
     @section('addnew')
         {{ route('admin.addcompany') }}
     @endsection
@@ -54,13 +54,15 @@
 @endif
 
 @section('table-content')
-    <table id="data" class="table  table-bordered display table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table  table-bordered display table-responsive-sm table-responsive-md  table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>ContactNo</th>
+                <th>status</th>
                 <th>View</th>
                 <th>Action</th>
             </tr>
@@ -96,7 +98,6 @@
                     success: function(response) {
                         // You can update your HTML with the data here if needed
                         if (response.status == 200 && response.company != '') {
-                            loaderhide();
                             global_response = response;
                             var id = 1;
                             $.each(response.company, function(key, value) {
@@ -106,7 +107,14 @@
                                                     <td>${value.email}</td>
                                                     <td>${value.contact_no}</td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.company.view') == '1')
+                                                        @if (session('user_permissions.adminmodule.company.edit') == '1') 
+                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.adminmodule.company.view') == '1')
                                                             <span>
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -116,10 +124,10 @@
                                                           -
                                                         @endif
                                                     </td>
-                                                    @if (session('user_permissions.invoicemodule.company.edit') == '1' ||
-                                                            session('user_permissions.invoicemodule.company.delete') == '1')
+                                                    @if (session('user_permissions.adminmodule.company.edit') == '1' ||
+                                                            session('user_permissions.adminmodule.company.delete') == '1')
                                                         <td> 
-                                                            @if (session('user_permissions.invoicemodule.company.edit') == '1')
+                                                            @if (session('user_permissions.adminmodule.company.edit') == '1')
                                                                 <span class="">
                                                                     <a href='EditCompany/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -128,7 +136,7 @@
                                                                     </a>
                                                                 </span>
                                                             @endif                                                        
-                                                            @if (session('user_permissions.invoicemodule.company.delete') == '1')
+                                                            @if (session('user_permissions.adminmodule.company.delete') == '1')
                                                                 <span class="">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -139,8 +147,8 @@
                                                     @else
                                                         <td> - </td> 
                                                     @endif
-                                                    
-                                                    </tr>`)
+                                </tr>`);
+
                                 id++;
                             });
                             $('#data').DataTable({
@@ -148,16 +156,22 @@
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);
-                            loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
-                            loaderhide();
                         }
-                       
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
                         loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
                     }
                 });
             }
@@ -165,6 +179,98 @@
             //call loaddata function for make ajax call
             loaddata(); // this function is for get company details
 
+
+
+
+            //  Company status update active to deactive              
+            $(document).on("click", ".status-active", function() {
+                if (confirm('Are you really want to change status to inactive ?')) {
+                    loadershow();
+                    var statusid = $(this).data('status');
+                    $.ajax({
+                        type: 'put',
+                        url: '/api/company/statusupdate/' + statusid,
+                        data: {
+                            status: '0',
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                toastr.success(response.message);
+                                $('#status_' + statusid).html('<button data-status= ' +
+                                    statusid +
+                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
+                                );
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                            } else {
+                                toastr.error('something went wrong !');
+                            }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    });
+                }
+            });
+
+            //  Company status update deactive to  active            
+            $(document).on("click", ".status-deactive", function() {
+                if (confirm('Are you really want to change status to active ?')) {
+                    loadershow();
+                    var statusid = $(this).data('status');
+                    $.ajax({
+                        type: 'put',
+                        url: '/api/company/statusupdate/' + statusid,
+                        data: {
+                            status: '1',
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}"
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                toastr.success(response.message);
+                                $('#status_' + statusid).html('<button data-status= ' +
+                                    statusid +
+                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
+                                );
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                            } else {
+                                toastr.error('something went wrong !');
+                            }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    });
+                }
+            });
 
 
             // delete company             
@@ -183,15 +289,26 @@
                         },
                         success: function(response) {
                             if (response.status == 200) {
-                                loaderhide();
                                 $(row).closest("tr").fadeOut();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
-                                loaderhide();
                             } else {
-                                loaderhide();
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
                         }
                     });
                 }
@@ -203,13 +320,41 @@
                 var data = $(this).data('view');
                 $.each(global_response.company, function(key, company) {
                     if (company.id == data) {
-                        $.each(company, function(fields, value) {
-                            $('#details').append(`<tr>
-                                    <th>${fields}</th>
-                                    
-                                    <td>${value}</td>
-                                    </tr>`)
-                        })
+                        console.log(company);
+                        $('#details').append(`
+                                    <tr>
+                                        <th>Name</th>
+                                        <td>${company.name}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>${company.email}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Contact</th>
+                                        <td>${company.contact_no}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>GST Number</th>
+                                        <td>${company.gst_no}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Address</th>
+                                        <td>${company.address}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>City</th>
+                                        <td>${company.city_name}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>State</th>
+                                        <td>${company.state_name}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Contry</th>
+                                        <td>${company.country_name}</td>
+                                    </tr> 
+                            `);
                     }
                 });
             });

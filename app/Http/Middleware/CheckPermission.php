@@ -43,6 +43,18 @@ class CheckPermission
         if ($module == 'customersupportmodule') {
             $menu = 'Customer support';
         }
+        if ($module == 'adminmodule') {
+            $menu = 'admin';
+        }
+        if ($module == 'accountmodule') {
+            $menu = 'account';
+        }
+        if ($module == 'inventorymodule') {
+            $menu = 'inventory';
+        }
+        if ($module == 'remindermodule') {
+            $menu = 'reminder';
+        }
 
         // Check if the user has permission for the given module and action
         if (isset($rp[$module][$submodule][$action]) && $rp[$module][$submodule][$action] == '1' && Session::get('menu') == $menu) {
@@ -50,6 +62,6 @@ class CheckPermission
         }
 
         // Handle unauthorized access
-        abort(404, 'You are not Authorized.');
+        abort(404, 'You are Unauthorized.');
     }
 }

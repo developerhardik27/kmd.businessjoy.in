@@ -87,8 +87,9 @@
             },
             success: function(response) {
                 var user = response.user[0];
-                $('#username').text(user.firstname + ' ' + user.lastname);
-                $('#usernamein').append(' ' + user.firstname + ' ' + user.lastname);
+                var username = user.lastname != null ? user.lastname : ' '; 
+                $('#username').text(user.firstname + ' ' + username);
+                $('#usernamein').append(' ' + user.firstname + ' ' + username);
                 $('#loggedcompanyname').append('-' + user.name);
                 $('#afterclickcompanyname').append('-' + user.name);
                 var imgname = user.img;
@@ -112,9 +113,23 @@
             var url = "{{ route('admin.invoice') }}?search=" + encodeURIComponent(search);
             if ("{{ session()->get('menu') }}" == 'invoice') {
                 var url = "{{ route('admin.invoice') }}?search=" + encodeURIComponent(search);
-            } else if("{{ session()->get('menu') }}" == 'lead') {
+            } 
+            else if("{{ session()->get('menu') }}" == 'lead') {
                 var url = "{{ route('admin.lead') }}?search=" + encodeURIComponent(search);
-            }else{
+            }
+            else if("{{ session()->get('menu') }}" == 'admin') {
+                var url = "{{ route('admin.user') }}?search=" + encodeURIComponent(search);
+            }
+            else if("{{ session()->get('menu') }}" == 'inventory') {
+                var url = "{{ route('admin.product') }}?search=" + encodeURIComponent(search);
+            }
+            else if("{{ session()->get('menu') }}" == 'account') {
+                var url = "{{ route('admin.purchase') }}?search=" + encodeURIComponent(search);
+            }
+            else if("{{ session()->get('menu') }}" == 'reminder') {
+                var url = "{{ route('admin.reminder') }}?search=" + encodeURIComponent(search);
+            }
+            else{
                 var url = "{{ route('admin.customersupport') }}?search=" + encodeURIComponent(search);
             }
             window.location.href = url;
@@ -132,7 +147,7 @@
                 success: function(response) {
                     $('#menuOption').html($(this).html());
                     toastr.success(`Logged in ${response.status} succesfully`);
-                    window.location.href = "{{ route('admin.welcome') }}";
+                    window.location.href = "{{ route('admin.index') }}";
                 },
                 error: function(error) {
                     toastr.error('Something Went Wrong!');

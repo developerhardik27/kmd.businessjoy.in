@@ -16,9 +16,17 @@ class tblinvoicecolumnController extends commonController
     public function __construct(Request $request)
     {
 
-        $this->dbname($request->company_id);
+        if (session()->get('company_id')) {
+            $this->dbname(session()->get('company_id'));
+        } else {
+            $this->dbname($request->company_id);
+        }
+        if (session()->get('user_id')) {
+            $this->userId = session()->get('user_id');
+        } else {
+            $this->userId = $request->user_id;
+        }
         $this->companyId = $request->company_id;
-        $this->userId = $request->user_id;
         $this->masterdbname = DB::connection()->getDatabaseName();
 
 
@@ -57,6 +65,30 @@ class tblinvoicecolumnController extends commonController
         }
     }
 
+
+
+
+    public function column_details(string $id)
+    {
+        
+        $columndetails = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->where('is_deleted', 0)->get();;
+
+
+        if ($columndetails->count() > 0) {
+
+            return response()->json([
+                'status' => 200,
+                'columndetails' => $columndetails
+            ], 200);
+
+        } else {
+            return response()->json([
+                'status' => 404,
+                'columndetails' => 'No Records Found'
+            ]);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -70,15 +102,10 @@ class tblinvoicecolumnController extends commonController
             ]);
         }
 
-        $invoicecolumnres = $this->tbl_invoice_columnModel::orderBy('column_order')
-            ->where('is_deleted', 0);
+        $invoicecolumn = $this->tbl_invoice_columnModel::orderBy('column_order')
+            ->where('is_deleted', 0)->get();
 
-        if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
-            $invoicecolumnres->where('created_by', $this->userId);
-        }
-
-        $invoicecolumn = $invoicecolumnres->get();
-
+       
         if ($invoicecolumn->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -122,7 +149,7 @@ class tblinvoicecolumnController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ],422);
         } else {
             //condition for check if user has permission to add record
             if ($this->rp['invoicemodule']['mngcol']['add'] != 1) {
@@ -161,11 +188,19 @@ class tblinvoicecolumnController extends commonController
                 $columnType = $columnTypes[$request->column_type];
                 $tablename = 'mng_col';
                 $columnname = str_replace(' ', '_', $request->column_name);
+                $maxColumnOrder = $this->tbl_invoice_columnModel::where('is_deleted', 0)->max('column_order');
+                 $columnsequence = 1 ;
+                 if($maxColumnOrder){
+                    $columnsequence = ++$maxColumnOrder;
+                 }
+
                 if (DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType")) {
+                   
                     $invoicecolumn = $this->tbl_invoice_columnModel::create([
                         'column_name' => $request->column_name,
                         'column_type' => $request->column_type,
                         'company_id' => $request->company_id,
+                        'column_order' => $columnsequence,
                         'created_by' => $this->userId,
 
                     ]);
@@ -291,7 +326,7 @@ class tblinvoicecolumnController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ]);
+            ],422);
         } else {
 
             //condition for check if user has permission to search record

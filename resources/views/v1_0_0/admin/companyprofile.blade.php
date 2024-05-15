@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder.'.admin.masterpage')
+@extends($folder . '.admin.masterpage')
 @section('style')
     <style>
         #editicon {
@@ -37,7 +37,7 @@
                                     <h4 class="card-title">Company Profile</h4>
                                 </div>
                                 <div>
-                                    @if (session('user_permissions.invoicemodule.company.edit') == '1')
+                                    @if (session('user_permissions.adminmodule.company.edit') == '1' && session('menu') == 'admin')
                                         <a
                                             href="{{ route('admin.editcompanyprofile', ['id' => Session::get('company_id')]) }}"><i
                                                 id="editicon" class="ri-pencil-fill float-right"></i>
@@ -48,10 +48,22 @@
                             <div class="iq-card-body">
                                 <div class="user-detail text-center">
                                     <div class="user-profile" id="profile_img">
-
                                     </div>
                                     <div class="profile-detail mt-3">
                                         <h3 class="d-inline-block" id="name"></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                                <div class="iq-header-title">
+                                    <h4 class="card-title">Signature</h4>
+                                </div>
+                            </div>
+                            <div class="iq-card-body">
+                                <div class="user-detail text-center">
+                                    <div class="user-profile" id="sign_img">
                                     </div>
                                 </div>
                             </div>
@@ -92,7 +104,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -106,7 +117,7 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-            
+
             // get user company data
             $.ajax({
                 type: 'GET',
@@ -118,7 +129,6 @@
                 },
                 success: function(response) {
                     if (response.status == 200 && response.company != '') {
-                        loaderhide();
                         var company = response.company[0];
                         $('#companyname').text(company.name);
                         $('#companyemail').text(company.email);
@@ -131,18 +141,28 @@
                         var imgElement = $('<img>').attr('src', '/uploads/' + company.img).attr(
                             'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         $('#profile_img').prepend(imgElement);
+                        var signImgElement = $('<img>').attr('src', '/uploads/' + company.pr_sign_img).attr(
+                            'alt', 'Signature-img').attr('class', 'avatar-130 img-fluid');
+                        $('#sign_img').prepend(signImgElement);
 
                     } else if (response.status == 500) {
                         toastr.error(response.message);
-                        loaderhide();
                     } else {
-                        loaderhide();
                         toastr.error('something went wrong !');
                     }
-                },
-                error: function(error) {
-                    console.error('Error:', error);
                     loaderhide();
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr.responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
                 }
             });
         });
