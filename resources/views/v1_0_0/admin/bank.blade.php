@@ -46,13 +46,15 @@
         {{ route('admin.addbank') }}
     @endsection
     @section('addnewbutton')
-        <button class="btn btn-sm btn-primary">
+        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Account"
+            class="btn btn-sm btn-primary">
             <span class="">+ Add New</span>
         </button>
     @endsection
 @endif
 @section('table-content')
-    <table id="data" class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
+    <table id="data"
+        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -64,7 +66,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tabledata">
 
         </tbody>
     </table>
@@ -95,25 +97,27 @@
                     success: function(response) {
                         // if response has data then it will be append into list table
                         if (response.status == 200 && response.bankdetail != '') {
+                            $('#data').DataTable().destroy();
+                            $('#tabledata').empty();
                             // You can update your HTML with the data here if needed
                             global_response = response;
                             var id = 1;
                             $.each(response.bankdetail, function(key, value) {
                                 $('#data').append(`<tr>
                                                         <td>${id}</td>
-                                                        <td>${value.holder_name}</td>
-                                                        <td>${value.account_no}</td>
-                                                        <td>${value.branch_name}</td>
+                                                        <td>${value.holder_name != null ? value.holder_name : '-'}</td>
+                                                        <td>${value.account_no != null ? value.account_no : '-'}</td>
+                                                        <td>${value.branch_name != null ? value.branch_name : '-'}</td>
                                                         <td>
                                                             @if (session('user_permissions.invoicemodule.bank.edit') == '1')
-                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></div>'}
+                                                                ${value.is_active == 1 ? '<span id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="InActive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></span>'  : '<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active   " id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></span>'}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
                                                             @if (session('user_permissions.invoicemodule.bank.view') == '1')
-                                                                <span class=""><button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details"><button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
                                                             @else
                                                               -
                                                             @endif
@@ -121,13 +125,15 @@
                                                         
                                                         <td> 
                                                             @if (session('user_permissions.invoicemodule.bank.delete') == '1')
-                                                                <span class=""><button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0"><i class="ri-delete-bin-fill"></i></button></span>
+                                                                <span class=""><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0"><i  class="ri-delete-bin-fill"></i></button></span>
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                     </tr>`)
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
@@ -174,10 +180,7 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>'
-                                );
+                                loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -188,7 +191,7 @@
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
                             console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                                .responseText); // Log the full error response for debugging
                             var errorMessage = "";
                             try {
                                 var responseJSON = JSON.parse(xhr.responseText);
@@ -219,10 +222,7 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
-                                );
+                                loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -233,7 +233,7 @@
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
                             console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                                .responseText); // Log the full error response for debugging
                             var errorMessage = "";
                             try {
                                 var responseJSON = JSON.parse(xhr.responseText);
@@ -275,7 +275,7 @@
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
                             console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                                .responseText); // Log the full error response for debugging
                             var errorMessage = "";
                             try {
                                 var responseJSON = JSON.parse(xhr.responseText);
@@ -294,29 +294,29 @@
                 $('#details').html('');
                 var data = $(this).data('view');
                 $.each(global_response.bankdetail, function(key, bankdetail) {
-                    if (bankdetail.id == data) { 
-                            $('#details').append(`
+                    if (bankdetail.id == data) {
+                        $('#details').append(`
                                 <tr>
                                     <th>Holder Name</th>
-                                    <td>${bankdetail.holder_name}</td>
+                                    <td>${(bankdetail.holder_name != null)? bankdetail.holder_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Account Number</th>
-                                    <td>${bankdetail.account_no}</td>
+                                    <td>${(bankdetail.account_no!= null)? bankdetail.account_no : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>IFSC Code</th>
-                                    <td>${bankdetail.ifsc_code}</td>
+                                    <td>${(bankdetail.ifsc_code!= null)? bankdetail.ifsc_code : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Swift Code</th>
-                                    <td>${bankdetail.swift_code}</td>
+                                    <td>${(bankdetail.swift_code!= null)? bankdetail.swift_code : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Branch Name</th>
-                                    <td>${bankdetail.branch_name}</td>
+                                    <td>${(bankdetail.branch_name!= null)? bankdetail.branch_name : '-'}</td>
                                 </tr>
-                        `); 
+                        `);
                     }
                 });
             });

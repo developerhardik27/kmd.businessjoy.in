@@ -169,10 +169,12 @@
             <option value="" disabled selected>-- Select Assigned To --</option>
         </select>
         <!-- Use any element to open the sidenav -->
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info m-2">
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()"
+            class="btn btn-sm btn-rounded btn-info m-2">
             <i class="ri-filter-line"></i>
         </button>
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh" class="btn btn-info btn-sm removefilters m-2">
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh"
+            class="btn btn-info btn-sm removefilters m-2">
             <i class="ri-refresh-line"></i>
         </button>
     </div>
@@ -182,7 +184,8 @@
             {{ route('admin.addcustomersupport') }}
         @endsection
         @section('addnewbutton')
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticket" class="btn btn-sm btn-primary">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticket"
+                class="btn btn-sm btn-primary">
                 <span class="">+ Ticket</span>
             </button>
         @endsection
@@ -332,7 +335,7 @@
                 } else {
                     $(this).prepend(
                         '<option selected disabled>-- Select User --</option>'
-                        ); // prepend "Please choose an option"
+                    ); // prepend "Please choose an option"
                 }
                 $('#assignedto').multiselect('rebuild');
             });
@@ -342,7 +345,7 @@
                 } else {
                     $(this).prepend(
                         '<option selected disabled>-- Select Status --</option>'
-                        ); // prepend "Please choose an option"
+                    ); // prepend "Please choose an option"
                 }
                 $('#advancestatus').multiselect('rebuild');
             });
@@ -482,25 +485,28 @@
                             global_response = response;
                             var id = 1;
                             $.each(response.customersupport, function(key, value) {
+                                var name = (value.first_name != null ? value.first_name :
+                                        '') + ' ' + (value.last_name != null ? value.last_name :
+                                        '')
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
                                                         </span>
                                                         <span class="d-flex mb-2">
                                                             <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
+                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
                                                         </span>  
                                                     </td>
                                                     <td>
                                                         <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px;">
-                                                        <div> ${value.notes} </div>
-                                                        </span>
+                                                        <div> ${value.notes != null ? value.notes : '-'} </div>
+                                                        </span> 
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
@@ -516,26 +522,26 @@
                                                        @endif
                                                     </td>
                                                     <td>
-                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button>
-                                                        <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add Call History"><button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button></span>
+                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Call History"><button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button></span>
                                                     </td>
-                                                    <td>${value.created_at_formatted}</td>
-                                                    <td>${value.number_of_call}</td>
+                                                    <td>${value.created_at_formatted != null ? value.created_at_formatted : '-'}</td>
+                                                    <td>${value.number_of_call != null ? value.number_of_call : '-'}</td>
                                                     <td>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
+                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                  <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
@@ -545,6 +551,8 @@
                                                 </tr>`)
                                 $('#status_' + value.id).val(value.status);
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 
@@ -596,53 +604,53 @@
                         $('#details').append(`
                                                 <tr> 
                                                     <td>Ticket Number</td>
-                                                    <th>${ticket.ticket}</th>
+                                                    <th>${ticket.ticket != null ? ticket.ticket : '-'}</th>
                                                 </tr> 
                                                 <tr> 
                                                     <td>Website Url</td>
                                                     <th style="text-transform: none;">
-                                                       <a href="${ticket.web_url}" target="_blank">${ticket.web_url}</a>
+                                                       <a href="${ticket.web_url != null ? ticket.web_url : '#'}" target="_blank">${ticket.web_url != null ? ticket.web_url : '-'}</a>
                                                     </th>
                                                 </tr> 
                                                 <tr> 
                                                     <td>first name</td>
-                                                    <th>${ticket.first_name}</th>
+                                                    <th>${ticket.first_name != null ? ticket.first_name : '-'}</th>
                                                 </tr> 
                                                 <tr> 
                                                     <td>last name</td>
-                                                    <th>${ticket.last_name}</th>
+                                                    <th>${ticket.last_name != null ? ticket.last_name : '-'}</th>
                                                 </tr> 
                                                 <tr>
                                                     <td>email</td>
-                                                    <th>${ticket.email}</th>
+                                                    <th>${ticket.email != null ? ticket.email : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>contact Number</td>
-                                                    <th>${ticket.contact_no}</th>
+                                                    <th>${ticket.contact_no != null ? ticket.contact_no : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Status</td>
-                                                    <th>${ticket.status}</th>
+                                                    <th>${ticket.status != null ? ticket.status : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Last Call</td>
-                                                    <th>${ticket.last_call}</th>
+                                                    <th>${ticket.last_call != null ? ticket.last_call : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Follow up</td>
-                                                    <th>${ticket.number_of_call}</th>
+                                                    <th>${ticket.number_of_call != null ? ticket.number_of_call : '-'}</th>
                                                 </tr>
                                                <tr>
                                                     <td>Created On</td>
-                                                    <th>${ticket.created_at_formatted}</th>
+                                                    <th>${ticket.created_at_formatted != null ? ticket.created_at_formatted : '-'}</th>
                                                 </tr>
                                                 <tr> 
                                                     <td>Assigned To</td>
-                                                    <th>${ticket.assigned_to}</th>
+                                                    <th>${ticket.assigned_to != null ? ticket.assigned_to : '-'}</th>
                                                 <tr>
                                                 <tr>
                                                     <td >Notes</td>
-                                                    <th class='text-wrap'>${ticket.notes}</th>
+                                                    <th class='text-wrap'>${ticket.notes != null ? ticket.notes : '-'}</th>
                                                 </tr>
                      `);
                     }
@@ -811,25 +819,28 @@
                                 global_response = response;
                                 var id = 1;
                                 $.each(response.customersupport, function(key, value) {
+                                    var name = (value.first_name != null ? value.first_name :
+                                        '') + ' ' + (value.last_name != null ? value.last_name :
+                                        '')
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
                                                         </span>
                                                         <span class="d-flex mb-2">
                                                             <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
+                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
                                                         </span>  
                                                     </td>
                                                     <td>
-                                                        <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px; ">
-                                                         <div> ${value.notes} </div>
-                                                        </span>
+                                                        <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px;">
+                                                        <div> ${value.notes != null ? value.notes : '-'} </div>
+                                                        </span> 
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
@@ -845,27 +856,26 @@
                                                        @endif
                                                     </td>
                                                     <td>
-                                                        <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button>
-                                                        <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add Call History"><button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button></span>
+                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Call History"><button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button></span>
                                                     </td>
-                                                    </td>
-                                                    <td>${value.created_at_formatted}</td>
-                                                    <td>${value.number_of_call}</td>
+                                                    <td>${value.created_at_formatted != null ? value.created_at_formatted : '-'}</td>
+                                                    <td>${value.number_of_call != null ? value.number_of_call : '-'}</td>
                                                     <td>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
+                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
@@ -875,6 +885,8 @@
                                                 </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
+                                    $('[data-toggle="tooltip"]').tooltip('dispose');
+                                    $('[data-toggle="tooltip"]').tooltip();
                                 });
                                 var search = {!! json_encode($search) !!}
 

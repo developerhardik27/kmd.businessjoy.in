@@ -1,0 +1,199 @@
+@media only screen and (min-width:320px) and (max-width:480px) {
+    .term-part {
+        text-align: center !important;
+    }
+    .mypadding {
+        padding: 0 !important;
+    }
+    .myfsize {
+        font-size: 13px !important;
+        padding: 0 !important;
+    }
+    .contact-form-wrapper .contact-form input,
+    .contact-form-wrapper .contact-form textarea {
+        padding: 6px !important;
+    }
+    .cta {
+        width: 100% !important;
+    }
+    .header-eight .header-content {
+        border-radius: 0;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+    .header-eight .button {
+        margin: 40px 0 !important;
+    }
+    .heading-s {
+        font-size: 21px;
+        margin: 8px 0;
+    }
+    .contact-form-wrapper {
+        padding: 30px 17px;
+    }
+    .header-eight .button {
+        margin: 25px 0 !important;
+    }
+    .services-eight .single-services {
+        text-align: center;
+    }
+    .services-eight .single-services .service-icon {
+        margin: 0 auto 40px auto;
+    }
+    .pricing-style-fourteen {
+        margin: 0;
+        padding: 10px 0px;
+        font-size: 15px;
+    }
+    .brand-area {
+        padding: 30px 0 0 0;
+    }
+    .contact-item {
+        width: 100%;
+        text-align: center;
+        margin: 5px 0 !important;
+    }
+    .contact-icon {
+        margin: 0 auto !important;
+    }
+    .header-eight {
+        padding: 50px 0 10px 0;
+    }
+    #pricing ul {
+        list-style-position: inside;
+        padding: 0 0;
+        font-size: 11px;
+    }
+    .contact-content p {
+        font-size: 14px !important;
+    }
+    #benimg {
+        height: 220px;
+    }
+    #logoimg {
+        height: 55px;
+    }
+}
+
+@media only screen and (min-width:481px) and (max-width:768px) {
+    .term-part {
+        text-align: center !important;
+    }
+    .contact-content p {
+        font-size: 14px !important;
+    }
+    .header-eight .header-content {
+        border-radius: 0;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+    .header-eight .button {
+        margin: 40px 0 !important;
+    }
+    .heading-s {
+        font-size: 21px;
+        margin: 8px 0;
+    }
+    .contact-form-wrapper {
+        padding: 30px 17px;
+    }
+    .header-eight .button {
+        margin: 25px 0 !important;
+    }
+    .services-eight .single-services {
+        text-align: center;
+    }
+    .services-eight .single-services .service-icon {
+        margin: 0 auto 40px auto;
+    }
+    .pricing-style-fourteen {
+        padding: 50px 0px;
+    }
+    .brand-area {
+        padding: 30px 0 0 0;
+    }
+    .contact-item {
+        width: 100%;
+        text-align: center;
+        margin: 10px 0 !important;
+    }
+    .contact-icon {
+        margin: 0 auto !important;
+    }
+    .header-eight {
+        padding: 50px 0 60px 0;
+    }
+    #pricing ul {
+        list-style-position: inside;
+        padding: 0 15px;
+    }
+    #benimg {
+        height: 220px;
+    }
+    #logoimg {
+        height: 55px;
+    }
+}
+
+@media only screen and (min-width:769px) and (max-width:1024px) {
+    .term-part {
+        text-align: center !important;
+    }
+    .contact-content p {
+        font-size: 14px !important;
+    }
+    .header-eight .header-content {
+        border-radius: 0;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+    .header-eight .button {
+        margin: 40px 0 !important;
+    }
+    .heading-s {
+        font-size: 21px;
+        margin: 8px 0;
+    }
+    .contact-form-wrapper {
+        padding: 30px 17px;
+    }
+    .header-eight .button {
+        margin: 25px 0 !important;
+    }
+    .services-eight .single-services {
+        text-align: center;
+    }
+    .services-eight .single-services .service-icon {
+        margin: 0 auto 40px auto;
+    }
+    .pricing-style-fourteen {
+        padding: 50px 0px;
+    }
+    .brand-area {
+        padding: 30px 0 0 0;
+    }
+    .contact-item {
+        width: 100%;
+        text-align: center;
+        margin: 10px 0 !important;
+    }
+    .contact-icon {
+        margin: 0 auto !important;
+    }
+    .header-eight {
+        padding: 50px 0 60px 0;
+    }
+    #pricing ul {
+        list-style-position: inside;
+        padding: 0 15px;
+    }
+    #benimg {
+        height: 220px;
+    }
+    #logoimg {
+        height: 55px;
+    }
+}

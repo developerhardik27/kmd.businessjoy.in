@@ -49,7 +49,6 @@
                         <option selected="" disabled="">Select your Payment Way</option>
                         <option value="Online Payment">Online Payment</option>
                         <option value="Cash">Cash</option>
-                        <option value="Net-Banking">Net-Banking</option>
                         <option value="Check">Check</option>
                     </select>
                     <span class="error-msg" id="error-payment_mode" style="color: red"></span>
@@ -96,12 +95,13 @@
                     </tr>
                 </thead>
                 <tbody  id="add_new_div">
-                    
                 </tbody>
                 <tr>
                     <th class="newdivautomaticcolspan"><span class="add_div mb-3 mr-2">
-                        <button type="button" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span class="pl-1">Add
-                                    New Item</span></i>
+                        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Row" class="btn btn-sm iq-bg-success">
+                            <i class="ri-add-fill">
+                                <span class="pl-1"> Add New Item </span>
+                            </i>
                         </button>
                     </span></th>
                 </tr>
@@ -138,11 +138,6 @@
                         </b> 
                         <input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal" readonly required></td>
                 </tr>
-                {{-- <tr id="grandtotalline" class="text-right">
-                    <th class="automaticcolspan font-weight-bold">Total (in Words)</th>
-                    <td id="totalinwords" colspan="4"  style="text-align: center;vertical-align: middle;"></td>
-     
-                </tr> --}}
             </table>
         </div>
         <div class="form-group">
@@ -157,12 +152,11 @@
         <div class="form-group">
            <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                    <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right">Reset</button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Submit Details" class="btn btn-primary float-right my-0" >Submit</button>
                 </div>
            </div>
         </div>
-
     </form>
 
 
@@ -208,15 +202,15 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="company_name">Company Name</label><span style="color:red;">*</span>
-                                        <input type="text" class="form-control" id="company_name" name='company_name'
+                                        <label for="company_name">Company Name</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <input type="text" class="form-control requiredinput" id="company_name" name='company_name'
                                             id="" placeholder="Company name" required>
                                         <span class="modal-error-msg" id="modal-error-company_name"
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="gst_number">GST Number</label>
-                                        <input type="text" class="form-control" name='gst_number' id="gst_number"
+                                        <label for="gst_number">GST Number</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <input type="text" class="form-control requiredinput" name='gst_number' id="gst_number"
                                             placeholder="GST Number">
                                         <span class="modal-error-msg" id="modal-error-gst_number"
                                             style="color: red"></span>
@@ -226,75 +220,76 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="modal_email">Email</label><span style="color:red;">*</span>
-                                        <input type="email" class="form-control" name="email" id="modal_email"
+                                        <label for="modal_email">Email</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <input type="email" class="form-control requiredinput" name="email" id="modal_email"
                                             placeholder="Enter Email" required />
                                         <span class="modal-error-msg" id="modal-error-email" style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="modal_exampleInputphone">Contact Number</label><span style="color:red;">*</span>
-                                        <input type="tel" class="form-control" name='contact_number'
+                                        <label for="modal_exampleInputphone">Contact Number</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <input type="tel" class="form-control requiredinput" name='contact_number'
                                             id="modal_exampleInputphone" placeholder="0123456789" required>
                                         <span class="modal-error-msg" id="modal-error-contact_number"
                                             style="color: red"></span>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
-                                            <label for="modal_country">Select Country</label><span style="color:red;">*</span>
-                                            <select class="form-control" name='country' id="modal_country" required>
-                                                <option selected="" disabled="">Select your Country</option>
-                                            </select>
-                                            <span class="modal-error-msg" id="modal-error-country"
-                                                style="color: red"></span>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label for="modal_state">Select State</label><span style="color:red;">*</span>
-                                            <select class="form-control" name='state' id="modal_state" required>
-                                                <option selected="" disabled="">Select your State</option>
-                                            </select>
-                                            <span class="modal-error-msg" id="modal-error-state"
-                                                style="color: red"></span>
-                                        </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-sm-6">
+                                        <label for="modal_country">Select Country</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <select class="form-control requiredinput" name='country' id="modal_country" required>
+                                            <option selected="" disabled="">Select your Country</option>
+                                        </select>
+                                        <span class="modal-error-msg" id="modal-error-country"
+                                            style="color: red"></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="modal_state">Select State</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <select class="form-control requiredinput" name='state' id="modal_state" required>
+                                            <option selected="" disabled="">Select your State</option>
+                                        </select>
+                                        <span class="modal-error-msg" id="modal-error-state"
+                                            style="color: red"></span>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
-                                            <label for="modal_city">Select City</label><span style="color:red;">*</span>
-                                            <select class="form-control" name='city' id="modal_city" required>
-                                                <option selected="" disabled="">Select your City</option>
-                                            </select>
-                                            <span class="modal-error-msg" id="modal-error-city"
-                                                style="color: red"></span>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label for="modal_pincode">Pincode</label><span style="color:red;">*</span>
-                                            <input type="text" id="modal_pincode" name='pincode' class="form-control"
-                                                placeholder="Pin Code">
-                                            <span class="modal-error-msg" id="modal-error-pincode"
-                                                style="color: red"></span>
-                                        </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-sm-6">
+                                        <label for="modal_city">Select City</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <select class="form-control requiredinput" name='city' id="modal_city" required>
+                                            <option selected="" disabled="">Select your City</option>
+                                        </select>
+                                        <span class="modal-error-msg" id="modal-error-city"
+                                            style="color: red"></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="modal_pincode">Pincode</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <input type="text" id="modal_pincode" name='pincode' class="form-control requiredinput"
+                                            placeholder="Pin Code">
+                                        <span class="modal-error-msg" id="modal-error-pincode"
+                                            style="color: red"></span>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-12">
-                                            <label for="modal_address">Address</label><span style="color:red;">*</span>
-                                            <textarea class="form-control" required name='address' id="modal_address" rows="2"></textarea>
-                                            <span class="modal-error-msg" id="modal-error-address"
-                                                style="color: red"></span>
-                                        </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-sm-12">
+                                        <label for="modal_address">Address</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <textarea class="form-control requiredinput" required name='address' id="modal_address" rows="2"></textarea>
+                                        <span class="modal-error-msg" id="modal-error-address"
+                                            style="color: red"></span>
                                     </div>
                                 </div>
-                            </table>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" id="modal_submitBtn">Submit</button>
-                            <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
-                        </div>
-                    </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary" id="modal_submitBtn">Submit</button>
+                                <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
+                            </div>
+                        </form>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -309,6 +304,20 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+
+
+            $('.requiredinputspan').hide();
+            $('#gst_number').on('change keyup', function() {
+                var val = $(this).val();
+                if (val != '') {
+                    $('.requiredinputspan').show();
+                    $('.requiredinput').attr('required', true);
+                } else {
+                    $('.requiredinputspan').hide();
+                    $('.requiredinput').removeAttr('required');
+                }
+            });
+
 
             let allColumnData = [];
             let allColumnNames = [];
@@ -465,13 +474,14 @@
                                                 class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
                                 </td>
                                 <td>
-                                    <span class="remove-row" data-id="1"><button data-id="1" type="button"
+                                    <span class="remove-row" data-id="1"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="1" type="button"
                                             class="btn iq-bg-danger btn-rounded btn-sm my-0"><i
                                                 class="ri-delete-bin-2-line"></i></button></span>
                                 </td>
                              </tr>
                         `);
-
+                        $('[data-toggle="tooltip"]').tooltip('dispose');
+                        $('[data-toggle="tooltip"]').tooltip();
                     } else if(response.status == 500){
                             toastr.error(response.message);
                             loaderhide();
@@ -665,11 +675,14 @@
                         // You can update your HTML with the data here if needed
                         if (response.status == 200 && response.customers != '') {
                             var countryid = response.customer.country_id
-                            $('#country').val(countryid);
-                            $('#currency').val(countryid);
-                            currentcurrency = $('#currency option:selected').data('currency');
-                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
+                            if(countryid != null){
+                                $('#country').val(countryid);
+                                $('#currency').val(countryid);
+                                currentcurrency = $('#currency option:selected').data('currency');
+                                currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
+                            }
+                            
                         }else if(response.status == 500){
                             toastr.error(response.message);
                         }
@@ -739,13 +752,15 @@
                         </td>
                         <td>
                             <span class='remove-row'>
-                                <button type="button" class="btn iq-bg-danger btn-rounded btn-sm my-0">
+                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm my-0">
                                 <i class="ri-delete-bin-2-line"></i>
                                 </button>
                             </span>
                         </td>
                     </tr>
                 `);
+                $('[data-toggle="tooltip"]').tooltip('dispose');
+                $('[data-toggle="tooltip"]').tooltip();
             }
 
 
@@ -881,9 +896,14 @@
                             .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
+                            var errorcontainer;
                             $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
+                                errorcontainer = '#error-' + key ;
                             });
+                            $('html, body').animate({
+                                scrollTop: 0
+                            }, 1000);
                         } else {
                             var errorMessage = "";
                             try {
@@ -899,21 +919,19 @@
             });
            
 
-
             // dynamic calculation 
             function dynamiccalculaton(targetdata){
                 var editid = $(targetdata).data('id');
                 var rowData = {};
                 $.each(allColumnNames, function (key, value) {
-                    $(`table tr.iteam_row_${editid} td`).find(`input[type="number"]#${value}_${editid}`).each(function () {
+                    var modifiedValue = value.replace(/\s+/g, '_');
+                    $(`table tr.iteam_row_${editid} td`).find(`input[type="number"]#${modifiedValue}_${editid}`).each(function () {
                         rowData[value] = $(this).val();
                     });
                 });
-                // rowData['Amount'] = $('#Amount_'+editid).val();
+             
                 var iteam_data = new Array();
                 iteam_data.push(rowData);
-                // console.log(iteam_data);
-                 
 
                 function performCalculation(operation, value1, value2) {
                         switch (operation) {

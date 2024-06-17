@@ -16,9 +16,9 @@ class LandingPageMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($username)
+    public function __construct($request)
     {
-        $this->user = $username;
+        $this->user = $request;
     }
 
     /**
@@ -26,8 +26,14 @@ class LandingPageMail extends Mailable
      */
     public function envelope(): Envelope
     {
+
+        $subject = 'Business Joy New Lead';
+        if(isset($this->user->subscribe)){
+        $subject = 'Business Joy New Subscriber';
+        }
+
         return new Envelope(
-            subject: 'Business Joy New Lead',
+            subject: $subject,
         );
     }
 
@@ -37,8 +43,7 @@ class LandingPageMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.landing',
-            
+            view: 'emails.landing', 
         );
     }
 

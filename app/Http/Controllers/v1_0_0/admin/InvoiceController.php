@@ -103,8 +103,15 @@ class InvoiceController extends Controller
         $jsoncolumndetails = app($invoicecolumnController)->column_details($company_id);
         $columncontent = $jsoncolumndetails->getContent();
         $columndetails = json_decode($columncontent);
-
         
+        $invoiceothersettingController = "App\\Http\\Controllers\\" . $this->version . "\\api\\tblinvoiceothersettingController";
+        $jsoninvoiceothersettingdetails = app($invoiceothersettingController)->invoicenumberpatternindex($company_id);
+        $invoiceothersettingcontent = $jsoninvoiceothersettingdetails->getContent();
+        $invoiceothersettingdetails = json_decode($invoiceothersettingcontent );
+
+        if ($invoiceothersettingdetails->status != 200 || count($invoiceothersettingdetails->pattern) < 2) {
+            return view($this->version . '.admin.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+        } 
         if ($bdetails->status != 200) {
             return view($this->version . '.admin.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         } 

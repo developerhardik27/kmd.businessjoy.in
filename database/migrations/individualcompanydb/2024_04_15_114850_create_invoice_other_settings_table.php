@@ -15,6 +15,11 @@ return new class extends Migration {
             $table->id();
             $table->integer('overdue_day')->nullable();
             $table->date('year_start')->nullable()->default('2024-04-01');
+            $table->double('sgst')->nullable();
+            $table->double('cgst')->nullable();
+            $table->integer('gst')->nullable()->default(0);
+            $table->integer('customer_id')->nullable()->default(1);
+            $table->integer('current_customer_id')->nullable()->default(1);
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

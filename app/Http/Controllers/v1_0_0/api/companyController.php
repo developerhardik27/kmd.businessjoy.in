@@ -5,16 +5,14 @@ namespace App\Http\Controllers\v1_0_0\api;
 use App\Mail\sendmail;
 use App\Models\company;
 use App\Models\User;
-use App\Models\company_detail;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\company_detail; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\Mail; 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class companyController extends commonController
 {
@@ -93,14 +91,7 @@ class companyController extends commonController
                 'message' => 'You are Unauthorized!'
             ]);
         }
-
-        if ($this->rp['adminmodule']['company']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized!'
-            ]);
-        }
-
+ 
 
         if ($company->count() > 0) {
             return response()->json([
@@ -121,7 +112,6 @@ class companyController extends commonController
 
     public function index(Request $request)
     {
-
 
 
         if ($this->companyId == 1) {
@@ -185,7 +175,6 @@ class companyController extends commonController
     {
 
         $validator = Validator::make($request->all(), [
-
             'name' => 'required|string|max:50',
             'email' => 'required|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
@@ -196,8 +185,8 @@ class companyController extends commonController
             'city' => 'required|numeric',
             'pincode' => 'required|numeric',
             'maxuser' => 'nullable|numeric',
-            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
+            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
             'user_id' => 'required|numeric',
             'updated_by',
             'created_at',
@@ -213,10 +202,22 @@ class companyController extends commonController
             ], 422);
         } else {
 
+
+         
+ 
             if ($this->rp['adminmodule']['company']['add'] != 1) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'You are Unauthorized!'
+                ]);
+            }
+
+            $checkuseremail = User::where('email',$request->email)->where('is_deleted',0)->get();
+
+            if(count($checkuseremail) >  0){
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'This email id already exists , Please enter other email id'
                 ]);
             }
 
@@ -296,7 +297,7 @@ class companyController extends commonController
 
                 // Check if signature image file is uploaded
                 if ($sign_image) {
-                    $sign_imageName = $request->name . time() . '.' . $sign_image->getClientOriginalExtension();
+                    $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
                     $sign_image->move('uploads/', $sign_imageName); // upload signature image
                 }
             }
@@ -341,6 +342,8 @@ class companyController extends commonController
                     'sgst' => 9,
                     'cgst' => 9,
                     'gst' => 0,
+                    'customer_id' => 0,
+                    'current_customer_id' => 0,
                     'created_by' => $this->userId,
                 ]);
 
@@ -380,9 +383,10 @@ class companyController extends commonController
                                 "customersupport" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
                             ],
                             "adminmodule" => [
-                                "company" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
-                                "user" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0", "max" => "0"],
+                                "company" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0", "max" => "0"],
+                                "user" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                                 "techsupport" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
+                                "userpermission" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                             ],
                             "inventorymodule" => [
                                 "product" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
@@ -393,6 +397,9 @@ class companyController extends commonController
                             "remindermodule" => [
                                 "reminder" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                                 "remindercustomer" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
+                            ],
+                            "reportmodule" => [
+                                "report" => ["show" => "0", "add" =>"0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => null, "log" => "0"]
                             ]
                         ];
 
@@ -442,7 +449,6 @@ class companyController extends commonController
                     'message' => 'Oops ! Company details not succesfully create'
                 ], 500);
             }
-
         }
     }
 
@@ -521,8 +527,8 @@ class companyController extends commonController
             'city' => 'required|numeric',
             'pincode' => 'required|numeric',
             'maxuser' => 'nullable|numeric',
-            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
+            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
             'user_id' => 'numeric',
             'updated_at',
             'is_active',
@@ -552,18 +558,18 @@ class companyController extends commonController
             $sign_imageName = $company[0]->pr_sign_img;
 
             if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
-
+                
                 $image = $request->file('img');
                 $sign_image = $request->file('sign_img');
-
+                
                 if ($image) {
                     $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
                     $image->move('uploads/', $imageName);
                 }
-
+                
                 // Check if signature image file is uploaded
                 if ($sign_image) {
-                    $sign_imageName = $request->name . time() . '.' . $sign_image->getClientOriginalExtension();
+                    $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
                     $sign_image->move('uploads/', $sign_imageName);
                 }
 
@@ -588,9 +594,12 @@ class companyController extends commonController
                 $company_details_id = $company_details;
                 $company = company::find($id);
                 if ($company) {
+                    if(isset($request->maxuser)){
+                       $company->max_users = $request->maxuser ;
+                       $company->save();
+                    }
                     $companyupdate = $company->update([
-                        'company_details_id' => $company_details_id,
-                        'max_users' => $request->maxuser,
+                        'company_details_id' => $company_details_id, 
                         'updated_by' => $this->userId,
                     ]);
 
@@ -640,15 +649,24 @@ class companyController extends commonController
             $company->update([
                 'is_deleted' => 1
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'company succesfully deleted'
-            ], 200);
         } else {
             return response()->json([
                 'status' => 404,
                 'message' => 'No Such company Found!'
             ], 404);
+        }
+
+        $users = User::where('company_id', $id)->get();
+        if ($users) {
+            $users->each(function ($user) {
+                $user->update([
+                    'is_deleted' => 1
+                ]);
+            });
+            return response()->json([
+                'status' => 200,
+                'message' => 'company succesfully deleted'
+            ], 200);
         }
     }
 
@@ -689,8 +707,8 @@ class companyController extends commonController
             ]);
         }
 
-        $users = User::where('company_id',$id)->get();
-       
+        $users = User::where('company_id', $id)->get();
+
         if ($this->rp['adminmodule']['company']['edit'] != 1) {
             return response()->json([
                 'status' => 500,

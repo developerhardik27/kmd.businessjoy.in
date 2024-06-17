@@ -38,15 +38,16 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="company_name">Company Name</label><span style="color:red;">*</span>
-                    <input type="text" class="form-control" name='company_name' id="company_name" value=""
-                        placeholder="Company name" required>
+                    <label for="company_name">Company Name</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <input type="text" id="company_name" class="form-control requiredinput" name='company_name'
+                        id="" placeholder="Company Name">
                     <span class="error-msg" id="error-company_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="gst_no">GST Number</label>
-                    <input type="text" class="form-control" name='gst_number' id="gst_no" value=""
-                        placeholder="GST Number">
+                    <label for="gst_number">GST Number</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <input type="text" id="gst_number" class="form-control requiredinput" name='gst_number'
+                        id="" placeholder="GST Number">
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -54,15 +55,16 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="email">Email</label><span style="color:red;">*</span>
-                    <input type="email" class="form-control" name="email" id="email" value=""
-                        placeholder="Enter Email" required>
+                    <label for="email">Email</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <input type="email" class="form-control requiredinput" name="email" id="email"
+                        placeholder="Enter Email">
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
-                    <input type="tel" class="form-control" name='contact_number' id="contact_no" value=""
-                        placeholder="0123456789" required>
+                    <label for="contact_number">Contact Number</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <input type="tel" class="form-control requiredinput" name='contact_number' id="contact_number"
+                        placeholder="0123456789">
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
             </div>
@@ -70,15 +72,15 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="country">Select Country</label><span style="color:red;">*</span>
-                    <select class="form-control" name='country' id="country" required>
+                    <label for="country">Select Country</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <select class="form-control requiredinput" name='country' id="country">
                         <option selected="" disabled="">Select your Country</option>
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="state">Select State</label><span style="color:red;">*</span>
-                    <select class="form-control" name='state' id="state" required>
+                    <label for="state">Select State</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <select class="form-control requiredinput" name='state' id="state">
                         <option selected="" disabled="">Select your State</option>
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
@@ -88,16 +90,16 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="city">Select City</label><span style="color:red;">*</span>
-                    <select class="form-control" name='city' id="city" required>
+                    <label for="city">Select City</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <select class="form-control requiredinput" name='city' id="city">
                         <option selected="" disabled="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="pincode">Pincode</label><span style="color:red;">*</span>
-                    <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
-                        required>
+                    <label for="pincode">Pincode</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <input type="text" id="pincode" name='pincode' class="form-control requiredinput"
+                        placeholder="Pin Code">
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
             </div>
@@ -105,20 +107,24 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <label for="address">Address</label><span style="color:red;">*</span>
-                    <textarea class="form-control" name='address' id="address" rows="2" required></textarea>
+                    <label for="address">Address</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='address' id="address" rows="2"></textarea>
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Reset Customer Details" class="btn iq-bg-danger float-right"><i
+                            class="ri ri-refresh-line"></i></button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Update Customer Details" class="btn btn-primary float-right my-0"><i
+                            class="ri ri-check-double-line"></i></button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -131,40 +137,14 @@
             // response status == 422 that means api has not got valid or required data
             // get selected customer data and show it into fields
 
-            // get & set customer old data in the form input
-            var edit_id = @json($edit_id);
-            $.ajax({
-                type: 'GET',
-                url: '/api/customer/search/' + edit_id,
-                data: {
-                    token: "{{ session()->get('api_token') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    user_id: " {{ session()->get('user_id') }} "
-                },
-                success: function(response) {
-                    if (response.status == 200) {
-                        // You can update your HTML with the data here if needed
-                        $('#firstname').val(response.customer.firstname);
-                        $('#lastname').val(response.customer.lastname);
-                        $('#company_name').val(response.customer.company_name);
-                        $('#gst_no').val(response.customer.gst_no);
-                        $('#email').val(response.customer.email);
-                        $('#contact_no').val(response.customer.contact_no);
-                        $('#pincode').val(response.customer.pincode);
-                        $('#address').val(response.customer.address);
-                        country = response.customer.country_id;
-                        state = response.customer.state_id;
-                        city = response.customer.city_id;
-                        loadstate(country, state);
-                        loadcity(state, city);
-                    } else if (response.status == 500) {
-                        toastr.error(response.message);
-                    }
-                    loaderhide();
-                },
-                error: function(error) {
-                    loaderhide();
-                    console.error('Error:', error);
+            $('#gst_number').on('change keyup', function() {
+                var val = $(this).val();
+                if (val != '') {
+                    $('.requiredinputspan').show();
+                    $('.requiredinput').attr('required', true);
+                } else {
+                    $('.requiredinputspan').hide();
+                    $('.requiredinput').removeAttr('required');
                 }
             });
 
@@ -183,17 +163,66 @@
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
-                        $('#country').val(country);
                     } else {
                         $('#country').append(`<option disabled> No Data Found</option>`);
                     }
-
-
                 },
                 error: function(error) {
                     console.error('Error:', error);
                 }
             });
+
+            // get & set customer old data in the form input
+            var edit_id = @json($edit_id);
+            $.ajax({
+                type: 'GET',
+                url: '/api/customer/search/' + edit_id,
+                data: {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: " {{ session()->get('user_id') }} "
+                },
+                success: function(response) {
+                    if (response.status == 200) {
+                        data = response.customer;
+
+                        if (data.gst_no) {
+                            $('.requiredinputspan').show();
+                            $('.requiredinput').attr('required', true);
+                        } else {
+                            $('.requiredinputspan').hide();
+                        }
+
+                        // You can update your HTML with the data here if needed
+                        $('#firstname').val(data.firstname);
+                        $('#lastname').val(data.lastname);
+                        $('#company_name').val(data.company_name);
+                        $('#gst_no').val(data.gst_no);
+                        $('#email').val(data.email);
+                        $('#contact_no').val(data.contact_no);
+                        $('#pincode').val(data.pincode);
+                        $('#address').val(data.address);
+                        country = data.country_id;
+                        state = data.state_id;
+                        city = data.city_id;
+                        if(country != null){
+                            $('#country').val(country);
+                        }
+                        loadstate(country, state);
+                        loadcity(state, city);
+
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
+                    }
+                    loaderhide();
+                },
+                error: function(error) {
+                    loaderhide();
+                    console.error('Error:', error);
+                }
+            });
+
+
             //show state data in dropdown
             function loadstate(country, state) {
                 $.ajax({
@@ -210,12 +239,10 @@
                                     `<option  value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
+                            $('#state').val(state);
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`);
                         }
-                        $('#state').val(state);
-
-
                     },
                     error: function(error) {
                         console.error('Error:', error);
@@ -239,10 +266,10 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
+                            $('#city').val(city);
                         } else {
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }
-                        $('#city').val(city);
                     },
                     error: function(error) {
                         console.error('Error:', error);

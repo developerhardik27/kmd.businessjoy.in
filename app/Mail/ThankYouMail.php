@@ -17,10 +17,9 @@ class ThankYouMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($username)
+    public function __construct($request)
     {
-        $this->user = $username;
-
+        $this->user = $request;
         //
     }
 
@@ -29,8 +28,15 @@ class ThankYouMail extends Mailable
      */
     public function envelope(): Envelope
     {
+
+        $subject = 'Thank You' ;
+
+        if(isset($this->user->subscribe)){
+            $subject = "Welcome to BusinessJoy's Newsletter!" ;
+        }
+        
         return new Envelope(
-            subject: 'Thank You',
+            subject: $subject,
         );
     }
 

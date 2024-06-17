@@ -124,11 +124,11 @@
 
 
         /* .multiselect-container {
-                        width: 300px;
-                        max-height: 300px;
-                        overflow: auto;
-                    }
-                */
+                                width: 300px;
+                                max-height: 300px;
+                                overflow: auto;
+                            }
+                        */
 
         .sidenav .btn-group {
             width: 100%;
@@ -202,10 +202,12 @@
     <div class="col-md-12 text-right pr-5">
         <div class="m-2 float-right">
             <!-- Use any element to open the sidenav -->
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()"
+                class="btn btn-sm btn-rounded btn-info">
                 <i class="ri-filter-line"></i>
             </button>
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh" class="btn btn-info btn-sm removefilters">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh"
+                class="btn btn-info btn-sm removefilters">
                 <i class="ri-refresh-line"></i>
             </button>
         </div>
@@ -234,7 +236,8 @@
             {{ route('admin.addlead') }}
         @endsection
         @section('addnewbutton')
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Lead" class="btn btn-sm btn-primary">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Lead"
+                class="btn btn-sm btn-primary">
                 <span class="">+ Lead</span>
             </button>
         @endsection
@@ -756,22 +759,21 @@
                             global_response = response;
                             var id = 1;
                             $.each(response.lead, function(key, value) {
+                                var name = (value.first_name != null ? value.first_name : '')  + ' ' + (value.last_name!= null ? value.last_name : '')
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-building pr-2"></i></b> ${value.company}
-                                                        </span>
+                                                        ${value.company != null ? "<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b></span>" : '' }
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
+                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
                                                         </span>  
                                                         <span class='d-flex mb-2'>
                                                              @if (session('user_permissions.leadmodule.lead.edit') == '1')
@@ -798,28 +800,28 @@
                                                     </td> 
                                                     <td>${value.created_at_formatted}</td>
                                                     <td>${value.number_of_follow_up}</td>
-                                                    <td>${value.source}</td>
+                                                    <td>${value.source != null ? value.source : '-'}</td>
                                                     <td>
-                                                        <span>
-                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='Add Call History'>
+                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}'  class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
                                                         </span>
-                                                        <span>
-                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='View Call History'>
+                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
                                                         </span>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatapp Message">
+                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Lead">
                                                                  <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                     <i class="ri-edit-fill"></i>
                                                                  </button>  
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.leadmodule.lead.delete') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete lead">
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
@@ -830,6 +832,8 @@
                                 $('#status_' + value.id).val(value.status);
                                 $('#lead_stage_' + value.id).val(value.lead_stage);
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 
@@ -875,85 +879,84 @@
                 var data = $(this).data('view');
                 $.each(global_response.lead, function(key, lead) {
                     if (lead.id == data) {
-
                         $('#details').append(`
                                                 <tr> 
                                                     <td>Website Url</td>
                                                     <th style="text-transform: none;">
-                                                       <a href="${lead.web_url}" target="_blank">${lead.web_url}</a>
+                                                       <a href="${lead.web_url}" target="_blank">${(lead.web_url != null) ? lead.web_url : '-'}</a>
                                                     </th>
                                                 </tr> 
                                                 <tr> 
                                                     <td>First name</td>
-                                                    <th>${lead.first_name}</th>
+                                                    <th>${(lead.first_name != null) ? lead.first_name : '-'}</th>
                                                 </tr> 
                                                 <tr> 
                                                     <td>Last name</td>
-                                                    <th>${lead.last_name}</th>
+                                                    <th>${(lead.last_name != null) ? lead.last_name : '-'}</th>
                                                 </tr> 
                                                 <tr> 
                                                     <td>Company name</td>
-                                                    <th>${lead.company}</th>
+                                                    <th>${(lead.company != null) ? lead.company : '-'}</th>
                                                 </tr> 
                                                 <tr>
                                                     <td>email</td>
-                                                    <th>${lead.email}</th>
+                                                    <th>${(lead.email != null)? lead.email : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>contact Number</td>
-                                                    <th>${lead.contact_no}</th>
+                                                    <th>${(lead.contact_no != null) ? lead.contact_no : '-'}</th>
                                                     </tr>
                                                 <tr>
                                                     <td>Title</td>
-                                                    <th>${lead.title}</th>
+                                                    <th>${(lead.title != null) ? lead.title :'-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Budget</td>
-                                                    <th>${lead.budget}</th>
+                                                    <th>${(lead.budget != null) ? lead.budget : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Audience Type</td>
-                                                    <th>${lead.audience_type}</th>
+                                                    <th>${(lead.audience_type != null) ? lead.audience_type : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Customer Type</td>
-                                                    <th>${lead.customer_type}</th>
+                                                    <th>${(lead.customer_type != null) ? lead.customer_type : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Status</td>
-                                                    <th>${lead.status}</th>
+                                                    <th>${(lead.status !=null) ? lead.status : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Last Follow Up</td>
-                                                    <th>${lead.last_follow_up}</th>
+                                                    <th>${(lead.last_follow_up != null) ? lead.last_follow_up : '-' }</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Next Follow Up</td>
-                                                    <th>${lead.next_follow_up}</th>
+                                                    <th>${(lead.next_follow_up != null) ? lead.next_follow_up : '-' }</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Follow up</td>
-                                                    <th>${lead.number_of_follow_up}</th>
+                                                    <th>${(lead.number_of_follow_up != null) ? lead.number_of_follow_up : '-' }</th>
                                                 </tr>
                                                 <tr>
                                                     <td>Attempt</td>
-                                                    <th>${lead.attempt_lead}</th>
+                                                    <th>${(lead.attempt_lead != null) ? lead.attempt_lead : '-' }</th>
                                                 </tr>
                                                <tr>
                                                     <td>Created On</td>
-                                                    <th>${lead.created_at_formatted}</th>
+                                                    <th>${(lead.created_at_formatted != null) ? lead.created_at_formatted : '-' }</th>
                                                 </tr>
                                                 <tr> 
                                                     <td>Assigned To</td>
-                                                    <th>${lead.assigned_to}</th>
+                                                    <th>${(lead.assigned_to != null) ? lead.assigned_to : '-' }</th>
                                                 <tr>
                                                 <tr> 
                                                     <td>Source</td>
-                                                    <th>${lead.source}</th>
+                                                    <th>${(lead.source != null) ? lead.source : '-' }</th>
                                                 <tr>
                                                 <tr>
                                                     <td >Notes</td>
-                                                    <th class='text-wrap'>${lead.notes}</th>
+                                                    <th class='text-wrap'>${(lead.notes != null) ? lead.notes : '-' }</th>
                                                 </tr>
                      `);
                     }
@@ -1230,22 +1233,21 @@
                                 global_response = response;
                                 var id = 1;
                                 $.each(response.lead, function(key, value) {
+                                    var name = (value.first_name != null ? value.first_name : '')  + ' ' + (value.last_name!= null ? value.last_name : '')
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-building pr-2"></i></b> ${value.company}
-                                                        </span>
+                                                        ${value.company != null ? "<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b></span>" : '' }
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
+                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
                                                         </span>  
                                                         <span class='d-flex mb-2'>
                                                              @if (session('user_permissions.leadmodule.lead.edit') == '1')
@@ -1272,28 +1274,28 @@
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
                                                     <td>${value.number_of_follow_up}</td>
-                                                    <td>${value.source}</td>
+                                                    <td>${value.source != null ? value.source : '-'}</td>
                                                     <td>
-                                                        <span>
-                                                            <button data-toggle="modal"  data-target="#addcallhistory" data-id='${value.id}' title='Add Call History' class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='Add Call History' >
+                                                            <button data-toggle="modal"  data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
                                                         </span>
-                                                        <span>
-                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='view Call History' >
+                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
                                                         </span>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatapp Message">
+                                                            <a  class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit lead">
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.leadmodule.lead.delete') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete lead">
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
@@ -1304,6 +1306,8 @@
                                     $('#status_' + value.id).val(value.status);
                                     $('#lead_stage_' + value.id).val(value.lead_stage);
                                     id++;
+                                    $('[data-toggle="tooltip"]').tooltip('dispose');
+                                    $('[data-toggle="tooltip"]').tooltip();
                                 });
                                 var search = {!! json_encode($search) !!}
 

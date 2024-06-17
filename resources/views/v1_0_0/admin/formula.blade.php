@@ -25,7 +25,7 @@
         <input type="hidden" name="edit_id" id="edit_id">
         <input type="hidden" name="user_id" id="user_id" value="{{ $user_id }}">
         <span class="add_div float-right mb-3 mr-2">
-            <button type="button" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span
+            <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Formula Row" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span
                         class="pl-1">Formula</span></i>
             </button>
         </span>
@@ -34,11 +34,15 @@
             </tbody>
         </table>
         <hr>
-        <div class="button-container">
-            <button type="submit" class="btn btn-primary" id="submitBtn"><i class="ri-check-line"></i></button>
-            <div id="loader" class="loader"></div>
-            <button id="resetbtn" type="reset" class="btn iq-bg-danger"><i class="ri-refresh-line"></i></button>
-        </div>
+        <div class="form-group">
+            <div class="form-row">
+                 <div class="col-sm-12">
+                     <button id="resetbtn" type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Formula Details" class="btn iq-bg-danger float-right"><i class="ri-refresh-line"></i></button>
+                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Submit Formula Details" class="btn btn-primary float-right my-0" ><i
+                        class="ri-check-line"></i></button>
+                 </div>
+            </div>
+         </div>
     </form>
     <hr>
     <table id="data" class="table  table-bordered display table-responsive-lg table-responsive-md table-responsive-sm  table-striped text-center">
@@ -59,7 +63,7 @@
             <td colspan="5" style="border:none;">
             </td>
             <td>
-                <button class="btn btn-sm btn-primary saveformulaorder text-center" title="Save formula order">
+                <button class="btn btn-sm btn-primary saveformulaorder text-center" data-toggle="tooltip" data-placement="bottom" data-original-title="Save Formula Sequence">
                     <i  class="ri-check-line"></i>
                 </button>
             </td>
@@ -146,11 +150,10 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
-
                     } else if (response.status == 500) {
                         toastr.error(response.message);
                     } else {
@@ -187,12 +190,14 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="1"><button data-id="1" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
                     }
                     loaderhide();
+                    $('[data-toggle="tooltip"]').tooltip('dispose');
+                    $('[data-toggle="tooltip"]').tooltip();
                 },
                 error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
@@ -262,7 +267,7 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                             `);
@@ -300,13 +305,14 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                 <span class="remove-row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
+                                                 <span class="remove-row" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="${addname}"><button data-id="${addname}" type="button" class="btn iq-bg-danger btn-rounded btn-sm my-1"><i class="ri-delete-bin-2-line"></i></button></span> 
                                                 </td>
                                             </tr>
                         `);
 
                 }
-
+                $('[data-toggle="tooltip"]').tooltip('dispose');
+                $('[data-toggle="tooltip"]').tooltip();
             }
 
             // remove row of make formula
@@ -344,16 +350,16 @@
                                         <td>${value.second_column}</td>
                                         <td>${value.output_column}</td>
                                         <td>
-                                            <input type='text' placeholder='Set Formula Order' data-id='${value.id}' value='${value.formula_order}'  class='formulaorder'>
+                                            <input type='text' oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Formula Sequence' data-id='${value.id}' value='${value.formula_order}'  class='formulaorder'>
                                         </td>
                                         <td>
                                             <span>
-                                                <button type="button" data-id='${value.id}' class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Formula" data-id='${value.id}' class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
                                                     <i class="ri-edit-fill"></i>
                                                 </button>
                                             </span>
                                             <span>
-                                                <button type="button" data-id= '${value.id}' class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Formula" data-id= '${value.id}' class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
                                                     <i class="ri-delete-bin-fill"></i>
                                                 </button>
                                             </span>
@@ -361,6 +367,8 @@
                                     </tr>
                                 `);
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                         } else if (response.status == 500) {
                             toastr.error(response.message);

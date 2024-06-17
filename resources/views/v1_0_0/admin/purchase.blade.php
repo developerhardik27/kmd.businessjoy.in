@@ -44,8 +44,8 @@
         {{ route('admin.addpurchase') }}
     @endsection
     @section('addnewbutton')
-        <button class="btn btn-sm btn-primary">
-            <span class="">+ Add New</span>
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Purchase" class="btn btn-sm btn-primary">
+            <span  class="">+ Add New</span>
         </button>
     @endsection
 @endif
@@ -103,7 +103,7 @@
                                                         <td>${value.company_name}</td>                                                
                                                         <td>
                                                             @if (session('user_permissions.accountmodule.purchase.view') == '1') 
-                                                                <span>
+                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Purdchase Details">
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
                                                                     </button>
@@ -116,7 +116,7 @@
                                                                 session('user_permissions.accountmodule.purchase.delete') == '1')
                                                         <td>
                                                                 @if (session('user_permissions.accountmodule.purchase.edit') == '1') 
-                                                                    <span>
+                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                         <a href='EditPurchase/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
                                                                                 <i class="ri-edit-fill"></i>
@@ -125,7 +125,7 @@
                                                                     </span>
                                                                 @endif
                                                                 @if (session('user_permissions.accountmodule.purchase.delete') == '1') 
-                                                                    <span >
+                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>
                                                                         </button>
@@ -138,6 +138,8 @@
                                                             
                                                     </tr>`)
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 

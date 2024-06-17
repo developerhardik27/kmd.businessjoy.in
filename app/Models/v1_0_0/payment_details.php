@@ -15,6 +15,7 @@ class payment_details extends Model
 
     protected $fillable = [
         'inv_id',
+        'receipt_number',
         'transaction_id',
         'datetime',
         'paid_by',

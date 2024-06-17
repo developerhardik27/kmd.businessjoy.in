@@ -38,17 +38,20 @@
                     <span class="error-msg" id="error-column_type" style="color: red"></span>
                 </div>
                 <div class="col-sm-2 mt--2">
-                    <button type="submit" class="btn btn-primary"><i class="ri-check-line"></i></button>
-                    <button type="reset" class="btn iq-bg-danger"><i class="ri-refresh-line"></i></button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Submit Column Details" class="btn btn-primary"><i
+                            class="ri-check-line"></i></button>
+                    <button type="reset" class="btn iq-bg-danger" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Reset Column Details"><i class="ri-refresh-line"></i></button>
                 </div>
             </div>
             <div id="newColBtnDiv" class="form-row ">
                 <div class="col-sm-12">
-                    <button type="btn" id="newColBtn" class="btn btn-primary">+ Add New Column</button>
+                    <button type="btn" id="newColBtn" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Add New Column" class="btn btn-primary float-right">+ Add New Column</button>
                 </div>
             </div>
         </div>
-
     </form>
     <hr>
     <table id="data"
@@ -68,8 +71,9 @@
             <td colspan="3" style="border:none;">
             </td>
             <td class="text-center" style="border-left: none">
-                <button class="btn btn-sm btn-primary savecolumnorder" title="Save column order"><i
-                        class="ri-check-line"></i></button>
+                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Save Columns Sequence" class="btn btn-sm btn-primary savecolumnorder">
+                    <i class="ri-check-line"></i>
+                </button>
             </td>
         </tr>
     </table>
@@ -127,22 +131,22 @@
                                                         <td>${id}</td>
                                                         <td>${value.column_name}</td>
                                                         <td>${value.column_type}</td>
-                                                        <td><input type='text' oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Order' data-id='${value.id}' value="${value.column_order}" class='columnorder'></td>
+                                                        <td><input type='text' oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Sequence' data-id='${value.id}' value="${value.column_order}" class='columnorder'></td>
                                                         <td>
                                                             <span>
-                                                                <button type="button" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'
+                                                                <button type="button"data-toggle="tooltip" data-placement="bottom" data-original-title="${(value.is_hide == 0 )? 'Hide Column' : 'Show Column' }" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'
                                                                      class="btn hide-btn btn-outline-${(value.is_hide == 0 )? "info" : "danger"} btn-rounded btn-sm my-1">
                                                                     ${(value.is_hide == 0 )? "Show" : "Hide"}
                                                                 </button>
                                                             </span>
                                                             <span>
-                                                                <button type="button" data-id='${value.id}'
+                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Column" data-id='${value.id}'
                                                                      class="btn edit-btn iq-bg-success btn-rounded btn-sm my-1">
                                                                     <i class="ri-edit-fill"></i>
                                                                 </button>
                                                             </span>
                                                             <span>
-                                                                <button type="button" data-id= '${value.id}'
+                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Column" data-id= '${value.id}'
                                                                     class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
@@ -151,6 +155,8 @@
                                                     </tr>`)
                                 id++;
                             });
+                            $('[data-toggle="tooltip"]').tooltip('dispose');
+                            $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
                             toastr.error(response.message);
                         } else {
@@ -209,7 +215,7 @@
             $(document).on("click", ".edit-btn", function() {
                 if (confirm("You want edit this Column ?")) {
                     loadershow();
-                    $('#column_name').prop('readonly', true);
+                    $('#column_type').prop('disabled', true);
                     var editid = $(this).data('id');
                     $('#newColForm').removeClass('d-none');
                     $('#newColBtnDiv').addClass('d-none');
@@ -236,7 +242,7 @@
                             loaderhide();
                         },
                         error: function(error) {
-                            $('#column_name').prop('readonly', false);
+                            $('#column_type').prop('disabled', false);
                             loaderhide();
                             console.error('Error:', error);
                         }
@@ -247,7 +253,7 @@
 
             // delete column if it is not has data of any invoice
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this Column ?')) {
+                if (confirm('This action will effect existing invoice,reciept and related data. Are you sure you want to remove this column?')) {
                     var deleteid = $(this).data('id');
                     var row = this;
                     loadershow();
@@ -321,13 +327,15 @@
                 loadershow();
                 var editid = $('#edit_id').val()
                 if (editid != '') {
+                    $('#column_type').prop('disabled', false);
                     var columndata = $(this).serialize();
+                    $('#column_type').prop('disabled', true);
                     $.ajax({
                         type: "post",
                         url: "/api/invoicecolumn/update/" + editid,
                         data: columndata,
                         success: function(response) {
-                            $('#column_name').prop('readonly', false);
+                            $('#column_type').prop('disabled', false);
                             if (response.status == 200) {
                                 $('#edit_id').val('');
                                 $('#newColForm').addClass('d-none');
@@ -363,7 +371,6 @@
                                 toastr.error(errorMessage);
                             }
                         }
-
                     });
                 } else {
                     var columndata = $(this).serialize();

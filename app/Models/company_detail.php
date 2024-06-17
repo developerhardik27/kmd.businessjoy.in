@@ -23,5 +23,7 @@ class company_detail extends Model
        'pincode',
        'img',
        'pr_sign_img',
+       'created_at',
+       'updated_at'
     ];
 }

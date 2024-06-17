@@ -209,12 +209,12 @@
                                                     <i class="ri-file-user-line"></i>
                                                 </div>
                                                 <div class="media-body ml-3">
-                                                    <h6 class="mb-0 ">My Profile</h6>
-                                                    <p class="mb-0 font-size-12">View personal profile details.</p>
+                                                    <h6 class="mb-0 ">Profile</h6>
+                                                    <p class="mb-0 font-size-12">View profile details.</p>
                                                 </div>
                                             </div>
                                         </a>
-                                        @if (session('user_permissions.adminmodule.company.show') == '1')
+                                        {{-- @if (session('user_permissions.adminmodule.company.show') == '1')
                                             <a href="{{ route('admin.companyprofile', ['id' => Session::get('company_id')]) }}"
                                                 class="iq-sub-card iq-bg-primary-hover">
                                                 <div class="media align-items-center">
@@ -227,7 +227,7 @@
                                                     </div>
                                                 </div>
                                             </a>
-                                        @endif
+                                        @endif --}}
                                         <div class="d-inline-block w-100 text-center p-3">
                                             <a style="color: white !important"
                                                 class="btn btn-primary dark-btn-primary"

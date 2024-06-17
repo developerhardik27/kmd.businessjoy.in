@@ -5,24 +5,35 @@ use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\landing\LandingPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
 
 
 Route::get('/welcomemail',function(){
     return view('welcomemail');
 });
+Route::get('/invoicetemplate',function(){
+    return view('v1_0_0.admin.invoicetemplate');
+});
 
+ 
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/privacyandpolicies', function () {
+    return view('privacypolicy');
+})->name('privacypolicy')->withoutMiddleware([CheckSession::class]);
+Route::get('/termsandconditions', function () {
+    return view('termsandconditions');
+})->name('termsandconditions')->withoutMiddleware([CheckSession::class]);
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq')->withoutMiddleware([CheckSession::class]);
 
-Route::get('/new', [LandingPageController::class, 'new'])->name('admin.new');
+Route::get('/new', [LandingPageController::class, 'new'])->name('admin.new')->withoutMiddleware([CheckSession::class]);
 
 Route::group(['middleware' => ['CheckSession']], function () {
     // Your protected routes here...
-
-
-   
 
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -41,8 +52,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
     Route::group(['prefix' => 'admin'], function () {
 
-    
-
         Route::get('/welcome', function () {
             if (session()->has('folder_name')) {
                 // If set, return the view based on the session variable
@@ -57,20 +66,21 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
         Route::get('/setmenusession', [AdminLoginController::class, 'setmenusession'])->name('admin.setmenusession');
         Route::group(['middleware' => 'admin.guest'], function () {
-            Route::get('/login', [AdminLoginController::class, 'index'])->name('admin.login');
-            Route::post('/authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate');
-            Route::get('/forgotpassword', [AdminLoginController::class, 'forgot'])->name('admin.forgot');
-            Route::post('/forgotpassword', [AdminLoginController::class, 'forgot_password'])->name('admin.forgotpassword');
-            Route::get('/reset/{token}', [AdminLoginController::class, 'reset_password'])->name('admin.resetpassword');
-            Route::post('/reset/{token}', [AdminLoginController::class, 'post_reset_password'])->name('admin.post_resetpassword');
-            Route::get('/setpassword/{token}', [AdminLoginController::class, 'set_password'])->name('admin.setpassword');
-            Route::post('/setpassword/{token}', [AdminLoginController::class, 'post_set_password'])->name('admin.post_setpassword');
+            Route::get('/login', [AdminLoginController::class, 'index'])->name('admin.login')->withoutMiddleware([CheckSession::class]);
+            Route::post('/authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate')->withoutMiddleware([CheckSession::class]);
+            Route::get('/forgotpassword', [AdminLoginController::class, 'forgot'])->name('admin.forgot')->withoutMiddleware([CheckSession::class]);
+            Route::post('/forgotpassword', [AdminLoginController::class, 'forgot_password'])->name('admin.forgotpassword')->withoutMiddleware([CheckSession::class]);
+            Route::get('/reset/{token}', [AdminLoginController::class, 'reset_password'])->name('admin.resetpassword')->withoutMiddleware([CheckSession::class]);
+            Route::post('/reset/{token}', [AdminLoginController::class, 'post_reset_password'])->name('admin.post_resetpassword')->withoutMiddleware([CheckSession::class]);
+            Route::get('/setpassword/{token}', [AdminLoginController::class, 'set_password'])->name('admin.setpassword')->withoutMiddleware([CheckSession::class]);
+            Route::post('/setpassword/{token}', [AdminLoginController::class, 'post_set_password'])->name('admin.post_setpassword')->withoutMiddleware([CheckSession::class]);
         });
 
 
         Route::group(['middleware' => 'admin.auth'], function () {
 
 
+            // Define a function to generate the controller class name based on the session value
             function getadminversion($controller)
             {
                 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -84,7 +94,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 }
 
             }
-            // Define a function to generate the controller class name based on the session value
 
             Route::get('/index', [HomeController::class, 'index'])->name('admin.index');
             Route::get('/logout', [HomeController::class, 'logout'])->name('admin.logout');
@@ -160,9 +169,14 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::put('/UpdateBank/{id}', [$BankDetailsController, 'update'])->name('admin.updatebank')->middleware('checkPermission:invoicemodule,bank,edit');
                 Route::put('/DeleteBank/{id}', [$BankDetailsController, 'destroy'])->name('admin.deletebank')->middleware('checkPermission:invoicemodule,bank,delete');
             });
+
+            // report route 
+            $ReportController = getadminversion('ReportController');
+            Route::group([], function () use ($ReportController) {
+                Route::get('/report', [$ReportController, 'index'])->name('admin.report');
+            });
             // invoice module routes end -----
-
-
+            
             // inventory module routes start 
             // product route 
             $ProductController = getadminversion('ProductController');
@@ -219,8 +233,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
             });
             // customer support module routes end ----- 
 
-
-
             // reminder module routes start 
             // reminder customer route 
             $ReminderCustomerController = getadminversion('ReminderCustomerController');
@@ -234,7 +246,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::put('/DeleteReminderCustomer/{id}', [$ReminderCustomerController, 'destroy'])->name('admin.deleteremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,delete');
             });
             // reminder customer route end 
-
 
             // reminder route 
             $ReminderController = getadminversion('ReminderController');
@@ -262,6 +273,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             $PdfController = getadminversion('PdfController');
             Route::group([], function () use ($PdfController) {
                 Route::get('/generatepdf/{id}', [$PdfController, 'generatepdf'])->name('invoice.generatepdf')->middleware('checkPermission:invoicemodule,invoice,view');
+                Route::post('/generatepdfzip', [$PdfController, 'generatepdfzip'])->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', [$PdfController, 'generatereciept'])->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/generaterecieptall/{id}', [$PdfController, 'generaterecieptall'])->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
             });

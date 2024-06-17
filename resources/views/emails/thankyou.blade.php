@@ -14,7 +14,7 @@
     <title></title>
     <!--[if !mso]><!-->
     <link href="https://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" />
-    
+
     <link rel="stylesheet" href="{{ asset('admin/css/typography.css') }}">
     <!--<![endif]-->
     <style type="text/css">
@@ -300,11 +300,18 @@
                                                         valign="top" width="100%">
                                                         <h1
                                                             style="color:#292f37;direction:ltr;font-size:32px;font-weight:normal;line-height:120%;text-align:center;margin-top:0;margin-bottom:0;">
-                                                            Thank You for Your Inquiry</h1>
+                                                            @isset($user->subscribe)
+                                                                Thank you for subscribing to the BusinessJoy's
+                                                                newsletter!
+                                                            @else
+                                                                Thank You For Your Inquiry
+                                                            @endisset
+
+                                                        </h1>
                                                     </td>
                                                 </tr>
                                             </table>
-                                            
+
                                             <div
                                                 style="color:#292f37;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;letter-spacing:5px;line-height:1.2;padding-top:0px;padding-right:10px;padding-bottom:0px;padding-left:10px;">
                                                 <div class="txtTinyMce-wrapper"
@@ -313,13 +320,13 @@
                                                         style="margin: 0; text-align: center; line-height: 1.2; word-break: break-word; mso-line-height-alt: 14px; letter-spacing: 5px; margin-top: 0; margin-bottom: 0;">
                                                         <strong>
                                                             <span style="font-size: 46px;">
-                                                               
+
                                                             </span>
                                                         </strong>
                                                     </p>
                                                 </div>
                                             </div>
-                                            
+
                                             <div
                                                 style="color:#393d47;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;line-height:1.5;padding-top:10px;padding-right:40px;padding-bottom:10px;padding-left:40px;">
                                                 <div class="txtTinyMce-wrapper"
@@ -327,8 +334,25 @@
                                                     <p
                                                         style="margin: 0; line-height: 1.5; word-break: break-word; text-align: center; font-size: 14px; mso-line-height-alt: 21px; margin-top: 0; margin-bottom: 0;">
                                                         <span style="font-size: 14px;">
-                                                            <span style="color: #666; font-size: 16px;">We have received your inquiry for our software product. Our team will get in touch with you shortly.</span><br/>
-                                                            <span style="color: #999; font-size: 14px;">For any urgent matters, please contact us at <a href="tel:0797948558535" style="color: #007BFF; text-decoration: none;">079 7948558535</a></span><br/>
+                                                            @isset($user->subscribe)
+                                                                <span style="color: #666; font-size: 16px;"> We're
+                                                                    thrilled to have you with us. Get ready for the
+                                                                    latest updates, exclusive insights, and special
+                                                                    offers straight to your inbox.</span><br />
+                                                                <span style="color: #666; font-size: 16px;">Stay tuned!
+                                                                </span>
+                                                            @else
+                                                                <span style="color: #666; font-size: 16px;">We have
+                                                                    received your inquiry for our software product. Our
+                                                                    team will get in touch with you
+                                                                    shortly.</span><br />
+                                                                <span style="color: #999; font-size: 14px;">For any
+                                                                    urgent matters, please contact us at <a
+                                                                        href="tel:0797948558535"
+                                                                        style="color: #007BFF; text-decoration: none;">079
+                                                                        7948558535</a></span><br />
+                                                            @endisset
+
                                                         </span>
                                                 </div>
                                             </div>
@@ -381,7 +405,7 @@
                                                         style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:2px;"><span
                                                             style="font-size: 16px; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;">
                                                             <strong style="color: #ffffff">
-                                                               Business Joy
+                                                                Business Joy
                                                             </strong></span></span></a>
                                             </div>
                                             <div style="background: linear-gradient(to right, #97271f, #253566);">
@@ -484,7 +508,11 @@
                                                                             <p
                                                                                 style="margin: 0; font-size: 14px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 14px; margin-top: 0; margin-bottom: 0;">
                                                                                 <span style="font-size: 14px;">
-                                                                                    © Copyright <a href="https://businessjoy.in" style="font-weight: 550" target="_blank">Businessjoy</a>. All Rights Reserved
+                                                                                    © Copyright <a
+                                                                                        href="https://businessjoy.in"
+                                                                                        style="font-weight: 550"
+                                                                                        target="_blank">Businessjoy</a>.
+                                                                                    All Rights Reserved
                                                                                 </span>
                                                                             </p>
                                                                         </div>
@@ -501,13 +529,19 @@
                                                                         style="color:#292f37;letter-spacing:1px;line-height:1.2;padding-right:10px;padding-left:20px;padding-bottom:12px;">
                                                                         <div class="txtTinyMce-wrapper"
                                                                             style="font-size: 14px; line-height: 1.2; color: #292f37;letter-spacing: 1px; mso-line-height-alt: 17px;">
-                                                                            
+
                                                                             <p
                                                                                 style="margin: 0; font-size: 14px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 17px; letter-spacing: 1px; margin-top: 0; margin-bottom: 0;">
-                                                                                <a href="#" style="text-decoration: none">Privacy & Policy</a> |
-                                                                                <a href="#" style="text-decoration: none">Terms and conditions</a>|
-                                                                                <a href="tel:0797948558535" style="text-decoration: none">079 7948558535</a> |
-                                                                                <a href="mailto:support@businessjoy.com" style="text-decoration: none">support@businessjoy.com</a>
+                                                                                <a href="{{ route('privacypolicy') }}"
+                                                                                    style="text-decoration: none">Privacy
+                                                                                    & Policy</a> |
+                                                                                <a href="{{ route('termsandconditions') }}"
+                                                                                    style="text-decoration: none">Terms
+                                                                                    and conditions</a>|
+                                                                                <a href="tel:+917948558535"
+                                                                                    style="text-decoration: none">+91 7948558535</a> |
+                                                                                <a href="mailto:support@businessjoy.com"
+                                                                                    style="text-decoration: none">support@businessjoy.com</a>
                                                                             </p>
                                                                         </div>
                                                                     </div>

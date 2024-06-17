@@ -14,10 +14,11 @@ return new class extends Migration {
         Schema::create('payment_details', function (Blueprint $table) {
             $table->id();
             $table->integer('inv_id');
+            $table->string('receipt_number',20);
             $table->string('transaction_id', 50)->nullable();
             $table->dateTime('datetime')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->string('paid_by', 30);
-            $table->string('paid_type', 30);
+            $table->string('paid_by', 30)->nullable();
+            $table->string('paid_type', 30)->nullable();
             $table->double('amount', 10, 2);
             $table->double('paid_amount', 10, 2);
             $table->double('pending_amount', 10, 2);

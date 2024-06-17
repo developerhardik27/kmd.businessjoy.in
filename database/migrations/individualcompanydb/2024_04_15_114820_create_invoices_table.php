@@ -18,7 +18,9 @@ return new class extends Migration {
             $table->integer('customer_id');
             $table->longText('notes')->nullable();
             $table->float('total', 10, 2);
-            $table->float('gst');
+            $table->float('sgst', 10, 2)->nullable();
+            $table->float('cgst', 10, 2)->nullable();
+            $table->float('gst')->default(0);
             $table->float('grand_total', 10, 2);
             $table->integer('currency_id');
             $table->string('payment_type', 30);
@@ -30,6 +32,9 @@ return new class extends Migration {
             $table->longText('show_col')->nullable();
             $table->integer('overdue_date')->nullable();
             $table->integer('t_and_c_id')->nullable();
+            $table->integer('last_increment_number')->nullable();
+            $table->integer('increment_type')->nullable();
+            $table->integer('pattern_type')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

@@ -90,12 +90,15 @@
                     <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
-                    <label for="pincode">Max Users</label><span style="color:red;">*</span>
-                    <input type="text" name="maxuser" id='maxuser' class="form-control" placeholder="Max Users"
-                        value="5" required />
-                    <span class="error-msg" id="error-maxuser" style="color: red"></span>
-                </div>
+                @if (Session::has('user_permissions.adminmodule.company.max') &&
+                                                    session('user_permissions.adminmodule.company.max') == '1')
+                    <div class="col-sm-6">
+                        <label for="pincode">Max Users</label><span style="color:red;">*</span>
+                        <input type="text" name="maxuser" id='maxuser' class="form-control" placeholder="Max Users"
+                            value="5" required />
+                        <span class="error-msg" id="error-maxuser" style="color: red"></span>
+                    </div>
+                @endif
             </div>
         </div>
         <div class="form-group">
@@ -103,25 +106,27 @@
                 <div class="col-sm-6">
                     <label for="img">Company Logo Image</label><br>
                     <input type="file" class="form-control-file" name="img" id="img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="sign_img">Company Signature Image</label><br>
                     <input type="file" class="form-control-file" name="sign_img" id="sign_img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-sign_img" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
+                        class="btn iq-bg-danger float-right"><i class='ri-refresh-line'></i></button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update"
+                        class="btn btn-primary float-right my-0"><i class='ri-check-line'></i></button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -132,6 +137,44 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+
+
+
+
+
+            //get country data and set into dropdown
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('country.index') }}',
+                data: {
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.country != '') {
+                        $.each(response.country, function(key, value) {
+                            $('#country').append(
+                                `<option value='${value.id}'> ${value.country_name}</option>`
+                            )
+                        });
+                    } else {
+                        $('#country').append(`<option disabled> No Data Found</option>`);
+                    }
+
+                    // You can update your HTML with the data here if needed
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr.responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
+                }
+            });
 
             // get company old data from api and set it into form input
             var edit_id = @json($edit_id);
@@ -157,6 +200,7 @@
                         country = company.country_id;
                         state = company.state_id;
                         city = company.city_id;
+                        $('#country').val(country);
                         loadstate(country, state);
                         loadcity(state, city);
                         loaderhide();
@@ -184,41 +228,7 @@
                 }
             });
 
-            //get country data and set into dropdown
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('country.index') }}',
-                data: {
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.country != '') {
-                        $.each(response.country, function(key, value) {
-                            $('#country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
-                        });
-                        $('#country').val(country);
-                    } else {
-                        $('#country').append(`<option disabled> No Data Found</option>`);
-                    }
 
-
-                    // You can update your HTML with the data here if needed
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr.responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    toastr.error(errorMessage);
-                }
-            });
 
             // set state data in dropdown 
             function loadstate(country, state) {

@@ -43,8 +43,7 @@
                 </div>
                 <div class="col-sm-6">
                     <label for="gst">GST Number</label>
-                    <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number"
-                       />
+                    <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number" />
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -91,12 +90,15 @@
                     <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
-                    <label for="pincode">Max Users</label><span style="color:red;">*</span>
-                    <input type="text" name="maxuser" id='maxuser' class="form-control" placeholder="Max Users"
-                       value="5" required />
-                    <span class="error-msg" id="error-maxuser" style="color: red"></span>
-                </div>
+                @if (Session::has('user_permissions.adminmodule.company.max') &&
+                                                    session('user_permissions.adminmodule.company.max') == '1')
+                    <div class="col-sm-6">
+                        <label for="pincode">Max Users</label><span style="color:red;">*</span>
+                        <input type="text" name="maxuser" id='maxuser' class="form-control" placeholder="Max Users"
+                            value="5" required />
+                        <span class="error-msg" id="error-maxuser" style="color: red"></span>
+                    </div>
+                @endif
             </div>
         </div>
         <div class="form-group">
@@ -104,25 +106,29 @@
                 <div class="col-sm-6">
                     <label for="img">Company Logo Image</label><br>
                     <input type="file" class="form-control-file" name="img" id="img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="sign_img">Company Signature Image</label><br>
                     <input type="file" class="form-control-file" name="sign_img" id="sign_img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-sign_img" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset" class="btn iq-bg-danger float-right">
+                        <i class='ri-refresh-line'></i>
+                    </button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save" class="btn btn-primary float-right my-0">
+                        <i class='ri-check-line'></i>
+                    </button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -279,7 +285,7 @@
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
-                        .responseText); // Log the full error response for debugging
+                            .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {

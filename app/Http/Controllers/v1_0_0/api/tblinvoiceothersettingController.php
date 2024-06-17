@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class tblinvoiceothersettingController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $invoice_other_settingModel, $invoice_terms_and_conditionModel;
+    public $userId, $companyId, $masterdbname, $rp, $invoice_other_settingModel, $invoice_terms_and_conditionModel, $invoice_number_patternModel;
 
     public function __construct(Request $request)
     {
@@ -32,6 +32,7 @@ class tblinvoiceothersettingController extends commonController
 
         $this->invoice_other_settingModel = $this->getmodel('invoice_other_setting');
         $this->invoice_terms_and_conditionModel = $this->getmodel('invoice_terms_and_condition');
+        $this->invoice_number_patternModel = $this->getmodel('invoice_number_pattern');
     }
 
     public function getoverduedays(Request $request)
@@ -56,6 +57,31 @@ class tblinvoiceothersettingController extends commonController
             return response()->json([
                 'status' => 404,
                 'overdueday' => 'No Records Found'
+            ]);
+        }
+    }
+    public function invoicenumberpatternindex()
+    {
+        //condition for check if user has permission to view record
+        if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ]);
+        }
+
+        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern','pattern_type')->get();
+
+
+        if ($pattern->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'pattern' => $pattern
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'pattern' => 'No Records Found'
             ]);
         }
     }
@@ -421,6 +447,143 @@ class tblinvoiceothersettingController extends commonController
                 'status' => 404,
                 'message' => 'No Such Terms And Conditions Found!'
             ]);
+        }
+    }
+
+    public function invoicepatternstore(Request $request)
+    {
+
+        $pattern = "";
+        $startincrement = '';
+        $incrementtype = '';
+
+        foreach ($request->inputs as $input => $index) {
+            if ($index["type"] == "ai") {
+                $pattern .= "ai";
+                $startincrement = $index["value"];
+                $incrementtype = 1;
+            } else if ($index["type"] == "cidai") {
+                $pattern .= "cidai";
+                $startincrement = $index["value"];
+                $incrementtype = 2;
+            } else {
+                $pattern .= $index["value"];
+            }
+        }
+
+        //condition for check if user has permission to edit  record
+        if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => "You are Unauthorized!"
+            ]);
+        }
+
+
+        $sanitizedPattern = preg_replace('/[^A-Za-z0-9]/', '', $pattern);
+
+        $matchingRecords = $this->invoice_number_patternModel::where(DB::raw("REGEXP_REPLACE(invoice_pattern, '[^A-Za-z0-9]', '')"), 'LIKE', '%' . $sanitizedPattern . '%')->get();
+
+        if ($matchingRecords->isNotEmpty()) {
+            if ($matchingRecords[0]->increment_type == 1 && $startincrement <= $matchingRecords[0]->current_increment_number) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'A record with a matching invoice pattern already exists.!If you want use this pattern so then you can start increment from' . $matchingRecords->current_increment_number
+                ]);
+            }
+            if ($matchingRecords[0]->increment_type == 2 && !isset($request->onconfirm)) {
+                return response()->json([
+                    'status' => 1,
+                    'message' => 'A record with a matching invoice pattern already exists.!If you want use this pattern so increment will start from old record'
+                ]);
+            }
+        }
+
+
+        $this->invoice_number_patternModel::where('pattern_type', $request->pattern_type)
+            ->where('is_deleted', 0)
+            ->update(['is_deleted' => 1]);
+
+        date_default_timezone_set('Asia/Kolkata');
+
+        if(isset($request->onconfirm)){
+            $this->invoice_number_patternModel::create([
+                'invoice_pattern' => $pattern,
+                'pattern_type' => $request->pattern_type,
+                'increment_type' => $incrementtype,
+                'created_at' => date('Y-m-d'),
+                'created_by' => $this->userId,
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Inovice Pattern succesfully updated'
+            ]);
+        }
+
+        $this->invoice_number_patternModel::create([
+            'invoice_pattern' => $pattern,
+            'start_increment_number' => $startincrement,
+            'current_increment_number' => $startincrement,
+            'pattern_type' => $request->pattern_type,
+            'increment_type' => $incrementtype,
+            'created_at' => date('Y-m-d'),
+            'created_by' => $this->userId,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Inovice Pattern succesfully updated'
+        ]);
+
+    }
+
+    public function customeridstore(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'customer_id' => 'required|string',
+            'user_id' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages()
+            ], 422);
+        } else {
+
+           
+
+            $customerid = $this->invoice_other_settingModel::find(1);
+
+            
+            if ($customerid) {
+
+                if($customerid->current_customer_id >= $request->customer_id){
+                        return response()->json([
+                            'status' => 500,
+                            'message' => 'Please enter  customer id higher than ' . $customerid->current_customer_id 
+                        ]);
+                    
+                }
+                date_default_timezone_set('Asia/Kolkata');
+                $customerid->update([
+                    'customer_id' => $request->customer_id,
+                    'current_customer_id' => $request->customer_id,
+                    'updated_by' => $this->userId,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Customer id settings succesfully updated'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No Such Customer Setting Found!'
+                ]);
+            }
         }
     }
 

@@ -45,7 +45,8 @@
     @endsection
     @section('addnewbutton')
         <button class="btn btn-sm btn-primary">
-            <span class="">+ Add New</span>
+            <span data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Add New User" class="">+ Add New</span>
         </button>
     @endsection
 @endif
@@ -67,7 +68,6 @@
                 <th>Action</th>
             </tr>
         </thead>
-
     </table>
 @endsection
 
@@ -99,22 +99,22 @@
                             $.each(response.user, function(key, value) {
                                 $('#data').append(`<tr>
                                                         <td>${id}</td>
-                                                        <td>${value.firstname}</td>
+                                                        <td>${value.firstname  != null ? value.firstname : '-'}</td>
                                                         <td> ${value.is_lastname !== '' ? value.lastname  : ''} </td>
-                                                        <td>${value.email}</td>
-                                                        <td>${value.contact_no}</td>
-                                                        <td>${value.company_name}</td>
-                                                        <td>${value.user_role}</td>
+                                                        <td>${value.email != null ? value.email : '-'}</td>
+                                                        <td>${value.contact_no != null ? value.contact_no : '-'}</td>
+                                                        <td>${value.company_name != null ? value.company_name : '-'}</td>
+                                                        <td>${value.user_role != null ? value.user_role : '-'}</td>
                                                         <td>
                                                             @if (session('user_permissions.adminmodule.user.edit') == '1') 
-                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Deactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                             @else
                                                               -
                                                             @endif
                                                         </td>
                                                         <td>
                                                             @if (session('user_permissions.adminmodule.user.view') == '1') 
-                                                                <span>
+                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View User Details">
                                                                     <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                         <i class="ri-indent-decrease"></i>
                                                                     </button>
@@ -127,7 +127,7 @@
                                                                 session('user_permissions.adminmodule.user.delete') == '1')
                                                             <td>
                                                                 @if (session('user_permissions.adminmodule.user.edit') == '1') 
-                                                                    <span>
+                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                         <a href='EditUser/${value.id}'>
                                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
                                                                                 <i class="ri-edit-fill"></i>
@@ -136,7 +136,7 @@
                                                                     </span>
                                                                 @endif
                                                                 @if (session('user_permissions.adminmodule.user.delete') == '1') 
-                                                                    <span class="">
+                                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                         <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                             <i class="ri-delete-bin-fill"></i>
                                                                         </button>
@@ -148,6 +148,8 @@
                                                         @endif    
                                                     </tr>`)
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 
@@ -296,6 +298,7 @@
                             } else {
                                 toastr.error('something went wrong !');
                             }
+                            loaderhide();
                         },
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
@@ -323,39 +326,35 @@
                         $('#details').append(`
                                 <tr>
                                     <th>Name</th>                         
-                                    <td>${user.firstname} ${user.lastname}</td>
+                                    <td>${user.firstname} ${user.lastname != null ? user.lastname : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Email</th>                         
-                                    <td>${user.email}</td>
+                                    <td>${user.email != null ? user.email : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Contact</th>                         
-                                    <td>${user.contact_no}</td>
+                                    <td>${user.contact_no != null ? user.contact_no : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Pincode</th>                         
-                                    <td>${user.pincode}</td>
+                                    <td>${user.pincode != null ? user.pincode : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>City</th>                         
-                                    <td>${user.city_name}</td>
+                                    <td>${user.city_name != null ? user.city_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>State</th>                         
-                                    <td>${user.state_name}</td>
+                                    <td>${user.state_name != null ? user.state_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Country</th>                         
-                                    <td>${user.country_name}</td>
+                                    <td>${user.country_name != null ? user.country_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Company Name</th>                         
-                                    <td>${user.company_name}</td>
-                                </tr>
-                                <tr>
-                                    <th>Is Active</th>                         
-                                    <td>${user.is_active == 1 ? 'Yes' : ' No' }</td>
+                                    <td>${user.company_name != null ? user.company_name : '-'}</td>
                                 </tr>
                         `)
                     }

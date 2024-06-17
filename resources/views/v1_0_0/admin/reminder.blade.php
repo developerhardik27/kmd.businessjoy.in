@@ -209,10 +209,10 @@
     <div class="col-md-12 text-right pr-5">
         <div class="m-2 float-right">
             <!-- Use any element to open the sidenav -->
-            <button title="AdvanceFilters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Advance filters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
                 <i class="ri-filter-line"></i>
             </button>
-            <button title="FilterRefresh" class="btn btn-info btn-rounded btn-sm removefilters">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Filters" class="btn btn-info btn-rounded btn-sm removefilters">
                 <i class="ri ri-refresh-line"></i>
             </button>
         </div>
@@ -236,7 +236,7 @@
             {{ route('admin.addreminder') }}
         @endsection
         @section('addnewbutton')
-            <button title="Add Reminder" class="btn btn-sm btn-primary">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Reminder" class="btn btn-sm btn-primary">
                 <span class="">+ Reminder</span>
             </button>
         @endsection
@@ -617,20 +617,20 @@
                                                     <td>${value.area}</td>
                                                     <td>${value.pincode}</td>
                                                     <td>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${value.contact_no}">
+                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
+                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${value.contact_no}">
                                                                 <i class="ri-whatsapp-line text-white"></i>
                                                             </a>
                                                         </span>
                                                         @if (session('user_permissions.remindermodule.reminder.edit') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button> 
                                                             </span>
                                                         @endif
                                                         @if (session('user_permissions.remindermodule.reminder.delete') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                 <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
@@ -640,6 +640,8 @@
                                                 </tr>`)
                                 $('#reminder_status_' + value.id).val(value.reminder_status);
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 

@@ -45,8 +45,8 @@
         {{ route('admin.addcustomer') }}
     @endsection
     @section('addnewbutton')
-        <button class="btn btn-sm btn-primary">
-            <span class="">+ Add New</span>
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Customer"  class="btn btn-sm btn-primary">
+            <span class="">+ New</span>
         </button>
     @endsection
 @endif
@@ -64,7 +64,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tabledata">
 
         </tbody>
     </table>
@@ -94,6 +94,8 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.customer != '') {
+                            $('#data').DataTable().destroy();
+                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
@@ -102,18 +104,18 @@
                                                     <td>${id}</td>
                                                     <td>${value.firstname}</td>
                                                     <td>${value.lastname}</td>
-                                                    <td>${value.company_name}</td>
-                                                    <td>${value.contact_no}</td>
+                                                    <td>${(value.company_name != null) ?value.company_name : '-'}</td>
+                                                    <td>${(value.contact_no != null) ?value.contact_no : '-'}</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.edit') == '1')
-                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                            ${value.is_active == 1 ? '<span data-toggle="tooltip" data-placement="bottom" data-original-title="InActive" id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></span>'  : '<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></span>'}
                                                         @else
                                                           -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.view') == '1')
-                                                            <span class="">
+                                                            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
                                                                 </button>
@@ -126,7 +128,7 @@
                                                             session('user_permissions.invoicemodule.customer.delete') == '1')
                                                         <td>
                                                             @if (session('user_permissions.invoicemodule.customer.edit') == '1')
-                                                                <span class="">
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Customer">
                                                                     <a href='EditCustomer/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
                                                                             <i class="ri-edit-fill"></i>
@@ -135,7 +137,7 @@
                                                                 </span>
                                                             @endif
                                                             @if (session('user_permissions.invoicemodule.customer.delete') == '1')
-                                                                <span class="">
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Customer Details">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
                                                                     </button>
@@ -148,6 +150,8 @@
                                                     
                                                 </tr>`);
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
@@ -193,10 +197,7 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
-                                );
+                                loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -238,10 +239,7 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
-                                );
+                                loaddata();
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -311,48 +309,47 @@
                 $('#details').html('');
                 var data = $(this).data('view');
                 $.each(global_response.customer, function(key, customer) {
-                    if (customer.id == data) {
-                        
+                    if (customer.id == data) { 
                             $('#details').append(`
                                 <tr>
                                     <th>Customer Company Name</th>       
-                                    <td>${customer.company_name}</td>
+                                    <td>${(customer.company_name != null) ?customer.company_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Customer Name</th>       
-                                    <td>${customer.firstname} ${customer.lastname}</td>
+                                    <td>${(customer.firstname != null) ?customer.firstname : '-'} ${(customer.lastname != null) ?customer.lastname : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Email</th>       
-                                    <td>${customer.email}</td>
+                                    <td>${(customer.email != null) ?customer.email : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Contact Number</th>       
-                                    <td>${customer.contact_no}</td>
+                                    <td>${(customer.contact_no != null) ?customer.contact_no : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>GST Number</th>       
-                                    <td>${customer.gst_no}</td>
+                                    <td>${(customer.gst_no != null) ?customer.gst_no : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Address</th>       
-                                    <td>${customer.address}</td>
+                                    <td>${(customer.address != null) ?customer.address : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Pincode</th>       
-                                    <td>${customer.pincode}</td>
+                                    <td>${(customer.pincode != null) ?customer.pincode : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>City</th>       
-                                    <td>${customer.city_name}</td>
+                                    <td>${(customer.city_name != null) ?customer.city_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>State</th>       
-                                    <td>${customer.state_name}</td>
+                                    <td>${(customer.state_name != null) ?customer.state_name : ''}</td>
                                 </tr>
                                 <tr>
                                     <th>Country</th>       
-                                    <td>${customer.country_name}</td>
+                                    <td>${(customer.country_name != null) ?customer.country_name : ''}</td>
                                 </tr>
                             `);
                     

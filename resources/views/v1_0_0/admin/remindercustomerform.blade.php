@@ -191,8 +191,8 @@
         <div class="form-group">
             <div class="form-row">
                  <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                     <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"><i class="ri-refresh-line"></i></button>
+                     <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Save"><i class="ri-check-line"></i></button>
                  </div>
             </div>
          </div>

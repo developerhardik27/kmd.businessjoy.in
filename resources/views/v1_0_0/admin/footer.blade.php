@@ -147,7 +147,7 @@
                 success: function(response) {
                     $('#menuOption').html($(this).html());
                     toastr.success(`Logged in ${response.status} succesfully`);
-                    window.location.href = "{{ route('admin.index') }}";
+                    window.location.href = "{{ route('admin.welcome') }}";
                 },
                 error: function(error) {
                     toastr.error('Something Went Wrong!');

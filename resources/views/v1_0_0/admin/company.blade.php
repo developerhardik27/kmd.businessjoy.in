@@ -48,7 +48,8 @@
     @endsection
     @section('addnewbutton')
         <button class="btn btn-sm btn-primary">
-            <span class="">+ Add New</span>
+            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Company" class="">+ Add
+                New</span>
         </button>
     @endsection
 @endif
@@ -103,19 +104,19 @@
                             $.each(response.company, function(key, value) {
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
-                                                    <td>${value.name}</td>
-                                                    <td>${value.email}</td>
-                                                    <td>${value.contact_no}</td>
+                                                    <td>${value.name != null ? value.name : '-'}</td>
+                                                    <td>${value.email != null ? value.email : '-'}</td>
+                                                    <td>${value.contact_no != null ? value.contact_no : '-'}</td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.edit') == '1') 
-                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Deactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.view') == '1')
-                                                            <span>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
                                                                 </button>
@@ -128,7 +129,7 @@
                                                             session('user_permissions.adminmodule.company.delete') == '1')
                                                         <td> 
                                                             @if (session('user_permissions.adminmodule.company.edit') == '1')
-                                                                <span class="">
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                     <a href='EditCompany/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
                                                                             <i class="ri-edit-fill"></i>
@@ -137,7 +138,7 @@
                                                                 </span>
                                                             @endif                                                        
                                                             @if (session('user_permissions.adminmodule.company.delete') == '1')
-                                                                <span class="">
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
                                                                     </button>
@@ -148,8 +149,9 @@
                                                         <td> - </td> 
                                                     @endif
                                 </tr>`);
-
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize jquery datatable
@@ -290,6 +292,7 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 $(row).closest("tr").fadeOut();
+                                toastr.success(response.message);
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -324,35 +327,35 @@
                         $('#details').append(`
                                     <tr>
                                         <th>Name</th>
-                                        <td>${company.name}</td>
+                                        <td>${company.name != null ? company.name : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Email</th>
-                                        <td>${company.email}</td>
+                                        <td>${company.email  != null ? company.email : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Contact</th>
-                                        <td>${company.contact_no}</td>
+                                        <td>${company.contact_no  != null ? company.contact_no : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>GST Number</th>
-                                        <td>${company.gst_no}</td>
+                                        <td>${company.gst_no  != null ? company.gst_no : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Address</th>
-                                        <td>${company.address}</td>
+                                        <td>${company.address  != null ? company.address : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>City</th>
-                                        <td>${company.city_name}</td>
+                                        <td>${company.city_name  != null ? company.city_name : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>State</th>
-                                        <td>${company.state_name}</td>
+                                        <td>${company.state_name  != null ? company.state_name : '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Contry</th>
-                                        <td>${company.country_name}</td>
+                                        <td>${company.country_name  != null ? company.country_name : '-'}</td>
                                     </tr> 
                             `);
                     }

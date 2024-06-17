@@ -7,69 +7,15 @@
     // print_r($companydetails);
     // print_r($bankdetails);
     // print_r($othersettings);
-    function numberToWords($number)
-    {
-        $words = [
-            'zero',
-            'one',
-            'two',
-            'three',
-            'four',
-            'five',
-            'six',
-            'seven',
-            'eight',
-            'nine',
-            'ten',
-            'eleven',
-            'twelve',
-            'thirteen',
-            'fourteen',
-            'fifteen',
-            'sixteen',
-            'seventeen',
-            'eighteen',
-            'nineteen',
-        ];
-
-        $tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-
-        if ($number < 20) {
-            return $words[$number];
-        }
-
-        if ($number < 100) {
-            return $tens[(int) ($number / 10)] . ($number % 10 !== 0 ? '-' . $words[$number % 10] : '');
-        }
-
-        if ($number < 1000) {
-            return $words[(int) ($number / 100)] .
-                ' hundred' .
-                ($number % 100 !== 0 ? ' and ' . numberToWords($number % 100) : '');
-        }
-
-        if ($number < 1000000) {
-            return numberToWords((int) ($number / 1000)) .
-                ' thousand' .
-                ($number % 1000 !== 0 ? ' ' . numberToWords($number % 1000) : '');
-        }
-
-        if ($number < 1000000000) {
-            return numberToWords((int) ($number / 1000000)) .
-                ' million' .
-                ($number % 1000000 !== 0 ? ' ' . numberToWords($number % 1000000) : '');
-        }
-
-        return 'overflow';
-    }
-
-    // Example usage:
-    $number = $invdata['grand_total'];
-    $words = numberToWords($number);
-
     // die();
+
+    // convert number to spelling:
+    $words = Number::spell($invdata['grand_total']);
+
     $total;
     $roundof;
+    $sign = '';
+
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
     } else {
@@ -78,23 +24,18 @@
 
     if ($invdata['grand_total'] > $total) {
         $value = $invdata['grand_total'] - $total;
-        $roundof = '+' . number_format((float) $value, 2, '.', '');
+        $roundof = number_format((float) $value, 2, '.', '');
+        if ($roundof != 0) {
+            $sign = '+';
+        }
     } else {
         $value = $total - $invdata['grand_total'];
-        $roundof = '-' . number_format((float) $value, 2, '.', '');
-    }
-
-    function formatDecimal($value)
-    {
-        // Check if the value contains a decimal
-        if (strpos($value, '.') !== false) {
-            // If it's already a decimal, return the same value
-        return $value;
-    } else {
-        // If it's not a decimal, append .00 and return
-            return $value . '.00';
+        $roundof = number_format((float) $value, 2, '.', '');
+        if ($roundof != 0) {
+            $sign = '-';
         }
     }
+
 @endphp
 
 
@@ -231,30 +172,28 @@
         <table width="100%" class="horizontal-border">
             <tbody class="border">
                 <tr class="firstrow" valign='bottom' style="padding: 5px;">
-                    <td rowspan="" colspan="2" style="padding:px;"><span class=" textblue firstrow"
+                    <td rowspan="" colspan="2" style="padding:5px;"><span class=" textblue firstrow"
                             style="display:block;" id="cname">{{ $companydetails['name'] }}</span>
-                        <span style="display:block;">{{ $companydetails['address'] }}</span>
+                        <span style="display:block;">{!! nl2br(e(wordwrap($companydetails['address'], 40, "\n", true))) !!}</span>
                         <span style="display:block;">{{ $companydetails['city_name'] }},
                             {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
                         <span style="display:block;">Email: {{ $companydetails['email'] }}</span>
                     </td>
-                    <td colspan="2" style="text-align: center;">
+                    <td colspan="2" style="text-align: center;width:50%;">
                         <div style="display: inline-block;">
-                            <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
-                        @else
-                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('admin/images/bjlogo2.png'))) }}" @endif
-                                class="rounded mt-auto mx-auto d-block" alt="logo" height="100px">
+                            <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}" @endif
+                                class="rounded mt-auto mx-auto d-block" alt="Company logo" style="max-width: 120px">
                         </div>
                     </td>
                 </tr>
                 <tr valign='top' class="firstrow">
-                    <td style="padding:;" colspan="2">
+                    <td style="width:250px;" colspan="2">
                         <span style="display:block;">Contact No: {{ $companydetails['contact_no'] }}</span>
                         @if (isset($companydetails['gst_no']))
                             <span><b>GSTIN No: {{ $companydetails['gst_no'] }}</b></span>
                         @endif
                     </td>
-                    <td colspan="2" style="padding: 0;">
+                    <td colspan="2" style="padding: 0;width:50%;">
                         <table width='100%' height='100%' style="text-align: center;margin-top:2px;"
                             class="horizontal-border full-height">
                             <thead>
@@ -274,7 +213,10 @@
                 </tr>
                 <tr>
                     <td style="padding: 0;" colspan="2">
-                        <div class="bgblue" style="margin-right: 100px;"><span style="padding-left:5px">BILL TO</span>
+                        <div class="bgblue" style="margin-right: 100px;">
+                            <span style="padding-left:5px">
+                                BILL TO
+                            </span>
                         </div>
                     </td>
                     <td class="bgblue" style="text-align: center">customer id</td>
@@ -288,9 +230,18 @@
                     <td style="text-align: center">{{ $invdata['payment_type'] }}</td>
                 </tr>
                 <tr>
-                    <td rowspan="" valign='top' colspan="2">
-                        <div>{{ $invdata['address'] }}</div>
-                        <div>{{ $invdata['city_name'] }},{{ $invdata['state_name'] }},{{ $invdata['pincode'] }}
+                    <td rowspan="" valign='top' style="width: 250px:padding:5px" colspan="2">
+                        <div> {!! nl2br(e(wordwrap($invdata['address'], 40, "\n", true))) !!}</div>
+                        <div>
+                            @isset($invdata['city_name'])
+                                {{ $invdata['city_name'] }},
+                            @endisset
+                            @isset($invdata['state_name'])
+                                {{ $invdata['state_name'] }},
+                            @endisset
+                            @isset($invdata['pincode'])
+                                {{ $invdata['pincode'] }}
+                            @endisset
                         </div>
                         <div>{{ $invdata['email'] }}</div>
                         <div>{{ $invdata['contact_no'] }}</div>
@@ -358,8 +309,9 @@
                                         @foreach ($row as $key => $val)
                                             @if ($key === array_key_last($row))
                                                 <td style="text-align:right;" class="currencysymbol">
-                                                    {{ $invdata['currency_symbol'] }}
-                                                    {{ formatDecimal($val) }}
+                                                    {{-- {{ $invdata['currency_symbol'] }}
+                                                    {{ formatDecimal($val) }} --}}
+                                                    {{ Number::currency($val, in: $invdata['currency']) }}
                                                 </td>
                                             @else
                                                 <td style="text-align:center;">
@@ -388,12 +340,14 @@
                                 @endfor
                                 <tr>
                                     <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                        class="left removeborder  ">
+                                        class="left removeborder">
                                         Subtotal
                                     </td>
                                     <td style="text-align: right" class="right removeborder currencysymbol "
                                         id="subtotal">
-                                        {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['total']) }}</td>
+                                        {{-- {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['total']) }} --}}
+                                        {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
+                                    </td>
                                 </tr>
                                 @if ($othersettings['gst'] == 0)
                                     @if ($invdata['sgst'] >= 1)
@@ -403,8 +357,9 @@
                                                 SGST({{ $othersettings['sgst'] }}%)
                                             </td>
                                             <td style="text-align: right ;" class="currencysymbol" id="sgst">
-                                                {{ $invdata['currency_symbol'] }}
-                                                {{ formatDecimal($invdata['sgst']) }}</td>
+                                                {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['sgst']) }} --}}
+                                                {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
+                                            </td>
                                         </tr>
                                     @endif
                                     @if ($invdata['cgst'] >= 1)
@@ -414,8 +369,9 @@
                                                 CGST({{ $othersettings['cgst'] }}%)
                                             </td>
                                             <td style="text-align: right" class=" currencysymbol" id="cgst">
-                                                {{ $invdata['currency_symbol'] }}
-                                                {{ formatDecimal($invdata['cgst']) }}</td>
+                                                {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['cgst']) }} --}}
+                                                {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
+                                            </td>
                                         </tr>
                                     @endif
                                 @else
@@ -426,11 +382,11 @@
                                                 GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                             </td>
                                             <td style="text-align: right" class="currencysymbol " id="gst">
-                                                {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['gst']) }}
+                                                {{-- {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['gst']) }} --}}
+                                                {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
                                             </td>
                                         </tr>
                                     @endif
-
                                 @endif
 
                                 <tr class="" style="font-size:15px;text-align: right">
@@ -438,7 +394,8 @@
                                         Round of
                                     </td>
                                     <td style="text-align: right" class="right currencysymbol">
-                                        {{ $invdata['currency_symbol'] }} {{ $roundof }}
+                                        {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
+                                       {{$sign}} {{ Number::currency($roundof, in: $invdata['currency']) }}
                                     </td>
                                 </tr>
                                 <tr class="" style="font-size:15px;text-align: right">
@@ -446,14 +403,15 @@
                                         <b>Total</b>
                                     </td>
                                     <td style="text-align: right" class="right currencysymbol">
-                                        {{ $invdata['currency_symbol'] }} {{ $invdata['grand_total'] }}.00
+                                        {{-- {{ $invdata['currency_symbol'] }} {{ $invdata['grand_total'] }}.00 --}}
+                                        {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
                                     </td>
                                 </tr>
                                 <tr class="removeborder">
                                     <td colspan="@php echo (count($products[0])+1); @endphp" class=""
                                         style="vertical-align: middle; text-align: right;font-style:italic">
                                         <strong class="">{{ $invdata['currency'] }}
-                                            {{ $words }}</strong>
+                                            {{ $words }} Only</strong>
                                     </td>
                                 </tr>
                                 <tr class="removeborder">

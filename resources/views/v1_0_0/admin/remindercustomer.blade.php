@@ -46,7 +46,7 @@
     @endsection
     @section('addnewbutton')
         <button class="btn btn-sm btn-primary">
-            <span class="">+ Add New</span>
+            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Customer" class="">+ Add New</span>
         </button>
     @endsection
 @endif
@@ -129,18 +129,18 @@
                                                     <td>${value.area}</td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.view') == '1')
-                                                            <span class="">
-                                                                <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" title='View Customer Details' class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
+                                                                <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
                                                                 </button>
                                                             </span>
-                                                            <span>
-                                                                <button data-toggle="modal" data-target="#viewreminder" data-id='${value.id}' title='view Reminder History' class='btn btn-sm btn-info mx-0 my-1 viewreminderhistory' >
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Reminder History">
+                                                                <button data-toggle="modal" data-target="#viewreminder" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewreminderhistory' >
                                                                     <i class='ri-eye-fill'></i>
                                                                 </button>
                                                             </span>
-                                                            <span>
-                                                                <button class="btn btn-sm btn-info viewonreminderpage" data-id='${value.id}'  title="View Customer Reminders"><i class="ri-alarm-line"></i></button>
+                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Reminders">
+                                                                <button class="btn btn-sm btn-info viewonreminderpage" data-id='${value.id}'><i class="ri-alarm-line"></i></button>
                                                             </span>
                                                         @else
                                                           -    
@@ -150,7 +150,7 @@
                                                             session('user_permissions.remindermodule.remindercustomer.delete') == '1')
                                                         <td>
                                                             @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1')
-                                                                <span class="">
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                                     <a href='EditReminderCustomer/${value.id}'>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
                                                                             <i class="ri-edit-fill"></i>
@@ -159,7 +159,7 @@
                                                                 </span>
                                                             @endif
                                                             @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1')
-                                                                <span class="">
+                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
                                                                     </button>
@@ -172,6 +172,8 @@
                                                     
                                                 </tr>`);
                                 id++;
+                                $('[data-toggle="tooltip"]').tooltip('dispose');
+                                $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable

@@ -14,104 +14,417 @@
             /* Add vertical scrollbar if content overflows */
 
         }
+
+        .iq-edit-profile.nav-pills .nav-link.active,
+        .iq-edit-profile.nav-pills .show>.nav-link {
+            color: var(--iq-white) !important;
+        }
     </style>
 @endsection
+
 @section('page-content')
-    @if (session('user_permissions.invoicemodule.invoice.show') == '1')
-        <div id="content-page" class="content-page">
-            <div class="container-fluid">
-                <p>Invoice Dashboard</p>
-                <div class="row">
-                    <div class="col-md-6 col-lg-7">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
-                            <div class="iq-card-header d-flex justify-content-between">
-                                <div class="iq-header-title">
-                                    <h4 class="card-title">Invoice Status Chart</h4>
-                                </div>
-                            </div>
-                            <div class="iq-card-body">
-                                <div id="invoice-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-5">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height" style="background: transparent;">
-                            <div class="iq-card-body rounded p-0"
-                                style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
-                                <div class="iq-caption">
-                                    <h1 id="total_inv">0</h1>
-                                    <p>Invoice</p>
-                                </div>
+    <div id="content-page" class="content-page">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <span class="font-size-26">Dashboard</span>
+                </div>
+                <div class="col-lg-12 mt-2">
+                    <div class="iq-card">
+                        <div class="iq-card-body p-0">
+                            <div class="iq-edit-list">
+                                @if (count(session('allmenu')) > 1)
+                                    <ul class="iq-edit-profile d-flex nav nav-pills">
+                                        @foreach (session('allmenu') as $val)
+                                            <li data-dashboard="{{ $val }}"
+                                                class="col-md-{{ ceil(12 / count(session('allmenu'))) }} p-0 dynamicdashboard">
+                                                <a class="nav-link {{ $val == session('menu') ? 'active' : '' }}"
+                                                    data-toggle="pill" href="#{{ $val }}dashboard">
+                                                    <span>{{ ucfirst($val) }}</span>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
-                            <div class="iq-card-header d-flex justify-content-between">
-                                <div class="iq-header-title">
-                                    <h4 class="card-title">Monthly Invoices</h4>
+                <div class="col-lg-12">
+                    <div class="iq-edit-list-data">
+                        <div class="tab-content">
+                            <div class="tab-pane fade @if (session('menu') == 'invoice') active show @endif"
+                                id="invoicedashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>Invoice Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-7">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Invoice Status Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div id="invoice-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-5">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height"
+                                                style="background: transparent;">
+                                                <div class="iq-card-body rounded p-0"
+                                                    style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
+                                                    <div class="iq-caption">
+                                                        <h1 id="total_inv">0</h1>
+                                                        <p>Invoice</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Monthly Invoices</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <ul class="suggestions-lists m-0 p-0">
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Paid Invoices"
+                                                                        class="btn btn-success btn-sm" id='invoicepaidata'>
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        PAID
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-success"><span
+                                                                    id="invoicepaid">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Pending Invoices"
+                                                                        class="btn btn-secondary btn-sm"
+                                                                        id="invoicependingdata">
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        PENDING
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-secondary"><span
+                                                                    id="invoicepending">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Canceled Invoices"
+                                                                        class="btn btn-danger btn-sm"
+                                                                        id="invoicecanceldata"><span><i
+                                                                                class="ri-list-check"></i></span>CANCEL</button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-danger"><span
+                                                                    id="invoicecancel">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Overdue Invoices"
+                                                                        class="btn btn-warning btn-sm"
+                                                                        id="invoiceduedata"><span><i
+                                                                                class="ri-list-check"></i></span>OVER
+                                                                        DUE</button></h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-warning"><span
+                                                                    id="invoicedue">0</span></div>
+                                                        </li>
+
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title"><span id="status_title"></span> Invoices
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div class="table-responsive scrollable-table" style="width: 100%">
+                                                        <table class="table mb-0  table-borderless w-100" width="100%"
+                                                            style="text-align: center">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Invoice</th>
+                                                                    <th scope="col">Date</th>
+                                                                    <th scope="col" class="text-right">Amount</th>
+                                                                    <th scope="col" class="text-center">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="invoicedata">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="iq-card-body">
-                                <ul class="suggestions-lists m-0 p-0">
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-success btn-sm" id='paidata'><span><i
-                                                            class="ri-list-check"></i></span>PAID</button></h6>
+                            <div class="tab-pane fade @if (session('menu') == 'reminder') active show @endif"
+                                id="reminderdashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>Reminder Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-7">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Status Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div id="reminder-chart"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="profile-icon iq-bg-success"><span id="paid">0</span></div>
-                                    </li>
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-secondary btn-sm" id="pendingdata"><span><i
-                                                            class="ri-list-check"></i></span>PENDING</button></h6>
+                                        <div class="col-md-6 col-lg-5">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height"
+                                                style="background: transparent;">
+                                                <div class="iq-card-body rounded p-0"
+                                                    style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
+                                                    <div class="iq-caption">
+                                                        <h1 id="total_customers">0</h1>
+                                                        <p>Total Customers</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="profile-icon iq-bg-secondary"><span id="pending">0</span></div>
-                                    </li>
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-danger btn-sm" id="canceldata"><span><i
-                                                            class="ri-list-check"></i></span>CANCEL</button></h6>
-                                        </div>
-                                        <div class="profile-icon iq-bg-danger"><span id="cancel">0</span></div>
-                                    </li>
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-warning btn-sm" id="duedata"><span><i
-                                                            class="ri-list-check"></i></span>OVER DUE</button></h6>
-                                        </div>
-                                        <div class="profile-icon iq-bg-warning"><span id="due">0</span></div>
-                                    </li>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Reminders</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <ul class="suggestions-lists m-0 p-0">
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button class="btn btn-secondary btn-sm"
+                                                                        id="reminderpendingdata"><span><i
+                                                                                class="ri-list-check"></i></span>PENDING</button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-secondary"><span
+                                                                    id="reminderpending">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button class="btn btn-danger btn-sm"
+                                                                        id="reminderinprogressdata"><span><i
+                                                                                class="ri-list-check"></i></span>In
+                                                                        Progress</button></h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-danger"><span
+                                                                    id="reminderinprogress">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button class="btn btn-warning btn-sm"
+                                                                        id="remindercompleteddata"><span><i
+                                                                                class="ri-list-check"></i></span>Completed</button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-warning"><span
+                                                                    id="remindercompleted">0</span></div>
+                                                        </li>
 
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-8">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
-                            <div class="iq-card-header d-flex justify-content-between">
-                                <div class="iq-header-title">
-                                    <h4 class="card-title"><span id="status_title"></span> Invoices </h4>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title"><span id="status_title"></span>Upcoming
+                                                            Reminders </h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div class="col-md-3 float-right my-1">
+                                                        <select name="reminderbydays" id="reminderbydays"
+                                                            class="float-right form-control">
+                                                            <option disabled>Select Days</option>
+                                                            <option value="7">7 Days</option>
+                                                            <option value="15">15 Days</option>
+                                                            <option value="30" selected>1 Month</option>
+                                                            <option value="180">6 Months</option>
+                                                            <option value="365">1 Year</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="table-responsive scrollable-table" style="width: 100%">
+                                                        <table class="table mb-0  table-borderless w-100" width="100%"
+                                                            style="text-align: center">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Customer</th>
+                                                                    <th scope="col">Area</th>
+                                                                    <th scope="col">Reminder Date</th>
+                                                                    <th scope="col">Contact</th>
+                                                                    <th scope="col">Product</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="reminderdata">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="iq-card-body">
-                                <div class="table-responsive scrollable-table" style="width: 100%">
-                                    <table class="table mb-0  table-borderless w-100" width="100%"
-                                        style="text-align: center">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Invoice</th>
-                                                <th scope="col">Date</th>
-                                                <th scope="col" class="text-right">Amount</th>
-                                                <th scope="col" class="text-center">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="data">
+                            <div class="tab-pane fade @if (session('menu') == 'lead') active show @endif"
+                                id="leaddashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>Lead Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-7">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Status Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div id="lead-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-5">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height"
+                                                style="background: transparent;">
+                                                <div class="iq-card-body rounded p-0"
+                                                    style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
+                                                    <div class="iq-caption">
+                                                        <h1 id="total_leads">0</h1>
+                                                        <p>Total Leads</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Leads</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <ul class="suggestions-lists m-0 p-0">
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button class="btn btn-secondary btn-sm"
+                                                                        id="leadpendingdata"><span><i
+                                                                                class="ri-list-check"></i></span>PENDING</button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-secondary"><span
+                                                                    id="leadpending">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button class="btn btn-danger btn-sm"
+                                                                        id="leadinprogressdata"><span><i
+                                                                                class="ri-list-check"></i></span>In
+                                                                        Progress</button></h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-danger"><span
+                                                                    id="leadinprogress">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button class="btn btn-warning btn-sm"
+                                                                        id="leadcompleteddata"><span><i
+                                                                                class="ri-list-check"></i></span>Completed</button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-warning"><span
+                                                                    id="leadcompleted">0</span></div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title"><span id="status_title"></span>
+                                                            Leads </h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div class="col-md-3 float-right my-1">
+                                                        <select name="reminderbydays" id="leadbydays"
+                                                            class="float-right form-control">
+                                                            <option disabled>Select Days</option>
+                                                            <option value="7">7 Days</option>
+                                                            <option value="15">15 Days</option>
+                                                            <option value="30" selected>1 Month</option>
+                                                            <option value="180">6 Months</option>
+                                                            <option value="365">1 Year</option>
+                                                        </select>
+                                                    </div>
 
-                                        </tbody>
-                                    </table>
+                                                    <div class="table-responsive scrollable-table" style="width: 100%">
+                                                        <table class="table mb-0  table-borderless w-100" width="100%"
+                                                            style="text-align: center">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Customer</th>
+                                                                    <th scope="col">Area</th>
+                                                                    <th scope="col">Reminder Date</th>
+                                                                    <th scope="col">Contact</th>
+                                                                    <th scope="col">Product</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="leaddata">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -119,131 +432,25 @@
                 </div>
             </div>
         </div>
-    @endif
-    @if (session('user_permissions.remindermodule.reminder.show') == '1')
-        <div id="content-page" class="content-page">
-            <div class="container-fluid">
-                <p>Reminder Dashboard</p>
-                <div class="row">
-                    <div class="col-md-6 col-lg-7">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
-                            <div class="iq-card-header d-flex justify-content-between">
-                                <div class="iq-header-title">
-                                    <h4 class="card-title">Status Chart</h4>
-                                </div>
-                            </div>
-                            <div class="iq-card-body">
-                                <div id="reminder-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-5">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height" style="background: transparent;">
-                            <div class="iq-card-body rounded p-0"
-                                style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
-                                <div class="iq-caption">
-                                    <h1 id="total_customers">0</h1>
-                                    <p>Total Customers</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
-                            <div class="iq-card-header d-flex justify-content-between">
-                                <div class="iq-header-title">
-                                    <h4 class="card-title">Reminders</h4>
-                                </div>
-                            </div>
-                            <div class="iq-card-body">
-                                <ul class="suggestions-lists m-0 p-0">
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-secondary btn-sm" id="pendingdata"><span><i
-                                                            class="ri-list-check"></i></span>PENDING</button></h6>
-                                        </div>
-                                        <div class="profile-icon iq-bg-secondary"><span id="pending">0</span></div>
-                                    </li>
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-danger btn-sm" id="inprogressdata"><span><i
-                                                            class="ri-list-check"></i></span>In Progress</button></h6>
-                                        </div>
-                                        <div class="profile-icon iq-bg-danger"><span id="inprogress">0</span></div>
-                                    </li>
-                                    <li class="d-flex mb-4 align-items-center">
-                                        <div class="media-support-info ml-3">
-                                            <h6><button class="btn btn-warning btn-sm" id="completeddata"><span><i
-                                                            class="ri-list-check"></i></span>Completed</button></h6>
-                                        </div>
-                                        <div class="profile-icon iq-bg-warning"><span id="completed">0</span></div>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-8">
-                        <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
-                            <div class="iq-card-header d-flex justify-content-between">
-                                <div class="iq-header-title">
-                                    <h4 class="card-title"><span id="status_title"></span>Upcoming Reminders </h4>
-                                </div>
-                            </div>
-                            <div class="iq-card-body">
-                                <div class="col-md-3 float-right my-1">
-                                    <select name="reminderbydays" id="reminderbydays" class="float-right form-control">
-                                        <option disabled>Select Days</option>
-                                        <option value="7">7 Days</option>
-                                        <option value="15">15 Days</option>
-                                        <option value="30" selected>1 Month</option>
-                                        <option value="180" >6 Months</option>
-                                        <option value="365" >1 Year</option>
-                                    </select>
-                                </div>
-
-                                <div class="table-responsive scrollable-table" style="width: 100%">
-                                    <table class="table mb-0  table-borderless w-100" width="100%"
-                                        style="text-align: center">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Customer</th>
-                                                <th scope="col">Area</th>
-                                                <th scope="col">Reminder Date</th>
-                                                <th scope="col">Contact</th>
-                                                <th scope="col">Product</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="reminderdata">
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+    </div>
 @endsection
-<!-- Page Content  -->
 
 @push('ajax')
-    @if (session('user_permissions.invoicemodule.invoice.show') == '1')
-        <script>
-            $('document').ready(function() {
-                // companyId and userId both are required in every ajax request for all action *************
-                // response status == 200 that means response succesfully recieved
-                // response status == 500 that means database not found
-                // response status == 422 that means api has not got valid or required data
 
-                var paiddata = '';
-                var pendingdata = '';
-                var canceldata = '';
-                var duedata = '';
+    <script>
+        $('document').ready(function() {
+            // companyId and userId both are required in every ajax request for all action *************
+            // response status == 200 that means response succesfully recieved
+            // response status == 500 that means database not found
+            // response status == 422 that means api has not got valid or required data
+
+
+
+            function invoicedashboard() {
+                var invoicepaiddata = '';
+                var invoicependingdata = '';
+                var invoicecanceldata = '';
+                var invoiceduedata = '';
                 // get all invoice
                 $.ajax({
                     type: 'get',
@@ -258,29 +465,29 @@
                         if (response.paid) {
                             paid = response.paid;
                             totalinv += parseInt(paid.length);
-                            $('#paid').text(paid.length)
-                            paiddata = response.paid;
+                            $('#invoicepaid').text(paid.length)
+                            invoicepaiddata = response.paid;
                         }
                         if (response.pending) {
                             pending = response.pending;
                             totalinv = parseInt(totalinv) + parseInt(pending.length);
-                            $('#pending').text(pending.length)
-                            pendingdata = response.pending
+                            $('#invoicepending').text(pending.length)
+                            invoicependingdata = response.pending
                             pendingd();
                         }
 
                         if (response.cancel) {
                             cancel = response.cancel;
                             totalinv = parseInt(totalinv) + parseInt(cancel.length);
-                            $('#cancel').text(cancel.length)
-                            canceldata = response.cancel;
+                            $('#invoicecancel').text(cancel.length)
+                            invoicecanceldata = response.cancel;
                         }
 
                         if (response.due) {
                             due = response.due;
                             totalinv = parseInt(totalinv) + parseInt(due.length);
-                            $('#due').text(due.length)
-                            duedata = response.due;
+                            $('invoice#due').text(due.length)
+                            invoiceduedata = response.due;
                         }
 
                         if (totalinv != '') {
@@ -295,11 +502,11 @@
 
                 // paid invoices
                 function paidd() {
-                    $('#data').html('');
+                    $('#invoicedata').html('');
                     $('#status_title').text('paid');
-                    if (paiddata != '') {
-                        $.each(paiddata, function(key, value) {
-                            $('#data').append(` <tr>
+                    if (invoicepaiddata != '') {
+                        $.each(invoicepaiddata, function(key, value) {
+                            $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
                                             <td>${value.inv_date}</td>
                                             <td class="text-right">${value.grand_total}</td>
@@ -309,18 +516,19 @@
                                         </tr>`);
                         });
                     } else {
-                        $('#data').append(`<tr><td colspan=6>still not any invoice paid in this month </td></tr>`)
+                        $('#invoicedata').append(
+                            `<tr><td colspan=6>still not any invoice paid in this month </td></tr>`)
                     }
 
                 }
                 // pending invoices
                 function pendingd() {
-                    $('#data').html('');
+                    $('#invoicedata').html('');
                     $('#status_title').text('pending');
-                    if (pendingdata != '') {
+                    if (invoicependingdata != '') {
 
-                        $.each(pendingdata, function(key, value) {
-                            $('#data').append(` <tr>
+                        $.each(invoicependingdata, function(key, value) {
+                            $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
                                             <td>${value.inv_date}</td>
                                             <td class="text-right">${value.grand_total}</td>
@@ -330,7 +538,7 @@
                                         </tr>`);
                         });
                     } else {
-                        $('#data').append(`<tr><td colspan=6'>No data Found</td></tr>`);
+                        $('#invoicedata').append(`<tr><td colspan=6'>No data Found</td></tr>`);
                     }
                 }
                 //call pending function when document load
@@ -338,11 +546,11 @@
 
                 // cancled invoices
                 function canceld() {
-                    $('#data').html('');
+                    $('#invoicedata').html('');
                     $('#status_title').text('canceld');
-                    if (canceldata != '') {
-                        $.each(canceldata, function(key, value) {
-                            $('#data').append(` <tr>
+                    if (invoicecanceldata != '') {
+                        $.each(invoicecanceldata, function(key, value) {
+                            $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
                                             <td>${value.inv_date}</td>                                        
                                             <td class="text-right">${value.grand_total}</td>
@@ -352,17 +560,18 @@
                                         </tr>`);
                         });
                     } else {
-                        $('#data').append(`<tr><td colspan=6>still not any invoice cancel in this month</td></tr>`)
+                        $('#invoicedata').append(
+                            `<tr><td colspan=6>still not any invoice cancel in this month</td></tr>`)
                     }
                 }
 
                 // overdue invoices
                 function dued() {
-                    $('#data').html('');
+                    $('#invoicedata').html('');
                     $('#status_title').text('over due');
-                    if (duedata != '') {
-                        $.each(duedata, function(key, value) {
-                            $('#data').append(` <tr>
+                    if (invoiceduedata != '') {
+                        $.each(invoiceduedata, function(key, value) {
+                            $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
                                             <td>${value.inv_date}</td>                                        
                                             <td class="text-right">${value.grand_total}</td>
@@ -372,20 +581,21 @@
                                         </tr>`);
                         });
                     } else {
-                        $('#data').append(`<tr><td colspan=6>still not any invoice overdue in this month</td></tr>`)
+                        $('#invoicedata').append(
+                            `<tr><td colspan=6>still not any invoice overdue in this month</td></tr>`)
                     }
                 }
 
-                $('#paidata').on('click', function() {
+                $('#invoicepaidata').on('click', function() {
                     paidd();
                 });
-                $('#pendingdata').on('click', function() {
+                $('#invoicependingdata').on('click', function() {
                     pendingd();
                 });
-                $('#canceldata').on('click', function() {
+                $('#invoicecanceldata').on('click', function() {
                     canceld();
                 });
-                $('#duedata').on('click', function() {
+                $('#invoiceduedata').on('click', function() {
                     dued();
                 });
 
@@ -411,10 +621,13 @@
                         },
                         success: function(invoicesData) {
                             // Ensure invoicesData is an array of objects with the expected properties
-                            if (Array.isArray(invoicesData) && invoicesData.length > 0 && invoicesData[0]
+                            if (Array.isArray(invoicesData) && invoicesData.length > 0 && invoicesData[
+                                    0]
                                 .hasOwnProperty('month') && invoicesData[0].hasOwnProperty(
-                                    'total_invoices') && invoicesData[0].hasOwnProperty('paid_invoices')) {
-                                const xAxisCategories = invoicesData.map(item => getMonthName(item.month));
+                                    'total_invoices') && invoicesData[0].hasOwnProperty('paid_invoices')
+                            ) {
+                                const xAxisCategories = invoicesData.map(item => getMonthName(item
+                                    .month));
 
                                 // Extract data for total and paid invoices, rainfall, and temperature
                                 const totalInvoicesData = invoicesData.map(item => parseInt(item
@@ -450,7 +663,10 @@
                                         color: "#827af3",
                                         type: "spline",
 
-                                    }]
+                                    }],
+                                    credits: {
+                                        enabled: false
+                                    },
                                 });
                             } else {
 
@@ -458,6 +674,9 @@
                                     '<p>You have no invoices to display.</p>';
 
                                 Highcharts.chart("invoice-chart", {
+                                    credits: {
+                                        enabled: false
+                                    },
                                     chart: {
                                         type: "spline",
                                     },
@@ -491,17 +710,10 @@
                 // Call the function to fetch data and draw the initial chart
                 fetchDataAndDrawChart();
                 loaderhide();
-            });
-        </script>
-    @endif
-    @if (session('user_permissions.remindermodule.reminder.show') == '1')
-        <script>
-            $('document').ready(function() {
-                // companyId and userId both are required in every ajax request for all action *************
-                // response status == 200 that means response succesfully recieved
-                // response status == 500 that means database not found
-                // response status == 422 that means api has not got valid or required data
+            }
 
+
+            function reminderdashboard() {
 
                 // get all reminders
                 $.ajax({
@@ -516,17 +728,17 @@
                         var totalreminders = 0;
                         if (response.pending) {
                             pending = response.pending;
-                            $('#pending').text(pending.length)
+                            $('#reminderpending').text(pending.length)
                         }
 
                         if (response.in_progress) {
                             in_progress = response.in_progress;
-                            $('#inprogress').text(in_progress.length)
+                            $('#reminderinprogress').text(in_progress.length)
                         }
 
                         if (response.completed) {
                             completed = response.completed;
-                            $('#completed').text(completed.length)
+                            $('#remindercompleted').text(completed.length)
                         }
                         if (response.status == 500) {
                             toastr.error(response.message);
@@ -594,9 +806,7 @@
                     getreminderbydays(days);
                 })
 
-                getreminderbydays( $('#reminderbydays').val());
-
-
+                getreminderbydays($('#reminderbydays').val());
 
 
                 // Function to map month numbers to month names
@@ -629,18 +839,21 @@
                                 .hasOwnProperty('month') && combinedData['customers'][0].hasOwnProperty(
                                     'total_customers')
                             ) {
-                                const xAxisCategories = combinedData['reminders'].map(item => getMonthName(
-                                    item.month));
+                                const xAxisCategories = combinedData['reminders'].map(item =>
+                                    getMonthName(
+                                        item.month));
 
                                 // Extract data for total and paid invoices, rainfall, and temperature
-                                const totalRemindersData = combinedData['reminders'].map(item => parseInt(
-                                    item
-                                    .total_reminders));
+                                const totalRemindersData = combinedData['reminders'].map(item =>
+                                    parseInt(
+                                        item
+                                        .total_reminders));
 
                                 // Extract data for total and paid invoices, rainfall, and temperature
-                                const totalCustomersData = combinedData['customers'].map(item => parseInt(
-                                    item
-                                    .total_customers));
+                                const totalCustomersData = combinedData['customers'].map(item =>
+                                    parseInt(
+                                        item
+                                        .total_customers));
 
                                 // Chart configuration for displaying monthly invoice counts, paid invoices, rainfall, and temperature with month names
                                 Highcharts.chart("reminder-chart", {
@@ -670,7 +883,10 @@
                                         color: "#827af3",
                                         type: "spline",
 
-                                    }]
+                                    }],
+                                    credits: {
+                                        enabled: false
+                                    },
                                 });
                             } else {
 
@@ -697,7 +913,10 @@
                                         color: "#827af3",
                                         type: "spline",
 
-                                    }]
+                                    }],
+                                    credits: {
+                                        enabled: false
+                                    },
                                 });
                                 console.error('Invalid data format received:', combinedData);
                             }
@@ -711,7 +930,21 @@
                 // Call the function to fetch data and draw the initial chart
                 fetchDataAndDrawChart();
                 loaderhide();
+
+            }
+
+            @if (session('menu') == 'invoice')
+                invoicedashboard();
+            @endif
+            @if (session('menu') == 'reminder')
+                reminderdashboard();
+            @endif
+            loaderhide();
+
+            $(document).on('click', '.dynamicdashboard', function() {
+                var currentdashboard = $(this).data('dashboard');
+                eval(currentdashboard + 'dashboard()');
             });
-        </script>
-    @endif
+        });
+    </script>
 @endpush

@@ -124,7 +124,6 @@
                                         </ul>
                                     </li>
                                 @endif
-
                             @endif
                             @if (session('user_permissions.invoicemodule.bank.show') == '1')
                                 <li class="{{ request()->routeIs('admin.bank') ? 'active' : '' }}">
@@ -139,6 +138,14 @@
                                     <a href="{{ route('admin.customer') }}" class="iq-waves-effect">
                                         <i class="ri-group-line"></i>
                                         <span>customers</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (session('user_permissions.reportmodule.report.show') == '1')
+                                <li class="{{ request()->routeIs('admin.report') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.report') }}" class="iq-waves-effect">
+                                        <i class="ri-file-copy-2-line"></i>
+                                        <span>Report</span>
                                     </a>
                                 </li>
                             @endif
@@ -168,7 +175,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.adminmodule.user.show') == '1')
+                            @if (session('user_permissions.adminmodule.techsupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.techsupport') ? 'active' : '' }}">
                                     <a href="{{ route('admin.techsupport') }}" class="iq-waves-effect">
                                         <i class="ri-mail-line"></i>
@@ -203,7 +210,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.remindermodule.reminder.show') == '1')
+                            @if (session('user_permissions.remindermodule.remindercustomer.show') == '1')
                                 <li class="{{ request()->routeIs('admin.remindercustomer') ? 'active' : '' }}">
                                     <a href="{{ route('admin.remindercustomer') }}" class="iq-waves-effect">
                                         <i class="ri-user-3-line"></i>
@@ -228,7 +235,6 @@
                             </a>
                         </li>
                     </ul>
-                </nav>
-                <div class="p-3"></div>
+                </nav> 
             </div>
         </div>

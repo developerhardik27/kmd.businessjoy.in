@@ -48,7 +48,7 @@
     @endsection
     @section('addnewbutton')
         <button class="btn btn-sm btn-primary">
-            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">+ Add
+            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">+ Create
                 New</span>
         </button>
     @endsection
@@ -93,18 +93,17 @@
                             placeholder="token" required />
                         <input type="hidden" name="inv_id" id="inv_id">
                         <input type="text" name="transid" class="form-control" id="transid"
-                            placeholder="Transaction id" required />
+                            placeholder="Transaction id" />
                         <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
                         <input type="number" name="paidamount" class="form-control" id="paidamount" placeholder="Amount"
                             required />
                         <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
                         <input type="text" name="paid_by" class="form-control" id="paid_by" placeholder="paid by" />
                         <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
-                        <select class="form-control" name="payment_type" id="payment_type" required>
+                        <select class="form-control" name="payment_type" id="payment_type">
                             <option selected="" disabled="">Select payment type</option>
                             <option value="Online Payment">Online Payment</option>
                             <option value="Cash">Cash</option>
-                            <option value="Net-Banking">Net-Banking</option>
                             <option value="Check">Check</option>
                         </select>
                         <span class="modal_error-msg" id="error-payment_type" style="color: red"></span><br>
@@ -128,6 +127,11 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+
+            @if (Session::has('message'))
+                toastr.error('You have not any column for download this invoice');
+            @endif
+
             var global_response = '';
             // function for  get customers data and set it table
             function loaddata() {
@@ -178,41 +182,41 @@
                                                         </td>
                                                         <td>
                                                             ${(value.status != 'paid') ? `
-                                                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                                                                                        <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
-                                                                                                            <i class='ri-paypal-fill'></i>
-                                                                                                        </button>
-                                                                                                    </span>
-                                                                                         ` : ''
+                                                                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                                                                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
+                                                                                                                <i class='ri-paypal-fill'></i>
+                                                                                                            </button>
+                                                                                                        </span>
+                                                                                             ` : ''
                                                             }
                                                             ${(value.part_payment == 1 && value.status == 'paid' && value.pending_amount != null) ? `    
-                                                                                <span> 
-                                                                                    <a href=/admin/generaterecieptall/${value.id} target='_blank'>
-                                                                                            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
-                                                                                                <i class="ri-download-line"></i>
-                                                                                            </button>
-                                                                                    </a>
-                                                                                </span>
-                                                                ` : ''
+                                                                                    <span> 
+                                                                                        <a href=/admin/generaterecieptall/${value.id} target='_blank'>
+                                                                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
+                                                                                                    <i class="ri-download-line"></i>
+                                                                                                </button>
+                                                                                        </a>
+                                                                                    </span>
+                                                                    ` : ''
                                                             }
                                                             ${(value.part_payment == 1) ? `    
-                                                                                            <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                                                                                <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                                                                        <i class='ri-eye-fill'></i> 
-                                                                                                </button> 
-                                                                                            </span>
-                                                                                         ` : ''
+                                                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
+                                                                                                            <i class='ri-eye-fill'></i> 
+                                                                                                    </button> 
+                                                                                                </span>
+                                                                                             ` : ''
                                                             }
                                                             
                                                             ${(value.part_payment == 0 && value.status == 'paid') ? `    
-                                                                                <span> 
-                                                                                    <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
-                                                                                        <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                                                            <i class="ri-download-line"></i>
-                                                                                        </button>
-                                                                                    </a>
-                                                                                </span>
-                                                                 ` : ''
+                                                                                    <span> 
+                                                                                        <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
+                                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                                                                <i class="ri-download-line"></i>
+                                                                                            </button>
+                                                                                        </a>
+                                                                                    </span>
+                                                                     ` : ''
                                                             }
                                                             
                                                           
@@ -286,15 +290,15 @@
                             user_id: " {{ session()->get('user_id') }} "
                         },
                         success: function(response) {
-                                if (response.status == 200) {
-                                    toastr.success(response.message)
-                                    loaddata();
-                                } else if (response.status == 500) {
-                                    toastr.error(response.message);
-                                } else {
-                                    toastr.error('Invoice not Delete');
-                                }
-                                loaderhide();
+                            if (response.status == 200) {
+                                toastr.success(response.message)
+                                loaddata();
+                            } else if (response.status == 500) {
+                                toastr.error(response.message);
+                            } else {
+                                toastr.error('Invoice not Delete');
+                            }
+                            loaderhide();
                         },
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
@@ -398,12 +402,12 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            console.log(response.payment) 
-                                $('#paidamount').val(response.payment[0].pending_amount);
-                                $('#paidamount').attr('max', response.payment[0].pending_amount);
-                        } else{
+                            console.log(response.payment)
+                            $('#paidamount').val(response.payment[0].pending_amount);
+                            $('#paidamount').attr('max', response.payment[0].pending_amount);
+                        } else {
                             $('#paidamount').val(amount);
-                                $('#paidamount').attr('max', amount);
+                            $('#paidamount').attr('max', amount);
                         }
                         loaderhide();
                     },
@@ -453,7 +457,7 @@
                                         </td>
                                     </tr>
                                 `)
-                                
+
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();

@@ -2,12 +2,20 @@
   .mock-p-0{
     padding: 0 20px !important;
   }
+  #img1 {
+    position: relative;
+    bottom: 0px !important;
+}
 }
 
 @media only screen and (min-width:481px) and (max-width:768px) {
     .mock-p-0{
       padding: 0 20px !important;
     }
+    #img1 {
+      position: relative;
+      bottom: 0px !important;
+  }
   }
 
   @media only screen and (min-width:769px) and (max-width:1024px) {

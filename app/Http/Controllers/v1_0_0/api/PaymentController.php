@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class PaymentController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname,$invoiceModel,$payment_detailsModel;
+    public $userId, $companyId, $masterdbname, $invoiceModel, $payment_detailsModel;
 
     public function __construct(Request $request)
     {
@@ -70,7 +70,7 @@ class PaymentController extends commonController
 
         $payment = DB::connection('dynamic_connection')->table('payment_details')
             ->where('inv_id', $id)
-            ->orderBy('id','desc')
+            ->orderBy('id', 'desc')
             ->limit(1)
             ->get();
 
@@ -125,19 +125,20 @@ class PaymentController extends commonController
 
         $validator = Validator::make($request->all(), [
             'inv_id' => 'required',
-            'transid' => 'required|string|max:50'
+            'paidamount' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ],422);
+            ], 422);
         } else {
 
             $invoiceammount = $this->invoiceModel::find($request->inv_id);
             $invoicepaidamount = $this->payment_detailsModel::where('inv_id', $request->inv_id)->where('part_payment', 1)->get();
 
+            $receipt_number = date('dHm') . str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT) . date('is');
             if ($invoicepaidamount->count() > 0) {
                 $total_paided_amount = 0;
                 foreach ($invoicepaidamount as $value) {
@@ -157,6 +158,7 @@ class PaymentController extends commonController
                     $payment_details = $this->payment_detailsModel::insert(
                         [
                             'inv_id' => $request->inv_id,
+                            'receipt_number' => $receipt_number,
                             'transaction_id' => $request->transid,
                             'amount' => $total,
                             'paid_amount' => $paidamount,
@@ -192,6 +194,7 @@ class PaymentController extends commonController
                         $payment_details = $this->payment_detailsModel::insert(
                             [
                                 'inv_id' => $request->inv_id,
+                                'receipt_number' => $receipt_number,
                                 'transaction_id' => $request->transid,
                                 'amount' => $total,
                                 'paid_amount' => $paidamount,
@@ -207,6 +210,7 @@ class PaymentController extends commonController
                         $payment_details = $this->payment_detailsModel::insert(
                             [
                                 'inv_id' => $request->inv_id,
+                                'receipt_number' => $receipt_number,
                                 'transaction_id' => $request->transid,
                                 'amount' => $total,
                                 'paid_amount' => $paidamount,

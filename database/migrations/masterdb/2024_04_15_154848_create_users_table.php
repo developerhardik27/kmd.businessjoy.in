@@ -25,6 +25,8 @@ return new class extends Migration
             $table->integer('company_id');
             $table->integer('role')->default('2');
             $table->string('img',100)->nullable();
+            $table->string('default_module',50)->nullable();
+            $table->string('default_page',50)->nullable();
             $table->string('api_token',60)->nullable();
             $table->string('pass_token',40)->nullable();
             $table->integer('created_by');

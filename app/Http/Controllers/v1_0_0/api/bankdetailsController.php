@@ -38,13 +38,11 @@ class bankdetailsController extends commonController
     {
         $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('id', $id);
 
-        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
-            $bankdetailres->where('created_by', $this->userId);
-        }
+        
         $bankdetail = $bankdetailres->get();
 
         if ($bankdetail->count() > 0) {
-            if ($this->rp['invoicemodule']['bank']['view'] == 1) {
+            if ($this->rp['invoicemodule']['bank']['view'] == 1 || $this->rp['reportmodule']['report']['view'] == 1) {
                 return response()->json([
                     'status' => 200,
                     'bankdetail' => $bankdetail
@@ -65,7 +63,7 @@ class bankdetailsController extends commonController
 
     public function bank_details(string $id)
     {
-        if ($this->rp['invoicemodule']['bank']['view'] != 1) {
+        if ($this->rp['invoicemodule']['bank']['view'] != 1 ) {
 
             return response()->json([
                 'status' => 500,

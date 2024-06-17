@@ -31,12 +31,12 @@ class CheckSession
             }
             if (!isset($_SESSION['folder_name'])) {
 
-                $routename =['admin.login', 'admin.authenticate','admin.forgot','admin.forgotpassword','admin.resetpassword','admin.post_resetpassword','admin.setpassword','admin.post_setpassword'];
-                if (!in_array($request->route()->getName(), $routename)) {
-                    // Redirect to the 'admin.login' route
-                    Auth::guard('admin')->logout();
-                    return redirect()->route('admin.login')->with('error', 'Session Expired');
-                }
+                // $routename =['admin.login', 'admin.authenticate','admin.forgot','admin.forgotpassword','admin.resetpassword','admin.post_resetpassword','admin.setpassword','admin.post_setpassword','admin.new'];
+                // if (!in_array($request->route()->getName(), $routename)) {
+                //     // Redirect to the 'admin.login' route
+                // }
+                Auth::guard('admin')->logout();
+                return redirect()->route('admin.login')->with('error', 'Session Expired');
 
             }
 

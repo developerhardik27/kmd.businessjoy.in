@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class tblinvoicecolumnController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp,$tbl_invoice_columnModel;
+    public $userId, $companyId, $masterdbname, $rp, $tbl_invoice_columnModel;
 
     public function __construct(Request $request)
     {
@@ -70,8 +70,9 @@ class tblinvoicecolumnController extends commonController
 
     public function column_details(string $id)
     {
-        
-        $columndetails = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->where('is_deleted', 0)->get();;
+
+        $columndetails = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->where('is_deleted', 0)->get();
+        ;
 
 
         if ($columndetails->count() > 0) {
@@ -105,7 +106,7 @@ class tblinvoicecolumnController extends commonController
         $invoicecolumn = $this->tbl_invoice_columnModel::orderBy('column_order')
             ->where('is_deleted', 0)->get();
 
-       
+
         if ($invoicecolumn->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -149,7 +150,7 @@ class tblinvoicecolumnController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ],422);
+            ], 422);
         } else {
             //condition for check if user has permission to add record
             if ($this->rp['invoicemodule']['mngcol']['add'] != 1) {
@@ -189,13 +190,13 @@ class tblinvoicecolumnController extends commonController
                 $tablename = 'mng_col';
                 $columnname = str_replace(' ', '_', $request->column_name);
                 $maxColumnOrder = $this->tbl_invoice_columnModel::where('is_deleted', 0)->max('column_order');
-                 $columnsequence = 1 ;
-                 if($maxColumnOrder){
+                $columnsequence = 1;
+                if ($maxColumnOrder) {
                     $columnsequence = ++$maxColumnOrder;
-                 }
+                }
 
                 if (DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType")) {
-                   
+
                     $invoicecolumn = $this->tbl_invoice_columnModel::create([
                         'column_name' => $request->column_name,
                         'column_type' => $request->column_type,
@@ -326,7 +327,7 @@ class tblinvoicecolumnController extends commonController
             return response()->json([
                 'status' => 422,
                 'errors' => $validator->messages()
-            ],422);
+            ], 422);
         } else {
 
             //condition for check if user has permission to search record
@@ -350,6 +351,47 @@ class tblinvoicecolumnController extends commonController
 
             if ($invoicecolumn) {
                 date_default_timezone_set('Asia/Kolkata');
+
+
+
+                $columnTypes = [
+                    'text' => 'varchar(255)',
+                    'longtext' => 'longtext',
+                    'number' => 'int',
+                    'decimal' => 'decimal(10,2)', // Adjust precision and scale as needed
+                    'percentage' => 'float(4,2)' // Adjust precision and scale as needed
+                ];
+                $columnType = $columnTypes[$request->column_type];
+                $oldcolumnvaluewithoutchange = $invoicecolumn->column_name; // for formula table change 
+                $oldcolumnname = str_replace(' ', '_', $invoicecolumn->column_name);
+                $columnname = str_replace(' ', '_', $request->column_name);
+
+                // change column name in mng_col table who storing invoices data
+                DB::connection('dynamic_connection')->statement("ALTER TABLE mng_col CHANGE  $oldcolumnname $columnname $columnType");
+
+                // replace old column name with new columnname in invoice table > show_col column
+                DB::connection('dynamic_connection')
+                    ->table('invoices')
+                    ->whereRaw("show_col LIKE '%$oldcolumnname%'")
+                    ->update(['show_col' => DB::raw("REPLACE(show_col, '$oldcolumnname', '$columnname')")]);
+
+
+                // change column name in formula table
+                DB::connection('dynamic_connection')
+                    ->table('tbl_invoice_formulas')
+                    ->where(function ($query) use ($oldcolumnvaluewithoutchange) {
+                        $query->where('first_column', 'LIKE', "%$oldcolumnvaluewithoutchange%")
+                            ->orWhere('second_column', 'LIKE', "%$oldcolumnvaluewithoutchange%")
+                            ->orWhere('output_column', 'LIKE', "%$oldcolumnvaluewithoutchange%");
+                    })
+                    ->update([
+                        'first_column' => DB::raw("REPLACE(first_column, '$oldcolumnvaluewithoutchange', '$request->column_name')"),
+                        'second_column' => DB::raw("REPLACE(second_column, '$oldcolumnvaluewithoutchange', '$request->column_name')"),
+                        'output_column' => DB::raw("REPLACE(output_column, '$oldcolumnvaluewithoutchange', '$request->column_name')")
+                    ]);
+
+
+                // update column name in tbl invoice column 
                 $invoicecolumn->update([
                     'column_name' => $request->column_name,
                     'column_type' => $request->column_type,
@@ -384,64 +426,72 @@ class tblinvoicecolumnController extends commonController
             ]);
         }
 
-        $fetchcolumnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('column_name')->where('id', $id)->first();
-        if ($fetchcolumnname) {
-            $columname = $fetchcolumnname->column_name;
-            $tablename = 'mng_col';
+        // fetch column data from tbl invoice column table
+        $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
 
-            if (Schema::connection('dynamic_connection')->hasColumn($tablename, $columname)) {
-                $checkrec = DB::connection('dynamic_connection')->table($tablename)->select($columname)->get();
-                if ($checkrec->count() > 0) {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'This column has data so you can not delete this column!'
-                    ]);
-                } else {
-
-                    DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename DROP COLUMN $columname");
-                    $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
-                    $invoicecolumn->update([
-                        'is_deleted' => 1
-                    ]);
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Invoice Column succesfully deleted'
-                    ]);
-                }
-            } else {
-
-                $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
-
-                if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
-                    if ($invoicecolumn->created_by != $this->userId) {
-                        return response()->json([
-                            'status' => 500,
-                            'message' => "You are Unauthorized!"
-                        ]);
-                    }
-                }
-
-                if ($invoicecolumn) {
-                    $invoicecolumn->update([
-                        'is_deleted' => 1
-                    ]);
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Invoice Column succesfully deleted'
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'No Such Invoice Column Found!'
-                    ]);
-                }
+        if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
+            if ($invoicecolumn->created_by != $this->userId) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => "You are Unauthorized!"
+                ]);
             }
+        }
+         // if column data found
+        if ($invoicecolumn) {
+
+            $tablename = 'mng_col';
+            $columname = $invoicecolumn->column_name;
+            $modifiedcolumname = str_replace(' ', '_', $invoicecolumn->column_name);
+            
+            // check if column is using or not into formula if it is using then user will not able to delete it
+            $checkrec = DB::connection('dynamic_connection')
+                ->table('tbl_invoice_formulas')
+                ->where(function ($query) use ($columname) {
+                    $query->where('first_column', 'LIKE', "%$columname%")
+                        ->orWhere('second_column', 'LIKE', "%$columname%")
+                        ->orWhere('output_column', 'LIKE', "%$columname%");
+                })->where('is_deleted', 0)
+                ->get();
+            if ($checkrec->count() > 0) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'This column is using in Formula so please first remove it from formula!'
+                ]);
+            }
+
+            // drop column from mng col table it is it exist
+            if (Schema::connection('dynamic_connection')->hasColumn($tablename, $modifiedcolumname)) {
+                DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename DROP COLUMN $modifiedcolumname");
+            }
+
+            // remove column name from invoice table  > show_col table
+            DB::connection('dynamic_connection')
+            ->table('invoices')
+            ->whereRaw("show_col LIKE '%$modifiedcolumname,%'") // Match when the old column is not the last column
+            ->orWhereRaw("show_col LIKE '$modifiedcolumname,%'") // Match when the old column is the last column
+            ->orWhereRaw("show_col LIKE '%$modifiedcolumname'") // Match when the old column is the first or only column
+            ->update([
+                'show_col' => DB::raw("TRIM(BOTH ',' FROM REPLACE(CONCAT(',', show_col, ','), ',$modifiedcolumname,', ','))")
+            ]);
+
+
+            // change column status is deleted = 1 that means column is deleted
+            $invoicecolumn->update([
+                'is_deleted' => 1
+            ]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Invoice Column succesfully deleted'
+            ]);
         } else {
             return response()->json([
                 'status' => 404,
                 'message' => 'No Such Invoice Column Found!'
             ]);
         }
+
+
     }
 
 

@@ -137,6 +137,7 @@ Route::middleware($middleware)->group(function () {
         Route::get('/userprofile', [$userController, 'userprofile'])->name('user.profile');
         Route::get('/customersupportuser', [$userController, 'customersupportuser'])->name('user.customersupportindex');
         Route::get('/leaduser', [$userController, 'leaduser'])->name('user.leaduserindex');
+        Route::get('/invoiceuser', [$userController, 'invoiceuser'])->name('user.invoiceuserindex');
         Route::get('/techsupportuser', [$userController, 'techsupportuser'])->name('user.techsupportindex');
         Route::get('/user', [$userController, 'index'])->name('user.index');
         Route::post('/user/insert', [$userController, 'store'])->name('user.store');
@@ -145,6 +146,8 @@ Route::middleware($middleware)->group(function () {
         Route::put('/user/statusupdate/{id}', [$userController, 'statusupdate'])->name('user.statusupdate');
         Route::post('/user/update/{id}', [$userController, 'update'])->name('user.update');
         Route::put('/user/delete/{id}', [$userController, 'destroy'])->name('user.delete');
+        Route::post('/user/changepassword/{id}', [$userController, 'changepassword'])->name('user.changepassword');
+        Route::post('/user/setdefaultpage/{id}', [$userController, 'setdefaultpage'])->name('user.setdefaultpage');
     });
 
 
@@ -221,6 +224,8 @@ Route::middleware($middleware)->group(function () {
         Route::put('/invoice/delete/{id}', [$invoiceController, 'destroy'])->name('invoice.delete');
         Route::get('status_list', [$invoiceController, 'status_list'])->name('invoice.status_list');
         Route::get('chart', [$invoiceController, 'monthlyInvoiceChart'])->name('invoice.chart');
+        Route::get('/reportlogs', [$invoiceController, 'reportlogsdetails'])->name('report.logs');
+        Route::put('/reportlog/delete/{id}', [$invoiceController, 'reportlogdestroy'])->name('report.delete');
     });
 
     //payment_details route 
@@ -329,7 +334,9 @@ Route::middleware($middleware)->group(function () {
     $tblinvoiceothersettingController = getversion('tblinvoiceothersettingController');
     Route::group([], function () use ($tblinvoiceothersettingController) {
         Route::get('/getoverduedays', [$tblinvoiceothersettingController, 'getoverduedays'])->name('getoverduedays.index');
+        Route::get('/invoicenumberpatterns', [$tblinvoiceothersettingController, 'invoicenumberpatternindex'])->name('invoicenumberpatterns.index');
         Route::post('/getoverduedays/update/{id}', [$tblinvoiceothersettingController, 'overduedayupdate'])->name('getoverduedays.update');
+        Route::post('/invoicepattern/update', [$tblinvoiceothersettingController, 'invoicepatternstore'])->name('invoicepattern.store');
         Route::post('/gstsettings/update/{id}', [$tblinvoiceothersettingController, 'gstsettingsupdate'])->name('gstsettingsupdate.update');
         Route::get('/termsandconditions', [$tblinvoiceothersettingController, 'termsandconditionsindex'])->name('termsandconditions.index');
         Route::post('/termsandconditions/insert', [$tblinvoiceothersettingController, 'invoicetcstore'])->name('termsandconditions.store');
@@ -337,6 +344,7 @@ Route::middleware($middleware)->group(function () {
         Route::post('/termsandconditions/update/{id}', [$tblinvoiceothersettingController, 'tcupdate'])->name('termsandconditions.update');
         Route::put('/termsandconditions/statusupdate/{id}', [$tblinvoiceothersettingController, 'tcstatusupdate'])->name('termsandconditions.statusupdate');
         Route::put('/termsandconditions/delete/{id}', [$tblinvoiceothersettingController, 'tcdestroy'])->name('termsandconditions.delete');
+        Route::post('/customerid', [$tblinvoiceothersettingController, 'customeridstore'])->name('customerid.store');
     });
 
 
@@ -378,4 +386,5 @@ Route::middleware($middleware)->group(function () {
 
 Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
 Route::post('/Addlead',[otherapiController::class,'oceanlead'])->name('ocean.lead');
-
+Route::post('/Addfblead',[otherapiController::class,'fblead'])->name('ocean.fblead');
+Route::post('/track-activity', [otherapiController::class, 'store']);

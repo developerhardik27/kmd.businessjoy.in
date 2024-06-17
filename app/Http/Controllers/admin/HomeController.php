@@ -28,7 +28,6 @@ class HomeController extends Controller
 
     public function index()
     {
-
         return view($this->version . '.admin.index');
     }
 
@@ -41,24 +40,8 @@ class HomeController extends Controller
             ->where('id', session('user_id'))
             ->update(['api_token' => null]);
 
-        $request->session()->forget([
-            'admin_role',
-            'user_id',
-            'company_id',
-            'name',
-            'img',
-            'api_token',
-            'invoice',
-            'menu',
-            'lead',
-            'customersupport',
-            'account',
-            'admin',
-            'inventory',
-            'reminder',
-            'user_permissions',
-            'folder_name'
-        ]);
+            $request->session()->flush();
+
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
         session_destroy();
@@ -70,23 +53,8 @@ class HomeController extends Controller
     public function singlelogout(Request $request)
     {
 
-        $request->session()->forget([
-            'admin_role',
-            'user_id',
-            'company_id',
-            'name',
-            'img',
-            'api_token',
-            'invoice',
-            'menu',
-            'lead',
-            'customersupport',
-            'account',
-            'admin',
-            'inventory',
-            'user_permissions',
-            'folder_name'
-        ]);
+       $request->session()->flush();
+       
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
         session_destroy();

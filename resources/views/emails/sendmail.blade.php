@@ -515,15 +515,14 @@
 
                                                                             <p
                                                                                 style="margin: 0; font-size: 14px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 17px; letter-spacing: 1px; margin-top: 0; margin-bottom: 0;">
-                                                                                <a href="#"
+                                                                                <a href="{{route('privacypolicy')}}"
                                                                                     style="text-decoration: none">Privacy
                                                                                     & Policy</a> |
-                                                                                <a href="#"
+                                                                                <a href="{{route('termsandconditions')}}"
                                                                                     style="text-decoration: none">Terms
                                                                                     and conditions</a>|
-                                                                                <a href="tel:0797948558535"
-                                                                                    style="text-decoration: none">079
-                                                                                    7948558535</a> |
+                                                                                <a href="tel:+917948558535"
+                                                                                    style="text-decoration: none">+91 7948558535</a> |
                                                                                 <a href="mailto:support@businessjoy.com"
                                                                                     style="text-decoration: none">support@businessjoy.com</a>
                                                                             </p>
