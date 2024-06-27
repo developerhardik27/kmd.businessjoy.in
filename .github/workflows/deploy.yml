@@ -1,25 +1,35 @@
-name: Deploy
+name: Deploy to Server
 
-# Trigger the workflow on push and
-# pull request events on the master branch
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    branches:
+      - main  # Replace with your branch name
 
-# Authenticate to the the server via ssh
-# and run our deployment script
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to Server
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          script: "cd /home/parth_staging/htdocs/staging.businessjoy.in && ./.scripts/deploy.sh "
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /htdocs/staging.businessjoy.in/
+            php artisan down
+            git pull origin main  # Adjust branch name if needed
+            php artisan up
