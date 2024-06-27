@@ -240,7 +240,6 @@
             });
 
 
-         
             // submit form data
             $('#blogform').submit(function(event) {
                 event.preventDefault();
