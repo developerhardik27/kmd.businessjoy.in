@@ -31,35 +31,23 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 
 // middleware route group 
 
-$request = request();
-$user = null;
-$version = null;
-
+// Resolve middleware dynamically based on version
+$middlewareNamespace = 'App\\Http\\Middleware\\';
 try {
-    // Check if the user exists
-    if ($request->has('user_id')) {
-        // Retrieve the user if the user_id exists in the request
-        $user = User::find($request->user_id);
-    }
-
-    // If the user exists, retrieve the company's version
-    if ($user) {
-        $version = Company::find($user->company_id);
-    }
-
-    // Determine the version based on whether the user and version exist
+    // Retrieve the user and company version
+    $user = $request->has('user_id') ? User::find($request->user_id) : null;
+    $version = $user ? Company::find($user->company_id) : null;
     $versionexplode = $version ? $version->app_version : "v1_0_0";
 } catch (\Exception $e) {
-    // Handle database connection or query exception
-    // For example, log the error or display a friendly message
-    $versionexplode = "v1_0_0"; // Set a default version
+    // Log the error or handle gracefully
+    $versionexplode = "v1_0_0"; // Default version in case of error
 }
-$middlewareNamespace = 'App\\Http\\Middleware\\' . $versionexplode . '\\';
 
-$middleware = $middlewareNamespace . 'CheckToken';
+$middlewareClass = $middlewareNamespace . $versionexplode . '\\CheckToken';
 
 
-Route::middleware($middleware)->group(function () {
+
+Route::middleware($middlewareClass)->group(function () {
 
     function getversion($controller)
     {
@@ -151,18 +139,18 @@ Route::middleware($middleware)->group(function () {
     });
 
 
-     // customer suppport route 
-     $techsupportController = getversion('techsupportController');
-     Route::group([], function () use ($techsupportController) {
-         Route::get('/techsupport', [$techsupportController, 'index'])->name('techsupport.index');
-         Route::post('/techsupport/insert', [$techsupportController, 'store'])->name('techsupport.store');
-         Route::get('/techsupport/search/{id}', [$techsupportController, 'show'])->name('techsupport.search');
-         Route::get('/techsupport/edit/{id}', [$techsupportController, 'edit'])->name('techsupport.edit');
-         Route::post('/techsupport/update/{id}', [$techsupportController, 'update'])->name('techsupport.update');
-         Route::put('/techsupport/delete', [$techsupportController, 'destroy'])->name('techsupport.delete');
-         Route::put('/techsupport/changestatus', [$techsupportController, 'changestatus'])->name('techsupport.changestatus');
-         Route::put('/techsupport/changeleadstage', [$techsupportController, 'changeleadstage'])->name('techsupport.changeleadstage');
-     });
+    // customer suppport route 
+    $techsupportController = getversion('techsupportController');
+    Route::group([], function () use ($techsupportController) {
+        Route::get('/techsupport', [$techsupportController, 'index'])->name('techsupport.index');
+        Route::post('/techsupport/insert', [$techsupportController, 'store'])->name('techsupport.store');
+        Route::get('/techsupport/search/{id}', [$techsupportController, 'show'])->name('techsupport.search');
+        Route::get('/techsupport/edit/{id}', [$techsupportController, 'edit'])->name('techsupport.edit');
+        Route::post('/techsupport/update/{id}', [$techsupportController, 'update'])->name('techsupport.update');
+        Route::put('/techsupport/delete', [$techsupportController, 'destroy'])->name('techsupport.delete');
+        Route::put('/techsupport/changestatus', [$techsupportController, 'changestatus'])->name('techsupport.changestatus');
+        Route::put('/techsupport/changeleadstage', [$techsupportController, 'changeleadstage'])->name('techsupport.changeleadstage');
+    });
 
 
     //country route
@@ -381,10 +369,53 @@ Route::middleware($middleware)->group(function () {
         Route::get('/reminder/chart', [$reminderController, 'monthlyInvoiceChart'])->name('reminder.chart');
     });
 
+    // blog category route
+    $blogcategoryController = getversion('blogcategoryController');
+    Route::group([], function () use ($blogcategoryController) {
+        Route::get('/blogcategory', [$blogcategoryController, 'index'])->name('blogcategory.index');
+        Route::post('/blogcategory/insert', [$blogcategoryController, 'store'])->name('blogcategory.store');
+        Route::get('/blogcategory/search/{id}', [$blogcategoryController, 'show'])->name('blogcategory.search');
+        Route::get('/blogcategory/edit/{id}', [$blogcategoryController, 'edit'])->name('blogcategory.edit');
+        Route::post('/blogcategory/update/{id}', [$blogcategoryController, 'update'])->name('blogcategory.update');
+        Route::put('/blogcategory/delete/{id}', [$blogcategoryController, 'destroy'])->name('blogcategory.delete');
+    });
+
+    // blog tag route
+    $blogtagController = getversion('blogtagController');
+    Route::group([], function () use ($blogtagController) {
+        Route::get('/blogtag', [$blogtagController, 'index'])->name('blogtag.index');
+        Route::post('/blogtag/insert', [$blogtagController, 'store'])->name('blogtag.store');
+        Route::get('/blogtag/search/{id}', [$blogtagController, 'show'])->name('blogtag.search');
+        Route::get('/blogtag/edit/{id}', [$blogtagController, 'edit'])->name('blogtag.edit');
+        Route::post('/blogtag/update/{id}', [$blogtagController, 'update'])->name('blogtag.update');
+        Route::put('/blogtag/delete/{id}', [$blogtagController, 'destroy'])->name('blogtag.delete');
+    });
+
+    // blog  route
+    $blogController = getversion('blogController');
+    Route::group([], function () use ($blogController) {
+        Route::get('/blog', [$blogController, 'index'])->name('blog.index');
+        Route::post('/blog/insert', [$blogController, 'store'])->name('blog.store');
+        Route::get('/blog/search/{id}', [$blogController, 'show'])->name('blog.search');
+        Route::get('/blog/edit/{id}', [$blogController, 'edit'])->name('blog.edit');
+        Route::post('/blog/update/{id}', [$blogController, 'update'])->name('blog.update');
+        Route::put('/blog/delete/{id}', [$blogController, 'destroy'])->name('blog.delete');
+    });
+
+    // api_authorization  route
+    $apiauthorizationController = getversion('apiauthorizationController');
+    Route::group([], function () use ($apiauthorizationController) {
+        Route::get('/apiauthorization', [$apiauthorizationController, 'index'])->name('apiauthorization.index');
+        Route::post('/apiauthorization/insert', [$apiauthorizationController, 'store'])->name('apiauthorization.store');
+        Route::get('/apiauthorization/search/{id}', [$apiauthorizationController, 'show'])->name('apiauthorization.search');
+        Route::get('/apiauthorization/edit/{id}', [$apiauthorizationController, 'edit'])->name('apiauthorization.edit');
+        Route::post('/apiauthorization/update/{id}', [$apiauthorizationController, 'update'])->name('apiauthorization.update');
+        Route::put('/apiauthorization/delete/{id}', [$apiauthorizationController, 'destroy'])->name('apiauthorization.delete');
+    });
+
 });
 
-
 Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
-Route::post('/Addlead',[otherapiController::class,'oceanlead'])->name('ocean.lead');
-Route::post('/Addfblead',[otherapiController::class,'fblead'])->name('ocean.fblead');
+Route::post('/Addlead', [otherapiController::class, 'oceanlead'])->name('ocean.lead');
+Route::post('/Addfblead', [otherapiController::class, 'fblead'])->name('ocean.fblead');
 Route::post('/track-activity', [otherapiController::class, 'store']);

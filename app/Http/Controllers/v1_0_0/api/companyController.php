@@ -400,7 +400,10 @@ class companyController extends commonController
                             ],
                             "reportmodule" => [
                                 "report" => ["show" => "0", "add" =>"0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => null, "log" => "0"]
-                            ]
+                            ],
+                            "blogmodule" => [
+                                "blog" => ["show" => "0", "add" =>"0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0",]
+                            ],
                         ];
 
                         $rpjson = json_encode($rp);

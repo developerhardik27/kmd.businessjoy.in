@@ -9,14 +9,14 @@ use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/welcomemail',function(){
+Route::get('/welcomemail', function () {
     return view('welcomemail');
 });
-Route::get('/invoicetemplate',function(){
+Route::get('/invoicetemplate', function () {
     return view('v1_0_0.admin.invoicetemplate');
 });
 
- 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -61,8 +61,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 return redirect()->route('admin.login')->with('error', 'Session Expired');
             }
         })->name('admin.welcome');
-   
-        
+
+
 
         Route::get('/setmenusession', [AdminLoginController::class, 'setmenusession'])->name('admin.setmenusession');
         Route::group(['middleware' => 'admin.guest'], function () {
@@ -85,7 +85,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             {
                 if (session_status() !== PHP_SESSION_ACTIVE)
                     session_start();
-                if (isset ($_SESSION['folder_name'])) {
+                if (isset($_SESSION['folder_name'])) {
                     $version = $_SESSION['folder_name'];
                     return 'App\\Http\\Controllers\\' . $version . '\\admin\\' . $controller;
                 } else {
@@ -111,7 +111,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/companyprofile/{id}', [$CompanyController, 'companyprofile'])->name('admin.companyprofile');
                 Route::get('/EditCompanyprofile/{id}', [$CompanyController, 'editcompany'])->name('admin.editcompanyprofile')->middleware('checkPermission:adminmodule,company,edit');
                 Route::put('/UpdateCompany/{id}', [$CompanyController, 'update'])->name('admin.updatecompany')->middleware('checkPermission:adminmodule,company,edit');
-                // Route::put('/DeleteCompany/{id}','destroy')->name('admin.deletecompany');           
+                // Route::put('/DeleteCompany/{id}','destroy')->name('admin.deletecompany'); 
+                Route::get('/ApiAuthorization', [$CompanyController, 'api_authorization'])->name('admin.api_authorization');
             });
 
             // user route 
@@ -176,7 +177,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/report', [$ReportController, 'index'])->name('admin.report');
             });
             // invoice module routes end -----
-            
+
             // inventory module routes start 
             // product route 
             $ProductController = getadminversion('ProductController');
@@ -251,7 +252,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             $ReminderController = getadminversion('ReminderController');
             Route::group([], function () use ($ReminderController) {
                 Route::get('/Reminder', [$ReminderController, 'index'])->name('admin.reminder')->middleware('checkPermission:remindermodule,reminder,show');
-            Route::get('/AddNewReminder/{id?}', [$ReminderController, 'create'])->name('admin.addreminder')->middleware('checkPermission:remindermodule,reminder,add');
+                Route::get('/AddNewReminder/{id?}', [$ReminderController, 'create'])->name('admin.addreminder')->middleware('checkPermission:remindermodule,reminder,add');
                 Route::post('/StoreNewReminder', [$ReminderController, 'store'])->name('admin.storereminder')->middleware('checkPermission:remindermodule,reminder,add');
                 Route::get('/SearchReminder/{id}', [$ReminderController, 'show'])->name('admin.searchreminder')->middleware('checkPermission:remindermodule,reminder,view');
                 Route::get('/EditReminder/{id}', [$ReminderController, 'edit'])->name('admin.editreminder')->middleware('checkPermission:remindermodule,reminder,edit');
@@ -267,6 +268,27 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewTechsupport', [$TechSupportController, 'create'])->name('admin.addtechsupport');
                 Route::get('/EditTechsupport/{id}', [$TechSupportController, 'edit'])->name('admin.edittechsupport');
             });
+
+
+
+            // blog module routes 
+
+            // blog table route
+
+            // bank route 
+            $BlogController = getadminversion('BlogController');
+            Route::group([], function () use ($BlogController) {
+                Route::get('/Blog', [$BlogController, 'index'])->name('admin.blog')->middleware('checkPermission:blogmodule,blog,show');
+                Route::get('/AddNewBlog', [$BlogController, 'create'])->name('admin.addblog')->middleware('checkPermission:blogmodule,blog,add');
+                Route::get('/BlogTag', [$BlogController, 'blogtag'])->name('admin.blogtag')->middleware('checkPermission:blogmodule,blog,add');
+                Route::get('/BlogCategory', [$BlogController, 'blogcategory'])->name('admin.blogcategory')->middleware('checkPermission:blogmodule,blog,add');
+                Route::post('/StoreNewBlog', [$BlogController, 'store'])->name('admin.storeblog')->middleware('checkPermission:blogmodule,blog,add');
+                Route::get('/SearchBlog/{id}', [$BlogController, 'show'])->name('admin.searchblog')->middleware('checkPermission:blogmodule,blog,view');
+                Route::get('/EditBlog/{id}', [$BlogController, 'edit'])->name('admin.editblog')->middleware('checkPermission:blogmodule,blog,edit');
+                Route::put('/UpdateBlog/{id}', [$BlogController, 'update'])->name('admin.updateblog')->middleware('checkPermission:blogmodule,blog,edit');
+                Route::put('/DeleteBlog/{id}', [$BlogController, 'destroy'])->name('admin.deleteblog')->middleware('checkPermission:blogmodule,blog,delete');
+            });
+
 
 
             // pdf routes ------------------------------------ 

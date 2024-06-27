@@ -373,126 +373,133 @@ class userController extends commonController
 
                 //   check user permissions
 
-                $invoice_show = ($this->rp['invoicemodule']['invoice']['show'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->showinvoicemenu : $this->rp['invoicemodule']['invoice']['show'];
-                $invoice_add = ($this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->addinvoice : $this->rp['invoicemodule']['invoice']['add'];
-                $invoice_view = ($this->rp['invoicemodule']['invoice']['view'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->viewinvoice : $this->rp['invoicemodule']['invoice']['view'];
-                $invoice_edit = ($this->rp['invoicemodule']['invoice']['edit'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->editinvoice : $this->rp['invoicemodule']['invoice']['edit'];
-                $invoice_delete = ($this->rp['invoicemodule']['invoice']['delete'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->deleteinvoice : $this->rp['invoicemodule']['invoice']['delete'];
-                $invoice_alldata = ($this->rp['invoicemodule']['invoice']['alldata'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->alldatainvoice : $this->rp['invoicemodule']['invoice']['alldata'];
+                $invoice_show = ($this->rp['invoicemodule']['invoice']['show'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->showinvoicemenu : "0";
+                $invoice_add = ($this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->addinvoice : "0";
+                $invoice_view = ($this->rp['invoicemodule']['invoice']['view'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->viewinvoice : "0";
+                $invoice_edit = ($this->rp['invoicemodule']['invoice']['edit'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->editinvoice : "0";
+                $invoice_delete = ($this->rp['invoicemodule']['invoice']['delete'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->deleteinvoice : "0";
+                $invoice_alldata = ($this->rp['invoicemodule']['invoice']['alldata'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->alldatainvoice : "0";
 
-                $mngcol_show = ($this->rp['invoicemodule']['mngcol']['show'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->showmngcolmenu : $this->rp['invoicemodule']['mngcol']['show'];
-                $mngcol_add = ($this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->addmngcol : $this->rp['invoicemodule']['mngcol']['add'];
-                $mngcol_view = ($this->rp['invoicemodule']['mngcol']['view'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->viewmngcol : $this->rp['invoicemodule']['mngcol']['view'];
-                $mngcol_edit = ($this->rp['invoicemodule']['mngcol']['edit'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->editmngcol : $this->rp['invoicemodule']['mngcol']['edit'];
-                $mngcol_delete = ($this->rp['invoicemodule']['mngcol']['delete'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->deletemngcol : $this->rp['invoicemodule']['mngcol']['delete'];
-                $mngcol_alldata = ($this->rp['invoicemodule']['mngcol']['alldata'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->alldatamngcol : $this->rp['invoicemodule']['mngcol']['alldata'];
+                $mngcol_show = ($this->rp['invoicemodule']['mngcol']['show'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->showmngcolmenu : "0";
+                $mngcol_add = ($this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->addmngcol : "0";
+                $mngcol_view = ($this->rp['invoicemodule']['mngcol']['view'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->viewmngcol : "0";
+                $mngcol_edit = ($this->rp['invoicemodule']['mngcol']['edit'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->editmngcol : "0";
+                $mngcol_delete = ($this->rp['invoicemodule']['mngcol']['delete'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->deletemngcol : "0";
+                $mngcol_alldata = ($this->rp['invoicemodule']['mngcol']['alldata'] == 1 && $this->rp['invoicemodule']['mngcol']['add'] == 1) ? $request->alldatamngcol : "0";
 
-                $formula_show = ($this->rp['invoicemodule']['formula']['show'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->showformulamenu : $this->rp['invoicemodule']['formula']['show'];
-                $formula_add = ($this->rp['invoicemodule']['formula']['add'] == 1) ? $request->addformula : $this->rp['invoicemodule']['formula']['add'];
-                $formula_view = ($this->rp['invoicemodule']['formula']['view'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->viewformula : $this->rp['invoicemodule']['formula']['view'];
-                $formula_edit = ($this->rp['invoicemodule']['formula']['edit'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->editformula : $this->rp['invoicemodule']['formula']['edit'];
-                $formula_delete = ($this->rp['invoicemodule']['formula']['delete'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->deleteformula : $this->rp['invoicemodule']['formula']['delete'];
-                $formula_alldata = ($this->rp['invoicemodule']['formula']['alldata'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->alldataformula : $this->rp['invoicemodule']['formula']['alldata'];
+                $formula_show = ($this->rp['invoicemodule']['formula']['show'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->showformulamenu : "0";
+                $formula_add = ($this->rp['invoicemodule']['formula']['add'] == 1) ? $request->addformula : "0";
+                $formula_view = ($this->rp['invoicemodule']['formula']['view'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->viewformula : "0";
+                $formula_edit = ($this->rp['invoicemodule']['formula']['edit'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->editformula : "0";
+                $formula_delete = ($this->rp['invoicemodule']['formula']['delete'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->deleteformula : "0";
+                $formula_alldata = ($this->rp['invoicemodule']['formula']['alldata'] == 1 && $this->rp['invoicemodule']['formula']['add'] == 1) ? $request->alldataformula : "0";
 
-                $invoicesetting_show = ($this->rp['invoicemodule']['invoicesetting']['show'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->showinvoicesettingmenu : $this->rp['invoicemodule']['invoicesetting']['show'];
-                $invoicesetting_add = ($this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->addinvoicesetting : $this->rp['invoicemodule']['invoicesetting']['add'];
-                $invoicesetting_view = ($this->rp['invoicemodule']['invoicesetting']['view'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->viewinvoicesetting : $this->rp['invoicemodule']['invoicesetting']['view'];
-                $invoicesetting_edit = ($this->rp['invoicemodule']['invoicesetting']['edit'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->editinvoicesetting : $this->rp['invoicemodule']['invoicesetting']['edit'];
-                $invoicesetting_delete = ($this->rp['invoicemodule']['invoicesetting']['delete'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->deleteinvoicesetting : $this->rp['invoicemodule']['invoicesetting']['delete'];
-                $invoicesetting_alldata = ($this->rp['invoicemodule']['invoicesetting']['alldata'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->alldatainvoicesetting : $this->rp['invoicemodule']['invoicesetting']['alldata'];
+                $invoicesetting_show = ($this->rp['invoicemodule']['invoicesetting']['show'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->showinvoicesettingmenu : "0";
+                $invoicesetting_add = ($this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->addinvoicesetting : "0";
+                $invoicesetting_view = ($this->rp['invoicemodule']['invoicesetting']['view'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->viewinvoicesetting : "0";
+                $invoicesetting_edit = ($this->rp['invoicemodule']['invoicesetting']['edit'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->editinvoicesetting : "0";
+                $invoicesetting_delete = ($this->rp['invoicemodule']['invoicesetting']['delete'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->deleteinvoicesetting : "0";
+                $invoicesetting_alldata = ($this->rp['invoicemodule']['invoicesetting']['alldata'] == 1 && $this->rp['invoicemodule']['invoicesetting']['add'] == 1) ? $request->alldatainvoicesetting : "0";
 
-                $bank_show = ($this->rp['invoicemodule']['bank']['show'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->showbankmenu : $this->rp['invoicemodule']['bank']['show'];
-                $bank_add = ($this->rp['invoicemodule']['bank']['add'] == 1) ? $request->addbank : $this->rp['invoicemodule']['bank']['add'];
-                $bank_view = ($this->rp['invoicemodule']['bank']['view'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->viewbank : $this->rp['invoicemodule']['bank']['view'];
-                $bank_edit = ($this->rp['invoicemodule']['bank']['edit'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->editbank : $this->rp['invoicemodule']['bank']['edit'];
-                $bank_delete = ($this->rp['invoicemodule']['bank']['delete'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->deletebank : $this->rp['invoicemodule']['bank']['delete'];
-                $bank_alldata = ($this->rp['invoicemodule']['bank']['alldata'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->alldatabank : $this->rp['invoicemodule']['bank']['alldata'];
+                $bank_show = ($this->rp['invoicemodule']['bank']['show'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->showbankmenu : "0";
+                $bank_add = ($this->rp['invoicemodule']['bank']['add'] == 1) ? $request->addbank : "0";
+                $bank_view = ($this->rp['invoicemodule']['bank']['view'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->viewbank : "0";
+                $bank_edit = ($this->rp['invoicemodule']['bank']['edit'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->editbank : "0";
+                $bank_delete = ($this->rp['invoicemodule']['bank']['delete'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->deletebank : "0";
+                $bank_alldata = ($this->rp['invoicemodule']['bank']['alldata'] == 1 && $this->rp['invoicemodule']['bank']['add'] == 1) ? $request->alldatabank : "0";
 
-                $customer_show = ($this->rp['invoicemodule']['customer']['show'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->showcustomermenu : $this->rp['invoicemodule']['customer']['show'];
-                $customer_add = ($this->rp['invoicemodule']['customer']['add'] == 1) ? $request->addcustomer : $this->rp['invoicemodule']['customer']['add'];
-                $customer_view = ($this->rp['invoicemodule']['customer']['view'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->viewcustomer : $this->rp['invoicemodule']['customer']['view'];
-                $customer_edit = ($this->rp['invoicemodule']['customer']['edit'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->editcustomer : $this->rp['invoicemodule']['customer']['edit'];
-                $customer_delete = ($this->rp['invoicemodule']['customer']['delete'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->deletecustomer : $this->rp['invoicemodule']['customer']['delete'];
-                $customer_alldata = ($this->rp['invoicemodule']['customer']['alldata'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->alldatacustomer : $this->rp['invoicemodule']['customer']['alldata'];
+                $customer_show = ($this->rp['invoicemodule']['customer']['show'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->showcustomermenu : "0";
+                $customer_add = ($this->rp['invoicemodule']['customer']['add'] == 1) ? $request->addcustomer : "0";
+                $customer_view = ($this->rp['invoicemodule']['customer']['view'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->viewcustomer : "0";
+                $customer_edit = ($this->rp['invoicemodule']['customer']['edit'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->editcustomer : "0";
+                $customer_delete = ($this->rp['invoicemodule']['customer']['delete'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->deletecustomer : "0";
+                $customer_alldata = ($this->rp['invoicemodule']['customer']['alldata'] == 1 && $this->rp['invoicemodule']['customer']['add'] == 1) ? $request->alldatacustomer : "0";
 
-                $lead_show = ($this->rp['leadmodule']['lead']['show'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->showleadmenu : $this->rp['leadmodule']['lead']['show'];
-                $lead_add = ($this->rp['leadmodule']['lead']['add'] == 1) ? $request->addlead : $this->rp['leadmodule']['lead']['add'];
-                $lead_view = ($this->rp['leadmodule']['lead']['view'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->viewlead : $this->rp['leadmodule']['lead']['view'];
-                $lead_edit = ($this->rp['leadmodule']['lead']['edit'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->editlead : $this->rp['leadmodule']['lead']['edit'];
-                $lead_delete = ($this->rp['leadmodule']['lead']['delete'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->deletelead : $this->rp['leadmodule']['lead']['delete'];
-                $lead_alldata = ($this->rp['leadmodule']['lead']['alldata'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->alldatalead : $this->rp['leadmodule']['lead']['alldata'];
+                $lead_show = ($this->rp['leadmodule']['lead']['show'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->showleadmenu : "0";
+                $lead_add = ($this->rp['leadmodule']['lead']['add'] == 1) ? $request->addlead : "0";
+                $lead_view = ($this->rp['leadmodule']['lead']['view'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->viewlead : "0";
+                $lead_edit = ($this->rp['leadmodule']['lead']['edit'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->editlead : "0";
+                $lead_delete = ($this->rp['leadmodule']['lead']['delete'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->deletelead : "0";
+                $lead_alldata = ($this->rp['leadmodule']['lead']['alldata'] == 1 && $this->rp['leadmodule']['lead']['add'] == 1) ? $request->alldatalead : "0";
 
-                $customersupport_show = ($this->rp['customersupportmodule']['customersupport']['show'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->showcustomersupportmenu : $this->rp['customersupportmodule']['customersupport']['show'];
-                $customersupport_add = ($this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->addcustomersupport : $this->rp['customersupportmodule']['customersupport']['add'];
-                $customersupport_view = ($this->rp['customersupportmodule']['customersupport']['view'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->viewcustomersupport : $this->rp['customersupportmodule']['customersupport']['view'];
-                $customersupport_edit = ($this->rp['customersupportmodule']['customersupport']['edit'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->editcustomersupport : $this->rp['customersupportmodule']['customersupport']['edit'];
-                $customersupport_delete = ($this->rp['customersupportmodule']['customersupport']['delete'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->deletecustomersupport : $this->rp['customersupportmodule']['customersupport']['delete'];
-                $customersupport_alldata = ($this->rp['customersupportmodule']['customersupport']['alldata'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->alldatacustomersupport : $this->rp['customersupportmodule']['customersupport']['alldata'];
+                $customersupport_show = ($this->rp['customersupportmodule']['customersupport']['show'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->showcustomersupportmenu : "0";
+                $customersupport_add = ($this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->addcustomersupport : "0";
+                $customersupport_view = ($this->rp['customersupportmodule']['customersupport']['view'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->viewcustomersupport : "0";
+                $customersupport_edit = ($this->rp['customersupportmodule']['customersupport']['edit'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->editcustomersupport : "0";
+                $customersupport_delete = ($this->rp['customersupportmodule']['customersupport']['delete'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->deletecustomersupport : "0";
+                $customersupport_alldata = ($this->rp['customersupportmodule']['customersupport']['alldata'] == 1 && $this->rp['customersupportmodule']['customersupport']['add'] == 1) ? $request->alldatacustomersupport : "0";
 
-                $product_show = ($this->rp['inventorymodule']['product']['show'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->showproductmenu : $this->rp['inventorymodule']['product']['show'];
-                $product_add = ($this->rp['inventorymodule']['product']['add'] == 1) ? $request->addproduct : $this->rp['inventorymodule']['product']['add'];
-                $product_view = ($this->rp['inventorymodule']['product']['view'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->viewproduct : $this->rp['inventorymodule']['product']['view'];
-                $product_edit = ($this->rp['inventorymodule']['product']['edit'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->editproduct : $this->rp['inventorymodule']['product']['edit'];
-                $product_delete = ($this->rp['inventorymodule']['product']['delete'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->deleteproduct : $this->rp['inventorymodule']['product']['delete'];
-                $product_alldata = ($this->rp['inventorymodule']['product']['alldata'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->alldataproduct : $this->rp['inventorymodule']['product']['alldata'];
+                $product_show = ($this->rp['inventorymodule']['product']['show'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->showproductmenu : "0";
+                $product_add = ($this->rp['inventorymodule']['product']['add'] == 1) ? $request->addproduct : "0";
+                $product_view = ($this->rp['inventorymodule']['product']['view'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->viewproduct : "0";
+                $product_edit = ($this->rp['inventorymodule']['product']['edit'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->editproduct : "0";
+                $product_delete = ($this->rp['inventorymodule']['product']['delete'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->deleteproduct : "0";
+                $product_alldata = ($this->rp['inventorymodule']['product']['alldata'] == 1 && $this->rp['inventorymodule']['product']['add'] == 1) ? $request->alldataproduct : "0";
 
-                $purchase_show = ($this->rp['accountmodule']['purchase']['show'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->showpurchasemenu : $this->rp['accountmodule']['purchase']['show'];
-                $purchase_add = ($this->rp['accountmodule']['purchase']['add'] == 1) ? $request->addpurchase : $this->rp['accountmodule']['purchase']['add'];
-                $purchase_view = ($this->rp['accountmodule']['purchase']['view'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->viewpurchase : $this->rp['accountmodule']['purchase']['view'];
-                $purchase_edit = ($this->rp['accountmodule']['purchase']['edit'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->editpurchase : $this->rp['accountmodule']['purchase']['edit'];
-                $purchase_delete = ($this->rp['accountmodule']['purchase']['delete'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->deletepurchase : $this->rp['accountmodule']['purchase']['delete'];
-                $purchase_alldata = ($this->rp['accountmodule']['purchase']['alldata'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->alldatapurchase : $this->rp['accountmodule']['purchase']['alldata'];
+                $purchase_show = ($this->rp['accountmodule']['purchase']['show'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->showpurchasemenu : "0";
+                $purchase_add = ($this->rp['accountmodule']['purchase']['add'] == 1) ? $request->addpurchase : "0";
+                $purchase_view = ($this->rp['accountmodule']['purchase']['view'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->viewpurchase : "0";
+                $purchase_edit = ($this->rp['accountmodule']['purchase']['edit'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->editpurchase : "0";
+                $purchase_delete = ($this->rp['accountmodule']['purchase']['delete'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->deletepurchase : "0";
+                $purchase_alldata = ($this->rp['accountmodule']['purchase']['alldata'] == 1 && $this->rp['accountmodule']['purchase']['add'] == 1) ? $request->alldatapurchase : "0";
 
-                $reminder_show = ($this->rp['remindermodule']['reminder']['show'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->showremindermenu : $this->rp['remindermodule']['reminder']['show'];
-                $reminder_add = ($this->rp['remindermodule']['reminder']['add'] == 1) ? $request->addreminder : $this->rp['remindermodule']['reminder']['add'];
-                $reminder_view = ($this->rp['remindermodule']['reminder']['view'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->viewreminder : $this->rp['remindermodule']['reminder']['view'];
-                $reminder_edit = ($this->rp['remindermodule']['reminder']['edit'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->editreminder : $this->rp['remindermodule']['reminder']['edit'];
-                $reminder_delete = ($this->rp['remindermodule']['reminder']['delete'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->deletereminder : $this->rp['remindermodule']['reminder']['delete'];
-                $reminder_alldata = ($this->rp['remindermodule']['reminder']['alldata'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->alldatareminder : $this->rp['remindermodule']['reminder']['alldata'];
+                $reminder_show = ($this->rp['remindermodule']['reminder']['show'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->showremindermenu : "0";
+                $reminder_add = ($this->rp['remindermodule']['reminder']['add'] == 1) ? $request->addreminder : "0";
+                $reminder_view = ($this->rp['remindermodule']['reminder']['view'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->viewreminder : "0";
+                $reminder_edit = ($this->rp['remindermodule']['reminder']['edit'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->editreminder : "0";
+                $reminder_delete = ($this->rp['remindermodule']['reminder']['delete'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->deletereminder : "0";
+                $reminder_alldata = ($this->rp['remindermodule']['reminder']['alldata'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->alldatareminder : "0";
 
-                $remindercustomer_show = ($this->rp['remindermodule']['remindercustomer']['show'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->showremindercustomermenu : $this->rp['remindermodule']['remindercustomer']['show'];
-                $remindercustomer_add = ($this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->addremindercustomer : $this->rp['remindermodule']['remindercustomer']['add'];
-                $remindercustomer_view = ($this->rp['remindermodule']['remindercustomer']['view'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->viewremindercustomer : $this->rp['remindermodule']['remindercustomer']['view'];
-                $remindercustomer_edit = ($this->rp['remindermodule']['remindercustomer']['edit'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->editremindercustomer : $this->rp['remindermodule']['remindercustomer']['edit'];
-                $remindercustomer_delete = ($this->rp['remindermodule']['remindercustomer']['delete'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->deleteremindercustomer : $this->rp['remindermodule']['remindercustomer']['delete'];
-                $remindercustomer_alldata = ($this->rp['remindermodule']['remindercustomer']['alldata'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->alldataremindercustomer : $this->rp['remindermodule']['remindercustomer']['alldata'];
+                $remindercustomer_show = ($this->rp['remindermodule']['remindercustomer']['show'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->showremindercustomermenu : "0";
+                $remindercustomer_add = ($this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->addremindercustomer : "0";
+                $remindercustomer_view = ($this->rp['remindermodule']['remindercustomer']['view'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->viewremindercustomer : "0";
+                $remindercustomer_edit = ($this->rp['remindermodule']['remindercustomer']['edit'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->editremindercustomer : "0";
+                $remindercustomer_delete = ($this->rp['remindermodule']['remindercustomer']['delete'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->deleteremindercustomer : "0";
+                $remindercustomer_alldata = ($this->rp['remindermodule']['remindercustomer']['alldata'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->alldataremindercustomer : "0";
 
-                $company_show = ($this->rp['adminmodule']['company']['show'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->showcompanymenu : $this->rp['adminmodule']['company']['show'];
-                $company_add = ($this->rp['adminmodule']['company']['add'] == 1) ? $request->addcompany : $this->rp['adminmodule']['company']['add'];
-                $company_view = ($this->rp['adminmodule']['company']['view'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->viewcompany : $this->rp['adminmodule']['company']['view'];
-                $company_edit = ($this->rp['adminmodule']['company']['edit'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->editcompany : $this->rp['adminmodule']['company']['edit'];
-                $company_delete = ($this->rp['adminmodule']['company']['delete'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->deletecompany : $this->rp['adminmodule']['company']['delete'];
-                $company_alldata = ($this->rp['adminmodule']['company']['alldata'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->alldatacompany : $this->rp['adminmodule']['company']['alldata'];
-                $company_maxuser = ($this->rp['adminmodule']['company']['max'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->maxuser : $this->rp['adminmodule']['company']['max'];
+                $company_show = ($this->rp['adminmodule']['company']['show'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->showcompanymenu : "0";
+                $company_add = ($this->rp['adminmodule']['company']['add'] == 1) ? $request->addcompany : "0";
+                $company_view = ($this->rp['adminmodule']['company']['view'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->viewcompany : "0";
+                $company_edit = ($this->rp['adminmodule']['company']['edit'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->editcompany : "0";
+                $company_delete = ($this->rp['adminmodule']['company']['delete'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->deletecompany : "0";
+                $company_alldata = ($this->rp['adminmodule']['company']['alldata'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->alldatacompany : "0";
+                $company_maxuser = ($this->rp['adminmodule']['company']['max'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->maxuser : "0";
 
-                $user_show = ($this->rp['adminmodule']['user']['show'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->showusermenu : $this->rp['adminmodule']['user']['show'];
-                $user_add = ($this->rp['adminmodule']['user']['add'] == 1) ? $request->adduser : $this->rp['adminmodule']['user']['add'];
-                $user_view = ($this->rp['adminmodule']['user']['view'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->viewuser : $this->rp['adminmodule']['user']['view'];
-                $user_edit = ($this->rp['adminmodule']['user']['edit'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->edituser : $this->rp['adminmodule']['user']['edit'];
-                $user_delete = ($this->rp['adminmodule']['user']['delete'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->deleteuser : $this->rp['adminmodule']['user']['delete'];
-                $user_alldata = ($this->rp['adminmodule']['user']['alldata'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->alldatauser : $this->rp['adminmodule']['user']['alldata'];
+                $user_show = ($this->rp['adminmodule']['user']['show'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->showusermenu : "0";
+                $user_add = ($this->rp['adminmodule']['user']['add'] == 1) ? $request->adduser : "0";
+                $user_view = ($this->rp['adminmodule']['user']['view'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->viewuser : "0";
+                $user_edit = ($this->rp['adminmodule']['user']['edit'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->edituser : "0";
+                $user_delete = ($this->rp['adminmodule']['user']['delete'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->deleteuser : "0";
+                $user_alldata = ($this->rp['adminmodule']['user']['alldata'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->alldatauser : "0";
 
-                $userpermission_show = ($this->rp['adminmodule']['userpermission']['show'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->showuserpermissionmenu : $this->rp['adminmodule']['userpermission']['show'];
-                $userpermission_add = ($this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->adduserpermission : $this->rp['adminmodule']['userpermission']['add'];
-                $userpermission_view = ($this->rp['adminmodule']['userpermission']['view'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->viewuserpermission : $this->rp['adminmodule']['userpermission']['view'];
-                $userpermission_edit = ($this->rp['adminmodule']['userpermission']['edit'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->edituserpermission : $this->rp['adminmodule']['userpermission']['edit'];
-                $userpermission_delete = ($this->rp['adminmodule']['userpermission']['delete'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->deleteuserpermission : $this->rp['adminmodule']['userpermission']['delete'];
-                $userpermission_alldata = ($this->rp['adminmodule']['userpermission']['alldata'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->alldatauserpermission : $this->rp['adminmodule']['userpermission']['alldata'];
+                $userpermission_show = ($this->rp['adminmodule']['userpermission']['show'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->showuserpermissionmenu : "0";
+                $userpermission_add = ($this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->adduserpermission : "0";
+                $userpermission_view = ($this->rp['adminmodule']['userpermission']['view'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->viewuserpermission : "0";
+                $userpermission_edit = ($this->rp['adminmodule']['userpermission']['edit'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->edituserpermission : "0";
+                $userpermission_delete = ($this->rp['adminmodule']['userpermission']['delete'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->deleteuserpermission : "0";
+                $userpermission_alldata = ($this->rp['adminmodule']['userpermission']['alldata'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->alldatauserpermission : "0";
 
-                $techsupport_show = ($this->rp['adminmodule']['techsupport']['show'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->showtechsupportmenu : $this->rp['adminmodule']['techsupport']['show'];
-                $techsupport_add = ($this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->addtechsupport : $this->rp['adminmodule']['techsupport']['add'];
-                $techsupport_view = ($this->rp['adminmodule']['techsupport']['view'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->viewtechsupport : $this->rp['adminmodule']['techsupport']['view'];
-                $techsupport_edit = ($this->rp['adminmodule']['techsupport']['edit'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->edittechsupport : $this->rp['adminmodule']['techsupport']['edit'];
-                $techsupport_delete = ($this->rp['adminmodule']['techsupport']['delete'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->deletetechsupport : $this->rp['adminmodule']['techsupport']['delete'];
-                $techsupport_alldata = ($this->rp['adminmodule']['techsupport']['alldata'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->alldatatechsupport : $this->rp['adminmodule']['techsupport']['alldata'];
+                $techsupport_show = ($this->rp['adminmodule']['techsupport']['show'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->showtechsupportmenu : "0";
+                $techsupport_add = ($this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->addtechsupport : "0";
+                $techsupport_view = ($this->rp['adminmodule']['techsupport']['view'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->viewtechsupport : "0";
+                $techsupport_edit = ($this->rp['adminmodule']['techsupport']['edit'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->edittechsupport : "0";
+                $techsupport_delete = ($this->rp['adminmodule']['techsupport']['delete'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->deletetechsupport : "0";
+                $techsupport_alldata = ($this->rp['adminmodule']['techsupport']['alldata'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->alldatatechsupport : "0";
 
-                $report_show = ($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->showreportmenu : $this->rp['reportmodule']['report']['show'];
-                $report_add = ($this->rp['reportmodule']['report']['add'] == 1) ? $request->addreport : $this->rp['reportmodule']['report']['add'];
-                $report_view = ($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->viewreport : $this->rp['reportmodule']['report']['view'];
-                $report_edit = ($this->rp['reportmodule']['report']['edit'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->editreport : $this->rp['reportmodule']['report']['edit'];
-                $report_delete = ($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->deletereport : $this->rp['reportmodule']['report']['delete'];
-                $report_alldata = ($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->assignedto : $this->rp['reportmodule']['report']['alldata'];
-                $report_log = ($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->logreport : $this->rp['reportmodule']['report']['log'];
+                $report_show = ($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->showreportmenu : "0";
+                $report_add = ($this->rp['reportmodule']['report']['add'] == 1) ? $request->addreport : "0";
+                $report_view = ($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->viewreport : "0";
+                $report_edit = ($this->rp['reportmodule']['report']['edit'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->editreport : "0";
+                $report_delete = ($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->deletereport : "0";
+                $report_alldata = ($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->assignedto : "0";
+                $report_log = ($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->logreport : "0";
+
+                $blog_show = ($this->rp['blogmodule']['blog']['show'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->showblogmenu : "0";
+                $blog_add = ($this->rp['blogmodule']['blog']['add'] == 1) ? $request->addblog : "0";
+                $blog_view = ($this->rp['blogmodule']['blog']['view'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->viewblog : "0";
+                $blog_edit = ($this->rp['blogmodule']['blog']['edit'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->editblog : "0";
+                $blog_delete = ($this->rp['blogmodule']['blog']['delete'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->deleteblog : "0";
+                $blog_alldata = ($this->rp['blogmodule']['blog']['add'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->alldatablog : "0"; 
 
 
 
@@ -530,6 +537,9 @@ class userController extends commonController
                     ],
                     "reportmodule" => [
                         "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $request->assignedto, "log" => $request->logreport]
+                    ],
+                    "blogmodule" => [
+                        "blog" => ["show" => $blog_show, "add" => $blog_add, "view" => $blog_view, "edit" => $blog_edit, "delete" => $blog_delete, "alldata" => $blog_alldata]
                     ]
                 ];
                 $rpjson = json_encode($rp);
@@ -727,10 +737,7 @@ class userController extends commonController
             DB::reconnect('dynamic_connection');
 
             if ($this->rp['adminmodule']['userpermission']['edit'] == 1) {
-
-
                 //   check user permissions
-
                 $invoice_show = ($this->rp['invoicemodule']['invoice']['show'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->showinvoicemenu : $this->rp['invoicemodule']['invoice']['show'];
                 $invoice_add = ($this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->addinvoice : $this->rp['invoicemodule']['invoice']['add'];
                 $invoice_view = ($this->rp['invoicemodule']['invoice']['view'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) ? $request->viewinvoice : $this->rp['invoicemodule']['invoice']['view'];
@@ -808,49 +815,49 @@ class userController extends commonController
                 $reminder_delete = ($this->rp['remindermodule']['reminder']['delete'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->deletereminder : $this->rp['remindermodule']['reminder']['delete'];
                 $reminder_alldata = ($this->rp['remindermodule']['reminder']['alldata'] == 1 && $this->rp['remindermodule']['reminder']['add'] == 1) ? $request->alldatareminder : $this->rp['remindermodule']['reminder']['alldata'];
 
-                $remindercustomer_show = ($this->rp['remindermodule']['remindercustomer']['show'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->showremindercustomermenu : $this->rp['remindermodule']['remindercustomer']['show'];
-                $remindercustomer_add = ($this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->addremindercustomer : $this->rp['remindermodule']['remindercustomer']['add'];
-                $remindercustomer_view = ($this->rp['remindermodule']['remindercustomer']['view'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->viewremindercustomer : $this->rp['remindermodule']['remindercustomer']['view'];
-                $remindercustomer_edit = ($this->rp['remindermodule']['remindercustomer']['edit'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->editremindercustomer : $this->rp['remindermodule']['remindercustomer']['edit'];
-                $remindercustomer_delete = ($this->rp['remindermodule']['remindercustomer']['delete'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->deleteremindercustomer : $this->rp['remindermodule']['remindercustomer']['delete'];
-                $remindercustomer_alldata = ($this->rp['remindermodule']['remindercustomer']['alldata'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->alldataremindercustomer : $this->rp['remindermodule']['remindercustomer']['alldata'];
+                $remindercustomer_show = ($this->rp['remindermodule']['remindercustomer']['show'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->showremindercustomermenu : "0";
+                $remindercustomer_add = ($this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->addremindercustomer : "0";
+                $remindercustomer_view = ($this->rp['remindermodule']['remindercustomer']['view'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->viewremindercustomer : "0";
+                $remindercustomer_edit = ($this->rp['remindermodule']['remindercustomer']['edit'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->editremindercustomer : "0";
+                $remindercustomer_delete = ($this->rp['remindermodule']['remindercustomer']['delete'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->deleteremindercustomer : "0";
+                $remindercustomer_alldata = ($this->rp['remindermodule']['remindercustomer']['alldata'] == 1 && $this->rp['remindermodule']['remindercustomer']['add'] == 1) ? $request->alldataremindercustomer : "0";
 
-                $company_show = ($this->rp['adminmodule']['company']['show'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->showcompanymenu : $this->rp['adminmodule']['company']['show'];
-                $company_add = ($this->rp['adminmodule']['company']['add'] == 1) ? $request->addcompany : $this->rp['adminmodule']['company']['add'];
-                $company_view = ($this->rp['adminmodule']['company']['view'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->viewcompany : $this->rp['adminmodule']['company']['view'];
-                $company_edit = ($this->rp['adminmodule']['company']['edit'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->editcompany : $this->rp['adminmodule']['company']['edit'];
-                $company_delete = ($this->rp['adminmodule']['company']['delete'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->deletecompany : $this->rp['adminmodule']['company']['delete'];
-                $company_alldata = ($this->rp['adminmodule']['company']['alldata'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->alldatacompany : $this->rp['adminmodule']['company']['alldata'];
-                $company_maxuser = ($this->rp['adminmodule']['company']['max'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->maxuser : $this->rp['adminmodule']['company']['max'];
+                $company_show = ($this->rp['adminmodule']['company']['show'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->showcompanymenu : "0";
+                $company_add = ($this->rp['adminmodule']['company']['add'] == 1) ? $request->addcompany : "0";
+                $company_view = ($this->rp['adminmodule']['company']['view'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->viewcompany : "0";
+                $company_edit = ($this->rp['adminmodule']['company']['edit'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->editcompany : "0";
+                $company_delete = ($this->rp['adminmodule']['company']['delete'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->deletecompany : "0";
+                $company_alldata = ($this->rp['adminmodule']['company']['alldata'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->alldatacompany : "0";
+                $company_maxuser = ($this->rp['adminmodule']['company']['max'] == 1 && $this->rp['adminmodule']['company']['add'] == 1) ? $request->maxuser : "0";
 
-                $user_show = ($this->rp['adminmodule']['user']['show'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->showusermenu : $this->rp['adminmodule']['user']['show'];
-                $user_add = ($this->rp['adminmodule']['user']['add'] == 1) ? $request->adduser : $this->rp['adminmodule']['user']['add'];
-                $user_view = ($this->rp['adminmodule']['user']['view'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->viewuser : $this->rp['adminmodule']['user']['view'];
-                $user_edit = ($this->rp['adminmodule']['user']['edit'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->edituser : $this->rp['adminmodule']['user']['edit'];
-                $user_delete = ($this->rp['adminmodule']['user']['delete'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->deleteuser : $this->rp['adminmodule']['user']['delete'];
-                $user_alldata = ($this->rp['adminmodule']['user']['alldata'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->alldatauser : $this->rp['adminmodule']['user']['alldata'];
+                $user_show = ($this->rp['adminmodule']['user']['show'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->showusermenu : "0";
+                $user_add = ($this->rp['adminmodule']['user']['add'] == 1) ? $request->adduser : "0";
+                $user_view = ($this->rp['adminmodule']['user']['view'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->viewuser : "0";
+                $user_edit = ($this->rp['adminmodule']['user']['edit'] == 1 && $this->rp['adminmodule']['user']['add'] == 1) ? $request->edituser : "0";
+                $user_delete = ($this->rp['adminmodule']['user']['delete'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->deleteuser : "0";
+                $user_alldata = ($this->rp['adminmodule']['user']['alldata'] && $this->rp['adminmodule']['user']['add'] == 1) == 1 ? $request->alldatauser : "0";
 
-                $userpermission_show = ($this->rp['adminmodule']['userpermission']['show'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->showuserpermissionmenu : $this->rp['adminmodule']['userpermission']['show'];
-                $userpermission_add = ($this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->adduserpermission : $this->rp['adminmodule']['userpermission']['add'];
-                $userpermission_view = ($this->rp['adminmodule']['userpermission']['view'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->viewuserpermission : $this->rp['adminmodule']['userpermission']['view'];
-                $userpermission_edit = ($this->rp['adminmodule']['userpermission']['edit'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->edituserpermission : $this->rp['adminmodule']['userpermission']['edit'];
-                $userpermission_delete = ($this->rp['adminmodule']['userpermission']['delete'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->deleteuserpermission : $this->rp['adminmodule']['userpermission']['delete'];
-                $userpermission_alldata = ($this->rp['adminmodule']['userpermission']['alldata'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->alldatauserpermission : $this->rp['adminmodule']['userpermission']['alldata'];
+                $userpermission_show = ($this->rp['adminmodule']['userpermission']['show'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->showuserpermissionmenu : "0";
+                $userpermission_add = ($this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->adduserpermission : "0";
+                $userpermission_view = ($this->rp['adminmodule']['userpermission']['view'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->viewuserpermission : "0";
+                $userpermission_edit = ($this->rp['adminmodule']['userpermission']['edit'] == 1 && $this->rp['adminmodule']['userpermission']['add'] == 1) ? $request->edituserpermission : "0";
+                $userpermission_delete = ($this->rp['adminmodule']['userpermission']['delete'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->deleteuserpermission : "0";
+                $userpermission_alldata = ($this->rp['adminmodule']['userpermission']['alldata'] && $this->rp['adminmodule']['userpermission']['add'] == 1) == 1 ? $request->alldatauserpermission : "0";
 
-                $techsupport_show = ($this->rp['adminmodule']['techsupport']['show'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->showtechsupportmenu : $this->rp['adminmodule']['techsupport']['show'];
-                $techsupport_add = ($this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->addtechsupport : $this->rp['adminmodule']['techsupport']['add'];
-                $techsupport_view = ($this->rp['adminmodule']['techsupport']['view'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->viewtechsupport : $this->rp['adminmodule']['techsupport']['view'];
-                $techsupport_edit = ($this->rp['adminmodule']['techsupport']['edit'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->edittechsupport : $this->rp['adminmodule']['techsupport']['edit'];
-                $techsupport_delete = ($this->rp['adminmodule']['techsupport']['delete'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->deletetechsupport : $this->rp['adminmodule']['techsupport']['delete'];
-                $techsupport_alldata = ($this->rp['adminmodule']['techsupport']['alldata'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->alldatatechsupport : $this->rp['adminmodule']['techsupport']['alldata'];
+                $techsupport_show = ($this->rp['adminmodule']['techsupport']['show'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->showtechsupportmenu : "0";
+                $techsupport_add = ($this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->addtechsupport : "0";
+                $techsupport_view = ($this->rp['adminmodule']['techsupport']['view'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->viewtechsupport : "0";
+                $techsupport_edit = ($this->rp['adminmodule']['techsupport']['edit'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->edittechsupport : "0";
+                $techsupport_delete = ($this->rp['adminmodule']['techsupport']['delete'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->deletetechsupport : "0";
+                $techsupport_alldata = ($this->rp['adminmodule']['techsupport']['alldata'] == 1 && $this->rp['adminmodule']['techsupport']['add'] == 1) ? $request->alldatatechsupport : "0";
 
-                $report_show = ($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->showreportmenu : $this->rp['reportmodule']['report']['show'];
-                $report_add = ($this->rp['reportmodule']['report']['add'] == 1) ? $request->addreport : $this->rp['reportmodule']['report']['add'];
-                $report_view = ($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->viewreport : $this->rp['reportmodule']['report']['view'];
-                $report_edit = ($this->rp['reportmodule']['report']['edit'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->editreport : $this->rp['reportmodule']['report']['edit'];
-                $report_delete = ($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->deletereport : $this->rp['reportmodule']['report']['delete'];
-                $report_alldata = ($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->assignedto : $this->rp['reportmodule']['report']['alldata'];
-                $report_log = ($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->logreport : $this->rp['reportmodule']['report']['log'];
+                $report_show = ($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->showreportmenu : "0";
+                $report_add = ($this->rp['reportmodule']['report']['add'] == 1) ? $request->addreport : "0";
+                $report_view = ($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->viewreport : "0";
+                $report_edit = ($this->rp['reportmodule']['report']['edit'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->editreport : "0";
+                $report_delete = ($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->deletereport : "0";
+                $report_alldata = ($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->assignedto : "0";
+                $report_log = ($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) ? $request->logreport : "0";
 
                 $rp = [
                     "invoicemodule" => [
@@ -885,9 +892,12 @@ class userController extends commonController
                     ],
                     "reportmodule" => [
                         "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $request->assignedto, "log" => $request->logreport]
+                    ],
+                    "blogmodule" => [
+                        "blog" => ["show" =>  $request->showblogmenu, "add" => $request->addblog, "view" => $request->viewblog, "edit" =>  $request->editblog, "delete" => $request->deleteblog, "alldata" => $request->alldatablog]
                     ]
                 ];
-
+ 
                 $rpjson = json_encode($rp);
             }
             $users = User::find($id);
