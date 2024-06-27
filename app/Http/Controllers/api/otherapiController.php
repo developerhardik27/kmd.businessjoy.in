@@ -16,6 +16,7 @@ class otherapiController extends Controller
     {
 
         $domainName = $request->getHost();
+
         // if($domainName != 'oceanmnc.com'){
         //     return response()->json([
         //         'status' => 403,
@@ -90,6 +91,7 @@ class otherapiController extends Controller
 
     public function store(Request $request)
     {
+
         $data = $request->validate([
             'activity_name' => 'nullable|string',
             'activity_text' => 'nullable|string',
