@@ -4,7 +4,7 @@
 @extends($folder . '.admin.mastertable')
 
 @section('page_title')
-    Invoice - Bank Detail
+    Invoice - Bank Details
 @endsection
 @section('table_title')
     Bank Details
