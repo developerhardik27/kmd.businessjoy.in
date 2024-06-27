@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\v1_0_0;
 
+use App\Models\api_authorization;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -18,20 +19,28 @@ class CheckToken
     {
         // Check if the token is present in the session
         $sessionToken = $request->token;
-        if (!$sessionToken) {
+        
+        if(!$sessionToken && !isset($request->site_key) && !isset($request->server_key)){
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        if($sessionToken){
+            // Check if the token is present in the database
+            $dbToken = User::where('api_token', $sessionToken)->first();
 
-        // Check if the token is present in the database
-        $dbToken = User::where('api_token', $sessionToken)->first();
+            if (!$dbToken) {
+                return response()->json(['error' => 'Invalid token'], 401);
+            }
+        }elseif(isset($request->site_key) && isset($request->server_key)){
+            $domainName = $request->getHost();
+            $authorize = api_authorization::where('site_key', $request->site_key)
+                       ->where('server_key', $request->server_key)
+                       ->where('domain_name', 'LIKE', '%' . $domainName . '%')
+                       ->first();
 
-        if (!$dbToken) {
-            return response()->json(['error' => 'Invalid token'], 401);
+            if (!$authorize) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
         }
-
-         if (!$request->ajax()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-         }
        
         return $next($request);
     }

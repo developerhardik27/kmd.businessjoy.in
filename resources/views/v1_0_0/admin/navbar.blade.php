@@ -181,6 +181,10 @@
                                         <a class="iq-sub-card changemenu" href="#" data-value="reminder">
                                             <i class="ri-alarm-line"></i> Reminder</a>
                                     @endif
+                                    @if (Session::has('blog') && Session::get('blog') == 'yes')
+                                        <a class="iq-sub-card changemenu" href="#" data-value="blog">
+                                            <i class="ri-article-line"></i> Blog</a>
+                                    @endif
                                 </div>
                             </li>
                         </ul>

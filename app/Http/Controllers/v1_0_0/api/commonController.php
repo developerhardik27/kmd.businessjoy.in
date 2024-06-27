@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class commonController extends Controller
 {
+    
     public function dbname(string $id){
         
         $dbname = company::find($id);

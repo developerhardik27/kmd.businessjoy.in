@@ -46,14 +46,7 @@
                         @if (Session::has('menu') && Session::get('menu') == 'invoice')
                             @if (session('user_permissions.invoicemodule.invoice.show') == '1')
                                 <li
-                                    class="{{ implode(' ', [
-                                        request()->routeIs(
-                                            'admin.invoice',
-                                            'admin.addinvoice',
-                                        )
-                                            ? 'active'
-                                            : '',
-                                    ]) }}">
+                                    class="{{ implode(' ', [request()->routeIs('admin.invoice', 'admin.addinvoice') ? 'active' : '']) }}">
                                     <a href="#invoiceinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
                                         aria-expanded="false"><i class="ri-file-list-3-line"></i><span>Invoice</span><i
                                             class="ri-arrow-right-s-line iq-arrow-right"></i></a>
@@ -218,6 +211,27 @@
                                     </a>
                                 </li>
                             @endif
+                        @elseif(Session::has('menu') && Session::get('menu') == 'blog')
+                            @if (session('user_permissions.blogmodule.blog.show') == '1')
+                                <li class="{{ request()->routeIs('admin.blog') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.blog') }}" class="iq-waves-effect">
+                                        <i class="ri-article-line"></i>
+                                        <span>Blog</span>
+                                    </a>
+                                </li>
+                                <li class="{{ request()->routeIs('admin.blogcategory') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.blogcategory') }}" class="iq-waves-effect">
+                                        <i class="ri-book-line"></i>
+                                        <span>Category</span>
+                                    </a>
+                                </li>
+                                <li class="{{ request()->routeIs('admin.blogtag') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.blogtag') }}" class="iq-waves-effect">
+                                        <i class="ri-hashtag"></i>
+                                        <span>Tag</span>
+                                    </a>
+                                </li>
+                            @endif
                         @else
                             @if (session('user_permissions.customersupportmodule.customersupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.customersupport') ? 'active' : '' }}">
@@ -235,6 +249,6 @@
                             </a>
                         </li>
                     </ul>
-                </nav> 
+                </nav>
             </div>
         </div>

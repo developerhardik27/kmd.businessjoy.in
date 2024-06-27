@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\v1_0_0\admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\company;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class CompanyController extends Controller
@@ -93,5 +94,14 @@ class CompanyController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function api_authorization(){
+
+        if(Auth::guard('admin')->user()->role != 1){
+            abort(403);
+        }
+
+        return view($this->version . '.admin.api_authorization', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 }
