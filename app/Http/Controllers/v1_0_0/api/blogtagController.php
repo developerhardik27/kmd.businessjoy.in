@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\v1_0_0\api;
 
+use App\Models\api_authorization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -16,29 +17,36 @@ class blogtagController extends commonController
     public function __construct(Request $request)
     {
 
-        if (isset($request->sitekey) && isset($request->serverkey)) {
-
-        } else {
-            if ($request->company_id) {
-                $this->dbname($request->company_id);
-            } else {
-                $this->dbname(session()->get('company_id'));
-            }
-            if ($request->user_id) {
-                $this->userId = $request->user_id;
-            } else {
-                $this->userId = session()->get('user_id');
-            }
+        if(isset($request->company_id) && isset($request->user_id)){
+            $this->dbname($request->company_id);
             $this->companyId = $request->company_id;
+            $this->userId = $request->user_id;
+            // **** for checking user has permission to action on all data 
+            $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+            $permissions = json_decode($user_rp, true);
+            $this->rp = json_decode($permissions[0]['rp'], true);
+        }elseif(isset($request->site_key) && isset($request->server_key)){
+            $domainName = $_SERVER['HTTP_ORIGIN'];
+            $parsed_origin = parse_url($domainName);
+            $hostname = isset($parsed_origin['host']) ? $parsed_origin['host'] : null;
+
+            $company_id = api_authorization::where('site_key', $request->site_key)
+                ->where('server_key', $request->server_key)
+                ->where('domain_name', 'LIKE', '%' . $hostname . '%')
+                ->select('company_id')
+                ->get();
+
+            if ($company_id->isEmpty()) {
+                // Handle case where no record is found
+                $this->returnresponse();
+            }else{
+                $this->dbname($company_id[0]->company_id);
+                $this->companyId = $company_id[0]->company_id;
+            }
+        }else{
+            $this->returnresponse();
         }
-
-
         $this->masterdbname = DB::connection()->getDatabaseName();
-
-        // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
-        $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->blogtagModel = $this->getmodel('blog_tag');
     }
@@ -176,21 +184,21 @@ class blogtagController extends commonController
         } else {
 
 
-            $blogtag = $this->blogtagModel::where('tag_name',$request->tag_name)->where('id', '!=', $id)->where('is_deleted', 0)->first();
+            $blogtag = $this->blogtagModel::where('tag_name', $request->tag_name)->where('id', '!=', $id)->where('is_deleted', 0)->first();
 
-            if ($blogtag) { 
+            if ($blogtag) {
                 return response()->json([
                     'status' => 500,
                     'message' => 'This tag already exists!'
-                ]); 
-            } else {
-                date_default_timezone_set('Asia/Kolkata'); 
-                $this->blogtagModel::where('id', $id) // Specify the condition to update the correct record
-                ->update([
-                    'tag_name' => $request->tag_name, 
-                    'updated_by' => $this->userId,
-                    'updated_at' => now(), 
                 ]);
+            } else {
+                date_default_timezone_set('Asia/Kolkata');
+                $this->blogtagModel::where('id', $id) // Specify the condition to update the correct record
+                    ->update([
+                        'tag_name' => $request->tag_name,
+                        'updated_by' => $this->userId,
+                        'updated_at' => now(),
+                    ]);
 
                 return response()->json([
                     'status' => 200,
@@ -207,7 +215,7 @@ class blogtagController extends commonController
     {
         $blogtag = $this->blogtagModel::find($id);
 
-       
+
         if ($blogtag) {
             if ($this->rp['blogmodule']['blog']['delete'] == 1) {
                 $blogtag->update([

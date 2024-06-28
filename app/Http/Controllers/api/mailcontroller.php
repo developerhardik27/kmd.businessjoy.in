@@ -12,7 +12,7 @@ class mailcontroller extends Controller
     public function sendmail(){
         $username = 'sendmail';
         $password = '1234';
-        Mail::to('parthdeveloper9@gmail.com')->send(new sendmail($username,$password));
+        Mail::to('parthdeveloper9@gmail.com')->send(new sendmail($username,$password,'parthdeveloper9@gmail.com'));
         return 'Email sent succesfully';
     }
 }

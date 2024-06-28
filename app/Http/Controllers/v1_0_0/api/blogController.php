@@ -18,35 +18,37 @@ class blogController extends commonController
     public function __construct(Request $request)
     {
 
-        if (isset($request->site_key) && isset($request->server_key)) {
-            $company_id = api_authorization::where('site_key', $request->site_key)
-                ->where('server_key', $request->server_key)
-                ->select('company_id')
-                ->first();
-            $this->dbname($company_id->company_id);
-            $this->companyId = $request->company_id;
-        } else {
-            if ($request->company_id) {
-                $this->dbname($request->company_id);
-                $this->companyId = $request->company_id;
-            } else {
-                $this->dbname(session()->get('company_id'));
-                $this->companyId = session()->get('company_id');
-            }
-            if ($request->user_id) {
-                $this->userId = $request->user_id;
-            } else {
-                $this->userId = session()->get('user_id');
-            }
 
+        if(isset($request->company_id) && isset($request->user_id)){
+            $this->dbname($request->company_id);
+            $this->companyId = $request->company_id;
+            $this->userId = $request->user_id;
             // **** for checking user has permission to action on all data 
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
             $this->rp = json_decode($permissions[0]['rp'], true);
+        }elseif(isset($request->site_key) && isset($request->server_key)){
+            $domainName = $_SERVER['HTTP_ORIGIN'];
+            $parsed_origin = parse_url($domainName);
+            $hostname = isset($parsed_origin['host']) ? $parsed_origin['host'] : null;
+
+            $company_id = api_authorization::where('site_key', $request->site_key)
+                ->where('server_key', $request->server_key)
+                ->where('domain_name', 'LIKE', '%' . $hostname . '%')
+                ->select('company_id')
+                ->get();
+
+            if ($company_id->isEmpty()) {
+                // Handle case where no record is found
+                $this->returnresponse();
+            }else{
+                $this->dbname($company_id[0]->company_id);
+                $this->companyId = $company_id[0]->company_id;
+            }
+        }else{
+            $this->returnresponse();
         }
-
         $this->masterdbname = DB::connection()->getDatabaseName();
-
         $this->blogModel = $this->getmodel('blog');
     }
     /**
@@ -54,7 +56,6 @@ class blogController extends commonController
      */
     public function index(Request $request)
     {
-
         $recent_post = $request->recent_post;
         $category = $request->category;
         $catids = $request->catids;
@@ -68,31 +69,31 @@ class blogController extends commonController
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
             ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('users.firstname','users.lastname','blogs.id', 'blogs.title','blogs.img','blogs.content', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'),DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y')"))
-            ->groupBy('users.firstname','users.lastname','blogs.id', 'blogs.title','blogs.img','blogs.content','blogs.created_at')
-            ->where('blogs.is_deleted', 0)->orderBy('blogs.id','DESC');
-        
-            if(isset($catids)){ 
-                foreach($catids as $value){
-                    $blogsquery = $blogsquery->orWhere('blogs.cat_ids', 'LIKE', '%' . $value . '%');
-                } 
-            }
+            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y')"))
+            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', 'blogs.created_at')
+            ->where('blogs.is_deleted', 0)->orderBy('blogs.id', 'DESC');
 
-            if(isset($category)){ 
-                $blogsquery = $blogsquery->where('blogs.cat_ids', 'LIKE', '%' . $category . '%');
+        if (isset($catids)) {
+            foreach ($catids as $value) {
+                $blogsquery = $blogsquery->orWhere('blogs.cat_ids', 'LIKE', '%' . $value . '%');
             }
+        }
 
-            if(isset($recent_post)){
-                $blogsquery = $blogsquery->limit($recent_post);
-            }
+        if (isset($category)) {
+            $blogsquery = $blogsquery->where('blogs.cat_ids', 'LIKE', '%' . $category . '%');
+        }
 
-            $blogs = $blogsquery->get();
+        if (isset($recent_post)) {
+            $blogsquery = $blogsquery->limit($recent_post);
+        }
+
+        $blogs = $blogsquery->get();
 
         if ($blogs->count() > 0) {
             return response()->json([
                 'status' => 200,
                 'blog' => $blogs
-            ], 200); 
+            ], 200);
         } else {
             return response()->json([
                 'status' => 404,
@@ -124,7 +125,6 @@ class blogController extends commonController
             'tag' => 'required',
             'blog_image' => 'required|image|mimes:jpg,jpeg,png|max:10240'
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'status' => 422,
@@ -189,7 +189,7 @@ class blogController extends commonController
     /**
      * Display the specified resource.
      */
-    public function show(Request $request,string $id)
+    public function show(Request $request, string $id)
     {
         $blogs = DB::connection('dynamic_connection')
             ->table('blogs')
@@ -200,30 +200,20 @@ class blogController extends commonController
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
             ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('users.firstname','users.lastname','blogs.id', 'blogs.title','blogs.img','blogs.content','blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'),DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
-            ->groupBy('users.firstname','users.lastname','blogs.id', 'blogs.title','blogs.img','blogs.content','blogs.created_at','blogs.cat_ids')
+            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
+            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', 'blogs.created_at', 'blogs.cat_ids')
             ->where('blogs.is_deleted', 0)
-            ->where('blogs.id',$id)
+            ->where('blogs.id', $id)
             ->get();
 
 
-            
+
         if ($blogs->count() > 0) {
             return response()->json([
                 'status' => 200,
                 'blog' => $blogs
             ], 200);
-            if ($this->rp['blogmodule']['blog']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'blog' => $blogs
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
-            }
+          
         } else {
             return response()->json([
                 'status' => 404,
@@ -231,14 +221,14 @@ class blogController extends commonController
             ]);
         }
     }
-    
+
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
         $blog = $this->blogModel::find($id);
-    
+
         if ($blog->count() > 0) {
             if ($this->rp['blogmodule']['blog']['view'] == 1) {
                 return response()->json([
@@ -309,7 +299,6 @@ class blogController extends commonController
                     }
 
                 }
-
 
                 $tags = implode(',', $request->tag);
                 $categories = implode(',', $request->category);
