@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class commonController extends Controller
 {
     
-    public function dbname(string $id){
+    public function dbname(string $id = null){
         
         $dbname = company::find($id);
        
@@ -43,5 +43,11 @@ class commonController extends Controller
         } else {
             return 'App\\Models\\v1_0_0\\' . $model;
         }
+    }
+
+
+    
+    public function returnresponse(){
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
 }
