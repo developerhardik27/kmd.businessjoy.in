@@ -12,9 +12,6 @@ cd ~/htdocs/staging.businessjoy.in/
 # Pull the latest version of the app
 git pull origin main
 
-# Install composer dependencies
-composer update --optimize-autoloader --no-dev --no-interaction
-
 # Clearing Cache
 php artisan cache:clear
 php artisan config:clear
