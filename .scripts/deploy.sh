@@ -16,8 +16,7 @@ git pull origin main
 php artisan cache:clear
 php artisan config:clear
 
-# Recreate cache
-php artisan optimize 
+
 
 # Turn OFF Maintenance mode
 php artisan up
