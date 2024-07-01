@@ -6,7 +6,7 @@
     {{ config('app.name') }} - Users
 @endsection
 @section('table_title')
-    Users
+    User
 @endsection
 @section('style')
     <style>
