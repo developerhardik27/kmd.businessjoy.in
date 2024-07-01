@@ -12,11 +12,6 @@ cd ~/htdocs/staging.businessjoy.in/
 # Pull the latest version of the app
 git pull origin main
 
-# Clearing Cache
-php artisan cache:clear
-php artisan config:clear
-
-
 
 # Turn OFF Maintenance mode
 php artisan up
