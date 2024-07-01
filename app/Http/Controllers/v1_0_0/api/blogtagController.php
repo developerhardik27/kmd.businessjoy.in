@@ -26,7 +26,12 @@ class blogtagController extends commonController
             $permissions = json_decode($user_rp, true);
             $this->rp = json_decode($permissions[0]['rp'], true);
         }elseif(isset($request->site_key) && isset($request->server_key)){
-            $domainName = $_SERVER['HTTP_ORIGIN'];
+            if ($request->ajax()) {
+                // Request was made via Ajax
+                $domainName = $_SERVER['HTTP_ORIGIN'];
+            } else {
+                $domainName = $request->header('X-Custom-Origin');
+            }
             $parsed_origin = parse_url($domainName);
             $hostname = isset($parsed_origin['host']) ? $parsed_origin['host'] : null;
 
