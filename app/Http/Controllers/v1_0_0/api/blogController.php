@@ -95,15 +95,9 @@ class blogController extends commonController
         $blogs = $blogsquery->get();
 
         if ($blogs->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'blog' => $blogs
-            ], 200);
+           return $this->successresponse(200, 'blog', $blogs);  
         } else {
-            return response()->json([
-                'status' => 404,
-                'blog' => 'No Records Found'
-            ]);
+           return $this->successresponse(404, 'blog','No Records Found');  
         }
     }
 
@@ -131,10 +125,7 @@ class blogController extends commonController
             'blog_image' => 'required|image|mimes:jpg,jpeg,png|max:10240'
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -170,24 +161,13 @@ class blogController extends commonController
                 $blog = $this->blogModel::create($blog);
 
                 if ($blog) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Blog succesfully added'
-                    ], 200);
-
+                   return $this->successresponse(200, 'message', 'Blog succesfully added');  
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Blog not succesfully added'
-                    ]);
+                   return $this->successresponse(500, 'message', 'Blog not succesfully added');  
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+               return $this->successresponse(500, 'message', 'You are Unauthorized');  
             }
-
         }
     }
 
@@ -214,16 +194,10 @@ class blogController extends commonController
 
 
         if ($blogs->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'blog' => $blogs
-            ], 200);
+           return $this->successresponse(200, 'blog', $blogs);  
           
         } else {
-            return response()->json([
-                'status' => 404,
-                'blog' => 'No Records Found'
-            ]);
+           return $this->successresponse(404, 'blog','No Records Found');  
         }
     }
 
@@ -236,21 +210,12 @@ class blogController extends commonController
 
         if ($blog->count() > 0) {
             if ($this->rp['blogmodule']['blog']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'blog' => $blog
-                ], 200);
+               return $this->successresponse(200, 'blog',$blog);  
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+               return $this->successresponse(500, 'message', 'You are Unauthorized');  
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'blog' => 'No Records Found'
-            ]);
+           return $this->successresponse(404, 'blog', 'No Records Found');  
         }
         //
     }
@@ -272,18 +237,12 @@ class blogController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             $blog = $this->blogModel::find($id);
             if (!$blog) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => ' No such Blog found!'
-                ]);
+               return $this->successresponse(500, 'message', 'No such Blog found!');  
             }
             if ($this->rp['blogmodule']['blog']['edit'] == 1) {
 
@@ -325,21 +284,12 @@ class blogController extends commonController
                 $update = $this->blogModel::where('id', $id)->update($blog);
 
                 if ($update) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Blog succesfully Updated'
-                    ], 200);
+                   return $this->successresponse(520000, 'message', 'Blog succesfully Updated');  
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Blog not succesfully Updated'
-                    ]);
+                   return $this->successresponse(500, 'message', 'Blog not succesfully Updated');  
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+               return $this->successresponse(500, 'message', 'You are Unauthorized');  
             }
 
         }
@@ -358,21 +308,12 @@ class blogController extends commonController
                 $blog->update([
                     'is_deleted' => 1
                 ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'blog succesfully deleted'
-                ]);
+               return $this->successresponse(200, 'message', 'blog succesfully deleted');  
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+               return $this->successresponse(500, 'message', 'You are Unauthorized');  
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such blog category Found!'
-            ]);
+           return $this->successresponse(404, 'message','No Such blog category Found!');  
         }
     }
 }

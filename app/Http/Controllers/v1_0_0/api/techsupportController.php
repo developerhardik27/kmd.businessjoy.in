@@ -70,15 +70,9 @@ class techsupportController extends commonController
 
 
         if ($techsupport->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'techsupport' => $techsupport
-            ]);
+             return $this->successresponse(200, 'techsupport',  $techsupport);
         } else {
-            return response()->json([
-                'status' => 404,
-                'techsupport' => 'No Records Found'
-            ]);
+             return $this->successresponse(404, 'techsupport', 'No Records Found');
         }
     }
 
@@ -116,10 +110,7 @@ class techsupportController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             $techsupportdata = [];
@@ -176,27 +167,15 @@ class techsupportController extends commonController
 
                             // Log the error or handle it accordingly
                         }
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'Ticket succesfully created'
-                        ], 200);
+                         return $this->successresponse(200, 'message', 'Ticket succesfully created');
                     } else {
-                        return response()->json([
-                            'status' => 422,
-                            'message' => 'Ticket not succesfully created'
-                        ]);
+                         return $this->successresponse(500, 'message', 'Ticket not succesfully created');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 422,
-                        'message' => 'Ticket not succesfully created'
-                    ]);
+                     return $this->successresponse(500, 'message', 'Ticket not succesfully created');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Ticket not succesfully created'
-                ], 500);
+                 return $this->successresponse(500, 'message', 'Ticket not succesfully created');
             }
         }
     }
@@ -212,15 +191,9 @@ class techsupportController extends commonController
             ->get();
 
         if ($techsupport->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'techsupport' => $techsupport
-            ]);
+             return $this->successresponse(200, 'techsupport', $techsupport);
         } else {
-            return response()->json([
-                'status' => 404,
-                'techsupport' => $techsupport
-            ]);
+             return $this->successresponse(404, 'techsupport', $techsupport);
         }
     }
 
@@ -232,21 +205,12 @@ class techsupportController extends commonController
         $techsupport = tech_support::find($id);
 
         if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($techsupport) {
-            return response()->json([
-                'status' => 200,
-                'techsupport' => $techsupport
-            ], 200);
+             return $this->successresponse(200, 'techsupport', $techsupport);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such Ticket Found!"
-            ], 404);
+             return $this->successresponse(404, 'message',  "No Such Ticket Found!");
         }
     }
 
@@ -276,17 +240,11 @@ class techsupportController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $ticket = tech_support::find($id);
@@ -311,16 +269,9 @@ class techsupportController extends commonController
                     'ticket' => $request->ticket,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Ticekt succesfully updated'
-                ], 200);
+                 return $this->successresponse(200, 'message', 'Ticekt succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Ticket Found!'
-                ], 404);
+                 return $this->successresponse(404, 'message', 'No Such Ticket Found!');
             }
         }
     }
@@ -334,17 +285,11 @@ class techsupportController extends commonController
 
         if ($this->rp['adminmodule']['techsupport']['alldata'] != 1) {
             if ($techsupport->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['techsupport']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($techsupport) {
@@ -352,15 +297,9 @@ class techsupportController extends commonController
                 'is_deleted' => 1
 
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'techsupport succesfully deleted'
-            ], 200);
+             return $this->successresponse(200, 'message', 'techsupport succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Ticket Found!'
-            ], 404);
+             return $this->successresponse(404, 'message', 'No Such Ticket Found!');
         }
     }
 
@@ -369,18 +308,11 @@ class techsupportController extends commonController
     public function changestatus(Request $request)
     {
 
-
-
         $techsupport = DB::table('tech_supports')->where('id', $request->statusid)->get();
 
         if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-
-
 
         if ($techsupport) {
 
@@ -402,16 +334,10 @@ class techsupportController extends commonController
                 // Log the error or handle it accordingly
             }
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'status Succesfully Updated'
-            ], 200);
+             return $this->successresponse(200, 'message',  'status Succesfully Updated');
 
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Ticket Found!'
-            ], 404);
+             return $this->successresponse(404, 'message', 'No Such Ticket Found!');
         }
     }
 

@@ -33,15 +33,9 @@ class PaymentController extends commonController
         $paymentdetail = $this->payment_detailsModel::find($id);
 
         if ($paymentdetail->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'paymentdetail' => $paymentdetail
-            ]);
+            return $this->successresponse(200, 'paymentdetail', $paymentdetail);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'message', 'No Records Found');
         }
     }
     public function paymentdetail(string $id)
@@ -50,15 +44,9 @@ class PaymentController extends commonController
         $paymentdetail = $this->payment_detailsModel::where('inv_id', $id)->get();
 
         if ($paymentdetail->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'paymentdetail' => $paymentdetail
-            ]);
+            return $this->successresponse(200, 'paymentdetail', $paymentdetail);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'message', 'No Records Found');
         }
     }
 
@@ -75,15 +63,9 @@ class PaymentController extends commonController
             ->get();
 
         if ($payment->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'payment' => $payment
-            ]);
+            return $this->successresponse(200, 'payment', $payment);
         } else {
-            return response()->json([
-                'status' => 404,
-                'payment' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'payment', 'No Records Found');
         }
 
     }
@@ -95,15 +77,9 @@ class PaymentController extends commonController
             ->get();
 
         if ($payment->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'payment' => $payment
-            ]);
+            return $this->successresponse(200, 'payment', $payment);
         } else {
-            return response()->json([
-                'status' => 404,
-                'payment' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'payment', 'No Records Found');
         }
 
     }
@@ -129,10 +105,7 @@ class PaymentController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             $invoiceammount = $this->invoiceModel::find($request->inv_id);
@@ -145,10 +118,7 @@ class PaymentController extends commonController
                     $total_paided_amount = $total_paided_amount + $value->paid_amount;
                 }
                 if ($invoiceammount->grand_total == $total_paided_amount) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'payment Already Paided'
-                    ]);
+                    return $this->successresponse(200, 'message', 'payment Already Paided');
                 }
                 if ($invoiceammount->count() > 0) {
                     $total = $invoiceammount->grand_total;
@@ -175,15 +145,9 @@ class PaymentController extends commonController
                     }
                 }
                 if ($payment_details) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'payment details succesfully created'
-                    ]);
+                    return $this->successresponse(200, 'message', 'payment details succesfully created');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'payment details not succesfully create'
-                    ]);
+                    return $this->successresponse(500, 'message', 'payment details not succesfully create');
                 }
             } else {
                 if ($invoiceammount->count() > 0) {
@@ -224,15 +188,9 @@ class PaymentController extends commonController
                         $invoiceammount->save();
                     }
                     if ($payment_details) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'payment details succesfully created'
-                        ]);
+                        return $this->successresponse(200, 'message', 'payment details succesfully created');
                     } else {
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'payment details not succesfully create'
-                        ]);
+                        return $this->successresponse(500, 'message', 'payment details not succesfully create');
                     }
                 }
             }

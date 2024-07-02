@@ -44,24 +44,15 @@ class tblinvoicecolumnController extends commonController
     {
         //condition for check if user has permission to view record
         if ($this->rp['invoicemodule']['mngcol']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoicecolumn = $this->tbl_invoice_columnModel::all()->whereIn('column_type', ['decimal', 'percentage', 'number'])->where('is_deleted', 0);
 
         if ($invoicecolumn->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoicecolumn' => $invoicecolumn
-            ], 200);
+            return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoicecolumn' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoicecolumn', 'No Records Found');
         }
     }
 
@@ -76,17 +67,9 @@ class tblinvoicecolumnController extends commonController
 
 
         if ($columndetails->count() > 0) {
-
-            return response()->json([
-                'status' => 200,
-                'columndetails' => $columndetails
-            ], 200);
-
+            return $this->successresponse(200, 'columndetails', $columndetails);
         } else {
-            return response()->json([
-                'status' => 404,
-                'columndetails' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'columndetails', 'No Records Found');
         }
     }
 
@@ -97,26 +80,16 @@ class tblinvoicecolumnController extends commonController
     {
         //condition for check if user has permission to view record
         if ($this->rp['invoicemodule']['mngcol']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoicecolumn = $this->tbl_invoice_columnModel::orderBy('column_order')
             ->where('is_deleted', 0)->get();
 
-
         if ($invoicecolumn->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoicecolumn' => $invoicecolumn
-            ], 200);
+            return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoicecolumn' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoicecolumn', 'No Records Found');
         }
     }
 
@@ -147,27 +120,18 @@ class tblinvoicecolumnController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             //condition for check if user has permission to add record
             if ($this->rp['invoicemodule']['mngcol']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $invoicecolumn = $this->tbl_invoice_columnModel::all()
                 ->where('column_name', $request->column_name)
                 ->where('is_deleted', 0);
             if ($invoicecolumn->count() > 0) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => $request->column_name . ' Columns Already Exist'
-                ]);
+                return $this->successresponse(500, 'message', $request->column_name . ' Columns Already Exist');
             } else {
 
                 $columnTypes = [
@@ -207,21 +171,12 @@ class tblinvoicecolumnController extends commonController
                     ]);
 
                     if ($invoicecolumn) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'Invoice Columns  succesfully added'
-                        ], 200);
+                        return $this->successresponse(200, 'message', 'Invoice Columns  succesfully added');
                     } else {
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'Invoice Columns not succesfully added'
-                        ]);
+                        return $this->successresponse(500, 'message', 'Invoice Columns not succesfully added');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Invoice Columns not succesfully added'
-                    ]);
+                    return $this->successresponse(500, 'message', 'Invoice Columns not succesfully added');
                 }
             }
         }
@@ -235,34 +190,21 @@ class tblinvoicecolumnController extends commonController
 
         //condition for check if user has permission to search  record
         if ($this->rp['invoicemodule']['mngcol']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoicecolumn = $this->tbl_invoice_columnModel::get();
 
         if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
             if ($invoicecolumn->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         if ($invoicecolumn->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoicecolumn' => $invoicecolumn
-            ]);
+            return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoicecolumn' => $invoicecolumn,
-                'message' => "No Such Invoice Column Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such Invoice Column Found!");
         }
     }
 
@@ -274,34 +216,21 @@ class tblinvoicecolumnController extends commonController
 
         //condition for check if user has permission to search record
         if ($this->rp['invoicemodule']['mngcol']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
 
         if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
             if ($invoicecolumn->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         if ($invoicecolumn->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoicecolumn' => $invoicecolumn
-            ]);
+            return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoicecolumn' => $invoicecolumn,
-                'message' => "No Such Invoice Column Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such Invoice Column Found!");
         }
     }
 
@@ -324,35 +253,24 @@ class tblinvoicecolumnController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             //condition for check if user has permission to search record
             if ($this->rp['invoicemodule']['mngcol']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
 
             if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
                 if ($invoicecolumn->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
 
             if ($invoicecolumn) {
                 date_default_timezone_set('Asia/Kolkata');
-
-
 
                 $columnTypes = [
                     'text' => 'varchar(255)',
@@ -398,16 +316,10 @@ class tblinvoicecolumnController extends commonController
                     'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Invoice Column succesfully updated'
-                ]);
+                
+                return $this->successresponse(200, 'message', 'Invoice Column succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Invoice Column Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such Invoice Column Found!');
             }
         }
     }
@@ -420,10 +332,7 @@ class tblinvoicecolumnController extends commonController
 
         //condition for check if user has permission to search record
         if ($this->rp['invoicemodule']['mngcol']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         // fetch column data from tbl invoice column table
@@ -431,10 +340,7 @@ class tblinvoicecolumnController extends commonController
 
         if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
             if ($invoicecolumn->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
          // if column data found
@@ -454,10 +360,7 @@ class tblinvoicecolumnController extends commonController
                 })->where('is_deleted', 0)
                 ->get();
             if ($checkrec->count() > 0) {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'This column is using in Formula so please first remove it from formula!'
-                ]);
+                return $this->successresponse(404, 'message', 'This column is using in Formula so please first remove it from formula!');
             }
 
             // drop column from mng col table it is it exist
@@ -480,15 +383,9 @@ class tblinvoicecolumnController extends commonController
             $invoicecolumn->update([
                 'is_deleted' => 1
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'Invoice Column succesfully deleted'
-            ]);
+            return $this->successresponse(200, 'message', 'Invoice Column succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Invoice Column Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such Invoice Column Found!');
         }
 
 
@@ -503,20 +400,14 @@ class tblinvoicecolumnController extends commonController
     {
 
         if ($this->rp['invoicemodule']['mngcol']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
 
         if ($this->rp['invoicemodule']['mngcol']['alldata'] != 1) {
             if ($invoicecolumn->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
@@ -524,15 +415,9 @@ class tblinvoicecolumnController extends commonController
             $invoicecolumn->update([
                 'is_hide' => $request->hidevalue
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'Invoice Column succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message', 'Invoice Column succesfully updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Invoice Column Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such Invoice Column Found!');
         }
     }
 
@@ -543,10 +428,7 @@ class tblinvoicecolumnController extends commonController
     {
 
         if ($this->rp['invoicemodule']['mngcol']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $successCount = 0;
@@ -566,15 +448,9 @@ class tblinvoicecolumnController extends commonController
         }
 
         if ($successCount > 0) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'Column Order Succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message','Column Order Succesfully updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Column Order Not Succesfully upadated'
-            ]);
+            return $this->successresponse(404, 'message','Column Order Not Succesfully upadated');
         }
     }
 }

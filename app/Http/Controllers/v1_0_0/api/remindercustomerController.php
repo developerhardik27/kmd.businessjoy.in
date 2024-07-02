@@ -37,35 +37,20 @@ class remindercustomercontroller extends commonController
             ->where('reminder_customer.is_deleted', 0)->where('reminder.customer_id',$id)->get();
 
         if ($customers->count() > 0) {
-            if ($this->rp['remindermodule']['reminder']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customers
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
-            }
+            if ($this->rp['remindermodule']['reminder']['view'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            } 
+            return $this->successresponse(200, 'customer', $customers);
 
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => 'No Records Found!'
-            ]);
+            return $this->successresponse(404, 'customer', 'No Records Found!');
         }
     }
 
     public function counttotalcustomer(Request $request)
     {
         $totalcustomer = $this->customerModel::where('is_deleted', 0)->count();
-
-            return response()->json([
-                'status' => 200,
-                'customer' => $totalcustomer
-            ], 200);
-
+            return $this->successresponse(200, 'customer', $totalcustomer);
     }
     public function remindercustomer(Request $request)
     {
@@ -78,17 +63,9 @@ class remindercustomercontroller extends commonController
         $customers = $customersres->get();
 
         if ($customers->count() > 0) {
-
-            return response()->json([
-                'status' => 200,
-                'customer' => $customers
-            ], 200);
-
+            return $this->successresponse(200, 'customer',$customers);
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => 'No Records Found!'
-            ]);
+            return $this->successresponse(404, 'customer', 'No Records Found!');
         }
     }
 
@@ -112,22 +89,13 @@ class remindercustomercontroller extends commonController
 
         if ($customers->count() > 0) {
             if ($this->rp['remindermodule']['reminder']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customers
-                ], 200);
+                return $this->successresponse(200, 'customer', $customers);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => 'No Records Found!'
-            ]);
+            return $this->successresponse(404, 'customer','No Records Found!');
         }
     }
 
@@ -167,10 +135,7 @@ class remindercustomercontroller extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             if ($this->rp['remindermodule']['reminder']['add'] == 1) {
                 $customer = DB::connection('dynamic_connection')->table('reminder_customer')->insertGetId([
@@ -206,39 +171,21 @@ class remindercustomercontroller extends commonController
                         ]);
 
                         if ($reminder) {
-                            return response()->json([
-                                'status' => 200,
-                                'customer' => $customer,
-                                'message' => 'customer succesfully added'
-                            ], 200);
+                            return $this->successresponse(200, 'message', 'customer succesfully added');
                         } else {
-                            return response()->json([
-                                'status' => 500,
-                                'message' => 'customer not succesfully added !'
-                            ], 500);
+                            return $this->successresponse(500, 'message', 'customer not succesfully added !');
                         }
 
                     } else {
-                        return response()->json([
-                            'status' => 200,
-                            'customer' => $customer,
-                            'message' => 'customer succesfully added'
-                        ], 200);
+                        return $this->successresponse(200, 'message', 'customer succesfully added');
                     }
 
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'customer not succesfully added !'
-                    ], 500);
+                    return $this->successresponse(500, 'message', 'customer not succesfully added !');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-
         }
     }
 
@@ -250,30 +197,16 @@ class remindercustomercontroller extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['remindermodule']['remindercustomer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
-            if ($this->rp['remindermodule']['remindercustomer']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customer
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+            if ($this->rp['remindermodule']['remindercustomer']['view'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
+            return $this->successresponse(200, 'customer',  $customer);
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => $customer,
-                'message' => "No Such Customer Found!"
-            ]);
+            return $this->successresponse(404, 'message',  "No Such Customer Found!");
         }
     }
 
@@ -285,29 +218,17 @@ class remindercustomercontroller extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['remindermodule']['remindercustomer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
             if ($this->rp['remindermodule']['remindercustomer']['edit'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customer
-                ], 200);
+                return $this->successresponse(200, 'customer',  $customer);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such Customer Found!"
-            ], 404);
+            return $this->successresponse(404, 'message', "No Such Customer Found!");
         }
     }
 
@@ -335,18 +256,12 @@ class remindercustomercontroller extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             $customer = $this->customerModel::find($id);
             if ($this->rp['remindermodule']['remindercustomer']['alldata'] != 1) {
                 if ($customer->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
             if ($customer) {
@@ -367,22 +282,13 @@ class remindercustomercontroller extends commonController
                         'updated_by' => $this->userId,
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'customer succesfully updated'
-                    ], 200);
+                    return $this->successresponse(200, 'message', 'customer succesfully updated');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'You are Unauthorized'
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
 
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Customer Found!'
-                ], 404);
+                return $this->successresponse(404, 'message', 'No Such Customer Found!');
             }
         }
     }
@@ -393,32 +299,19 @@ class remindercustomercontroller extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['remindermodule']['remindercustomer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
-            if ($this->rp['remindermodule']['remindercustomer']['edit'] == 1) {
-                $customer->update([
-                    'is_active' => $request->status
-                ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer status succesfully updated'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+            if ($this->rp['remindermodule']['remindercustomer']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such customer Found!'
+            $customer->update([
+                'is_active' => $request->status
             ]);
+            return $this->successresponse(200, 'message', 'customer status succesfully updated');
+        } else {
+            return $this->successresponse(404, 'message', 'No Such customer Found!');
         }
     }
     /**
@@ -429,10 +322,7 @@ class remindercustomercontroller extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['remindermodule']['remindercustomer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
@@ -440,21 +330,12 @@ class remindercustomercontroller extends commonController
                 $customer->update([
                     'is_deleted' => 1
                 ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer succesfully deleted'
-                ], 200);
+                return $this->successresponse(200, 'message', 'customer succesfully deleted');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Customer Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such Customer Found!');
         }
     }
 
@@ -463,15 +344,9 @@ class remindercustomercontroller extends commonController
         $uniqareas = $this->customerModel::distinct()->orderBy('area')->pluck('area');
 
         if ($uniqareas->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'area' => $uniqareas
-            ], 200);
+            return $this->successresponse(200, 'area', $uniqareas);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No any area Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No any area Found!');
         }
 
     }
@@ -484,15 +359,9 @@ class remindercustomercontroller extends commonController
         $cities = city::whereIn('id', $citiesid)->select('id', 'city_name')->orderBy('city_name')->get();
 
         if ($cities->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'city' => $cities
-            ], 200);
+            return $this->successresponse(200, 'city', $cities);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No any city Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No any city Found!');
         }
 
     }

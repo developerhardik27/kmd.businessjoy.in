@@ -71,15 +71,9 @@ class invoiceController extends commonController
         $currency = DB::table('currency')->orderBy('country')->get();
 
         if ($currency->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'currency' => $currency
-            ], 200);
+            return $this->successresponse(200, 'currency', $currency);
         } else {
-            return response()->json([
-                'status' => 404,
-                'currency' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'currency', 'No Records Found');
         }
     }
     //get bank details
@@ -88,15 +82,9 @@ class invoiceController extends commonController
         $bank = DB::connection('dynamic_connection')->table('bank_details')->get()->where('is_active', 1)->where('is_deleted', 0);
 
         if ($bank->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'bank' => $bank
-            ], 200);
+            return $this->successresponse(200, 'bank', $bank);
         } else {
-            return response()->json([
-                'status' => 404,
-                'bank' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'bank', 'No Records Found');
         }
     }
 
@@ -104,10 +92,7 @@ class invoiceController extends commonController
     {
 
         if ($this->rp['invoicemodule']['invoice']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoiceres = DB::connection('dynamic_connection')->table('invoices')->leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
@@ -129,15 +114,9 @@ class invoiceController extends commonController
         $invoice = $invoiceres->get();
 
         if ($invoice->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoice' => $invoice
-            ]);
+            return $this->successresponse(200, 'invoice', $invoice);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoice' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoice', 'No Records Found');
         }
     }
 
@@ -148,24 +127,15 @@ class invoiceController extends commonController
     {
 
         if ($this->rp['invoicemodule']['invoice']['add'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $columnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('id', 'column_name', 'column_type', 'is_hide')->where('is_active', 1)->where('is_deleted', 0)->orderBy('column_order')->get();
 
         if ($columnname->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'columnname' => $columnname
-            ], 200);
+            return $this->successresponse(200, 'columnname', $columnname);
         } else {
-            return response()->json([
-                'status' => 404,
-                'columnname' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'columnname', 'No Records Found');
         }
     }
 
@@ -174,24 +144,15 @@ class invoiceController extends commonController
     public function numbercolumnname(Request $request)
     {
         if ($this->rp['invoicemodule']['invoice']['add'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $columnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('column_name')->whereIn('column_type', ['number', 'decimal', 'percentage'])->where('is_active', 1)->where('is_deleted', 0)->get();
 
         if ($columnname->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'columnname' => $columnname
-            ], 200);
+            return $this->successresponse(200, 'columnname', $columnname);
         } else {
-            return response()->json([
-                'status' => 404,
-                'columnname' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'columnname', 'No Records Found');
         }
     }
 
@@ -201,10 +162,7 @@ class invoiceController extends commonController
     public function index(string $id)
     {
         if ($this->rp['invoicemodule']['invoice']['view'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoiceres = DB::connection('dynamic_connection')->table('invoices')
@@ -225,15 +183,9 @@ class invoiceController extends commonController
 
         $invoice = $invoiceres->get();
         if ($invoice->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoice' => $invoice
-            ]);
+            return $this->successresponse(200, 'invoice', $invoice);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoice' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoice', 'No Records Found');
         }
     }
 
@@ -276,17 +228,11 @@ class invoiceController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['invoicemodule']['invoice']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             //fetch all column for add details into manage column table and add show column into invoice table
@@ -463,10 +409,7 @@ class invoiceController extends commonController
                     }
 
                     if ($mng_col) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'invoice  succesfully created'
-                        ]);
+                        return $this->successresponse(200, 'message', 'invoice  succesfully created');
                     } else {
                         $id = $invoice;
                         $record = $this->invoiceModel::find($id);
@@ -475,22 +418,13 @@ class invoiceController extends commonController
                             // Delete the record
                             $record->delete();
                         }
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'invoice details not succesfully created'
-                        ]);
+                        return $this->successresponse(500, 'message', 'invoice details not succesfully created');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'invoice not succesfully created'
-                    ], 500);
+                    return $this->successresponse(500, 'message', 'invoice not succesfully created');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'company Details not found'
-                ], 500);
+                return $this->successresponse(500, 'message', 'company Details not found');
             }
 
 
@@ -503,10 +437,7 @@ class invoiceController extends commonController
     public function show(string $id)
     {
         if ($this->rp['invoicemodule']['invoice']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoice = DB::connection('dynamic_connection')->table('invoices')
@@ -518,10 +449,7 @@ class invoiceController extends commonController
 
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($invoice[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
@@ -550,19 +478,13 @@ class invoiceController extends commonController
     {
         // Check if the user is authorized to delete the invoice
         if ($this->rp['invoicemodule']['invoice']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         // Find the invoice by ID
         $inv = $this->invoiceModel::find($id);
         if (!$inv) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Invoice not found'
-            ]);
+            return $this->successresponse(404, 'message', 'Invoice not found');
         }
 
         // Update increment numbers if applicable
@@ -589,17 +511,11 @@ class invoiceController extends commonController
                 ->update(['is_deleted' => 1]);
 
             if ($mng_col) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Invoice successfully deleted'
-                ], 200);
+                return $this->successresponse(200, 'message', 'Invoice successfully deleted');
             }
         }
 
-        return response()->json([
-            'status' => 404,
-            'message' => 'Invoice not successfully deleted!'
-        ]);
+        return $this->successresponse(404, 'message', 'Invoice not successfully deleted!');
     }
 
 
@@ -614,10 +530,7 @@ class invoiceController extends commonController
 
 
         if ($columnarray[0] == '') {
-            return response()->json([
-                'status' => 404,
-                'invoice' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoice', 'No Records Found');
         }
 
         $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
@@ -635,10 +548,7 @@ class invoiceController extends commonController
                 'othersettings' => $othersettingsdetails
             ]);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoice' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoice', 'No Records Found');
         }
     }
 
@@ -650,15 +560,9 @@ class invoiceController extends commonController
                 'status' => $request->status
             ]);
         if ($invoices) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'status updated'
-            ], 200);
+            return $this->successresponse(200, 'message', 'status updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'invoice  status not succesfully updated!'
-            ]);
+            return $this->successresponse(404, 'message', 'invoice  status not succesfully updated!');
         }
     }
 
@@ -666,10 +570,7 @@ class invoiceController extends commonController
     public function reportlogsdetails(Request $request)
     {
         if ($this->rp['reportmodule']['report']['log'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $reports = DB::connection('dynamic_connection')->table('reportlogs')
@@ -677,17 +578,10 @@ class invoiceController extends commonController
             ->select('reportlogs.*', 'users.firstname', 'users.lastname')
             ->where('reportlogs.is_deleted', 0)->get();
 
-
         if ($reports->isNotEmpty()) {
-            return response()->json([
-                'status' => 200,
-                'reports' => $reports
-            ]);
+            return $this->successresponse(200, 'reports', $reports);
         } else {
-            return response()->json([
-                'status' => 404,
-                'reports' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'reports', 'No Records Found');
         }
 
 
@@ -695,28 +589,19 @@ class invoiceController extends commonController
     public function reportlogdestroy(Request $request, string $id)
     {
         if ($this->rp['reportmodule']['report']['delete'] == 1) {
-            $reportlog =DB::connection('dynamic_connection')
-            ->table('reportlogs')
-            ->where('id', $id)
-            ->update(['is_deleted' => 1]);
+            $reportlog = DB::connection('dynamic_connection')
+                ->table('reportlogs')
+                ->where('id', $id)
+                ->update(['is_deleted' => 1]);
         } else {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        if ($reportlog) { 
-            return response()->json([
-                'status' => 200,
-                'message' => 'reportlog succesfully deleted'
-            ]);
+        if ($reportlog) {
+            return $this->successresponse(200, 'message', 'reportlog succesfully deleted');
 
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Log Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such Log Found!');
         }
     }
 }

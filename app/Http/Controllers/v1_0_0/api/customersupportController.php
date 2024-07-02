@@ -77,22 +77,13 @@ class customersupportController extends commonController
         $customersupport = $customersupportquery->get();
 
         if($this->rp['customersupportmodule']['customersupport']['view'] != 1){
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($customersupport->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'customersupport' => $customersupport
-            ]);
+             return $this->successresponse(200, 'customersupport', $customersupport);
         } else {
-            return response()->json([
-                'status' => 404,
-                'customersupport' => 'No Records Found'
-            ]);
+             return $this->successresponse(404, 'customersupport', 'No Records Found');
         }
     }
 
@@ -129,17 +120,11 @@ class customersupportController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if($this->rp['customersupportmodule']['customersupport']['add'] != 1){
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
 
@@ -167,27 +152,15 @@ class customersupportController extends commonController
                         'ticket' => $ticket
                     ]);
                     if ($ticketupdate) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'Ticket succesfully created'
-                        ], 200);
+                         return $this->successresponse(200, 'message', 'Ticket succesfully created');
                     } else {
-                        return response()->json([
-                            'status' => 422,
-                            'message' => 'Ticket not succesfully created'
-                        ]);
+                         return $this->successresponse(422, 'message','Ticket not succesfully created');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 422,
-                        'message' => 'Ticket not succesfully created'
-                    ]);
+                     return $this->successresponse(422, 'message','Ticket not succesfully created');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Ticket not succesfully created'
-                ], 500);
+                 return $this->successresponse(500, 'message','Ticket not succesfully created');
             }
         }
     }
@@ -204,29 +177,17 @@ class customersupportController extends commonController
         
             if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
                 if ($customersupport[0]->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
             if ($this->rp['customersupportmodule']['customersupport']['view'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         if ($customersupport->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'customersupport' => $customersupport
-            ]);
+             return $this->successresponse(200, 'customersupport',$customersupport);
         } else {
-            return response()->json([
-                'status' => 404,
-                'customersupport' => $customersupport
-            ]);
+             return $this->successresponse(404, 'customersupport', $customersupport);
         }
     }
 
@@ -239,28 +200,16 @@ class customersupportController extends commonController
 
         if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
             if ($customersupport->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($customersupport) {
-            return response()->json([
-                'status' => 200,
-                'customersupport' => $customersupport
-            ], 200);
+             return $this->successresponse(200, 'customersupport', $customersupport);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such customersupport Found!"
-            ], 404);
+             return $this->successresponse(404, 'message', "No Such customersupport Found!");
         }
     }
 
@@ -288,17 +237,11 @@ class customersupportController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $ticket = $this->customer_supportModel::find($id);
@@ -321,15 +264,9 @@ class customersupportController extends commonController
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Ticekt succesfully updated'
-                ], 200);
+                 return $this->successresponse(200, 'message', 'Ticekt succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Ticket Found!'
-                ], 404);
+                 return $this->successresponse(404, 'message','No Such Ticket Found!');
             }
         }
     }
@@ -343,17 +280,11 @@ class customersupportController extends commonController
 
         if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
             if ($customersupport->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['customersupportmodule']['customersupport']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($customersupport) {
@@ -361,15 +292,9 @@ class customersupportController extends commonController
                 'is_deleted' => 1
 
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'customersupport succesfully deleted'
-            ], 200);
+             return $this->successresponse(200, 'message','customersupport succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such customersupport Found!'
-            ], 404);
+             return $this->successresponse(404, 'message', 'No Such customersupport Found!');
         }
     }
 
@@ -381,17 +306,11 @@ class customersupportController extends commonController
         
         if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
             if ($customersupport[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
        
         if ($customersupport) {
@@ -400,15 +319,9 @@ class customersupportController extends commonController
                 ->where('id', $request->statusid)
                 ->update(['status' => $request->statusvalue]);
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'status Succesfully Updated'
-            ], 200);
+             return $this->successresponse(200, 'message','status Succesfully Updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such customersupport Found!'
-            ], 404);
+             return $this->successresponse(404, 'message', 'No Such customersupport Found!');
         }
     }
 
@@ -418,17 +331,11 @@ class customersupportController extends commonController
         
         if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
             if ($customersupport[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($customersupport) {
@@ -436,16 +343,10 @@ class customersupportController extends commonController
             DB::connection('dynamic_connection')->table('customer_support')
                 ->where('id', $request->customersupportstageid)
                 ->update(['customersupport_stage' => $request->customersupportstagevalue]);
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Lead Stage Succesfully Updated'
-            ], 200);
+            
+             return $this->successresponse(200, 'message', 'Lead Stage Succesfully Updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Lead Stage Found!'
-            ], 404);
+             return $this->successresponse(404, 'message', 'No Such Lead Stage Found!');
         }
     }
 }

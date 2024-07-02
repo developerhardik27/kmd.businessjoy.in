@@ -18,7 +18,7 @@ class blogcategoryController extends commonController
     {
 
 
-        if(isset($request->company_id) && isset($request->user_id)){
+        if (isset($request->company_id) && isset($request->user_id)) {
             $this->dbname($request->company_id);
             $this->companyId = $request->company_id;
             $this->userId = $request->user_id;
@@ -26,7 +26,7 @@ class blogcategoryController extends commonController
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
             $this->rp = json_decode($permissions[0]['rp'], true);
-        }elseif(isset($request->site_key) && isset($request->server_key)){
+        } elseif (isset($request->site_key) && isset($request->server_key)) {
             if ($request->ajax()) {
                 // Request was made via Ajax
                 $domainName = $_SERVER['HTTP_ORIGIN'];
@@ -45,11 +45,11 @@ class blogcategoryController extends commonController
             if ($company_id->isEmpty()) {
                 // Handle case where no record is found
                 $this->returnresponse();
-            }else{
+            } else {
                 $this->dbname($company_id[0]->company_id);
                 $this->companyId = $company_id[0]->company_id;
             }
-        }else{
+        } else {
             $this->returnresponse();
         }
         $this->masterdbname = DB::connection()->getDatabaseName();
@@ -64,17 +64,9 @@ class blogcategoryController extends commonController
         $blogcategory = DB::connection('dynamic_connection')->table('blog_categories')->where('is_deleted', 0)->get();
 
         if ($blogcategory->count() > 0) {
-
-            return response()->json([
-                'status' => 200,
-                'blogcategory' => $blogcategory
-            ], 200);
-
+            return $this->successresponse(200, 'blogcategory', $blogcategory);
         } else {
-            return response()->json([
-                'status' => 404,
-                'blogcategory' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'blogcategory', 'No Records Found');
         }
     }
 
@@ -96,10 +88,7 @@ class blogcategoryController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -110,22 +99,12 @@ class blogcategoryController extends commonController
                 ]);
 
                 if ($blogcategory) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Blog Category  succesfully added'
-                    ], 200);
-
+                    return $this->successresponse(200, 'message', 'Blog Category  succesfully added');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Blog Category not succesfully added'
-                    ]);
+                    return $this->successresponse(500, 'message', 'Blog Category not succesfully added');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         }
@@ -148,23 +127,14 @@ class blogcategoryController extends commonController
 
         if ($this->rp['blogmodule']['blog']['alldata'] != 1) {
             if ($blogcategory->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
 
         if ($blogcategory->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'blogcategory' => $blogcategory
-            ]);
+            return $this->successresponse(200, 'blogcategory', $blogcategory);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such blog category Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such blog category Found!");
         }
     }
 
@@ -178,23 +148,16 @@ class blogcategoryController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
 
             $blogcategory = $this->blogcategorymodel::where('cat_name', $request->category_name)->where('id', '!=', $id)->where('is_deleted', 0)->first();
 
             if ($blogcategory) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'This Category already exists!'
-                ]);
+                return $this->successresponse(500, 'message', 'This Category already exists!');
             } else {
                 date_default_timezone_set('Asia/Kolkata');
-
 
                 $this->blogcategorymodel::where('id', $id) // Specify the condition to update the correct record
                     ->update([
@@ -203,10 +166,7 @@ class blogcategoryController extends commonController
                         'updated_at' => now(),
                     ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Blog category succesfully updated'
-                ]);
+                return $this->successresponse(200, 'message', 'Blog category succesfully updated');
             }
         }
     }
@@ -224,21 +184,12 @@ class blogcategoryController extends commonController
                 $blogcategory->update([
                     'is_deleted' => 1
                 ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'blog category succesfully deleted'
-                ]);
+                return $this->successresponse(200, 'message','blog category succesfully deleted');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such blog category Found!'
-            ]);
+            return $this->successresponse(404, 'message',  'No Such blog category Found!');
         }
     }
 }

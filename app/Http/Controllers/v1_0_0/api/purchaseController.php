@@ -45,24 +45,15 @@ class purchaseController extends commonController
 
         //condition for check if user has permission to view record
         if ($this->rp['accountmodule']['purchase']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $purchases = $purchasesres->get();
 
         if ($purchases->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'purchase' => $purchases
-            ]);
+            return $this->successresponse(200, 'purchase',$purchases);
         } else {
-            return response()->json([
-                'status' => 404,
-                'purchase' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'purchase', 'No Records Found');
         }
     }
 
@@ -97,18 +88,12 @@ class purchaseController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ],422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             //condition for check if user has permission to add new record
             if ($this->rp['accountmodule']['purchase']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             if ($request->hasFile('img') && $request->file('img') != '') {
@@ -133,21 +118,12 @@ class purchaseController extends commonController
 
 
                     if ($purchases) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'purchases succesfully created'
-                        ]);
+                        return $this->successresponse(200, 'message','purchases succesfully created');
                     } else {
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'purchases not succesfully create'
-                        ]);
+                        return $this->successresponse(500, 'message','purchases not succesfully create');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'image not succesfully upload'
-                    ]);
+                    return $this->successresponse(500, 'message','image not succesfully upload');
                 }
             } else {
                 $purchases = $this->PurchaseModel::create([
@@ -162,15 +138,9 @@ class purchaseController extends commonController
 
 
                 if ($purchases) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'purchases succesfully created'
-                    ]);
+                    return $this->successresponse(200, 'message', 'purchases succesfully created');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'purchases not succesfully create'
-                    ]);
+                    return $this->successresponse(500, 'message', 'purchases not succesfully create');
                 }
             }
         }
@@ -184,30 +154,18 @@ class purchaseController extends commonController
         $purchases = $this->PurchaseModel::find($id);
         if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             if ($purchases->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         //condition for check if user has permission to search record
         if ($this->rp['accountmodule']['purchase']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($purchases) {
-            return response()->json([
-                'status' => 200,
-                'purchases' => $purchases
-            ]);
+            return $this->successresponse(200, 'purchases',  $purchases);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such purchases Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such purchases Found!");
         }
     }
 
@@ -219,30 +177,18 @@ class purchaseController extends commonController
         $purchases = $this->PurchaseModel::find($id);
         if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             if ($purchases->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         //condition for check if user has permission to edit record
         if ($this->rp['accountmodule']['purchase']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($purchases) {
-            return response()->json([
-                'status' => 200,
-                'purchases' => $purchases
-            ]);
+            return $this->successresponse(200, 'purchases', $purchases);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such purchase Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such purchase Found!");
         }
     }
 
@@ -267,17 +213,11 @@ class purchaseController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ],422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             //condition for check if user has permission to edit record
             if ($this->rp['accountmodule']['purchase']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             if ($request->hasFile('img') && $request->hasFile('img') != '') {
@@ -302,21 +242,12 @@ class purchaseController extends commonController
                             'updated_by' => $this->userId,
                             'updated_at' => date('Y-m-d')
                         ]);
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'purchases succesfully updated'
-                        ]);
+                        return $this->successresponse(200, 'message', 'purchases succesfully updated');
                     } else {
-                        return response()->json([
-                            'status' => 404,
-                            'message' => 'No Such purchases Found!'
-                        ]);
+                        return $this->successresponse(404, 'message', 'No Such purchases Found!');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'image not succesfully upload'
-                    ]);
+                    return $this->successresponse(500, 'message','image not succesfully upload');
                 }
             } else {
                 $purchases = $this->PurchaseModel::find($id);
@@ -331,15 +262,9 @@ class purchaseController extends commonController
                         'updated_by' => $this->userId,
                         'updated_at' => date('Y-m-d')
                     ]);
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'purchases succesfully updated'
-                    ]);
+                    return $this->successresponse(200, 'message', 'purchases succesfully updated');
                 } else {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'No Such purchases Found!'
-                    ]);
+                    return $this->successresponse(404, 'message', 'No Such purchases Found!');
                 }
             }
         }
@@ -353,18 +278,12 @@ class purchaseController extends commonController
         $purchases = $this->PurchaseModel::find($id);
         if ($this->rp['accountmodule']['purchase']['alldata'] != 1) {
             if ($purchases->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         //condition for check if user has permission to delete record
         if ($this->rp['accountmodule']['purchase']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($purchases) {
@@ -372,15 +291,9 @@ class purchaseController extends commonController
                 'is_deleted' => 1
 
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'purchases succesfully deleted'
-            ]);
+            return $this->successresponse(200, 'message', 'purchases succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such purchases Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such purchases Found!');
         }
     }
 }

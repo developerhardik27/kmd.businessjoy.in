@@ -17,7 +17,7 @@ class blogtagController extends commonController
     public function __construct(Request $request)
     {
 
-        if(isset($request->company_id) && isset($request->user_id)){
+        if (isset($request->company_id) && isset($request->user_id)) {
             $this->dbname($request->company_id);
             $this->companyId = $request->company_id;
             $this->userId = $request->user_id;
@@ -25,7 +25,7 @@ class blogtagController extends commonController
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
             $this->rp = json_decode($permissions[0]['rp'], true);
-        }elseif(isset($request->site_key) && isset($request->server_key)){
+        } elseif (isset($request->site_key) && isset($request->server_key)) {
             if ($request->ajax()) {
                 // Request was made via Ajax
                 $domainName = $_SERVER['HTTP_ORIGIN'];
@@ -44,11 +44,11 @@ class blogtagController extends commonController
             if ($company_id->isEmpty()) {
                 // Handle case where no record is found
                 $this->returnresponse();
-            }else{
+            } else {
                 $this->dbname($company_id[0]->company_id);
                 $this->companyId = $company_id[0]->company_id;
             }
-        }else{
+        } else {
             $this->returnresponse();
         }
         $this->masterdbname = DB::connection()->getDatabaseName();
@@ -65,21 +65,12 @@ class blogtagController extends commonController
 
         if ($blogtag->count() > 0) {
             if ($this->rp['blogmodule']['blog']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'blogtag' => $blogtag
-                ], 200);
+                return $this->successresponse(200, 'blogtag', $blogtag);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'blogtag' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'blogtag', 'No Records Found');
         }
     }
 
@@ -101,10 +92,7 @@ class blogtagController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -115,21 +103,12 @@ class blogtagController extends commonController
                 ]);
 
                 if ($blogtag) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Blog tag  succesfully added'
-                    ], 200);
+                    return $this->successresponse(200, 'message', 'Blog tag  succesfully added');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Blog tag not succesfully added'
-                    ]);
+                    return $this->successresponse(500, 'message', 'Blog tag not succesfully added');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         }
@@ -152,23 +131,14 @@ class blogtagController extends commonController
 
         if ($this->rp['blogmodule']['blog']['alldata'] != 1) {
             if ($blogtag->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         if ($blogtag->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'blogtag' => $blogtag
-            ]);
+            return $this->successresponse(200, 'blogtag', $blogtag);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such blog tag Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such blog tag Found!");
         }
     }
 
@@ -182,20 +152,14 @@ class blogtagController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
 
             $blogtag = $this->blogtagModel::where('tag_name', $request->tag_name)->where('id', '!=', $id)->where('is_deleted', 0)->first();
 
             if ($blogtag) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'This tag already exists!'
-                ]);
+                return $this->successresponse(500, 'message', 'This tag already exists!');
             } else {
                 date_default_timezone_set('Asia/Kolkata');
                 $this->blogtagModel::where('id', $id) // Specify the condition to update the correct record
@@ -205,10 +169,7 @@ class blogtagController extends commonController
                         'updated_at' => now(),
                     ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Blog tag succesfully updated'
-                ]);
+                return $this->successresponse(200, 'message', 'Blog tag succesfully updated');
             }
         }
     }
@@ -226,21 +187,12 @@ class blogtagController extends commonController
                 $blogtag->update([
                     'is_deleted' => 1
                 ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'blog tag succesfully deleted'
-                ]);
+                return $this->successresponse(200, 'message', 'blog tag succesfully deleted');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such blog tag Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such blog tag Found!');
         }
     }
 }

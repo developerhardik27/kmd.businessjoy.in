@@ -5,11 +5,11 @@ namespace App\Http\Controllers\v1_0_0\api;
 use App\Mail\sendmail;
 use App\Models\company;
 use App\Models\User;
-use App\Models\company_detail; 
+use App\Models\company_detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB; 
-use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
@@ -60,15 +60,9 @@ class companyController extends commonController
             ->where('company_details.id', $id)->get();
 
         if ($companydetails->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'companydetails' => $companydetails
-            ], 200);
+            return $this->successresponse(200, 'companydetails', $companydetails);
         } else {
-            return response()->json([
-                'status' => 404,
-                'companydetails' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'companydetails', 'No Records Found');
         }
     }
 
@@ -86,23 +80,14 @@ class companyController extends commonController
 
         $user = User::find($this->userId);
         if (($this->rp['adminmodule']['company']['alldata'] != 1) && $this->companyId != $user->company_id) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized!'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
- 
+
 
         if ($company->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'company' => $company
-            ], 200);
+            return $this->successresponse(200, 'company', $company);
         } else {
-            return response()->json([
-                'status' => 404,
-                'company' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'company', 'No Records Found');
         }
     }
 
@@ -141,22 +126,13 @@ class companyController extends commonController
         }
 
         if ($this->rp['adminmodule']['company']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized!'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($company->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'company' => $company
-            ], 200);
+            return $this->successresponse(200, 'company', $company);
         } else {
-            return response()->json([
-                'status' => 404,
-                'company' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'company', 'No Records Found');
         }
     }
 
@@ -196,29 +172,16 @@ class companyController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
-
-
-         
- 
             if ($this->rp['adminmodule']['company']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized!'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
-            $checkuseremail = User::where('email',$request->email)->where('is_deleted',0)->get();
+            $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
 
-            if(count($checkuseremail) >  0){
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'This email id already exists , Please enter other email id'
-                ]);
+            if (count($checkuseremail) > 0) {
+                return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
             $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
@@ -399,10 +362,10 @@ class companyController extends commonController
                                 "remindercustomer" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"],
                             ],
                             "reportmodule" => [
-                                "report" => ["show" => "0", "add" =>"0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => null, "log" => "0"]
+                                "report" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => null, "log" => "0"]
                             ],
                             "blogmodule" => [
-                                "blog" => ["show" => "0", "add" =>"0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0",]
+                                "blog" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0",]
                             ],
                         ];
 
@@ -415,21 +378,12 @@ class companyController extends commonController
 
                         if ($userrp) {
                             Mail::to($request->email)->send(new sendmail($passwordtoken, $request->name, $request->email));
-                            return response()->json([
-                                'status' => 200,
-                                'message' => 'Company succesfully added'
-                            ], 200);
+                            return $this->successresponse(200, 'message', 'Company succesfully added');
                         } else {
-                            return response()->json([
-                                'status' => 500,
-                                'message' => 'User Permission Not succesfully added'
-                            ], 500);
+                            return $this->successresponse(500, 'message', 'User Permission Not succesfully added');
                         }
                     } else {
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'User Not succesfully added'
-                        ], 500);
+                        return $this->successresponse(500, 'message', 'User Not succesfully added');
                     }
                 } else {
                     $id = $company;
@@ -441,16 +395,10 @@ class companyController extends commonController
                         $record->delete();
                         $companydetails->delete();
                     }
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Oops ! Something Went wrong'
-                    ], 500);
+                    return $this->successresponse(500, 'message', 'Oops ! Something Went wrong');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Oops ! Company details not succesfully create'
-                ], 500);
+                return $this->successresponse(500, 'message', 'Oops ! Company details not succesfully create');
             }
         }
     }
@@ -466,23 +414,13 @@ class companyController extends commonController
             ->get();
 
         if ($this->rp['adminmodule']['company']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($company) {
-            return response()->json([
-                'status' => 200,
-                'company' => $company
-            ]);
+            return $this->successresponse(200, 'company', $company);
         } else {
-            return response()->json([
-                'status' => 404,
-                'company' => $company,
-                'message' => "No Such company Found!"
-            ]);
+            return $this->successresponse(404, 'message',"No Such company Found!");
         }
     }
 
@@ -494,23 +432,13 @@ class companyController extends commonController
 
         $company = DB::table('company')->join('company_details', 'company.company_details_id', '=', 'company_details.id')->where('company.id', $id)->get();
         if ($this->rp['adminmodule']['company']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($company) {
-            return response()->json([
-                'status' => 200,
-                'company' => $company
-            ]);
+            return $this->successresponse(200, 'company', $company);
         } else {
-            return response()->json([
-                'status' => 404,
-                'company' => $company,
-                'message' => "No Such company Found!"
-            ]);
+            return $this->successresponse(404, 'message',"No Such company Found!");
         }
     }
 
@@ -539,17 +467,11 @@ class companyController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['adminmodule']['company']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
 
@@ -561,15 +483,15 @@ class companyController extends commonController
             $sign_imageName = $company[0]->pr_sign_img;
 
             if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
-                
+
                 $image = $request->file('img');
                 $sign_image = $request->file('sign_img');
-                
+
                 if ($image) {
                     $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
                     $image->move('uploads/', $imageName);
                 }
-                
+
                 // Check if signature image file is uploaded
                 if ($sign_image) {
                     $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
@@ -597,39 +519,27 @@ class companyController extends commonController
                 $company_details_id = $company_details;
                 $company = company::find($id);
                 if ($company) {
-                    if(isset($request->maxuser)){
-                       $company->max_users = $request->maxuser ;
-                       $company->save();
+                    if (isset($request->maxuser)) {
+                        $company->max_users = $request->maxuser;
+                        $company->save();
                     }
                     $companyupdate = $company->update([
-                        'company_details_id' => $company_details_id, 
+                        'company_details_id' => $company_details_id,
                         'updated_by' => $this->userId,
                     ]);
 
                     if ($companyupdate) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'company succesfully updated'
-                        ]);
+                        return $this->successresponse(200, 'message', 'company succesfully updated');
                     } else {
                         $company_details = company_detail::find($company_details_id);
                         $company_details->delete();
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'company not succesfully updated'
-                        ]);
+                        return $this->successresponse(200, 'message', 'company not succesfully updated');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'No Such company Found!'
-                    ]);
+                    return $this->successresponse(404, 'message', 'No Such company Found!');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Oops ! Something Went wrong'
-                ], 500);
+                return $this->successresponse(500, 'message', 'Oops ! Something Went wrong');
             }
 
         }
@@ -643,22 +553,15 @@ class companyController extends commonController
         $company = company::find($id);
 
         if ($this->rp['adminmodule']['company']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($company) {
             $company->update([
                 'is_deleted' => 1
             ]);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such company Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such company Found!');
         }
-
         $users = User::where('company_id', $id)->get();
         if ($users) {
             $users->each(function ($user) {
@@ -666,10 +569,7 @@ class companyController extends commonController
                     'is_deleted' => 1
                 ]);
             });
-            return response()->json([
-                'status' => 200,
-                'message' => 'company succesfully deleted'
-            ], 200);
+            return $this->successresponse(200, 'message', 'company succesfully deleted');
         }
     }
 
@@ -682,15 +582,9 @@ class companyController extends commonController
             ->get();
 
         if ($company->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'company' => $company
-            ], 200);
+            return $this->successresponse(200, 'company', $company);
         } else {
-            return response()->json([
-                'status' => 404,
-                'company' => 'No Records Found'
-            ], 404);
+            return $this->successresponse(404, 'company', 'No Records Found');
         }
     }
 
@@ -704,19 +598,13 @@ class companyController extends commonController
                 'is_active' => $request->status
             ]);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Company Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such Company Found!');
         }
 
         $users = User::where('company_id', $id)->get();
 
         if ($this->rp['adminmodule']['company']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($users) {
@@ -725,10 +613,7 @@ class companyController extends commonController
                     'is_active' => $request->status
                 ]);
             });
-            return response()->json([
-                'status' => 200,
-                'message' => 'Comapny status succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message', 'Comapny status succesfully updated');
         }
     }
 }

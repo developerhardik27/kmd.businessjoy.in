@@ -35,22 +35,13 @@ class tblleadController extends commonController
                 ->get();
 
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($leadstatus->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'leadstatus' => $leadstatus
-            ]);
+            return $this->successresponse(200, 'leadstatus', $leadstatus);
         } else {
-            return response()->json([
-                'status' => 404,
-                'leadstatus' => $leadstatus
-            ]);
+            return $this->successresponse(404, 'leadstatus', $leadstatus);
         }
     }
     public function leadstagename(Request $request)
@@ -59,22 +50,13 @@ class tblleadController extends commonController
                 ->get();
 
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($lead->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'lead' => $lead
-            ]);
+            return $this->successresponse(200, 'lead', $lead);
         } else {
-            return response()->json([
-                'status' => 404,
-                'lead' => $lead
-            ]);
+            return $this->successresponse(404, 'lead', $lead);
         }
     }
 
@@ -146,21 +128,12 @@ class tblleadController extends commonController
         $lead = $leadquery->orderBy('id', 'DESC')->distinct()->get();
 
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($lead->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'lead' => $lead
-            ]);
+            return $this->successresponse(200, 'lead', $lead);
         } else {
-            return response()->json([
-                'status' => 404,
-                'lead' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'lead', 'No Records Found');
         }
     }
 
@@ -201,17 +174,11 @@ class tblleadController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['leadmodule']['lead']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $assignedto = implode(',', $request->assignedto);
@@ -240,15 +207,9 @@ class tblleadController extends commonController
             ]);
 
             if ($lead) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'lead succesfully created'
-                ], 200);
+                return $this->successresponse(200, 'message', 'lead succesfully created');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'lead not succesfully create'
-                ], 500);
+                return $this->successresponse(500, 'message', 'lead not succesfully create');
             }
         }
     }
@@ -265,29 +226,17 @@ class tblleadController extends commonController
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($lead->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'lead' => $lead
-            ]);
+            return $this->successresponse(200, 'lead', $lead);
         } else {
-            return response()->json([
-                'status' => 404,
-                'lead' => $lead
-            ]);
+            return $this->successresponse(404, 'lead', 'No lead found!');
         }
     }
 
@@ -300,28 +249,16 @@ class tblleadController extends commonController
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($lead) {
-            return response()->json([
-                'status' => 200,
-                'lead' => $lead
-            ], 200);
+            return $this->successresponse(200, 'lead', $lead);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such lead Found!"
-            ], 404);
+            return $this->successresponse(404, 'lead', "No Such lead Found!");
         }
     }
 
@@ -358,26 +295,17 @@ class tblleadController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             $lead = $this->tblleadModel::find($id);
 
             if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
                 if ($lead->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
             if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
             if ($lead) {
                 $assignedto = implode(',', $request->assignedto);
@@ -405,16 +333,9 @@ class tblleadController extends commonController
                     'assigned_to' => $assignedto,
                     'assigned_by' => $this->userId
                 ]);
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'lead succesfully updated'
-                ], 200);
+                return $this->successresponse(200, 'message', 'lead succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such lead Found!'
-                ], 404);
+                return $this->successresponse(404, 'message', 'No Such lead Found!');
             }
         }
     }
@@ -428,17 +349,11 @@ class tblleadController extends commonController
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['leadmodule']['lead']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($lead) {
@@ -446,15 +361,9 @@ class tblleadController extends commonController
                 'is_deleted' => 1
 
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'lead succesfully deleted'
-            ], 200);
+            return $this->successresponse(200, 'message', 'lead succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such lead Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such lead Found!');
         }
     }
 
@@ -467,17 +376,11 @@ class tblleadController extends commonController
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($lead) {
@@ -485,15 +388,9 @@ class tblleadController extends commonController
                 ->where('id', $request->statusid)
                 ->update(['status' => $request->statusvalue]);
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'status Succesfully Updated'
-            ], 200);
+            return $this->successresponse(200, 'message', 'status Succesfully Updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such lead Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such lead Found!');
         }
     }
 
@@ -502,17 +399,11 @@ class tblleadController extends commonController
         $lead = DB::connection('dynamic_connection')->table('tbllead')->where('id', $request->leadstageid)->get();
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($lead) {
@@ -525,16 +416,9 @@ class tblleadController extends commonController
             } else {
                 $leadstage->update(['lead_stage' => $request->leadstagevalue, 'is_active' => 1]);
             }
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Lead Stage Succesfully Updated'
-            ], 200);
+            return $this->successresponse(200, 'message', 'Lead Stage Succesfully Updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Lead Stage Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such Lead Stage Found!');
         }
     }
 
@@ -544,15 +428,9 @@ class tblleadController extends commonController
         $uniqueSources = $this->tblleadModel::distinct()->pluck('source');
 
         if ($uniqueSources->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'sourcecolumn' => $uniqueSources
-            ], 200);
+            return $this->successresponse(200, 'sourcecolumn', $uniqueSources);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No any source value  Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No any source value  Found!');
         }
 
     }

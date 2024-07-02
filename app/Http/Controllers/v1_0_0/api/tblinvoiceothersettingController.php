@@ -39,50 +39,32 @@ class tblinvoiceothersettingController extends commonController
     {
         //condition for check if user has permission to view record
         if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $overdueday = $this->invoice_other_settingModel::where('is_deleted', 0)->get();
 
 
         if ($overdueday->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'overdueday' => $overdueday
-            ], 200);
+            return $this->successresponse(200, 'overdueday', $overdueday);
         } else {
-            return response()->json([
-                'status' => 404,
-                'overdueday' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'overdueday', 'No Records Found');
         }
     }
     public function invoicenumberpatternindex()
     {
         //condition for check if user has permission to view record
         if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern','pattern_type')->get();
+        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type')->get();
 
 
         if ($pattern->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'pattern' => $pattern
-            ], 200);
+            return $this->successresponse(200, 'pattern', $pattern);
         } else {
-            return response()->json([
-                'status' => 404,
-                'pattern' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'pattern', 'No Records Found');
         }
     }
 
@@ -90,10 +72,7 @@ class tblinvoiceothersettingController extends commonController
     {
         //condition for check if user has permission to view record
         if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $termsandcondition = $this->invoice_terms_and_conditionModel::where('is_deleted', 0)->get();
@@ -103,15 +82,9 @@ class tblinvoiceothersettingController extends commonController
         // }
 
         if ($termsandcondition->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'termsandconditions' => $termsandcondition
-            ], 200);
+            return $this->successresponse(200, 'termsandconditions', $termsandcondition);
         } else {
-            return response()->json([
-                'status' => 404,
-                'termsandconditions' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'termsandconditions', 'No Records Found');
         }
     }
     public function overduedayupdate(Request $request, string $id)
@@ -123,28 +96,19 @@ class tblinvoiceothersettingController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             //condition for check if user has permission to search  record
             if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $overdueday = $this->invoice_other_settingModel::find($id);
 
             if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
                 if ($overdueday->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
 
@@ -157,15 +121,9 @@ class tblinvoiceothersettingController extends commonController
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Overdue days succesfully updated'
-                ]);
+                return $this->successresponse(200, 'message', 'Overdue days succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Overdue days Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such Overdue days Found!');
             }
         }
     }
@@ -179,10 +137,7 @@ class tblinvoiceothersettingController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if (isset($request->gst)) {
@@ -192,20 +147,14 @@ class tblinvoiceothersettingController extends commonController
             }
             //condition for check if user has permission to search  record
             if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $overdueday = $this->invoice_other_settingModel::find($id);
 
             if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
                 if ($overdueday->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
 
@@ -219,15 +168,9 @@ class tblinvoiceothersettingController extends commonController
                 $overdueday->updated_at = date('Y-m-d H:i:s');
                 $overdueday->save();
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'GST ettings succesfully updated'
-                ]);
+                return $this->successresponse(200, 'message', 'GST ettings succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such GST Settig Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such GST Settig Found!');
             }
         }
     }
@@ -241,17 +184,11 @@ class tblinvoiceothersettingController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['invoicemodule']['invoicesetting']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $all_old_t_and_c = $this->invoice_terms_and_conditionModel::all();
@@ -269,16 +206,9 @@ class tblinvoiceothersettingController extends commonController
             ]);
 
             if ($t_and_c) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Terms & Conditions succesfully added'
-                ], 200);
-
+                return $this->successresponse(200, 'message', 'Terms & Conditions succesfully added');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Terms & Conditions not succesfully added'
-                ]);
+                return $this->successresponse(500, 'message', 'Terms & Conditions not succesfully added');
             }
         }
     }
@@ -288,33 +218,21 @@ class tblinvoiceothersettingController extends commonController
 
         //condition for check if user has permission to search  record
         if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $termsandcondition = $this->invoice_terms_and_conditionModel::find($id);
 
         if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
             if ($termsandcondition->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         if ($termsandcondition->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'termsandcondition' => $termsandcondition
-            ]);
+            return $this->successresponse(200, 'termsandcondition', $termsandcondition);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such Terms and Conditions Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such Terms and Conditions Found!");
         }
     }
 
@@ -328,28 +246,19 @@ class tblinvoiceothersettingController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             //condition for check if user has permission to search  record
             if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $termsandcondition = $this->invoice_terms_and_conditionModel::find($id);
 
             if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
                 if ($termsandcondition->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
 
@@ -361,15 +270,9 @@ class tblinvoiceothersettingController extends commonController
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Terms and Condition succesfully updated'
-                ]);
+                return $this->successresponse(200, 'message', 'Terms and Condition succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Terms and Condition Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such Terms and Condition Found!');
             }
         }
     }
@@ -380,36 +283,22 @@ class tblinvoiceothersettingController extends commonController
 
         if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
             if ($termsandcondition->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($termsandcondition) {
 
             $this->invoice_terms_and_conditionModel::where('id', '!=', $id)->update(['is_active' => 0]);
 
-            if ($this->rp['invoicemodule']['invoicesetting']['edit'] == 1) {
-                $termsandcondition->update([
-                    'is_active' => $request->status
-                ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'status succesfully updated'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+            if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Terms And Condition Found!'
+            $termsandcondition->update([
+                'is_active' => $request->status
             ]);
+            return $this->successresponse(200, 'message', 'status succesfully updated');
+        } else {
+            return $this->successresponse(404, 'message', 'No Such Terms And Condition Found!');
         }
 
     }
@@ -421,32 +310,19 @@ class tblinvoiceothersettingController extends commonController
 
         if ($this->rp['invoicemodule']['invoicesetting']['alldata'] != 1) {
             if ($termsandcondition->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($termsandcondition) {
-            if ($this->rp['invoicemodule']['invoicesetting']['delete'] == 1) {
-                $termsandcondition->update([
-                    'is_deleted' => 1
-                ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Terms And Conditions succesfully deleted'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
-            }
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Terms And Conditions Found!'
+            if ($this->rp['invoicemodule']['invoicesetting']['delete'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            } 
+            $termsandcondition->update([
+                'is_deleted' => 1
             ]);
+            return $this->successresponse(200, 'message', 'Terms And Conditions succesfully deleted');
+        } else {
+            return $this->successresponse(404, 'message', 'No Such Terms And Conditions Found!');
         }
     }
 
@@ -473,10 +349,7 @@ class tblinvoiceothersettingController extends commonController
 
         //condition for check if user has permission to edit  record
         if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
 
@@ -486,16 +359,10 @@ class tblinvoiceothersettingController extends commonController
 
         if ($matchingRecords->isNotEmpty()) {
             if ($matchingRecords[0]->increment_type == 1 && $startincrement <= $matchingRecords[0]->current_increment_number) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'A record with a matching invoice pattern already exists.!If you want use this pattern so then you can start increment from' . $matchingRecords->current_increment_number
-                ]);
+                return $this->successresponse(500, 'message', 'A record with a matching invoice pattern already exists.!If you want use this pattern so then you can start increment from' . $matchingRecords->current_increment_number);
             }
             if ($matchingRecords[0]->increment_type == 2 && !isset($request->onconfirm)) {
-                return response()->json([
-                    'status' => 1,
-                    'message' => 'A record with a matching invoice pattern already exists.!If you want use this pattern so increment will start from old record'
-                ]);
+                return $this->successresponse(1, 'message', 'A record with a matching invoice pattern already exists.!If you want use this pattern so increment will start from old record');
             }
         }
 
@@ -506,7 +373,7 @@ class tblinvoiceothersettingController extends commonController
 
         date_default_timezone_set('Asia/Kolkata');
 
-        if(isset($request->onconfirm)){
+        if (isset($request->onconfirm)) {
             $this->invoice_number_patternModel::create([
                 'invoice_pattern' => $pattern,
                 'pattern_type' => $request->pattern_type,
@@ -514,11 +381,7 @@ class tblinvoiceothersettingController extends commonController
                 'created_at' => date('Y-m-d'),
                 'created_by' => $this->userId,
             ]);
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Inovice Pattern succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message', 'Inovice Pattern succesfully updated');
         }
 
         $this->invoice_number_patternModel::create([
@@ -531,14 +394,12 @@ class tblinvoiceothersettingController extends commonController
             'created_by' => $this->userId,
         ]);
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'Inovice Pattern succesfully updated'
-        ]);
+        return $this->successresponse(200, 'message', 'Inovice Pattern succesfully updated');
 
     }
 
-    public function customeridstore(Request $request){
+    public function customeridstore(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required|string',
@@ -546,25 +407,15 @@ class tblinvoiceothersettingController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
-
-           
 
             $customerid = $this->invoice_other_settingModel::find(1);
 
-            
             if ($customerid) {
 
-                if($customerid->current_customer_id >= $request->customer_id){
-                        return response()->json([
-                            'status' => 500,
-                            'message' => 'Please enter  customer id higher than ' . $customerid->current_customer_id 
-                        ]);
-                    
+                if ($customerid->current_customer_id >= $request->customer_id) {
+                    return $this->successresponse(500, 'message', 'Please enter  customer id higher than ' . $customerid->current_customer_id);
                 }
                 date_default_timezone_set('Asia/Kolkata');
                 $customerid->update([
@@ -574,15 +425,9 @@ class tblinvoiceothersettingController extends commonController
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Customer id settings succesfully updated'
-                ]);
+                return $this->successresponse(200, 'message', 'Customer id settings succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Customer Setting Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such Customer Setting Found!');
             }
         }
     }

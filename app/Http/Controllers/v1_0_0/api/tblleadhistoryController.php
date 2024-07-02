@@ -57,17 +57,11 @@ class tblleadhistoryController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['leadmodule']['lead']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $leadhistory = $this->tblleadhistoryModel::create([
@@ -96,15 +90,9 @@ class tblleadhistoryController extends commonController
                     }
                     $lead->save();
                 }
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'leadhistory succesfully created'
-                ], 200);
+                return $this->successresponse(200, 'message', 'leadhistory succesfully created');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'leadhistory not succesfully created'
-                ], 500);
+                return $this->successresponse(500, 'message', 'leadhistory not succesfully created');
             }
         }
     }
@@ -123,29 +111,17 @@ class tblleadhistoryController extends commonController
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($lead->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'leadhistory' => $lead
-            ]);
+            return $this->successresponse(200, 'leadhistory', $lead);
         } else {
-            return response()->json([
-                'status' => 404,
-                'leadhistory' => $lead
-            ]);
+            return $this->successresponse(404, 'leadhistory', $lead);
         }
     }
 
