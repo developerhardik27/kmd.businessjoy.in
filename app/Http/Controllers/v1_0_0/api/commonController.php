@@ -50,4 +50,25 @@ class commonController extends Controller
     public function returnresponse(){
         return response()->json(['error' => 'Unauthorized'], 401);
     }
+
+
+
+    public function successresponse($status , $statuskey , $message , $code = 200){
+         
+        $response = [
+            'status' => $status,
+            $statuskey => $message
+        ];
+
+        return response()->json($response,$code);
+    }
+    public function errorresponse($status , $errorsdata , $code = 422){
+        $response = [
+            'status' => $status,
+            'errors' => $errorsdata
+        ];
+
+        return response()->json($response,$code);
+    }
+
 }

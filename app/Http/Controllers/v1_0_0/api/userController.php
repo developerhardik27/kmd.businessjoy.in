@@ -54,15 +54,9 @@ class userController extends commonController
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->select('users.firstname', 'users.lastname', 'users.img', 'company_details.name')->where('users.id', $this->userId)->get();
         if ($user->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $user
-            ]);
+            return $this->successresponse(200, 'user', $user);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -82,29 +76,17 @@ class userController extends commonController
 
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['user']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized!'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($users->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -134,15 +116,9 @@ class userController extends commonController
 
 
         if ($users->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -171,15 +147,9 @@ class userController extends commonController
         $users = $usersres->get();
 
         if ($users->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -198,15 +168,9 @@ class userController extends commonController
         $users = $usersres->get();
 
         if ($users->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -236,15 +200,9 @@ class userController extends commonController
         $users = $usersres->get();
 
         if ($users->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -276,22 +234,13 @@ class userController extends commonController
 
 
         if ($this->rp['adminmodule']['user']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($users->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'user' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'user', 'No Records Found');
         }
     }
 
@@ -316,10 +265,7 @@ class userController extends commonController
 
 
         if ($user->count() >= $companymaxuser) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are reached your limits to create user'
-            ]);
+            return $this->successresponse(500, 'message', 'You are reached your limits to create user');
         }
 
 
@@ -347,26 +293,17 @@ class userController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
 
             if (count($checkuseremail) > 0) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'This email id already exists , Please enter other email id'
-                ]);
+                return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
             if ($this->rp['adminmodule']['user']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             if ($this->rp['adminmodule']['userpermission']['add'] == 1) {
@@ -499,7 +436,7 @@ class userController extends commonController
                 $blog_view = ($this->rp['blogmodule']['blog']['view'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->viewblog : "0";
                 $blog_edit = ($this->rp['blogmodule']['blog']['edit'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->editblog : "0";
                 $blog_delete = ($this->rp['blogmodule']['blog']['delete'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->deleteblog : "0";
-                $blog_alldata = ($this->rp['blogmodule']['blog']['add'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->alldatablog : "0"; 
+                $blog_alldata = ($this->rp['blogmodule']['blog']['add'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) ? $request->alldatablog : "0";
 
 
 
@@ -591,16 +528,9 @@ class userController extends commonController
 
                 $name = $request->firstname . ' ' . $request->lastname;
                 Mail::to($request->email)->bcc('parthdeveloper9@gmail.com')->send(new sendmail($passwordtoken, $name, $request->email));
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'user succesfully created'
-                ]);
-
+                return $this->successresponse(200, 'message', 'user succesfully created');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'user not succesfully create'
-                ]);
+                return $this->successresponse(500, 'message', 'user not succesfully create');
             }
         }
     }
@@ -622,28 +552,16 @@ class userController extends commonController
 
         if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
             if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['user']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($users) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such user Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such user Found!");
         }
     }
 
@@ -655,28 +573,16 @@ class userController extends commonController
         $users = User::find($id);
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($users->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['user']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($users) {
-            return response()->json([
-                'status' => 200,
-                'user' => $users
-            ]);
+            return $this->successresponse(200, 'user', $users);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such user Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such user Found!");
         }
     }
 
@@ -706,26 +612,17 @@ class userController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
 
             if (count($checkuseremail) > 0 && $checkuseremail[0]->id != $id) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'This email id already exists , Please enter other email id'
-                ]);
+                return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
             if ($this->rp['adminmodule']['user']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $user = User::find($id);
@@ -894,10 +791,10 @@ class userController extends commonController
                         "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $request->assignedto, "log" => $request->logreport]
                     ],
                     "blogmodule" => [
-                        "blog" => ["show" =>  $request->showblogmenu, "add" => $request->addblog, "view" => $request->viewblog, "edit" =>  $request->editblog, "delete" => $request->deleteblog, "alldata" => $request->alldatablog]
+                        "blog" => ["show" => $request->showblogmenu, "add" => $request->addblog, "view" => $request->viewblog, "edit" => $request->editblog, "delete" => $request->deleteblog, "alldata" => $request->alldatablog]
                     ]
                 ];
- 
+
                 $rpjson = json_encode($rp);
             }
             $users = User::find($id);
@@ -935,10 +832,7 @@ class userController extends commonController
                 $user = $users->update($userupdatedata);
                 if ($user) {
                     if ($request->editrole == 1) {
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'user succesfully updated'
-                        ]);
+                        return $this->successresponse(200, 'message', 'user succesfully updated');
                     } else {
 
                         if ($this->rp['adminmodule']['userpermission']['edit'] == 1) {
@@ -949,39 +843,21 @@ class userController extends commonController
                                 ]);
 
                                 if ($rpupdate) {
-                                    return response()->json([
-                                        'status' => 200,
-                                        'message' => 'user succesfully updated'
-                                    ]);
+                                    return $this->successresponse(200, 'message', 'user succesfully updated');
                                 } else {
-                                    return response()->json([
-                                        'status' => 404,
-                                        'message' => 'user role & permissions not succesfully updated!'
-                                    ]);
+                                    return $this->successresponse(404, 'message', 'user role & permissions not succesfully updated!');
                                 }
                             } else {
-                                return response()->json([
-                                    'status' => 404,
-                                    'message' => 'No Such roles & permissions  Found!'
-                                ]);
+                                return $this->successresponse(404, 'message', 'No Such roles & permissions  Found!');
                             }
                         }
-                        return response()->json([
-                            'status' => 200,
-                            'message' => 'user succesfully updated'
-                        ]);
+                        return $this->successresponse(200, 'message', 'user succesfully updated');
                     }
                 } else {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'user not succesfully updated!'
-                    ]);
+                    return $this->successresponse(404, 'message', 'user not succesfully updated!');
                 }
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such user Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such user Found!');
             }
         }
     }
@@ -994,32 +870,20 @@ class userController extends commonController
         $users = User::find($id);
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($users->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['user']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($users) {
             $users->update([
                 'is_deleted' => 1
 
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'user succesfully deleted'
-            ]);
+            return $this->successresponse(200, 'message', 'user succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such user Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such user Found!');
         }
     }
 
@@ -1029,31 +893,19 @@ class userController extends commonController
         $user = User::find($id);
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($user->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['user']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($user) {
             $user->update([
                 'is_active' => $request->status
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'user status succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message', 'user status succesfully updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such user Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such user Found!');
         }
     }
 
@@ -1065,42 +917,26 @@ class userController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         }
 
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'User not found'
-            ], 404);
+            return $this->successresponse(404, 'message', 'User not found');
         }
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json([
-                'status' => 403,
-                'message' => 'Current password does not match'
-            ], 403);
+            return $this->successresponse(403, 'message', 'Current password does not match');
         }
 
         if ($request->new_password !== $request->new_password_confirmation) {
-            return response()->json([
-                'status' => 422,
-                'message' => 'New password and confirmation do not match'
-            ], 422);
+            return $this->errorresponse(422, 'New password and confirmation do not match');
         }
 
         $user->password = Hash::make($request->new_password);
         $user->save();
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Password successfully reset'
-        ], 200);
+        return $this->successresponse(200, 'message', 'Password successfully reset');
     }
 
 
@@ -1110,10 +946,7 @@ class userController extends commonController
 
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
             if ($user->id != $this->userId && $user->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($user) {
@@ -1121,15 +954,9 @@ class userController extends commonController
                 'default_module' => $request->default_module,
                 'default_page' => $request->default_page,
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'Homepage succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message', 'Homepage succesfully updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such user Record Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such user Record Found!');
         }
     }
 

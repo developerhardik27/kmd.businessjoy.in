@@ -27,10 +27,7 @@ class apiauthorizationController extends commonController
     public function checkuser()
     {
         if ($this->companyId != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized!');
         }
     }
     /**
@@ -46,15 +43,9 @@ class apiauthorizationController extends commonController
             ->get();
 
         if ($apiauth->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'apiauth' => $apiauth
-            ], 200);
+            return $this->successresponse(200, 'apiauth', $apiauth);
         } else {
-            return response()->json([
-                'status' => 404,
-                'apiauth' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'apiauth', 'No Records Found');
         }
     }
 
@@ -76,11 +67,8 @@ class apiauthorizationController extends commonController
             'domain_name' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+        if ($validator->fails()) { 
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             do {
@@ -102,15 +90,9 @@ class apiauthorizationController extends commonController
                 'created_by' => $this->userId,
             ]);
             if ($creatrecord) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Api authorization succesfully added'
-                ], 200);
+                return $this->successresponse(200, 'message', 'Api authorization succesfully added');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Api authorization not succesfully added'
-                ]);
+                return $this->successresponse(500, 'message', 'Api authorization not succesfully added');
             }
         }
     }
@@ -131,15 +113,9 @@ class apiauthorizationController extends commonController
         $apiauth = api_authorization::find($id);
 
         if ($apiauth->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'apiauth' => $apiauth
-            ], 200);
+            return $this->successresponse(200, 'apiauth', $apiauth);
         } else {
-            return response()->json([
-                'status' => 404,
-                'apiauth' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'apiauth', 'No Records Found');
         }
     }
 
@@ -154,10 +130,7 @@ class apiauthorizationController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             $updaterecord = api_authorization::where('id', $id)->update([
                 'domain_name' => $request->domain_name,
@@ -166,15 +139,9 @@ class apiauthorizationController extends commonController
                 'updated_at' => now(),
             ]);
             if ($updaterecord) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Api authorization succesfully updated'
-                ], 200);
+                return $this->successresponse(200, 'message', 'Api authorization succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Api authorization not succesfully updated'
-                ]);
+                return $this->successresponse(500, 'message', 'Api authorization not succesfully updated');
             }
         }
     }
@@ -190,15 +157,10 @@ class apiauthorizationController extends commonController
             $apiauth->update([
                 'is_deleted' => 1
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'blog category succesfully deleted'
-            ]);
+
+            return $this->successresponse(200, 'message', 'Authorization succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No such record found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No such record found!');
         }
     }
 }

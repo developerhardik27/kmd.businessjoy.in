@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Validator;
 
 class customersupporthistoryController extends commonController
 {
-    public $userId, $companyId, $masterdbname,$customer_supportModel,$customersupporthistoryModel;
+    public $userId, $companyId, $masterdbname, $customer_supportModel, $customersupporthistoryModel;
 
     public function __construct(Request $request)
     {
         $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname =  DB::connection()->getDatabaseName();
+        $this->masterdbname = DB::connection()->getDatabaseName();
         $this->customer_supportModel = $this->getmodel('customer_support');
         $this->customersupporthistoryModel = $this->getmodel('customersupporthistory');
     }
@@ -40,9 +40,7 @@ class customersupporthistoryController extends commonController
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    { 
-
-
+    {
         $validator = Validator::make($request->all(), [
             'call_date' => 'required',
             'history_notes' => 'required',
@@ -50,10 +48,7 @@ class customersupporthistoryController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
             $customersupporthistory = $this->customersupporthistoryModel::create([
                 'call_date' => $request->call_date,
@@ -66,28 +61,23 @@ class customersupporthistoryController extends commonController
 
             if ($customersupporthistory) {
 
-                $followup  = 0 ;
-                if($request->no_of_calls != ''){
-                   $followup = $request->no_of_calls ;
+                $followup = 0;
+                if ($request->no_of_calls != '') {
+                    $followup = $request->no_of_calls;
                 }
-               $customersupport = $this->customer_supportModel::find($request->csid);
-              
-               if($customersupport){
-                   $customersupport->last_call = $request->call_date;
-                   $customersupport->status = $request->call_status;
-                   $customersupport->notes = $request->history_notes;
-                   $customersupport->number_of_call = $customersupport->number_of_call +  $followup;
-                   $customersupport->save();
-               }
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer history succesfully created'
-                ], 200);
+                $customersupport = $this->customer_supportModel::find($request->csid);
+
+                if ($customersupport) {
+                    $customersupport->last_call = $request->call_date;
+                    $customersupport->status = $request->call_status;
+                    $customersupport->notes = $request->history_notes;
+                    $customersupport->number_of_call = $customersupport->number_of_call + $followup;
+                    $customersupport->save();
+                }
+
+                return $this->successresponse(200, 'message', 'customer history succesfully created');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'customer history not succesfully created'
-                ], 500);
+                return $this->successresponse(500, 'message', 'customer history not succesfully created');
             }
         }
     }
@@ -104,15 +94,9 @@ class customersupporthistoryController extends commonController
             ->get();
 
         if ($customersupporthistory->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'customersupporthistory' => $customersupporthistory
-            ]);
+            return $this->successresponse(200, 'customersupporthistory', $customersupporthistory);
         } else {
-            return response()->json([
-                'status' => 404,
-                'customersupporthistory' => $customersupporthistory
-            ]);
+            return $this->successresponse(404, 'customersupporthistory', $customersupporthistory);
         }
     }
     /**

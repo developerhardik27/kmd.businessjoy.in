@@ -43,21 +43,12 @@ class customerController extends commonController
 
         if ($customers->count() > 0) {
             if ($this->rp['invoicemodule']['customer']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customers
-                ], 200);
+                 return $this->successresponse(200, 'customer',  $customers);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => 'No Records Found'
-            ]);
+             return $this->successresponse(404, 'customer', 'No Records Found');
         }
     }
 
@@ -82,22 +73,13 @@ class customerController extends commonController
 
         if ($customers->count() > 0) {
             if ($this->rp['invoicemodule']['customer']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customers
-                ], 200);
+                 return $this->successresponse(200, 'customer', $customers);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => 'No Records Found!'
-            ]);
+             return $this->successresponse(404, 'customer', 'No Records Found!');
         }
     }
 
@@ -154,15 +136,11 @@ class customerController extends commonController
 
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['invoicemodule']['customer']['add'] == 1) {
                 
-
                 $customerid = $this->invoice_other_settingModel::find(1);
 
                 $customer = DB::connection('dynamic_connection')->table('customers')->insertGetId([
@@ -185,22 +163,12 @@ class customerController extends commonController
                 if ($customer) {
                     $customerid->current_customer_id += 1 ;
                     $customerid->save();
-                    return response()->json([
-                        'status' => 200,
-                        'customer' => $customer,
-                        'message' => 'customer succesfully added'
-                    ], 200);
+                    return $this->successresponse(200, 'message', 'customer succesfully added');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'customer not succesfully added !'
-                    ], 500);
+                     return $this->successresponse(500, 'message', 'customer not succesfully added !');
                 }
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         }
@@ -214,30 +182,17 @@ class customerController extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
             if ($this->rp['invoicemodule']['customer']['view'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customer
-                ], 200);
+                 return $this->successresponse(200, 'customer',$customer);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'customer' => $customer,
-                'message' => "No Such Customer Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such Customer Found!");
         }
     }
 
@@ -249,29 +204,17 @@ class customerController extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
             if ($this->rp['invoicemodule']['customer']['edit'] == 1) {
-                return response()->json([
-                    'status' => 200,
-                    'customer' => $customer
-                ], 200);
+                 return $this->successresponse(200, 'customer', $customer);
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such Customer Found!"
-            ], 404);
+             return $this->successresponse(404, 'message', "No Such Customer Found!");
         }
     }
 
@@ -320,18 +263,12 @@ class customerController extends commonController
         
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             $customer = $this->customerModel::find($id);
             if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
                 if ($customer->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
             if ($customer) {
@@ -352,22 +289,13 @@ class customerController extends commonController
                         'updated_by' => $this->userId,
                         'updated_at' => date('Y-m-d')
                     ]);
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'customer succesfully updated'
-                    ], 200);
+                     return $this->successresponse(200, 'message', 'customer succesfully updated');
                 } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'You are Unauthorized'
-                    ]);
+                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
 
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Customer Found!'
-                ], 404);
+                 return $this->successresponse(404, 'message', 'No Such Customer Found!');
             }
         }
     }
@@ -378,10 +306,7 @@ class customerController extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
@@ -389,21 +314,12 @@ class customerController extends commonController
                 $customer->update([
                     'is_active' => $request->status
                 ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer status succesfully updated'
-                ]);
+                 return $this->successresponse(200, 'message', 'customer status succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such customer Found!'
-            ]);
+             return $this->successresponse(404, 'message', 'No Such customer Found!');
         }
     }
     /**
@@ -414,10 +330,7 @@ class customerController extends commonController
         $customer = $this->customerModel::find($id);
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($customer) {
@@ -425,21 +338,12 @@ class customerController extends commonController
                 $customer->update([
                     'is_deleted' => 1
                 ]);
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'customer succesfully deleted'
-                ], 200);
+                 return $this->successresponse(200, 'message', 'customer succesfully deleted');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Customer Found!'
-            ], 404);
+             return $this->successresponse(404, 'message', 'No Such Customer Found!');
         }
     }
 }

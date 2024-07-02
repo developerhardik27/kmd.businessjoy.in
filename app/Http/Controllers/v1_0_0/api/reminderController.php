@@ -86,15 +86,9 @@ class remindercontroller extends commonController
             ->get();
 
         if ($reminderquery->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'reminder' => $reminderquery
-            ]);
+            return $this->successresponse(200, 'reminder', $reminderquery);
         } else {
-            return response()->json([
-                'status' => 404,
-                'reminder' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'reminder', 'No Records Found');
         }
     }
 
@@ -160,21 +154,12 @@ class remindercontroller extends commonController
         $reminder = $reminderquery->orderBy('reminder.id', 'DESC')->distinct()->get();
 
         if ($this->rp['remindermodule']['reminder']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($reminder->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'reminder' => $reminder
-            ]);
+            return $this->successresponse(200, 'reminder', $reminder);
         } else {
-            return response()->json([
-                'status' => 404,
-                'reminder' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'reminder', 'No Records Found');
         }
     }
 
@@ -206,17 +191,11 @@ class remindercontroller extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
 
             if ($this->rp['remindermodule']['reminder']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $reminder = $this->reminderModel::create([
@@ -233,15 +212,9 @@ class remindercontroller extends commonController
             ]);
 
             if ($reminder) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Reminder succesfully created'
-                ], 200);
+                return $this->successresponse(200, 'message','Reminder succesfully created');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Reminder not succesfully create'
-                ], 500);
+                return $this->successresponse(500, 'message', 'Reminder not succesfully create');
             }
         }
     }
@@ -258,29 +231,17 @@ class remindercontroller extends commonController
 
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             if ($reminder[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['remindermodule']['reminder']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($reminder->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'reminder' => $reminder
-            ]);
+            return $this->successresponse(200, 'reminder', $reminder);
         } else {
-            return response()->json([
-                'status' => 404,
-                'reminder' => $reminder
-            ]);
+            return $this->successresponse(404, 'reminder',  $reminder);
         }
     }
 
@@ -293,28 +254,16 @@ class remindercontroller extends commonController
 
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             if ($reminder->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($reminder) {
-            return response()->json([
-                'status' => 200,
-                'reminder' => $reminder
-            ], 200);
+            return $this->successresponse(200, 'reminder', $reminder);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such Reminder Found!"
-            ], 404);
+            return $this->successresponse(404, 'message', "No Such Reminder Found!");
         }
     }
 
@@ -337,26 +286,17 @@ class remindercontroller extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422,$validator->messages());
         } else {
             $reminder = $this->reminderModel::find($id);
 
             if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
                 if ($reminder->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
             if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
             if ($reminder) {
                 $reminder->update([
@@ -374,15 +314,9 @@ class remindercontroller extends commonController
                     'updated_by' => $this->userId
                 ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Reminder succesfully updated'
-                ], 200);
+                return $this->successresponse(200, 'message', 'Reminder succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Reminder Found!'
-                ], 404);
+                return $this->successresponse(404, 'message', 'No Such Reminder Found!');
             }
         }
     }
@@ -396,33 +330,20 @@ class remindercontroller extends commonController
 
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             if ($reminder->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['remindermodule']['reminder']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($reminder) {
             $reminder->update([
                 'is_deleted' => 1
-
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'reminder succesfully deleted'
-            ], 200);
+            return $this->successresponse(200, 'message', 'reminder succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such reminder Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such reminder Found!');
         }
     }
 
@@ -433,17 +354,11 @@ class remindercontroller extends commonController
 
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             if ($reminder[0]->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($reminder) {
@@ -454,15 +369,9 @@ class remindercontroller extends commonController
                     'service_completed_date' => $request->last_service_date
                 ]);
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'status Succesfully Updated'
-            ], 200);
+            return $this->successresponse(200, 'message', 'status Succesfully Updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Reminder Found!'
-            ], 404);
+            return $this->successresponse(404, 'message', 'No Such Reminder Found!');
         }
     }
 

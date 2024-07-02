@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Validator;
 class productController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp,$productModel;
+    public $userId, $companyId, $masterdbname, $rp, $productModel;
 
     public function __construct(Request $request)
-    { 
+    {
         $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
@@ -31,7 +31,7 @@ class productController extends commonController
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    { 
+    {
 
         $productres = $this->productModel::join($this->masterdbname . '.company', 'products.company_id', '=', $this->masterdbname . '.company.id')
             ->join($this->masterdbname . '.company_details', $this->masterdbname . '.company.company_details_id', '=', $this->masterdbname . '.company_details.id')
@@ -46,21 +46,12 @@ class productController extends commonController
 
         // condition for check if user has permission to view records
         if ($this->rp['inventorymodule']['product']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($product->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'product' => $product
-            ]);
+            return $this->successresponse(200, 'product', $product);
         } else {
-            return response()->json([
-                'status' => 404,
-                'product' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'product', 'No Records Found');
         }
     }
 
@@ -94,18 +85,12 @@ class productController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             // condition for check if user has permission to add new records
             if ($this->rp['inventorymodule']['product']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $product = $this->productModel::create([
@@ -119,15 +104,9 @@ class productController extends commonController
             ]);
 
             if ($product) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'product  succesfully created'
-                ], 200);
+                return $this->successresponse(200, 'message', 'product  succesfully created');
             } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'product not succesfully created'
-                ], 500);
+                return $this->successresponse(500, 'message', 'product not succesfully created');
             }
         }
     }
@@ -141,29 +120,17 @@ class productController extends commonController
 
         if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             if ($product->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         //condition for check if user has permission to search record
         if ($this->rp['inventorymodule']['product']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($product) {
-            return response()->json([
-                'status' => 200,
-                'product' => $product
-            ]);
+            return $this->successresponse(200, 'product', $product);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such product Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such product Found!");
         }
     }
 
@@ -176,29 +143,17 @@ class productController extends commonController
 
         if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             if ($product->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         //condition for check if user has permission to edit record
         if ($this->rp['inventorymodule']['product']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($product) {
-            return response()->json([
-                'status' => 200,
-                'product' => $product
-            ], 200);
+            return $this->successresponse(200, 'meproductssage', $product);
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => "No Such product Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such product Found!");
         }
     }
 
@@ -223,27 +178,18 @@ class productController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
             $product = $this->productModel::find($id);
 
             if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
                 if ($product->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
             //condition for check if user has permission to edit record
             if ($this->rp['inventorymodule']['product']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
             if ($product) {
 
@@ -256,16 +202,9 @@ class productController extends commonController
                     'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d')
                 ]);
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'product succesfully updated'
-                ], 200);
+                return $this->successresponse(200, 'message', 'product succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such product Found!'
-                ], 404);
+                return $this->successresponse(404, 'message', 'No Such product Found!');
             }
         }
     }
@@ -278,33 +217,21 @@ class productController extends commonController
         $product = $this->productModel::find($id);
         if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
             if ($product->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         //condition for check if user has permission to delete record
         if ($this->rp['inventorymodule']['product']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($product) {
             $product->update([
                 'is_deleted' => 1
 
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'product succesfully deleted'
-            ], 200);
+            return $this->successresponse(200, 'message', 'product succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such product Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such product Found!');
         }
     }
 }

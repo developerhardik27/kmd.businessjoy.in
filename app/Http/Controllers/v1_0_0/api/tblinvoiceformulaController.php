@@ -35,10 +35,7 @@ class tblinvoiceformulaController extends commonController
 
         //condition for check if user has permission to view record
         if ($this->rp['invoicemodule']['formula']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoiceformulares = $this->tbl_invoice_formulaModel::orderBy('formula_order')
@@ -51,15 +48,9 @@ class tblinvoiceformulaController extends commonController
         $invoiceformula = $invoiceformulares->get();
 
         if ($invoiceformula->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoiceformula' => $invoiceformula
-            ], 200);
+            return $this->successresponse(200, 'invoiceformula', $invoiceformula);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoiceformula' => 'No Records Found'
-            ]);
+            return $this->successresponse(404, 'invoiceformula', 'No Records Found');
         }
     }
 
@@ -77,44 +68,35 @@ class tblinvoiceformulaController extends commonController
     public function store(Request $request)
     {
 
-            //condition for check if user has permission to add record
-            if ($this->rp['invoicemodule']['formula']['add'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'You are Unauthorized'
-                ]);
-            }
+        //condition for check if user has permission to add record
+        if ($this->rp['invoicemodule']['formula']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
-            $maxformulasequence = $this->tbl_invoice_formulaModel::where('is_deleted', 0)->max('formula_order');
-            $formulasequence = 1 ;
-            if($maxformulasequence){
-                $formulasequence = ++$formulasequence;
-             }
-            $formuladata = $request['formuladata'];
-            foreach ($formuladata as $key => $value) {
-                $invoiceformula = $this->tbl_invoice_formulaModel::create([
-                    'first_column' => $value[0],
-                    'operation' => $value[1],
-                    'second_column' => $value[2],
-                    'output_column' => $value[3],
-                    'formula_order' => $formulasequence,
-                    'company_id' => $this->companyId,
-                    'created_by' => $this->userId,
-                ]);
-                ++$formulasequence;
-            }
+        $maxformulasequence = $this->tbl_invoice_formulaModel::where('is_deleted', 0)->max('formula_order');
+        $formulasequence = 1;
+        if ($maxformulasequence) {
+            $formulasequence = ++$formulasequence;
+        }
+        $formuladata = $request['formuladata'];
+        foreach ($formuladata as $key => $value) {
+            $invoiceformula = $this->tbl_invoice_formulaModel::create([
+                'first_column' => $value[0],
+                'operation' => $value[1],
+                'second_column' => $value[2],
+                'output_column' => $value[3],
+                'formula_order' => $formulasequence,
+                'company_id' => $this->companyId,
+                'created_by' => $this->userId,
+            ]);
+            ++$formulasequence;
+        }
 
-            if ($invoiceformula) {
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Invoice Formula  succesfully added'
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Invoice Formula not succesfully added'
-                ]);
-            }
+        if ($invoiceformula) {
+            return $this->successresponse(200, 'message', 'Invoice Formula succesfully added');
+        } else {
+            return $this->successresponse(500, 'message', 'Invoice Formula not succesfully added');
+        }
     }
 
     /**
@@ -124,34 +106,21 @@ class tblinvoiceformulaController extends commonController
     {
         //condition for check if user has permission to search  record
         if ($this->rp['invoicemodule']['formula']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoiceformula = $this->tbl_invoice_formulaModel::get();
 
         if ($this->rp['invoicemodule']['formula']['alldata'] != 1) {
             if ($invoiceformula->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         if ($invoiceformula->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoiceformula' => $invoiceformula
-            ]);
+            return $this->successresponse(200, 'invoiceformula', $invoiceformula);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoiceformula' => $invoiceformula,
-                'message' => "No Such Invoice Formula Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such Invoice Formula Found!");
         }
     }
 
@@ -163,34 +132,21 @@ class tblinvoiceformulaController extends commonController
 
         //condition for check if user has permission to search  record
         if ($this->rp['invoicemodule']['formula']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoiceformula = $this->tbl_invoice_formulaModel::find($id);
 
         if ($this->rp['invoicemodule']['formula']['alldata'] != 1) {
             if ($invoiceformula->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
         if ($invoiceformula->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'invoiceformula' => $invoiceformula
-            ]);
+            return $this->successresponse(200, 'invoiceformula', $invoiceformula);
         } else {
-            return response()->json([
-                'status' => 404,
-                'invoiceformula' => $invoiceformula,
-                'message' => "No Such Invoice Formula Found!"
-            ]);
+            return $this->successresponse(404, 'message', "No Such Invoice Formula Found!");
         }
     }
 
@@ -214,28 +170,19 @@ class tblinvoiceformulaController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             //condition for check if user has permission to search  record
             if ($this->rp['invoicemodule']['formula']['edit'] != 1) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $invoiceformula = $this->tbl_invoice_formulaModel::find($id);
 
             if ($this->rp['invoicemodule']['formula']['alldata'] != 1) {
                 if ($invoiceformula->created_by != $this->userId) {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => "You are Unauthorized!"
-                    ]);
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
 
@@ -250,15 +197,9 @@ class tblinvoiceformulaController extends commonController
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Invoice Formula succesfully updated'
-                ]);
+                return $this->successresponse(500, 'message', 'Invoice Formula succesfully updated');
             } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No Such Invoice Formula Found!'
-                ]);
+                return $this->successresponse(404, 'message', 'No Such Invoice Formula Found!');
             }
         }
     }
@@ -269,20 +210,14 @@ class tblinvoiceformulaController extends commonController
     public function destroy(string $id)
     {
         if ($this->rp['invoicemodule']['formula']['delete'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $invoiceformula = $this->tbl_invoice_formulaModel::find($id);
 
         if ($this->rp['invoicemodule']['formula']['alldata'] != 1) {
             if ($invoiceformula->created_by != $this->userId) {
-                return response()->json([
-                    'status' => 500,
-                    'message' => "You are Unauthorized!"
-                ]);
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
@@ -290,15 +225,9 @@ class tblinvoiceformulaController extends commonController
             $invoiceformula->update([
                 'is_deleted' => 1
             ]);
-            return response()->json([
-                'status' => 200,
-                'message' => 'Invoice Formula succesfully deleted'
-            ]);
+            return $this->successresponse(200, 'message',  'Invoice Formula succesfully deleted');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Such Invoice Formula Found!'
-            ]);
+            return $this->successresponse(404, 'message', 'No Such Invoice Formula Found!');
         }
     }
 
@@ -308,10 +237,7 @@ class tblinvoiceformulaController extends commonController
     public function formulaorder(Request $request)
     {
         if ($this->rp['invoicemodule']['formula']['edit'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => "You are Unauthorized!"
-            ]);
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $successCount = 0;
@@ -331,15 +257,9 @@ class tblinvoiceformulaController extends commonController
         }
 
         if ($successCount > 0) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'Formula Order Succesfully updated'
-            ]);
+            return $this->successresponse(200, 'message', 'Formula Order Succesfully updated');
         } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Formula Order Not Succesfully upadated'
-            ]);
+            return $this->successresponse(404, 'message', 'Formula Order Not Succesfully upadated');
         }
     }
 }
