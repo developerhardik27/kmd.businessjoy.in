@@ -142,7 +142,6 @@ class otherapiController extends Controller
     public function fblead(Request $request)
     {
 
-       
         $dbname = 'bj_shree_vinayak_battery_zone_k9r';
 
         config(['database.connections.dynamic_connection.database' => $dbname]);

@@ -159,10 +159,10 @@
                                                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
                                                                 <select data-status='${value.id}' class="status" id="status_${value.id}" name="" required >
                                                                     <option value='part_payment' disabled>Part Payment</option>
-                                                                    <option value='paid' disabled>paid</option>
-                                                                    <option value='pending'>pending</option>
-                                                                    <option value='cancel'>cancel</option>
-                                                                    <option value='due'>over Due</option>
+                                                                    <option value='paid' disabled>Paid</option>
+                                                                    <option value='pending'>Pending</option>
+                                                                    <option value='cancel'>Cancel</option>
+                                                                    <option value='due'>Over Due</option>
                                                                 </select>
                                                             @else
                                                               -    

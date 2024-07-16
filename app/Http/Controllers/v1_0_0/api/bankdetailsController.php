@@ -108,9 +108,10 @@ class bankdetailsController extends commonController
 
         $validator = Validator::make($request->all(), [
             'holder_name' => 'required|string|max:50',
-            'branch_name' => 'required|string|max:50',
+            'branch_name' => 'nullable|string|max:50',
+            'bank_name' => 'required|string|max:50',
             'account_number' => 'required|numeric',
-            'swift_code' => 'required|string|max:50',
+            'swift_code' => 'nullable|string|max:50',
             'ifsc_code' => 'required|string|min:6',
             'company_id' => 'required|numeric',
             'updated_by',
@@ -128,6 +129,7 @@ class bankdetailsController extends commonController
 
                 $bankdetail = $this->bankdetailmodel::create([
                     'holder_name' => $request->holder_name,
+                    'bank_name' => $request->bank_name,
                     'branch_name' => $request->branch_name,
                     'account_no' => $request->account_number,
                     'swift_code' => $request->swift_code,
