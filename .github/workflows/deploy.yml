@@ -15,9 +15,9 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
-        with: 
-          host: 91.108.104.253
-          username: parth_businessjoy_ssh
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: | 
             cd ~/htdocs/businessjoy.in && ./.scripts/deploy.sh
