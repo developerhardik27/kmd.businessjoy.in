@@ -20,6 +20,7 @@ class BankDetailsController extends Controller
             $this->bankdetailModel = 'App\\Models\\v1_0_0\\bank_detail';
         }
 
+        
     }
 
     /**
