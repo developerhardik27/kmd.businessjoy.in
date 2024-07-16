@@ -7,7 +7,7 @@
     Invoice - Bank Detail
 @endsection
 @section('table_title')
-    Bank Detail
+    Bank Details
 @endsection
 
 @section('style')
