@@ -38,6 +38,7 @@ class tblinvoiceformulaController extends commonController
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
         // }
 
+
         $invoiceformulares = $this->tbl_invoice_formulaModel::orderBy('formula_order')
             ->where('is_deleted', 0);
 

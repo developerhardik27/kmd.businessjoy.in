@@ -42,6 +42,7 @@ class tblinvoiceothersettingController extends commonController
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
         // }
 
+
         $overdueday = $this->invoice_other_settingModel::where('is_deleted', 0)->get();
 
 
@@ -57,6 +58,7 @@ class tblinvoiceothersettingController extends commonController
         // if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
         // }
+
 
         $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type')->get();
 
@@ -74,6 +76,7 @@ class tblinvoiceothersettingController extends commonController
         // if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
         // }
+
 
         $termsandcondition = $this->invoice_terms_and_conditionModel::where('is_deleted', 0)->get();
 
