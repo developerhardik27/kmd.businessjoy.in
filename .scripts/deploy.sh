@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Deployment started ..."
+echo "Deployment started ...."
 
 cd ~/htdocs/staging.businessjoy.in/
 
