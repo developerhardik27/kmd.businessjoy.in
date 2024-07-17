@@ -28,7 +28,7 @@
                 <div class="col-sm-6">
                     <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email"
-                        placeholder="Enter Company Email" />
+                        placeholder="Enter Company Email"/>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
