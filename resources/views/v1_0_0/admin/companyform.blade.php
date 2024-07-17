@@ -90,7 +90,7 @@
                     <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code"
                         required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
-                </div>
+                </div> 
                 @if (Session::has('user_permissions.adminmodule.company.max') &&
                         session('user_permissions.adminmodule.company.max') == '1')
                     <div class="col-sm-6">
