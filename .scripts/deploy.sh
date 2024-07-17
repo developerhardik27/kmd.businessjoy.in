@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Deployment started ...."
+echo "Deployment started ....."
 
 cd ~/htdocs/staging.businessjoy.in/
 
@@ -10,7 +10,7 @@ cd ~/htdocs/staging.businessjoy.in/
 (php artisan down) || true
 
 # Pull the latest version of the app
-git pull origin main
+git pull origin staging
 
 
 # Turn OFF Maintenance mode

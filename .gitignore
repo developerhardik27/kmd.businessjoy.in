@@ -19,6 +19,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-/.github/workflows/deploy.yml
-/.scripts/deploy.sh
+.github/workflows/deploy.yml
+.scripts/deploy.sh
 
