@@ -123,6 +123,7 @@
             margin-top: 20px;
             margin-bottom: 20px;
         }
+
         footer {
             position: fixed;
             bottom: -20px;
@@ -159,7 +160,9 @@
                     <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['address'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">{{ $companydetails['city_name'] }},
                         {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
-                    <span class="default" style="display:block;">Email: {{ $companydetails['email'] }}</span>
+                    @isset($companydetails['email'])
+                        <span class="default" style="display:block;">Email: {{ $companydetails['email'] }}</span>
+                    @endisset
                     <span class="default" style="display:block;">Contact: {{ $companydetails['contact_no'] }}</span>
                 </td>
                 <td style="vertical-align: top">
@@ -179,7 +182,8 @@
             <tr>
                 <td colspan="2" style="vertical-align: top">
                     <span class="default textblue firstrow cname" style="display:block;" id="">Bill To</span>
-                    <span class="default" style="display:block;"> {{ $invdata['firstname'] }} {{ $invdata['lastname'] }}</span>
+                    <span class="default" style="display:block;"> {{ $invdata['firstname'] }}
+                        {{ $invdata['lastname'] }}</span>
                     <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['address'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">
                         @isset($invdata['city_name'])
@@ -198,18 +202,19 @@
                 <td style="vertical-align: top">
                     <table>
                         @if (count($payment) <= 1)
-                        <tr>
-                            <td><b>Date</b></td>
-                            <td style="text-align: right">  {{ \Carbon\Carbon::parse($payment[0]['datetime'])->format('d-m-Y') }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Method</b></td>
-                            <td style="text-align: right"> {{ $payment[0]['paid_type'] }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Receipt #</b></td>
-                            <td style="text-align: right">{{$payment[0]['receipt_number']}}</td>
-                        </tr>
+                            <tr>
+                                <td><b>Date</b></td>
+                                <td style="text-align: right">
+                                    {{ \Carbon\Carbon::parse($payment[0]['datetime'])->format('d-m-Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Method</b></td>
+                                <td style="text-align: right"> {{ $payment[0]['paid_type'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Receipt #</b></td>
+                                <td style="text-align: right">{{ $payment[0]['receipt_number'] }}</td>
+                            </tr>
                         @endif
                         <tr>
                             <td><b>Invoice #</b></td>
@@ -238,7 +243,7 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($value['datetime'])->format('d-m-Y') }}</td>
                                     <td>{{ $value['paid_type'] }}</td>
-                                    <td>{{$value['receipt_number']}}</td>
+                                    <td>{{ $value['receipt_number'] }}</td>
                                     <td>{{ $value['amount'] }}</td>
                                     <td>{{ $value['paid_amount'] }}</td>
                                     <td>{{ $value['pending_amount'] }}</td>
@@ -346,12 +351,13 @@
                                 @endif
 
                                 <tr class="" style="font-size:15px;text-align: right">
-                                    <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                                    <td colspan="@php echo (count($products[0])); @endphp"
+                                        class="left removetdborder">
                                         Round of
                                     </td>
                                     <td style="text-align: right" class="right currencysymbol">
                                         {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
-                                        {{$sign}}  {{ Number::currency($roundof, in: $invdata['currency']) }}
+                                        {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                                     </td>
                                 </tr>
                                 <tr class="" style="font-size:15px;text-align: right">

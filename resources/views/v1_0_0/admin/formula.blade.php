@@ -110,9 +110,7 @@
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
                                                         </optgroup>
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -131,9 +129,7 @@
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
                                                         </optgroup>
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>
@@ -143,9 +139,7 @@
                                                         ${allColumnNames.map(columnName => `<option value="${columnName}">${columnName}</option>`).join('')}
                                                         </optgroup>
                                                         <optgroup label='Default Column'>
-                                                            <option value='Amount'>Amount</option>
-                                                            <option value='Total'>Total</option>
-                                                            <option value='Gst'>Gst</option>
+                                                            <option value='Amount'>Amount</option> 
                                                         </optgroup>
                                                     </select>
                                                 </td>

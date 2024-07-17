@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('company_details', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50)->notNullable();
-            $table->string('email', 50)->notNullable();
+            $table->string('email', 50)->nullable();
             $table->bigInteger('contact_no')->nullable(); // Adjust the maximum length if necessary
             $table->mediumText('address')->notNullable();
             $table->string('gst_no', 50)->nullable();
