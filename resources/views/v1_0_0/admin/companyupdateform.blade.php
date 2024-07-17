@@ -25,9 +25,9 @@
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="email">Email</label><span style="color:red;">*</span>
+                    <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email" value=""
-                        placeholder="Enter Email" required />
+                        placeholder="Enter Email"  />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>

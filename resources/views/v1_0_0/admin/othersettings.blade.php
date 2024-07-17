@@ -171,12 +171,12 @@
                                             <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                 class="form-control">
                                             SGST : <input type="number" id="sgst" name='sgst'
-                                                class="form-control" placeholder="SGST" min="1" required />
+                                                class="form-control" placeholder="SGST" min="1" step="0.01" required />
                                             <span class="error-msg" id="error-sgst" style="color: red"></span><br>
                                         </div>
                                         <div class="col-sm-6">
                                             CGST : <input type="number" id="cgst" name='cgst'
-                                                class="form-control" placeholder="CGST" required />
+                                                class="form-control" placeholder="CGST" step="0.01" required />
                                             <span class="error-msg" id="error-cgst" style="color: red"></span>
                                         </div>
                                     </div>

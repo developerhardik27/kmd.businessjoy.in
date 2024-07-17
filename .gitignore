@@ -18,6 +18,8 @@ npm-debug.log
 yarn-error.log
 /.fleet
 /.idea
-/.vscode
-/.github/workflows/deploy.yml
-/.scripts/deploy.sh
+/.vscode 
+.github/workflows/deploy.yml
+.scripts/deploy.sh
+
+ 

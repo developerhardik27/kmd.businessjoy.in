@@ -26,9 +26,9 @@
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="email">Email</label><span style="color:red;">*</span>
-                    <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email"
-                        required />
+                    <label for="email">Email (Company Email)</label>
+                    <input type="email" name="email" class="form-control" id="email"
+                        placeholder="Enter Company Email"/>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -36,20 +36,26 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
+                    <label for="email_default_user">Email (Default User)</label><span style="color:red;">*</span>
+                    <input type="email" name="email_default_user" class="form-control" id="email_default_user"
+                        placeholder="0123456789" required />
+                    <span class="error-msg" id="error-email_default_user" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
                     <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
                     <input type="tel" name="contact_number" class="form-control" id="contact_no"
                         placeholder="0123456789" required />
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
                 <div class="col-sm-6">
                     <label for="gst">GST Number</label>
                     <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number" />
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
                 <div class="col-sm-6">
                     <label for="country">Select Country</label><span style="color:red;">*</span>
                     <select class="form-control" name="country" id="country" required>
@@ -57,6 +63,10 @@
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
                 <div class="col-sm-6">
                     <label for="state" required>Select State</label><span style="color:red;">*</span>
                     <select class="form-control" name="state" id="state">
@@ -64,10 +74,6 @@
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
                 <div class="col-sm-6">
                     <label for="city">Select City</label><span style="color:red;">*</span>
                     <select class="form-control" name="city" id="city" required>
@@ -75,27 +81,22 @@
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
                 <div class="col-sm-6">
                     <label for="pincode">Pincode</label><span style="color:red;">*</span>
                     <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code"
                         required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
-                    <label for="address">Address</label><span style="color:red;">*</span>
-                    <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
-                    <span class="error-msg" id="error-address" style="color: red"></span>
-                </div>
                 @if (Session::has('user_permissions.adminmodule.company.max') &&
-                                                    session('user_permissions.adminmodule.company.max') == '1')
+                        session('user_permissions.adminmodule.company.max') == '1')
                     <div class="col-sm-6">
                         <label for="pincode">Max Users</label><span style="color:red;">*</span>
-                        <input type="text" name="maxuser" id='maxuser' class="form-control" placeholder="Max Users"
-                            value="5" required />
+                        <input type="text" name="maxuser" id='maxuser' class="form-control"
+                            placeholder="Max Users" value="5" required />
                         <span class="error-msg" id="error-maxuser" style="color: red"></span>
                     </div>
                 @endif
@@ -103,16 +104,28 @@
         </div>
         <div class="form-group">
             <div class="form-row">
+                <div class="col-sm-12">
+                    <label for="address">Address</label><span style="color:red;">*</span>
+                    <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
+                    <span class="error-msg" id="error-address" style="color: red"></span>
+                </div>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
                 <div class="col-sm-6">
                     <label for="img">Company Logo Image</label><br>
                     <input type="file" class="form-control-file" name="img" id="img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and
+                        has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="sign_img">Company Signature Image</label><br>
                     <input type="file" class="form-control-file" name="sign_img" id="sign_img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and
+                        has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-sign_img" style="color: red"></span>
                 </div>
             </div>
@@ -120,10 +133,12 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset" class="btn iq-bg-danger float-right">
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
+                        class="btn iq-bg-danger float-right">
                         <i class='ri-refresh-line'></i>
                     </button>
-                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save" class="btn btn-primary float-right my-0">
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save"
+                        class="btn btn-primary float-right my-0">
                         <i class='ri-check-line'></i>
                     </button>
                 </div>

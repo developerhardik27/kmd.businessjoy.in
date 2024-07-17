@@ -176,11 +176,14 @@
                                 {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}
                             </td>
                         </tr>
-                        <tr>
-                            <td style="padding-left:10px">
-                                {{ $companydetails['email'] }}
-                            </td>
-                        </tr>
+                        @isset($companydetails['email'])
+                            <tr>
+                                <td style="padding-left:10px">
+                                    {{ $companydetails['email'] }}
+                                </td>
+                            </tr>
+                        @endisset
+
                         <tr>
                             <td style="padding-left:10px">
                                 {{ $companydetails['contact_no'] }}

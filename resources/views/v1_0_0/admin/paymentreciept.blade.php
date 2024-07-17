@@ -5,7 +5,7 @@
     $total;
     $roundof;
     $sign = '';
-    
+
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
     } else {
@@ -149,8 +149,11 @@
                         style="display:block;">{{ $companydetails['name'] }}</span>
                     <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['address'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">{{ $companydetails['city_name'] }},
-                        {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
-                    <span class="default" style="display:block;">Email: {{ $companydetails['email'] }}</span>
+                        {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}
+                    </span>
+                    @isset($companydetails['email'])
+                        <span class="default" style="display:block;">Email: {{ $companydetails['email'] }}</span>
+                    @endisset
                     <span class="default" style="display:block;">Contact: {{ $companydetails['contact_no'] }}</span>
                 </td>
                 <td style="vertical-align: top">
@@ -170,9 +173,10 @@
             <tr>
                 <td colspan="2" style="vertical-align: top">
                     <span class="default textblue firstrow cname" style="display:block;" id="">Bill To</span>
-                    <span  class="default" style="display:block;"> {{ $invdata['firstname'] }} {{ $invdata['lastname'] }}</span>
-                    <span  class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['address'], 40, "\n", true))) !!}</span>
-                    <span  class="default" style="display:block;">
+                    <span class="default" style="display:block;"> {{ $invdata['firstname'] }}
+                        {{ $invdata['lastname'] }}</span>
+                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['address'], 40, "\n", true))) !!}</span>
+                    <span class="default" style="display:block;">
                         @isset($invdata['city_name'])
                             {{ $invdata['city_name'] }},
                         @endisset
@@ -183,14 +187,15 @@
                             {{ $invdata['pincode'] }}
                         @endisset
                     </span>
-                    <span   class="default"style="display:block;">{{ $invdata['email'] }}</span>
-                    <span  class="default">{{ $invdata['contact_no'] }}</span><br><br>
+                    <span class="default"style="display:block;">{{ $invdata['email'] }}</span>
+                    <span class="default">{{ $invdata['contact_no'] }}</span><br><br>
                 </td>
                 <td>
-                    <table> 
+                    <table>
                         <tr>
                             <td><b>Date</b></td>
-                            <td style="text-align: right">  {{ \Carbon\Carbon::parse($payment['datetime'])->format('d-m-Y') }}</td>
+                            <td style="text-align: right">
+                                {{ \Carbon\Carbon::parse($payment['datetime'])->format('d-m-Y') }}</td>
                         </tr>
                         <tr>
                             <td><b>Method</b></td>
@@ -198,8 +203,8 @@
                         </tr>
                         <tr>
                             <td><b>Receipt #</b></td>
-                            <td style="text-align: right">{{$payment['receipt_number']}}</td>
-                        </tr> 
+                            <td style="text-align: right">{{ $payment['receipt_number'] }}</td>
+                        </tr>
                         <tr>
                             <td><b>Invoice #</b></td>
                             <td style="text-align: right">{{ $invdata['inv_no'] }}</td>
@@ -313,7 +318,7 @@
                                 </td>
                                 <td style="text-align: right" class="right currencysymbol">
                                     {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
-                                   {{$sign}} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                                    {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                                 </td>
                             </tr>
                             <tr class="" style="font-size:15px;text-align: right">

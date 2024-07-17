@@ -198,7 +198,7 @@ class tblinvoiceformulaController extends commonController
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
 
-                return $this->successresponse(500, 'message', 'Invoice Formula succesfully updated');
+                return $this->successresponse(200, 'message', 'Invoice Formula succesfully updated');
             } else {
                 return $this->successresponse(404, 'message', 'No Such Invoice Formula Found!');
             }

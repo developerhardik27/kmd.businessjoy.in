@@ -152,7 +152,8 @@ class companyController extends commonController
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
-            'email' => 'required|string|max:50',
+            'email' => 'nullable|string|max:50',
+            'email_default_user' => 'required|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
             'address' => 'required|string|max:255',
             'gst_number' => 'nullable|string|max:50',
@@ -178,7 +179,7 @@ class companyController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
-            $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
+            $checkuseremail = User::where('email', $request->email_default_user)->where('is_deleted', 0)->get();
 
             if (count($checkuseremail) > 0) {
                 return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
@@ -317,7 +318,7 @@ class companyController extends commonController
                     $passwordtoken = str::random(40);
                     $user = DB::table('users')->insertGetId([
                         'firstname' => $request->name,
-                        'email' => $request->email,
+                        'email' => $request->email_default_user,
                         'role' => 2,
                         'contact_no' => $request->contact_number,
                         'country_id' => $request->country,
@@ -377,7 +378,7 @@ class companyController extends commonController
                         ]);
 
                         if ($userrp) {
-                            Mail::to($request->email)->send(new sendmail($passwordtoken, $request->name, $request->email));
+                            Mail::to($request->email_default_user)->send(new sendmail($passwordtoken, $request->name, $request->email_default_user));
                             return $this->successresponse(200, 'message', 'Company succesfully added');
                         } else {
                             return $this->successresponse(500, 'message', 'User Permission Not succesfully added');
@@ -449,7 +450,7 @@ class companyController extends commonController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
-            'email' => 'required|string|max:50',
+            'email' => 'nullable|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
             'address' => 'required|string|max:255',
             'gst_number' => 'nullable|string|max:50',
