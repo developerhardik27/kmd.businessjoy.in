@@ -8,6 +8,7 @@
 @endsection
 @section('table_title')
     Bank Details
+    
 @endsection
 
 @section('style')
