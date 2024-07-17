@@ -3,7 +3,7 @@ set -e
 
 echo "Deployment started ...."
 
-cd ~/htdocs/staging.businessjoy.in/
+cd ~/htdocs/businessjoy.in/
 
 # Turn ON Maintenance Mode or return true
 # if already is in maintenance mode

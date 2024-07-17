@@ -145,7 +145,7 @@ class AdminLoginController extends Controller
                                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory','reminder'])))) {
                                     session(['menu' => 'blog']);
                                 }
-                                // $menus[] = 'blog';
+                               // $menus[] = 'blog';
                             }
               
                         }

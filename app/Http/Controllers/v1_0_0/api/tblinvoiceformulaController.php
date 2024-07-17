@@ -34,9 +34,10 @@ class tblinvoiceformulaController extends commonController
     {
 
         //condition for check if user has permission to view record
-        if ($this->rp['invoicemodule']['formula']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        // if ($this->rp['invoicemodule']['formula']['view'] != 1) {
+        //     return $this->successresponse(500, 'message', 'You are Unauthorized');
+        // }
+
 
         $invoiceformulares = $this->tbl_invoice_formulaModel::orderBy('formula_order')
             ->where('is_deleted', 0);

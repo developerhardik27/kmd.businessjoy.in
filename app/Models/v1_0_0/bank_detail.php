@@ -20,6 +20,7 @@ class bank_detail extends Model
         'swift_code',
         'ifsc_code',
         'branch_name',
+        'bank_name',
         'created_by',
         'updated_by',
         'created_at',

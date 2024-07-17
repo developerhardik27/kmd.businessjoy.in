@@ -7,7 +7,7 @@
     Invoice - Bank Details
 @endsection
 @section('table_title')
-    Bank Details
+    Bank Detail
 @endsection
 
 @section('style')
@@ -315,6 +315,10 @@
                                 <tr>
                                     <th>Branch Name</th>
                                     <td>${(bankdetail.branch_name!= null)? bankdetail.branch_name : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <th>Bank Name</th>
+                                    <td>${(bankdetail.bank_name!= null && bankdetail.bank_name != '')? bankdetail.bank_name : '-'}</td>
                                 </tr>
                         `);
                     }

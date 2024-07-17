@@ -17,7 +17,8 @@ return new class extends Migration {
             $table->string('account_no', 50);
             $table->string('swift_code', 20)->nullable();
             $table->string('ifsc_code', 20);
-            $table->string('branch_name', 50);
+            $table->string('branch_name', 50)->nullable();
+            $table->string('bank_name', 50);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

@@ -39,9 +39,9 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="swift_code">Swift Code</label><span style="color:red;">*</span>
+                    <label for="swift_code">Swift Code</label>
                     <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
-                        placeholder="Swift Code" required />
+                        placeholder="Swift Code"/>
                     <span class="error-msg" id="error-swift_code" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -54,10 +54,16 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-12">
-                    <label for="branch_name">Branch Name</label><span style="color:red;">*</span>
-                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name"
+                <div class="col-sm-6">
+                    <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
+                    <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
                         required />
+                    <span class="error-msg" id="error-branch_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label for="branch_name">Branch Name</label>
+                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name"
+                         />
                     <span class="error-msg" id="error-branch_name" style="color: red"></span>
                 </div>
             </div>
