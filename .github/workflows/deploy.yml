@@ -19,7 +19,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/htdocs/staging.businessjoy.in && ./.scripts/deploy.sh
+          script: | 
+            cd ~/htdocs/businessjoy.in && ./.scripts/deploy.sh
+
 
            

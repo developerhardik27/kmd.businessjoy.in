@@ -35,6 +35,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }} - invoicePDf</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <style>
@@ -44,10 +46,10 @@
         }
 
         .bgblue {
-            background-color: #002060;
+            background-color: #002060 !important;
             /* background-color: rgb(10 8 108 / 99%); */
             color: rgb(255, 253, 253);
-            text-transform: uppercase;
+            text-transform: uppercase !important;
             font-weight: bold;
             font-size: 14px;
             border-right: none !important;
@@ -154,7 +156,7 @@
 
 <body>
     <div class="card-body table-wrapper">
-        <table cellspacing=0 cellpadding=0 width="100%" class="horizontal-border border">
+        <table cellspacing=0 cellpadding=0 width="100%" class="horizontal-border  border">
             <tr>
                 <td style="width: 50%;padding:0;vertical-align:top">
                     <table width="100%">
@@ -204,6 +206,13 @@
                                 {{ $invdata['firstname'] }} {{ $invdata['lastname'] }}
                             </td>
                         </tr>
+                        @if ($invdata['company_name'] != '' && $invdata['company_name'] != null)
+                            <tr class="font-weight-bold">
+                                <td class="textblue" style="padding-left:10px">
+                                    {{ $invdata['company_name'] }}
+                                </td>
+                            </tr>
+                        @endif
                         <tr>
                             <td style="padding-left:10px">
                                 {{ $invdata['address'] }}
@@ -271,32 +280,42 @@
                         </tr>
 
                     </table>
-                    <table width="100%">
+                    <table width="100%" class="table-striped">
                         <tr class="bgblue text-center">
                             <th colspan="2">
                                 bankdetails
                             </th>
                         </tr>
-                        <tr class="bgsilver">
-                            <td>holder name</td>
+                        @if ($bankdetails['bank_name'] != null && $bankdetails['bank_name'] != '')
+                            <tr class="">
+                                <td>Bank Name</td>
+                                <td>{{ $bankdetails['bank_name'] }}</td>
+                            </tr>
+                        @endif
+                        <tr class="">
+                            <td>Holder Name</td>
                             <td>{{ $bankdetails['holder_name'] }}</td>
                         </tr>
                         <tr>
-                            <td>a/c no</td>
+                            <td>A/C No</td>
                             <td>{{ $bankdetails['account_no'] }}</td>
                         </tr>
-                        <tr class="bgsilver">
-                            <td>Swift code</td>
-                            <td>{{ $bankdetails['swift_code'] }}</td>
-                        </tr>
+                        @if ($bankdetails['swift_code'] != null && $bankdetails['swift_code'] != '')
+                            <tr class="">
+                                <td>Swift Code</td>
+                                <td>{{ $bankdetails['swift_code'] }}</td>
+                            </tr>
+                        @endif
                         <tr>
-                            <td>ifsc code</td>
+                            <td>IFSC Code</td>
                             <td>{{ $bankdetails['ifsc_code'] }}</td>
                         </tr>
-                        <tr class="bgsilver">
-                            <td>branch name</td>
-                            <td>{{ $bankdetails['branch_name'] }}</td>
-                        </tr>
+                        @if ($bankdetails['branch_name'] != null && $bankdetails['branch_name'] != '')
+                            <tr class="">
+                                <td>Branch</td>
+                                <td>{{ $bankdetails['branch_name'] }}</td>
+                            </tr>
+                        @endif
                     </table>
                 </td>
             </tr>
@@ -400,15 +419,17 @@
                             @endif
                         @endif
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                            <td colspan="@php echo (count($products[0])); @endphp"
+                                class="text-right left removeborder">
                                 Round of
                             </td>
                             <td class="right currencysymbol text-right">
-                                {{$sign}} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                                {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                            <td colspan="@php echo (count($products[0])); @endphp"
+                                class="text-right left removeborder">
                                 <b>Total</b>
                             </td>
                             <td class="right currencysymbol text-right">
@@ -417,7 +438,7 @@
                         </tr>
                         <tr class="removeborder">
                             <td colspan="@php echo (count($products[0])+1); @endphp" class="text-right"
-                                style="vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;">
+                                style="vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
                                 <strong>{{ $invdata['currency'] }} {{ $words }} Only</strong>
                             </td>
                         </tr>
@@ -431,8 +452,8 @@
             </tr>
             <tr>
                 <td colspan="3" style="vertical-align: top;border-bottom:1px solid black;">
-                   <span style="margin-top: 0"> Terms And Condtions :- </span><br/> <br/> 
-                   <span style="line-height:0.5"> {!! $invdata['t_and_c'] !!}</span>
+                    <span style="margin-top: 0"> Terms And Condtions :- </span><br /> <br />
+                    <span style="line-height:1"> {!! $invdata['t_and_c'] !!}</span>
                 </td>
             </tr>
         </table>

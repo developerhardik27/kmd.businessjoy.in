@@ -181,7 +181,7 @@
                         } else if (response.status == 500) {
                             toastr.error(response.message);
                         } else {
-                            $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='7' >No Data Found</td></tr>`)
                         }
                         loaderhide();
                         // You can update your HTML with the data here if needed

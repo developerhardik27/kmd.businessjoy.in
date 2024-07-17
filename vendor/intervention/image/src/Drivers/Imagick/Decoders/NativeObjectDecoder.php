@@ -6,15 +6,16 @@ namespace Intervention\Image\Drivers\Imagick\Decoders;
 
 use Imagick;
 use Intervention\Image\Drivers\Imagick\Core;
-use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Drivers\SpecializableDecoder;
 use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\Image;
 use Intervention\Image\Interfaces\ColorInterface;
 use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\Image\Interfaces\SpecializedInterface;
 use Intervention\Image\Modifiers\AlignRotationModifier;
+use Intervention\Image\Modifiers\RemoveAnimationModifier;
 
-class NativeObjectDecoder extends SpecializableDecoder
+class NativeObjectDecoder extends SpecializableDecoder implements SpecializedInterface
 {
     public function decode(mixed $input): ImageInterface|ColorInterface
     {
@@ -33,13 +34,21 @@ class NativeObjectDecoder extends SpecializableDecoder
             $input = $input->coalesceImages();
         }
 
+        // create image object
         $image = new Image(
-            new Driver(),
+            $this->driver(),
             new Core($input)
         );
 
+        // discard animation depending on config
+        if (!$this->driver()->config()->decodeAnimation) {
+            $image->modify(new RemoveAnimationModifier());
+        }
+
         // adjust image rotatation
-        $image->modify(new AlignRotationModifier());
+        if ($this->driver()->config()->autoOrientation) {
+            $image->modify(new AlignRotationModifier());
+        }
 
         // set media type on origin
         $image->origin()->setMediaType($input->getImageMimeType());

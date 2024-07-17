@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "barryvdh/laravel-dompdf": "^2.1",
+        "barryvdh/laravel-dompdf": "2.1.0",
         "consoletvs/charts": "^6.6",
         "doctrine/dbal": "^3.7",
         "dompdf/dompdf": "^2.0",
