@@ -616,7 +616,6 @@
                             return false;
                         }
                     }
-
                     return true;
                 }
 
