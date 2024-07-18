@@ -5,8 +5,8 @@ echo "Deployment started in staging ....."
 
 # Define your deployment directories and branches
 declare -A branches=(
-    ["main"]="~/htdocs/businessjoy.in/"
-    ["staging"]="~/htdocs/staging.businessjoy.in/"
+    ["main"]="htdocs/businessjoy.in/"
+    ["staging"]="htdocs/staging.businessjoy.in/"
 )
 
 # Determine the current branch
@@ -17,6 +17,7 @@ if [[ -n "${branches[$current_branch]}" ]]; then
     deployment_directory="${branches[$current_branch]}"
     echo "Deploying branch $current_branch to $deployment_directory"
 
+cd ~
 cd "$deployment_directory"
 # cd ~/htdocs/staging.businessjoy.in/
 
