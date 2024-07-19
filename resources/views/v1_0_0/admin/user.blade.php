@@ -97,10 +97,11 @@
                             var id = 1;
                             // You can update your HTML with the data here if needed     
                             $.each(response.user, function(key, value) {
+                                console.log(value.lastname);
                                 $('#data').append(`<tr>
                                                         <td>${id}</td>
                                                         <td>${value.firstname  != null ? value.firstname : '-'}</td>
-                                                        <td> ${value.is_lastname !== '' ? value.lastname  : ''} </td>
+                                                        <td> ${value.lastname != null ? value.lastname  : '-'} </td>
                                                         <td>${value.email != null ? value.email : '-'}</td>
                                                         <td>${value.contact_no != null ? value.contact_no : '-'}</td>
                                                         <td>${value.company_name != null ? value.company_name : '-'}</td>
