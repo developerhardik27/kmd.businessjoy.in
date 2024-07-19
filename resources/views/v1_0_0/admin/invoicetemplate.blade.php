@@ -472,7 +472,11 @@
             </tr>
             <tr>
                 <td colspan="3" style="vertical-align: top;border-bottom:1px solid black;">
-                    <span style="margin-top: 0"> Terms And Condtions :- </span><br /> <br />
+                    @isset($invdata['notes'])
+                        <span style="margin-top: 0"><b>Notes :- </b></span>
+                        <span style="line-height:1"> {!! $invdata['notes'] !!}</span> <br><br>
+                    @endisset
+                    <span style="margin-top: 0"><b>Terms And Condtions :- </b></span><br/>
                     <span style="line-height:1"> {!! $invdata['t_and_c'] !!}</span>
                 </td>
             </tr>
