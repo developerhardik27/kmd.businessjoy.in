@@ -3,7 +3,7 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - staging  # Replace with your branch name
+      - main  # Replace with your branch name
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.STAGING_USERNAME }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: | 
-            cd ~/htdocs/staging.businessjoy.in && ./.scripts/deploy.sh
+            cd ~/htdocs/businessjoy.in && ./.scripts/deploy.sh
 
 
            
