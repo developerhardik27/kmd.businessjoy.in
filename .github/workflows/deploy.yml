@@ -17,8 +17,8 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.STAGING_USERNAME }}
-          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: | 
             cd ~/htdocs/businessjoy.in && ./.scripts/deploy.sh
 
