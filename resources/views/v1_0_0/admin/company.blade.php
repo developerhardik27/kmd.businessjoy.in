@@ -177,12 +177,8 @@
                     }
                 });
             }
-
             //call loaddata function for make ajax call
             loaddata(); // this function is for get company details
-
-
-
 
             //  Company status update active to deactive              
             $(document).on("click", ".status-active", function() {
@@ -343,7 +339,7 @@
                                     </tr>
                                     <tr>
                                         <th>Address</th>
-                                        <td>${company.address  != null ? company.address : '-'}</td>
+                                        <td>${(company.house_no_building_name != null) ? company.house_no_building_name : '-'} ${company.road_name_area_colony != null ? company.road_name_area_colony : ''}</td>
                                     </tr>
                                     <tr>
                                         <th>City</th>

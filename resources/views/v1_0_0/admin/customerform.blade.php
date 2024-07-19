@@ -104,10 +104,15 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-12">
-                    <label for="address">Address</label><span class="requiredinputspan" style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='address' id="address" rows="2"></textarea>
-                    <span class="error-msg" id="error-address" style="color: red"></span>
+                <div class="col-sm-6">
+                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2"></textarea>
+                    <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"></textarea>
+                    <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
                 </div>
             </div>
         </div>

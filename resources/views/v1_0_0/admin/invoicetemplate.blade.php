@@ -165,11 +165,20 @@
                                 {{ $companydetails['name'] }}
                             </th>
                         </tr>
-                        <tr>
-                            <td style="padding-left:10px">
-                                {{ $companydetails['address'] }}
-                            </td>
-                        </tr>
+                        @isset($companydetails['house_no_building_name'])
+                            <tr>
+                                <td style="padding-left:10px">
+                                    {{ $companydetails['house_no_building_name'] }},
+                                </td>
+                            </tr>
+                        @endisset
+                        @isset($companydetails['road_name_area_colony'])
+                            <tr>
+                                <td style="padding-left:10px">
+                                    {{ $companydetails['road_name_area_colony'] }},
+                                </td>
+                            </tr>
+                        @endisset
                         <tr>
                             <td style="padding-left:10px">
                                 {{ $companydetails['city_name'] }},
@@ -183,7 +192,6 @@
                                 </td>
                             </tr>
                         @endisset
-
                         <tr>
                             <td style="padding-left:10px">
                                 {{ $companydetails['contact_no'] }}
@@ -216,11 +224,20 @@
                                 </td>
                             </tr>
                         @endif
-                        <tr>
-                            <td style="padding-left:10px">
-                                {{ $invdata['address'] }}
-                            </td>
-                        </tr>
+                        @if ($invdata['house_no_building_name'])
+                            <tr>
+                                <td style="padding-left:10px">
+                                    {{ $invdata['house_no_building_name'] }}
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($invdata['road_name_area_colony'])
+                            <tr>
+                                <td style="padding-left:10px">
+                                    {{ $invdata['road_name_area_colony'] }}
+                                </td>
+                            </tr>
+                        @endif
                         <tr>
                             <td style="padding-left:10px">
                                 @isset($invdata['city_name'])

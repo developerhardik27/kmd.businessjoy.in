@@ -438,7 +438,7 @@
                         $('#columnname').prepend(
                             `${allColumnData.map(columnName => `<th style="${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
                                 <th>Amount</th>
-                                <th>Sort</th>
+                                <th>Move</th>
                                 <th>Remove</th>
                             `
                             );
@@ -456,7 +456,7 @@
                                             if (columnData.column_type === 'time') {
                                                 return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}"></td>`;
                                             } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation" value=1 min=0></td>`;
+                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
                                             } else if (columnData.column_type === 'longtext') {
                                                 return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" rows="1"></textarea></td>`;
                                             } else {
@@ -507,7 +507,15 @@
                         toastr.error(errorMessage);
                     }
             });
-          
+            
+            // Handle moving row up
+            const $tableID = $("#table");
+            $tableID.on("click", ".table-up", function() {
+                const $row = $(this).closest("tr"); // Use closest to get the closest ancestor
+                if ($row.index() !== 0) {
+                    $row.prev().before($row); // Move the row
+                }
+            });
 
             // account data fetch and set account detials dropdown
             $.ajax({
@@ -727,7 +735,7 @@
                                 if (columnData.column_type === 'time') {
                                     return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation" value=1 min=0></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
                                 } else if (columnData.column_type === 'longtext') {
                                     return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1"></textarea></td>`;
                                 } else {
