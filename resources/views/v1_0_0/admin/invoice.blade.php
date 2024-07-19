@@ -157,7 +157,7 @@
                                                         <td>${value.currency_symbol} ${value.grand_total}</td>
                                                         <td> 
                                                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
-                                                                <select data-status='${value.id}' class="status" id="status_${value.id}" name="" required >
+                                                                <select data-status='${value.id}' data-original-value="${value.status}" class="status" id="status_${value.id}" name="" required >
                                                                     <option value='part_payment' disabled>Part Payment</option>
                                                                     <option value='paid' disabled>Paid</option>
                                                                     <option value='pending'>Pending</option>
@@ -182,41 +182,41 @@
                                                         </td>
                                                         <td>
                                                             ${(value.status != 'paid') ? `
-                                                                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                                                                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
-                                                                                                                <i class='ri-paypal-fill'></i>
-                                                                                                            </button>
-                                                                                                        </span>
-                                                                                             ` : ''
+                                                                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                                                                                                <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
+                                                                                                                    <i class='ri-paypal-fill'></i>
+                                                                                                                </button>
+                                                                                                            </span>
+                                                                                                 ` : ''
                                                             }
                                                             ${(value.part_payment == 1 && value.status == 'paid' && value.pending_amount != null) ? `    
-                                                                                    <span> 
-                                                                                        <a href=/admin/generaterecieptall/${value.id} target='_blank'>
-                                                                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
-                                                                                                    <i class="ri-download-line"></i>
-                                                                                                </button>
-                                                                                        </a>
-                                                                                    </span>
-                                                                    ` : ''
+                                                                                        <span> 
+                                                                                            <a href=/admin/generaterecieptall/${value.id} target='_blank'>
+                                                                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
+                                                                                                        <i class="ri-download-line"></i>
+                                                                                                    </button>
+                                                                                            </a>
+                                                                                        </span>
+                                                                        ` : ''
                                                             }
                                                             ${(value.part_payment == 1) ? `    
-                                                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                                                                            <i class='ri-eye-fill'></i> 
-                                                                                                    </button> 
-                                                                                                </span>
-                                                                                             ` : ''
+                                                                                                    <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                                                                                        <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
+                                                                                                                <i class='ri-eye-fill'></i> 
+                                                                                                        </button> 
+                                                                                                    </span>
+                                                                                                 ` : ''
                                                             }
                                                             
                                                             ${(value.part_payment == 0 && value.status == 'paid') ? `    
-                                                                                    <span> 
-                                                                                        <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
-                                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                                                                <i class="ri-download-line"></i>
-                                                                                            </button>
-                                                                                        </a>
-                                                                                    </span>
-                                                                     ` : ''
+                                                                                        <span> 
+                                                                                            <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
+                                                                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                                                                    <i class="ri-download-line"></i>
+                                                                                                </button>
+                                                                                            </a>
+                                                                                        </span>
+                                                                         ` : ''
                                                             }
                                                             
                                                           
@@ -374,14 +374,17 @@
 
             //call status change function
             $(document).on("change", ".status", function() {
+                var oldstatus = $(this).data('original-value'); //get original invoice status value
+                var statusid = $(this).data('status'); // get invoice id
+                var status = $(this).val(); //get current value
                 if (confirm('Are you Sure to Change this Record ?')) {
                     loadershow();
-                    var statusid = $(this).data('status');
-                    var status = $(this).val();
+                    $(this).data('original-value', status); // set current value to original value
                     statuschange(statusid, status);
                     loaderhide();
-                }
-
+                } else { 
+                    $('#status_' + statusid).val(oldstatus); // if user will cancelled to change status then set original value as it is
+                } 
             });
 
             // form reset every time when on click make payment button

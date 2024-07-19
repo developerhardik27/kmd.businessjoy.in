@@ -56,7 +56,7 @@ class companyController extends commonController
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('company_details.id', $id)->get();
 
         if ($companydetails->count() > 0) {
@@ -73,7 +73,7 @@ class companyController extends commonController
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'company_details.pincode', 'company.max_users', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company.max_users', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('company.id', $this->companyId)
             ->get();
 
@@ -105,7 +105,7 @@ class companyController extends commonController
                 ->join('country', 'company_details.country_id', '=', 'country.id')
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)
                 ->get();
         } else {
@@ -114,7 +114,7 @@ class companyController extends commonController
                 ->join('country', 'company_details.country_id', '=', 'country.id')
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.address', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)->where('company.is_active', 1);
 
             if ($this->rp['adminmodule']['company']['alldata'] != 1) {
@@ -155,7 +155,8 @@ class companyController extends commonController
             'email' => 'nullable|string|max:50',
             'email_default_user' => 'required|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
-            'address' => 'required|string|max:255',
+            'house_no_building_name' => 'required|string|max:255',
+            'road_name_area_colony' => 'required|string|max:255',
             'gst_number' => 'nullable|string|max:50',
             'country' => 'required|numeric',
             'state' => 'required|numeric',
@@ -270,7 +271,8 @@ class companyController extends commonController
                 'name' => $request->name,
                 'email' => $request->email,
                 'contact_no' => $request->contact_number,
-                'address' => $request->address,
+                'house_no_building_name' => $request->house_no_building_name,
+                'road_name_area_colony' => $request->road_name_area_colony,
                 'country_id' => $request->country,
                 'state_id' => $request->state,
                 'city_id' => $request->city,
@@ -421,7 +423,7 @@ class companyController extends commonController
         if ($company) {
             return $this->successresponse(200, 'company', $company);
         } else {
-            return $this->successresponse(404, 'message',"No Such company Found!");
+            return $this->successresponse(404, 'message', "No Such company Found!");
         }
     }
 
@@ -439,7 +441,7 @@ class companyController extends commonController
         if ($company) {
             return $this->successresponse(200, 'company', $company);
         } else {
-            return $this->successresponse(404, 'message',"No Such company Found!");
+            return $this->successresponse(404, 'message', "No Such company Found!");
         }
     }
 
@@ -452,7 +454,8 @@ class companyController extends commonController
             'name' => 'required|string|max:50',
             'email' => 'nullable|string|max:50',
             'contact_number' => 'required|numeric|digits:10',
-            'address' => 'required|string|max:255',
+            'house_no_building_name' => 'required|string|max:255',
+            'road_name_area_colony' => 'required|string|max:255',
             'gst_number' => 'nullable|string|max:50',
             'country' => 'required|numeric',
             'state' => 'required|numeric',
@@ -505,7 +508,8 @@ class companyController extends commonController
                 'name' => $request->name,
                 'email' => $request->email,
                 'contact_no' => $request->contact_number,
-                'address' => $request->address,
+                'house_no_building_name' => $request->house_no_building_name,
+                'road_name_area_colony' => $request->road_name_area_colony,
                 'country_id' => $request->country,
                 'state_id' => $request->state,
                 'city_id' => $request->city,

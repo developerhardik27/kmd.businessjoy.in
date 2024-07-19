@@ -27,7 +27,7 @@
                 <div class="col-sm-6">
                     <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email" value=""
-                        placeholder="Enter Email"  />
+                        placeholder="Enter Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -86,16 +86,28 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="address">Address</label><span style="color:red;">*</span>
-                    <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
-                    <span class="error-msg" id="error-address" style="color: red"></span>
+                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
+                        rows="2"></textarea>
+                    <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
+                <div class="col-sm-6">
+                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"></textarea>
+                    <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
                 @if (Session::has('user_permissions.adminmodule.company.max') &&
-                                                    session('user_permissions.adminmodule.company.max') == '1')
+                        session('user_permissions.adminmodule.company.max') == '1')
                     <div class="col-sm-6">
                         <label for="pincode">Max Users</label><span style="color:red;">*</span>
-                        <input type="text" name="maxuser" id='maxuser' class="form-control" placeholder="Max Users"
-                            value="5" required />
+                        <input type="text" name="maxuser" id='maxuser' class="form-control"
+                            placeholder="Max Users" value="5" required />
                         <span class="error-msg" id="error-maxuser" style="color: red"></span>
                     </div>
                 @endif
@@ -106,13 +118,15 @@
                 <div class="col-sm-6">
                     <label for="img">Company Logo Image</label><br>
                     <input type="file" class="form-control-file" name="img" id="img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and
+                        has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="sign_img">Company Signature Image</label><br>
                     <input type="file" class="form-control-file" name="sign_img" id="sign_img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and has a maximum width of 120 pixels.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and
+                        has a maximum width of 120 pixels.</p>
                     <span class="error-msg" id="error-sign_img" style="color: red"></span>
                 </div>
             </div>
@@ -195,7 +209,8 @@
                         $('#contact_no').val(company.contact_no);
                         $('#gst_no').val(company.gst_no);
                         $('#pincode').val(company.pincode);
-                        $('#address').val(company.address);
+                        $('#house_no_building_name').val(company.house_no_building_name);
+                        $('#road_name_area_colony').val(company.road_name_area_colony);
                         $('#maxuser').val(company.max_users);
                         country = company.country_id;
                         state = company.state_id;
