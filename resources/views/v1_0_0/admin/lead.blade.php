@@ -868,7 +868,7 @@
                 });
             }
 
-            // it is commented beacause it is called base on conditions 
+            // it is commented beacause now it is calling conditionally 
             //call function for loaddata
             // loaddata();
 

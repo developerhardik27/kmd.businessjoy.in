@@ -106,10 +106,15 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-12">
-                    <label for="address">Address</label><span class="requiredinputspan" style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='address' id="address" rows="2"></textarea>
-                    <span class="error-msg" id="error-address" style="color: red"></span>
+                <div class="col-sm-6">
+                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2"></textarea>
+                    <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"></textarea>
+                    <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -197,11 +202,12 @@
                         $('#firstname').val(data.firstname);
                         $('#lastname').val(data.lastname);
                         $('#company_name').val(data.company_name);
-                        $('#gst_no').val(data.gst_no);
+                        $('#gst_number').val(data.gst_no);
                         $('#email').val(data.email);
-                        $('#contact_no').val(data.contact_no);
+                        $('#contact_number').val(data.contact_no);
                         $('#pincode').val(data.pincode);
-                        $('#address').val(data.address);
+                        $('#house_no_building_name').val(data.house_no_building_name);
+                        $('#road_name_area_colony').val(data.road_name_area_colony);
                         country = data.country_id;
                         state = data.state_id;
                         city = data.city_id;

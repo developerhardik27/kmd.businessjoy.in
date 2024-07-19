@@ -147,7 +147,8 @@
                 <td valign=top class="default">
                     <span class="textblue firstrow cname default"
                         style="display:block;">{{ $companydetails['name'] }}</span>
-                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['address'], 40, "\n", true))) !!}</span>
+                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['house_no_building_name'], 40, "\n", true))) !!}</span>
+                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['road_name_area_colony'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">{{ $companydetails['city_name'] }},
                         {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}
                     </span>
@@ -175,7 +176,8 @@
                     <span class="default textblue firstrow cname" style="display:block;" id="">Bill To</span>
                     <span class="default" style="display:block;"> {{ $invdata['firstname'] }}
                         {{ $invdata['lastname'] }}</span>
-                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['address'], 40, "\n", true))) !!}</span>
+                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['house_no_building_name'], 40, "\n", true))) !!}</span>
+                    <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['road_name_area_colony'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">
                         @isset($invdata['city_name'])
                             {{ $invdata['city_name'] }},
@@ -201,6 +203,18 @@
                             <td><b>Method</b></td>
                             <td style="text-align: right"> {{ $payment['paid_type'] }}</td>
                         </tr>
+                        @isset($payment['transaction_id'])
+                            <tr>
+                                <td><b>Transcation Id</b></td>
+                                <td style="text-align: right"> {{ $payment['transaction_id'] }}</td>
+                            </tr>
+                        @endisset
+                        @isset($payment['paid_by'])
+                            <tr>
+                                <td><b>Paid By</b></td>
+                                <td style="text-align: right"> {{ $payment['paid_by'] }}</td>
+                            </tr>
+                        @endisset
                         <tr>
                             <td><b>Receipt #</b></td>
                             <td style="text-align: right">{{ $payment['receipt_number'] }}</td>
