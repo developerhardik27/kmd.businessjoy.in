@@ -414,12 +414,7 @@ class companyController extends commonController
         $company = DB::table('company')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->where('company.id', $id)
-            ->get();
-
-        if ($this->rp['adminmodule']['company']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+            ->get(); 
         if ($company) {
             return $this->successresponse(200, 'company', $company);
         } else {

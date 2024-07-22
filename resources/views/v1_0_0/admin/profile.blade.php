@@ -70,11 +70,11 @@
                                             Company Profile
                                         </a>
                                     </li>
-                                    <li class="col-md-3 p-0" id="activities">
+                                    {{-- <li class="col-md-3 p-0" id="activities">
                                         <a class="nav-link" data-toggle="pill" href="#activities-tab">
                                             Activities
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="col-md-3 p-0" id="othersettings">
                                         <a class="nav-link" data-toggle="pill" href="#othersettings-tab">
                                             Others
@@ -94,14 +94,13 @@
                                         <div class="iq-header-title">
                                             <h4 class="card-title">Personal Information</h4>
                                         </div>
-                                        @if (session('user_permissions.adminmodule.user.edit') == '1' && session('menu') == 'admin')
+                                        {{-- @if (session('user_permissions.adminmodule.user.edit') == '1' && session('menu') == 'admin') --}}
                                             <div>
                                                 <i data-userid="{{ $id }}" id="editicon" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Edit Profile"
-                                                    class="ri-pencil-fill float-right"></i>
-
+                                                    class="ri-pencil-fill float-right"></i> 
                                             </div>
-                                        @endif
+                                        {{-- @endif --}}
                                     </div>
                                     <div class="iq-card-body">
                                         <div class="form-group row align-items-center">
@@ -380,7 +379,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="activities-tab" role="tabpanel">
+                            {{-- <div class="tab-pane fade" id="activities-tab" role="tabpanel">
                                 <div class="iq-card">
                                     <div class="iq-card-header d-flex justify-content-between">
                                         <div class="iq-header-title">
@@ -391,7 +390,7 @@
 
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="tab-pane fade" id="othersettings-tab" role="tabpanel">
                                 <div class="iq-card">
                                     <div class="iq-card-header d-flex justify-content-between">
@@ -539,8 +538,13 @@
                         $('#userstate').text(user.state_name);
                         $('#usercountry').text(user.country_name);
                         $('#userpincode').text(user.pincode);
-                        var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
-                            'alt', 'profile-img').attr('class', 'profile-pic rounded');
+                        if (user.img != null && user.img != '') {
+                            var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
+                                'alt', 'profile-img').attr('class', 'profile-pic rounded');
+                        } else {
+                            var imgElement =  $('<img>').attr('src', '/admin/images/imgnotfound.jpg').attr(
+                                'alt', 'profile-img').attr('class', 'profile-pic rounded');
+                        }
                         $('#profile_img').append(imgElement);
                         $('#homepage').val(user.default_page);
                         previousValue = user.default_page;
@@ -581,17 +585,28 @@
                         $('#companyname').text(company.name);
                         $('#companyemail').text(company.email);
                         $('#companycontact').text(company.contact_no);
-                        $('#companyaddress').text(company.address + ',' + company.pincode);
+                        $('#companyaddress').html(company.house_no_building_name + '</br>' + company.road_name_area_colony + '</br>' + company.pincode);
                         $('#companycity').text(company.city_name);
                         $('#companystate').text(company.state_name);
                         $('#companycountry').text(company.country_name);
 
-                        var imgElement = $('<img>').attr('src', '/uploads/' + company.img).attr(
-                            'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
+
+                        if (company.img != null && company.img != '') {
+                            var imgElement = $('<img>').attr('src', '/uploads/' + company.img).attr(
+                                'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
+                        } else {
+                            var imgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg').attr(
+                                'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
+                        }
                         $('#company_profile_img').prepend(imgElement);
-                        var signImgElement = $('<img>').attr('src', '/uploads/' + company.pr_sign_img)
-                            .attr(
-                                'alt', 'Signature-img').attr('class', 'avatar-130 img-fluid');
+                        if(company.pr_sign_img != null && company.pr_sign_img != ''){ 
+                            var signImgElement = $('<img>').attr('src', '/uploads/' + company.pr_sign_img)
+                                .attr(
+                                    'alt', 'Signature-img').attr('class', 'avatar-130 img-fluid');
+                        }else{
+                            var signImgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg')
+                                .attr('alt', 'Signature-img').attr('class', 'avatar-130 img-fluid');
+                        }
                         $('#company_signature_img').prepend(signImgElement);
 
                     } else if (response.status == 500) {

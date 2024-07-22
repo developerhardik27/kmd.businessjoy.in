@@ -79,9 +79,7 @@ class userController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['adminmodule']['user']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+       
 
         if ($users->count() > 0) {
             return $this->successresponse(200, 'user', $users);
@@ -259,7 +257,7 @@ class userController extends commonController
     {
 
         $company = company::find($this->companyId);
-        $user = User::where('company_id', '=', $company->id)->get();
+        $user = User::where('company_id', '=', $company->id)->where('is_deleted',0)->get();
 
         $companymaxuser = $company->max_users;
 
@@ -555,9 +553,7 @@ class userController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['adminmodule']['user']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+
         if ($users) {
             return $this->successresponse(200, 'user', $users);
         } else {
@@ -621,11 +617,18 @@ class userController extends commonController
                 return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
-            if ($this->rp['adminmodule']['user']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            $user = User::find($id);
+
+            if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($user->company_id != $this->companyId)) {
+                if ($user->created_by != $this->userId && $user->id != $this->userId && $this->userId != 1) {
+                    if ($this->rp['adminmodule']['user']['edit'] != 1) {
+                        return $this->successresponse(500, 'message', 'You are Unauthorized');
+                    }
+                }
             }
 
-            $user = User::find($id);
+            
+
             $dbname = company::find($user->company_id);
             config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 

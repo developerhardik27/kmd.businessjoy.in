@@ -58,8 +58,8 @@
         class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-striped text-center">
         <thead>
             <tr>
-                <th>invoice_Date</th>
-                <th>customer_name</th>
+                <th>Invoice Date</th>
+                <th>Customer Name</th>
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Invoice</th>
@@ -452,12 +452,21 @@
                                 $('#details').append(`
                                     <tr>
                                         <td>
-                                            <div><b>Payment date : </b> ${value.datetime}</div>
-                                            <div><b>Total Amount : </b> ${value.amount}</div>
-                                            <div><b>Paid Amount : </b> ${value.paid_amount}</div>
-                                            <div><b>Pending Amount: </b> ${value.pending_amount}</div>
-                                            <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
-                                            <a href=/admin/generatereciept/${value.id}  target='_blank'><button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" ><i class='ri-download-cloud-fill'></i></button></a>
+                                            <div class="col-md-10 float-left">
+                                                <div><b>Payment date : </b> ${value.datetime}</div>
+                                                <div><b>Total Amount : </b> ${value.amount}</div>
+                                                <div><b>Paid Amount : </b> ${value.paid_amount}</div>
+                                                <div><b>Pending Amount: </b> ${value.pending_amount}</div>
+                                                <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
+                                            </div>    
+                                            <div class="col-md-2 float-right">
+                                                <a href=/admin/generatereciept/${value.id} class="float-right"  target='_blank'>
+                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >
+                                                        <i class='ri-download-cloud-fill'></i>
+                                                    </button>
+                                                </a>
+                                            </div>    
+                                            
                                         </td>
                                     </tr>
                                 `)
