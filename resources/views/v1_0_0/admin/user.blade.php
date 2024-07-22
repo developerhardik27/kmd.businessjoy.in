@@ -53,7 +53,7 @@
 
 @section('table-content')
     <table id="data"
-        class="table display table-bordered table-responsive table-striped text-center">
+        class="dataTable display no-footer table table-bordered table-responsive table-responsive-lg table-responsive-md table-responsive-sm table-responsive-xl table-striped text-center">
         <thead>
             <tr>
                 <th>Id</th>
