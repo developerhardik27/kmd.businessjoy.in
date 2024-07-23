@@ -15,7 +15,8 @@ return new class extends Migration {
             $table->string('name', 50)->notNullable();
             $table->string('email', 50)->nullable();
             $table->bigInteger('contact_no')->nullable(); // Adjust the maximum length if necessary
-            $table->mediumText('address')->notNullable();
+            $table->string('house_no_building_name')->notNullable();
+            $table->string('road_name_area_colony')->notNullable();
             $table->string('gst_no', 50)->nullable();
             $table->integer('country_id')->nullable(); // Adjust if you are referencing another table's id
             $table->integer('state_id')->nullable(); // Adjust if you are referencing another table's id

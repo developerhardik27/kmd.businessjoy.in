@@ -19,7 +19,8 @@ return new class extends Migration {
             $table->string('company_name', 50)->nullable();
             $table->string('email', 50)->nullable();
             $table->string('contact_no', 15)->nullable();
-            $table->string('address', 255)->nullable();
+            $table->string('house_no_building_name')->notNullable();
+            $table->string('road_name_area_colony')->notNullable();
             $table->integer('country_id')->nullable();
             $table->integer('state_id')->nullable();
             $table->integer('city_id')->nullable();
