@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Deployment started in staging ....."
+echo "Deployment started in main ....."
 
 # Define your deployment directories and branches
 declare -A branches=(
