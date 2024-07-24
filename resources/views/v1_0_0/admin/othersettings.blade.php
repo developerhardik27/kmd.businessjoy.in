@@ -85,9 +85,10 @@
                                     </div>
                                 </div>
                             </form>
-                            <hr>
-                            Domestic Invoice Pattern : <span id="domesticinvoicepattern"></span><br>
-                            Global Invoice Pattern : <span id="globalinvoicepattern"></span>
+                            <hr> 
+                            <br>
+                            Domestic Invoice Pattern : <span id="domesticinvoicepattern" style="color: black"></span><br>
+                            Global Invoice Pattern : <span id="globalinvoicepattern" style="color: black"></span>
                         </div>
                     </div>
                 </div>
@@ -808,18 +809,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.pattern != '') {
-                            var data = response.pattern;
+                            var data = response.pattern[0];
 
                             // Update the HTML content
                             $.each(data, function(key, value) {
-                                var pattern = value.invoice_pattern;
-                                var modifiedfiedpattern = pattern.replace('cidai',
-                                        "(Auto increment according to customer)")
-                                    .replace('ai', "(Auto increment according to invoice)");
+                                var pattern = value.invoice_pattern; 
+                                var modifiedfiedpattern = pattern.replace('year',"<span style='color:goldenrod'>year</span>")
+                                                                 .replace('month',"<span style='color:lawngreen'>month</span>")
+                                                                 .replace('date',"<span style='color:darkmagenta'>date</span>")
+                                                                 .replace('customerid',"<span style='color:lightseagreen'>customerid</span>")
+                                                                 .replace('cidai',"<span style='color:silver'>"+response.pattern[1].customer_id+"(Auto increment as per customer)</span>")
+                                                                 .replace('ai', "<span style='color:red'>"+value.start_increment_number+ "(Auto increment as per invoice)");
                                 if (value.pattern_type == "global") {
-                                    $('#globalinvoicepattern').text(modifiedfiedpattern);
+                                    $('#globalinvoicepattern').html(modifiedfiedpattern);
                                 } else {
-                                    $('#domesticinvoicepattern').text(modifiedfiedpattern);
+                                    $('#domesticinvoicepattern').html(modifiedfiedpattern);
                                 }
                             });
                         } else if (response.status == 500) {

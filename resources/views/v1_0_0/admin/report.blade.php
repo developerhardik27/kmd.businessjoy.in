@@ -59,6 +59,7 @@
                                                 <span class="error-msg" id="error-todate" style="color: red"></span>
                                             </div>
                                             <div class="col-sm-6">
+                                                <br>
                                                 <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Generate Zip File" class="btn btn-primary"
                                                     id="generateBtn">Generate</button>

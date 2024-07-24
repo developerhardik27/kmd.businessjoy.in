@@ -131,7 +131,7 @@
                     <div class="col-sm-6">
                         <label for="img">Image</label><br>
                         <input type="file" name="img" id="img" width="100%" />
-                        <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB.
+                        <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB.
                         </p>
                         <span class="error-msg" id="error-img" style="color: red"></span>
                     </div>
