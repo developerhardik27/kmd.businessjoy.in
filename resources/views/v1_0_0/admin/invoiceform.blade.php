@@ -184,16 +184,17 @@
                                             name="user_id">
                                         <input type="hidden" value="{{ $company_id }}" class="form-control"
                                             name="company_id">
-                                        <label for="firstname">FirstName</label><span style="color:red;">*</span>
-                                        <input type="text" class="form-control" id="firstname" name='firstname'
+                                        <label for="firstname">FirstName</label><span class="withoutgstspan" style="color:red;">*</span>
+                                        <input type="text" class="form-control withoutgstinput" id="firstname" name='firstname'
                                             placeholder="First name" required>
                                         <span class="modal-error-msg" id="modal-error-firstname"
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="lastname">LastName</label><span style="color:red;">*</span>
+                                        <label for="lastname">LastName</label>
+                                        {{-- <span style="color:red;">*</span> --}}
                                         <input type="text" class="form-control" id="lastname" name='lastname'
-                                            placeholder="Last name" required>
+                                            placeholder="Last name">
                                         <span class="modal-error-msg" id="modal-error-lastname"
                                             style="color: red"></span>
                                     </div>
@@ -202,15 +203,16 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="company_name">Company Name</label><span class="requiredinputspan" style="color:red;">*</span>
-                                        <input type="text" class="form-control requiredinput" id="company_name" name='company_name'
-                                            id="" placeholder="Company name" required>
+                                        <label for="company_name">Company Name</label>
+                                        <span class="withgstspan" style="color:red;">*</span>
+                                        <input type="text" class="form-control withgstiput" id="company_name" name='company_name'
+                                            id="" placeholder="Company name">
                                         <span class="modal-error-msg" id="modal-error-company_name"
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="gst_number">GST Number</label><span class="requiredinputspan" style="color:red;">*</span>
-                                        <input type="text" class="form-control requiredinput" name='gst_number' id="gst_number"
+                                        <label for="gst_number">GST Number</label><span class="withgstspan" style="color:red;">*</span>
+                                        <input type="text" class="form-control withgstinput" name='gst_number' id="gst_number"
                                             placeholder="GST Number">
                                         <span class="modal-error-msg" id="modal-error-gst_number"
                                             style="color: red"></span>
@@ -220,15 +222,17 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="modal_email">Email</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <label for="modal_email">Email</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                         <input type="email" class="form-control requiredinput" name="email" id="modal_email"
-                                            placeholder="Enter Email" required />
+                                            placeholder="Enter Email"/>
                                         <span class="modal-error-msg" id="modal-error-email" style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="modal_exampleInputphone">Contact Number</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <label for="modal_exampleInputphone">Contact Number</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                         <input type="tel" class="form-control requiredinput" name='contact_number'
-                                            id="modal_exampleInputphone" placeholder="0123456789" required>
+                                            id="modal_exampleInputphone" placeholder="0123456789">
                                         <span class="modal-error-msg" id="modal-error-contact_number"
                                             style="color: red"></span>
                                     </div>
@@ -237,16 +241,18 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="modal_country">Select Country</label><span class="requiredinputspan" style="color:red;">*</span>
-                                        <select class="form-control requiredinput" name='country' id="modal_country" required>
+                                        <label for="modal_country">Select Country</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
+                                        <select class="form-control requiredinput" name='country' id="modal_country">
                                             <option selected="" disabled="">Select your Country</option>
                                         </select>
                                         <span class="modal-error-msg" id="modal-error-country"
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="modal_state">Select State</label><span class="requiredinputspan" style="color:red;">*</span>
-                                        <select class="form-control requiredinput" name='state' id="modal_state" required>
+                                        <label for="modal_state">Select State</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
+                                        <select class="form-control requiredinput" name='state' id="modal_state">
                                             <option selected="" disabled="">Select your State</option>
                                         </select>
                                         <span class="modal-error-msg" id="modal-error-state"
@@ -257,15 +263,17 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="modal_city">Select City</label><span class="requiredinputspan" style="color:red;">*</span>
-                                        <select class="form-control requiredinput" name='city' id="modal_city" required>
+                                        <label for="modal_city">Select City</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
+                                        <select class="form-control requiredinput" name='city' id="modal_city">
                                             <option selected="" disabled="">Select your City</option>
                                         </select>
                                         <span class="modal-error-msg" id="modal-error-city"
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="modal_pincode">Pincode</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <label for="modal_pincode">Pincode</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                         <input type="text" id="modal_pincode" name='pincode' class="form-control requiredinput"
                                             placeholder="Pin Code">
                                         <span class="modal-error-msg" id="modal-error-pincode"
@@ -276,14 +284,16 @@
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col-sm-6">
-                                        <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <label for="house_no_building_name">House no./ Building Name</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                         <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
-                                        <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
+                                        <span class="modal-error-msg" id="modal-error-house_no_building_name" style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan" style="color:red;">*</span>
+                                        <label for="road_name_area_colony">Road Name/Area/Colony</label>
+                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                         <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2" placeholder="e.g. sardar patel road, jagatpur"></textarea>
-                                        <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
+                                        <span class="modal-error-msg" id="modal-error-road_name_area_colony" style="color: red"></span>
                                     </div>
                                 </div>
                             </div>
@@ -310,15 +320,19 @@
             // response status == 422 that means api has not got valid or required data
 
 
-            $('.requiredinputspan').hide();
+            $('.withgstspan').hide();
             $('#gst_number').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
-                    $('.requiredinputspan').show();
-                    $('.requiredinput').attr('required', true);
+                    $('.withgstspan').show();
+                    $('.withoutgstspan').hide();
+                    $('.withgstinput').attr('required', true);
+                    $('.withoutgstinput').removeAttr('required');
                 } else {
-                    $('.requiredinputspan').hide();
-                    $('.requiredinput').removeAttr('required');
+                    $('.withgstspan').hide();
+                    $('.withoutgstspan').show();
+                    $('.withoutgstinput').attr('required', true);
+                    $('.withgstinput').removeAttr('required');
                 }
             });
 

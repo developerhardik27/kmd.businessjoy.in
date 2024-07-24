@@ -15,12 +15,12 @@ return new class extends Migration {
             $table->id();
             $table->integer('customer_id')->nullable();
             $table->string('firstname', 50);
-            $table->string('lastname', 50);
+            $table->string('lastname', 50)->nullable();
             $table->string('company_name', 50)->nullable();
             $table->string('email', 50)->nullable();
             $table->string('contact_no', 15)->nullable();
-            $table->string('house_no_building_name')->notNullable();
-            $table->string('road_name_area_colony')->notNullable();
+            $table->string('house_no_building_name')->nullable();
+            $table->string('road_name_area_colony')->nullable();
             $table->integer('country_id')->nullable();
             $table->integer('state_id')->nullable();
             $table->integer('city_id')->nullable();

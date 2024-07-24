@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reportlogs', function (Blueprint $table) {
             $table->id(); 
-            $table->integer('module_name')->nullable();
+            $table->string('module_name')->nullable();
             $table->date('from_date');
             $table->date('to_date'); 
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP')); 

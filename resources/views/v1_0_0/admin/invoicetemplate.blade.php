@@ -281,7 +281,7 @@
                         <div style="display: inline-block;">
                             @if ($companydetails['img'] != '')
                                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
-                                    class="rounded mt-auto mx-auto d-block" alt="Company logo" style="max-width: 120px">
+                                    class="rounded mt-auto mx-auto d-block" alt="Company logo" style="max-width: 150px">
                             @endif
                         </div>
                         <table width="100%">
@@ -482,11 +482,17 @@
                             <span style="margin-top: 0"><b>Notes :- </b></span>
                             <span style="line-height:1"> {!! $invdata['notes'] !!}</span> <br><br>
                         @endisset
-                        <span style="margin-top: 0"><b>Terms And Condtions :- </b></span><br />
-                        <span style="line-height:1"> {!! $invdata['t_and_c'] !!}</span>
+                        @isset($invdata['t_and_c']) 
+                            <span style="margin-top: 0"><b>Terms And Condtions :- </b></span><br />
+                            <span style="line-height:1"> {!! $invdata['t_and_c'] !!}</span>
+                        @endisset
                     </td>
                 </tr>
             </table>
+            <div class="mt-1" style="font-size: 12px">
+               <span class="float-left"><small>This is a computer-generated document. No signature is required.</small></span> 
+               <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span> 
+            </div>
         </div>
     </main>
 </body>

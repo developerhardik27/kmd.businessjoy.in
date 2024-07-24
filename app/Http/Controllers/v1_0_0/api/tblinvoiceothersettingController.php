@@ -60,11 +60,11 @@ class tblinvoiceothersettingController extends commonController
         // }
 
 
-        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type')->get();
-
-
+        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type','start_increment_number','increment_type')->get();
+        $customer_id = $this->invoice_other_settingModel::where('is_deleted',0)->select('customer_id')->get();
+       
         if ($pattern->count() > 0) {
-            return $this->successresponse(200, 'pattern', $pattern);
+            return $this->successresponse(200, 'pattern', [$pattern,$customer_id[0]]);
         } else {
             return $this->successresponse(404, 'pattern', 'No Records Found');
         }
@@ -319,7 +319,7 @@ class tblinvoiceothersettingController extends commonController
         if ($termsandcondition) {
             if ($this->rp['invoicemodule']['invoicesetting']['delete'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
-            } 
+            }
             $termsandcondition->update([
                 'is_deleted' => 1
             ]);
@@ -358,13 +358,15 @@ class tblinvoiceothersettingController extends commonController
 
         $sanitizedPattern = preg_replace('/[^A-Za-z0-9]/', '', $pattern);
 
-        $matchingRecords = $this->invoice_number_patternModel::where(DB::raw("REGEXP_REPLACE(invoice_pattern, '[^A-Za-z0-9]', '')"), 'LIKE', '%' . $sanitizedPattern . '%')->get();
+        $matchingRecords = $this->invoice_number_patternModel::where('invoice_pattern', $pattern)
+            ->orderBy('id', 'desc')  // Orders by in descending order
+            ->first();
 
-        if ($matchingRecords->isNotEmpty()) {
-            if ($matchingRecords[0]->increment_type == 1 && $startincrement <= $matchingRecords[0]->current_increment_number) {
+        if ($matchingRecords) {
+            if ($matchingRecords->increment_type == 1 && $startincrement < $matchingRecords->current_increment_number) {
                 return $this->successresponse(500, 'message', 'A record with a matching invoice pattern already exists.!If you want use this pattern so then you can start increment from' . $matchingRecords->current_increment_number);
             }
-            if ($matchingRecords[0]->increment_type == 2 && !isset($request->onconfirm)) {
+            if ($matchingRecords->increment_type == 2 && !isset($request->onconfirm)) {
                 return $this->successresponse(1, 'message', 'A record with a matching invoice pattern already exists.!If you want use this pattern so increment will start from old record');
             }
         }
