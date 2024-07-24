@@ -583,8 +583,7 @@
                     if (response.status == 200 && response.company != '') {
                         var company = response.company[0];
                         $('#companyname').text(company.name);
-                        companyemail = company.email != null ? company.email : '-' ;
-                        $('#companyemail').text(companyemail);
+                        $('#companyemail').text(company.email);
                         $('#companycontact').text(company.contact_no);
                         $('#companyaddress').html(company.house_no_building_name + '</br>' + company.road_name_area_colony + '</br>' + company.pincode);
                         $('#companycity').text(company.city_name);

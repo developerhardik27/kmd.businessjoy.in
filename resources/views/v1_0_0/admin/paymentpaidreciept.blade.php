@@ -124,6 +124,15 @@
             margin-bottom: 20px;
         }
 
+        footer {
+            position: fixed;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: grey;
+            font-size: 10px;
+        }
     </style>
 </head>
 
@@ -142,7 +151,7 @@
                 <td style="vertical-align: top">
                     <div style="display: inline-block;">
                         <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}" @endif
-                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
+                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 120px">
                     </div>
                 </td>
                 <td valign=top class="default">
@@ -265,7 +274,7 @@
             @else
                 <tr>
                     <td id="data" colspan="3">
-                        <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-3" width="100">
+                        <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-5" width="100">
                             <thead>
                                 <tr class="bgblue">
                                     <th><span style="padding-left: 5px"> # </span></th>
@@ -407,38 +416,14 @@
                 </tr>
             @endif
             <tr>
-                <td colspan="2">
-                    <div style="display: inline-block;">
-                        For : {{ $companydetails['name'] }}
-                    </div>
-                </td>
-            </tr>
-            <tr>
                 <td>
                     <div style="display: inline-block;">
                         <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
-                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2"> 
-                    <div style="display: inline-block;">
-                        Signature
+                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 120px">
                     </div>
                 </td>
             </tr>
         </table>
-        <div class="mt-1" style="font-size: 12px">
-            <span class="float-left">
-                <small>This is a computer-generated document.
-                       @unless (($companydetails['pr_sign_img']))
-                         No signature is required.
-                       @endunless 
-                 </small>
-            </span> 
-            <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span> 
-         </div>
     </div>
 </body>
 

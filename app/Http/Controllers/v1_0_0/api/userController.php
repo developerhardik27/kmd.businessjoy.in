@@ -916,7 +916,7 @@ class userController extends commonController
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
-            'new_password' => 'required', 
+            'new_password' => 'required|confirmed', // 'confirmed' checks if 'new_password' and 'new_password_confirmation' match
         ]);
 
         if ($validator->fails()) {
@@ -930,16 +930,16 @@ class userController extends commonController
         }
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return $this->errorresponse(422, ["current_password"=>['Current password does not match']]);
+            return $this->successresponse(403, 'message', 'Current password does not match');
         }
 
         if ($request->new_password !== $request->new_password_confirmation) {
-            return $this->errorresponse(422, ["new_password_confirmation"=>['New password and confirm password does not match']]);
+            return $this->errorresponse(422, 'New password and confirmation do not match');
         }
 
         $user->password = Hash::make($request->new_password);
         $user->save();
-        return $this->successresponse(200, 'message', 'Password changed successfully');
+        return $this->successresponse(200, 'message', 'Password successfully reset');
     }
 
 
