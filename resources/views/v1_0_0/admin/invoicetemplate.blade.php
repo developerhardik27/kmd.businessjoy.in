@@ -172,14 +172,14 @@
                             @isset($companydetails['house_no_building_name'])
                                 <tr>
                                     <td style="padding-left:10px">
-                                        {{ $companydetails['house_no_building_name'] }},
+                                        {{ $companydetails['house_no_building_name'] }}
                                     </td>
                                 </tr>
                             @endisset
                             @isset($companydetails['road_name_area_colony'])
                                 <tr>
                                     <td style="padding-left:10px">
-                                        {{ $companydetails['road_name_area_colony'] }},
+                                        {{ $companydetails['road_name_area_colony'] }}
                                     </td>
                                 </tr>
                             @endisset
