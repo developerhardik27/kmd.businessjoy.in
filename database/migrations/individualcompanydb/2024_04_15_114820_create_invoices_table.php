@@ -41,6 +41,7 @@ return new class extends Migration {
             $table->dateTime('updated_at')->nullable();
             $table->integer('is_active')->default(1);
             $table->integer('is_deleted')->default(0);
+            $table->integer('is_editable')->default(1);
         });
     }
 
