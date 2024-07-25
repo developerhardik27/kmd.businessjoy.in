@@ -79,7 +79,7 @@ class userController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-       
+
 
         if ($users->count() > 0) {
             return $this->successresponse(200, 'user', $users);
@@ -257,7 +257,7 @@ class userController extends commonController
     {
 
         $company = company::find($this->companyId);
-        $user = User::where('company_id', '=', $company->id)->where('is_deleted',0)->get();
+        $user = User::where('company_id', '=', $company->id)->where('is_deleted', 0)->get();
 
         $companymaxuser = $company->max_users;
 
@@ -547,14 +547,12 @@ class userController extends commonController
             ->select('users.*', 'user_permissions.rp')
             ->where('users.id', $id)->get();
 
-
-        if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
-            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-        }
-
         if ($users) {
+            if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
+                if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+            }
             return $this->successresponse(200, 'user', $users);
         } else {
             return $this->successresponse(404, 'message', "No Such user Found!");
@@ -627,7 +625,7 @@ class userController extends commonController
                 }
             }
 
-            
+
 
             $dbname = company::find($user->company_id);
             config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
@@ -916,7 +914,7 @@ class userController extends commonController
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
-            'new_password' => 'required', 
+            'new_password' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -930,11 +928,11 @@ class userController extends commonController
         }
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return $this->errorresponse(422, ["current_password"=>['Current password does not match']]);
+            return $this->errorresponse(422, ["current_password" => ['Current password does not match']]);
         }
 
         if ($request->new_password !== $request->new_password_confirmation) {
-            return $this->errorresponse(422, ["new_password_confirmation"=>['New password and confirm password does not match']]);
+            return $this->errorresponse(422, ["new_password_confirmation" => ['New password and confirm password does not match']]);
         }
 
         $user->password = Hash::make($request->new_password);
