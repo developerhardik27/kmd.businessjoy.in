@@ -41,8 +41,10 @@
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Submit Column Details" class="btn btn-primary"><i
                             class="ri-check-line"></i></button>
-                    <button type="reset" class="btn iq-bg-danger" data-toggle="tooltip" data-placement="bottom"
+                    <button type="reset" class="btn iq-bg-danger mr-2" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Reset Column Details"><i class="ri-refresh-line"></i></button>
+                    <button type="button" class="btn btn-secondary" id="cancelbtn" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Cancel"><i class="ri-close-line"></i></button>
                 </div>
             </div>
             <div id="newColBtnDiv" class="form-row ">
@@ -182,7 +184,7 @@
                 var columnid = $(this).data('id');
                 if (confirm(
                         'Old invoice will not edit after apply this changes. Are you sure still you want to Update this Column?'
-                        )) {
+                    )) {
                     var row = this;
                     loadershow();
                     $.ajax({
@@ -258,7 +260,7 @@
             $(document).on("click", ".del-btn", function() {
                 if (confirm(
                         'This action will effect existing invoice,edit invoice,reciept and related data. Are you sure you want to remove this column?'
-                        )) {
+                    )) {
                     var deleteid = $(this).data('id');
                     var row = this;
                     loadershow();
@@ -324,6 +326,13 @@
                         toastr.error('Something Went Wrong !');
                     }
                 });
+            });
+
+
+            $('#cancelbtn').on('click', function() {
+                $('#newColForm').addClass('d-none');
+                $('#newColBtnDiv').removeClass('d-none'); 
+                $('#columnform')[0].reset();
             });
 
             // add or edit column form submit

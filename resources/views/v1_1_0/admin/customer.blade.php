@@ -54,7 +54,7 @@
     <table id="data" class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
         <thead>
             <tr>
-                <th>Id</th>
+                <th>Customer Id</th>
                 <th>Firstname</th>
                 <th>Lastname</th>
                 <th>CompanyName</th>
@@ -101,7 +101,7 @@
                             // You can update your HTML with the data here if needed                              
                             $.each(response.customer, function(key, value) {
                                 $('#data').append(`<tr>
-                                                    <td>${id}</td>
+                                                    <td>${value.customer_id}</td>
                                                     <td>${(value.firstname != null) ? value.firstname : '-' }</td>
                                                     <td>${(value.lastname != null) ? value.lastname : '-' }</td>
                                                     <td>${(value.company_name != null) ?value.company_name : '-'}</td>

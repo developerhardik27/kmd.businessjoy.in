@@ -129,9 +129,12 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button" data-toggle="tooltip" id="othersetting-cancelbtn"
+                                                    data-placement="bottom" data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" id="overduereset"
                                                     data-placement="bottom" data-original-title="Reset Settings"
-                                                    class="btn iq-bg-danger float-right">Reset</button>
+                                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
                                                 <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Update Settings"
                                                     class="btn btn-primary float-right my-0">Update</button>
@@ -200,9 +203,12 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button" id="gst-cancelbtn" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" id="gstsettingreset" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Reset GSt Settings"
-                                                    class="btn iq-bg-danger float-right">Reset</button>
+                                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
                                                 <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Update GST Settings"
                                                     class="btn btn-primary float-right my-0">Update</button>
@@ -445,6 +451,11 @@
                 $('#gstsettingsform').show();
             });
 
+            $('#othersetting-cancelbtn').on('click',function(){
+                $('#overduedaysform').hide(); 
+                $('#overduedaysform')[0].reset();
+            });
+
             $('#overduedaysform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
@@ -493,6 +504,12 @@
                     }
                 });
             });
+
+            $('#gst-cancelbtn').on('click',function(){
+                $('#gstsettingsform').hide(); 
+                $('#gstsettingsform')[0].reset();
+            });
+
             $('#gstsettingsform').submit(function(event) {
                 event.preventDefault();
                 if (confirm(

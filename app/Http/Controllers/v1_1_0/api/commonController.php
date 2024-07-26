@@ -53,12 +53,15 @@ class commonController extends Controller
 
 
 
-    public function successresponse($status , $statuskey , $message , $code = 200){
-         
+    public function successresponse($status , $statuskey , $message , $extrakey = null , $extrakeyvalue = null,$code = 200){
+        
         $response = [
             'status' => $status,
             $statuskey => $message
         ];
+        if(isset($extrakey) && isset($extrakeyvalue)){
+          $response[$extrakey] = $extrakeyvalue ;
+        }
 
         return response()->json($response,$code);
     }

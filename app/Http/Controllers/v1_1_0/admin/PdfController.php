@@ -166,6 +166,7 @@ class PdfController extends Controller
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentreciept', $data)->setPaper('a4', 'portrait');
 
+      // return view($this->version . '.admin.paymentreciept', $data);
       return $pdf->stream();
 
       // $name =  'reciept'.Str::Random(3).'pdf';

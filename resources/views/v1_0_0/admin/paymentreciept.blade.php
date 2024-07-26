@@ -5,7 +5,12 @@
     $total;
     $roundof;
     $sign = '';
-
+    $withgst = false ; 
+    
+    if($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0){
+        $withgst = true ;
+    }
+      
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
     } else {
@@ -161,8 +166,8 @@
                     <span style="display: block">
                         TAX INVOICE
                     </span>
-                    @if (isset($companydetails['gst_no']))
-                        <span>GSTIN No: {{ $companydetails['gst_no'] }}</span>
+                    @if ($withgst)  
+                            <span>GSTIN No: @isset($companydetails['gst_no']) {{ $companydetails['gst_no'] }} @endisset</span> 
                     @endif
                 </td>
             </tr>
@@ -223,10 +228,12 @@
                             <td><b>Invoice #</b></td>
                             <td style="text-align: right">{{ $invdata['inv_no'] }}</td>
                         </tr>
-                        <tr>
-                            <td><b>GST #</b></td>
-                            <td style="text-align: right">{{ $invdata['gst_no'] }}</td>
-                        </tr>
+                        @if($withgst)
+                            <tr>
+                                <td><b>GST #</b></td>
+                                <td style="text-align: right">@isset($invdata['gst_no']) {{ $invdata['gst_no'] }} @endisset</td>
+                            </tr>
+                        @endisset
                     </table>
                 </td>
             </tr>

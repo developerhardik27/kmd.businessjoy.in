@@ -637,7 +637,7 @@
                                     `<option  data-gstno='${value.gst_no}' value='${value.id}'>${value.firstname}  ${value.lastname}</option>`
                                 )
                             });
-                            $('#customer').val(customerid);
+                            $('#customer').val(customer_id);
                         }else if(response.status == 500){
                             toastr.error(response.message);
                         } else {

@@ -135,8 +135,12 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
+                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
+                        id="cancelbtn" class="btn btn-secondary float-right">
+                        <i class='ri-close-line'></i>
+                    </button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
-                        class="btn iq-bg-danger float-right">
+                        class="btn iq-bg-danger float-right mr-2">
                         <i class='ri-refresh-line'></i>
                     </button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save"
@@ -271,6 +275,11 @@
                         toastr.error(errorMessage);
                     }
                 });
+            });
+
+            $('#cancelbtn').on('click',function(){
+                loadershow();
+               window.location.href = "{{route('admin.company')}}" ;
             });
 
             // submit form data

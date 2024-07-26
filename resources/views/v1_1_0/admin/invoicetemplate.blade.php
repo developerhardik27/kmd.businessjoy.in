@@ -5,6 +5,12 @@
     $total;
     $roundof;
     $sign = '';
+    $withgst = false ;
+
+
+    if($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0){
+        $withgst = true ;
+    }
 
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
@@ -25,6 +31,7 @@
             $sign = '-';
         }
     }
+
 
 @endphp
 <!DOCTYPE html>
@@ -152,6 +159,11 @@
             font-family: DejaVu Sans;
             sans-serif;
         }
+        #footer{
+            position: fixed;
+            bottom:0px;
+            width:100%;
+        }
     </style>
 </head>
 
@@ -199,13 +211,13 @@
                                     {{ $companydetails['contact_no'] }}
                                 </td>
                             </tr>
-                            @isset($companydetails['gst_no'])
-                                <tr>
-                                    <td style="padding-left:10px">
-                                        <b>GSTIN No: {{ $companydetails['gst_no'] }} </b>
-                                    </td>
-                                </tr>
-                            @endisset
+                            @if ($withgst)  
+                                    <tr>
+                                        <td style="padding-left:10px">
+                                            <b>GSTIN No:  @isset($companydetails['gst_no']) {{ $companydetails['gst_no'] }} @endisset </b>
+                                        </td>
+                                    </tr> 
+                            @endif
 
                         </table>
                         <table width="100%">
@@ -270,13 +282,13 @@
                                     {{ $invdata['contact_no'] }}
                                 </td>
                             </tr>
-                            @isset($companydetails['gst_no'])
+                            @if ($withgst) 
                                 <tr>
                                     <td style="padding-left:10px">
-                                        <b>GSTIN No:{{ $invdata['gst_no'] }} </b>
+                                        <b>GSTIN No: @isset($invdata['gst_no']) {{ $invdata['gst_no'] }} @endisset</b>
                                     </td>
-                                </tr>
-                            @endisset
+                                </tr> 
+                            @endif
                         </table>
                     </td>
                     <td style="width: 10%;">
@@ -484,8 +496,8 @@
                 <tr>
                     <td colspan="3" style="vertical-align: top;border-bottom:1px solid black;">
                         @isset($invdata['notes'])
-                            <span style="margin-top: 0"><b>Notes :- </b></span>
-                            <span style="line-height:1"> {!! $invdata['notes'] !!}</span> <br><br>
+                            <span style="margin-top: 0"><b>Notes :- </b></span><br>
+                            <span style="line-height:1"> {!! nl2br(e($invdata['notes'])) !!} </span> <br><br>
                         @endisset
                         @isset($invdata['t_and_c'])
                             <span style="margin-top: 0"><b>Terms And Condtions :- </b></span><br />
@@ -494,7 +506,7 @@
                     </td>
                 </tr>
             </table>
-            <div class="mt-1" style="font-size: 12px">
+            <div class="mt-1" style="font-size: 12px" id="footer">
                 <span class="float-left"><small>This is a computer-generated document. No signature is
                         required.</small></span>
                 <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
