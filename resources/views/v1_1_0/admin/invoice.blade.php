@@ -59,7 +59,7 @@
         <thead>
             <tr>
                 <th>Invoice Date</th>
-                <th>Customer Name</th>
+                <th>Customer/Company Name</th>
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Invoice</th>
@@ -151,9 +151,26 @@
                             global_response = response;
                             // You can update your HTML with the data here if needed
                             $.each(response.invoice, function(key, value) {
+                                var customer = '';
+                                if (value.firstname != null) {
+                                    customer += value.firstname;
+                                }
+
+                                if (value.lastname != null) {
+                                    if (customer.length > 0) {
+                                        customer += ' '; // Add space between firstname and lastname if both are present
+                                    }
+                                    customer += value.lastname;
+                                }
+                                if (value.company_name != null) {
+                                    if (customer.length > 0) {
+                                        customer += ' - '; // 
+                                    }
+                                    customer += value.company_name;
+                                }
                                 $('#data').append(`<tr>
                                                         <td>${value.inv_date}</td>
-                                                        <td>${value.firstname} ${value.lastname}</td>
+                                                        <td>${customer}</td>
                                                         <td>${value.currency_symbol} ${value.grand_total}</td>
                                                         <td> 
                                                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1')

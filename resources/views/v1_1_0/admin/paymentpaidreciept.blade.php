@@ -123,7 +123,6 @@
             margin-top: 20px;
             margin-bottom: 20px;
         }
-
     </style>
 </head>
 
@@ -174,8 +173,16 @@
             <tr>
                 <td colspan="2" style="vertical-align: top">
                     <span class="default textblue firstrow cname" style="display:block;" id="">Bill To</span>
-                    <span class="default" style="display:block;"> {{ $invdata['firstname'] }}
-                        {{ $invdata['lastname'] }}</span>
+                    @if(isset($invdata['firstname']) || isset($invdata['lastname'])) 
+                        <span class="default" style="display:block;">
+                            @isset($invdata['firstname'])
+                                {{ $invdata['firstname'] }}
+                            @endisset
+                            @isset($invdata['lastname'])
+                                {{ $invdata['lastname'] }}
+                            @endisset
+                        </span>
+                    @endif
                     @isset($invdata['house_no_building_name'])
                         <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['house_no_building_name'], 40, "\n", true))) !!}</span>
                     @endisset
@@ -422,7 +429,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2"> 
+                <td colspan="2">
                     <div style="display: inline-block;">
                         Signature
                     </div>
@@ -432,13 +439,13 @@
         <div class="mt-1" style="font-size: 12px">
             <span class="float-left">
                 <small>This is a computer-generated document.
-                       @unless (($companydetails['pr_sign_img']))
-                         No signature is required.
-                       @endunless 
-                 </small>
-            </span> 
-            <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span> 
-         </div>
+                    @unless ($companydetails['pr_sign_img'])
+                        No signature is required.
+                    @endunless
+                </small>
+            </span>
+            <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
+        </div>
     </div>
 </body>
 

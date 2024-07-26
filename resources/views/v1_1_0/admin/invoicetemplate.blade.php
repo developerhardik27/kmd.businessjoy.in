@@ -152,8 +152,6 @@
             font-family: DejaVu Sans;
             sans-serif;
         }
-
-       
     </style>
 </head>
 
@@ -216,11 +214,18 @@
                                     Bill to
                                 </th>
                             </tr>
-                            <tr class="font-weight-bold">
-                                <td class="textblue" style="padding-left:10px">
-                                    {{ $invdata['firstname'] }} {{ $invdata['lastname'] }}
-                                </td>
-                            </tr>
+                            @if(isset($invdata['firstname']) || isset($invdata['lastname']))
+                                <tr class="font-weight-bold">
+                                    <td class="textblue" style="padding-left:10px">
+                                        @isset($invdata['firstname'])
+                                            {{ $invdata['firstname'] }}
+                                        @endisset
+                                        @isset($invdata['lastname'])
+                                            {{ $invdata['lastname'] }}
+                                        @endisset
+                                    </td>
+                                </tr>
+                            @endif
                             @if ($invdata['company_name'] != '' && $invdata['company_name'] != null)
                                 <tr class="font-weight-bold">
                                     <td class="textblue" style="padding-left:10px">
@@ -482,7 +487,7 @@
                             <span style="margin-top: 0"><b>Notes :- </b></span>
                             <span style="line-height:1"> {!! $invdata['notes'] !!}</span> <br><br>
                         @endisset
-                        @isset($invdata['t_and_c']) 
+                        @isset($invdata['t_and_c'])
                             <span style="margin-top: 0"><b>Terms And Condtions :- </b></span><br />
                             <span style="line-height:1"> {!! $invdata['t_and_c'] !!}</span>
                         @endisset
@@ -490,8 +495,9 @@
                 </tr>
             </table>
             <div class="mt-1" style="font-size: 12px">
-               <span class="float-left"><small>This is a computer-generated document. No signature is required.</small></span> 
-               <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span> 
+                <span class="float-left"><small>This is a computer-generated document. No signature is
+                        required.</small></span>
+                <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
             </div>
         </div>
     </main>
