@@ -42,7 +42,7 @@
                         data-original-title="Submit Column Details" class="btn btn-primary"><i
                             class="ri-check-line"></i></button>
                     <button type="reset" class="btn iq-bg-danger" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Column Details"><i class="ri-refresh-line"></i></button>
+                        data-original-title="Reset Column Details"><i class="ri-refresh-line"></i></button> 
                 </div>
             </div>
             <div id="newColBtnDiv" class="form-row ">

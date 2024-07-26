@@ -132,8 +132,11 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
+                    <button type="button" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Cancel" id="cancelbtn" class="btn btn-secondary float-right"><i
+                            class="ri-close-line"></i></button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Customer Details" class="btn iq-bg-danger float-right"><i
+                        data-original-title="Reset Customer Details" class="btn iq-bg-danger float-right mr-2"><i
                             class="ri ri-refresh-line"></i></button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Update Customer Details" class="btn btn-primary float-right my-0"><i
@@ -365,6 +368,11 @@
                         console.error('Error:', error);
                     }
                 });
+            });
+
+            $('#cancelbtn').on('click',function(){
+                loadershow();
+                window.location.href = "{{route('admin.customer')}}" ;
             });
 
             // subimt form

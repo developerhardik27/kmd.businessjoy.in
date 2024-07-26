@@ -180,7 +180,8 @@
             <div class="form-group">
             <div class="form-row">
                     <div class="col-sm-12">
-                        <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right">Reset</button>
+                        <button id="cancelbtn" type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel" class="btn btn-secondary btn-rounded float-right">Cancel</button>
+                        <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
                         <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update Details" class="btn btn-primary float-right my-0" >Update</button>
                     </div>
             </div>
@@ -325,7 +326,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-primary" id="modal_submitBtn">Submit</button>
-                                    <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger">Reset</button>
+                                    <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger">Reset</button> 
                                 </div>
                             </form>
                         </table>
@@ -720,6 +721,7 @@
                                 (invdetails.sgst === null || invdetails.sgst === 0) &&
                                 (invdetails.gst === null || invdetails.gst === 0)) {
                                 $('#type').val(2);
+                                $('#sgstline,#cgstline,#gstline').hide();
                             } else {
                                 $('#type').val(1);
                             }
@@ -1233,9 +1235,11 @@
                         }
                     });
                 }); 
-
-
-
+               
+                $('#cancelbtn').on('click',function(){
+                    loadershow();
+                     window.location.href = "{{route('admin.invoice')}}" ;
+                }); 
 
                 // for add new customer 
 

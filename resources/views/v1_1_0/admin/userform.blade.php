@@ -140,8 +140,12 @@
             <div class="form-group">
                 <div class="form-row">
                     <div class="col-sm-12">
+                        <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                         <button type="reset" id="formreset" data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Reset" class="btn iq-bg-danger float-right resetbtn">
+                            data-original-title="Reset" class="btn iq-bg-danger float-right resetbtn mr-2">
                             <i class='ri-refresh-line'></i>
                         </button>
                         <button type="submit" id="formsubmit" data-toggle="tooltip" data-placement="bottom"
@@ -410,10 +414,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="adminmodulereset" data-module="admin"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Admin Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="adminmodulesubmit"
                                                     class="btn btn-primary float-right my-0 submitBtn"
@@ -791,10 +799,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="invoicemodulereset" data-module="invoice"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Invoice Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="invoicemodulsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -894,10 +906,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="leadmodulereset" data-module="lead"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Lead Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="leadmodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -1003,11 +1019,15 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="customersupportmodulereset"
                                                     data-module="customersupport" data-toggle="tooltip"
                                                     data-placement="bottom"
                                                     data-original-title="Reset Customer Support Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="customersupportmodulesubmit"
                                                     data-toggle="tooltip" data-placement="bottom"
@@ -1106,10 +1126,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="accountmodulereset" data-module="account"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Account Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="accountsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -1207,10 +1231,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="inventorymodulereset" data-module="inventory"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Inventory Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="inventorymodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -1368,10 +1396,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="remindermodulereset" data-module="reminder"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Reminder Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="remindermodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -1477,10 +1509,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="reportmodulereset" data-module="report"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset report Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="reportmodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -1578,10 +1614,14 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
+                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                            <i class='ri-close-line'></i>
+                        </button>
                                                 <button type="button" id="blogmodulereset" data-module="blog"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset blog Module"
-                                                    class="btn iq-bg-danger float-right resetbtn"><i
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
                                                         class='ri-refresh-line'></i></button>
                                                 <button type="submit" id="blogmodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
@@ -1910,6 +1950,10 @@
                 }
             })
 
+            $(document).on('click','.cancelbtn',function(){
+                loadershow();
+                window.location.href = "{{route('admin.user')}}"
+            });
 
             //submit form
             $('#userform').submit(function(event) {

@@ -58,6 +58,7 @@
         class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-striped text-center">
         <thead>
             <tr>
+                <th>Invoice ID</th>
                 <th>Invoice Date</th>
                 <th>Customer/Company Name</th>
                 <th>Amount</th>
@@ -92,16 +93,20 @@
                         <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                             placeholder="token" required />
                         <input type="hidden" name="inv_id" id="inv_id">
+                        <label for="transid">Transaction ID</label>
                         <input type="text" name="transid" class="form-control" id="transid"
                             placeholder="Transaction id" />
                         <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
-                        <input type="number" name="paidamount" class="form-control" id="paidamount" placeholder="Amount"
+                        <label for="paidamount">Received Amount</label>
+                        <input type="number" name="paidamount" class="form-control" id="paidamount" placeholder="Received Amount"
                             required />
                         <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
-                        <input type="text" name="paid_by" class="form-control" id="paid_by" placeholder="paid by" />
+                        <label for="paid_by">Paid By</label>
+                        <input type="text" name="paid_by" class="form-control" id="paid_by" placeholder="Who Paid Amount" />
                         <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
+                        <label for="payment_type">How They Paid</label>
                         <select class="form-control" name="payment_type" id="payment_type">
-                            <option selected="" disabled="">Select payment type</option>
+                            <option selected="" disabled="">Select Payment Type</option>
                             <option value="Online Payment">Online Payment</option>
                             <option value="Cash">Cash</option>
                             <option value="Check">Check</option>
@@ -164,11 +169,12 @@
                                 }
                                 if (value.company_name != null) {
                                     if (customer.length > 0) {
-                                        customer += ' - '; // 
+                                        customer += ' / '; // 
                                     }
                                     customer += value.company_name;
                                 }
                                 $('#data').append(`<tr>
+                                                        <td>${value.id}</td>
                                                         <td>${value.inv_date}</td>
                                                         <td>${customer}</td>
                                                         <td>${value.currency_symbol} ${value.grand_total}</td>
