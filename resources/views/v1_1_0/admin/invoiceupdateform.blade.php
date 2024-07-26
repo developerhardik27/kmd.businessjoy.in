@@ -111,36 +111,60 @@
                     </tr>
                     <tr class="text-right">
                         <th class="automaticcolspan">Sub total</th>
-                        <td id=""><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="total_amount" id="totalamount" readonly required>
+                        <td id=""> 
+                           <div class="d-flex justify-content-between">
+                                <b>
+                                    <span class="currentcurrencysymbol"></span>
+                                </b>  
+                                <input class="disableinput" type="number" step="any" name="total_amount" id="totalamount" readonly required>
+                            </div>
                         </td>
                     </tr>
                     <tr id="sgstline" class="text-right">
                         <th class="automaticcolspan">SGST <span id="sgstpercentage"></span></th>
-                        <td><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="sgst" id="sgst" readonly required></td>
+                        <td>
+                            <div class="d-flex justify-content-between">
+                                <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="sgst" id="sgst" readonly required>
+                            </div>
+                        </td>
                     </tr>
                     <tr id="cgstline" class="text-right">
                         <th class="automaticcolspan">CGST <span id="cgstpercentage"></span></th>
-                        <td><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="cgst" id="cgst" readonly required></td>
+                        <td>
+                            <div class="d-flex justify-content-between">
+                                <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="cgst" id="cgst" readonly required>
+                            </div>
+                        </td>
                     </tr>
                     <tr id="gstline" class="text-right">
                         <th class="automaticcolspan">Total GST <span id="gstpercentage"></span></th>
-                        <td><b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="gst" id="gst" readonly required></td>
+                        <td>
+                            <div class="d-flex justify-content-between">
+                                <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number" step="any" name="gst" id="gst" readonly required>
+                            </div>
+                        </td>
                     </tr>
                     <tr id="roundoffline" class="text-right">
                         <th class="automaticcolspan">Roundoff</th>
                         <td>
-                            <b>
-                                <span class="currentcurrencysymbol"></span>
-                            </b> 
-                            <input class="disableinput" type="text" name="roundoff" id="roundoff" readonly required></td>
+                            <div class="d-flex justify-content-between">
+                                <b>
+                                    <span class="currentcurrencysymbol"></span>
+                                </b> 
+                                <input class="disableinput" type="text" name="roundoff" id="roundoff" readonly required>
+                            </div>
+                        </td>
                     </tr>
                     <tr id="grandtotalline" class="text-right">
                         <th class="automaticcolspan font-weight-bold">Total</th>
                         <td>
-                            <b>
-                                <span class="currentcurrencysymbol"></span>
-                            </b> 
-                            <input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal" readonly required></td>
+                            <div class="d-flex justify-content-between">
+                                <b>
+                                    <span class="currentcurrencysymbol"></span>
+                                </b> 
+                                <input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal" readonly required>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -520,10 +544,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.bank != '') {
+                            var countrecords = Object.keys(response.bank).length;
                             // You can update your HTML with the data here if needed
                             $.each(response.bank, function(key, value) {
+                                var bankdetails = '';
+                                if (value.account_no != null) {
+                                    bankdetails += value.account_no;
+                                } 
+                                if (value.branch_name != null) {
+                                    if (bankdetails.length > 0) {
+                                        bankdetails += '-'; // Add - between account_no and branch_name if both are present
+                                    }
+                                    bankdetails += value.branch_name;
+                                }
                                 $('#acc_details').append(
-                                    `<option ${response.bank.length === 1 ? 'selected' : ''} value='${value.id}'>${value.account_no} - ${value.branch_name}</option>`
+                                    `<option ${countrecords === 1 ? 'selected' : ''} value='${value.id}'>${bankdetails}</option>`
                                 );
                             });
                         }else if(response.status == 500){
@@ -607,8 +642,33 @@
                             if (response.status == 200 && response.customer != '') {
                                 // You can update your HTML with the data here if needed
                                 $.each(response.customer, function(key, value) {
+                                    var customer = '';
+                                if (value.firstname != null) {
+                                    customer += value.firstname;
+                                }
+
+                                if (value.lastname != null) {
+                                    if (customer.length > 0) {
+                                        customer += ' '; // Add space between firstname and lastname if both are present
+                                    }
+                                    customer += value.lastname;
+                                }
+
+                                if (value.company_name != null) {
+                                    if (customer.length > 0) {
+                                        customer += ' - '; // 
+                                    }
+                                    customer += value.company_name;
+                                }
+
+                                if (value.contact_no != null) {
+                                    if (customer.length > 0) {
+                                        customer += ' - '; // 
+                                    }
+                                    customer += value.contact_no;
+                                }
                                     $('#customer').append(
-                                        `<option  data-gstno='${value.gst_no}' value='${value.id}'>${value.firstname}  ${value.lastname}</option>`
+                                        `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customer}</option>`
                                     )
                                 });
                                 $('#customer').val(customerid);
@@ -889,11 +949,19 @@
                         var totalval = $('#totalamount').val() ;
                         grandtotalval = Math.round($('#totalamount').val());
                         if(grandtotalval >= totalval){
-                        var roundoffval = grandtotalval - totalval ;
-                        $('#roundoff').val(`+ ${roundoffval.toFixed(2)}`)
+                            var roundoffval = grandtotalval - totalval ;
+                            if(roundoffval == 0){ 
+                                $('#roundoff').val(`${roundoffval.toFixed(2)}`)
+                            }else{ 
+                                $('#roundoff').val(`+ ${roundoffval.toFixed(2)}`)
+                            }
                         }else{
                             var roundoffval = totalval - grandtotalval ;
-                            $('#roundoff').val(`- ${roundoffval.toFixed(2)}`)
+                            if(roundoffval == 0){
+                                $('#roundoff').val(`${roundoffval.toFixed(2)}`)
+                            }else{ 
+                                $('#roundoff').val(`- ${roundoffval.toFixed(2)}`)
+                            }
                         }
                         $('#grandtotal').val(grandtotalval);
 
@@ -968,8 +1036,9 @@
                             });
                             total = total.toFixed(2);
                             $('#totalamount').val(total);
-                            if($('#type').val()==1){
-
+                            if(!isNaN(total)){
+                            $('#totalamount').val(total);
+                            if($('#type').val()==1){ 
                                 var sgstvalue = ((total * sgst) / 100);
                                 var cgstvalue = ((total * cgst) / 100);
                                 sgstvalue = sgstvalue.toFixed(2);
@@ -984,10 +1053,18 @@
                                 grandtotalval = Math.round(totalval)
                                 if(grandtotalval >= totalval){
                                     roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
-                                    $('#roundoff').val(`+ ${roundoffval}`);
+                                    if(roundoffval == 0){
+                                        $('#roundoff').val(`${roundoffval}`);
+                                    }else{ 
+                                        $('#roundoff').val(`+ ${roundoffval}`);
+                                    }
                                 }else{
                                     roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
-                                    $('#roundoff').val(`- ${roundoffval}`);
+                                    if(roundoffval == 0){
+                                        $('#roundoff').val(`${roundoffval}`);
+                                    }else{ 
+                                        $('#roundoff').val(`- ${roundoffval}`);
+                                    }  
                                 }
                                 $('#grandtotal').val(grandtotalval);
                             }else{
@@ -996,12 +1073,21 @@
                                 grandtotalval = Math.round(totalval)
                                 if(grandtotalval >= totalval){
                                     roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
-                                    $('#roundoff').val(`+ ${roundoffval}`);
+                                    if(roundoffval == 0){
+                                        $('#roundoff').val(`${roundoffval}`);
+                                    }else{ 
+                                        $('#roundoff').val(`+ ${roundoffval}`);
+                                    }
                                 }else{
                                     roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
-                                    $('#roundoff').val(`- ${roundoffval}`);
+                                    if(roundoffval == 0){
+                                        $('#roundoff').val(`${roundoffval}`);
+                                    }else{ 
+                                        $('#roundoff').val(`- ${roundoffval}`);
+                                    }
                                 }
                             }
+                         } 
                             
                 }
 
