@@ -176,7 +176,8 @@
         <div class="form-group">
            <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right">Reset</button>
+                    <button id="cancelbtn" type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel" class="btn btn-secondary btn-rounded float-right">Cancel</button>
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Submit Details" class="btn btn-primary float-right my-0" >Submit</button>
                 </div>
            </div>
@@ -1013,6 +1014,11 @@
                 });
             });
            
+           
+            $('#cancelbtn').on('click',function(){
+                loadershow();
+                    window.location.href = "{{route('admin.invoice')}}" ;
+            }); 
 
             // dynamic calculation 
             function dynamiccalculaton(targetdata){
@@ -1263,7 +1269,7 @@
                             $('#customerform')[0].reset();
                             $('#exampleModalScrollable').modal('hide');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            customers(response.customerid); 
+                            customers(response.customer_id); 
                             toastr.success(response.message);
 
                         }else if(response.status == 500){

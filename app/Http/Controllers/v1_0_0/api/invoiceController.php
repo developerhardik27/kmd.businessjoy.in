@@ -281,7 +281,7 @@ class invoiceController extends commonController
             $cidai = '';
             $patterntype = '';
 
-            if ($customer[0]->country_id == $company[0]->country_id) {
+            if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
                 $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
                 $patterntype = 1;
                 $inv_no = $getpattern->invoice_pattern;

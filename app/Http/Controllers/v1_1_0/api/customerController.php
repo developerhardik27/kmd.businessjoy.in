@@ -62,7 +62,7 @@ class customerController extends commonController
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
-            ->select('customers.id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at', 'customers.is_active')
+            ->select('customers.id','customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', 'customers.created_at', 'customers.updated_at', 'customers.is_active')
             ->where('customers.is_deleted', 0);
 
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
@@ -166,7 +166,7 @@ class customerController extends commonController
                 if ($customer) {
                     $customerid->current_customer_id += 1;
                     $customerid->save();
-                    return $this->successresponse(200, 'message', 'customer succesfully added');
+                    return $this->successresponse(200, 'message', 'customer succesfully added','customer_id',$customer);
                 } else {
                     return $this->successresponse(500, 'message', 'customer not succesfully added !');
                 }
