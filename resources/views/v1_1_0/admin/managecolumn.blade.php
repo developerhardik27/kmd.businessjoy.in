@@ -71,7 +71,8 @@
             <td colspan="3" style="border:none;">
             </td>
             <td class="text-center" style="border-left: none">
-                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Save Columns Sequence" class="btn btn-sm btn-primary savecolumnorder">
+                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Save Columns Sequence"
+                    class="btn btn-sm btn-primary savecolumnorder">
                     <i class="ri-check-line"></i>
                 </button>
             </td>
@@ -179,7 +180,9 @@
             $(document).on("click", '.hide-btn', function() {
                 hidevalue = $(this).val();
                 var columnid = $(this).data('id');
-                if (confirm('Are you really want to Update this Column? it will be affect on invoice edit functionality')) {
+                if (confirm(
+                        'Old invoice will not edit after apply this changes. Are you sure still you want to Update this Column?'
+                        )) {
                     var row = this;
                     loadershow();
                     $.ajax({
@@ -253,7 +256,9 @@
 
             // delete column if it is not has data of any invoice
             $(document).on("click", ".del-btn", function() {
-                if (confirm('This action will effect existing invoice,edit invoice,reciept and related data. Are you sure you want to remove this column?')) {
+                if (confirm(
+                        'This action will effect existing invoice,edit invoice,reciept and related data. Are you sure you want to remove this column?'
+                        )) {
                     var deleteid = $(this).data('id');
                     var row = this;
                     loadershow();
@@ -324,104 +329,110 @@
             // add or edit column form submit
             $('#columnform').submit(function(e) {
                 e.preventDefault();
-                loadershow();
-                var editid = $('#edit_id').val()
-                if (editid != '') {
-                    $('#column_type').prop('disabled', false);
-                    var columndata = $(this).serialize();
-                    $('#column_type').prop('disabled', true);
-                    $.ajax({
-                        type: "post",
-                        url: "/api/invoicecolumn/update/" + editid,
-                        data: columndata,
-                        success: function(response) {
-                            $('#column_type').prop('disabled', false);
-                            if (response.status == 200) {
-                                $('#edit_id').val('');
-                                $('#newColForm').addClass('d-none');
-                                $('#newColBtnDiv').removeClass('d-none');
-                                // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
-                                $('#columnform')[0].reset();
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            if (xhr.status === 422) {
-                                var errors = xhr.responseJSON.errors;
-                                $.each(errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
-                            } else {
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message || "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                toastr.error(errorMessage);
-                            }
-                        }
-                    });
-                } else {
-                    var columndata = $(this).serialize();
-                    $.ajax({
-                        type: "post",
-                        url: "{{ route('invoicecolumn.store') }}",
-                        data: columndata,
-                        success: function(response) {
-                            if (response.status == 200) {
-                                $('#newColForm').addClass('d-none');
-                                $('#newColBtnDiv').removeClass('d-none');
-                                // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
-                                $('#columnform')[0].reset();
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else if (response.status == 422) {
-                                $('.error-msg').text('');
-                                $.each(response.errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            if (xhr.status === 422) {
-                                var errors = xhr.responseJSON.errors;
-                                $.each(errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
-                            } else {
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message || "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                toastr.error(errorMessage);
-                            }
-                        }
+                if (confirm(
+                        "Old invoice will not edit after apply this. Are you sure still you want to apply this?"
+                    )) {
 
-                    });
+                    loadershow();
+                    var editid = $('#edit_id').val()
+                    if (editid != '') {
+                        $('#column_type').prop('disabled', false);
+                        var columndata = $(this).serialize();
+                        $('#column_type').prop('disabled', true);
+                        $.ajax({
+                            type: "post",
+                            url: "/api/invoicecolumn/update/" + editid,
+                            data: columndata,
+                            success: function(response) {
+                                $('#column_type').prop('disabled', false);
+                                if (response.status == 200) {
+                                    $('#edit_id').val('');
+                                    $('#newColForm').addClass('d-none');
+                                    $('#newColBtnDiv').removeClass('d-none');
+                                    // You can perform additional actions, such as showing a success message or redirecting the user
+                                    toastr.success(response.message);
+                                    $('#columnform')[0].reset();
+                                    loaddata();
+                                } else if (response.status == 500) {
+                                    toastr.error(response.message);
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                if (xhr.status === 422) {
+                                    var errors = xhr.responseJSON.errors;
+                                    $.each(errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    var errorMessage = "";
+                                    try {
+                                        var responseJSON = JSON.parse(xhr.responseText);
+                                        errorMessage = responseJSON.message ||
+                                            "An error occurred";
+                                    } catch (e) {
+                                        errorMessage = "An error occurred";
+                                    }
+                                    toastr.error(errorMessage);
+                                }
+                            }
+                        });
+                    } else {
+                        var columndata = $(this).serialize();
+                        $.ajax({
+                            type: "post",
+                            url: "{{ route('invoicecolumn.store') }}",
+                            data: columndata,
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    $('#newColForm').addClass('d-none');
+                                    $('#newColBtnDiv').removeClass('d-none');
+                                    // You can perform additional actions, such as showing a success message or redirecting the user
+                                    toastr.success(response.message);
+                                    $('#columnform')[0].reset();
+                                    loaddata();
+                                } else if (response.status == 500) {
+                                    toastr.error(response.message);
+                                } else if (response.status == 422) {
+                                    $('.error-msg').text('');
+                                    $.each(response.errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                if (xhr.status === 422) {
+                                    var errors = xhr.responseJSON.errors;
+                                    $.each(errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    var errorMessage = "";
+                                    try {
+                                        var responseJSON = JSON.parse(xhr.responseText);
+                                        errorMessage = responseJSON.message ||
+                                            "An error occurred";
+                                    } catch (e) {
+                                        errorMessage = "An error occurred";
+                                    }
+                                    toastr.error(errorMessage);
+                                }
+                            }
+
+                        });
+                    }
                 }
-
             });
         });
     </script>

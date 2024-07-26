@@ -308,8 +308,8 @@ class companyController extends commonController
                     'sgst' => 9,
                     'cgst' => 9,
                     'gst' => 0,
-                    'customer_id' => 0,
-                    'current_customer_id' => 0,
+                    'customer_id' => 1,
+                    'current_customer_id' => 1,
                     'created_by' => $this->userId,
                 ]);
 

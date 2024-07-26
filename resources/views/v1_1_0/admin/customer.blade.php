@@ -102,8 +102,8 @@
                             $.each(response.customer, function(key, value) {
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
-                                                    <td>${value.firstname}</td>
-                                                    <td>${value.lastname}</td>
+                                                    <td>${(value.firstname != null) ? value.firstname : '-' }</td>
+                                                    <td>${(value.lastname != null) ? value.lastname : '-' }</td>
                                                     <td>${(value.company_name != null) ?value.company_name : '-'}</td>
                                                     <td>${(value.contact_no != null) ?value.contact_no : '-'}</td>
                                                     <td>
@@ -310,6 +310,7 @@
                 var data = $(this).data('view');
                 $.each(global_response.customer, function(key, customer) {
                     if (customer.id == data) { 
+                            console.log(customer);
                             $('#details').append(`
                                 <tr>
                                     <th>Customer Company Name</th>       
@@ -317,7 +318,7 @@
                                 </tr>
                                 <tr>
                                     <th>Customer Name</th>       
-                                    <td>${(customer.firstname != null) ?customer.firstname : '-'} ${(customer.lastname != null) ?customer.lastname : '-'}</td>
+                                    <td>${(customer.firstname != null) ? customer.firstname : '-'} ${(customer.lastname != null) ?customer.lastname : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Email</th>       
@@ -333,7 +334,7 @@
                                 </tr>
                                 <tr>
                                     <th>Address</th>       
-                                    <td>${(customer.house_no_building_name != null) ? customer.house_no_building_name : '-'} , ${customer.road_name_area_colony != null ? customer.road_name_area_colony : ''}</td>
+                                    <td>${(customer.house_no_building_name != null) ? customer.house_no_building_name  : '-'}  ${customer.road_name_area_colony != null ? customer.road_name_area_colony : ''}</td>
                                 </tr>
                                 <tr>
                                     <th>Pincode</th>       
@@ -345,11 +346,11 @@
                                 </tr>
                                 <tr>
                                     <th>State</th>       
-                                    <td>${(customer.state_name != null) ?customer.state_name : ''}</td>
+                                    <td>${(customer.state_name != null) ?customer.state_name : '-'}</td>
                                 </tr>
                                 <tr>
                                     <th>Country</th>       
-                                    <td>${(customer.country_name != null) ?customer.country_name : ''}</td>
+                                    <td>${(customer.country_name != null) ?customer.country_name : '-'}</td>
                                 </tr>
                             `);
                     
