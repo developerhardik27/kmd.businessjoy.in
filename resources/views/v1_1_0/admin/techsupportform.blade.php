@@ -65,7 +65,7 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="issuetype">Issue Type:</label><span style="color:red;"> *</span>
                     <select name="issuetype" class="form-control" id="issuetype">
-                        <option value="" disabled >Select Issue Type</option>
+                        <option value="" disabled>Select Issue Type</option>
                         <option value='technical' selected>Technical</option>
                         <option value='other'>Other</option>
                     </select>
@@ -105,8 +105,10 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="attachment">Attachments</label><br>
-                    <input type="file" name="attachment" id="attachment" width="100%" />
-                    <p class="text-primary">Please select a video file (MP4 or WebM) that is smaller than 10 MB.
+                    <input type="file" name="attachment[]" multiple id="attachment" width="100%" />
+                    <p class="text-primary">
+                        Please select image files (JPG, JPEG, PNG), video files (MP4, WebM), or PDF files that are smaller
+                        than 10 MB.
                     </p>
                     <span class="error-msg" id="error-attachment" style="color: red"></span>
                 </div>
@@ -124,12 +126,13 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="button" id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
+                    <button type="reset" class="btn iq-bg-danger float-right mr-2">Reset</button>
+                    <button type="submit" class="btn btn-primary float-right my-0">Submit</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -168,13 +171,18 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            $('#cancelbtn').on('click', function() {
+                loadershow();
+                window.location.href = "{{ route('admin.techsupport') }}";
+            });
+
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
                 } else {
                     $(this).prepend(
                         '<option selected disabled>-- Select User --</option>'
-                        ); // prepend "Please choose an option"
+                    ); // prepend "Please choose an option"
                 }
                 $('#assignedto').multiselect('rebuild');
             });
@@ -273,7 +281,20 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
+                                // Check if the error key is related to attachments
+                                if (key.startsWith('attachment.')) {
+                                    // Extract the index from the error key
+                                    var index = key.split('.')[1];
+
+                                    // Build the error message string
+                                    var errorMessage = value.join(', ');
+
+                                    // Display error message
+                                    $('#error-attachment').text(errorMessage);
+                                } else {
+                                    // Display other field errors if needed
+                                    $('#error-' + key).text(value.join(', '));
+                                }
                             });
                             loaderhide();
                         } else {

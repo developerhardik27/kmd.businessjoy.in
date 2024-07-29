@@ -89,43 +89,46 @@ class techsupportController extends commonController
      */
     public function store(Request $request)
     {
-
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email',
-            'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
-            'modulename' => 'required',
-            'description' => 'required',
-            'attachment' => 'nullable|mimetypes:video/mp4,video/webm|max:10000',
-            'assignedto',
-            'issuetype' => 'required',
-            'status',
-            'remarks',
-            'ticket',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted',
-        ]);
+        
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'email' => 'required|email',
+                'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
+                'modulename' => 'required',
+                'description' => 'required',
+                'attachment.*' => 'nullable|mimes:jpg,jpeg,png,mp4,webm,pdf|max:10000',
+                'assignedto',
+                'issuetype' => 'required',
+                'status',
+                'remarks',
+                'ticket',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted',
+            ]);
 
         if ($validator->fails()) {
             return $this->errorresponse(422,$validator->messages());
         } else {
 
             $techsupportdata = [];
-            if ($request->hasFile('attachment') && $request->hasFile('attachment') != '') {
-                $attachment = $request->file('attachment');
-                $attachmentname = $request->first_name . time() . '.' . $attachment->getClientOriginalExtension();
+            $attachments = [];
 
-                if (!file_exists('uploads/videos/')) {
-                    mkdir('uploads/videos/', 0755, true);
+            if ($request->hasFile('attachment')) {
+                foreach ($request->file('attachment') as $attachment) {
+                    $attachmentname = $request->first_name . time() . '-' . uniqid() . '.' . $attachment->getClientOriginalExtension();
+        
+                    if (!file_exists('uploads/files/')) {
+                        mkdir('uploads/files/', 0755, true);
+                    }
+                    // Save the file to the uploads directory
+                    if ($attachment->move('uploads/files/', $attachmentname)) {
+                        $attachments[] = $attachmentname;
+                    }
                 }
-                // Save the image to the uploads directory
-                if ($attachment->move('uploads/videos/', $attachmentname)) {
-                    $techsupportdata['attachment'] = $attachmentname;
-                }
-
+                $techsupportdata['attachment'] = json_encode($attachments); // Store as JSON or any format you prefer
             }
 
             $techsupports = array_merge($techsupportdata, [

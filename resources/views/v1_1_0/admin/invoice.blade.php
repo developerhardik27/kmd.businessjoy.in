@@ -98,11 +98,12 @@
                             placeholder="Transaction id" />
                         <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
                         <label for="paidamount">Received Amount</label>
-                        <input type="number" name="paidamount" class="form-control" id="paidamount" placeholder="Received Amount"
-                            required />
+                        <input type="number" name="paidamount" class="form-control" id="paidamount"
+                            placeholder="Received Amount" required />
                         <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
                         <label for="paid_by">Paid By</label>
-                        <input type="text" name="paid_by" class="form-control" id="paid_by" placeholder="Who Paid Amount" />
+                        <input type="text" name="paid_by" class="form-control" id="paid_by"
+                            placeholder="Who Paid Amount" />
                         <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
                         <label for="payment_type">How They Paid</label>
                         <select class="form-control" name="payment_type" id="payment_type">
@@ -163,7 +164,8 @@
 
                                 if (value.lastname != null) {
                                     if (customer.length > 0) {
-                                        customer += ' '; // Add space between firstname and lastname if both are present
+                                        customer +=
+                                        ' '; // Add space between firstname and lastname if both are present
                                     }
                                     customer += value.lastname;
                                 }
@@ -205,41 +207,41 @@
                                                         </td>
                                                         <td>
                                                             ${(value.status != 'paid') ? `
-                                                                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                                                                                                        <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
-                                                                                                                            <i class='ri-paypal-fill'></i>
-                                                                                                                        </button>
-                                                                                                                    </span>
-                                                                                                         ` : ''
+                                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
+                                                                                <i class='ri-paypal-fill'></i>
+                                                                            </button>
+                                                                        </span>
+                                                                ` : ''
                                                             }
                                                             ${(value.part_payment == 1 && value.status == 'paid' && value.pending_amount != null) ? `    
-                                                                                                <span> 
-                                                                                                    <a href=/admin/generaterecieptall/${value.id} target='_blank'>
-                                                                                                            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
-                                                                                                                <i class="ri-download-line"></i>
-                                                                                                            </button>
-                                                                                                    </a>
-                                                                                                </span>
-                                                                                ` : ''
+                                                                <span> 
+                                                                    <a href=/admin/generaterecieptall/${value.id} target='_blank'>
+                                                                            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
+                                                                                <i class="ri-download-line"></i>
+                                                                            </button>
+                                                                    </a>
+                                                                </span>
+                                                                ` : ''
                                                             }
                                                             ${(value.part_payment == 1) ? `    
-                                                                                                            <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                                                                                                <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                                                                                        <i class='ri-eye-fill'></i> 
-                                                                                                                </button> 
-                                                                                                            </span>
-                                                                                                         ` : ''
+                                                                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                                                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
+                                                                                                                            <i class='ri-eye-fill'></i> 
+                                                                                                                    </button> 
+                                                                                                                </span>
+                                                                                                             ` : ''
                                                             }
                                                             
                                                             ${(value.part_payment == 0 && value.status == 'paid') ? `    
-                                                                                                <span> 
-                                                                                                    <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
-                                                                                                        <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                                                                            <i class="ri-download-line"></i>
-                                                                                                        </button>
-                                                                                                    </a>
-                                                                                                </span>
-                                                                                 ` : ''
+                                                                                                    <span> 
+                                                                                                        <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
+                                                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                                                                                <i class="ri-download-line"></i>
+                                                                                                            </button>
+                                                                                                        </a>
+                                                                                                    </span>
+                                                                                     ` : ''
                                                             }
                                                             
                                                           
@@ -248,13 +250,13 @@
                                                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1') 
                                                              ${(value.is_editable == 1)?  
                                                                     `  <span>
-                                                                            <a href='EditInvoice/${value.id}'>
-                                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                                                    <i class="ri-edit-fill"></i>
-                                                                                </button>
-                                                                            </a>
-                                                                        </span>
-                                                                    `
+                                                                                <a href='EditInvoice/${value.id}'>
+                                                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+                                                                                        <i class="ri-edit-fill"></i>
+                                                                                    </button>
+                                                                                </a>
+                                                                            </span>
+                                                                        `
                                                                 : ''
                                                             }
                                                             @endif
@@ -420,7 +422,7 @@
                 } else {
                     $('#status_' + statusid).val(
                         oldstatus
-                        ); // if user will cancelled to change status then set original value as it is
+                    ); // if user will cancelled to change status then set original value as it is
                 }
             });
 
