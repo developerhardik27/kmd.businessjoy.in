@@ -65,14 +65,14 @@
                 <div class="col-sm-6">
                     <label for="email">Email</label><span style="color:red;">*</span>
                     <input type="email" name='email' class="form-control" id="email" value=""
-                        placeholder="Enter Email" required>
+                        placeholder="Enter Email" autocomplete="off" required>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="password">Password</label>
                     <div class="password-container">
                         <input type="password" id="password" name='password' class="form-control"
-                            id="exampleInputPassword3" value="" placeholder="update Password (not mandatory)">
+                            id="exampleInputPassword3" value="" placeholder="update Password (not mandatory)" autocomplete="off">
                         <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                     </div>
                     <span class="error-msg" id="error-password" style="color: red"></span>
@@ -1782,7 +1782,7 @@
                         company = user.company_id;
                         loadcountry(country);
                         loadstate(country, state);
-                        loadcity(state, city);;
+                        loadcity(state, city);
                     } else if (response.status == 500) {
                         toastr.error(response.message);
                     } else {
@@ -1858,10 +1858,10 @@
                                     `<option  value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
+                            $('#state').val(state);
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`)
                         }
-                        $('#state').val(state);
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
@@ -1895,10 +1895,10 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
+                            $('#city').val(city);
                         } else {
                             $('#city').append(`<option disabled> No Data Found</option>`)
                         }
-                        $('#city').val(city);
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();

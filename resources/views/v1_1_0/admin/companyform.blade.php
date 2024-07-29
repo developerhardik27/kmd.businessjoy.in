@@ -28,7 +28,7 @@
                 <div class="col-sm-6">
                     <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email"
-                        placeholder="Enter Company Email"/>
+                        placeholder="Enter Company Email" autocomplete="off"/>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                 <div class="col-sm-6">
                     <label for="email_default_user">Email (Default User)</label><span style="color:red;">*</span>
                     <input type="email" name="email_default_user" class="form-control" id="email_default_user"
-                        placeholder="0123456789" required />
+                        placeholder="0123456789" autocomplete="off" required />
                     <span class="error-msg" id="error-email_default_user" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
