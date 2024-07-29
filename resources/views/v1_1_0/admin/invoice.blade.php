@@ -176,7 +176,7 @@
                                     customer += value.company_name;
                                 }
                                 $('#data').append(`<tr>
-                                                        <td>${value.id}</td>
+                                                        <td>${value.inv_no}</td>
                                                         <td>${value.inv_date_formatted}</td>
                                                         <td>${customer}</td>
                                                         <td>${value.currency_symbol} ${value.grand_total}</td>
