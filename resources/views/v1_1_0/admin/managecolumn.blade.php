@@ -259,7 +259,7 @@
             // delete column if it is not has data of any invoice
             $(document).on("click", ".del-btn", function() {
                 if (confirm(
-                        'This action will effect existing invoice,edit invoice,reciept and related data. Are you sure you want to remove this column?'
+                        'This column will remove from old invoices and receipts. Are you sure you want to remove this column?'
                     )) {
                     var deleteid = $(this).data('id');
                     var row = this;
@@ -331,20 +331,17 @@
 
             $('#cancelbtn').on('click', function() {
                 $('#newColForm').addClass('d-none');
-                $('#newColBtnDiv').removeClass('d-none'); 
+                $('#newColBtnDiv').removeClass('d-none');
                 $('#columnform')[0].reset();
             });
 
             // add or edit column form submit
             $('#columnform').submit(function(e) {
                 e.preventDefault();
-                if (confirm(
-                        "Old invoice will not edit after apply this. Are you sure still you want to apply this?"
-                    )) {
-
-                    loadershow();
-                    var editid = $('#edit_id').val()
-                    if (editid != '') {
+                var editid = $('#edit_id').val()
+                if (editid != '') {
+                    if(confirm("Edited column name will reflect in relevant invoices and receipts. Are you sure still you want to apply this?")){ 
+                        loadershow();
                         $('#column_type').prop('disabled', false);
                         var columndata = $(this).serialize();
                         $('#column_type').prop('disabled', true);
@@ -391,7 +388,10 @@
                                 }
                             }
                         });
-                    } else {
+                    }
+                } else {
+                    if(confirm("Old invoice will not edit after apply this. Are you sure still you want to apply this?")){
+                        loadershow();
                         var columndata = $(this).serialize();
                         $.ajax({
                             type: "post",
@@ -441,7 +441,9 @@
 
                         });
                     }
+                    
                 }
+
             });
         });
     </script>

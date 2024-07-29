@@ -245,8 +245,7 @@ class tblinvoicecolumnController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
-
+ 
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
@@ -321,11 +320,7 @@ class tblinvoicecolumnController extends commonController
                     'column_type' => $request->column_type,
                     'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d H:i:s'),
-                ]);
-
-                DB::connection('dynamic_connection')->table('invoices')->update([
-                    'is_editable' => 0
-                ]);
+                ]);  
                 
                 return $this->successresponse(200, 'message', 'Invoice Column succesfully updated');
             } else {
@@ -387,16 +382,11 @@ class tblinvoicecolumnController extends commonController
             ->update([
                 'show_col' => DB::raw("TRIM(BOTH ',' FROM REPLACE(CONCAT(',', show_col, ','), ',$modifiedcolumname,', ','))")
             ]);
-
-
+ 
             // change column status is deleted = 1 that means column is deleted
             $invoicecolumn->update([
                 'is_deleted' => 1
-            ]);
-
-            DB::connection('dynamic_connection')->table('invoices')->update([
-                'is_editable' => 0
-            ]);
+            ]); 
 
             return $this->successresponse(200, 'message', 'Invoice Column succesfully deleted');
         } else {

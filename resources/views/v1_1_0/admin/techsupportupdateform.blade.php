@@ -147,12 +147,13 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="button" id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
+                    <button type="reset" class="btn iq-bg-danger float-right mr-2">Reset</button>
+                    <button type="submit" class="btn btn-primary float-right my-0">Submit</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -188,6 +189,11 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+
+            $('#cancelbtn').on('click', function() {
+                loadershow();
+                window.location.href = "{{ route('admin.techsupport') }}";
+            });
 
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {

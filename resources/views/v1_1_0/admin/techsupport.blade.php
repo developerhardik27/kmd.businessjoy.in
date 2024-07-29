@@ -161,7 +161,7 @@
             <option value='resolved'>Resolved</option>
             <option value='cancelled'>Cancelled</option>
         </select>
-        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+        @if (session('user_permissions.adminmodule.techsupport.alldata') == '1')
             <select name="assignedto" class="form-control multiple advancefilter m-2" id="assignedto" multiple>
                 <option value="" disabled selected>-- Select Assigned To --</option>
             </select>
@@ -502,6 +502,10 @@
                 var data = $(this).data('view');
                 $.each(global_response.techsupport, function(key, ticket) {
                     if (ticket.id == data) {
+                        // Ensure ticket.attachment is an array
+                        let attachments = Array.isArray(ticket.attachment) ?
+                            ticket.attachment :
+                            (ticket.attachment ? JSON.parse(ticket.attachment) : []);
                         $('#details').append(`
                                                 <tr> 
                                                     <td>Ticket Number</td>
@@ -548,11 +552,14 @@
                                                 </tr>
                                                 <tr>
                                                     <td >Attachments</td>
-                                                    <th >
-                                                      ${ticket.attachment !== null
-                                                            ? `<a class='text-primary font-weight-bold' href='/uploads/videos/${ticket.attachment}' target='_blank'>${ticket.attachment}</a>`
+                                                     <th>
+                                                        ${attachments.length > 0
+                                                            ? attachments.map(attachment => 
+                                                                `<a class='text-primary font-weight-bold' href='/uploads/files/${attachment}' target='_blank'>${attachment}</a>`
+                                                            ).join('<br>') // Display each attachment on a new line
                                                             : '-'
-                                                        }</th>
+                                                        }
+                                                    </th>
                                                 </tr>
                      `);
                     }
