@@ -272,7 +272,7 @@
                                                 style="padding-right: 0px;padding-left: 0px;">
                                                 <div style="font-size:1px;line-height:5px">
                                                 </div>
-                                                <img align="center" alt="your-logo" border="0"
+                                                <img align="center" alt="BusinessJoy-logo" border="0"
                                                     class="center fixedwidth"
                                                     src="{{ asset('admin/images/bjlogo2.png') }}"
                                                     style="text-decoration: none; -ms-interpolation-mode: bicubic; height: auto; border: 0; width: 136px; max-width: 100%; display: block;"

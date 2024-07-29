@@ -161,9 +161,11 @@
             <option value='resolved'>Resolved</option>
             <option value='cancelled'>Cancelled</option>
         </select>
-        <select name="assignedto" class="form-control multiple advancefilter m-2" id="assignedto" multiple>
-            <option value="" disabled selected>-- Select Assigned To --</option>
-        </select>
+        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+            <select name="assignedto" class="form-control multiple advancefilter m-2" id="assignedto" multiple>
+                <option value="" disabled selected>-- Select Assigned To --</option>
+            </select>
+        @endif
         <!-- Use any element to open the sidenav -->
         <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()"
             class="btn btn-sm btn-rounded btn-info m-2">
@@ -175,7 +177,7 @@
         </button>
     </div>
 
-    @if (session('user_permissions.customersupportmodule.customersupport.add') == '1')
+    @if (session('user_permissions.adminmodule.techsupport.add') == '1')
         @section('addnew')
             {{ route('admin.addtechsupport') }}
         @endsection
@@ -200,9 +202,11 @@
                 <th>Complain Desc.</th>
                 <th>Status</th>
                 <th>createdon</th>
-                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
+                        session('user_permissions.adminmodule.techsupport.delete') == '1')
                     <th>Action</th>
                 @endif
+
             </tr>
         </thead>
         <tbody id="tabledata">
@@ -250,7 +254,7 @@
                     $(this).find('option:disabled').remove(); // remove disabled option
                 } else {
                     $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
+                        '<option selected disabled>-- Select Assigned To --</option>'
                     ); // prepend "Please choose an option"
                 }
                 $('#assignedto').multiselect('rebuild');
@@ -425,29 +429,32 @@
                                                        @endif
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
-                                                    <td>
-                                                        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                            <span>
-                                                                <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                    <i class="ri-whatsapp-line text-white"></i>
-                                                                </a>
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                            <span>
-                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                 </button>  
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                                            <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
+                                                    @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
+                                                            session('user_permissions.adminmodule.techsupport.delete') == '1')
+                                                        <td>
+                                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                                                <span>
+                                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                                        <i class="ri-whatsapp-line text-white"></i>
+                                                                    </a>
+                                                                </span>
+                                                            @endif
+                                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                                                <span>
+                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                                        <i class="ri-edit-fill"></i>
+                                                                    </button>  
+                                                                </span>
+                                                            @endif
+                                                            @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
+                                                                <span>
+                                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                                        <i class="ri-delete-bin-fill"></i>
+                                                                    </button>
+                                                                </span>
+                                                            @endif
+                                                        </td>  
+                                                    @endif   
                                                 </tr>`)
                                 $('#status_' + value.id).val(value.status);
                                 id++;
@@ -455,8 +462,6 @@
 
 
                             $('#data').DataTable({
-
-
                                 "destroy": true, //use for reinitialize jquery datatable
                             });
                             loaderhide();
@@ -535,17 +540,19 @@
                                                 </tr>
                                                 <tr>
                                                     <td >Notes</td>
-                                                    <th class='text-wrap'>${ticket.description}</th>
+                                                    <th class='text-wrap'>${ticket.description != null ? ticket.description : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td >Remarks</td>
-                                                    <th class='text-wrap'>${ticket.remarks}</th>
+                                                    <th class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</th>
                                                 </tr>
                                                 <tr>
                                                     <td >Attachments</td>
                                                     <th >
-                                                        <a class='text-primary font-weight-bold' href="{{ asset('uploads/videos/${ticket.attachment}') }}" target="_blank">${ticket.attachment}</a>
-                                                    </th>
+                                                      ${ticket.attachment !== null
+                                                            ? `<a class='text-primary font-weight-bold' href='/uploads/videos/${ticket.attachment}' target='_blank'>${ticket.attachment}</a>`
+                                                            : '-'
+                                                        }</th>
                                                 </tr>
                      `);
                     }
@@ -601,7 +608,7 @@
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
                 assignedto = $('#assignedto').val();
-                last_call = $('#last_call').val(); 
+                last_call = $('#last_call').val();
 
 
                 data = {
@@ -609,7 +616,7 @@
                     todate,
                     advancestatus,
                     assignedto,
-                    last_call 
+                    last_call
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
@@ -660,7 +667,7 @@
                 todate = $('#todate').val();
                 advancestatus = $('#advancestatus').val();
                 assignedto = $('#assignedto').val();
-                LastCall = $('#last_call').val(); 
+                LastCall = $('#last_call').val();
                 var fromDate = new Date(fromdate);
                 var toDate = new Date(todate);
 
@@ -688,13 +695,13 @@
                 if (LastCall != '') {
                     data.lastcall = LastCall;
                 }
-                
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '' ) {
+
+                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '') {
                     loaddata();
                 }
                 if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
                     '' ||
-                    LastCall != '' ) {
+                    LastCall != '') {
                     loadershow();
                     $.ajax({
                         type: 'GET',
@@ -733,7 +740,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
+                                                        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
                                                             <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 <option disabled selected>status</option>
                                                                 <option value='pending'>Pending</option>
@@ -746,27 +753,32 @@
                                                        @endif
                                                     </td>
                                                     <td>${value.created_at_formatted}</td>
-                                                    <td>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                            <span>
-                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                 </button>  
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                                            <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
+                                                     @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
+                                                             session('user_permissions.adminmodule.techsupport.delete') == '1')
+                                                        <td>
+                                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                                                <span>
+                                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                                        <i class="ri-whatsapp-line text-white"></i>
+                                                                    </a>
+                                                                </span>
+                                                            @endif
+                                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                                                <span>
+                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                                        <i class="ri-edit-fill"></i>
+                                                                    </button>  
+                                                                </span>
+                                                            @endif
+                                                            @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
+                                                                <span>
+                                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                                        <i class="ri-delete-bin-fill"></i>
+                                                                    </button>
+                                                                </span>
+                                                            @endif
+                                                        </td>   
+                                                    @endif 
                                                 </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
@@ -824,7 +836,7 @@
             $('.removepopupfilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
-                $('#last_call').val(''); 
+                $('#last_call').val('');
                 $('#invaliddate').text(' ');
                 advancefilters();
             });
@@ -833,7 +845,7 @@
             $('.removefilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
-                $('#last_call').val(''); 
+                $('#last_call').val('');
                 $('#invaliddate').text(' ');
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
@@ -845,7 +857,7 @@
                 }
                 if ($("#assignedto option:not(:disabled)").length > 0) {
                     $("#assignedto").prepend(
-                        '<option value="" disabled selected>-- Select User --</option>');
+                        '<option value="" disabled selected>-- Select Assigned To --</option>');
                 }
 
                 // Check only the first option
