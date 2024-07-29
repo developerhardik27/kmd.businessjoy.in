@@ -105,6 +105,7 @@ class PdfController extends Controller
       // $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.invoicedetail', $data)->setPaper('a4', 'portrait');
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.invoicetemplate', $data)->setPaper('a4', 'portrait');
 
+      // return view($this->version . '.admin.invoicetemplate', $data);
       return $pdf->stream($pdfname);
 
    }
@@ -230,6 +231,7 @@ class PdfController extends Controller
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentpaidreciept', $data)->setPaper('a4', 'portrait');
 
+      // return view($this->version . '.admin.paymentpaidreciept', $data);
       return $pdf->stream();
 
       // $name =  'reciept'.Str::Random(3).'pdf';

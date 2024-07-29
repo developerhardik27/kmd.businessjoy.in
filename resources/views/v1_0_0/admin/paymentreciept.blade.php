@@ -5,7 +5,12 @@
     $total;
     $roundof;
     $sign = '';
-
+    $withgst = false ; 
+    
+    if($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0){
+        $withgst = true ;
+    }
+      
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
     } else {
@@ -141,7 +146,7 @@
                 <td style="vertical-align: top">
                     <div style="display: inline-block;">
                         <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}" @endif
-                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 120px">
+                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
                     </div>
                 </td>
                 <td valign=top class="default">
@@ -161,8 +166,8 @@
                     <span style="display: block">
                         TAX INVOICE
                     </span>
-                    @if (isset($companydetails['gst_no']))
-                        <span>GSTIN No: {{ $companydetails['gst_no'] }}</span>
+                    @if ($withgst)  
+                            <span>GSTIN No: @isset($companydetails['gst_no']) {{ $companydetails['gst_no'] }} @endisset</span> 
                     @endif
                 </td>
             </tr>
@@ -223,16 +228,18 @@
                             <td><b>Invoice #</b></td>
                             <td style="text-align: right">{{ $invdata['inv_no'] }}</td>
                         </tr>
-                        <tr>
-                            <td><b>GST #</b></td>
-                            <td style="text-align: right">{{ $invdata['gst_no'] }}</td>
-                        </tr>
+                        @if($withgst)
+                            <tr>
+                                <td><b>GST #</b></td>
+                                <td style="text-align: right">@isset($invdata['gst_no']) {{ $invdata['gst_no'] }} @endisset</td>
+                            </tr>
+                        @endisset
                     </table>
                 </td>
             </tr>
             <tr>
                 <td id="data" colspan="3">
-                    <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-5" width="100">
+                    <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-3" width="100">
                         <thead>
                             <tr class="bgblue">
                                 <th><span style="padding-left: 5px"> # </span></th>
@@ -372,14 +379,38 @@
                 </td>
             </tr>
             <tr>
+                <td colspan="2">
+                    <div style="display: inline-block;">
+                        For : {{ $companydetails['name'] }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
                 <td>
                     <div style="display: inline-block;">
                         <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
-                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 120px">
+                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div style="display: inline-block;">
+                        Signature
                     </div>
                 </td>
             </tr>
         </table>
+        <div class="mt-1" style="font-size: 12px">
+            <span class="float-left">
+                <small>This is a computer-generated document.
+                    @unless (($companydetails['pr_sign_img']))
+                        No signature is required.
+                    @endunless
+                </small>
+            </span>
+            <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
+        </div>
     </div>
 </body>
 

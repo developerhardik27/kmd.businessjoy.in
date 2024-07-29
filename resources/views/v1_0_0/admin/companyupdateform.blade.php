@@ -86,16 +86,13 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan"
-                        style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
-                        rows="2"></textarea>
+                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                     <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan"
-                        style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"></textarea>
+                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan" style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2" placeholder="e.g. sardar patel road, jagatpur"></textarea>
                     <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
                 </div>
             </div>
@@ -118,15 +115,13 @@
                 <div class="col-sm-6">
                     <label for="img">Company Logo Image</label><br>
                     <input type="file" class="form-control-file" name="img" id="img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and
-                        has a maximum width of 120 pixels.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB.</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="sign_img">Company Signature Image</label><br>
                     <input type="file" class="form-control-file" name="sign_img" id="sign_img" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 2 MB and
-                        has a maximum width of 120 pixels.</p>
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB.</p>
                     <span class="error-msg" id="error-sign_img" style="color: red"></span>
                 </div>
             </div>

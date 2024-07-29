@@ -163,8 +163,8 @@ class companyController extends commonController
             'city' => 'required|numeric',
             'pincode' => 'required|numeric',
             'maxuser' => 'nullable|numeric',
-            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
-            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
+            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
             'user_id' => 'required|numeric',
             'updated_by',
             'created_at',
@@ -308,8 +308,8 @@ class companyController extends commonController
                     'sgst' => 9,
                     'cgst' => 9,
                     'gst' => 0,
-                    'customer_id' => 0,
-                    'current_customer_id' => 0,
+                    'customer_id' => 1,
+                    'current_customer_id' => 1,
                     'created_by' => $this->userId,
                 ]);
 
@@ -414,12 +414,7 @@ class companyController extends commonController
         $company = DB::table('company')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->where('company.id', $id)
-            ->get();
-
-        if ($this->rp['adminmodule']['company']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+            ->get(); 
         if ($company) {
             return $this->successresponse(200, 'company', $company);
         } else {
@@ -462,8 +457,8 @@ class companyController extends commonController
             'city' => 'required|numeric',
             'pincode' => 'required|numeric',
             'maxuser' => 'nullable|numeric',
-            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
-            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=120',
+            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
             'user_id' => 'numeric',
             'updated_at',
             'is_active',

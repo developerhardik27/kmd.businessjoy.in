@@ -40,7 +40,7 @@ class UserController extends Controller
     public function create()
     {
         $company = company::find(Session::get('company_id'));
-        $user = User::where('company_id','=',$company->id)->get();
+        $user = User::where('company_id','=',$company->id)->where('is_deleted',0)->get();
 
         $companymaxuser = $company->max_users ;
  

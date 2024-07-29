@@ -86,8 +86,9 @@
                                 </div>
                             </form>
                             <hr>
-                            Domestic Invoice Pattern : <span id="domesticinvoicepattern"></span><br>
-                            Global Invoice Pattern : <span id="globalinvoicepattern"></span>
+                            <br>
+                            Domestic Invoice Pattern : <span id="domesticinvoicepattern" style="color: black"></span><br>
+                            Global Invoice Pattern : <span id="globalinvoicepattern" style="color: black"></span>
                         </div>
                     </div>
                 </div>
@@ -171,7 +172,8 @@
                                             <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                 class="form-control">
                                             SGST : <input type="number" id="sgst" name='sgst'
-                                                class="form-control" placeholder="SGST" min="1" step="0.01" required />
+                                                class="form-control" placeholder="SGST" min="1" step="0.01"
+                                                required />
                                             <span class="error-msg" id="error-sgst" style="color: red"></span><br>
                                         </div>
                                         <div class="col-sm-6">
@@ -359,7 +361,7 @@
                 ],
                 placeholder: 'Add Notes',
                 tabsize: 2,
-                height: 100, 
+                height: 100,
             });
 
             loaderhide();
@@ -494,51 +496,54 @@
             });
             $('#gstsettingsform').submit(function(event) {
                 event.preventDefault();
-                loadershow();
-                editid = $('#sgst').data('id');
-                url = "/api/gstsettings/update/" + editid;
-                $('.error-msg').text('');
-                const formdata = $(this).serialize();
-                $.ajax({
-                    type: 'POST',
-                    url: url,
-                    data: formdata,
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            $('#gstsettingsform').hide();
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
-                            $('#gstsettingsform')[0].reset();
-                            getoverduedays();
-                        } else if (response.status == 500) {
-                            toastr.error(response.message);
-                        } else {
-                            toastr.error('something went wrong !');
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
+                if (confirm('Old invoice will not edit after apply this changes. Are you sure still you want to apply this changes ?')) {
+                        loadershow();
+                        editid = $('#sgst').data('id');
+                        url = "/api/gstsettings/update/" + editid;
+                        $('.error-msg').text('');
+                        const formdata = $(this).serialize();
+                        $.ajax({
+                            type: 'POST',
+                            url: url,
+                            data: formdata,
+                            success: function(response) {
+                                // Handle the response from the server
+                                if (response.status == 200) {
+                                    $('#gstsettingsform').hide();
+                                    // You can perform additional actions, such as showing a success message or redirecting the user
+                                    toastr.success(response.message);
+                                    $('#gstsettingsform')[0].reset();
+                                    getoverduedays();
+                                } else if (response.status == 500) {
+                                    toastr.error(response.message);
+                                } else {
+                                    toastr.error('something went wrong !');
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                if (xhr.status === 422) {
+                                    var errors = xhr.responseJSON.errors;
+                                    $.each(errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    var errorMessage = "";
+                                    try {
+                                        var responseJSON = JSON.parse(xhr.responseText);
+                                        errorMessage = responseJSON.message ||
+                                            "An error occurred";
+                                    } catch (e) {
+                                        errorMessage = "An error occurred";
+                                    }
+                                    toastr.error(errorMessage);
+                                }
                             }
-                            toastr.error(errorMessage);
-                        }
+                        });
                     }
-                });
             });
 
             // get terms and conditions
@@ -808,18 +813,29 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.pattern != '') {
-                            var data = response.pattern;
+                            var data = response.pattern[0];
 
                             // Update the HTML content
                             $.each(data, function(key, value) {
                                 var pattern = value.invoice_pattern;
-                                var modifiedfiedpattern = pattern.replace('cidai',
-                                        "(Auto increment according to customer)")
-                                    .replace('ai', "(Auto increment according to invoice)");
+                                var modifiedfiedpattern = pattern.replace('year',
+                                        "<span style='color:goldenrod'>year</span>")
+                                    .replace('month',
+                                        "<span style='color:lawngreen'>month</span>")
+                                    .replace('date',
+                                        "<span style='color:darkmagenta'>date</span>")
+                                    .replace('customerid',
+                                        "<span style='color:lightseagreen'>customerid</span>")
+                                    .replace('cidai', "<span style='color:silver'>" + response
+                                        .pattern[1].customer_id +
+                                        "(Auto increment as per customer)</span>")
+                                    .replace('ai', "<span style='color:red'>" + value
+                                        .start_increment_number +
+                                        "(Auto increment as per invoice)");
                                 if (value.pattern_type == "global") {
-                                    $('#globalinvoicepattern').text(modifiedfiedpattern);
+                                    $('#globalinvoicepattern').html(modifiedfiedpattern);
                                 } else {
-                                    $('#domesticinvoicepattern').text(modifiedfiedpattern);
+                                    $('#domesticinvoicepattern').html(modifiedfiedpattern);
                                 }
                             });
                         } else if (response.status == 500) {
@@ -1072,7 +1088,7 @@
                             toastr.success(response.message);
                             $('#cidform')[0].reset();
                             getoverduedays();
-                        }else if (response.status == 500) {
+                        } else if (response.status == 500) {
                             toastr.error(response.message);
                         } else {
                             toastr.error('something went wrong !');

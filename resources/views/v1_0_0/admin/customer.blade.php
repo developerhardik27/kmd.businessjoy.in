@@ -333,7 +333,7 @@
                                 </tr>
                                 <tr>
                                     <th>Address</th>       
-                                    <td>${(customer.house_no_building_name != null) ? customer.house_no_building_name : '-'} ${customer.road_name_area_colony != null ? customer.road_name_area_colony : ''}</td>
+                                    <td>${(customer.house_no_building_name != null) ? customer.house_no_building_name : '-'} , ${customer.road_name_area_colony != null ? customer.road_name_area_colony : ''}</td>
                                 </tr>
                                 <tr>
                                     <th>Pincode</th>       
