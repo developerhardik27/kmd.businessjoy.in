@@ -493,9 +493,7 @@
                                     <th>Move</th>
                                     <th>Remove</th>
                                 `
-                                );
-
-
+                                ); 
                             
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
@@ -762,7 +760,7 @@
                                                 return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="text" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}"></td>`;
                                             }
                                         }).join('')}
-                                        <td><input type="number" step="any" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
+                                        <td><input type="number" step="any" value="${value.amount}" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
                                         <td>
                                             <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
                                             <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
