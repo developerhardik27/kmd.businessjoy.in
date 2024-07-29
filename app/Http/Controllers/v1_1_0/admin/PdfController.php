@@ -265,7 +265,7 @@ class PdfController extends Controller
          $startDate = $request->fromdate;
          $endDate = Carbon::parse($request->todate);
 
-         $invoices = $this->invoiceModel::whereBetween('created_at', [$startDate, $endDate])
+         $invoices = $this->invoiceModel::whereBetween('created_at', [$startDate, $endDate->addDay()])
             ->where([
                'is_deleted' => 0, 
             ])

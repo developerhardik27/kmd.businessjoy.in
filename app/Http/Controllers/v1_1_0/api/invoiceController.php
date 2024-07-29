@@ -104,7 +104,7 @@ class invoiceController extends commonController
                     ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id ORDER BY id DESC LIMIT 1)');
             })
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
-            ->select('invoices.*', 'payment_details.part_payment', 'payment_details.pending_amount', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->select('invoices.*',DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"), 'payment_details.part_payment', 'payment_details.pending_amount', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.id', 'desc');
 
@@ -173,7 +173,7 @@ class invoiceController extends commonController
             ->leftJoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftjoin('invoice_terms_and_conditions', 'invoices.t_and_c_id', '=', 'invoice_terms_and_conditions.id')
             ->join($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
-            ->select('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'invoices.created_at', 'invoices.updated_at', 'customers.customer_id as cid', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->select('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"), 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'invoices.created_at', 'invoices.updated_at', 'customers.customer_id as cid', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
             ->groupBy('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'invoices.created_at', 'invoices.updated_at', 'customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name', 'mng_col.invoice_id')
             ->where('invoices.is_active', 1)->where('invoices.is_deleted', 0)->where('invoices.id', $id);
 
@@ -696,8 +696,8 @@ class invoiceController extends commonController
 
         $reports = DB::connection('dynamic_connection')->table('reportlogs')
             ->join($this->masterdbname . '.users', 'reportlogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('reportlogs.*', 'users.firstname', 'users.lastname')
-            ->where('reportlogs.is_deleted', 0)->get();
+            ->select('reportlogs.*', DB::raw("DATE_FORMAT(reportlogs.from_date, '%d-%m-%Y') as from_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.to_date, '%d-%m-%Y') as to_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'users.firstname', 'users.lastname')
+            ->where('reportlogs.is_deleted', 0)->orderBy('id','desc')->get();
 
         if ($reports->isNotEmpty()) {
             return $this->successresponse(200, 'reports', $reports);
