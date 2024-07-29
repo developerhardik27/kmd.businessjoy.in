@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->id(); // Auto-incrementing primary key
             $table->integer('user_id');
             $table->longText('rp');
+            $table->integer('created_by');
+            $table->integer('updated_by')->nullable();
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('updated_at')->nullable();
         });

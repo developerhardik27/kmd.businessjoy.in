@@ -267,9 +267,6 @@ class userController extends commonController
         }
 
 
-
-
-
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
@@ -294,15 +291,16 @@ class userController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
+            if ($this->rp['adminmodule']['user']['add'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+            
             $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
 
             if (count($checkuseremail) > 0) {
                 return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
-            if ($this->rp['adminmodule']['user']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             if ($this->rp['adminmodule']['userpermission']['add'] == 1) {
 
