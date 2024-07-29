@@ -94,6 +94,9 @@ class tblinvoiceformulaController extends commonController
         }
 
         if ($invoiceformula) {
+            DB::connection('dynamic_connection')->table('invoices')->update([
+                'is_editable' => 0
+            ]);
             return $this->successresponse(200, 'message', 'Invoice Formula succesfully added');
         } else {
             return $this->successresponse(500, 'message', 'Invoice Formula not succesfully added');
@@ -197,7 +200,9 @@ class tblinvoiceformulaController extends commonController
                     'updated_by' => $request->updated_by,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-
+                DB::connection('dynamic_connection')->table('invoices')->update([
+                    'is_editable' => 0
+                ]);
                 return $this->successresponse(200, 'message', 'Invoice Formula succesfully updated');
             } else {
                 return $this->successresponse(404, 'message', 'No Such Invoice Formula Found!');
@@ -225,6 +230,9 @@ class tblinvoiceformulaController extends commonController
         if ($invoiceformula) {
             $invoiceformula->update([
                 'is_deleted' => 1
+            ]);
+            DB::connection('dynamic_connection')->table('invoices')->update([
+                'is_editable' => 0
             ]);
             return $this->successresponse(200, 'message',  'Invoice Formula succesfully deleted');
         } else {
