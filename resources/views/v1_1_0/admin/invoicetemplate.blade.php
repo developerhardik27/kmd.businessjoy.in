@@ -309,7 +309,7 @@
                             <tr class="font-weight-bold">
                                 <td class="text-center">{{ $invdata['inv_no'] }}</td>
                                 <td class="text-center">
-                                    {{ \Carbon\Carbon::parse($invdata['inv_date'])->format('d-m-Y') }}
+                                    {{ \Carbon\Carbon::parse($invdata['inv_date_formatted'])->format('d-m-Y') }}
                                 </td>
                             </tr>
                             <tr>
