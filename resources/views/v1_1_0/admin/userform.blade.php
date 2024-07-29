@@ -71,14 +71,14 @@
                     <div class="col-sm-6">
                         <label for="email">Email</label><span style="color:red;">*</span>
                         <input type="email" name='email' class="form-control" id="email" value=""
-                            placeholder="Enter Email" required />
+                            placeholder="Enter Email" autocomplete="off" required />
                         <span class="error-msg" id="error-email" style="color: red"></span>
                     </div>
                     <div class="col-sm-6">
                         <label for="password">Password</label>
                         <div class="password-container">
                             <input type="password" name="password" class="form-control" id="password" value=""
-                                placeholder="Enter Password" />
+                                placeholder="Enter Password" autocomplete="off"/>
                             <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                         </div>
                         <span class="error-msg" id="error-password" style="color: red"></span>

@@ -840,7 +840,8 @@ class userController extends commonController
                             $searchuserrp = $this->user_permissionModel::where('user_id', $id)->first();
                             if ($searchuserrp) {
                                 $rpupdate = $searchuserrp->update([
-                                    "rp" => $rpjson
+                                    "rp" => $rpjson,
+                                    'updated_by' => $this->userId
                                 ]);
 
                                 if ($rpupdate) {

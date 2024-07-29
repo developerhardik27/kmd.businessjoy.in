@@ -376,7 +376,8 @@ class companyController extends commonController
 
                         $userrp = $this->user_permissionModel::create([
                             'user_id' => $userid,
-                            'rp' => $rpjson
+                            'rp' => $rpjson,
+                            'created_by' => $this->userId
                         ]);
 
                         if ($userrp) {

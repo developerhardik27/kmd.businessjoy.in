@@ -111,9 +111,8 @@ class customerController extends commonController
                 'state' => 'nullable|numeric',
                 'city' => 'nullable|numeric',
                 'user_id' => 'nullable|numeric',
-                'updated_by',
-                'created_at',
-                'updated_at',
+                'created_by',
+                'created_at', 
                 'is_active',
                 'is_deleted'
             ]);
@@ -229,17 +228,17 @@ class customerController extends commonController
 
         if ($request->gst_number) {
             $validator = Validator::make($request->all(), [
-                'firstname' => 'required|string|max:50',
-                'lastname' => 'required|string|max:50',
+                'firstname' => 'nullable|string|max:50',
+                'lastname' => 'nullable|string|max:50',
                 'company_name' => 'required|string|max:50',
-                'email' => 'required|email|max:50',
-                'contact_number' => 'required|numeric|digits:10',
-                'house_no_building_name' => 'required|string|max:191',
-                'road_name_area_colony' => 'required|string|max:191',
-                'country' => 'required|numeric',
-                'state' => 'required|numeric',
-                'city' => 'required|numeric',
-                'pincode' => 'required|numeric',
+                'email' => 'nullable|email|max:50',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'pincode' => 'nullable|numeric',
                 'gst_number' => 'required|alpha_num|max:50',
                 'created_by',
                 'user_id' => 'required|numeric',
@@ -251,7 +250,7 @@ class customerController extends commonController
         } else {
             $validator = Validator::make($request->all(), [
                 'firstname' => 'required|string|max:50',
-                'lastname' => 'required|string|max:50',
+                'lastname' => 'nullable|string|max:50',
                 'company_name' => 'nullable|string|max:50',
                 'email' => 'nullable|email|max:50',
                 'contact_number' => 'nullable|numeric|digits:10',
