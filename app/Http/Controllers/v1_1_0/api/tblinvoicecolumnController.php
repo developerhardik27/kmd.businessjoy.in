@@ -174,6 +174,9 @@ class tblinvoicecolumnController extends commonController
                     ]);
 
                     if ($invoicecolumn) {
+                        DB::connection('dynamic_connection')->table('invoices')->update([
+                            'is_editable' => 0
+                        ]);
                         return $this->successresponse(200, 'message', 'Invoice Columns  succesfully added');
                     } else {
                         return $this->successresponse(500, 'message', 'Invoice Columns not succesfully added');
@@ -319,6 +322,10 @@ class tblinvoicecolumnController extends commonController
                     'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
+
+                DB::connection('dynamic_connection')->table('invoices')->update([
+                    'is_editable' => 0
+                ]);
                 
                 return $this->successresponse(200, 'message', 'Invoice Column succesfully updated');
             } else {
@@ -386,6 +393,11 @@ class tblinvoicecolumnController extends commonController
             $invoicecolumn->update([
                 'is_deleted' => 1
             ]);
+
+            DB::connection('dynamic_connection')->table('invoices')->update([
+                'is_editable' => 0
+            ]);
+
             return $this->successresponse(200, 'message', 'Invoice Column succesfully deleted');
         } else {
             return $this->successresponse(404, 'message', 'No Such Invoice Column Found!');
@@ -417,6 +429,9 @@ class tblinvoicecolumnController extends commonController
         if ($invoicecolumn) {
             $invoicecolumn->update([
                 'is_hide' => $request->hidevalue
+            ]);
+            DB::connection('dynamic_connection')->table('invoices')->update([
+                'is_editable' => 0
             ]);
             return $this->successresponse(200, 'message', 'Invoice Column succesfully updated');
         } else {

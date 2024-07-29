@@ -171,6 +171,10 @@ class tblinvoiceothersettingController extends commonController
                 $overdueday->updated_at = date('Y-m-d H:i:s');
                 $overdueday->save();
 
+                DB::connection('dynamic_connection')->table('invoices')->update([
+                    'is_editable' => 0
+                ]);
+
                 return $this->successresponse(200, 'message', 'GST ettings succesfully updated');
             } else {
                 return $this->successresponse(404, 'message', 'No Such GST Settig Found!');
