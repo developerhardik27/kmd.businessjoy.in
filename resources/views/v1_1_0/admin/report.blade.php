@@ -158,10 +158,10 @@
                                 $('#tabledata').append(` <tr>
                                                         <td>${id}</td>
                                                         <td class='text-center'">${value.module_name}</td> 
-                                                        <td class='text-center'">${value.from_date}</td> 
-                                                        <td class='text-center'">${value.to_date}</td> 
+                                                        <td class='text-center'">${value.from_date_formatted}</td> 
+                                                        <td class='text-center'">${value.to_date_formatted}</td> 
                                                         <td class='text-center'">${value.firstname} ${value.lastname}</td> 
-                                                        <td class='text-center'">${value.created_at}</td> 
+                                                        <td class='text-center'">${value.created_at_formatted}</td> 
                                                         <td>
                                                             @if (session('user_permissions.reportmodule.report.delete') == '1')
                                                                 <span>
