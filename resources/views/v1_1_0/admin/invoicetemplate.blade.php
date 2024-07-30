@@ -406,7 +406,17 @@
 
                                                         // Process each line to ensure it wraps after 40 characters
                                                         $wrappedLines = array_map(function ($line) {
-                                                            return wordwrap($line, 40, '<br>', true);
+                                                            // Strip HTML tags to process the plain text for wrapping
+                                                            $plainText = strip_tags($line);
+
+                                                            // Apply wordwrap only if the plain text exceeds 40 characters
+                                                            $wrappedPlainText =
+                                                                strlen($plainText) > 40
+                                                                    ? wordwrap($plainText, 40, '<br>', true)
+                                                                    : $plainText;
+
+                                                            // Reapply HTML tags and return the wrapped line
+                                                            return $wrappedPlainText;
                                                         }, $lines);
 
                                                         // Combine the lines back with <br> for display
