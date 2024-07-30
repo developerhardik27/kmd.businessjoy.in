@@ -12,6 +12,7 @@ use App\Models\v1_1_0\reminder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -156,8 +157,7 @@ class techsupportController extends commonController
                     $ticketupdate = $techsupport->update([
                         'ticket' => $ticket
                     ]);
-                    if ($ticketupdate) {
-                        $techsupport = tech_support::find($techsupportid);
+                    if ($ticketupdate) { 
                         try {
                             Mail::to($techsupport->email)
                                 ->send(new Status($techsupport));
@@ -166,7 +166,7 @@ class techsupportController extends commonController
                             $isEmailSent = true;
                         } catch (\Exception $e) {
                             // An error occurred while sending the email
-                            $isEmailSent = false;
+                            Log::error('Failed to send email: ' . $e);
 
                             // Log the error or handle it accordingly
                         }
