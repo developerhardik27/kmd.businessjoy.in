@@ -78,7 +78,7 @@
                         <label for="password">Password</label>
                         <div class="password-container">
                             <input type="password" name="password" class="form-control" id="password" value=""
-                                placeholder="Enter Password" autocomplete="off"/>
+                                placeholder="Enter Password" autocomplete="new-password"/>
                             <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                         </div>
                         <span class="error-msg" id="error-password" style="color: red"></span>
