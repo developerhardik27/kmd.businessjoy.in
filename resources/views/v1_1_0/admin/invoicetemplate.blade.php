@@ -392,14 +392,15 @@
                                             </td>
                                         @else
                                             <td style="text-align:center;">
-                                                @if (strlen($val) > 40)
+                                                {{-- @if (strlen($val) > 40)
                                                     @php
-                                                        $val = wordwrap($val, 40, '<br>', true);
+                                                      $line =  nl2br(e($val)) ;
+                                                        $val = wordwrap($line, 40, '<br>', true);
                                                     @endphp
                                                     {!! $val !!}
-                                                @else
-                                                    {{ $val }}
-                                                @endif
+                                                @else --}}
+                                                {!! nl2br(e($val)) !!} 
+                                                {{-- @endif --}}
                                             </td>
                                         @endif
                                     @endforeach
@@ -509,7 +510,7 @@
             <div class="mt-1" style="font-size: 12px" id="footer">
                 <span class="float-left"><small>This is a computer-generated document. No signature is
                         required.</small></span>
-                <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
+                <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
             </div>
         </div>
     </main>

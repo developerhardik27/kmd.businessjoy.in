@@ -466,7 +466,7 @@
                     @endunless
                 </small>
             </span>
-            <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
+            <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
         </div>
     </footer>
 </div>
