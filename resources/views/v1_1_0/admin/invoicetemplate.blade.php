@@ -510,7 +510,7 @@
             <div class="mt-1" style="font-size: 12px" id="footer">
                 <span class="float-left"><small>This is a computer-generated document. No signature is
                         required.</small></span>
-                <span class="float-right"><small>{{ date('d-m-Y , h:i a') }}</small></span>
+                <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
             </div>
         </div>
     </main>
