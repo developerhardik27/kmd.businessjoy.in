@@ -11,7 +11,7 @@ declare -A branches=(
 
 # Determine the current branch
 current_branch=$(git rev-parse --abbrev-ref HEAD)
-
+echo "Current branch: $current_branch"
 # Check if the current branch exists in your defined branches
 if [[ -n "${branches[$current_branch]}" ]]; then
     deployment_directory="${branches[$current_branch]}"
