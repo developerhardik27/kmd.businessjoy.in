@@ -278,10 +278,7 @@
                             var search = {!! json_encode($search) !!}
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
-                            $('#data').DataTable({
-                                "order": [
-                                    [0, 'desc']
-                                ],
+                            $('#data').DataTable({ 
                                 "search": {
                                     "search": search
                                 },

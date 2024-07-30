@@ -106,7 +106,7 @@ class invoiceController extends commonController
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
             ->select('invoices.*',DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"), 'payment_details.part_payment', 'payment_details.pending_amount', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
             ->where('invoices.is_deleted', 0)
-            ->orderBy('invoices.id', 'desc');
+            ->orderBy('invoices.created_at', 'desc');
 
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
             $invoiceres->where('invoices.created_by', $this->userId);
