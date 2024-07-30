@@ -333,7 +333,7 @@ class techsupportController extends commonController
             } catch (\Exception $e) {
                 // An error occurred while sending the email
                 $isEmailSent = false;
-
+                Log::error('Failed to send email: ' . $e);
                 // Log the error or handle it accordingly
             }
 
