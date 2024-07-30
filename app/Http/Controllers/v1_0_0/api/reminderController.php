@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class remindercontroller extends commonController
+class reminderController extends commonController
 {
     public $userId, $companyId, $masterdbname, $rp, $reminderModel;
 

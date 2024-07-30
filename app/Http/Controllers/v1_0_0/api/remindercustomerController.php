@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class remindercustomercontroller extends commonController
+class reminderCustomerController extends commonController
 {
     public $userId, $companyId, $masterdbname, $rp, $customerModel;
 
