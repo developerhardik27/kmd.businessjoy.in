@@ -5,11 +5,10 @@
     $total;
     $roundof;
     $sign = '';
-    $withgst = false ;
+    $withgst = false;
 
-
-    if($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0){
-        $withgst = true ;
+    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
+        $withgst = true;
     }
 
     if ($invdata['gst'] != 0) {
@@ -31,7 +30,6 @@
             $sign = '-';
         }
     }
-
 
 @endphp
 <!DOCTYPE html>
@@ -159,10 +157,11 @@
             font-family: DejaVu Sans;
             sans-serif;
         }
-        #footer{
+
+        #footer {
             position: fixed;
-            bottom:0px;
-            width:100%;
+            bottom: 0px;
+            width: 100%;
         }
     </style>
 </head>
@@ -211,12 +210,14 @@
                                     {{ $companydetails['contact_no'] }}
                                 </td>
                             </tr>
-                            @if ($withgst)  
-                                    <tr>
-                                        <td style="padding-left:10px">
-                                            <b>GSTIN No:  @isset($companydetails['gst_no']) {{ $companydetails['gst_no'] }} @endisset </b>
-                                        </td>
-                                    </tr> 
+                            @if ($withgst)
+                                <tr>
+                                    <td style="padding-left:10px">
+                                        <b>GSTIN No: @isset($companydetails['gst_no'])
+                                                {{ $companydetails['gst_no'] }}
+                                            @endisset </b>
+                                    </td>
+                                </tr>
                             @endif
 
                         </table>
@@ -226,7 +227,7 @@
                                     Bill to
                                 </th>
                             </tr>
-                            @if(isset($invdata['firstname']) || isset($invdata['lastname']))
+                            @if (isset($invdata['firstname']) || isset($invdata['lastname']))
                                 <tr class="font-weight-bold">
                                     <td class="textblue" style="padding-left:10px">
                                         @isset($invdata['firstname'])
@@ -282,12 +283,15 @@
                                     {{ $invdata['contact_no'] }}
                                 </td>
                             </tr>
-                            @if ($withgst) 
+                            @if ($withgst)
                                 <tr>
                                     <td style="padding-left:10px">
-                                        <b>GSTIN No: @isset($invdata['gst_no']) {{ $invdata['gst_no'] }} @endisset</b>
+                                        <b>GSTIN No: @isset($invdata['gst_no'])
+                                                {{ $invdata['gst_no'] }}
+                                            @endisset
+                                        </b>
                                     </td>
-                                </tr> 
+                                </tr>
                             @endif
                         </table>
                     </td>
@@ -394,9 +398,21 @@
                                             <td style="text-align:center;">
                                                 @if (strlen($val) > 40)
                                                     @php
-                                                        $val = wordwrap($val, 40, '<br>', true);
+                                                        // Preserve manually entered line breaks
+                                                        $processedVal = nl2br(e($val));
+
+                                                        // Split the text into lines at user-entered line breaks
+                                                        $lines = explode('<br>', $processedVal);
+
+                                                        // Process each line to ensure it wraps after 40 characters
+                                                        $wrappedLines = array_map(function ($line) {
+                                                            return wordwrap($line, 40, '<br>', true);
+                                                        }, $lines);
+
+                                                        // Combine the lines back with <br> for display
+                                                        $finalVal = implode('<br>', $wrappedLines);
                                                     @endphp
-                                                    {!! $val !!}
+                                                    {!! $finalVal !!}
                                                 @else
                                                     {{ $val }}
                                                 @endif
