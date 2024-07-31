@@ -319,7 +319,7 @@
                                 @endforeach
                             </tr>
                         @endforeach
-                        <tr>
+                        <tr class="removepadding">
                             <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                 class="left removetdborder  ">
                                 Subtotal
@@ -331,7 +331,7 @@
                         </tr>
                         @if ($othersettings['gst'] == 0)
                             @if ($invdata['sgst'] >= 1)
-                                <tr class=" ">
+                                <tr class="removepadding">
                                     <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                         class="left removetdborder removepadding">
                                         SGST({{ $othersettings['sgst'] }}%)
@@ -343,7 +343,7 @@
                                 </tr>
                             @endif
                             @if ($invdata['cgst'] >= 1)
-                                <tr class=" ">
+                                <tr class="removepadding">
                                     <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                         class="left removetdborder removepadding">
                                         CGST({{ $othersettings['cgst'] }}%)
@@ -356,7 +356,7 @@
                             @endif
                         @else
                             @if ($invdata['gst'] >= 1)
-                                <tr class=" ">
+                                <tr class="removepadding">
                                     <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                         class="left removetdborder removepadding">
                                         GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
@@ -367,7 +367,7 @@
                                 </tr>
                             @endif
                         @endif 
-                        <tr class="" style="font-size:15px;text-align: right">
+                        <tr class="removepadding" style="font-size:15px;text-align: right">
                             <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder removepadding">
                                 Round of
                             </td>
