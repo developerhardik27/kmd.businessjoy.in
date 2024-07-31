@@ -361,7 +361,7 @@
                         </table>
                     </td>
                 </tr>
-                <tr>
+                <tr style="overflow: hidden">
                     <td colspan="3" id="data" style="padding:0;">
                         <table cellspacing=0 cellpadding=0 class=" horizontal-border" width="100">
                             <tr class="bgblue">

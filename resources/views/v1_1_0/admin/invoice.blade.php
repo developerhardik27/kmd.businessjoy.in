@@ -279,6 +279,7 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                             $('#data').DataTable({ 
+                                'order' : [],
                                 "search": {
                                     "search": search
                                 },
