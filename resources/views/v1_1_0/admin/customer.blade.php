@@ -308,12 +308,12 @@
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
+                $('#viewmodaltitle').html('<b>Customer Details</b>');
                 $.each(global_response.customer, function(key, customer) {
-                    if (customer.id == data) { 
-                            console.log(customer);
+                    if (customer.id == data) {  
                             $('#details').append(`
                                 <tr>
-                                    <th>Customer Company Name</th>       
+                                    <th>Company Name</th>       
                                     <td>${(customer.company_name != null) ?customer.company_name : '-'}</td>
                                 </tr>
                                 <tr>

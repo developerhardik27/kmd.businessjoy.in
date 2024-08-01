@@ -52,7 +52,7 @@
     <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalScrollableTitle"><b>Details</b></h5>
+                <h5 class="modal-title" id="exampleModalScrollableTitle"><span id="viewmodaltitle"><b>Details</b></span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
