@@ -236,8 +236,9 @@
                                             style="color: red"></span>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="gst_number">GST Number</label><span class="withgstspan" style="color:red;">*</span>
-                                        <input type="text" class="form-control withgstinput" name='gst_number' id="gst_number"
+                                        <label for="gst_number">GST Number</label>
+                                        {{-- <span class="withgstspan" style="color:red;">*</span> --}}
+                                        <input type="text" class="form-control" name='gst_number' id="gst_number"
                                             placeholder="GST Number">
                                         <span class="modal-error-msg" id="modal-error-gst_number"
                                             style="color: red"></span>
@@ -346,7 +347,8 @@
 
 
             $('.withgstspan').hide();
-            $('#gst_number').on('change keyup', function() {
+
+            $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
                     $('.withgstspan').show();
@@ -360,7 +362,6 @@
                     $('.withgstinput').removeAttr('required');
                 }
             });
-
 
             let allColumnData = [];
             let allColumnNames = [];
