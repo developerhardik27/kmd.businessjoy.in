@@ -47,7 +47,7 @@ class invoiceController extends commonController
     {
         $invoices = DB::connection('dynamic_connection')->table('invoices')
             ->select(DB::raw("MONTH(created_at) as month, COUNT(*) as total_invoices, SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_invoices"))
-            ->groupBy(DB::raw("MONTH(created_at)"))->where('created_by', $this->userId)
+            ->groupBy(DB::raw("MONTH(created_at)"))->where('created_by', $this->userId)->where('is_deleted',0)
             ->get();
 
         return $invoices;
