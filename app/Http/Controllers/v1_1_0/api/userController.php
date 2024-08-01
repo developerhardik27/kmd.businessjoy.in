@@ -476,6 +476,8 @@ class userController extends commonController
                     ]
                 ];
                 $rpjson = json_encode($rp);
+            }else{
+                $rpjson = json_encode($this->rp);
             }
 
             $passwordtoken = str::random(40);
@@ -492,7 +494,7 @@ class userController extends commonController
                     $userdata['img'] = $imageName;
                 }
 
-            }
+        }
 
             $user = array_merge($userdata, [
                 'firstname' => $request->firstname,
@@ -512,16 +514,12 @@ class userController extends commonController
 
             $users = User::insertgetId($user);
 
-            if ($users) {
-
-                if ($this->rp['adminmodule']['userpermission']['add'] == 1) {
+            if ($users) { 
                     $userrp = $this->user_permissionModel::create([
                         'user_id' => $users,
                         'rp' => $rpjson,
                         'created_by' => $this->userId
-                    ]);
-                }
-
+                    ]); 
                 $name = $request->firstname . ' ' . $request->lastname;
                 Mail::to($request->email)->bcc('parthdeveloper9@gmail.com')->send(new sendmail($passwordtoken, $name, $request->email));
                 return $this->successresponse(200, 'message', 'user succesfully created');
@@ -538,24 +536,37 @@ class userController extends commonController
     {
 
         $user = User::find($id);
-        $dbname = company::find($user->company_id);
 
-        $users = DB::table('users')
-            ->join($dbname->dbname . '.user_permissions', 'users.id', '=', $dbname->dbname . '.user_permissions.user_id')
-            ->select('users.*', 'user_permissions.rp')
-            ->where('users.id', $id)->get();
+        if(!$user){
+            return $this->successresponse(500, 'message', "No Such user Found!");
+        }
 
+        
 
-        if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($users[0]->company_id != $this->companyId)) {
-            if ($users[0]->created_by != $this->userId && $users[0]->id != $this->userId && $this->userId != 1) {
+        if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($user->company_id != $this->companyId)) {
+            if ($user->created_by != $this->userId && $user->id != $this->userId && $this->userId != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
+        
+        $userdata['user'] = $user ; 
 
-        if ($users) {
-            return $this->successresponse(200, 'user', $users);
+        $dbname = company::find($user->company_id);
+
+        $userpermission = DB::table($dbname->dbname .'.user_permissions')->select('user_permissions.rp')
+            ->where('user_id', $id)->get();
+           
+  
+        if($userpermission->isNotEmpty()){
+            $userdata['userpermission'] = $userpermission[0]->rp; 
+        } 
+
+       
+
+        if ($user) {
+            return $this->successresponse(200, 'user', $userdata);
         } else {
-            return $this->successresponse(404, 'message', "No Such user Found!");
+            return $this->successresponse(500, 'message', "No Such user Found!");
         }
     }
 
