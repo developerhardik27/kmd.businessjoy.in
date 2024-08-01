@@ -1738,38 +1738,41 @@
                     user_id: "{{ session()->get('user_id') }}"
                 },
                 success: function(response) {
-
+                   
                     if (response.status == 200 && response.user != '') {
-                        var user = response.user[0];
-                        var rp = JSON.parse(user.rp); // user role and permissions
-                        if (rp.reportmodule) {
-                            var assignedreportuser = rp.reportmodule.report.alldata;
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
-                            if (assignedreportuser != 'null' && assignedreportuser != null) {
-                                assignedreportuser.forEach(function(value) {
-                                    $('#assignedto').multiselect('select', value);
-                                });
-                                $('#assignedto').multiselect('rebuild');
+                        var user = response.user['user'];
+                         
+                        if(response.user['userpermission']){  
+                            var rp = JSON.parse(response.user['userpermission']); // user role and permissions
+                            if (rp.reportmodule) {
+                                var assignedreportuser = rp.reportmodule.report.alldata;
+                                $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                                if (assignedreportuser != 'null' && assignedreportuser != null) {
+                                    assignedreportuser.forEach(function(value) {
+                                        $('#assignedto').multiselect('select', value);
+                                    });
+                                    $('#assignedto').multiselect('rebuild');
+                                }
                             }
-                        }
-                        $.each(rp, function(key, value) {
-                            $.each(value, function(key2, value2) {
-                                $.each(value2, function(key3, value3) {
-                                    if (value3 == 1) {
-                                        if (key3 == "show") {
-                                            $(`#show${key2}menu`).attr(
-                                                'checked', true)
-                                        } else {
-                                            $(`#${key3}${key2}`).attr('checked',
-                                                true)
+                            $.each(rp, function(key, value) {
+                                $.each(value, function(key2, value2) {
+                                    $.each(value2, function(key3, value3) {
+                                        if (value3 == 1) {
+                                            if (key3 == "show") {
+                                                $(`#show${key2}menu`).attr(
+                                                    'checked', true)
+                                            } else {
+                                                $(`#${key3}${key2}`).attr('checked',
+                                                    true)
+                                            }
                                         }
-                                    }
-                                    // console.log(
-                                    //     `${key} => ${key2} => ${key3} : ${value3}`
-                                    // );
+                                        // console.log(
+                                        //     `${key} => ${key2} => ${key3} : ${value3}`
+                                        // );
+                                    });
                                 });
                             });
-                        });
+                        }
                         // You can update your HTML with the data here if needed
                         $('#firstname').val(user.firstname);
                         $('#lastname').val(user.lastname);

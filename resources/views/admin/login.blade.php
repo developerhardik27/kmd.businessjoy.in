@@ -17,7 +17,7 @@
   
 
     @if (Auth::guard('admin')->user())
-        return redirect()->route('admin.menu');
+        return redirect()->route('admin.welcome');
     @endif
 
     <div class="container" id="container">

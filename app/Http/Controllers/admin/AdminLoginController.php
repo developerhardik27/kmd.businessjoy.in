@@ -61,6 +61,8 @@ class AdminLoginController extends Controller
                             // Store the decoded data in the session
                             session(['user_permissions' => $rp]);
 
+                            $menus = [];
+
                             function hasPermission($json, $module)
                             {
                                 if (isset($json[$module]) && !empty($module)) {
@@ -77,9 +79,9 @@ class AdminLoginController extends Controller
                             }
 
 
-                            $menus = [];
 
-                            
+
+
 
                             if (hasPermission($rp, "invoicemodule")) {
                                 session(['invoice' => "yes"]);
@@ -90,7 +92,7 @@ class AdminLoginController extends Controller
 
                             if (hasPermission($rp, "leadmodule")) {
                                 session(['lead' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory','reminder','blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
                                     session(['menu' => 'lead']);
                                 }
                                 // $menus[] = 'lead';
@@ -98,35 +100,35 @@ class AdminLoginController extends Controller
 
                             if (hasPermission($rp, "customersupportmodule")) {
                                 session(['customersupport' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory','reminder','blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
                                     session(['menu' => 'customersupport']);
                                 }
                                 // $menus[] = 'customersupport';
                             }
                             if (hasPermission($rp, "adminmodule")) {
                                 session(['admin' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'lead', 'account', 'inventory','reminder','blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'lead', 'account', 'inventory', 'reminder', 'blog'])))) {
                                     session(['menu' => 'admin']);
                                 }
                                 // $menus[] = 'admin';
                             }
                             if (hasPermission($rp, "accountmodule")) {
                                 session(['account' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory','reminder','blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
                                     session(['menu' => 'account']);
                                 }
                                 // $menus[] = 'account';
                             }
                             if (hasPermission($rp, "inventorymodule")) {
                                 session(['inventory' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead','reminder','blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'reminder', 'blog'])))) {
                                     session(['menu' => 'inventory']);
                                 }
                                 // $menus[] = 'inventory';
                             }
                             if (hasPermission($rp, "remindermodule")) {
                                 session(['reminder' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory','blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'blog'])))) {
                                     session(['menu' => 'reminder']);
                                 }
                                 $menus[] = 'reminder';
@@ -134,21 +136,26 @@ class AdminLoginController extends Controller
                             if (hasPermission($rp, "reportmodule")) {
                                 session(['invoice' => "yes"]);
                                 session(['menu' => 'invoice']);
-                                session(['report' => "yes"]); 
+                                session(['report' => "yes"]);
                                 // if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory'])))) {
-                                    // session(['menu' => 'invoice']);
+                                // session(['menu' => 'invoice']);
                                 // }
                                 // $menus[] = 'report';
                             }
                             if (hasPermission($rp, "blogmodule")) {
                                 session(['blog' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory','reminder'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'reminder'])))) {
                                     session(['menu' => 'blog']);
                                 }
-                               // $menus[] = 'blog';
-                            }
-              
+                                // $menus[] = 'blog';
+                            } 
+                                $request->session()->put([
+                                    'allmenu' => $menus
+                                ]); 
+
                         }
+
+
 
                         $request->session()->put([
                             'admin_role' => $admin->role,
@@ -157,17 +164,31 @@ class AdminLoginController extends Controller
                             'name' => $admin->firstname . ' ' . $admin->lastname,
                             'api_token' => $api_token,
                             'folder_name' => $dbname->app_version,
-                            'allmenu' =>  $menus 
                         ]);
+
+
                         if (session_status() !== PHP_SESSION_ACTIVE)
                             session_start();
                         $_SESSION['folder_name'] = session('folder_name');
 
-                        if(isset($admin->default_module) && isset($admin->default_page)){
+                        if (isset($admin->default_module) && isset($admin->default_page)) {
                             session(['menu' => $admin->default_module]);
-                            return redirect()->route('admin.'.$admin->default_page);
+                            return redirect()->route('admin.' . $admin->default_page);
                         }
-                        return redirect()->route('admin.index');
+                        if (Session::get('menu') == null) {
+                            DB::table('users')
+                                ->where('id', session('user_id'))
+                                ->update(['api_token' => null]);
+
+                            $request->session()->flush();
+
+                            if (session_status() !== PHP_SESSION_ACTIVE)
+                                session_start();
+                                session_destroy();
+                            Auth::guard('admin')->logout();
+                            return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
+                        }  
+                        return redirect()->route('admin.welcome');
                     } else {
                         Auth::guard('admin')->logout();
                         return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel')->withInput($request->only('email'));
@@ -264,7 +285,7 @@ class AdminLoginController extends Controller
                 $user->pass_token = Str::random(40);
                 $user->save();
 
-                
+
                 session()->flash('email', $user->email);
 
                 return redirect()->route('admin.login')->with('success', 'Password Successfully Established');
