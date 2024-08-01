@@ -47,8 +47,8 @@
                 </div>
                 <div class="col-sm-6">
                     <label for="gst_number">GST Number</label>
-                    <span class="withgstspan" style="color:red;">*</span>
-                    <input type="text" id="gst_number" class="form-control withgstinput" name='gst_number' id=""
+                    {{-- <span class="withgstspan" style="color:red;">*</span> --}}
+                    <input type="text" id="gst_number" class="form-control" name='gst_number' id=""
                         placeholder="GST Number">
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
@@ -157,7 +157,7 @@
             // get selected customer data and show it into fields
 
             
-            $('#gst_number').on('change keyup', function() {
+            $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
                     $('.withgstspan').show();
@@ -210,7 +210,7 @@
                     if (response.status == 200) {
                         data = response.customer;
 
-                        if (data.gst_no) {
+                        if (data.company_name) {
                             $('.withgstspan').show();
                             $('.withoutgstspan').hide();
                             $('.withgstinput').attr('required', true);

@@ -96,12 +96,12 @@ class customerController extends commonController
     public function store(Request $request)
     {
 
-        if ($request->gst_number) {
+        if ($request->company_name) {
             $validator = Validator::make($request->all(), [
                 'firstname' => 'nullable|string|max:50',
                 'lastname' => 'nullable|string|max:50',
                 'company_name' => 'required|string|max:50',
-                'gst_number' => 'required|alpha_num|max:50',
+                'gst_number' => 'nullable|alpha_num|max:50',
                 'email' => 'nullable|email|max:50',
                 'pincode' => 'nullable|numeric',
                 'contact_number' => 'nullable|numeric|digits:10',
@@ -226,7 +226,7 @@ class customerController extends commonController
     public function update(Request $request, string $id)
     {
 
-        if ($request->gst_number) {
+        if ($request->company_name) {
             $validator = Validator::make($request->all(), [
                 'firstname' => 'nullable|string|max:50',
                 'lastname' => 'nullable|string|max:50',
@@ -239,7 +239,7 @@ class customerController extends commonController
                 'state' => 'nullable|numeric',
                 'city' => 'nullable|numeric',
                 'pincode' => 'nullable|numeric',
-                'gst_number' => 'required|alpha_num|max:50',
+                'gst_number' => 'nullable|alpha_num|max:50',
                 'created_by',
                 'user_id' => 'required|numeric',
                 'created_at',
