@@ -78,7 +78,7 @@
                         <label for="password">Password</label>
                         <div class="password-container">
                             <input type="password" name="password" class="form-control" id="password" value=""
-                                placeholder="Enter Password" autocomplete="new-password"/>
+                                placeholder="Enter Password" autocomplete="new-password" />
                             <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                         </div>
                         <span class="error-msg" id="error-password" style="color: red"></span>
@@ -140,7 +140,7 @@
             <div class="form-group">
                 <div class="form-row">
                     <div class="col-sm-12">
-                        <button type="button"  data-toggle="tooltip" data-placement="bottom"
+                        <button type="button" data-toggle="tooltip" data-placement="bottom"
                             data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
                             <i class='ri-close-line'></i>
                         </button>
@@ -155,8 +155,9 @@
                     </div>
                 </div>
             </div>
-            @if (session('user_permissions.adminmodule.userpermission.add') == '1')
-                <div class="row">
+            @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
+                    session('user_permissions.adminmodule.userpermission.add') == '1')
+                <div class="row permission-row">
                     <div class="col-sm-12">
                         @if (Session::has('admin') && Session::get('admin') == 'yes')
                             <div class="iq-card">
@@ -414,10 +415,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="adminmodulereset" data-module="admin"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Admin Module"
@@ -799,10 +801,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="invoicemodulereset" data-module="invoice"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Invoice Module"
@@ -906,10 +909,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="leadmodulereset" data-module="lead"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Lead Module"
@@ -1019,10 +1023,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="customersupportmodulereset"
                                                     data-module="customersupport" data-toggle="tooltip"
                                                     data-placement="bottom"
@@ -1126,10 +1131,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="accountmodulereset" data-module="account"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Account Module"
@@ -1231,10 +1237,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="inventorymodulereset" data-module="inventory"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Inventory Module"
@@ -1396,10 +1403,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="remindermodulereset" data-module="reminder"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Reminder Module"
@@ -1509,10 +1517,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="reportmodulereset" data-module="report"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset report Module"
@@ -1614,10 +1623,11 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
-                                                <button type="button"  data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            <i class='ri-close-line'></i>
-                        </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
+                                                    <i class='ri-close-line'></i>
+                                                </button>
                                                 <button type="button" id="blogmodulereset" data-module="blog"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset blog Module"
@@ -1667,7 +1677,11 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            var userrp = "{{ session('user_permissions.adminmodule.userpermission.add') }}";
 
+            if (userrp != 1) {
+                $('.permission-row input[type="checkbox"]').attr('disabled', true);
+            }
 
             function getUserData() {
                 return new Promise((resolve, reject) => {
@@ -1711,6 +1725,9 @@
                         });
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
+                        if (userrp != 1) {
+                            $('.permission-row input[type="checkbox"]').attr('disabled', true);
+                        }
                     } else if (userDataResponse.status == 500) {
                         toastr.error(userDataResponse.message);
                     } else {
@@ -1730,12 +1747,12 @@
             }
 
             initialize();
+
             $('#assignedto').multiselect({
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
-
 
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {
@@ -1866,66 +1883,72 @@
             });
 
             $(document).on('click', '.allcheck', function() {
-                var module = $(this).data('module');
-                if (!$(`#${module}allcheck`).prop('checked')) {
-                    $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', false);
-                    if (module == 'report') {
-                        $('#assignedto option').prop('selected', false);
-                        if ($("#assignedto option:disabled").length == 0) {
-                            $("#assignedto").prepend(
-                                '<option value="" disabled selected>-- Select User --</option>');
+                if (userrp == 1) {
+                    var module = $(this).data('module');
+                    if (!$(`#${module}allcheck`).prop('checked')) {
+                        $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', false);
+                        if (module == 'report') {
+                            $('#assignedto option').prop('selected', false);
+                            if ($("#assignedto option:disabled").length == 0) {
+                                $("#assignedto").prepend(
+                                    '<option value="" disabled selected>-- Select User --</option>');
+                            }
+                            $('#assignedto option:first').prop('selected', true);
                         }
-                        $('#assignedto option:first').prop('selected', true);
-                    }
-                } else {
-                    $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', $(this).prop(
-                        'checked'));
-                    if (module == 'report') {
-                        $('#reportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
+                    } else {
+                        $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', $(this).prop(
                             'checked'));
-                        $('#assignedto').find('option:disabled').remove(); // remove disabled option
-                        $('#assignedto option').prop('selected', true);
+                        if (module == 'report') {
+                            $('#reportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
+                                'checked'));
+                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                            $('#assignedto option').prop('selected', true);
+                        }
                     }
-                }
 
-                if (module == 'report') {
-                    $('#assignedto').multiselect('refresh');
-                    $('#assignedto').multiselect('rebuild');
+                    if (module == 'report') {
+                        $('#assignedto').multiselect('refresh');
+                        $('#assignedto').multiselect('rebuild');
+                    }
                 }
             })
 
 
             // check all checkboxes in the row if click on any menu
             $(document).on('change', '.clickmenu', function() {
-                value = $(this).data('value');
-                if (!$(this).prop('checked')) {
-                    $(`#${value} input[type="checkbox"]`).prop('checked', false);
-                    if (value == 'report') {
-                        $('#assignedto option').prop('selected', false);
-                        if ($("#assignedto option:disabled").length == 0) {
-                            $("#assignedto").prepend(
-                                '<option value="" disabled selected>-- Select User --</option>');
+                if (userrp == 1) {
+                    value = $(this).data('value');
+                    if (!$(this).prop('checked')) {
+                        $(`#${value} input[type="checkbox"]`).prop('checked', false);
+                        if (value == 'report') {
+                            $('#assignedto option').prop('selected', false);
+                            if ($("#assignedto option:disabled").length == 0) {
+                                $("#assignedto").prepend(
+                                    '<option value="" disabled selected>-- Select User --</option>');
+                            }
+                            $('#assignedto option:first').prop('selected', true);
+                            $('#assignedto').multiselect('refresh');
+                            $('#assignedto').multiselect('rebuild');
                         }
-                        $('#assignedto option:first').prop('selected', true);
-                        $('#assignedto').multiselect('refresh');
-                        $('#assignedto').multiselect('rebuild');
-                    }
-                } else {
-                    $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
-                    if (value == 'report') {
-                        $('#assignedto').find('option:disabled').remove(); // remove disabled option
-                        $('#assignedto option').prop('selected', true);
-                        $('#assignedto').multiselect('refresh');
-                        $('#assignedto').multiselect('rebuild');
+                    } else {
+                        $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
+                        if (value == 'report') {
+                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                            $('#assignedto option').prop('selected', true);
+                            $('#assignedto').multiselect('refresh');
+                            $('#assignedto').multiselect('rebuild');
+                        }
                     }
                 }
             })
 
             // check menu if check any submenu(edit,delete,add...)
             $(document).on('change', '.clicksubmenu', function() {
-                value = $(this).data('value');
-                if (!$(`#${value}`).prop('checked')) {
-                    $(`#${value}`).prop('checked', true);
+                if (userrp == 1) {
+                    value = $(this).data('value');
+                    if (!$(`#${value}`).prop('checked')) {
+                        $(`#${value}`).prop('checked', true);
+                    }
                 }
             })
 
@@ -1933,26 +1956,29 @@
             //for checkboxes reset
 
             $(document).on('click', '.resetbtn', function() {
-                var module = $(this).data('module');
-                $(`#${module}checkboxes input[type="checkbox"] , #${module}allcheck`).prop(
-                    'checked', false);
+                if (userrp == 1) {
+                    var module = $(this).data('module');
+                    $(`#${module}checkboxes input[type="checkbox"] , #${module}allcheck`).prop(
+                        'checked', false);
 
-                if (module == 'report') {
-                    $('#assignedto option').prop('selected', false);
-                    console.log($("#assignedto option:disabled").length);
-                    if ($("#assignedto option:disabled").length == 0) {
-                        $("#assignedto").prepend(
-                            '<option value="" disabled selected>-- Select User --</option>');
+                    if (module == 'report') {
+                        $('#assignedto option').prop('selected', false);
+                        console.log($("#assignedto option:disabled").length);
+                        if ($("#assignedto option:disabled").length == 0) {
+                            $("#assignedto").prepend(
+                                '<option value="" disabled selected>-- Select User --</option>');
+                        }
+                        $('#assignedto option:first').prop('selected', true);
+                        $('#assignedto').multiselect('refresh');
+                        $('#assignedto').multiselect('rebuild');
                     }
-                    $('#assignedto option:first').prop('selected', true);
-                    $('#assignedto').multiselect('refresh');
-                    $('#assignedto').multiselect('rebuild');
                 }
+
             })
 
-            $(document).on('click','.cancelbtn',function(){
+            $(document).on('click', '.cancelbtn', function() {
                 loadershow();
-                window.location.href = "{{route('admin.user')}}"
+                window.location.href = "{{ route('admin.user') }}"
             });
 
             //submit form
