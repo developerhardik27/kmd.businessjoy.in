@@ -210,6 +210,11 @@
                             @endisset
                         </span>
                     @endif
+                    @if (isset($invdata['company_name']))
+                        <span class="default" style="display:block;"> 
+                                {{ $invdata['company_name'] }}  
+                        </span>
+                    @endif
                     @isset($invdata['house_no_building_name'])
                         <span class="default" style="display:block;">{!! nl2br(e(wordwrap($invdata['house_no_building_name'], 40, "\n", true))) !!}</span>
                     @endisset
