@@ -141,18 +141,21 @@
             line-height: 35px;
             color: grey;
         }
-        #pdtable tr , #pdtable td{
+
+        #pdtable tr,
+        #pdtable td {
             margin: 0;
             padding: 0px 2px;
         }
-        .removepadding{
+
+        .removepadding {
             padding: 0px 3px;
         }
     </style>
 </head>
 
 <body>
-    <header> 
+    <header>
         <div style="float: right">
             Receipt | {{ $companydetails['name'] }}
         </div>
@@ -189,7 +192,7 @@
                                 {{ $companydetails['gst_no'] }}
                             @endisset
                         </span>
-                    @endisset
+                    @endif
                 </td>
             </tr>
             <tr>
@@ -211,8 +214,8 @@
                         </span>
                     @endif
                     @if (isset($invdata['company_name']))
-                        <span class="default" style="display:block;"> 
-                                {{ $invdata['company_name'] }}  
+                        <span class="default" style="display:block;">
+                            {{ $invdata['company_name'] }}
                         </span>
                     @endif
                     @isset($invdata['house_no_building_name'])
@@ -272,7 +275,9 @@
                             <tr>
                                 <td><b>GST #</b></td>
                                 <td style="text-align: right">
-                                    @isset($invdata['gst_no']) {{ $invdata['gst_no'] }} @endisset
+                                    @isset($invdata['gst_no'])
+                                        {{ $invdata['gst_no'] }}
+                                    @endisset
                                 </td>
                             </tr>
                         @endif
@@ -357,8 +362,8 @@
                                         class="left removetdborder removepadding">
                                         Subtotal
                                     </td>
-                                    <td style="text-align: right" class="right removetdborder currencysymbol removepadding"
-                                        id="subtotal">
+                                    <td style="text-align: right"
+                                        class="right removetdborder currencysymbol removepadding" id="subtotal">
                                         {{-- {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['total']) }} --}}
                                         {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                                     </td>
@@ -370,7 +375,8 @@
                                                 style="text-align: right" class="left removetdborder removepadding">
                                                 SGST({{ $othersettings['sgst'] }}%)
                                             </td>
-                                            <td style="text-align: right ;" class="currencysymbol removetdborder removepadding" id="sgst">
+                                            <td style="text-align: right ;"
+                                                class="currencysymbol removetdborder removepadding" id="sgst">
                                                 {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['sgst']) }} --}}
                                                 {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
                                             </td>
@@ -382,7 +388,8 @@
                                                 style="text-align: right" class="left removetdborder removepadding">
                                                 CGST({{ $othersettings['cgst'] }}%)
                                             </td>
-                                            <td style="text-align: right" class="removetdborder currencysymbol removepadding" id="cgst">
+                                            <td style="text-align: right"
+                                                class="removetdborder currencysymbol removepadding" id="cgst">
                                                 {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['cgst']) }} --}}
                                                 {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
                                             </td>
@@ -395,12 +402,13 @@
                                                 style="text-align: right" class="left removetdborder removepadding">
                                                 GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                             </td>
-                                            <td style="text-align: right" class="removetdborder currencysymbol removepadding" id="gst">
+                                            <td style="text-align: right"
+                                                class="removetdborder currencysymbol removepadding" id="gst">
                                                 {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
                                             </td>
                                         </tr>
                                     @endif
-                                @endif 
+                                @endif
                                 <tr class="" style="font-size:15px;text-align: right">
                                     <td colspan="@php echo (count($products[0])); @endphp"
                                         class="left removetdborder removepadding">
@@ -472,18 +480,18 @@
             </tr>
         </table>
     </div>
-<footer>
-    <div class="mt-1" style="font-size: 12px" id="footer">
-        <span class="float-left">
-            <small>This is a computer-generated document.
-                @unless ($companydetails['pr_sign_img'])
-                    No signature is required.
-                @endunless
-            </small>
-        </span>
-        <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
-    </div>
-</footer>
+    <footer>
+        <div class="mt-1" style="font-size: 12px" id="footer">
+            <span class="float-left">
+                <small>This is a computer-generated document.
+                    @unless ($companydetails['pr_sign_img'])
+                        No signature is required.
+                    @endunless
+                </small>
+            </span>
+            <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
+        </div>
+    </footer>
 </body>
 
 </html>

@@ -72,7 +72,8 @@
                     <label for="password">Password</label>
                     <div class="password-container">
                         <input type="password" id="password" name='password' class="form-control"
-                            id="exampleInputPassword3" value="" placeholder="update Password (not mandatory)" autocomplete="new-password">
+                            id="exampleInputPassword3" value="" placeholder="update Password (not mandatory)"
+                            autocomplete="new-password">
                         <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                     </div>
                     <span class="error-msg" id="error-password" style="color: red"></span>
@@ -142,8 +143,9 @@
                 </div>
             </div>
         </div>
-        @if (session('user_permissions.adminmodule.userpermission.add') == '1')
-            <div class="row">
+        @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
+                session('user_permissions.adminmodule.userpermission.edit') == '1')
+            <div class="row permission-row">
                 <div class="col-sm-12">
                     @if (Session::has('admin') && Session::get('admin') == 'yes')
                         <div class="iq-card">
@@ -1649,6 +1651,9 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            var userrp = "{{ session('user_permissions.adminmodule.userpermission.edit') }}";
+
+
             function getUserData() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -1690,6 +1695,7 @@
                         });
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
+
                     } else if (userDataResponse.status == 500) {
                         toastr.error(userDataResponse.message);
                     } else {
@@ -1740,36 +1746,46 @@
                 success: function(response) {
 
                     if (response.status == 200 && response.user != '') {
-                        var user = response.user[0];
-                        var rp = JSON.parse(user.rp); // user role and permissions
-                        if (rp.reportmodule) {
-                            var assignedreportuser = rp.reportmodule.report.alldata;
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
-                            if (assignedreportuser != 'null' && assignedreportuser != null) {
-                                assignedreportuser.forEach(function(value) {
-                                    $('#assignedto').multiselect('select', value);
-                                });
-                                $('#assignedto').multiselect('rebuild');
-                            }
-                        }
-                        $.each(rp, function(key, value) {
-                            $.each(value, function(key2, value2) {
-                                $.each(value2, function(key3, value3) {
-                                    if (value3 == 1) {
-                                        if (key3 == "show") {
-                                            $(`#show${key2}menu`).attr(
-                                                'checked', true)
-                                        } else {
-                                            $(`#${key3}${key2}`).attr('checked',
-                                                true)
-                                        }
+                        var user = response.user['user'];
+
+                        if (response.user['userpermission']) {
+                            rp = JSON.parse(response.user[
+                                'userpermission']); // user role and permissions
+                            if (rp.reportmodule) {
+                                var assignedreportuser = rp.reportmodule.report.alldata;
+                                $('#assignedto').find('option:disabled')
+                                    .remove(); // remove disabled option
+                                if (assignedreportuser != 'null' && assignedreportuser != null) {
+                                    assignedreportuser.forEach(function(value) {
+                                        $('#assignedto').multiselect('select', value);
+                                    });
+                                    $('#assignedto').multiselect('rebuild');
+                                    if (userrp != 1) {
+                                        $('#assignedto option').prop('disabled', true);
                                     }
-                                    // console.log(
-                                    //     `${key} => ${key2} => ${key3} : ${value3}`
-                                    // );
+                                }
+                            }
+                            $.each(rp, function(key, value) {
+                                $.each(value, function(key2, value2) {
+                                    $.each(value2, function(key3, value3) {
+                                        if (value3 == 1) {
+                                            if (key3 == "show") {
+                                                $(`#show${key2}menu`).attr(
+                                                    'checked', true)
+                                            } else {
+                                                $(`#${key3}${key2}`).attr(
+                                                    'checked',
+                                                    true)
+                                            }
+                                        }
+                                    });
                                 });
                             });
-                        });
+                        }
+                        if (userrp != 1) {
+                            $('.permission-row input[type="checkbox"]').attr('disabled', true);
+                        }
+
                         // You can update your HTML with the data here if needed
                         $('#firstname').val(user.firstname);
                         $('#lastname').val(user.lastname);
@@ -1999,66 +2015,72 @@
 
 
             $(document).on('click', '.allcheck', function() {
-                var module = $(this).data('module');
-                if (!$(`#${module}allcheck`).prop('checked')) {
-                    $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', false);
-                    if (module == 'report') {
-                        $('#assignedto option').prop('selected', false);
-                        if ($("#assignedto option:disabled").length == 0) {
-                            $("#assignedto").prepend(
-                                '<option value="" disabled selected>-- Select User --</option>');
+                if (userrp == 1) {
+                    var module = $(this).data('module');
+                    if (!$(`#${module}allcheck`).prop('checked')) {
+                        $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', false);
+                        if (module == 'report') {
+                            $('#assignedto option').prop('selected', false);
+                            if ($("#assignedto option:disabled").length == 0) {
+                                $("#assignedto").prepend(
+                                    '<option value="" disabled selected>-- Select User --</option>');
+                            }
+                            $('#assignedto option:first').prop('selected', true);
                         }
-                        $('#assignedto option:first').prop('selected', true);
-                    }
-                } else {
-                    $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', $(this).prop(
-                        'checked'));
-                    if (module == 'report') {
-                        $('#reportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
+                    } else {
+                        $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', $(this).prop(
                             'checked'));
-                        $('#assignedto').find('option:disabled').remove(); // remove disabled option
-                        $('#assignedto option').prop('selected', true);
+                        if (module == 'report') {
+                            $('#reportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
+                                'checked'));
+                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                            $('#assignedto option').prop('selected', true);
+                        }
                     }
-                }
 
-                if (module == 'report') {
-                    $('#assignedto').multiselect('refresh');
-                    $('#assignedto').multiselect('rebuild');
+                    if (module == 'report') {
+                        $('#assignedto').multiselect('refresh');
+                        $('#assignedto').multiselect('rebuild');
+                    }
                 }
             })
 
 
             // check all checkboxes in the row if click on any menu
             $(document).on('change', '.clickmenu', function() {
-                value = $(this).data('value');
-                if (!$(this).prop('checked')) {
-                    $(`#${value} input[type="checkbox"]`).prop('checked', false);
-                    if (value == 'report') {
-                        $('#assignedto option').prop('selected', false);
-                        if ($("#assignedto option:disabled").length == 0) {
-                            $("#assignedto").prepend(
-                                '<option value="" disabled selected>-- Select User --</option>');
+                if (userrp == 1) {
+                    value = $(this).data('value');
+                    if (!$(this).prop('checked')) {
+                        $(`#${value} input[type="checkbox"]`).prop('checked', false);
+                        if (value == 'report') {
+                            $('#assignedto option').prop('selected', false);
+                            if ($("#assignedto option:disabled").length == 0) {
+                                $("#assignedto").prepend(
+                                    '<option value="" disabled selected>-- Select User --</option>');
+                            }
+                            $('#assignedto option:first').prop('selected', true);
+                            $('#assignedto').multiselect('refresh');
+                            $('#assignedto').multiselect('rebuild');
                         }
-                        $('#assignedto option:first').prop('selected', true);
-                        $('#assignedto').multiselect('refresh');
-                        $('#assignedto').multiselect('rebuild');
-                    }
-                } else {
-                    $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
-                    if (value == 'report') {
-                        $('#assignedto').find('option:disabled').remove(); // remove disabled option
-                        $('#assignedto option').prop('selected', true);
-                        $('#assignedto').multiselect('refresh');
-                        $('#assignedto').multiselect('rebuild');
+                    } else {
+                        $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
+                        if (value == 'report') {
+                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                            $('#assignedto option').prop('selected', true);
+                            $('#assignedto').multiselect('refresh');
+                            $('#assignedto').multiselect('rebuild');
+                        }
                     }
                 }
             })
 
             // check menu if check any submenu(edit,delete,add...)
             $(document).on('change', '.clicksubmenu', function() {
-                value = $(this).data('value');
-                if (!$(`#${value}`).prop('checked')) {
-                    $(`#${value}`).prop('checked', true);
+                if (userrp == 1) {
+                    value = $(this).data('value');
+                    if (!$(`#${value}`).prop('checked')) {
+                        $(`#${value}`).prop('checked', true);
+                    }
                 }
             })
 
@@ -2066,20 +2088,22 @@
             //for checkboxes reset
 
             $(document).on('click', '.resetbtn', function() {
-                var module = $(this).data('module');
-                $(`#${module}checkboxes input[type="checkbox"] , #${module}allcheck`).prop(
-                    'checked', false);
+                if (userrp == 1) {
+                    var module = $(this).data('module');
+                    $(`#${module}checkboxes input[type="checkbox"] , #${module}allcheck`).prop(
+                        'checked', false);
 
-                if (module == 'report') {
-                    $('#assignedto option').prop('selected', false);
-                    console.log($("#assignedto option:disabled").length);
-                    if ($("#assignedto option:disabled").length == 0) {
-                        $("#assignedto").prepend(
-                            '<option value="" disabled selected>-- Select User --</option>');
+                    if (module == 'report') {
+                        $('#assignedto option').prop('selected', false);
+                        console.log($("#assignedto option:disabled").length);
+                        if ($("#assignedto option:disabled").length == 0) {
+                            $("#assignedto").prepend(
+                                '<option value="" disabled selected>-- Select User --</option>');
+                        }
+                        $('#assignedto option:first').prop('selected', true);
+                        $('#assignedto').multiselect('refresh');
+                        $('#assignedto').multiselect('rebuild');
                     }
-                    $('#assignedto option:first').prop('selected', true);
-                    $('#assignedto').multiselect('refresh');
-                    $('#assignedto').multiselect('rebuild');
                 }
             })
 

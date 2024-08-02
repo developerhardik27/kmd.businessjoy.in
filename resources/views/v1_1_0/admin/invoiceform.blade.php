@@ -83,11 +83,17 @@
                     </select>
                     <span class="error-msg" id="error-bank_account" style="color: red"></span>
                 </div>
+                <div class="col-sm-4">
+                    <label for="invoice_date">Invoice Date</label>
+                    {{-- <span style="color:red;">*</span> --}}
+                    <input type="datetime-local" class="form-control" id="invoice_date" name="invoice_date">
+                    <span class="error-msg" id="error-invoice_date" style="color: red"></span>
+                </div>
             </div>
         </div>
         <div id="table" class="table-editable" style="overflow-x:auto">
             
-            <table id="data" class="table table-bordered  table-striped text-center">
+            <table id="data" class="table table-bordered  table-striped text-center producttable">
                 <thead>
                     <tr id="columnname" style="text-transform: uppercase">
 
@@ -469,6 +475,9 @@
                 },
                 success: function(response) {
                      allColumnData = response.columnname;
+                     if(allColumnData.length > 6){ 
+                         $('.producttable').css('width',allColumnData.length * 200 + 'px');
+                     }
                     if (response.status == 200 && response.columnname != '') {
                         // You can update your HTML with the data here if needed
                         $.each(response.columnname, function(key, value) {
@@ -931,6 +940,7 @@
                 var company_id = $('#company_id').val();
                 var payment_type = $('#payment').val();
                 var account = $('#acc_details').val();
+                var invoice_date = $('#invoice_date').val();
                 var currency = $('#currency').val();
                 var type = $('#type').val();
                 var customer = $('#customer').val();
@@ -948,6 +958,7 @@
                     company_id: company_id,
                     payment_mode: payment_type,
                     bank_account: account,
+                    invoice_date: invoice_date,
                     currency: currency,
                     customer: customer,
                     total_amount: total_amount,

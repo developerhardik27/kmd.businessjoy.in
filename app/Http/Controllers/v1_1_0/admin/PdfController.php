@@ -265,7 +265,7 @@ class PdfController extends Controller
          $startDate = $request->fromdate;
          $endDate = Carbon::parse($request->todate);
 
-         $invoices = $this->invoiceModel::whereBetween('created_at', [$startDate, $endDate->addDay()])
+         $invoices = $this->invoiceModel::whereBetween('inv_date', [$startDate, $endDate->addDay()])
             ->where([
                'is_deleted' => 0, 
             ])
@@ -284,7 +284,7 @@ class PdfController extends Controller
          foreach ($invoices as $invoice) {
             $data = $this->prepareDataForPDF($invoice);
             $pdf = PDF::loadView($this->version . '.admin.invoicetemplate', $data)->setPaper('a4', 'portrait');
-            $pdfFileName = $invoice->inv_no . '_' . $invoice->company_name . '_' . $invoice->created_at->format('d-M-y') . '.pdf';
+            $pdfFileName = $invoice->inv_no . '_' . $invoice->company_name . '_' . $invoice->inv_date->format('d-M-y') . '.pdf';
             $pdf->save($tempDir . '/' . $pdfFileName);
          }
 
