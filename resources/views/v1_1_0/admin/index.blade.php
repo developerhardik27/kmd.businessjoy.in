@@ -508,7 +508,7 @@
                         $.each(invoicepaiddata, function(key, value) {
                             $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
-                                            <td>${value.inv_date}</td>
+                                            <td>${value.inv_date_formatted}</td>
                                             <td class="text-right">${value.grand_total}</td>
                                             <td class="text-center">
                                                 <div class="badge badge-pill iq-bg-success">${value.status}</div>
@@ -530,7 +530,7 @@
                         $.each(invoicependingdata, function(key, value) {
                             $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
-                                            <td>${value.inv_date}</td>
+                                            <td>${value.inv_date_formatted}</td>
                                             <td class="text-right">${value.grand_total}</td>
                                             <td class="text-center">
                                                 <div class="badge badge-pill iq-bg-secondary">${value.status}</div>
@@ -552,7 +552,7 @@
                         $.each(invoicecanceldata, function(key, value) {
                             $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
-                                            <td>${value.inv_date}</td>                                        
+                                            <td>${value.inv_date_formatted}</td>                                        
                                             <td class="text-right">${value.grand_total}</td>
                                             <td class="text-center">
                                                 <div class="badge badge-pill iq-bg-warning">${value.status}</div>
@@ -573,7 +573,7 @@
                         $.each(invoiceduedata, function(key, value) {
                             $('#invoicedata').append(` <tr>
                                             <td>${value.inv_no}</td>
-                                            <td>${value.inv_date}</td>                                        
+                                            <td>${value.inv_date_formatted}</td>                                        
                                             <td class="text-right">${value.grand_total}</td>
                                             <td class="text-center">
                                                 <div class="badge badge-pill iq-bg-warning">${value.status}</div>

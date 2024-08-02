@@ -60,6 +60,7 @@ class invoiceController extends commonController
 
         $invoices = DB::connection('dynamic_connection')->table('invoices')->whereYear('inv_date', Carbon::now()->year)
             ->whereMonth('inv_date', Carbon::now()->month)->where('created_by', $this->userId)->where('is_deleted', 0)
+            ->select('invoices.*',DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"))
             ->get();
         $groupedInvoices = $invoices->groupBy('status');
         return $groupedInvoices;
