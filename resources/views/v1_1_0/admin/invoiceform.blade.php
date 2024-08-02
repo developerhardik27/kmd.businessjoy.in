@@ -93,7 +93,7 @@
         </div>
         <div id="table" class="table-editable" style="overflow-x:auto">
             
-            <table id="data" class="table table-bordered  table-striped text-center table-responsive producttable">
+            <table id="data" class="table table-bordered  table-striped text-center producttable">
                 <thead>
                     <tr id="columnname" style="text-transform: uppercase">
 
