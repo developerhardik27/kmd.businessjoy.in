@@ -138,21 +138,24 @@
             right: 0px;
             height: 50px;
             text-align: center;
-            line-height: 35px; 
+            line-height: 35px;
             color: grey;
         }
-        #pdtable tr , #pdtable td{
+
+        #pdtable tr,
+        #pdtable td {
             margin: 0;
             padding: 0px 2px;
         }
-        .removepadding{
+
+        .removepadding {
             padding: 0px 2px;
         }
     </style>
 </head>
 
 <body>
-    <header> 
+    <header>
         <div style="float: right">
             Receipt | {{ $companydetails['name'] }}
         </div>
@@ -210,8 +213,8 @@
                         </span>
                     @endif
                     @if (isset($invdata['company_name']))
-                        <span class="default" style="display:block;"> 
-                                {{ $invdata['company_name'] }}  
+                        <span class="default" style="display:block;">
+                            {{ $invdata['company_name'] }}
                         </span>
                     @endif
                     @isset($invdata['house_no_building_name'])
@@ -307,138 +310,143 @@
                                             <td style="text-align:right;" class="currencysymbol">
                                                 {{-- {{ $invdata['currency_symbol'] }}
                                                 {{ formatDecimal($val) }} --}}
-                                            {{ Number::currency($val, in: $invdata['currency']) }}
-                                        </td>
-                                    @else
-                                        <td style="text-align:center;">
-                                            @if (strlen($val) > 40)
-                                                @php
-                                                    $val = wordwrap($val, 40, '<br>', true);
-                                                @endphp
-                                                {!! $val !!}
-                                            @else
-                                                {{ $val }}
-                                            @endif
-                                        </td>
-                                    @endif
-                                @endforeach
+                                                {{ Number::currency($val, in: $invdata['currency']) }}
+                                            </td>
+                                        @else
+                                            <td style="text-align:center;">
+                                                @if (strlen($val) > 40)
+                                                    @php
+                                                        $val = wordwrap($val, 40, '<br>', true);
+                                                    @endphp
+                                                    {!! $val !!}
+                                                @else
+                                                    {{ $val }}
+                                                @endif
+                                            </td>
+                                        @endif
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                            <tr class="removepadding">
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removetdborder  ">
+                                    Subtotal
+                                </td>
+                                <td style="text-align: right" class="right removetdborder currencysymbol "
+                                    id="subtotal">
+                                    {{-- {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['total']) }} --}}
+                                    {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
+                                </td>
                             </tr>
-                        @endforeach
-                        <tr class="removepadding">
-                            <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                class="left removetdborder  ">
-                                Subtotal
-                            </td>
-                            <td style="text-align: right" class="right removetdborder currencysymbol " id="subtotal">
-                                {{-- {{ $invdata['currency_symbol'] }} {{ formatDecimal($invdata['total']) }} --}}
-                                {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                        @if ($othersettings['gst'] == 0)
-                            @if ($invdata['sgst'] >= 1)
-                                <tr class="removepadding">
-                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                        class="left removetdborder removepadding">
-                                        SGST({{ $othersettings['sgst'] }}%)
-                                    </td>
-                                    <td style="text-align: right ;" class="currencysymbol removetdborder removepadding" id="sgst">
-                                        {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['sgst']) }} --}}
-                                        {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
-                                    </td>
-                                </tr>
+                            @if ($othersettings['gst'] == 0)
+                                @if ($invdata['sgst'] >= 1)
+                                    <tr class="removepadding">
+                                        <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                            class="left removetdborder removepadding">
+                                            SGST({{ $othersettings['sgst'] }}%)
+                                        </td>
+                                        <td style="text-align: right ;"
+                                            class="currencysymbol removetdborder removepadding" id="sgst">
+                                            {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['sgst']) }} --}}
+                                            {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
+                                        </td>
+                                    </tr>
+                                @endif
+                                @if ($invdata['cgst'] >= 1)
+                                    <tr class="removepadding">
+                                        <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                            class="left removetdborder removepadding">
+                                            CGST({{ $othersettings['cgst'] }}%)
+                                        </td>
+                                        <td style="text-align: right"
+                                            class="currencysymbol removetdborder removepadding" id="cgst">
+                                            {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['cgst']) }} --}}
+                                            {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
+                                        </td>
+                                    </tr>
+                                @endif
+                            @else
+                                @if ($invdata['gst'] >= 1)
+                                    <tr class="removepadding">
+                                        <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                            class="left removetdborder removepadding">
+                                            GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
+                                        </td>
+                                        <td style="text-align: right"
+                                            class="currencysymbol removetdborder removepadding" id="gst">
+                                            {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
+                                        </td>
+                                    </tr>
+                                @endif
                             @endif
-                            @if ($invdata['cgst'] >= 1)
-                                <tr class="removepadding">
-                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                        class="left removetdborder removepadding">
-                                        CGST({{ $othersettings['cgst'] }}%)
-                                    </td>
-                                    <td style="text-align: right" class="currencysymbol removetdborder removepadding" id="cgst">
-                                        {{-- {{ $invdata['currency_symbol'] }}  {{ formatDecimal($invdata['cgst']) }} --}}
-                                        {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
-                                    </td>
-                                </tr>
-                            @endif
-                        @else
-                            @if ($invdata['gst'] >= 1)
-                                <tr class="removepadding">
-                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                        class="left removetdborder removepadding">
-                                        GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
-                                    </td>
-                                    <td style="text-align: right" class="currencysymbol removetdborder removepadding" id="gst">
-                                        {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
-                                    </td>
-                                </tr>
-                            @endif
-                        @endif 
-                        <tr class="removepadding" style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder removepadding">
-                                Round of
-                            </td>
-                            <td style="text-align: right" class="right currencysymbol  removepadding">
-                                {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
-                                {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                        <tr class="" style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
-                                <b>Total</b>
-                            </td>
-                            <td style="text-align: right" class="right removetdborder currencysymbol">
-                                {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                        <tr class="" style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
-                                <b>Amount Received</b>
-                            </td>
-                            <td style="text-align: right" class="right removetdborder currencysymbol">
-                                {{ Number::currency($payment['paid_amount'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                        <tr class="" style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
-                                <b>Paid Amount</b>
-                            </td>
-                            <td style="text-align: right" class="right removetdborder currencysymbol">
-                                {{ Number::currency($payment['amount'] - $payment['pending_amount'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                        <tr class="" style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
-                                <b>Pending Amount</b>
-                            </td>
-                            <td style="text-align: right" class="right removetdborder currencysymbol">
-                                <b>{{ Number::currency($payment['pending_amount'], in: $invdata['currency']) }}</b>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <div style="display: inline-block;">
-                    For : {{ $companydetails['name'] }}
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div style="display: inline-block;">
-                    <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
-                        class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <div style="display: inline-block;">
-                    Signature
-                </div>
-            </td>
-        </tr>
+                            <tr class="removepadding" style="font-size:15px;text-align: right">
+                                <td colspan="@php echo (count($products[0])); @endphp"
+                                    class="left removetdborder removepadding">
+                                    Round of
+                                </td>
+                                <td style="text-align: right" class="right currencysymbol  removepadding">
+                                    {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
+                                    {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                            <tr class="" style="font-size:15px;text-align: right">
+                                <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                                    <b>Total</b>
+                                </td>
+                                <td style="text-align: right" class="right removetdborder currencysymbol">
+                                    {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                            <tr class="" style="font-size:15px;text-align: right">
+                                <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                                    <b>Amount Received</b>
+                                </td>
+                                <td style="text-align: right" class="right removetdborder currencysymbol">
+                                    {{ Number::currency($payment['paid_amount'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                            <tr class="" style="font-size:15px;text-align: right">
+                                <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                                    <b>Paid Amount</b>
+                                </td>
+                                <td style="text-align: right" class="right removetdborder currencysymbol">
+                                    {{ Number::currency($payment['amount'] - $payment['pending_amount'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                            <tr class="" style="font-size:15px;text-align: right">
+                                <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                                    <b>Pending Amount</b>
+                                </td>
+                                <td style="text-align: right" class="right removetdborder currencysymbol">
+                                    <b>{{ Number::currency($payment['pending_amount'], in: $invdata['currency']) }}</b>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div style="display: inline-block;">
+                        For : {{ $companydetails['name'] }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: inline-block;">
+                        <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
+                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div style="display: inline-block;">
+                        Signature
+                    </div>
+                </td>
+            </tr>
         </table>
     </div>
     <footer>
