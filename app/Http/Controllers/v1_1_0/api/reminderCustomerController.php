@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\v1_0_0\api;
+namespace App\Http\Controllers\v1_1_0\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\city;
@@ -14,7 +14,6 @@ class reminderCustomerController extends commonController
 
     public function __construct(Request $request)
     {
-        
         $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
