@@ -37,7 +37,7 @@
 @endsection
 
 @section('form-content')
-    <form id="userupdateform" autocomplete="off" list="autocompleteOff">
+    <form id="userupdateform" autocomplete="off">
         @csrf
         <div class="form-group">
             <div class="form-row">
@@ -1652,10 +1652,10 @@
             // response status == 422 that means api has not got valid or required data
 
 
-            // $('#userupdateform').attr('autocomplete', 'off');
+            $('#userupdateform').attr('autocomplete', 'off');
             
-            // // Set autocomplete="off" for all input fields within the form
-            // $('#userupdateform input').attr('autocomplete', 'off');
+            // Set autocomplete="off" for all input fields within the form
+            $('#userupdateform input').attr('autocomplete', 'off');
 
             var userrp = "{{ session('user_permissions.adminmodule.userpermission.edit') }}";
 
