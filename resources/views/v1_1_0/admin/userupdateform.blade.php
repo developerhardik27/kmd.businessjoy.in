@@ -37,7 +37,7 @@
 @endsection
 
 @section('form-content')
-    <form id="userupdateform">
+    <form id="userupdateform" autocomplete="off">
         @csrf
         <div class="form-group">
             <div class="form-row">
