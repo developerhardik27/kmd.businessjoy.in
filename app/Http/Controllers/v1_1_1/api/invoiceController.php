@@ -47,7 +47,7 @@ class invoiceController extends commonController
     {
         $invoices = DB::connection('dynamic_connection')->table('invoices')
             ->select(DB::raw("MONTH(inv_date) as month, COUNT(*) as total_invoices, SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_invoices"))
-            ->groupBy(DB::raw("MONTH(inv_date)"))->where('created_by', $this->userId)->where('is_deleted',0)
+            ->groupBy(DB::raw("MONTH(inv_date)"))->where('created_by', $this->userId)->where('is_deleted', 0)
             ->get();
 
         return $invoices;
@@ -60,7 +60,7 @@ class invoiceController extends commonController
 
         $invoices = DB::connection('dynamic_connection')->table('invoices')->whereYear('inv_date', Carbon::now()->year)
             ->whereMonth('inv_date', Carbon::now()->month)->where('created_by', $this->userId)->where('is_deleted', 0)
-            ->select('invoices.*',DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"))
+            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"))
             ->get();
         $groupedInvoices = $invoices->groupBy('status');
         return $groupedInvoices;
@@ -105,7 +105,7 @@ class invoiceController extends commonController
                     ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id ORDER BY id DESC LIMIT 1)');
             })
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
-            ->select('invoices.*',DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"), 'payment_details.part_payment', 'payment_details.pending_amount', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"), 'payment_details.part_payment', 'payment_details.pending_amount', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
 
@@ -207,7 +207,7 @@ class invoiceController extends commonController
 
         $data = $request->data;
         $itemdata = $request->iteam_data;
-       
+
         $validator = Validator::make($data, [
             "payment_mode" => 'required',
             "bank_account" => 'required',
@@ -348,7 +348,7 @@ class invoiceController extends commonController
                 $company_details_id = $company_details->company_details_id;
 
                 $invoicerec = [
-                    'inv_no' => $inv_no, 
+                    'inv_no' => $inv_no,
                     'customer_id' => $data['customer'],
                     'notes' => $data['notes'],
                     'total' => $data['total_amount'],
@@ -360,11 +360,12 @@ class invoiceController extends commonController
                     'company_details_id' => $company_details_id,
                     'created_by' => $data['user_id'],
                     'show_col' => $showcolumnstring,
+                    'gstsettings' => json_encode($data['gstsettings']),
                     'overdue_date' => $othersetting->overdue_day,
                     'pattern_type' => $patterntype
                 ];
 
-                if($data['invoice_date']){
+                if ($data['invoice_date']) {
                     $invoicerec['inv_date'] = $data['invoice_date'];
                 }
 
@@ -466,9 +467,9 @@ class invoiceController extends commonController
     public function edit(string $id)
     {
         $invdetails = $this->invoiceModel::where('id', $id)
-                             ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%Y-%m-%d %H:%i') as inv_date_formatted"))
-                             ->first();
-        $productdetails = DB::connection('dynamic_connection')->table('mng_col')->where('invoice_id', $id)->where('is_active',1)->where('is_deleted',0)->get();
+            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%Y-%m-%d %H:%i') as inv_date_formatted"))
+            ->first();
+        $productdetails = DB::connection('dynamic_connection')->table('mng_col')->where('invoice_id', $id)->where('is_active', 1)->where('is_deleted', 0)->get();
 
         $data = [
             'invdetails' => $invdetails,
@@ -515,7 +516,7 @@ class invoiceController extends commonController
             }
 
 
-            $oldinvoice = $this->invoiceModel::find($id); 
+            $oldinvoice = $this->invoiceModel::find($id);
 
             // update old product data
             $columanname = [];
@@ -534,16 +535,16 @@ class invoiceController extends commonController
                         }
                     }
                 }
-            }else{
-                $columanname = explode(',',$oldinvoice->show_col); 
+            } else {
+                $columanname = explode(',', $oldinvoice->show_col);
             }
 
             // delete old product if any deleted 
             if ($request->deletedproduct) {
                 $deletedproduct = $request->deletedproduct;
                 DB::connection('dynamic_connection')->table('mng_col')->whereIn('id', $deletedproduct)->update([
-                   'is_deleted' => 1,
-                   'is_active' => 0,
+                    'is_deleted' => 1,
+                    'is_active' => 0,
                 ]);
             }
 
@@ -560,11 +561,11 @@ class invoiceController extends commonController
                 'updated_by' => $data['user_id'],
             ];
 
-            if($data['invoice_date']){
+            if ($data['invoice_date']) {
                 $invoicerec['inv_date'] = $data['invoice_date'];
             }
 
-            
+
 
             if ($data['tax_type'] != 2) {
                 if (isset($data['gst'])) {
@@ -598,10 +599,10 @@ class invoiceController extends commonController
                     $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata);
                 }
 
-            } 
-          
+            }
+
             return $this->successresponse(200, 'message', 'Invoice successfully updated');
- 
+
         }
     }
 
@@ -657,10 +658,34 @@ class invoiceController extends commonController
     {
 
         $columnname = $this->invoiceModel::find($id);
-        $column = explode(',', $columnname->show_col);
 
+        if (!$columnname) {
+            return $this->successresponse(404, 'invoice', 'No Records Found');
+        }
+
+
+        $column = explode(',', $columnname->show_col);
+        $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
+            ->select('column_name', 'column_type')->get();
 
         $columnarray = array_merge($column, ['amount']);
+
+        // Convert collection to array of associative arrays
+        $columnwithtypeArray = $columnwithtype->map(function ($item) {
+            return [
+                'column_name' => $item->column_name,
+                'column_type' => $item->column_type
+            ];
+        })->toArray();
+
+        // Prepare additional column type
+        $addamounttype = [
+            'column_name' => 'amount',
+            'column_type' => 'decimal'
+        ];
+
+        // Merge existing column types with the new column type
+        $columnwithtypeArray[] = $addamounttype;
 
 
         if ($columnarray[0] == '') {
@@ -668,10 +693,10 @@ class invoiceController extends commonController
         }
 
         $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
-            ->where('invoice_id', $id)->where('is_deleted',0)->where('is_active',1)->get();
+            ->where('invoice_id', $id)->where('is_deleted', 0)->where('is_active', 1)->get();
 
-        $othersettingsdetails = DB::connection('dynamic_connection')->table('invoice_other_settings')
-            ->select('sgst', 'cgst', 'gst')
+        $gstsettingsdetails = DB::connection('dynamic_connection')->table('invoices')
+            ->select('gstsettings')->where('id', $id)
             ->get();
 
         if ($invoice->count() > 0) {
@@ -679,7 +704,8 @@ class invoiceController extends commonController
                 'status' => 200,
                 'invoice' => $invoice,
                 'columns' => $columnarray,
-                'othersettings' => $othersettingsdetails
+                'othersettings' => $gstsettingsdetails,
+                'columnswithtype' => $columnwithtypeArray
             ]);
         } else {
             return $this->successresponse(404, 'invoice', 'No Records Found');
@@ -710,7 +736,7 @@ class invoiceController extends commonController
         $reports = DB::connection('dynamic_connection')->table('reportlogs')
             ->join($this->masterdbname . '.users', 'reportlogs.created_by', '=', $this->masterdbname . '.users.id')
             ->select('reportlogs.*', DB::raw("DATE_FORMAT(reportlogs.from_date, '%d-%m-%Y') as from_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.to_date, '%d-%m-%Y') as to_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'users.firstname', 'users.lastname')
-            ->where('reportlogs.is_deleted', 0)->orderBy('id','desc')->get();
+            ->where('reportlogs.is_deleted', 0)->orderBy('id', 'desc')->get();
 
         if ($reports->isNotEmpty()) {
             return $this->successresponse(200, 'reports', $reports);

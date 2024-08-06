@@ -30,6 +30,9 @@
             $roundof = '-' . $roundof;
         }
     }
+
+    $othersettings = json_decode($othersettings['gstsettings'], true);
+    $loopnumber = []; // array for alignment column type text or longtext
 @endphp
 
 <!DOCTYPE html>
@@ -237,7 +240,7 @@
                     <span class="default"style="display:block;">{{ $invdata['email'] }}</span>
                     <span class="default">{{ $invdata['contact_no'] }}</span><br><br>
                 </td>
-                <td>
+                <td style="vertical-align: top">
                     <table id="pdtable">
                         <tr>
                             <td><b>Date</b></td>
@@ -287,13 +290,17 @@
                         <thead>
                             <tr class="bgblue">
                                 <th><span style="padding-left: 5px"> # </span></th>
-                                @forelse ($productscolumn as $val)
+                                @forelse ($productscolumn as $column)
                                     @php
-                                        $columnname = strtoupper(str_replace('_', ' ', $val));
+                                        $columnname = strtoupper(str_replace('_', ' ', $column['column_name']));
                                     @endphp
 
+                                    @if ($column['column_type'] == 'longtext')
+                                        @php
+                                            $loopnumber[] = $loop->iteration;
+                                        @endphp
+                                    @endif
                                     <th style="text-align: center">{{ $columnname }}</th>
-
                                 @empty
                                     <th>-</th>
                                 @endforelse
@@ -306,22 +313,26 @@
                                 <tr>
                                     <td style="text-align: center">{{ $srno }}</td>
                                     @foreach ($row as $key => $val)
-                                        @if ($key === array_key_last($row))
+                                        @if ($loop->last)
                                             <td style="text-align:right;" class="currencysymbol">
                                                 {{-- {{ $invdata['currency_symbol'] }}
-                                                {{ formatDecimal($val) }} --}}
+                                            {{ formatDecimal($val) }} --}}
                                                 {{ Number::currency($val, in: $invdata['currency']) }}
+                                            </td>
+                                        @elseif (in_array($loop->iteration, $loopnumber))
+                                            @php
+                                                $textAlign =
+                                                    strpos($val, "\n") !== false || strpos($val, '<br>') !== false
+                                                        ? 'left'
+                                                        : 'center';
+                                            @endphp
+
+                                            <td style="text-align:{{ $textAlign }};">
+                                                {!! nl2br(e($val)) !!}
                                             </td>
                                         @else
                                             <td style="text-align:center;">
-                                                @if (strlen($val) > 40)
-                                                    @php
-                                                        $val = wordwrap($val, 40, '<br>', true);
-                                                    @endphp
-                                                    {!! $val !!}
-                                                @else
-                                                    {{ $val }}
-                                                @endif
+                                                {!! nl2br(e($val)) !!}
                                             </td>
                                         @endif
                                     @endforeach
@@ -379,16 +390,18 @@
                                     </tr>
                                 @endif
                             @endif
-                            <tr class="removepadding" style="font-size:15px;text-align: right">
-                                <td colspan="@php echo (count($products[0])); @endphp"
-                                    class="left removetdborder removepadding">
-                                    Round of
-                                </td>
-                                <td style="text-align: right" class="right currencysymbol  removepadding">
-                                    {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
-                                    {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
-                                </td>
-                            </tr>
+                            @unless ($roundof == 0)
+                                <tr class="removepadding" style="font-size:15px;text-align: right">
+                                    <td colspan="@php echo (count($products[0])); @endphp"
+                                        class="left removetdborder removepadding">
+                                        Round of
+                                    </td>
+                                    <td style="text-align: right" class="right currencysymbol  removepadding">
+                                        {{-- {{ $invdata['currency_symbol'] }} {{ $roundof }} --}}
+                                        {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                                    </td>
+                                </tr>
+                            @endunless
                             <tr class="" style="font-size:15px;text-align: right">
                                 <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
                                     <b>Total</b>

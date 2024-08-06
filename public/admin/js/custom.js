@@ -508,6 +508,10 @@ Index Of Script
             jQuery("body").toggleClass("sidebar-main");
         });
 
+        jQuery(document).on('click', ".content-page", function() {
+            jQuery("body").removeClass("sidebar-main");
+        });
+
         /*---------------------------------------------------------------------
         Wow Animation
         -----------------------------------------------------------------------*/

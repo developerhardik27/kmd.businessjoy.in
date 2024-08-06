@@ -35,7 +35,7 @@ class PdfController extends Controller
          $this->invoiceModel = 'App\\Models\\v1_1_1\\invoice';
          $this->paymentdetailsModel = 'App\\Models\\v1_1_1\\payment_details';
       }
-      
+
    }
    public function generatepdf(string $id)
    {
@@ -66,6 +66,7 @@ class PdfController extends Controller
       $invdata = json_decode($jsoninvContent, true);
       $companydetailsdata = json_decode($jsoncompanyContent, true);
       $bankdetailsdata = json_decode($jsonbankContent, true);
+ 
 
       if ($productdata['status'] == 404) {
          return redirect()->back()->with('message', 'yes');
@@ -73,7 +74,7 @@ class PdfController extends Controller
 
 
       $data = [
-         'productscolumn' => $productdata['columns'],
+         'productscolumn' => $productdata['columnswithtype'],
          'products' => $productdata['invoice'],
          'othersettings' => $productdata['othersettings'][0],
          'invdata' => $invdata['invoice'][0],
@@ -100,7 +101,7 @@ class PdfController extends Controller
       }
 
       // return view($this->version . '.admin.invoicetemplate', $data);
-      $pdfname = $data['invdata']['inv_no'] . ' ' . $companyname . ' ' . date('d-M-y') .'.pdf';
+      $pdfname = $data['invdata']['inv_no'] . ' ' . $companyname . ' ' . date('d-M-y') . '.pdf';
 
       // $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.invoicedetail', $data)->setPaper('a4', 'portrait');
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.invoicetemplate', $data)->setPaper('a4', 'portrait');
@@ -142,12 +143,13 @@ class PdfController extends Controller
       $invdata = json_decode($jsoninvContent, true);
       $companydetailsdata = json_decode($jsoncompanyContent, true);
 
+     
       if ($productdata['status'] == 404) {
          return redirect()->back()->with('message', 'yes');
       }
 
       $data = [
-         'productscolumn' => $productdata['columns'],
+         'productscolumn' => $productdata['columnswithtype'],
          'products' => $productdata['invoice'],
          'othersettings' => $productdata['othersettings'][0],
          'payment' => $paymentdata['paymentdetail'],
@@ -166,10 +168,10 @@ class PdfController extends Controller
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentreciept', $data)->setPaper('a4', 'portrait');
 
+      $name = 'Reciept ' . $paymentdata['paymentdetail']['receipt_number'] . '.pdf';
       // return view($this->version . '.admin.paymentreciept', $data);
-      return $pdf->stream();
+      return $pdf->stream($name);
 
-      // $name =  'reciept'.Str::Random(3).'pdf';
       // $pdf = PDF::setOptions($options)->loadView('admin.invoicedetail',[ 'payment' => $paymentdata['payment']])->setPaper('a4', 'portrait');
 
       // return $pdf->stream($name);
@@ -213,7 +215,7 @@ class PdfController extends Controller
       }
 
       $data = [
-         'productscolumn' => $productdata['columns'],
+         'productscolumn' => $productdata['columnswithtype'],
          'products' => $productdata['invoice'],
          'othersettings' => $productdata['othersettings'][0],
          'payment' => $paymentdata['payment'],
@@ -232,10 +234,15 @@ class PdfController extends Controller
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentpaidreciept', $data)->setPaper('a4', 'portrait');
 
-      // return view($this->version . '.admin.paymentpaidreciept', $data);
-      return $pdf->stream();
+      $name = 'Receipt ' . $paymentdata['payment'][0]['receipt_number'] . '.pdf';
 
-      // $name =  'reciept'.Str::Random(3).'pdf';
+      if (count($paymentdata['payment']) > 1) {
+         $name = 'PaymentHistory ' . $invdata['invoice'][0]['inv_no'] . 'pdf';
+      } 
+
+      // return view($this->version . '.admin.paymentpaidreciept', $data);
+      return $pdf->stream($name);
+
       // $pdf = PDF::setOptions($options)->loadView('admin.invoicedetail',[ 'payment' => $paymentdata['payment']])->setPaper('a4', 'portrait');
 
       // return $pdf->stream($name);
@@ -246,7 +253,7 @@ class PdfController extends Controller
 
    public function generatepdfzip(Request $request)
    {
-       
+
       set_time_limit(120);
       try {
          // Your existing code for generating PDFs and creating the zip file
@@ -267,7 +274,7 @@ class PdfController extends Controller
 
          $invoices = $this->invoiceModel::whereBetween('inv_date', [$startDate, $endDate->addDay()])
             ->where([
-               'is_deleted' => 0, 
+               'is_deleted' => 0,
             ])
             ->whereIn('created_by', $reportuserlist)
             ->get();
@@ -305,7 +312,7 @@ class PdfController extends Controller
             'module_name' => 'invoice',
             'from_date' => $request->fromdate,
             'to_date' => $request->todate,
-            'created_by' => $request->user_id, 
+            'created_by' => $request->user_id,
          ]);
          return response()->download(storage_path('app/' . $zipFileName))->deleteFileAfterSend(true);
       } catch (Exception $e) {
@@ -341,7 +348,7 @@ class PdfController extends Controller
       }
 
       $data = [
-         'productscolumn' => $productdata['columns'],
+         'productscolumn' => $productdata['columnswithtype'],
          'products' => $productdata['invoice'],
          'othersettings' => $productdata['othersettings'][0],
          'invdata' => $invdata['invoice'][0],

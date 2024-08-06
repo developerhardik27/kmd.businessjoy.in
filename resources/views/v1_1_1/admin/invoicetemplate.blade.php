@@ -1,15 +1,15 @@
 @php
+
     // convert number to spelling:
     $words = Number::spell($invdata['grand_total']);
 
     $total;
     $roundof;
     $sign = '';
-    $withgst = false ;
+    $withgst = false;
 
-
-    if($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0){
-        $withgst = true ;
+    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
+        $withgst = true;
     }
 
     if ($invdata['gst'] != 0) {
@@ -32,7 +32,9 @@
         }
     }
 
+    $othersettings = json_decode($othersettings['gstsettings'], true);
 
+    $loopnumber = []; // array for alignment column type text or longtext
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -159,10 +161,16 @@
             font-family: DejaVu Sans;
             sans-serif;
         }
-        #footer{
+
+        #footer {
             position: fixed;
-            bottom:0px;
-            width:100%;
+            bottom: 0px;
+            width: 100%;
+        }
+
+        #tcspan * {
+            margin: 0;
+            padding: 0,
         }
     </style>
 </head>
@@ -211,12 +219,14 @@
                                     {{ $companydetails['contact_no'] }}
                                 </td>
                             </tr>
-                            @if ($withgst)  
-                                    <tr>
-                                        <td style="padding-left:10px">
-                                            <b>GSTIN No:  @isset($companydetails['gst_no']) {{ $companydetails['gst_no'] }} @endisset </b>
-                                        </td>
-                                    </tr> 
+                            @if ($withgst)
+                                <tr>
+                                    <td style="padding-left:10px">
+                                        <b>GSTIN No: @isset($companydetails['gst_no'])
+                                                {{ $companydetails['gst_no'] }}
+                                            @endisset </b>
+                                    </td>
+                                </tr>
                             @endif
 
                         </table>
@@ -226,7 +236,7 @@
                                     Bill to
                                 </th>
                             </tr>
-                            @if(isset($invdata['firstname']) || isset($invdata['lastname']))
+                            @if (isset($invdata['firstname']) || isset($invdata['lastname']))
                                 <tr class="font-weight-bold">
                                     <td class="textblue" style="padding-left:10px">
                                         @isset($invdata['firstname'])
@@ -282,12 +292,15 @@
                                     {{ $invdata['contact_no'] }}
                                 </td>
                             </tr>
-                            @if ($withgst) 
+                            @if ($withgst)
                                 <tr>
                                     <td style="padding-left:10px">
-                                        <b>GSTIN No: @isset($invdata['gst_no']) {{ $invdata['gst_no'] }} @endisset</b>
+                                        <b>GSTIN No: @isset($invdata['gst_no'])
+                                                {{ $invdata['gst_no'] }}
+                                            @endisset
+                                        </b>
                                     </td>
-                                </tr> 
+                                </tr>
                             @endif
                         </table>
                     </td>
@@ -366,13 +379,17 @@
                         <table cellspacing=0 cellpadding=0 class=" horizontal-border" width="100">
                             <tr class="bgblue">
                                 <th><span style="padding-left: 5px"> # </span></th>
-                                @forelse ($productscolumn as $val)
+                                @forelse ($productscolumn as $column)
                                     @php
-                                        $columnname = strtoupper(str_replace('_', ' ', $val));
+                                        $columnname = strtoupper(str_replace('_', ' ', $column['column_name']));
                                     @endphp
 
+                                    @if ($column['column_type'] == 'longtext')
+                                        @php
+                                            $loopnumber[] = $loop->iteration;
+                                        @endphp
+                                    @endif
                                     <th style="text-align: center">{{ $columnname }}</th>
-
                                 @empty
                                     <th>-</th>
                                 @endforelse
@@ -384,11 +401,22 @@
                                 <tr>
                                     <td style="text-align: center">{{ $srno }}</td>
                                     @foreach ($row as $key => $val)
-                                        @if ($key === array_key_last($row))
+                                        @if ($loop->last)
                                             <td style="text-align:right;" class="currencysymbol">
                                                 {{-- {{ $invdata['currency_symbol'] }}
                                                     {{ formatDecimal($val) }} --}}
                                                 {{ Number::currency($val, in: $invdata['currency']) }}
+                                            </td>
+                                        @elseif (in_array($loop->iteration, $loopnumber))
+                                            @php
+                                                $textAlign =
+                                                    strpos($val, "\n") !== false || strpos($val, '<br>') !== false
+                                                        ? 'left'
+                                                        : 'center';
+                                            @endphp
+
+                                            <td style="text-align:{{ $textAlign }};">
+                                                {!! nl2br(e($val)) !!}
                                             </td>
                                         @else
                                             <td style="text-align:center;">
@@ -399,7 +427,7 @@
                                                     @endphp
                                                     {!! $val !!}
                                                 @else --}}
-                                                {!! nl2br(e($val)) !!} 
+                                                {!! nl2br(e($val)) !!}
                                                 {{-- @endif --}}
                                             </td>
                                         @endif
@@ -452,8 +480,8 @@
                             @else
                                 @if ($invdata['gst'] >= 1)
                                     <tr>
-                                        <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                            class="left removeborder ">
+                                        <td colspan="@php echo (count($products[0])); @endphp"
+                                            style="text-align: right" class="left removeborder ">
                                             GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                         </td>
                                         <td style="text-align: right" class="currencysymbol " id="gst">
@@ -462,15 +490,17 @@
                                     </tr>
                                 @endif
                             @endif
-                            <tr style="font-size:15px;text-align: right">
-                                <td colspan="@php echo (count($products[0])); @endphp"
-                                    class="text-right left removeborder">
-                                    Round of
-                                </td>
-                                <td class="right currencysymbol text-right">
-                                    {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
-                                </td>
-                            </tr>
+                            @unless ($roundof == 0)
+                                <tr style="font-size:15px;text-align: right">
+                                    <td colspan="@php echo (count($products[0])); @endphp"
+                                        class="text-right left removeborder">
+                                        Round of
+                                    </td>
+                                    <td class="right currencysymbol text-right">
+                                        {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                                    </td>
+                                </tr>
+                            @endunless
                             <tr style="font-size:15px;text-align: right">
                                 <td colspan="@php echo (count($products[0])); @endphp"
                                     class="text-right left removeborder">
@@ -498,11 +528,11 @@
                     <td colspan="3" style="vertical-align: top;border-bottom:1px solid black;">
                         @isset($invdata['notes'])
                             <span style="margin-top: 0"><b>Notes :- </b></span><br>
-                            <span style="line-height:1"> {!! nl2br(e($invdata['notes'])) !!} </span> <br><br>
+                            <div>{!! nl2br(e($invdata['notes'])) !!} </div>
                         @endisset
                         @isset($invdata['t_and_c'])
-                            <span style="margin-top: 0"><b>Terms And Condtions :- </b></span><br />
-                            <span style="line-height:1"> {!! $invdata['t_and_c'] !!}</span>
+                            <span style="margin-top: 0"><b>Terms And Condtions :- </b></span>
+                            <div id="tcspan"> {!! $invdata['t_and_c'] !!}</div>
                         @endisset
                     </td>
                 </tr>

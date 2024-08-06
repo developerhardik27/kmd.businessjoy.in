@@ -20,6 +20,14 @@
         .table-wrapper-scroll-y {
             display: block;
         }
+        .note-editable *{
+            margin: 0;
+            padding: 0 ;
+        }
+        #tcdiv *{
+            margin: 0;
+            padding: 0 ;
+        }
     </style>
 @endsection
 
@@ -366,7 +374,7 @@
                 ],
                 placeholder: 'Add Notes',
                 tabsize: 2,
-                height: 100,
+                height: 100, 
             });
 
             loaderhide();
@@ -511,10 +519,7 @@
             });
 
             $('#gstsettingsform').submit(function(event) {
-                event.preventDefault();
-                if (confirm(
-                        'Old invoice will not edit after apply this changes. Are you sure still you want to apply this changes ?'
-                    )) {
+                event.preventDefault(); 
                     loadershow();
                     editid = $('#sgst').data('id');
                     url = "/api/gstsettings/update/" + editid;
@@ -561,7 +566,7 @@
                             }
                         }
                     });
-                }
+                 
             });
 
             // get terms and conditions
@@ -583,7 +588,7 @@
                             $.each(response.termsandconditions, function(key, value) {
                                 $('#tabledata').append(` <tr>
                                                         <td>${id}</td>
-                                                        <td class='text-left' style="white-space: pre-line;">${value.t_and_c}</td>
+                                                        <td class='text-left' style="white-space: pre-line;"><div id="tcdiv">${value.t_and_c}</div></td>
                                                         <td>
                                                             @if (session('user_permissions.invoicemodule.invoicesetting.edit') == '1')
                                                                 ${value.is_active == 1 ? '<div id=status_'+value.id+ '> <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive" data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0">active</button></div>'  : '<div data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></div>'}
@@ -776,7 +781,7 @@
                 $.ajax({
                     type: 'POST',
                     url: url,
-                    data: formdata,
+                    data: formdata, 
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {

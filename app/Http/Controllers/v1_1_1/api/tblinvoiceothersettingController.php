@@ -58,7 +58,7 @@ class tblinvoiceothersettingController extends commonController
         // if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
         // }
-
+ 
 
         $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type','start_increment_number','increment_type')->get();
         $customer_id = $this->invoice_other_settingModel::where('is_deleted',0)->select('customer_id')->get();
@@ -143,11 +143,10 @@ class tblinvoiceothersettingController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
+            $gst = 0;
             if (isset($request->gst)) {
                 $gst = $request->gst;
-            } else {
-                $gst = 0;
-            }
+            } 
             //condition for check if user has permission to search  record
             if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -162,18 +161,13 @@ class tblinvoiceothersettingController extends commonController
             }
 
             if ($overdueday) {
-                date_default_timezone_set('Asia/Kolkata');
-
+                date_default_timezone_set('Asia/Kolkata'); 
                 $overdueday->sgst = $request->sgst;
                 $overdueday->cgst = $request->cgst;
                 $overdueday->gst = $gst;
                 $overdueday->updated_by = $this->userId;
                 $overdueday->updated_at = date('Y-m-d H:i:s');
-                $overdueday->save();
-
-                DB::connection('dynamic_connection')->table('invoices')->update([
-                    'is_editable' => 0
-                ]);
+                $overdueday->save(); 
 
                 return $this->successresponse(200, 'message', 'GST ettings succesfully updated');
             } else {
