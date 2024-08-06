@@ -237,7 +237,7 @@ class PdfController extends Controller
       $name = 'Receipt ' . $paymentdata['payment'][0]['receipt_number'] . '.pdf';
 
       if (count($paymentdata['payment']) > 1) {
-         $name = 'PaymentHistory ' . $invdata['invoice'][0]['inv_no'] . 'pdf';
+         $name = 'PaymentHistory ' . $invdata['invoice'][0]['inv_no'] . '.pdf';
       } 
 
       // return view($this->version . '.admin.paymentpaidreciept', $data);
@@ -291,7 +291,7 @@ class PdfController extends Controller
          foreach ($invoices as $invoice) {
             $data = $this->prepareDataForPDF($invoice);
             $pdf = PDF::loadView($this->version . '.admin.invoicetemplate', $data)->setPaper('a4', 'portrait');
-            $pdfFileName = $invoice->inv_no . '_' . $invoice->company_name . '_' . $invoice->inv_date->format('d-M-y') . '.pdf';
+            $pdfFileName = $invoice->inv_no . '_' . $invoice->company_name . '_' . $invoice->created_at->format('d-M-y') . '.pdf';
             $pdf->save($tempDir . '/' . $pdfFileName);
          }
 
