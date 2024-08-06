@@ -231,13 +231,17 @@ class companyController extends commonController
             ]);
 
 
-            $path = 'database/migrations/individualcompanydb';
+            $paths = [
+                'database/migrations/individualcompanydb',
+                'database/migrations/v1_1_1',
+            ];
             // Run migrations only from the specified path
-            Artisan::call('migrate', [
-                '--path' => $path,
-                '--database' => $dbName,
-            ]);
-
+            foreach ($paths as $path) {
+                Artisan::call('migrate', [
+                    '--path' => $path,
+                    '--database' => $dbName,
+                ]);
+            }
 
             config(['database.connections.dynamic_connection.database' => $dbName]);
 

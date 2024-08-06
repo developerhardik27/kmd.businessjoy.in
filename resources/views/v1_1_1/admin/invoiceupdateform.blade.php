@@ -14,7 +14,8 @@
     .disableinput{
         border: none;
     }
- </style>
+    </style>
+    <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 @endsection
 
 @section('form-content')
@@ -35,7 +36,7 @@
                         </span>
                         <label for="customer">Customer</label><span
                         style="color:red;">*</span>
-                        <select class="form-control" id="customer" name="customer" required>
+                        <select class="form-control select2" id="customer" name="customer" required>
                             <option selected="" disabled=""> Select Customer</option>
                             <option  value="add_customer" > Add New Customer </option>
                         </select>
@@ -344,7 +345,7 @@
     @endif
 @endsection
 
-@push('ajax')
+@push('ajax') 
     @if ($is_editable != 1)
            <script>
                 $('document').ready(function(){
@@ -352,6 +353,7 @@
                 });
            </script>
     @else 
+    <script src="{{asset('admin/js/select2.min.js')}}"></script>
         <script>
             $('document').ready(function() {
 
@@ -385,93 +387,37 @@
                 let formula = [];
                 let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
 
-                // fetch gst settings 
-                $.ajax({
-                        type: 'GET',
-                        url: '{{ route('getoverduedays.index') }}',
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.overdueday != '') {
-                                sgst = response.overdueday[0]['sgst'];
-                                cgst = response.overdueday[0]['cgst'];
-                                gst = response.overdueday[0]['gst'];
-                                totalgstpercentage = sgst + cgst ;
-                                if (sgst % 1 === 0) { // Checks if sgst is an integer
-                                        $('#sgstpercentage').text(`(${sgst}.00 %)`);
-                                } else {
-                                    $('#sgstpercentage').text(`(${sgst} %)`);
-                                }
-                                if (cgst % 1 === 0) { // Checks if cgst is an integer
-                                        $('#cgstpercentage').text(`(${cgst}.00 %)`);
-                                } else {
-                                    $('#cgstpercentage').text(`(${cgst} %)`);
-                                }
-                                if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
-                                        $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
-                                } else {
-                                    $('#gstpercentage').text(`(${totalgstpercentage} %)`);
-                                }
-                                if(gst != 0){
-                                    $('#sgstline,#cgstline').hide();
-                                }else{
-                                    $('#gstline').hide();
-                                }
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-
-
+      
                 // fetch invoice formula for calculation 
                 $.ajax({
-                        type: 'GET',
-                        url: '{{ route('invoiceformula.index') }}',
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.invoiceformula != '') {
-                                formula = response.invoiceformula;
-                            }else if(response.status == 500){
-                                toastr.error(response.message);
-                                loaderhide();
-                            }
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
+                    type: 'GET',
+                    url: '{{ route('invoiceformula.index') }}',
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.invoiceformula != '') {
+                            formula = response.invoiceformula;
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
                             loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
                         }
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
                 });
                 
                 // fetch users own columnname and set it into table 
@@ -520,18 +466,18 @@
                         $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3);
                     },
                     error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
                         }
+                        toastr.error(errorMessage);
+                    }
                 });
                 
                 // Handle moving row up
@@ -677,11 +623,20 @@
                                         }
                                         customer += value.contact_no;
                                     }
+                                    
+                                    if (value.email != null) {
+                                        if (customer.length > 0) {
+                                            customer += ' - '; // 
+                                        }
+                                        customer += value.email;
+                                    }
+
                                     $('#customer').append(
                                         `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customer}</option>`
                                     )
                                 });
-                                $('#customer').val(customerid);
+                                $('#customer').val(customerid); 
+                                $('.select2').select2();
                                 if(customerid != 0){ 
                                     loadershow();
                                     var selectedOption = $('#customer').find('option:selected'); 
@@ -695,7 +650,7 @@
                                             $('#gstline').hide();
                                             $('#sgstline,#cgstline').show();
         
-                                        }
+                                        } 
                                         dynamiccalculaton();
                                     } else {
                                         $('#type').val(2);
@@ -779,10 +734,11 @@
                         user_id: " {{ session()->get('user_id') }} "
                     },
                     success: function(response) { 
-                        if (response.status == 200) { 
+                        if (response.status == 200) {  
                             invdetails = response.data.invdetails ;
                             productdetails = response.data.productdetails;
                             $('#customer').val(invdetails.customer_id);
+                            $('.select2').select2();
                             $('#payment').val(invdetails.payment_type);
                             $('#currency').val(invdetails.currency_id);
                             $('#acc_details').val(invdetails.account_id);
@@ -794,8 +750,33 @@
                             } else {
                                 $('#type').val(1);
                             }
-                            $('#invoice_date').val(invdetails.inv_date_formatted);
-                           
+                            $('#invoice_date').val(invdetails.inv_date_formatted); 
+                            const gstsettings = JSON.parse(invdetails.gstsettings);  
+                            sgst = gstsettings.sgst;
+                            cgst = gstsettings.cgst;
+                            gst = gstsettings.gst;
+                            totalgstpercentage = sgst + cgst ; 
+                            if (sgst % 1 === 0) { // Checks if sgst is an integer
+                                    $('#sgstpercentage').text(`(${sgst}.00 %)`);
+                            } else {
+                                $('#sgstpercentage').text(`(${sgst} %)`);
+                            }
+                            if (cgst % 1 === 0) { // Checks if cgst is an integer
+                                    $('#cgstpercentage').text(`(${cgst}.00 %)`);
+                            } else {
+                                $('#cgstpercentage').text(`(${cgst} %)`);
+                            }
+                            if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
+                                    $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
+                            } else {
+                                $('#gstpercentage').text(`(${totalgstpercentage} %)`);
+                            }
+                            if(gst != 0){
+                                $('#sgstline,#cgstline').hide();
+                            }else{
+                                $('#gstline').hide();
+                            }
+  
                             // totalval = invdetails.total ;
                             // grandtotalval = invdetails.grand_total ;
                             // $('#totalamount').val(totalval);
@@ -1168,9 +1149,7 @@
                 
                         dynamiccalculaton(this);
                 });
-
-
-
+ 
                 
                     // invoice update form 
                 $('#invoiceupdateform').submit(function(event) {
@@ -1434,8 +1413,7 @@
                             toastr.error(errorMessage);
                         }
                     });
-                });
-
+                }); 
 
                 // submit new customer  form
                 $('#customerform').submit(function(event) {
@@ -1489,9 +1467,7 @@
                             }
                         }
                     });
-                });
-
-                
+                });  
             });
         </script>
     @endif

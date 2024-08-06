@@ -15,6 +15,7 @@
         border: none;
     }
  </style>
+ <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 @endsection
 
 @section('form-content')
@@ -31,7 +32,7 @@
                     </span>
                     <label for="customer">Customer</label><span
                     style="color:red;">*</span>
-                    <select class="form-control" id="customer" name="customer" required>
+                    <select class="form-control select2" id="customer" name="customer" required>
                         <option selected="" disabled=""> Select Customer</option>
                         <option  value="add_customer" > Add New Customer </option>
                     </select>
@@ -343,6 +344,7 @@
 @endsection
 
 @push('ajax')
+   <script src="{{asset('admin/js/select2.min.js')}}"></script>
     <script>
         $('document').ready(function() {
 
@@ -350,7 +352,7 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
+ 
 
             $('.withgstspan').hide();
 
@@ -705,11 +707,20 @@
                                     }
                                     customer += value.contact_no;
                                 }
+
+                                if (value.email != null) {
+                                    if (customer.length > 0) {
+                                        customer += ' - '; // 
+                                    }
+                                    customer += value.email;
+                                }
+
                                 $('#customer').append(
                                     `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customer}</option>`
                                 )
                             });
                             $('#customer').val(customerid);
+                            $('.select2').select2();
                             if(customerid != 0){ 
                                 loadershow();
                                 var selectedOption = $('#customer').find('option:selected');
@@ -1011,6 +1022,11 @@
                 var gstval = $('#gst').val();
                 var grandtotal = $('#grandtotal').val();
                 var notes = $('#notes').val();
+                var gstsettings = {
+                    sgst : sgst ,
+                    cgst : cgst ,
+                    gst : gst
+                }
 
                 
                 var data = {
@@ -1025,7 +1041,8 @@
                     total_amount: total_amount,
                     grandtotal : grandtotal,
                     tax_type : type,
-                    notes: notes
+                    notes: notes,
+                    gstsettings : gstsettings
                 };
 
                 if(gst == 0){

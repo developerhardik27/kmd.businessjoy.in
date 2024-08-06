@@ -2,15 +2,42 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Controllers\Controller;
 use App\Models\company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Artisan;
 
 class dbscriptController extends Controller
 {
     public function dbscript()
     {
+
+
+        // config([
+        //     'database.connections.' . 'business_joy_parth_v60' => [
+        //         'driver' => 'mysql',
+        //         'host' => env('DB_HOST', '127.0.0.1'),
+        //         'port' => env('DB_PORT', '3306'),
+        //         'database' => 'business_joy_parth_v60',
+        //         'username' => env('DB_USERNAME', 'forge'),
+        //         'password' => env('DB_PASSWORD', ''),
+        //         'unix_socket' => env('DB_SOCKET', ''),
+        //         'charset' => 'utf8mb4',
+        //         'collation' => 'utf8mb4_unicode_ci',
+        //         'prefix' => '',
+        //         'strict' => true,
+        //         'engine' => null,
+        //     ]
+        // ]);
+
+        // Artisan::call('migrate', [
+        //     '--path' => 'database/migrations/v1_1_1',
+        //     '--database' => 'business_joy_parth_v60',
+        // ]);
+
+        // echo "succesfully called" ;
+
         $common_db_structure_query = "";
         $companies = Company::select('dbname')->where('is_deleted', 0)->get();
         foreach ($companies as $company) {

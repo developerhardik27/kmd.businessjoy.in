@@ -1651,6 +1651,12 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+
+            $('#userupdateform').attr('autocomplete', 'off');
+            
+            // Set autocomplete="off" for all input fields within the form
+            $('#userupdateform input').attr('autocomplete', 'off');
+
             var userrp = "{{ session('user_permissions.adminmodule.userpermission.edit') }}";
 
 
