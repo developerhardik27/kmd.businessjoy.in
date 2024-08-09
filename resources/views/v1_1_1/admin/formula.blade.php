@@ -19,31 +19,43 @@
 
 @section('form-content')
     <form id="formulaform" name="formulaform">
-        @csrf
-        <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
-        <input type="hidden" name="updated_by" id="updated_by">
-        <input type="hidden" name="edit_id" id="edit_id">
-        <input type="hidden" name="user_id" id="user_id" value="{{ $user_id }}">
-        <span class="add_div float-right mb-3 mr-2">
-            <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Formula Row"
-                class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span class="pl-1">Formula</span></i>
-            </button>
-        </span>
-        <table class="table  table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl  text-center">
-            <tbody id="add_new_div">
-            </tbody>
-        </table>
-        <hr>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
-                    <button id="resetbtn" type="reset" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Formula Details" class="btn iq-bg-danger float-right"><i
-                            class="ri-refresh-line"></i></button>
-                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Submit Formula Details" class="btn btn-primary float-right my-0"><i
-                            class="ri-check-line"></i></button>
+        <div id="newFormulaForm" class="d-none">
+            @csrf
+            <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
+            <input type="hidden" name="updated_by" id="updated_by">
+            <input type="hidden" name="edit_id" id="edit_id">
+            <input type="hidden" name="user_id" id="user_id" value="{{ $user_id }}">
+            <span class="add_div float-right mb-3 mr-2">
+                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                    data-original-title="Add New Formula Row" class="btn btn-sm iq-bg-success"><i class="ri-add-fill"><span
+                            class="pl-1">Formula</span></i>
+                </button>
+            </span>
+            <table
+                class="table  table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl  text-center">
+                <tbody id="add_new_div">
+                </tbody>
+            </table>
+            <hr>
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-secondary float-right" id="cancelbtn" data-toggle="tooltip"
+                            data-placement="bottom" data-original-title="Cancel"><i class="ri-close-line"></i></button>
+                        <button id="resetbtn" type="reset" data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Reset Formula Details" class="btn iq-bg-danger mr-2 float-right"><i
+                                class="ri-refresh-line"></i></button>
+                        <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Submit Formula Details" class="btn btn-primary float-right my-0"><i
+                                class="ri-check-line"></i></button>
+                    </div>
                 </div>
+            </div>
+        </div>
+        <div id="newFormulaBtnDiv" class="form-row ">
+            <div class="col-sm-12">
+                <button type="btn" id="newFormulaBtn" data-toggle="tooltip" data-placement="bottom"
+                    data-original-title="Add New Formula" class="btn btn-primary float-right">+ Add New Formula</button>
             </div>
         </div>
     </form>
@@ -83,6 +95,13 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+
+
+            $('#newFormulaBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#newFormulaForm').removeClass('d-none');
+                $('#newFormulaBtnDiv').addClass('d-none');
+            })
 
             let allColumnNames = [];
             // get column list for make formula 
@@ -319,6 +338,8 @@
                 if (confirm('Are you sure to delete this formula?')) {
                     $(this).parents("tr").detach();
                     addnamedltbtn--;
+                    $(this).tooltip('dispose');
+                    $(this).tooltip();
                 }
             });
             // code end for add row,totalrow and delete add row and totalrow
@@ -420,6 +441,8 @@
                                 $('#operation_1').val(invoiceformula.operation);
                                 $('#secondcolumn_1').val(invoiceformula.second_column);
                                 $('#output_1').val(invoiceformula.output_column);
+                                $('#newFormulaForm').removeClass('d-none');
+                                $('#newFormulaBtnDiv').addClass('d-none');
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -535,6 +558,11 @@
                 });
             });
 
+            $('#cancelbtn').on('click', function() {
+                $('#newFormulaForm').addClass('d-none');
+                $('#newFormulaBtnDiv').removeClass('d-none');
+                $('#formulaform')[0].reset();
+            });
 
             // formula submit form (check formula conditions)
             var formula_data = [];
@@ -674,6 +702,8 @@
                                         // You can perform additional actions, such as showing a success message or redirecting the user
                                         toastr.success(response.message);
                                         $('#formulaform')[0].reset();
+                                        $('#newFormulaForm').addClass('d-none');
+                                        $('#newFormulaBtnDiv').removeClass('d-none');
                                         loaddata();
                                     } else if (response.status == 500) {
                                         toastr.error(response.message);
@@ -735,6 +765,8 @@
                                             // You can perform additional actions, such as showing a success message or redirecting the user
                                             toastr.success(response.message);
                                             $('#formulaform')[0].reset();
+                                            $('#newFormulaForm').addClass('d-none');
+                                            $('#newFormulaBtnDiv').removeClass('d-none');
                                             loaddata();
                                         } else if (response.status == 500) {
                                             toastr.error(response.message);

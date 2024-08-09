@@ -357,6 +357,16 @@
                                     <th>Company Name</th>                         
                                     <td>${user.company_name != null ? user.company_name : '-'}</td>
                                 </tr>
+                                <tr>
+                                    <th>Created On</th>                         
+                                    <td>${user.created_at_formatted != null ? user.created_at_formatted : '-'}</td>
+                                </tr>
+                                @if (session('admin_role') == 1) 
+                                    <tr>
+                                        <th>Created By</th>            
+                                        <td>${user.creator_firstname} ${user.creator_lastname != null ? user.creator_lastname : '-'}</td>
+                                    </tr>
+                                @endif
                         `)
                     }
                 });

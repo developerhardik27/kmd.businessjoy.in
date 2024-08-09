@@ -249,6 +249,13 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+
+            function managetooltip(){
+                $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
+                // Reinitialize tooltips
+                $('body').find('[data-toggle="tooltip"]').tooltip();
+            }
+
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
@@ -433,21 +440,21 @@
                                                             session('user_permissions.adminmodule.techsupport.delete') == '1')
                                                         <td>
                                                             @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                                <span>
+                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Message">
                                                                     <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
                                                                         <i class="ri-whatsapp-line text-white"></i>
                                                                     </a>
                                                                 </span>
                                                             @endif
                                                             @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                                <span>
+                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Ticket">
                                                                     <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
                                                                         <i class="ri-edit-fill"></i>
                                                                     </button>  
                                                                 </span>
                                                             @endif
                                                             @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                                                <span>
+                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Ticket">
                                                                     <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
                                                                         <i class="ri-delete-bin-fill"></i>
                                                                     </button>
@@ -460,7 +467,7 @@
                                 id++;
                             });
 
-
+                            managetooltip();
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize jquery datatable
                             });
@@ -742,8 +749,8 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <span  class="d-inline-block text-truncate" style="max-width: 150px;">
-                                                        <div> ${value.description} </div>
+                                                        <span class="d-inline-block text-truncate" style="max-width: 150px;">
+                                                            <div> ${value.description} </div>
                                                         </span>
                                                     </td>
                                                     <td>

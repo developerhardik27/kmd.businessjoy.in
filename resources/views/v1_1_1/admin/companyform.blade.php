@@ -28,7 +28,7 @@
                 <div class="col-sm-6">
                     <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email"
-                        placeholder="Enter Company Email" autocomplete="off"/>
+                        placeholder="Enter Company Email" autocomplete="off" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -90,7 +90,7 @@
                     <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code"
                         required />
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
-                </div> 
+                </div>
                 @if (Session::has('user_permissions.adminmodule.company.max') &&
                         session('user_permissions.adminmodule.company.max') == '1')
                     <div class="col-sm-6">
@@ -105,13 +105,17 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan" style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
+                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
+                        rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                     <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan" style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2" placeholder="e.g. sardar patel road, jagatpur"></textarea>
+                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"
+                        placeholder="e.g. sardar patel road, jagatpur"></textarea>
                     <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
                 </div>
             </div>
@@ -178,6 +182,9 @@
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
+                        country_id = "{{ Auth::guard('admin')->user() }}";
+                        $('#country').val(country_id);
+                        loadstate();
                     } else {
                         $('#country').append(`<option> No Data Found</option>`);
                     }
@@ -197,14 +204,24 @@
                 }
             });
 
-            // load state in dropdown when country select/change
+            // load state in dropdown when country change
             $('#country').on('change', function() {
-                loadershow();
+                loadershow(); 
+                $('#city').html(`<option selected="" disabled="">Select your city</option>`);
                 var country_id = $(this).val();
+                loadstate(country_id);
+            });
+
+            // load state in dropdown and select state according to user
+            function loadstate(id = 0) {
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
+                var url = "/api/state/search/" + id;
+                if (id == 0) {
+                    url = "/api/state/search/" + "{{ Auth::guard('admin')->user()->country_id }}";
+                }
                 $.ajax({
                     type: 'GET',
-                    url: "/api/state/search/" + country_id,
+                    url: url,
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -216,6 +233,11 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
+                            if (id == 0) {
+                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                                $('#state').val(state_id);
+                                loadcity();
+                            }
                         } else {
                             $('#state').append(`<option> No Data Found</option>`);
                         }
@@ -235,16 +257,25 @@
                         toastr.error(errorMessage);
                     }
                 });
-            });
-
+            }
+ 
             // load city in dropdown when state select/change
             $('#state').on('change', function() {
-                loadershow();
-                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
+                loadershow(); 
                 var state_id = $(this).val();
+                loadcity(state_id);
+            });
+
+
+            function loadcity(id = 0) {
+                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
+                url = "/api/city/search/" + id;
+                if (id == 0) {
+                    url = "/api/city/search/" + "{{ Auth::guard('admin')->user()->state_id }}";
+                }
                 $.ajax({
                     type: 'GET',
-                    url: "/api/city/search/" + state_id,
+                    url: url,
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -256,6 +287,9 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
+                            if (id == 0) {
+                                $('#city').val("{{ Auth::guard('admin')->user()->city_id }}");
+                            }
                         } else {
                             $('#city').append(`<option> No Data Found</option>`);
                         }
@@ -275,11 +309,13 @@
                         toastr.error(errorMessage);
                     }
                 });
-            });
+            }
 
-            $('#cancelbtn').on('click',function(){
+
+
+            $('#cancelbtn').on('click', function() {
                 loadershow();
-               window.location.href = "{{route('admin.company')}}" ;
+                window.location.href = "{{ route('admin.company') }}";
             });
 
             // submit form data

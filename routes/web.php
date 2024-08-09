@@ -128,6 +128,12 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::put('/UpdateUser/{id}', [$UserController, 'update'])->name('admin.updateuser')->middleware('checkPermission:adminmodule,user,edit');
                 Route::put('/DeleteUser/{id}', [$UserController, 'destroy'])->name('admin.deleteuser')->middleware('checkPermission:adminmodule,user,delete');
             });
+
+            $VersionUpdateController = getadminversion('VersionUpdateController');
+            Route::group([], function () use ($VersionUpdateController) {
+                Route::get('/VersionControl', [$VersionUpdateController, 'versioncontrol'])->name('admin.versionupdate');
+            });
+
             //  admin routes end------
 
             // invoice module routes start 

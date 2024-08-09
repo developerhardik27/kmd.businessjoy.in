@@ -95,6 +95,7 @@ Route::middleware($middlewareClass)->group(function () {
     $companyController = getversion('companyController');
     Route::group([], function () use ($companyController) {
         Route::get('/companyprofile', [$companyController, 'companyprofile'])->name('company.profile');
+        Route::get('/companylist', [$companyController, 'companylistforversioncontrol'])->name('company.companylist');
         Route::get('/company', [$companyController, 'index'])->name('company.index');
         Route::get('/companydata', [$companyController, 'joincompany'])->name('company.joindata');
         Route::post('/company/insert', [$companyController, 'store'])->name('company.store');
@@ -104,6 +105,12 @@ Route::middleware($middlewareClass)->group(function () {
         Route::post('/company/delete/{id}', [$companyController, 'destroy'])->name('company.delete');
         Route::put('/company/statusupdate/{id}', [$companyController, 'statusupdate'])->name('company.statusupdate');
 
+    });
+
+    // version control route
+    $versionupdateController = getversion('versionupdateController');
+    Route::group([], function () use ($versionupdateController) { 
+        Route::put('/company/versionupdate', [$versionupdateController, 'updatecompanyversion'])->name('company.versionupdate');
     });
 
     // product route
