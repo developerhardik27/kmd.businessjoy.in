@@ -91,6 +91,32 @@ class companyController extends commonController
         }
     }
 
+     /**
+     * Display a listing of the resource.
+     */
+
+     public function companylistforversioncontrol(Request $request)
+     { 
+         if ($this->companyId == 1) {
+             $company = DB::table('company')
+                 ->join('company_details', 'company.company_details_id', '=', 'company_details.id') 
+                 ->select('company.id','company.app_version','company_details.name', 'company_details.email', 'company_details.contact_no')
+                 ->where('company.is_deleted', 0)
+                 ->get();
+         }  
+ 
+         if ($this->rp['adminmodule']['company']['view'] != 1) {
+             return $this->successresponse(500, 'message', 'You are Unauthorized');
+         }
+ 
+         if ($company->count() > 0) {
+             return $this->successresponse(200, 'company', $company);
+         } else {
+             return $this->successresponse(404, 'company', 'No Records Found');
+         }
+     }
+ 
+
     /**
      * Display a listing of the resource.
      */
@@ -105,7 +131,8 @@ class companyController extends commonController
                 ->join('country', 'company_details.country_id', '=', 'country.id')
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+                ->join('users', 'company.created_by', '=', 'users.id')
+                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"),'users.firstname as creator_firstname','users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)
                 ->get();
         } else {
@@ -114,7 +141,8 @@ class companyController extends commonController
                 ->join('country', 'company_details.country_id', '=', 'country.id')
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', 'company.created_at', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+                ->join('users', 'company.created_by', '=', 'users.id')
+                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"),'users.firstname as creator_firstname','users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)->where('company.is_active', 1);
 
             if ($this->rp['adminmodule']['company']['alldata'] != 1) {

@@ -176,6 +176,14 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (session('admin_role') == 1)
+                                <li class="{{ request()->routeIs('admin.versionupdate') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.versionupdate') }}" class="iq-waves-effect">
+                                        <i class="ri-file-settings-line"></i>
+                                        <span>Version Control</span>
+                                    </a>
+                                </li>
+                            @endif
                         @elseif(Session::has('menu') && Session::get('menu') == 'account')
                             @if (session('user_permissions.accountmodule.purchase.show') == '1')
                                 <li class="{{ request()->routeIs('admin.purchase') ? 'active' : '' }}">

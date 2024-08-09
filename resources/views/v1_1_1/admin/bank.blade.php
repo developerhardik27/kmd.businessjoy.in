@@ -320,6 +320,10 @@
                                     <th>Bank Name</th>
                                     <td>${(bankdetail.bank_name!= null && bankdetail.bank_name != '')? bankdetail.bank_name : '-'}</td>
                                 </tr>
+                                <tr>
+                                    <th>Created On</th>
+                                    <td>${(bankdetail.created_at_formatted!= null)? bankdetail.created_at_formatted : '-'}</td>
+                                </tr>
                         `);
                     }
                 });

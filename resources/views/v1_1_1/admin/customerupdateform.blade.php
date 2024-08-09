@@ -140,7 +140,7 @@
                             class="ri ri-refresh-line"></i></button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Update Customer Details" class="btn btn-primary float-right my-0"><i
-                            class="ri ri-check-double-line"></i></button>
+                            class="ri ri-check-line"></i></button>
                 </div>
             </div>
         </div>

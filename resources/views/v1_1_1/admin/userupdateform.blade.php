@@ -143,11 +143,11 @@
                 </div>
             </div>
         </div>
-        @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
-                session('user_permissions.adminmodule.userpermission.edit') == '1')
+        @if ((session('user_permissions.adminmodule.userpermission.view') == '1' ||
+                session('user_permissions.adminmodule.userpermission.edit') == '1') || $user_id == 1)
             <div class="row permission-row">
                 <div class="col-sm-12">
-                    @if (Session::has('admin') && Session::get('admin') == 'yes')
+                    @if ((Session::has('admin') && Session::get('admin') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -174,14 +174,14 @@
                                         </tr>
                                     </thead>
                                     <tbody id="admincheckboxes">
-                                        @if (session('user_permissions.adminmodule.company.add') == '1')
+                                        @if ((session('user_permissions.adminmodule.company.add') == '1') || $user_id == 1)
                                             <tr id="company">
                                                 <td rowspan="{{ $rowspan }}"> <input type="checkbox"
                                                         class="clickmenu" data-value='company' id="showcompanymenu"
                                                         name="showcompanymenu" value="1"></td>
                                                 <td rowspan="{{ $rowspan }}">Company</td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.company.add') == '1')
+                                                    @if ((session('user_permissions.adminmodule.company.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcompanymenu' id="addcompany"
                                                             name="addcompany" value="1">
@@ -190,7 +190,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.company.view') == '1')
+                                                    @if ((session('user_permissions.adminmodule.company.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcompanymenu' id="viewcompany"
                                                             name="viewcompany" value="1">
@@ -199,7 +199,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.company.edit') == '1')
+                                                    @if ((session('user_permissions.adminmodule.company.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcompanymenu' id="editcompany"
                                                             name="editcompany" value="1">
@@ -208,7 +208,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.company.delete') == '1')
+                                                    @if ((session('user_permissions.adminmodule.company.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcompanymenu' id="deletecompany"
                                                             name="deletecompany" value="1">
@@ -217,7 +217,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.company.alldata') == '1')
+                                                    @if ((session('user_permissions.adminmodule.company.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcompanymenu' id="alldatacompany"
                                                             name="alldatacompany" value="1">
@@ -226,15 +226,15 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                            @if (Session::has('user_permissions.adminmodule.company.max') &&
-                                                    session('user_permissions.adminmodule.company.max') == '1')
+                                            @if ((Session::has('user_permissions.adminmodule.company.max') &&
+                                                    session('user_permissions.adminmodule.company.max') == '1') || $user_id == 1)
                                                 <tr>
                                                     <td>Max Users</td>
                                                     {{-- add more option title here if needed --}}
                                                 </tr>
                                                 <tr id="company">
                                                     <td>
-                                                        @if (session('user_permissions.adminmodule.company.max') == '1')
+                                                        @if ((session('user_permissions.adminmodule.company.max') == '1') || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showcompanymenu' id="maxcompany"
                                                                 name="maxuser" value="1">
@@ -246,7 +246,7 @@
                                                 </tr>
                                             @endif
                                         @endif
-                                        @if (session('user_permissions.adminmodule.user.add') == '1')
+                                        @if ((session('user_permissions.adminmodule.user.add') == '1') || $user_id == 1)
                                             <tr id="user">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='user'
@@ -254,7 +254,7 @@
                                                 </td>
                                                 <td>User</td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.user.add') == '1')
+                                                    @if ((session('user_permissions.adminmodule.user.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showusermenu' id="adduser" name="adduser"
                                                             value="1">
@@ -263,7 +263,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.user.view') == '1')
+                                                    @if ((session('user_permissions.adminmodule.user.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showusermenu' id="viewuser" name="viewuser"
                                                             value="1">
@@ -272,7 +272,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.user.edit') == '1')
+                                                    @if ((session('user_permissions.adminmodule.user.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showusermenu' id="edituser" name="edituser"
                                                             value="1">
@@ -281,7 +281,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.user.delete') == '1')
+                                                    @if ((session('user_permissions.adminmodule.user.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showusermenu' id="deleteuser" name="deleteuser"
                                                             value="1">
@@ -290,7 +290,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.user.alldata') == '1')
+                                                    @if ((session('user_permissions.adminmodule.user.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showusermenu' id="alldatauser" name="alldatauser"
                                                             value="1">
@@ -300,7 +300,7 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (Session::has('admin_role') && Session::get('admin_role') == 1)
+                                        @if ((Session::has('admin_role') && Session::get('admin_role') == 1) || $user_id == 1)
                                             <tr id="techsupport">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='techsupport'
@@ -329,7 +329,7 @@
                                                         name="deletetechsupport" value="1">
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.user.alldata') == '1')
+                                                    @if ((session('user_permissions.adminmodule.user.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showtechsupportmenu' id="alldatatechsupport"
                                                             name="alldatatechsupport" value="1">
@@ -339,7 +339,7 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.adminmodule.userpermission.add') == '1')
+                                        @if ((session('user_permissions.adminmodule.userpermission.add') == '1') || $user_id == 1)
                                             <tr id="userpermission">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='userpermission'
@@ -348,7 +348,7 @@
                                                 </td>
                                                 <td>User Permission</td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.userpermission.add') == '1')
+                                                    @if ((session('user_permissions.adminmodule.userpermission.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showuserpermissionmenu' id="adduserpermission"
                                                             name="adduserpermission" value="1">
@@ -357,7 +357,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.userpermission.view') == '1')
+                                                    @if ((session('user_permissions.adminmodule.userpermission.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showuserpermissionmenu' id="viewuserpermission"
                                                             name="viewuserpermission" value="1">
@@ -366,7 +366,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.userpermission.edit') == '1')
+                                                    @if ((session('user_permissions.adminmodule.userpermission.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showuserpermissionmenu' id="edituserpermission"
                                                             name="edituserpermission" value="1">
@@ -375,7 +375,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.userpermission.delete') == '1')
+                                                    @if ((session('user_permissions.adminmodule.userpermission.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showuserpermissionmenu' id="deleteuserpermission"
                                                             name="deleteuserpermission" value="1">
@@ -384,7 +384,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.adminmodule.userpermission.alldata') == '1')
+                                                    @if ((session('user_permissions.adminmodule.userpermission.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showuserpermissionmenu' id="alldatauserpermission"
                                                             name="alldatauserpermission" value="1">
@@ -420,10 +420,10 @@
                         </div>
                     @endif
 
-                    @if (Session::has('invoice') &&
+                    @if ((Session::has('invoice') &&
                             Session::get('invoice') == 'yes' &&
                             Session::has('showinvoicesettings') &&
-                            Session::get('showinvoicesettings') == 'yes')
+                            Session::get('showinvoicesettings') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -451,7 +451,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="invoicecheckboxes">
-                                        @if (session('user_permissions.invoicemodule.invoice.add') == '1')
+                                        @if ((session('user_permissions.invoicemodule.invoice.add') == '1') || $user_id == 1)
                                             <tr id="invoice">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='invoice'
@@ -459,7 +459,7 @@
                                                 </td>
                                                 <td>Invoice</td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoice.add') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoice.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicemenu' id="addinvoice"
                                                             name="addinvoice" value="1">
@@ -468,7 +468,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoice.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicemenu' id="viewinvoice"
                                                             name="viewinvoice" value="1">
@@ -477,7 +477,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoice.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicemenu' id="editinvoice"
                                                             name="editinvoice" value="1">
@@ -486,7 +486,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoice.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicemenu' id="deleteinvoice"
                                                             name="deleteinvoice" value="1">
@@ -495,7 +495,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoice.alldata') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoice.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicemenu' id="alldatainvoice"
                                                             name="alldatainvoice" value="1">
@@ -505,14 +505,14 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.mngcol.add') == '1')
+                                        @if ((session('user_permissions.invoicemodule.mngcol.add') == '1') || $user_id == 1)
                                             <tr id="mngcol">
                                                 <td> <input type="checkbox" class="clickmenu" data-value='mngcol'
                                                         id="showmngcolmenu" name="showmngcolmenu" value="1">
                                                 </td>
                                                 <td>Manage Invoice Column</td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.mngcol.add') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.mngcol.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showmngcolmenu' id="addmngcol" name="addmngcol"
                                                             value="1">
@@ -521,7 +521,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.mngcol.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showmngcolmenu' id="viewmngcol" name="viewmngcol"
                                                             value="1">
@@ -530,7 +530,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.mngcol.edit') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.mngcol.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showmngcolmenu' id="editmngcol" name="editmngcol"
                                                             value="1">
@@ -539,7 +539,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.mngcol.delete') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.mngcol.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showmngcolmenu' id="deletemngcol"
                                                             name="deletemngcol" value="1">
@@ -548,7 +548,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.mngcol.alldata') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.mngcol.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showmngcolmenu' id="alldatamngcol"
                                                             name="alldatamngcol" value="1">
@@ -559,14 +559,14 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.formula.add') == '1')
+                                        @if ((session('user_permissions.invoicemodule.formula.add') == '1') || $user_id == 1)
                                             <tr id="formula">
                                                 <td> <input type="checkbox" class="clickmenu" data-value='formula'
                                                         id="showformulamenu" name="showformulamenu" value="1">
                                                 </td>
                                                 <td>Invoice Formula</td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.formula.add') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.formula.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showformulamenu' id="addformula"
                                                             name="addformula" value="1">
@@ -575,7 +575,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.formula.view') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.formula.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showformulamenu' id="viewformula"
                                                             name="viewformula" value="1">
@@ -584,7 +584,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.formula.edit') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.formula.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showformulamenu' id="editformula"
                                                             name="editformula" value="1">
@@ -593,7 +593,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.formula.delete') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.formula.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showformulamenu' id="deleteformula"
                                                             name="deleteformula" value="1">
@@ -602,7 +602,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.formula.alldata') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.formula.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicesettingmenu' id="alldataformula"
                                                             name="alldataformula" value="1">
@@ -613,7 +613,7 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1')
+                                        @if ((session('user_permissions.invoicemodule.invoicesetting.add') == '1') || $user_id == 1)
                                             <tr id="invoicesetting">
                                                 <td> <input type="checkbox" class="clickmenu" data-value='invoicesetting'
                                                         id="showinvoicesettingmenu" name="showinvoicesettingmenu"
@@ -621,7 +621,7 @@
                                                 </td>
                                                 <td>Invoice/Settings</td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoicesetting.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicesettingmenu' id="addinvoicesetting"
                                                             name="addinvoicesetting" value="1">
@@ -630,7 +630,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoicesetting.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicesettingmenu' id="viewinvoicesetting"
                                                             name="viewinvoicesetting" value="1">
@@ -639,7 +639,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoicesetting.edit') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoicesetting.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicesettingmenu' id="editinvoicesetting"
                                                             name="editinvoicesetting" value="1">
@@ -648,7 +648,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoicesetting.delete') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoicesetting.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicesettingmenu' id="deleteinvoicesetting"
                                                             name="deleteinvoicesetting" value="1">
@@ -657,7 +657,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.invoicesetting.alldata') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.invoicesetting.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicesettingmenu' id="alldatainvoicesetting"
                                                             name="alldatainvoicesetting" value="1">
@@ -668,7 +668,7 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.bank.add') == '1')
+                                        @if ((session('user_permissions.invoicemodule.bank.add') == '1') || $user_id == 1)
                                             <tr id="bank">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='bank'
@@ -676,7 +676,7 @@
                                                 </td>
                                                 <td>Bank</td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.bank.add') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.bank.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showbankmenu' id="addbank" name="addbank"
                                                             value="1">
@@ -685,7 +685,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.bank.view') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.bank.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showbankmenu' id="viewbank" name="viewbank"
                                                             value="1">
@@ -694,7 +694,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.bank.edit') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.bank.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showbankmenu' id="editbank" name="editbank"
                                                             value="1">
@@ -703,7 +703,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.bank.delete') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.bank.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showbankmenu' id="deletebank" name="deletebank"
                                                             value="1">
@@ -712,7 +712,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.bank.alldata') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.bank.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showbankmenu' id="alldatabank" name="alldatabank"
                                                             value="1">
@@ -722,7 +722,7 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.invoicemodule.customer.add') == '1')
+                                        @if ((session('user_permissions.invoicemodule.customer.add') == '1') || $user_id == 1)
                                             <tr id="customer">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='customer'
@@ -730,7 +730,7 @@
                                                 </td>
                                                 <td>Customer</td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.customer.add') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.customer.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomermenu' id="addcustomer"
                                                             name="addcustomer" value="1">
@@ -739,7 +739,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.customer.view') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.customer.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomermenu' id="viewcustomer"
                                                             name="viewcustomer" value="1">
@@ -748,7 +748,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.customer.edit') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.customer.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomermenu' id="editcustomer"
                                                             name="editcustomer" value="1">
@@ -757,7 +757,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.customer.delete') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.customer.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomermenu' id="deletecustomer"
                                                             name="deletecustomer" value="1">
@@ -766,7 +766,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.invoicemodule.customer.alldata') == '1')
+                                                    @if ((session('user_permissions.invoicemodule.customer.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomermenu' id="alldatacustomer"
                                                             name="alldatacustomer" value="1">
@@ -802,7 +802,7 @@
                         </div>
                     @endif
 
-                    @if (Session::has('lead') && Session::get('lead') == 'yes')
+                    @if ((Session::has('lead') && Session::get('lead') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -830,7 +830,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="leadcheckboxes">
-                                        @if (session('user_permissions.leadmodule.lead.add') == '1')
+                                        @if ((session('user_permissions.leadmodule.lead.add') == '1') || $user_id == 1)
                                             <tr id="lead">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='lead'
@@ -838,7 +838,7 @@
                                                 </td>
                                                 <td>Lead</td>
                                                 <td>
-                                                    @if (session('user_permissions.leadmodule.lead.add') == '1')
+                                                    @if ((session('user_permissions.leadmodule.lead.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showleadmenu' id="addlead" name="addlead"
                                                             value="1">
@@ -847,7 +847,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.leadmodule.lead.view') == '1')
+                                                    @if ((session('user_permissions.leadmodule.lead.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showleadmenu' id="viewlead" name="viewlead"
                                                             value="1">
@@ -856,7 +856,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.leadmodule.lead.edit') == '1')
+                                                    @if ((session('user_permissions.leadmodule.lead.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showleadmenu' id="editlead" name="editlead"
                                                             value="1">
@@ -865,7 +865,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.leadmodule.lead.delete') == '1')
+                                                    @if ((session('user_permissions.leadmodule.lead.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showleadmenu' id="deletelead" name="deletelead"
                                                             value="1">
@@ -874,7 +874,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.leadmodule.lead.alldata') == '1')
+                                                    @if ((session('user_permissions.leadmodule.lead.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showleadmenu' id="alldatalead" name="alldatalead"
                                                             value="1">
@@ -910,7 +910,7 @@
                         </div>
                     @endif
 
-                    @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
+                    @if ((Session::has('customersupport') && Session::get('customersupport') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -938,7 +938,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="customersupportcheckboxes">
-                                        @if (session('user_permissions.customersupportmodule.customersupport.add') == '1')
+                                        @if ((session('user_permissions.customersupportmodule.customersupport.add') == '1') || $user_id == 1)
                                             <tr id="customersupport">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='customersupport'
@@ -947,7 +947,7 @@
                                                 </td>
                                                 <td>Customer Support</td>
                                                 <td>
-                                                    @if (session('user_permissions.customersupportmodule.customersupport.add') == '1')
+                                                    @if ((session('user_permissions.customersupportmodule.customersupport.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomersupportmenu' id="addcustomersupport"
                                                             name="addcustomersupport" value="1">
@@ -956,7 +956,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.customersupportmodule.customersupport.view') == '1')
+                                                    @if ((session('user_permissions.customersupportmodule.customersupport.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomersupportmenu' id="viewcustomersupport"
                                                             name="viewcustomersupport" value="1">
@@ -965,7 +965,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
+                                                    @if ((session('user_permissions.customersupportmodule.customersupport.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomersupportmenu' id="editcustomersupport"
                                                             name="editcustomersupport" value="1">
@@ -974,7 +974,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
+                                                    @if ((session('user_permissions.customersupportmodule.customersupport.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomersupportmenu'
                                                             id="deletecustomersupport" name="deletecustomersupport"
@@ -984,7 +984,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.customersupportmodule.customersupport.alldata') == '1')
+                                                    @if ((session('user_permissions.customersupportmodule.customersupport.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showcustomersupportmenu'
                                                             id="alldatacustomersupport" name="alldatacustomersupport"
@@ -1022,7 +1022,7 @@
                         </div>
                     @endif
 
-                    @if (Session::has('account') && Session::get('account') == 'yes')
+                    @if ((Session::has('account') && Session::get('account') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -1048,7 +1048,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="accountcheckboxes">
-                                        @if (session('user_permissions.accountmodule.purchase.add') == '1')
+                                        @if ((session('user_permissions.accountmodule.purchase.add') == '1') || $user_id == 1)
                                             <tr id="purchase">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='purchase'
@@ -1056,7 +1056,7 @@
                                                 </td>
                                                 <td>Purchase</td>
                                                 <td>
-                                                    @if (session('user_permissions.accountmodule.purchase.add') == '1')
+                                                    @if ((session('user_permissions.accountmodule.purchase.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showpurchasemenu' id="addpurchase"
                                                             name="addpurchase" value="1">
@@ -1065,7 +1065,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.accountmodule.purchase.view') == '1')
+                                                    @if ((session('user_permissions.accountmodule.purchase.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showpurchasemenu' id="viewpurchase"
                                                             name="viewpurchase" value="1">
@@ -1074,7 +1074,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.accountmodule.purchase.edit') == '1')
+                                                    @if ((session('user_permissions.accountmodule.purchase.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showpurchasemenu' id="editpurchase"
                                                             name="editpurchase" value="1">
@@ -1083,7 +1083,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.accountmodule.purchase.delete') == '1')
+                                                    @if ((session('user_permissions.accountmodule.purchase.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showpurchasemenu' id="deletepurchase"
                                                             name="deletepurchase" value="1">
@@ -1092,7 +1092,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.accountmodule.purchase.alldata') == '1')
+                                                    @if ((session('user_permissions.accountmodule.purchase.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showpurchasemenu' id="alldatapurchase"
                                                             name="alldatapurchase" value="1">
@@ -1128,7 +1128,7 @@
                         </div>
                     @endif
 
-                    @if (Session::has('inventory') && Session::get('inventory') == 'yes')
+                    @if ((Session::has('inventory') && Session::get('inventory') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -1154,7 +1154,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="inventorycheckboxes">
-                                        @if (session('user_permissions.inventorymodule.product.add') == '1')
+                                        @if ((session('user_permissions.inventorymodule.product.add') == '1') || $user_id == 1)
                                             <tr id="product">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='product'
@@ -1162,7 +1162,7 @@
                                                 </td>
                                                 <td>Product</td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.product.add') == '1')
+                                                    @if ((session('user_permissions.inventorymodule.product.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showproductmenu' id="addproduct"
                                                             name="addproduct" value="1">
@@ -1171,7 +1171,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.product.view') == '1')
+                                                    @if ((session('user_permissions.inventorymodule.product.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showproductmenu' id="viewproduct"
                                                             name="viewproduct" value="1">
@@ -1180,7 +1180,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.product.edit') == '1')
+                                                    @if ((session('user_permissions.inventorymodule.product.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showproductmenu' id="editproduct"
                                                             name="editproduct" value="1">
@@ -1189,7 +1189,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.product.delete') == '1')
+                                                    @if ((session('user_permissions.inventorymodule.product.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showproductmenu' id="deleteproduct"
                                                             name="deleteproduct" value="1">
@@ -1198,7 +1198,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.product.alldata') == '1')
+                                                    @if ((session('user_permissions.inventorymodule.product.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showproductmenu' id="alldataproduct"
                                                             name="alldataproduct" value="1">
@@ -1234,7 +1234,7 @@
                         </div>
                     @endif
 
-                    @if (Session::has('reminder') && Session::get('reminder') == 'yes')
+                    @if ((Session::has('reminder') && Session::get('reminder') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -1260,7 +1260,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="remindercheckboxes">
-                                        @if (session('user_permissions.remindermodule.reminder.add') == '1')
+                                        @if ((session('user_permissions.remindermodule.reminder.add') == '1') || $user_id == 1)
                                             <tr id="reminder">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='reminder'
@@ -1268,7 +1268,7 @@
                                                 </td>
                                                 <td>Reminder</td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.reminder.add') == '1')
+                                                    @if ((session('user_permissions.remindermodule.reminder.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindermenu' id="addreminder"
                                                             name="addreminder" value="1">
@@ -1277,7 +1277,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.reminder.view') == '1')
+                                                    @if ((session('user_permissions.remindermodule.reminder.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindermenu' id="viewreminder"
                                                             name="viewreminder" value="1">
@@ -1286,7 +1286,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.reminder.edit') == '1')
+                                                    @if ((session('user_permissions.remindermodule.reminder.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindermenu' id="editreminder"
                                                             name="editreminder" value="1">
@@ -1295,7 +1295,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.reminder.delete') == '1')
+                                                    @if ((session('user_permissions.remindermodule.reminder.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindermenu' id="deletereminder"
                                                             name="deletereminder" value="1">
@@ -1304,7 +1304,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.reminder.alldata') == '1')
+                                                    @if ((session('user_permissions.remindermodule.reminder.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindermenu' id="alldatareminder"
                                                             name="alldatareminder" value="1">
@@ -1314,7 +1314,7 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.remindermodule.remindercustomer.add') == '1')
+                                        @if ((session('user_permissions.remindermodule.remindercustomer.add') == '1') || $user_id == 1)
                                             <tr id="remindercustomer">
                                                 <td>
                                                     <input type="checkbox" class="clickmenu"
@@ -1323,7 +1323,7 @@
                                                 </td>
                                                 <td>Reminder Customer</td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.remindercustomer.add') == '1')
+                                                    @if ((session('user_permissions.remindermodule.remindercustomer.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindercustomermenu'
                                                             id="addremindercustomer" name="addremindercustomer"
@@ -1333,7 +1333,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.remindercustomer.view') == '1')
+                                                    @if ((session('user_permissions.remindermodule.remindercustomer.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindercustomermenu'
                                                             id="viewremindercustomer" name="viewremindercustomer"
@@ -1343,7 +1343,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1')
+                                                    @if ((session('user_permissions.remindermodule.remindercustomer.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindercustomermenu'
                                                             id="editremindercustomer" name="editremindercustomer"
@@ -1353,7 +1353,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1')
+                                                    @if ((session('user_permissions.remindermodule.remindercustomer.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindercustomermenu'
                                                             id="deleteremindercustomer" name="deleteremindercustomer"
@@ -1363,7 +1363,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.remindermodule.remindercustomer.alldata') == '1')
+                                                    @if ((session('user_permissions.remindermodule.remindercustomer.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showremindercustomermenu'
                                                             id="alldataremindercustomer" name="alldataremindercustomer"
@@ -1400,7 +1400,7 @@
                         </div>
                     @endif
 
-                    @if (Session::has('report') && Session::get('report') == 'yes')
+                    @if ((Session::has('report') && Session::get('report') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -1426,7 +1426,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="reportcheckboxes">
-                                        @if (session('user_permissions.reportmodule.report.add') == '1')
+                                        @if ((session('user_permissions.reportmodule.report.add') == '1') || $user_id == 1)
                                             <tr id="report">
                                                 <td rowspan="3">
                                                     <input type="checkbox" class="clickmenu" data-value='report'
@@ -1434,7 +1434,7 @@
                                                 </td>
                                                 <td rowspan="3">report</td>
                                                 <td>
-                                                    @if (session('user_permissions.reportmodule.report.add') == '1')
+                                                    @if ((session('user_permissions.reportmodule.report.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showreportmenu' id="addreport"
                                                             name="addreport" value="1">
@@ -1443,7 +1443,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.reportmodule.report.view') == '1')
+                                                    @if ((session('user_permissions.reportmodule.report.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showreportmenu' id="viewreport"
                                                             name="viewreport" value="1">
@@ -1452,7 +1452,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.reportmodule.report.edit') == '1')
+                                                    @if ((session('user_permissions.reportmodule.report.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showreportmenu' id="editreport"
                                                             name="editreport" value="1">
@@ -1461,7 +1461,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.reportmodule.report.delete') == '1')
+                                                    @if ((session('user_permissions.reportmodule.report.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showreportmenu' id="deletereport"
                                                             name="deletereport" value="1">
@@ -1515,7 +1515,7 @@
                     @endif
 
 
-                    @if (Session::has('blog') && Session::get('blog') == 'yes')
+                    @if ((Session::has('blog') && Session::get('blog') == 'yes') || $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
                                 <div class="iq-header-title">
@@ -1541,7 +1541,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="blogcheckboxes">
-                                        @if (session('user_permissions.blogmodule.blog.add') == '1')
+                                        @if ((session('user_permissions.blogmodule.blog.add') == '1') || $user_id == 1)
                                             <tr id="blog">
                                                 <td rowspan="3">
                                                     <input type="checkbox" class="clickmenu" data-value='blog'
@@ -1549,7 +1549,7 @@
                                                 </td>
                                                 <td rowspan="3">blog</td>
                                                 <td>
-                                                    @if (session('user_permissions.blogmodule.blog.add') == '1')
+                                                    @if ((session('user_permissions.blogmodule.blog.add') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showblogmenu' id="addblog" name="addblog"
                                                             value="1">
@@ -1558,7 +1558,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.blogmodule.blog.view') == '1')
+                                                    @if ((session('user_permissions.blogmodule.blog.view') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showblogmenu' id="viewblog" name="viewblog"
                                                             value="1">
@@ -1567,7 +1567,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.blogmodule.blog.edit') == '1')
+                                                    @if ((session('user_permissions.blogmodule.blog.edit') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showblogmenu' id="editblog" name="editblog"
                                                             value="1">
@@ -1576,7 +1576,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.blogmodule.blog.delete') == '1')
+                                                    @if ((session('user_permissions.blogmodule.blog.delete') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showblogmenu' id="deleteblog"
                                                             name="deleteblog" value="1">
@@ -1585,7 +1585,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.blogmodule.blog.alldata') == '1')
+                                                    @if ((session('user_permissions.blogmodule.blog.alldata') == '1') || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showblogmenu' id="alldatablog"
                                                             name="alldatablog" value="1">

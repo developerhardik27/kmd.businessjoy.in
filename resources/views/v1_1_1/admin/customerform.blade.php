@@ -21,15 +21,15 @@
                     <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ $company_id }}" class="form-control" name="company_id">
                     <label for="firstname">FirstName</label><span class="withoutgstspan" style="color:red;">*</span>
-                    <input type="text" id="firstname" class="form-control withoutgstinput" name='firstname' placeholder="First Name"
-                        required>
+                    <input type="text" id="firstname" class="form-control withoutgstinput" name='firstname'
+                        placeholder="First Name" required>
                     <span class="error-msg" id="error-firstname" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="lastname">LastName</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                    <input type="text" id="lastname" class="form-control requiredinput" name='lastname' placeholder="Last Name"
-                        >
+                    <input type="text" id="lastname" class="form-control requiredinput" name='lastname'
+                        placeholder="Last Name">
                     <span class="error-msg" id="error-lastname" style="color: red"></span>
                 </div>
             </div>
@@ -46,8 +46,8 @@
                 <div class="col-sm-6">
                     <label for="gst_number">GST Number</label>
                     {{-- <span class="withgstspan" style="color:red;">*</span> --}}
-                    <input type="text" id="gst_number" class="form-control" name='gst_number'
-                        id="" placeholder="GST Number">
+                    <input type="text" id="gst_number" class="form-control" name='gst_number' id=""
+                        placeholder="GST Number">
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
             </div>
@@ -114,13 +114,15 @@
                 <div class="col-sm-6">
                     <label for="house_no_building_name">House no./ Building Name</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
+                        rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                     <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="road_name_area_colony">Road Name/Area/Colony</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2" placeholder="e.g. sardar patel road, jagatpur"></textarea>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"
+                        placeholder="e.g. sardar patel road, jagatpur"></textarea>
                     <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
                 </div>
             </div>
@@ -128,9 +130,8 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="button" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Cancel" id="cancelbtn" class="btn btn-secondary float-right"><i
-                            class="ri-close-line"></i></button>
+                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
+                        id="cancelbtn" class="btn btn-secondary float-right"><i class="ri-close-line"></i></button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Reset Customer Details" class="btn iq-bg-danger float-right mr-2"><i
                             class="ri-refresh-line"></i></button>
@@ -169,7 +170,7 @@
                 }
             });
 
-            // get and set country data in country dropdown
+            // show country data in dropdown
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
@@ -177,20 +178,21 @@
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
+
                     if (response.status == 200 && response.country != '') {
+                        // You can update your HTML with the data here if needed
                         $.each(response.country, function(key, value) {
-                            // You can update your HTML with the data here if needed
                             $('#country').append(
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
-                    } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        country_id = "{{ Auth::guard('admin')->user()->country_id }}";
+                        $('#country').val(country_id);
+                        loadstate();
                     } else {
-                        $('#country').append(`<option disabled> No Data Found</option>`);
+                        $('#country').append(`<option> No Data Found</option>`);
                     }
                     loaderhide();
-
                 },
                 error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
@@ -207,14 +209,24 @@
                 }
             });
 
-            // get and set state data when country select
+            // load state in dropdown when country change
             $('#country').on('change', function() {
                 loadershow();
+                $('#city').html(`<option selected="" disabled="">Select your city</option>`);
                 var country_id = $(this).val();
+                loadstate(country_id);
+            });
+
+            // load state in dropdown and select state according to user
+            function loadstate(id = 0) {
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
+                var url = "/api/state/search/" + id;
+                if (id == 0) {
+                    url = "/api/state/search/" + "{{ Auth::guard('admin')->user()->country_id }}";
+                }
                 $.ajax({
                     type: 'GET',
-                    url: "/api/state/search/" + country_id,
+                    url: url,
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -226,10 +238,13 @@
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
-                        } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            if (id == 0) {
+                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                                $('#state').val(state_id);
+                                loadcity();
+                            }
                         } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`);
+                            $('#state').append(`<option> No Data Found</option>`);
                         }
                         loaderhide();
                     },
@@ -247,16 +262,24 @@
                         toastr.error(errorMessage);
                     }
                 });
-            });
+            }
 
-            // get and set city data when select/change state
+            // load city in dropdown when state select/change
             $('#state').on('change', function() {
                 loadershow();
-                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state_id = $(this).val();
+                loadcity(state_id);
+            });
+
+            function loadcity(id = 0) {
+                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
+                url = "/api/city/search/" + id;
+                if (id == 0) {
+                    url = "/api/city/search/" + "{{ Auth::guard('admin')->user()->state_id }}";
+                }
                 $.ajax({
                     type: 'GET',
-                    url: "/api/city/search/" + state_id,
+                    url: url,
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
@@ -268,14 +291,13 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
-
-                        } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            if (id == 0) {
+                                $('#city').val("{{ Auth::guard('admin')->user()->city_id }}");
+                            }
                         } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`);
+                            $('#city').append(`<option> No Data Found</option>`);
                         }
                         loaderhide();
-
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
@@ -291,11 +313,11 @@
                         toastr.error(errorMessage);
                     }
                 });
-            });
+            }
 
-            $('#cancelbtn').on('click',function(){
+            $('#cancelbtn').on('click', function() {
                 loadershow();
-                window.location.href = "{{route('admin.customer')}}" ;
+                window.location.href = "{{ route('admin.customer') }}";
             });
 
             // submit form 

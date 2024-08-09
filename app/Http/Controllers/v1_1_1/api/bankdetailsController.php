@@ -73,7 +73,8 @@ class bankdetailsController extends commonController
     public function index(Request $request)
     {
 
-        $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0);
+        $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0)
+                        ->select('bank_details.*',DB::raw('DATE_FORMAT(created_at,"%d-%M-%Y %h:%i %p") as created_at_formatted'));
 
         if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
             $bankdetailres->where('created_by', $this->userId);

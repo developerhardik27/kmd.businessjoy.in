@@ -20,13 +20,15 @@
         .table-wrapper-scroll-y {
             display: block;
         }
-        .note-editable *{
+
+        .note-editable * {
             margin: 0;
-            padding: 0 ;
+            padding: 0;
         }
-        #tcdiv *{
+
+        #tcdiv * {
             margin: 0;
-            padding: 0 ;
+            padding: 0;
         }
     </style>
 @endsection
@@ -36,11 +38,16 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-12 col-lg-12">
-                    {{-- <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice Number Settings"
-                        type="button" id="editinvoicenumber"
-                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice Number Settings"
+                        type="button" id="editinvoicenumberBtn"
+                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0 patternsettingBtn">
                         <i class="ri-edit-fill"></i>
-                    </button> --}}
+                    </button>
+                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Invoice Number Settings"
+                        type="button" id="addinvoicenumberBtn"
+                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0 patternsettingBtn">
+                        <i class="ri-add-fill"></i>
+                    </button>
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
@@ -48,7 +55,7 @@
                             </div>
                         </div>
                         <div class="iq-card-body" id="">
-                            <form id="invoicenumberpatternform">
+                            <form id="invoicenumberpatternform" class="d-none">
                                 @csrf
                                 <div class="form-group">
                                     <div class="form-row">
@@ -83,8 +90,11 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel" id="cancelnumberpattern"
+                                                    class="btn btn-secondary float-right">Cancel</button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Inputs" id="resetpatterninput"
-                                                    class="btn iq-bg-danger float-right">Reset</button>
+                                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
                                                 <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Save"
                                                     class="btn btn-primary float-right my-0">Save</button>
@@ -99,7 +109,77 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-sm-12 col-lg-12">
+                    <button type="btn" id="newtcBtn" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Add New Terms and Conditions"
+                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                        <i class="ri-add-fill"></i>
+                    </button>
+                    <div class="iq-card">
+                        <div class="iq-card-header d-flex justify-content-between">
+                            <div class="iq-header-title">
+                                <h4 class="card-title">Invoice Terms & conditions Settings </h4>
+                            </div>
+                        </div>
+                        <div class="iq-card-body">
+                            <form id="tcform" class="d-none">
+                                @csrf
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            <input type="hidden" name="edit_id" class="form-control" id="edit_id"
+                                                required />
+                                            <input type="hidden" name="token" class="form-control"
+                                                value="{{ session('api_token') }}" required />
+                                            <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                class="form-control">
+                                            <input type="hidden" value="{{ $company_id }}" name="company_id"
+                                                class="form-control">
+                                            <textarea class="form-control" name='t_and_c' id="t_and_c" rows="2"
+                                                placeholder="Enter your Invoice Terms & Conditions..."></textarea>
+                                            <span class="error-msg" id="error-t_and_c" style="color: red"></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                                                data-original-title="Submit Terms & Conditions"
+                                                class="btn btn-primary">Submit</button>
+                                            <button type="reset" id="resettcBtn" data-toggle="tooltip"
+                                                data-placement="bottom" data-original-title="Reset Terms & Conditions"
+                                                class="btn iq-bg-danger mr-2">Reset</button>
+                                            <button type="btn" id="canceltcBtn" data-toggle="tooltip"
+                                                data-placement="bottom" data-original-title="Cancel"
+                                                class="btn btn-secondary">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <hr>
+                            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                                <table
+                                    id="data"class="table  table-bordered display table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr</th>
+                                            <th>Terms & Conditions</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabledata">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid"> 
+            <div class="row">
+                <div class="col-md-6">
                     <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Other Settings"
                         type="button" id="editoverdueday"
                         class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
@@ -123,8 +203,9 @@
                                                 class="form-control">
                                             <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                 class="form-control">
-                                            Invoice Overdue Days : <input type="number" id="overdue_day" name='overdue_day'
-                                                class="form-control" placeholder="overdue days" min="1" required />
+                                            Invoice Overdue Days : <input type="number" id="overdue_day"
+                                                name='overdue_day' class="form-control" placeholder="overdue days"
+                                                min="1" required />
                                             <span class="error-msg" id="error-overdue_day" style="color: red"></span><br>
                                         </div>
                                         <div class="col-sm-6">
@@ -157,7 +238,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 col-lg-12">
+                <div class="col-md-6">
                     <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit GST Settings"
                         type="button" id="editgstsettings"
                         class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
@@ -238,69 +319,12 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-12 col-lg-12">
-                    <div class="iq-card">
-                        <div class="iq-card-header d-flex justify-content-between">
-                            <div class="iq-header-title">
-                                <h4 class="card-title">Invoice Terms & conditions Settings </h4>
-                            </div>
-                        </div>
-                        <div class="iq-card-body">
-                            <form id="tcform">
-                                @csrf
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
-                                            <input type="hidden" name="edit_id" class="form-control" id="edit_id"
-                                                required />
-                                            <input type="hidden" name="token" class="form-control"
-                                                value="{{ session('api_token') }}" required />
-                                            <input type="hidden" value="{{ $user_id }}" name="user_id"
-                                                class="form-control">
-                                            <input type="hidden" value="{{ $company_id }}" name="company_id"
-                                                class="form-control">
-                                            <textarea class="form-control" name='t_and_c' id="t_and_c" rows="2"
-                                                placeholder="Enter your Invoice Terms & Conditions..."></textarea>
-                                            <span class="error-msg" id="error-t_and_c" style="color: red"></span>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                                                data-original-title="Submit Terms & Conditions"
-                                                class="btn btn-primary">Submit</button>
-                                            <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                                                data-original-title="Reset Terms & Conditions"
-                                                class="btn iq-bg-danger">Reset</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                            <hr>
-                            <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                                <table
-                                    id="data"class="table  table-bordered display table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Sr</th>
-                                            <th>Terms & Conditions</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tabledata">
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 col-lg-12">
+                <div class="col-md-6">
+                    <button data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Where To Start Customer ID" type="button" id="editcustomeridBtn"
+                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                        <i class="ri-edit-fill"></i>
+                    </button>
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
@@ -308,7 +332,7 @@
                             </div>
                         </div>
                         <div class="iq-card-body">
-                            <form id="cidform">
+                            <form id="cidform" class="d-none">
                                 @csrf
                                 <div class="form-group">
                                     <div class="form-row">
@@ -329,9 +353,12 @@
                                     </div>
                                     <div class="form-row">
                                         <div class="col-sm-12">
+                                            <button type="btn" id="cancelcustomeridBtn" data-toggle="tooltip"
+                                                data-placement="bottom" data-original-title="Cancel"
+                                                class="btn btn-secondary float-right">Cancel</button>
                                             <button type="reset" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset"
-                                                class="btn iq-bg-danger float-right">Reset</button>
+                                                class="btn iq-bg-danger float-right mr-2">Reset</button>
                                             <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Save"
                                                 class="btn btn-primary float-right my-0">Save</button>
@@ -342,7 +369,7 @@
                             Customer Id : <span id="startcid"> </span>
                         </div>
                     </div>
-                </div>
+                </div> 
             </div>
         </div>
     </div>
@@ -374,7 +401,7 @@
                 ],
                 placeholder: 'Add Notes',
                 tabsize: 2,
-                height: 100, 
+                height: 100,
             });
 
             loaderhide();
@@ -459,8 +486,8 @@
                 $('#gstsettingsform').show();
             });
 
-            $('#othersetting-cancelbtn').on('click',function(){
-                $('#overduedaysform').hide(); 
+            $('#othersetting-cancelbtn').on('click', function() {
+                $('#overduedaysform').hide();
                 $('#overduedaysform')[0].reset();
             });
 
@@ -513,60 +540,60 @@
                 });
             });
 
-            $('#gst-cancelbtn').on('click',function(){
-                $('#gstsettingsform').hide(); 
+            $('#gst-cancelbtn').on('click', function() {
+                $('#gstsettingsform').hide();
                 $('#gstsettingsform')[0].reset();
             });
 
             $('#gstsettingsform').submit(function(event) {
-                event.preventDefault(); 
-                    loadershow();
-                    editid = $('#sgst').data('id');
-                    url = "/api/gstsettings/update/" + editid;
-                    $('.error-msg').text('');
-                    const formdata = $(this).serialize();
-                    $.ajax({
-                        type: 'POST',
-                        url: url,
-                        data: formdata,
-                        success: function(response) {
-                            // Handle the response from the server
-                            if (response.status == 200) {
-                                $('#gstsettingsform').hide();
-                                // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
-                                $('#gstsettingsform')[0].reset();
-                                getoverduedays();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            if (xhr.status === 422) {
-                                var errors = xhr.responseJSON.errors;
-                                $.each(errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
-                            } else {
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                toastr.error(errorMessage);
-                            }
+                event.preventDefault();
+                loadershow();
+                editid = $('#sgst').data('id');
+                url = "/api/gstsettings/update/" + editid;
+                $('.error-msg').text('');
+                const formdata = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formdata,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.status == 200) {
+                            $('#gstsettingsform').hide();
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            toastr.success(response.message);
+                            $('#gstsettingsform')[0].reset();
+                            getoverduedays();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
                         }
-                    });
-                 
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            $.each(errors, function(key, value) {
+                                $('#error-' + key).text(value[0]);
+                            });
+                        } else {
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message ||
+                                    "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
+
             });
 
             // get terms and conditions
@@ -770,7 +797,23 @@
                 }
             });
 
+            $('#newtcBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#tcform').removeClass('d-none');
+                $('#newtcBtn').addClass('d-none');
+            })
+            $('#canceltcBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#tcform')[0].reset();
+                $('#t_and_c').summernote('code', '');
+                $('#tcform').addClass('d-none');
+                $('#newtcBtn').removeClass('d-none');
+            })
 
+            $('#resettcBtn').on('click', function(e) {
+                $('#tcform')[0].reset();
+                $('#t_and_c').summernote('code', '');
+            })
             // terms and conditions form submit
             $('#tcform').submit(function(event) {
                 event.preventDefault();
@@ -781,7 +824,7 @@
                 $.ajax({
                     type: 'POST',
                     url: url,
-                    data: formdata, 
+                    data: formdata,
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
@@ -824,7 +867,6 @@
 
             // invoice number settings 
 
-
             function getinvoicepatterns() {
                 $.ajax({
                     type: 'GET',
@@ -836,8 +878,8 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.pattern != '') {
+                            $('#addinvoicenumberBtn').addClass('d-none');
                             var data = response.pattern[0];
-
                             // Update the HTML content
                             $.each(data, function(key, value) {
                                 var pattern = value.invoice_pattern;
@@ -864,6 +906,7 @@
                         } else if (response.status == 500) {
                             toastr.error(response.message);
                         } else {
+                            $('#editinvoicenumberBtn').addClass('d-none')
                             $('#domesticinvoicepattern').text('Yet not set');
                             $('#globalinvoicepattern').text('Yet not set');
 
@@ -888,6 +931,18 @@
             }
             getinvoicepatterns();
 
+            $('#addinvoicenumberBtn,#editinvoicenumberBtn').on('click', function() {
+                $(this).addClass('d-none');
+                $('#invoicenumberpatternform').removeClass('d-none');
+            });
+
+            $('#cancelnumberpattern').on('click', function() {
+                $('#invoicenumberinputs').html(' ');
+                $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',
+                    false); 
+                $('#editinvoicenumberBtn').removeClass('d-none');
+                $('#invoicenumberpatternform').addClass('d-none');
+            });
 
             $('#invoicepattern').on('change', function() {
 
@@ -1003,6 +1058,8 @@
                                     'option[value="ai"],option[value="cidai"]').prop(
                                     'disabled',
                                     false);
+                                $('#invoicenumberpatternform').addClass('d-none');
+                                $('#editinvoicenumberBtn').removeClass('d-none');
                                 getinvoicepatterns();
                             } else if (response.status == 1) {
                                 if (confirm(response.message)) {
@@ -1096,6 +1153,19 @@
                 });
             }
 
+            $('#editcustomeridBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#cidform').removeClass('d-none');
+                $('#editcustomeridBtn').addClass('d-none');
+            })
+            $('#cancelcustomeridBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#cidform')[0].reset();
+                $('#cidform').addClass('d-none');
+                $('#editcustomeridBtn').removeClass('d-none');
+            })
+
+
             $('#cidform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
@@ -1110,6 +1180,8 @@
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             $('#cidform')[0].reset();
+                            $('#cidform').addClass('d-none');
+                            $('#editcustomeridBtn').removeClass('d-none');
                             getoverduedays();
                         } else if (response.status == 500) {
                             toastr.error(response.message);

@@ -352,6 +352,10 @@
                                     <th>Country</th>       
                                     <td>${(customer.country_name != null) ?customer.country_name : '-'}</td>
                                 </tr>
+                                <tr>
+                                    <th>Created On</th>       
+                                    <td>${(customer.created_at_formatted != null) ?customer.created_at_formatted : '-'}</td>
+                                </tr>  
                             `);
                     
 

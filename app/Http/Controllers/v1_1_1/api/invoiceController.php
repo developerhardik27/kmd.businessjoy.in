@@ -663,12 +663,14 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
 
-
-        $column = explode(',', $columnname->show_col);
+        $columnWithoutSpaces = explode(',', $columnname->show_col);
+        $columnWithSpaces = str_replace('_', ' ', $columnname->show_col);
+        $column = explode(',', $columnWithSpaces);
+        
         $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
-            ->select('column_name', 'column_type')->get();
-
-        $columnarray = array_merge($column, ['amount']);
+            ->select('column_name', 'column_type')->get(); 
+            
+        $columnarray = array_merge($columnWithoutSpaces, ['amount']);
 
         // Convert collection to array of associative arrays
         $columnwithtypeArray = $columnwithtype->map(function ($item) {

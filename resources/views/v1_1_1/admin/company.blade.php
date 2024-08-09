@@ -353,6 +353,16 @@
                                         <th>Contry</th>
                                         <td>${company.country_name  != null ? company.country_name : '-'}</td>
                                     </tr> 
+                                    <tr>
+                                        <th>Created On</th>
+                                        <td>${company.created_at_formatted  != null ? company.created_at_formatted : '-'}</td>
+                                    </tr> 
+                                    @if (session('admin_role') == 1) 
+                                        <tr>
+                                            <th>Created By</th>
+                                            <td>${company.creator_firstname} ${company.creator_lastname  != null ? company.creator_lastname : '-'}</td>
+                                        </tr> 
+                                    @endif
                             `);
                     }
                 });
