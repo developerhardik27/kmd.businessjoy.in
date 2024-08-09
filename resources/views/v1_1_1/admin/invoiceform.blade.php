@@ -484,9 +484,9 @@
                 },
                 success: function(response) {
                      allColumnData = response.columnname;
-                     if(allColumnData.length > 6){ 
-                         $('.producttable').css('width',allColumnData.length * 200 + 'px');
-                     }
+                    //  if(allColumnData.length > 6){ 
+                    //      $('.producttable').css('width',allColumnData.length * 200 + 'px');
+                    //  }
                     if (response.status == 200 && response.columnname != '') {
                         // You can update your HTML with the data here if needed
                         $.each(response.columnname, function(key, value) {
