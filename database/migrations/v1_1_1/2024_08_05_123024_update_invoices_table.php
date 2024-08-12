@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('invoices', function (Blueprint $table) {
             $table->mediumText('gstsettings')->nullable()->after('show_col');
+            $table->string('inv_number_type')->default('a')->after('gstsettings');
         });     
     }
 

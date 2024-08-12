@@ -32,6 +32,7 @@ class invoice extends Model
         'company_details_id',
         'show_col',
         'gstsettings',
+        'inv_number_type',
         'overdue_date',
         't_and_c_id',
         'last_increment_number',

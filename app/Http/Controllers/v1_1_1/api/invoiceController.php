@@ -258,88 +258,124 @@ class invoiceController extends commonController
                 ->where('company.id', $this->companyId)
                 ->get();
 
-            $othersetting = $this->invoice_other_settingModel::find(1);
-
-            $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
-            $currentMonth = date('m'); // Current month
-            $currentDay = date('d'); // Current day
-            $startMonth = date('m', strtotime($userStartDate));
-            $startDay = date('d', strtotime($userStartDate));
-
-            // Compare the start date's month and day with the current month and day
-            if ($currentMonth < $startMonth || ($currentMonth == $startMonth && $currentDay < $startDay)) {
-                // If the current date is before the user's starting month, count the previous year
-                $year = date('y', strtotime('-1 year'));
-            } else {
-                // If the current date is after or on the user's starting month, count the current year
-                $year = date('y');
-            }
-
-            $month = date('m');
-            $date = date('d');
             $customerid = $customer[0]->customer_id;
-            $ai = '';
-            $cidai = '';
-            $patterntype = '';
+            $othersetting = $this->invoice_other_settingModel::find(1);
+            $patterntype = 2;
 
-            if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
-                $patterntype = 1;
-                $inv_no = $getpattern->invoice_pattern;
-                if ($getpattern->increment_type == 1) {
-                    // Replace placeholders with actual values
-                    $ai = $getpattern->current_increment_number;
-                    $getpattern->update([
-                        'current_increment_number' => $ai + 1
-                    ]);
-                } else {
-                    $oldinvoice = DB::connection('dynamic_connection')
-                        ->table('invoices')
-                        ->where('customer_id', $customerid)
-                        ->where('is_deleted', 0)
-                        ->where('increment_type', 2)
-                        ->orderBy('last_increment_number', 'desc')
-                        ->select('last_increment_number')
-                        ->first();
-
-                    if (!empty($oldinvoice)) {
-                        $cidai = $oldinvoice->last_increment_number + 1;
-                    } else {
-                        $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
-                    }
+            if (isset($data['inv_number'])) {
+                if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
+                    $patterntype = 1;
                 }
-
-                $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
-
+                $checkinvnumberrec = DB::connection('dynamic_connection')->table('invoices')->where('inv_no', $data['inv_number'])->where('is_deleted', 0)->first();
+                if ($checkinvnumberrec) {
+                    return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
+                }
+                $inv_no = $data['inv_number'];
             } else {
-                $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
-                $patterntype = 2;
-                $inv_no = $getpattern->invoice_pattern;
-                if ($getpattern->increment_type == 1) {
-                    // Replace placeholders with actual values
-                    $ai = $getpattern->current_increment_number;
-                    $getpattern->update([
-                        'current_increment_number' => $ai + 1
-                    ]);
-                } else {
-                    $oldinvoice = DB::connection('dynamic_connection')
-                        ->table('invoices')
-                        ->where('customer_id', $customerid)
-                        ->where('is_deleted', 0)
-                        ->where('increment_type', 2)
-                        ->orderBy('last_increment_number', 'desc')
-                        ->select('last_increment_number')
-                        ->first();
 
-                    if (!empty($oldinvoice)) {
-                        $cidai = $oldinvoice->last_increment_number + 1;
-                    } else {
-                        $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
-                    }
+                $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
+                $currentMonth = date('m'); // Current month
+                $currentDay = date('d'); // Current day
+                $startMonth = date('m', strtotime($userStartDate));
+                $startDay = date('d', strtotime($userStartDate));
+
+                // Compare the start date's month and day with the current month and day
+                if ($currentMonth < $startMonth || ($currentMonth == $startMonth && $currentDay < $startDay)) {
+                    // If the current date is before the user's starting month, count the previous year
+                    $year = date('y', strtotime('-1 year'));
+                } else {
+                    // If the current date is after or on the user's starting month, count the current year
+                    $year = date('y');
                 }
 
-                $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                $month = date('m');
+                $date = date('d');
+                $ai = '';
+                $cidai = '';
+                $patterntype = '';
+
+                if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
+                    $patterntype = 1;
+                    $increment_number = 1;
+                    do {
+                        $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
+                        $inv_no = $getpattern->invoice_pattern;
+                        if ($getpattern->increment_type == 1) {
+                            // Replace placeholders with actual values
+                            $ai = $getpattern->current_increment_number;
+                            $getpattern->update([
+                                'current_increment_number' => $ai + 1
+                            ]);
+                        } else {
+                            $oldinvoice = DB::connection('dynamic_connection')
+                                ->table('invoices')
+                                ->where('customer_id', $customerid)
+                                ->where('is_deleted', 0)
+                                ->where('inv_number_type', 'a')
+                                ->where('increment_type', 2)
+                                ->orderBy('last_increment_number', 'desc')
+                                ->select('last_increment_number')
+                                ->first();
+
+                            if (!empty($oldinvoice)) {
+                                $cidai = $oldinvoice->last_increment_number + $increment_number;
+                            } else {
+                                $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : $increment_number;
+                            }
+                        }
+
+                        $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                        $existingInvoice = DB::connection('dynamic_connection')->table('invoices')->where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
+                        $increment_number++;
+
+                        if (!$existingInvoice) {
+                            break;
+                        }
+                    } while ($existingInvoice);
+
+
+                } else {
+                    $patterntype = 2;
+                    $increment_number = 1;
+
+                    do {
+                        $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
+                        $inv_no = $getpattern->invoice_pattern;
+                        if ($getpattern->increment_type == 1) {
+                            // Replace placeholders with actual values
+                            $ai = $getpattern->current_increment_number;
+                            $getpattern->update([
+                                'current_increment_number' => $ai + 1
+                            ]);
+                        } else {
+                            $oldinvoice = DB::connection('dynamic_connection')
+                                ->table('invoices')
+                                ->where('customer_id', $customerid)
+                                ->where('is_deleted', 0)
+                                ->where('increment_type', 2)
+                                ->where('inv_number_type', 'a')
+                                ->orderBy('last_increment_number', 'desc')
+                                ->select('last_increment_number')
+                                ->first();
+
+                            if (!empty($oldinvoice)) {
+                                $cidai = $oldinvoice->last_increment_number + $increment_number;
+                            } else {
+                                $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
+                            }
+                        }
+                        $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                        $existingInvoice = DB::connection('dynamic_connection')->table('invoices')->where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
+                        $increment_number++;
+                        if (!$existingInvoice) {
+
+                            break;
+                        }
+                    } while ($existingInvoice);
+
+                }
             }
+
 
             $company_details = company::find($data['company_id']);
 
@@ -369,10 +405,15 @@ class invoiceController extends commonController
                     $invoicerec['inv_date'] = $data['invoice_date'];
                 }
 
+                if ($data['inv_number']) {
+                    $invoicerec['inv_number_type'] = 'm';
+                }
 
-                if ($cidai != '') {
+                if (isset($cidai) && $cidai != '') {
                     $invoicerec['last_increment_number'] = $cidai;
                     $invoicerec['increment_type'] = 2;
+                } else {
+                    $invoicerec['increment_type'] = 1;
                 }
 
                 if ($data['tax_type'] != 2) {
@@ -432,7 +473,6 @@ class invoiceController extends commonController
             } else {
                 return $this->successresponse(500, 'message', 'company Details not found');
             }
-
 
         }
     }
@@ -618,20 +658,24 @@ class invoiceController extends commonController
 
         // Find the invoice by ID
         $inv = $this->invoiceModel::find($id);
+        $lastinv = $this->invoiceModel::orderBy('id', 'desc')->where('is_deleted', 0)->first();
+
         if (!$inv) {
             return $this->successresponse(404, 'message', 'Invoice not found');
         }
 
         // Update increment numbers if applicable
-        if ($inv->increment_type == 1) {
+        if ($inv->increment_type != 2) {
             $patterntype = $inv->pattern_type == 1 ? 'domestic' : 'global';
             $pattern = $this->invoice_number_patternModel::where('pattern_type', $patterntype)
                 ->where('is_deleted', 0)
                 ->first();
 
             if ($pattern) {
-                $pattern->last_increment_number = max(0, $pattern->last_increment_number - 1);
-                $pattern->save();
+                if ($id == $lastinv->id) {
+                    $pattern->current_increment_number = max(0, $pattern->current_increment_number - 1);
+                    $pattern->save();
+                }
             }
         }
 
@@ -666,10 +710,10 @@ class invoiceController extends commonController
         $columnWithoutSpaces = explode(',', $columnname->show_col);
         $columnWithSpaces = str_replace('_', ' ', $columnname->show_col);
         $column = explode(',', $columnWithSpaces);
-        
+
         $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
-            ->select('column_name', 'column_type')->get(); 
-            
+            ->select('column_name', 'column_type')->get();
+
         $columnarray = array_merge($columnWithoutSpaces, ['amount']);
 
         // Convert collection to array of associative arrays
@@ -764,6 +808,16 @@ class invoiceController extends commonController
 
         } else {
             return $this->successresponse(404, 'message', 'No Such Log Found!');
+        }
+    }
+
+    public function checkinvoicenumber(Request $request)
+    {
+        $existsinvoice = DB::connection('dynamic_connection')->table('invoices')->where('inv_no', $request->inv_number)->where('is_deleted', 0)->exists();
+        if ($existsinvoice) {
+            return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
+        }else{
+            return true;
         }
     }
 }
