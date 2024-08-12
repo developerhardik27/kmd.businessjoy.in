@@ -143,7 +143,7 @@
                             // Redirect to the URL to start the file download
                             window.location.href = response.downloadUrl;
                         } else {
-                            alert('Failed to generate the ZIP file.');
+                            toastr.error('Failed to generate the ZIP file.');
                         }
                     },
                     error: function(xhr) {
