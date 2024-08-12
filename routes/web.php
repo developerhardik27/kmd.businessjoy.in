@@ -300,6 +300,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             // pdf routes ------------------------------------ 
             $PdfController = getadminversion('PdfController');
             Route::group([], function () use ($PdfController) {
+                Route::get('/download/{fileName}', [$PdfController, 'downloadZip'])->name('file.download');
                 Route::get('/generatepdf/{id}', [$PdfController, 'generatepdf'])->name('invoice.generatepdf')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::post('/generatepdfzip', [$PdfController, 'generatepdfzip'])->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', [$PdfController, 'generatereciept'])->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
