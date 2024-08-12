@@ -66,7 +66,7 @@ class PdfController extends Controller
       $invdata = json_decode($jsoninvContent, true);
       $companydetailsdata = json_decode($jsoncompanyContent, true);
       $bankdetailsdata = json_decode($jsonbankContent, true);
- 
+
 
       if ($productdata['status'] == 404) {
          return redirect()->back()->with('message', 'yes');
@@ -143,7 +143,7 @@ class PdfController extends Controller
       $invdata = json_decode($jsoninvContent, true);
       $companydetailsdata = json_decode($jsoncompanyContent, true);
 
-     
+
       if ($productdata['status'] == 404) {
          return redirect()->back()->with('message', 'yes');
       }
@@ -238,7 +238,7 @@ class PdfController extends Controller
 
       if (count($paymentdata['payment']) > 1) {
          $name = 'PaymentHistory ' . $invdata['invoice'][0]['inv_no'] . '.pdf';
-      } 
+      }
 
       // return view($this->version . '.admin.paymentpaidreciept', $data);
       return $pdf->stream($name);
@@ -283,7 +283,7 @@ class PdfController extends Controller
             return back()->with('success', 'Not any invoice exists between this  date');
          }
 
-         $tempDir = storage_path('app/temp_pdf');
+         $tempDir = public_path('app/temp_pdf');
          if (!file_exists($tempDir)) {
             mkdir($tempDir, 0777, true);
          }
@@ -297,17 +297,22 @@ class PdfController extends Controller
 
          $zipFileName = 'invoices_' . date('Ymd') . '.zip';
          $zip = new ZipArchive;
-         if ($zip->open(storage_path('app/' . $zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
-            $files = Storage::files('temp_pdf');
+         if ($zip->open(public_path('app/' . $zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
+            $files = scandir($tempDir);
             foreach ($files as $file) {
-               $zip->addFile(storage_path('app/' . $file), basename($file));
+               if (in_array($file, ['.', '..']))
+                  continue;
+               $zip->addFile($tempDir . '/' . $file, $file);
             }
             $zip->close();
          } else {
             throw new Exception('Unable to create zip file');
          }
 
-         Storage::deleteDirectory('temp_pdf');
+         array_map('unlink', glob("$tempDir/*"));
+         rmdir($tempDir);
+         
+         // Insert log
          DB::connection('dynamic_connection')->table('reportlogs')->insert([
             'module_name' => 'invoice',
             'from_date' => $request->fromdate,
@@ -317,7 +322,7 @@ class PdfController extends Controller
          return response()->json([
             'status' => 'success',
             'downloadUrl' => url('/admin/download/' . $zipFileName) // Return the URL for downloading
-        ]);
+         ]);
       } catch (Exception $e) {
          // Log the error
          Log::error($e->getMessage());
@@ -362,15 +367,15 @@ class PdfController extends Controller
    }
 
    public function downloadZip($fileName)
-{
-    $filePath = storage_path('app/' . $fileName);
-    if (file_exists($filePath)) {
-        return response()->download($filePath)->deleteFileAfterSend(true);
-    }
+   {
+      $filePath = public_path('app/' . $fileName);
+      if (file_exists($filePath)) {
+         return response()->download($filePath)->deleteFileAfterSend(true);
+      }
 
-    return response()->json([
-        'status' => 'error',
-        'message' => 'File not found'
-    ], 404);
-}
+      return response()->json([
+         'status' => 'error',
+         'message' => 'File not found'
+      ], 404);
+   }
 }
