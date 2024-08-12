@@ -110,19 +110,49 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            $('#invoicezipform').on('submit', function() {
-                toastr.info('Please wait  file is downloading', '', {
-                    timeOut: 10000
+            // $('#invoicezipform').on('submit', function() {
+            //     toastr.info('Please wait  file is downloading', '', {
+            //         timeOut: 10000
+            //     });
+            //     loadershow();
+            //     setTimeout(function() {
+            //         loaderhide();
+            //     }, 40000);
+            //     setTimeout(() => {
+            //         $('#fromdate').val('');
+            //         $('#todate').val('');
+            //     }, 10000);
+
+            // });
+
+            $('#invoicezipform').on('submit', function(e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                loadershow(); // Show the loader
+
+                // Serialize form data
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '/admin/generatepdfzip', // Your API endpoint
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.status === 'success') {  
+                            $('#invoicezipform')[0].reset();
+                            // Redirect to the URL to start the file download
+                            window.location.href = response.downloadUrl;
+                        } else {
+                            alert('Failed to generate the ZIP file.');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('An error occurred while generating the ZIP file.');
+                    },
+                    complete: function() {
+                        loaderhide(); // Hide the loader
+                    }
                 });
-                loadershow();
-                setTimeout(function() {
-                    loaderhide();
-                }, 40000);
-                setTimeout(() => {
-                    $('#fromdate').val('');
-                    $('#todate').val('');
-                }, 10000);
-                
             });
 
 
@@ -203,10 +233,10 @@
                 });
             }
 
-           
+
 
             @if (session('user_permissions.reportmodule.report.log') == '1')
-              //call function for loaddata if  user has permission
+                //call function for loaddata if  user has permission
                 loaddata();
             @endif
 
