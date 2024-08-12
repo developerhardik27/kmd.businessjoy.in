@@ -92,6 +92,15 @@
                 </div>
             </div>
         </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <label for="inv_number">Invoice Number</label> 
+                    <input type="text" name="inv_number" id="inv_number" class="form-control" placeholder="Invoice Number">
+                    <span class="error-msg" id="error-inv_number" style="color: red"></span>
+                </div> 
+            </div>
+        </div>
         <div id="table" class="table-editable" style="overflow-x:auto">
             
             <table id="data" class="table table-bordered  table-striped text-center producttable">
@@ -1100,6 +1109,7 @@
                 var payment_type = $('#payment').val();
                 var account = $('#acc_details').val();
                 var invoice_date = $('#invoice_date').val();
+                var inv_number = $('#inv_number').val();
                 var currency = $('#currency').val();
                 var type = $('#type').val();
                 var customer = $('#customer').val();
@@ -1123,6 +1133,7 @@
                     payment_mode: payment_type,
                     bank_account: account,
                     invoice_date: invoice_date,
+                    inv_number: inv_number,
                     currency: currency,
                     customer: customer,
                     total_amount: total_amount,
@@ -1192,6 +1203,51 @@
             });
            
            
+
+            $('#inv_number').on('blur',function(){
+                $('.error-msg').text('');
+                var inv_number = $(this).val();
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('invoice.checkinvoicenumber') }}",
+                    data: {
+                        inv_number: inv_number ,
+                        token: "{{ session()->get('api_token') }}",
+                        company_id : " {{ session()->get('company_id')}}",
+                        user_id : " {{ session()->get('user_id')}}",
+                    },
+                    success: function(response) {  
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            var errorcontainer;
+                            $.each(errors, function(key, value) {
+                                $('#error-' + key).text(value[0]);
+                                errorcontainer = '#error-' + key ;
+                            });
+                            $('html, body').animate({
+                                scrollTop: 0
+                            }, 1000);
+                        } else {
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
+            });
+
+
             $('#cancelbtn').on('click',function(){
                 loadershow();
                     window.location.href = "{{route('admin.invoice')}}" ;

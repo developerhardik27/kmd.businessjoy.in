@@ -50,6 +50,7 @@ class versionupdateController extends commonController
                     ]
                 ]);
 
+
                 if ($company->app_version != $request->version) {
                     $paths = [];
                     switch ($request->version) {
@@ -60,6 +61,7 @@ class versionupdateController extends commonController
                             break;
                         // Add more cases as needed
                     }
+  
                     if (!empty($paths)) {
                         // Run migrations only from the specified path
                         foreach ($paths as $path) {
@@ -68,10 +70,32 @@ class versionupdateController extends commonController
                                 '--database' => $company->dbname,
                             ]);
                         }
+                    } 
+
+                    config(['database.connections.dynamic_connection.database' => $company->dbname]);
+
+                    // Establish connection to the dynamic database
+                    DB::purge('dynamic_connection');
+                    DB::reconnect('dynamic_connection');
+
+                    switch ($request->version) {
+                        case 'v1_1_1':
+                            $getgstsettings = DB::connection('dynamic_connection')->table('invoice_other_settings')->select('sgst', 'cgst', 'gst')->first();
+                            $gstsettings = json_encode([
+                                'sgst' => $getgstsettings->sgst,
+                                'cgst' => $getgstsettings->cgst,
+                                'gst' => $getgstsettings->gst,
+                            ]);
+                            DB::connection('dynamic_connection')->table('invoices')->where('is_deleted', 0)->update([
+                                'gstsettings' => $gstsettings
+                            ]);
+                            break;
+
                     }
 
                     $company->app_version = $request->version;
                     $company->save();
+
 
                     return $this->successresponse(200, 'message', 'Company version succesfully updated');
 

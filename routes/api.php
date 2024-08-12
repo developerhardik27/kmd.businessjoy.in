@@ -204,6 +204,7 @@ Route::middleware($middlewareClass)->group(function () {
     $invoiceController = getversion('invoiceController');
     //invoice route
     Route::group([], function () use ($invoiceController) {
+        Route::get('/checkinvoicenumber', [$invoiceController, 'checkinvoicenumber'])->name('invoice.checkinvoicenumber');
         Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
         Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');
         Route::get('/columnname', [$invoiceController, 'columnname'])->name('invoice.columnname');
