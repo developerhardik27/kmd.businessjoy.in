@@ -303,7 +303,6 @@ class PdfController extends Controller
                $zip->addFile(storage_path('app/' . $file), basename($file));
             }
             $zip->close();
-            
          } else {
             throw new Exception('Unable to create zip file');
          }
@@ -315,16 +314,13 @@ class PdfController extends Controller
             'to_date' => $request->todate,
             'created_by' => $request->user_id,
          ]);
-         return response()->json([
-            'status' => 'success',
-            'downloadUrl' => url('/admin/download/' . $zipFileName) // Return the URL for downloading
-        ]);
+         return response()->download(storage_path('app/' . $zipFileName))->deleteFileAfterSend(true);
       } catch (Exception $e) {
          // Log the error
          Log::error($e->getMessage());
 
          // Return back with an error message
-         return response()->json(['error' => 'Something went wrong while creating the zip file'], 500);
+         return back()->with('error', 'Something went wrong while creating the zip file');
       }
    }
 
@@ -361,17 +357,4 @@ class PdfController extends Controller
       ];
       return $data;
    }
-
-   public function downloadZip($fileName)
-{
-    $filePath = storage_path('app/' . $fileName);
-    if (file_exists($filePath)) {
-        return response()->download($filePath)->deleteFileAfterSend(true);
-    }
-
-    return response()->json([
-        'status' => 'error',
-        'message' => 'File not found'
-    ], 404);
-}
 }
