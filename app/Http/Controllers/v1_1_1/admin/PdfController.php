@@ -303,6 +303,7 @@ class PdfController extends Controller
                $zip->addFile(storage_path('app/' . $file), basename($file));
             }
             $zip->close();
+            
          } else {
             throw new Exception('Unable to create zip file');
          }
