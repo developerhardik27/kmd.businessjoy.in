@@ -99,7 +99,8 @@ class versionupdateController extends commonController
 
                     return $this->successresponse(200, 'message', 'Company version succesfully updated');
 
-                } else {
+                }
+                 else {
                     return $this->successresponse(500, 'message', 'This company is already in latest version.');
                 }
             } else {

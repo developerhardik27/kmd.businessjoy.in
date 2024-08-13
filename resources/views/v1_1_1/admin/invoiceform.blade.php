@@ -84,7 +84,7 @@
                     </select>
                     <span class="error-msg" id="error-bank_account" style="color: red"></span>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-4" id="inv_date_div">
                     <label for="invoice_date">Invoice Date</label>
                     {{-- <span style="color:red;">*</span> --}}
                     <input type="datetime-local" class="form-control" id="invoice_date" name="invoice_date">
@@ -94,7 +94,7 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-4">
+                <div class="col-sm-4" id="inv_number_div">
                     <label for="inv_number">Invoice Number</label> 
                     <input type="text" name="inv_number" id="inv_number" class="form-control" placeholder="Invoice Number">
                     <span class="error-msg" id="error-inv_number" style="color: red"></span>
@@ -385,7 +385,7 @@
                 $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
                 // Reinitialize tooltips
                 $('body').find('[data-toggle="tooltip"]').tooltip();
-            }
+            };
 
             let allColumnData = [];
             let allColumnNames = [];
@@ -393,61 +393,73 @@
             let formula = [];
             let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
 
-            // fetch gst settings 
+            // fetch other settings like gst and inv number and inv date 
             $.ajax({
-                    type: 'GET',
-                    url: '{{ route('getoverduedays.index') }}',
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.overdueday != '') {
-                            sgst = response.overdueday[0]['sgst'];
-                            cgst = response.overdueday[0]['cgst'];
-                            gst = response.overdueday[0]['gst'];
-                            totalgstpercentage = sgst + cgst ;
-                            if (sgst % 1 === 0) { // Checks if sgst is an integer
-                                    $('#sgstpercentage').text(`(${sgst}.00 %)`);
-                            } else {
-                                $('#sgstpercentage').text(`(${sgst} %)`);
-                            }
-                            if (cgst % 1 === 0) { // Checks if cgst is an integer
-                                    $('#cgstpercentage').text(`(${cgst}.00 %)`);
-                            } else {
-                                $('#cgstpercentage').text(`(${cgst} %)`);
-                            }
-                            if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
-                                    $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
-                            } else {
-                                $('#gstpercentage').text(`(${totalgstpercentage} %)`);
-                            }
-                            if(gst != 0){
-                                $('#sgstline,#cgstline').hide();
-                            }else{
-                                $('#gstline').hide();
-                            }
-                        } else if (response.status == 500) {
-                            toastr.error(response.message);
+                type: 'GET',
+                url: '{{ route('getoverduedays.index') }}',
+                data: {
+                    user_id: "{{ session()->get('user_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.overdueday != '') {
+                        var othersettingdata = response.overdueday[0];
+                        sgst = othersettingdata['sgst'];
+                        cgst = othersettingdata['cgst'];
+                        gst = othersettingdata['gst'];
+                        manualinvnumber = othersettingdata['invoice_number'];
+                        manualinvdate = othersettingdata['invoice_date'];
+                        totalgstpercentage = sgst + cgst ;
+                        if (sgst % 1 === 0) { // Checks if sgst is an integer
+                                $('#sgstpercentage').text(`(${sgst}.00 %)`);
+                        } else {
+                            $('#sgstpercentage').text(`(${sgst} %)`);
                         }
-                        loaderhide();
-                        // You can update your HTML with the data here if needed
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                        if (cgst % 1 === 0) { // Checks if cgst is an integer
+                                $('#cgstpercentage').text(`(${cgst}.00 %)`);
+                        } else {
+                            $('#cgstpercentage').text(`(${cgst} %)`);
                         }
-                        toastr.error(errorMessage);
+                        if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
+                                $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
+                        } else {
+                            $('#gstpercentage').text(`(${totalgstpercentage} %)`);
+                        }
+                        if(gst != 0){
+                            $('#sgstline,#cgstline').hide();
+                        }else{
+                            $('#gstline').hide();
+                        }
+
+                        if(manualinvnumber == 0){
+                            $('#inv_number_div').hide()
+                        }
+
+                        if(manualinvdate == 0){
+                            $('#inv_date_div').hide()
+                        }
+
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                     }
-                });
+                    loaderhide();
+                    // You can update your HTML with the data here if needed
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    toastr.error(errorMessage);
+                }
+            });
 
 
             // fetch invoice formula for calculation 
@@ -827,7 +839,7 @@
                         toastr.error(errorMessage);
                     }
                 });
-            }
+            };
 
             customers();
 
@@ -959,7 +971,7 @@
                     </tr>
                 `);
                 managetooltip();
-            }
+            };
 
 
             // duplicate row 
@@ -1023,7 +1035,7 @@
                     </tr>
                 `);
                 managetooltip();
-            }
+            };
 
             // delete row 
             $(document).on('click', '.remove-row', function() {
@@ -1250,7 +1262,7 @@
 
             $('#cancelbtn').on('click',function(){
                 loadershow();
-                    window.location.href = "{{route('admin.invoice')}}" ;
+                window.location.href = "{{route('admin.invoice')}}" ;
             }); 
 
             // dynamic calculation 
@@ -1357,10 +1369,10 @@
                          
                          
             }
-                $(document).on('keyup change','.calculation',function(){
-                
-                        dynamiccalculaton(this);
-                });
+
+            $(document).on('keyup change','.calculation',function(){ 
+                dynamiccalculaton(this);
+            });
 
 
             // for add new customer 
@@ -1405,7 +1417,7 @@
             });
  
              // load state in dropdown when country change
-             $('#modal_country').on('change', function() {
+            $('#modal_country').on('change', function() {
                 loadershow(); 
                 $('#modal_city').html(`<option selected="" disabled="">Select your city</option>`);
                 var country_id = $(this).val();
