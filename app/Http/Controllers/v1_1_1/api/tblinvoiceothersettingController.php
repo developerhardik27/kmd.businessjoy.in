@@ -58,13 +58,13 @@ class tblinvoiceothersettingController extends commonController
         // if ($this->rp['invoicemodule']['invoicesetting']['view'] != 1) {
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
         // }
- 
 
-        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type','start_increment_number','increment_type')->get();
-        $customer_id = $this->invoice_other_settingModel::where('is_deleted',0)->select('customer_id')->get();
-       
+
+        $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type', 'start_increment_number', 'increment_type')->get();
+        $customer_id = $this->invoice_other_settingModel::where('is_deleted', 0)->select('customer_id')->get();
+
         if ($pattern->count() > 0) {
-            return $this->successresponse(200, 'pattern', [$pattern,$customer_id[0]]);
+            return $this->successresponse(200, 'pattern', [$pattern, $customer_id[0]]);
         } else {
             return $this->successresponse(404, 'pattern', 'No Records Found');
         }
@@ -146,7 +146,7 @@ class tblinvoiceothersettingController extends commonController
             $gst = 0;
             if (isset($request->gst)) {
                 $gst = $request->gst;
-            } 
+            }
             //condition for check if user has permission to search  record
             if ($this->rp['invoicemodule']['invoicesetting']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -161,13 +161,13 @@ class tblinvoiceothersettingController extends commonController
             }
 
             if ($overdueday) {
-                date_default_timezone_set('Asia/Kolkata'); 
+                date_default_timezone_set('Asia/Kolkata');
                 $overdueday->sgst = $request->sgst;
                 $overdueday->cgst = $request->cgst;
                 $overdueday->gst = $gst;
                 $overdueday->updated_by = $this->userId;
                 $overdueday->updated_at = date('Y-m-d H:i:s');
-                $overdueday->save(); 
+                $overdueday->save();
 
                 return $this->successresponse(200, 'message', 'GST ettings succesfully updated');
             } else {
@@ -431,6 +431,65 @@ class tblinvoiceothersettingController extends commonController
                 return $this->successresponse(200, 'message', 'Customer id settings succesfully updated');
             } else {
                 return $this->successresponse(404, 'message', 'No Such Customer Setting Found!');
+            }
+        }
+    }
+
+    public function manual_invoice_number(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string',
+            'user_id' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+            $getsettings = $this->invoice_other_settingModel::find(1);
+
+            if ($getsettings) {  
+
+                date_default_timezone_set('Asia/Kolkata');
+                $getsettings->update([
+                    'invoice_number' => $request->status, 
+                    'updated_by' => $this->userId,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                return $this->successresponse(200, 'message', 'Invoice number settings succesfully updated');
+            } else {
+                return $this->successresponse(404, 'message', 'No Such Invoice number Setting Found!');
+            }
+        }
+    }
+    public function manual_invoice_date(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string',
+            'user_id' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+            $getsettings = $this->invoice_other_settingModel::find(1);
+
+            if ($getsettings) {  
+
+                date_default_timezone_set('Asia/Kolkata');
+                $getsettings->update([
+                    'invoice_date' => $request->status, 
+                    'updated_by' => $this->userId,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                return $this->successresponse(200, 'message', 'Invoice date settings succesfully updated');
+            } else {
+                return $this->successresponse(404, 'message', 'No Such Invoice date Setting Found!');
             }
         }
     }

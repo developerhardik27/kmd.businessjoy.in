@@ -341,6 +341,8 @@ Route::middleware($middlewareClass)->group(function () {
         Route::put('/termsandconditions/statusupdate/{id}', [$tblinvoiceothersettingController, 'tcstatusupdate'])->name('termsandconditions.statusupdate');
         Route::put('/termsandconditions/delete/{id}', [$tblinvoiceothersettingController, 'tcdestroy'])->name('termsandconditions.delete');
         Route::post('/customerid', [$tblinvoiceothersettingController, 'customeridstore'])->name('customerid.store');
+        Route::post('/manualinvoicenumber', [$tblinvoiceothersettingController, 'manual_invoice_number'])->name('othersettings.updateinvoicenumberstatus');
+        Route::post('/manualinvoicedate', [$tblinvoiceothersettingController, 'manual_invoice_date'])->name('othersettings.updateinvoicedatestatus');
     });
 
 

@@ -104,9 +104,46 @@
                                 </div>
                             </form>
                             <hr>
-                            Domestic Invoice Pattern : <span id="domesticinvoicepattern"></span><br>
-                            Global Invoice Pattern : <span id="globalinvoicepattern"></span>
+                            <table>
+                                <tr>
+                                    <td>Domestic Invoice Pattern :</td>
+                                    <td>
+                                        <span id="domesticinvoicepattern"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Global Invoice Pattern :</td>
+                                    <td>
+                                        <span id="globalinvoicepattern"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Manual Invoice Number :</td>
+                                    <td>
+                                        <span id="view_manual_inv_number">
+                                            <div class="custom-control custom-switch custom-control-inline">
+                                                <input type="checkbox" class="custom-control-input" checked=""
+                                                    id="manualinvnumberswitch" value="yes">
+                                                <label class="custom-control-label" for="manualinvnumberswitch">Yes</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Manual Invoice Date :</td>
+                                    <td>
+                                        <span id="view_manual_inv_date">
+                                            <div class="custom-control custom-switch custom-control-inline">
+                                                <input type="checkbox" class="custom-control-input" checked=""
+                                                    id="manualinvdateswitch" value="yes">
+                                                <label class="custom-control-label" for="manualinvdateswitch">Yes</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -177,7 +214,7 @@
                 </div>
             </div>
         </div>
-        <div class="container-fluid"> 
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
                     <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Other Settings"
@@ -369,7 +406,7 @@
                             Customer Id : <span id="startcid"> </span>
                         </div>
                     </div>
-                </div> 
+                </div>
             </div>
         </div>
     </div>
@@ -425,6 +462,8 @@
                             sgst = data['sgst'];
                             cgst = data['cgst'];
                             gst = data['gst'];
+                            invoice_number = data['invoice_number'];
+                            invoice_date = data['invoice_date'];
                             $('#overduedays').html(`<b>${overdueday}</b> `);
                             $('#yearstartdate').html(`<b>${year_start}</b> `);
                             $('#overdue_day').val(overdueday);
@@ -443,6 +482,19 @@
                             } else {
                                 $('#gstswitch').prop('checked', false); // Uncheck the checkbox
                                 $('#gstdisabledswitch').prop('checked', false); // Uncheck the checkbox
+                            }
+                            if (invoice_number == 1) {
+                                $('#manualinvnumberswitch').prop('checked', true); // Check the checkbox
+                            } else {
+                                $('#manualinvnumberswitch').prop('checked',
+                                    false); // Uncheck the checkbox
+                            }
+
+                            if (invoice_date == 1) {
+                                $('#manualinvdateswitch').prop('checked', true); // Check the checkbox
+                            } else {
+                                $('#manualinvdateswitch').prop('checked',
+                                    false); // Uncheck the checkbox
                             }
                             $('#startcid').html(`<b>${data.customer_id}</b>`);
 
@@ -867,6 +919,102 @@
 
             // invoice number settings 
 
+            $('#manualinvnumberswitch').on('change', function() {
+                var val = $(this).prop('checked') ? 'yes' : 'no';
+                if (confirm('Are you sure to update this setting?')) {
+                    var invnumberstatus = 0;
+                    if (val == 'yes') {
+                        invnumberstatus = 1;
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('othersettings.updateinvoicenumberstatus') }}',
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}",
+                            status: invnumberstatus
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                toastr.success(response.message);
+                            } else {
+                                toastr.error(response.message);
+                            }
+                            loaderhide();
+                            // You can update your HTML with the data here if needed
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    });
+                } else {
+                    if (val == 'yes') {
+                        $(this).prop('checked', false);
+                    } else {
+                        $(this).prop('checked', true);
+                    }
+                }
+            });
+
+            $('#manualinvdateswitch').on('change', function() {
+                var val = $(this).prop('checked') ? 'yes' : 'no';
+                if (confirm('Are you sure to update this setting?')) {
+                    var invdatestatus = 0;
+                    if (val == 'yes') {
+                        invdatestatus = 1
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('othersettings.updateinvoicedatestatus') }}',
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}",
+                            status: invdatestatus
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                toastr.success(response.message);
+                            } else {
+                                toastr.error(response.message);
+                            }
+                            loaderhide();
+                            // You can update your HTML with the data here if needed
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    });
+                } else {
+                    if (val == 'yes') {
+                        $(this).prop('checked', false);
+                    } else {
+                        $(this).prop('checked', true);
+                    }
+                }
+            });
+
             function getinvoicepatterns() {
                 $.ajax({
                     type: 'GET',
@@ -939,7 +1087,7 @@
             $('#cancelnumberpattern').on('click', function() {
                 $('#invoicenumberinputs').html(' ');
                 $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',
-                    false); 
+                    false);
                 $('#editinvoicenumberBtn').removeClass('d-none');
                 $('#invoicenumberpatternform').addClass('d-none');
             });

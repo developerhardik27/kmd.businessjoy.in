@@ -88,7 +88,7 @@
                         </select>
                         <span class="error-msg" id="error-bank_account" style="color: red"></span>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-4" id="inv_date_div">
                         <label for="invoice_date">Invoice Date</label>
                         {{-- <span style="color:red;">*</span> --}}
                         <input type="datetime-local" class="form-control" id="invoice_date" name="invoice_date">
@@ -394,6 +394,47 @@
                 let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
 
       
+
+                // fetch other settings like gst and inv number and inv date 
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('getoverduedays.index') }}',
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.overdueday != '') {
+                            var othersettingdata = response.overdueday[0]; 
+                            manualinvdate = othersettingdata['invoice_date']; 
+                            
+                            if(manualinvdate == 0){
+                                $('#inv_date_div').hide()
+                            }
+
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        }
+                        loaderhide();
+                        // You can update your HTML with the data here if needed
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+
+
                 // fetch invoice formula for calculation 
                 $.ajax({
                     type: 'GET',
@@ -584,6 +625,7 @@
 
             
                 loaderhide();
+
                  // customer data fetch and set customer dropdown
                 function customers(customerid = 0) {
                     loadershow();
@@ -987,69 +1029,67 @@
 
 
                 // duplicate row 
-            $(document).on('click', '.duplicate-row', function() {
-                if (confirm('Are you really want to add duplicate column?')) { 
-                    addname++;
-                    var id = $(this).data('id'); 
-                    duplicatediv(id);
-                    if('#Amount_'.id != null || '#Amount_'.id != ''){
-                        dynamiccalculaton();
-                    } 
+                $(document).on('click', '.duplicate-row', function() {
+                    if (confirm('Are you really want to add duplicate column?')) { 
+                        addname++;
+                        var id = $(this).data('id'); 
+                        duplicatediv(id);
+                        if('#Amount_'.id != null || '#Amount_'.id != ''){
+                            dynamiccalculaton();
+                        } 
+                        managetooltip();
+                    }
+                    
+                });
+
+                function duplicatediv(id){
+                    $('#add_new_div').append(`
+                        <tr class="iteam_row_${addname}">
+                            ${allColumnData.map(columnData => {
+                                var columnName = columnData.column_name.replace(/\s+/g, '_');
+                                    var inputcontent = null ;
+                                    if (columnData.column_type === 'time') {
+                                        return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} "></td>`;
+                                    } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
+                                        return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
+                                    } else if (columnData.column_type === 'longtext') {
+                                        return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || ''}</textarea></td>`;
+                                    } else {
+                                        return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
+                                    }
+                                }).join('')
+                            }
+                            <td>
+                                <input type="number" step="any" data-id = ${addname} id="Amount_${addname}" value="${$('#Amount' + '_' + id).val() || ''}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
+                            </td>   
+                            <td>
+                                <span class="table-up">
+                                    <a href="#!" class="indigo-text">
+                                        <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                <span class="table-down">
+                                    <a href="#!" class="indigo-text">
+                                        <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                            </td>
+                            <td>
+                                <span class='duplicate-row' data-id = ${addname}>
+                                    <button type="button"  data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
+                                    <i class="ri-align-bottom"></i>
+                                    </button>
+                                </span>
+                                <span class='remove-row' data-id=${addname}>
+                                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
+                                    <i class="ri-delete-bin-2-line"></i>
+                                    </button>
+                                </span>
+                            </td>
+                        </tr>
+                    `);
                     managetooltip();
-                }
-                
-            });
-
-            function duplicatediv(id){
-                $('#add_new_div').append(`
-                    <tr class="iteam_row_${addname}">
-                        ${allColumnData.map(columnData => {
-                            var columnName = columnData.column_name.replace(/\s+/g, '_');
-                                var inputcontent = null ;
-                                if (columnData.column_type === 'time') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} "></td>`;
-                                } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
-                                } else if (columnData.column_type === 'longtext') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || ''}</textarea></td>`;
-                                } else {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
-                                }
-                            }).join('')
-                        }
-                        <td>
-                            <input type="number" step="any" data-id = ${addname} id="Amount_${addname}" value="${$('#Amount' + '_' + id).val() || ''}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
-                        </td>   
-                        <td>
-                            <span class="table-up">
-                                <a href="#!" class="indigo-text">
-                                    <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
-                                </a>
-                            </span>
-                            <span class="table-down">
-                                <a href="#!" class="indigo-text">
-                                    <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
-                                </a>
-                            </span>
-                        </td>
-                        <td>
-                            <span class='duplicate-row' data-id = ${addname}>
-                                <button type="button"  data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
-                                <i class="ri-align-bottom"></i>
-                                </button>
-                            </span>
-                            <span class='remove-row' data-id=${addname}>
-                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                <i class="ri-delete-bin-2-line"></i>
-                                </button>
-                            </span>
-                        </td>
-                    </tr>
-                `);
-                managetooltip();
-            }
-
-
+                } 
 
                 var oldproductsid = new Array();
                 // delete row 
@@ -1370,83 +1410,30 @@
                      window.location.href = "{{route('admin.invoice')}}" ;
                 }); 
 
-                // for add new customer 
+                //** for add new customer 
+
 
                  // show country data in dropdown
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('country.index') }}',
-                data: {
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-
-                    if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.country, function(key, value) {
-                            $('#modal_country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
-                        });
-                        country_id = "{{ Auth::guard('admin')->user()->country_id }}";
-                        $('#modal_country').val(country_id);
-                        loadstate();
-                    } else {
-                        $('#modal_country').append(`<option> No Data Found</option>`);
-                    }
-                    loaderhide();
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr
-                        .responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    toastr.error(errorMessage);
-                }
-            });
- 
-             // load state in dropdown when country change
-             $('#modal_country').on('change', function() {
-                loadershow(); 
-                $('#modal_city').html(`<option selected="" disabled="">Select your city</option>`);
-                var country_id = $(this).val();
-                loadstate(country_id);
-            });
-
-            // load state in dropdown and select state according to user
-            function loadstate(id = 0) {
-                $('#modal_state').html(`<option selected="" disabled="">Select your State</option>`);
-                var url = "/api/state/search/" + id;
-                if (id == 0) {
-                    url = "/api/state/search/" + "{{ Auth::guard('admin')->user()->country_id }}";
-                }
                 $.ajax({
                     type: 'GET',
-                    url: url,
+                    url: '{{ route('country.index') }}',
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 && response.state != '') {
+
+                        if (response.status == 200 && response.country != '') {
                             // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#modal_state').append(
-                                    `<option value='${value.id}'> ${value.state_name}</option>`
+                            $.each(response.country, function(key, value) {
+                                $('#modal_country').append(
+                                    `<option value='${value.id}'> ${value.country_name}</option>`
                                 )
                             });
-                            if (id == 0) {
-                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
-                                $('#modal_state').val(state_id);
-                                loadcity();
-                            }
+                            country_id = "{{ Auth::guard('admin')->user()->country_id }}";
+                            $('#modal_country').val(country_id);
+                            loadstate();
                         } else {
-                            $('#modal_state').append(`<option> No Data Found</option>`);
+                            $('#modal_country').append(`<option> No Data Found</option>`);
                         }
                         loaderhide();
                     },
@@ -1464,64 +1451,120 @@
                         toastr.error(errorMessage);
                     }
                 });
-            }
- 
-            // load city in dropdown when state select/change
-            $('#modal_state').on('change', function() {
-                loadershow(); 
-                var state_id = $(this).val();
-                loadcity(state_id);
-            });
+    
 
-            function loadcity(id = 0) {
-                $('#modal_city').html(`<option selected="" disabled="">Select your City</option>`);
-                url = "/api/city/search/" + id;
-                if (id == 0) {
-                    url = "/api/city/search/" + "{{ Auth::guard('admin')->user()->state_id }}";
-                }
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.city, function(key, value) {
-                                $('#modal_city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                            if (id == 0) {
-                                $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
-                            }
-                        } else {
-                            $('#modal_city').append(`<option> No Data Found</option>`);
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
+                // load state in dropdown when country change
+                $('#modal_country').on('change', function() {
+                    loadershow(); 
+                    $('#modal_city').html(`<option selected="" disabled="">Select your city</option>`);
+                    var country_id = $(this).val();
+                    loadstate(country_id);
                 });
-            } 
 
-            $('#modal_cancelBtn').on('click',function(){
-                $('#customerform')[0].reset();
-                $('#exampleModalScrollable').modal('hide');
-                $('#customer option:first').prop('selected', true);
-            })
+                // load state in dropdown and select state according to user
+                function loadstate(id = 0) {
+                    $('#modal_state').html(`<option selected="" disabled="">Select your State</option>`);
+                    var url = "/api/state/search/" + id;
+                    if (id == 0) {
+                        url = "/api/state/search/" + "{{ Auth::guard('admin')->user()->country_id }}";
+                    }
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        data: {
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            if (response.status == 200 && response.state != '') {
+                                // You can update your HTML with the data here if needed
+                                $.each(response.state, function(key, value) {
+                                    $('#modal_state').append(
+                                        `<option value='${value.id}'> ${value.state_name}</option>`
+                                    )
+                                });
+                                if (id == 0) {
+                                    state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                                    $('#modal_state').val(state_id);
+                                    loadcity();
+                                }
+                            } else {
+                                $('#modal_state').append(`<option> No Data Found</option>`);
+                            }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    });
+                }
+ 
+                // load city in dropdown when state select/change
+                $('#modal_state').on('change', function() {
+                    loadershow(); 
+                    var state_id = $(this).val();
+                    loadcity(state_id);
+                });
+
+                function loadcity(id = 0) {
+                    $('#modal_city').html(`<option selected="" disabled="">Select your City</option>`);
+                    url = "/api/city/search/" + id;
+                    if (id == 0) {
+                        url = "/api/city/search/" + "{{ Auth::guard('admin')->user()->state_id }}";
+                    }
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        data: {
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            if (response.status == 200 && response.city != '') {
+                                // You can update your HTML with the data here if needed
+                                $.each(response.city, function(key, value) {
+                                    $('#modal_city').append(
+                                        `<option value='${value.id}'> ${value.city_name}</option>`
+                                    )
+                                });
+                                if (id == 0) {
+                                    $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
+                                }
+                            } else {
+                                $('#modal_city').append(`<option> No Data Found</option>`);
+                            }
+                            loaderhide();
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            toastr.error(errorMessage);
+                        }
+                    });
+                } 
+
+                $('#modal_cancelBtn').on('click',function(){
+                    $('#customerform')[0].reset();
+                    $('#exampleModalScrollable').modal('hide');
+                    $('#customer option:first').prop('selected', true);
+                })
+                
                 // submit new customer  form
                 $('#customerform').submit(function(event) {
                     event.preventDefault();
