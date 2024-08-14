@@ -95,11 +95,11 @@
                                             <h4 class="card-title">Personal Information</h4>
                                         </div>
                                         {{-- @if (session('user_permissions.adminmodule.user.edit') == '1' && session('menu') == 'admin') --}}
-                                            <div>
-                                                <i data-userid="{{ $id }}" id="editicon" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Edit Profile"
-                                                    class="ri-pencil-fill float-right"></i> 
-                                            </div>
+                                        <div>
+                                            <i data-userid="{{ $id }}" id="editicon" data-toggle="tooltip"
+                                                data-placement="bottom" data-original-title="Edit Profile"
+                                                class="ri-pencil-fill float-right"></i>
+                                        </div>
                                         {{-- @endif --}}
                                     </div>
                                     <div class="iq-card-body">
@@ -492,6 +492,7 @@
 @endsection
 @push('ajax')
     <script>
+        // show and hide password
         function togglePasswordVisibility() {
             var passwordField = document.getElementById("current_password");
             var toggleIcon = document.querySelector(".toggle-password");
@@ -517,7 +518,7 @@
 
             let previousValue; // store default  page 
 
-            // get user data
+            // get user data for user profile
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.profile') }}',
@@ -542,8 +543,9 @@
                             var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
                                 'alt', 'profile-img').attr('class', 'profile-pic rounded');
                         } else {
-                            var imgElement =  $('<img>').attr('src', '/admin/images/imgnotfound.jpg').attr(
-                                'alt', 'profile-img').attr('class', 'profile-pic rounded');
+                            var imgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg')
+                                .attr(
+                                    'alt', 'profile-img').attr('class', 'profile-pic rounded');
                         }
                         $('#profile_img').append(imgElement);
                         $('#homepage').val(user.default_page);
@@ -570,7 +572,7 @@
                 }
             });
 
-            // get company data
+            // get company data for company profile
             $.ajax({
                 type: 'GET',
                 url: '{{ route('company.profile') }}',
@@ -583,10 +585,11 @@
                     if (response.status == 200 && response.company != '') {
                         var company = response.company[0];
                         $('#companyname').text(company.name);
-                        companyemail = company.email != null ? company.email : '-' ;
+                        companyemail = company.email != null ? company.email : '-';
                         $('#companyemail').text(companyemail);
                         $('#companycontact').text(company.contact_no);
-                        $('#companyaddress').html(company.house_no_building_name + '</br>' + company.road_name_area_colony + '</br>' + company.pincode);
+                        $('#companyaddress').html(company.house_no_building_name + '</br>' + company
+                            .road_name_area_colony + '</br>' + company.pincode);
                         $('#companycity').text(company.city_name);
                         $('#companystate').text(company.state_name);
                         $('#companycountry').text(company.country_name);
@@ -596,15 +599,17 @@
                             var imgElement = $('<img>').attr('src', '/uploads/' + company.img).attr(
                                 'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         } else {
-                            var imgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg').attr(
-                                'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
+                            var imgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg')
+                                .attr(
+                                    'alt', 'profile-img').attr('class', 'avatar-130 img-fluid');
                         }
                         $('#company_profile_img').prepend(imgElement);
-                        if(company.pr_sign_img != null && company.pr_sign_img != ''){ 
-                            var signImgElement = $('<img>').attr('src', '/uploads/' + company.pr_sign_img)
+                        if (company.pr_sign_img != null && company.pr_sign_img != '') {
+                            var signImgElement = $('<img>').attr('src', '/uploads/' + company
+                                    .pr_sign_img)
                                 .attr(
                                     'alt', 'Signature-img').attr('class', 'avatar-130 img-fluid');
-                        }else{
+                        } else {
                             var signImgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg')
                                 .attr('alt', 'Signature-img').attr('class', 'avatar-130 img-fluid');
                         }
@@ -631,6 +636,7 @@
                 }
             });
 
+            // show update user form
             $('#editicon').on('click', function() {
                 loadershow();
                 $('#personal_information').addClass('d-none');
@@ -649,7 +655,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.user != '') {
-                            user = response.user[0];
+                            user = response.user.user;
                             // You can update your HTML with the data here if needed
                             $('#firstname').val(user.firstname);
                             $('#lastname').val(user.lastname);
@@ -690,6 +696,7 @@
                 });
             });
 
+            // hide update user form
             $('#cancel_edit').on('click', function() {
                 loadershow();
                 $('#personal_information').removeClass('d-none');
@@ -698,6 +705,7 @@
                 $('#usereditform')[0].reset();
                 loaderhide();
             });
+
             // show country data in dropdown and old country selected
             function loadcountry(country) {
                 $.ajax({
@@ -964,6 +972,7 @@
                 });
             });
 
+            // change home page 
             $('#homepage').on('change', function() {
                 var selectedOption = $(this).find('option:selected');
                 var optgroup = selectedOption.closest('optgroup');
