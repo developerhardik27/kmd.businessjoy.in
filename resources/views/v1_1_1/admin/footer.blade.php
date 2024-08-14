@@ -90,8 +90,8 @@
                 var username = user.lastname != null ? user.lastname : ' '; 
                 $('#username').text(user.firstname + ' ' + username);
                 $('#usernamein').append(' ' + user.firstname + ' ' + username);
-                $('#loggedcompanyname').append('-' + user.name);
-                $('#afterclickcompanyname').append('-' + user.name);
+                $('#loggedcompanyname').append(user.name);
+                $('#afterclickcompanyname').append(user.name);
                 var imgname = user.img;
                 if (imgname != null) {
                     var imgElement = $('<img>').attr('src', '/uploads/' + imgname).attr('alt',

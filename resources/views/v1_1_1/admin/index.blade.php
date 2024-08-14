@@ -99,8 +99,25 @@
                                                             <div class="media-support-info ml-3">
                                                                 <h6>
                                                                     <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Part Payment Invoices"
+                                                                        class="btn btn-info btn-sm"
+                                                                        id='invoicepartpaymentdata'>
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        Part Payment
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-info"><span
+                                                                    id="invoicepartpayment">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
                                                                         data-original-title="View Paid Invoices"
-                                                                        class="btn btn-success btn-sm" id='invoicepaidata'>
+                                                                        class="btn btn-success btn-sm" id='invoicepaiddata'>
                                                                         <span>
                                                                             <i class="ri-list-check"></i>
                                                                         </span>
@@ -436,7 +453,6 @@
 @endsection
 
 @push('ajax')
-
     <script>
         $('document').ready(function() {
             // companyId and userId both are required in every ajax request for all action *************
@@ -447,6 +463,7 @@
 
 
             function invoicedashboard() {
+                var invoicepartpaymentdata = '';
                 var invoicepaiddata = '';
                 var invoicependingdata = '';
                 var invoicecanceldata = '';
@@ -462,6 +479,12 @@
                     },
                     success: function(response) {
                         var totalinv = 0;
+                        if (response.part_payment) {
+                            partpayment = response.part_payment;
+                            totalinv += parseInt(partpayment.length);
+                            $('#invoicepartpayment').text(partpayment.length)
+                            invoicepartpaymentdata = response.part_payment;
+                        }
                         if (response.paid) {
                             paid = response.paid;
                             totalinv += parseInt(paid.length);
@@ -499,6 +522,30 @@
                         }
                     }
                 });
+
+                // part payment invoices
+                function partpaymentd() {
+                    $('#invoicedata').html('');
+                    $('#status_title').text('part payment');
+                    if (invoicepartpaymentdata != '') {
+                        $.each(invoicepartpaymentdata, function(key, value) {
+                            $('#invoicedata').append(` <tr>
+                                            <td>${value.inv_no}</td>
+                                            <td>${value.inv_date_formatted}</td>
+                                            <td class="text-right">${value.grand_total}</td>
+                                            <td class="text-center">
+                                                <div class="badge badge-pill iq-bg-success">${(value.status).replace('_',' ')}</div>
+                                            </td>
+                                        </tr>`
+                            );
+                        });
+                    } else {
+                        $('#invoicedata').append(
+                            `<tr><td colspan=6>still not any invoice status part payment in this month </td></tr>`
+                        )
+                    }
+
+                }
 
                 // paid invoices
                 function paidd() {
@@ -586,7 +633,10 @@
                     }
                 }
 
-                $('#invoicepaidata').on('click', function() {
+                $('#invoicepartpaymentdata').on('click', function() {
+                    partpaymentd();
+                });
+                $('#invoicepaiddata').on('click', function() {
                     paidd();
                 });
                 $('#invoicependingdata').on('click', function() {
