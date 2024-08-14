@@ -710,7 +710,7 @@ class invoiceController extends commonController
         $column = explode(',', $columnWithSpaces);
 
         $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
-            ->select('column_name', 'column_type')->where('is_deleted',0)->get();
+            ->select('column_name', 'column_type')->orderBy('column_order')->where('is_deleted',0)->get();
 
         $columnarray = array_merge($columnWithoutSpaces, ['amount']);
 
