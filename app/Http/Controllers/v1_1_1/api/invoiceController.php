@@ -17,18 +17,18 @@ class invoiceController extends commonController
 
     public function __construct(Request $request)
     {
-        if (session()->get('company_id')) {
-            $this->dbname(session()->get('company_id'));
-        } else {
+        if ($request->company_id) {
             $this->dbname($request->company_id);
-        }
-        if (session()->get('user_id')) {
-            $this->userId = session()->get('user_id');
+            $this->companyId = $request->company_id;
         } else {
+            $this->dbname(session()->get('company_id'));
+        }
+        if ($request->user_id) {
             $this->userId = $request->user_id;
+        } else {
+            $this->userId = session()->get('user_id');
         }
 
-        $this->companyId = $request->company_id;
         $this->masterdbname = DB::connection()->getDatabaseName();
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
@@ -120,8 +120,6 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
     }
-
-
 
     //get dynamic column name
     public function columnname(Request $request)
@@ -712,7 +710,7 @@ class invoiceController extends commonController
         $column = explode(',', $columnWithSpaces);
 
         $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
-            ->select('column_name', 'column_type')->get();
+            ->select('column_name', 'column_type')->orderBy('column_order')->where('is_deleted',0)->get();
 
         $columnarray = array_merge($columnWithoutSpaces, ['amount']);
 
