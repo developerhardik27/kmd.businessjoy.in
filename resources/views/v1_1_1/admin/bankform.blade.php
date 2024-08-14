@@ -41,7 +41,7 @@
                 <div class="col-sm-6">
                     <label for="swift_code">Swift Code</label>
                     <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
-                        placeholder="Swift Code" />
+                        placeholder="Swift Code"/>
                     <span class="error-msg" id="error-swift_code" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
@@ -62,23 +62,21 @@
                 </div>
                 <div class="col-sm-6">
                     <label for="branch_name">Branch Name</label>
-                    <input type="text" id="branch_name" name="branch_name" class="form-control"
-                        placeholder="Branch Name" />
+                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name"
+                         />
                     <span class="error-msg" id="error-branch_name" style="color: red"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-12">
-                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details"
-                        class="btn iq-bg-danger float-right"><i class='ri-refresh-line'></i></button>
-                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Save Details" class="btn btn-primary float-right my-0"><i
-                            class='ri-check-line'></i></button>
-                </div>
+                 <div class="col-sm-12">
+                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel" id="cancelbtn" class="btn btn-secondary float-right"><i class='ri-close-line'></i></button>
+                     <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2"><i class='ri-refresh-line'></i></button>
+                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save Details" class="btn btn-primary float-right my-0" ><i class='ri-check-line'></i></button>
+                 </div>
             </div>
-        </div>
+         </div>
     </form>
 @endsection
 
@@ -97,6 +95,11 @@
             @isset($message)
                 alert('You have not any bank account. Please first add bank account!');
             @endisset
+
+            $('#cancelbtn').on('click',function(){
+                loadershow();
+                window.location.href = "{{route('admin.bank')}}" ;
+            });
 
 
             // submit form data
@@ -142,7 +145,7 @@
                             toastr.error(errorMessage);
                         }
                     }
-                });
+                })
             });
         });
     </script>

@@ -128,6 +128,12 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::put('/UpdateUser/{id}', [$UserController, 'update'])->name('admin.updateuser')->middleware('checkPermission:adminmodule,user,edit');
                 Route::put('/DeleteUser/{id}', [$UserController, 'destroy'])->name('admin.deleteuser')->middleware('checkPermission:adminmodule,user,delete');
             });
+
+            $VersionUpdateController = getadminversion('VersionUpdateController');
+            Route::group([], function () use ($VersionUpdateController) {
+                Route::get('/VersionControl', [$VersionUpdateController, 'versioncontrol'])->name('admin.versionupdate');
+            });
+
             //  admin routes end------
 
             // invoice module routes start 
@@ -294,6 +300,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             // pdf routes ------------------------------------ 
             $PdfController = getadminversion('PdfController');
             Route::group([], function () use ($PdfController) {
+                Route::get('/download/{fileName}', [$PdfController, 'downloadZip'])->name('file.download');
                 Route::get('/generatepdf/{id}', [$PdfController, 'generatepdf'])->name('invoice.generatepdf')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::post('/generatepdfzip', [$PdfController, 'generatepdfzip'])->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', [$PdfController, 'generatereciept'])->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');

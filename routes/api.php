@@ -95,6 +95,7 @@ Route::middleware($middlewareClass)->group(function () {
     $companyController = getversion('companyController');
     Route::group([], function () use ($companyController) {
         Route::get('/companyprofile', [$companyController, 'companyprofile'])->name('company.profile');
+        Route::get('/companylist', [$companyController, 'companylistforversioncontrol'])->name('company.companylist');
         Route::get('/company', [$companyController, 'index'])->name('company.index');
         Route::get('/companydata', [$companyController, 'joincompany'])->name('company.joindata');
         Route::post('/company/insert', [$companyController, 'store'])->name('company.store');
@@ -104,6 +105,12 @@ Route::middleware($middlewareClass)->group(function () {
         Route::post('/company/delete/{id}', [$companyController, 'destroy'])->name('company.delete');
         Route::put('/company/statusupdate/{id}', [$companyController, 'statusupdate'])->name('company.statusupdate');
 
+    });
+
+    // version control route
+    $versionupdateController = getversion('versionupdateController');
+    Route::group([], function () use ($versionupdateController) { 
+        Route::put('/company/versionupdate', [$versionupdateController, 'updatecompanyversion'])->name('company.versionupdate');
     });
 
     // product route
@@ -197,6 +204,7 @@ Route::middleware($middlewareClass)->group(function () {
     $invoiceController = getversion('invoiceController');
     //invoice route
     Route::group([], function () use ($invoiceController) {
+        Route::get('/checkinvoicenumber', [$invoiceController, 'checkinvoicenumber'])->name('invoice.checkinvoicenumber');
         Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
         Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');
         Route::get('/columnname', [$invoiceController, 'columnname'])->name('invoice.columnname');
@@ -333,6 +341,8 @@ Route::middleware($middlewareClass)->group(function () {
         Route::put('/termsandconditions/statusupdate/{id}', [$tblinvoiceothersettingController, 'tcstatusupdate'])->name('termsandconditions.statusupdate');
         Route::put('/termsandconditions/delete/{id}', [$tblinvoiceothersettingController, 'tcdestroy'])->name('termsandconditions.delete');
         Route::post('/customerid', [$tblinvoiceothersettingController, 'customeridstore'])->name('customerid.store');
+        Route::post('/manualinvoicenumber', [$tblinvoiceothersettingController, 'manual_invoice_number'])->name('othersettings.updateinvoicenumberstatus');
+        Route::post('/manualinvoicedate', [$tblinvoiceothersettingController, 'manual_invoice_date'])->name('othersettings.updateinvoicedatestatus');
     });
 
 
