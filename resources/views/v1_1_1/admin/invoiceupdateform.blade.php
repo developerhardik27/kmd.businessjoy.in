@@ -364,8 +364,8 @@
                 // response status == 422 that means api has not got valid or required data
 
 
-                $('.withgstspan').hide();
-
+                // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
+                $('.withgstspan').hide(); 
                 $('#company_name').on('change keyup', function() {
                     var val = $(this).val();
                     if (val != '') {
@@ -381,16 +381,17 @@
                     }
                 });
 
+                 //function for refresh tooltip after dynamic record append,delete 
                 function managetooltip(){
                     $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
                     // Reinitialize tooltips
                     $('body').find('[data-toggle="tooltip"]').tooltip();
                 }
 
-                let allColumnData = [];
-                let allColumnNames = [];
-                let hiddencolumn = 0 ;
-                let formula = [];
+                let allColumnData = []; // all column name with column details
+                let allColumnNames = []; // all column name 
+                let hiddencolumn = 0 ; // hidden columns 
+                let formula = []; // formula
                 let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
 
       
@@ -492,7 +493,7 @@
                             });
                             
                             $('#columnname').prepend(
-                                `${allColumnData.map(columnName => `<th style="${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
+                                `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
                                     <th>Amount</th>
                                     <th>Move</th>
                                     <th>Remove</th>
@@ -1023,10 +1024,7 @@
                         </tr>
                     `);
                     managetooltip();
-                }
-
-
-
+                } 
 
                 // duplicate row 
                 $(document).on('click', '.duplicate-row', function() {
@@ -1405,6 +1403,7 @@
                     });
                 }); 
                
+                // redirect invoice list page on click cancel button
                 $('#cancelbtn').on('click',function(){
                     loadershow();
                      window.location.href = "{{route('admin.invoice')}}" ;

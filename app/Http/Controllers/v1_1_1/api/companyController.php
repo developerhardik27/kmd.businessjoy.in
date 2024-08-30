@@ -20,15 +20,15 @@ class companyController extends commonController
     public function __construct(Request $request)
     {
 
-        if (session()->get('company_id')) {
-            $this->companyId = session()->get('company_id');
-        } else {
+        if ($request->company_id) {
             $this->companyId = $request->company_id;
-        }
-        if (session()->get('user_id')) {
-            $this->userId = session()->get('user_id');
         } else {
+            $this->companyId = session()->get('company_id');
+        }
+        if ($request->user_id) {
             $this->userId = $request->user_id;
+        } else {
+            $this->userId = session()->get('user_id');
         }
 
         $this->user = User::find($this->userId);
@@ -48,7 +48,7 @@ class companyController extends commonController
     }
 
 
-
+    // for using pdf 
     public function companydetailspdf($id)
     {
 
@@ -66,6 +66,7 @@ class companyController extends commonController
         }
     }
 
+    // using in my profile company data
     public function companyprofile(Request $request)
     {
         $company = DB::table('company')
@@ -91,31 +92,31 @@ class companyController extends commonController
         }
     }
 
-     /**
-     * Display a listing of the resource.
+    /**
+     * company list for company version update.
      */
 
-     public function companylistforversioncontrol(Request $request)
-     { 
-         if ($this->companyId == 1) {
-             $company = DB::table('company')
-                 ->join('company_details', 'company.company_details_id', '=', 'company_details.id') 
-                 ->select('company.id','company.app_version','company_details.name', 'company_details.email', 'company_details.contact_no')
-                 ->where('company.is_deleted', 0)
-                 ->get();
-         }  
- 
-         if ($this->rp['adminmodule']['company']['view'] != 1) {
-             return $this->successresponse(500, 'message', 'You are Unauthorized');
-         }
- 
-         if ($company->count() > 0) {
-             return $this->successresponse(200, 'company', $company);
-         } else {
-             return $this->successresponse(404, 'company', 'No Records Found');
-         }
-     }
- 
+    public function companylistforversioncontrol(Request $request)
+    {
+        if ($this->companyId == 1) {
+            $company = DB::table('company')
+                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+                ->select('company.id', 'company.app_version', 'company_details.name', 'company_details.email', 'company_details.contact_no')
+                ->where('company.is_deleted', 0)
+                ->get();
+        }
+
+        if ($this->rp['adminmodule']['company']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        if ($company->count() > 0) {
+            return $this->successresponse(200, 'company', $company);
+        } else {
+            return $this->successresponse(404, 'company', 'No Records Found');
+        }
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -132,7 +133,7 @@ class companyController extends commonController
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
                 ->join('users', 'company.created_by', '=', 'users.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"),'users.firstname as creator_firstname','users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.firstname as creator_firstname', 'users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)
                 ->get();
         } else {
@@ -142,7 +143,7 @@ class companyController extends commonController
                 ->join('state', 'company_details.state_id', '=', 'state.id')
                 ->join('city', 'company_details.city_id', '=', 'city.id')
                 ->join('users', 'company.created_by', '=', 'users.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"),'users.firstname as creator_firstname','users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.firstname as creator_firstname', 'users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
                 ->where('company.is_deleted', 0)->where('company.is_active', 1);
 
             if ($this->rp['adminmodule']['company']['alldata'] != 1) {
@@ -177,7 +178,7 @@ class companyController extends commonController
      */
     public function store(Request $request)
     {
-
+        // validate incoming request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
             'email' => 'nullable|string|max:50',
@@ -202,32 +203,36 @@ class companyController extends commonController
         ]);
 
         if ($validator->fails()) {
+            // return error response
             return $this->errorresponse(422, $validator->messages());
         } else {
+
             if ($this->rp['adminmodule']['company']['add'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
+            // check user email is not duplicate
             $checkuseremail = User::where('email', $request->email_default_user)->where('is_deleted', 0)->get();
 
             if (count($checkuseremail) > 0) {
                 return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
+             
             $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
 
             // If the cleaned name starts with a digit, prepend an underscore
             if (ctype_digit(substr($modifiedname, 0, 1))) {
                 $modifiedname = '_' . $modifiedname;
             }
-            // Set the dynamic database name (sanitize and format if necessary)
-            // $dbName = 'bj_' . $modifiedname . '_' . Str::lower(Str::random(3));
 
-            $host = $_SERVER['HTTP_HOST'];
+            // Set the dynamic database name (sanitize and format if necessary) 
 
-            if ($host === 'localhost') {
+            $host = $_SERVER['HTTP_HOST']; 
+
+            if ($host === 'localhost:8000') {
                 // If the host is localhost
-                $dbName = 'bj_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $dbName = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
             } elseif ($host === 'staging.businessjoy.in') {
                 // If the host is staging.businessjoy.in
                 $dbName = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
@@ -258,11 +263,12 @@ class companyController extends commonController
                 ]
             ]);
 
-
+            // required migrations path
             $paths = [
                 'database/migrations/individualcompanydb',
                 'database/migrations/v1_1_1',
             ];
+
             // Run migrations only from the specified path
             foreach ($paths as $path) {
                 Artisan::call('migrate', [
@@ -322,11 +328,11 @@ class companyController extends commonController
                 $company_details_data['pr_sign_img'] = $sign_imageName;
             }
 
-            $company_details = DB::table('company_details')->insertGetId($company_details_data);
+            $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details
 
             if ($company_details) {
                 $company_details_id = $company_details;
-                $company = DB::table('company')->insertGetId([
+                $company = DB::table('company')->insertGetId([   // insert company record
                     'company_details_id' => $company_details_id,
                     'dbname' => $dbName,
                     'app_version' => $_SESSION['folder_name'],
@@ -334,7 +340,7 @@ class companyController extends commonController
                     'created_by' => $this->userId,
                 ]);
 
-                $this->invoice_other_settingModel::create([
+                $this->invoice_other_settingModel::create([  // default other settings insert
                     'overdue_day' => 45,
                     'year_start' => date('Y-m-d', strtotime('2024-04-01')),
                     'sgst' => 9,
@@ -347,10 +353,10 @@ class companyController extends commonController
 
                 if ($company) {
 
-                    $company_id = $company;
+                    $company_id = $company; 
 
                     $passwordtoken = str::random(40);
-                    $user = DB::table('users')->insertGetId([
+                    $user = DB::table('users')->insertGetId([  // create new default user
                         'firstname' => $request->name,
                         'email' => $request->email_default_user,
                         'role' => 2,
@@ -406,7 +412,7 @@ class companyController extends commonController
 
                         $rpjson = json_encode($rp);
 
-                        $userrp = $this->user_permissionModel::create([
+                        $userrp = $this->user_permissionModel::create([  // create user permission
                             'user_id' => $userid,
                             'rp' => $rpjson,
                             'created_by' => $this->userId
@@ -422,7 +428,7 @@ class companyController extends commonController
                         return $this->successresponse(500, 'message', 'User Not succesfully added');
                     }
                 } else {
-                    $id = $company;
+                    $id = $company; // companyid
                     $record = company::find($id);
                     $companydetails = company_detail::find($company_details_id);
                     // Check if the record exists
@@ -447,7 +453,7 @@ class companyController extends commonController
         $company = DB::table('company')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->where('company.id', $id)
-            ->get(); 
+            ->get();
         if ($company) {
             return $this->successresponse(200, 'company', $company);
         } else {
@@ -461,7 +467,9 @@ class companyController extends commonController
     public function edit(string $id)
     {
 
-        $company = DB::table('company')->join('company_details', 'company.company_details_id', '=', 'company_details.id')->where('company.id', $id)->get();
+        $company = DB::table('company')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->where('company.id', $id)->get();
         if ($this->rp['adminmodule']['company']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
@@ -478,6 +486,8 @@ class companyController extends commonController
      */
     public function update(Request $request, string $id)
     {
+
+        // validate incoming request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
             'email' => 'nullable|string|max:50',
@@ -499,9 +509,9 @@ class companyController extends commonController
         ]);
 
         if ($validator->fails()) {
+            // return error response if validator fails
             return $this->errorresponse(422, $validator->messages());
-        } else {
-
+        } else { 
             if ($this->rp['adminmodule']['company']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
@@ -547,7 +557,7 @@ class companyController extends commonController
                 'pr_sign_img' => $sign_imageName
             ];
 
-            $company_details = DB::table('company_details')->insertGetId($company_details_data);
+            $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details (create new company details record  everytime on company update)
             if ($company_details) {
                 $company_details_id = $company_details;
                 $company = company::find($id);
@@ -556,7 +566,7 @@ class companyController extends commonController
                         $company->max_users = $request->maxuser;
                         $company->save();
                     }
-                    $companyupdate = $company->update([
+                    $companyupdate = $company->update([  // update company details id into company record table
                         'company_details_id' => $company_details_id,
                         'updated_by' => $this->userId,
                     ]);
@@ -564,7 +574,7 @@ class companyController extends commonController
                     if ($companyupdate) {
                         return $this->successresponse(200, 'message', 'company succesfully updated');
                     } else {
-                        $company_details = company_detail::find($company_details_id);
+                        $company_details = company_detail::find($company_details_id);  // delete newly created company details record if it will not created proper
                         $company_details->delete();
                         return $this->successresponse(200, 'message', 'company not succesfully updated');
                     }
@@ -621,6 +631,7 @@ class companyController extends commonController
         }
     }
 
+    // company active/deactive function
     public function statusupdate(Request $request, string $id)
     {
 

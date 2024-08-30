@@ -202,10 +202,10 @@
                 <th>Details</th>
                 <th>Complain Desc.</th>
                 <th>Status</th>
-                <th>&nbsp;&nbsp;&nbsp;History&nbsp;&nbsp;&nbsp;</th>
+                <th>History</th>
                 <th>createdon</th>
                 <th>no.of calls</th>
-                <th>&nbsp;&nbsp;&nbsp;Action&nbsp;&nbsp;&nbsp;</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="tabledata">
@@ -339,6 +339,7 @@
                 }
                 $('#assignedto').multiselect('rebuild');
             });
+
             $('#advancestatus').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
@@ -462,11 +463,13 @@
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#advancestatus').multiselect({
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             // get and set customer support history list in the table
             function loaddata() {
                 loadershow();
@@ -587,13 +590,7 @@
                         toastr.error(errorMessage);
                     }
                 });
-            }
-
-
-            // its commented because it is called in advancefilter condition who has been start of the script
-            //call function for loaddata
-            // loaddata();
-
+            } 
 
             // show individual customer support history record into the popupbox
             $(document).on("click", ".view-btn", function() {
@@ -981,8 +978,7 @@
             });
 
 
-            //    customersupporthistory form
-
+            //    customersupporthistory form 
             $(document).on('click', '.csid', function() {
                 csid = $(this).data('id');
                 $('#csid').val(csid);
@@ -1072,8 +1068,7 @@
                 $('#customersupporthistoryform')[0].reset();
                 $('#history_notes').summernote('code', '');
             });
-
-
+ 
             // customersupporthistoryform submit 
             $('#customersupporthistoryform').submit(function(e) {
                 e.preventDefault();

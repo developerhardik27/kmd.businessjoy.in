@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->mediumText('gstsettings')->nullable()->after('show_col');
-            $table->string('inv_number_type')->default('a')->after('gstsettings');
+            $table->mediumText('gstsettings')->nullable()->after('show_col')->comment('store gst settings for edit and view invoice details');
+            $table->string('inv_number_type')->default('a')->after('gstsettings')->comment('flag invoice number (auto-a , manual-m)');
         });     
     }
 

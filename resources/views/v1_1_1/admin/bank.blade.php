@@ -90,8 +90,8 @@
                     type: 'get',
                     url: '{{ route('bank.index') }}',
                     data: {
-                        user_id: "{{ session()->get('user_id') }}", //user id is neccesary for fetch api data
-                        company_id: "{{ session()->get('company_id') }}", //compnay id is neccesary for fetch api data
+                        user_id: "{{ session()->get('user_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
@@ -168,40 +168,7 @@
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/bank/update/' + statusid,
-                        data: {
-                            status: '0',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changebankstatus(statusid, 0);
                 }
             });
 
@@ -210,42 +177,47 @@
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/bank/update/' + statusid,
-                        data: {
-                            status: '1',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changebankstatus(statusid, 1);
                 }
             });
+
+            // function for change bank status (active/inactive)
+            function changebankstatus(bankid, statusvalue) {
+                $.ajax({
+                    type: 'put',
+                    url: '/api/bank/update/' + bankid,
+                    data: {
+                        status: statusvalue,
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                            loaddata();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
 
             // delete bank             
             $(document).on("click", ".del-btn", function() {

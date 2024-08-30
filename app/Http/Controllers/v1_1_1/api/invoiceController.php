@@ -89,6 +89,7 @@ class invoiceController extends commonController
         }
     }
 
+    //use for pdf
     public function inv_list(Request $request)
     {
 
@@ -129,7 +130,7 @@ class invoiceController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $columnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('id', 'column_name', 'column_type', 'is_hide')->where('is_active', 1)->where('is_deleted', 0)->orderBy('column_order')->get();
+        $columnname = DB::connection('dynamic_connection')->table('tbl_invoice_columns')->select('id', 'column_name', 'column_type','column_width', 'is_hide')->where('is_active', 1)->where('is_deleted', 0)->orderBy('column_order')->get();
 
         if ($columnname->count() > 0) {
             return $this->successresponse(200, 'columnname', $columnname);
@@ -203,9 +204,10 @@ class invoiceController extends commonController
     public function store(Request $request)
     {
 
-        $data = $request->data;
-        $itemdata = $request->iteam_data;
+        $data = $request->data; // invoice details
+        $itemdata = $request->iteam_data; // product details
 
+        // validate incoming request data
         $validator = Validator::make($data, [
             "payment_mode" => 'required',
             "bank_account" => 'required',
@@ -247,7 +249,7 @@ class invoiceController extends commonController
                 return str_replace(' ', '_', $value); // replace (space) = (_)
             }, $column);
 
-            $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for hidden column
+            $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for show column
 
             // fetch last record from invoice tbl for generate dynamic inv no
             $customer = DB::connection('dynamic_connection')->table('customers')->where('id', $data['customer'])->get();
@@ -260,17 +262,18 @@ class invoiceController extends commonController
             $othersetting = $this->invoice_other_settingModel::find(1);
             $patterntype = 2;
 
-            if (isset($data['inv_number'])) {
+            if (isset($data['inv_number'])) { //user entered manully inv number
                 if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
                     $patterntype = 1;
                 }
+                // check if inv number already exist.
                 $checkinvnumberrec = DB::connection('dynamic_connection')->table('invoices')->where('inv_no', $data['inv_number'])->where('is_deleted', 0)->first();
                 if ($checkinvnumberrec) {
                     return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
                 }
                 $inv_no = $data['inv_number'];
             } else {
-
+                //generate dynmaic inv number
                 $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
                 $currentMonth = date('m'); // Current month
                 $currentDay = date('d'); // Current day
@@ -404,7 +407,7 @@ class invoiceController extends commonController
                 }
 
                 if ($data['inv_number']) {
-                    $invoicerec['inv_number_type'] = 'm';
+                    $invoicerec['inv_number_type'] = 'm';  // set flag if user entered manully inv number default(a)
                 }
 
                 if (isset($cidai) && $cidai != '') {
@@ -423,6 +426,7 @@ class invoiceController extends commonController
                     }
                 }
 
+                // get terms and conditions id
                 $tclastrec = DB::connection('dynamic_connection')->table('invoice_terms_and_conditions')->select('id')->where('is_deleted', 0)->where('is_active', 1)->orderBy('id', 'desc')->first();
 
 
@@ -430,7 +434,7 @@ class invoiceController extends commonController
                     $invoicerec['t_and_c_id'] = $tclastrec->id;
                 }
 
-                $invoice = DB::connection('dynamic_connection')->table('invoices')->insertGetId($invoicerec);
+                $invoice = DB::connection('dynamic_connection')->table('invoices')->insertGetId($invoicerec); // insert invoice record 
 
                 if ($invoice) {
                     $inv_id = $invoice;
@@ -450,7 +454,7 @@ class invoiceController extends commonController
                         // Add more columns as needed
 
                         // Insert the record into the database
-                        $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata);
+                        $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata); // insert product record line by line
                     }
 
                     if ($mng_col) {
@@ -523,8 +527,9 @@ class invoiceController extends commonController
     public function update(Request $request, string $id)
     {
 
-        $data = $request->data;
+        $data = $request->data; // invoice data
 
+        // validate incoming request data
         $validator = Validator::make($data, [
             "payment_mode" => 'required',
             "bank_account" => 'required',
@@ -602,8 +607,7 @@ class invoiceController extends commonController
             if ($data['invoice_date']) {
                 $invoicerec['inv_date'] = $data['invoice_date'];
             }
-
-
+ 
 
             if ($data['tax_type'] != 2) {
                 if (isset($data['gst'])) {
@@ -696,6 +700,7 @@ class invoiceController extends commonController
     }
 
 
+    // use for pdf
     public function inv_details(string $id)
     {
 
@@ -710,7 +715,7 @@ class invoiceController extends commonController
         $column = explode(',', $columnWithSpaces);
 
         $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
-            ->select('column_name', 'column_type')->orderBy('column_order')->where('is_deleted',0)->get();
+            ->select('column_name', 'column_type','column_width')->orderBy('column_order')->where('is_deleted',0)->get();
 
         $columnarray = array_merge($columnWithoutSpaces, ['amount']);
 
@@ -718,14 +723,16 @@ class invoiceController extends commonController
         $columnwithtypeArray = $columnwithtype->map(function ($item) {
             return [
                 'column_name' => $item->column_name,
-                'column_type' => $item->column_type
+                'column_type' => $item->column_type,
+                'column_width' => $item->column_width
             ];
         })->toArray();
 
         // Prepare additional column type
         $addamounttype = [
             'column_name' => 'amount',
-            'column_type' => 'decimal'
+            'column_type' => 'decimal',
+            'column_width' => 'auto'
         ];
 
         // Merge existing column types with the new column type
@@ -809,6 +816,7 @@ class invoiceController extends commonController
         }
     }
 
+    // check invoice number exist or not
     public function checkinvoicenumber(Request $request)
     {
         $existsinvoice = DB::connection('dynamic_connection')->table('invoices')->where('inv_no', $request->inv_number)->where('is_deleted', 0)->exists();

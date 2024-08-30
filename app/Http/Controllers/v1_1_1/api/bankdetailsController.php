@@ -13,17 +13,19 @@ class bankdetailsController extends commonController
 
     public function __construct(Request $request)
     {
-        if (session()->get('company_id')) {
-            $this->dbname(session()->get('company_id'));
-        } else {
+        if ($request->company_id) {
             $this->dbname($request->company_id);
-        }
-        if (session()->get('user_id')) {
-            $this->userId = session()->get('user_id');
+            $this->companyId = $request->company_id;
         } else {
-            $this->userId = $request->user_id;
+            $this->dbname(session()->get('company_id'));
         }
-        $this->companyId = $request->company_id;
+
+        if ($request->user_id) {
+            $this->userId = $request->user_id;
+        } else {
+            $this->userId = session()->get('user_id');
+        }
+
         $this->masterdbname = DB::connection()->getDatabaseName();
 
         // **** for checking user has permission to action on all data 
@@ -33,6 +35,7 @@ class bankdetailsController extends commonController
         $this->bankdetailmodel = $this->getmodel('bank_detail');
     }
 
+    // using for pdf
     public function bankdetailspdf(string $id)
     {
         $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('id', $id);
@@ -74,7 +77,7 @@ class bankdetailsController extends commonController
     {
 
         $bankdetailres = DB::connection('dynamic_connection')->table('bank_details')->where('is_deleted', 0)
-                        ->select('bank_details.*',DB::raw('DATE_FORMAT(created_at,"%d-%M-%Y %h:%i %p") as created_at_formatted'));
+            ->select('bank_details.*', DB::raw('DATE_FORMAT(created_at,"%d-%M-%Y %h:%i %p") as created_at_formatted'));
 
         if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
             $bankdetailres->where('created_by', $this->userId);
@@ -181,16 +184,15 @@ class bankdetailsController extends commonController
             }
         }
         if ($bankdetail) {
-            if ($this->rp['invoicemodule']['bank']['edit'] == 1) {
-                $bankdetail->update([
-                    'is_active' => $request->status
-                ]);
-
-                return $this->successresponse(200, 'message', 'status succesfully updated');
-
-            } else {
+            if ($this->rp['invoicemodule']['bank']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
+
+            $bankdetail->update([
+                'is_active' => $request->status
+            ]);
+
+            return $this->successresponse(200, 'message', 'status succesfully updated');
 
         } else {
             return $this->successresponse(404, 'message', 'No Such bank Found!');
@@ -210,15 +212,16 @@ class bankdetailsController extends commonController
                 return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
+
         if ($bankdetail) {
             if ($this->rp['invoicemodule']['bank']['delete'] == 1) {
-                $bankdetail->update([
-                    'is_deleted' => 1
-                ]);
-                return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
-            } else {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
+            
+            $bankdetail->update([
+                'is_deleted' => 1
+            ]);
+            return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
         } else {
             return $this->successresponse(404, 'message', 'No Such bank Found!');
         }

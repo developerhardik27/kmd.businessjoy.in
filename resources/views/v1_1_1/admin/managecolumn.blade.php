@@ -15,7 +15,7 @@
         @csrf
         <div class="form-group">
             <div id="newColForm" class="form-row d-none">
-                <div class="col-sm-5">
+                <div class="col-sm-4">
                     <input type="hidden" name="token" id="token" value="{{ session('api_token') }}">
                     <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
                     <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
@@ -26,7 +26,7 @@
                         id="column_name">
                     <span class="error-msg" id="error-column_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-5 ">
+                <div class="col-sm-4 ">
                     <select name="column_type" class="form-control " id="column_type">
                         <option selected disabled>Select Datatype</option>
                         <option value="text">Text</option>
@@ -36,6 +36,11 @@
                         <option value="percentage">Percentage</option>
                     </select>
                     <span class="error-msg" id="error-column_type" style="color: red"></span>
+                </div>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" name="column_width" id="column_width" placeholder="Column Width(%)"
+                        required />
+                    <span class="error-msg" id="error-column_width" style="color: red"></span>
                 </div>
                 <div class="col-sm-2 mt--2">
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
@@ -63,6 +68,7 @@
                 <th>Sr</th>
                 <th>Column Name</th>
                 <th>Column Type</th>
+                <th>Column Width(%)</th>
                 <th>Sequence</th>
                 <th>Action</th>
             </tr>
@@ -70,7 +76,7 @@
         <tbody id="tabledata">
         </tbody>
         <tr>
-            <td colspan="3" style="border:none;">
+            <td colspan="4" style="border:none;">
             </td>
             <td class="text-center" style="border-left: none">
                 <button data-toggle="tooltip" data-placement="bottom" data-original-title="Save Columns Sequence"
@@ -84,6 +90,13 @@
 
 
 @push('ajax')
+    @isset($message)
+        <script>
+            $('document').ready(function() {
+                alert('Required minimum one column to create invoice. Kindly, Create your columns');
+            });
+        </script>
+    @endisset
     <script>
         $('document').ready(function() {
             // companyId and userId both are required in every ajax request for all action *************
@@ -91,12 +104,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-
-            @isset($message)
-                alert('Required minimum one column to create invoice. Kindly, Create your columns');
-            @endisset
-
-
+            // show add new column form on click add new column (initally its hide)
             $('#newColBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#newColForm').removeClass('d-none');
@@ -134,6 +142,7 @@
                                                         <td>${id}</td>
                                                         <td>${value.column_name}</td>
                                                         <td>${value.column_type}</td>
+                                                        <td>${value.column_width}</td>
                                                         <td><input type='number' min=1 oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Sequence' data-id='${value.id}' value="${value.column_order}" class='columnorder'></td>
                                                         <td>
                                                             <span>
@@ -216,7 +225,7 @@
             });
 
 
-            // edit column if it is not used for any invoice
+            // edit column 
             $(document).on("click", ".edit-btn", function() {
                 if (confirm("You want edit this Column ?")) {
                     loadershow();
@@ -239,6 +248,7 @@
                                 $('#edit_id').val(editid);
                                 $('#column_name').val(invoicecolumndata.column_name);
                                 $('#column_type').val(invoicecolumndata.column_type);
+                                $('#column_width').val(invoicecolumndata.column_width);
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -256,7 +266,7 @@
             });
 
 
-            // delete column if it is not has data of any invoice
+            // delete column 
             $(document).on("click", ".del-btn", function() {
                 if (confirm(
                         'This column will remove from old invoices and receipts. Are you sure you want to remove this column?'
@@ -291,7 +301,7 @@
                 }
             });
 
-            // manage column order 
+            // manage column order  (it will show order by in invoice)
             $('.savecolumnorder').on('click', function() {
                 var columnorders = [];
                 $('input.columnorder').each(function() {
@@ -328,7 +338,7 @@
                 });
             });
 
-
+            // hide and reset add new column form on click cancel btn
             $('#cancelbtn').on('click', function() {
                 $('#newColForm').addClass('d-none');
                 $('#newColBtnDiv').removeClass('d-none');
@@ -340,7 +350,9 @@
                 e.preventDefault();
                 var editid = $('#edit_id').val()
                 if (editid != '') {
-                    if(confirm("Edited column name will reflect in relevant invoices and receipts. Are you sure still you want to apply this?")){ 
+                    if (confirm(
+                            "Edited column name will reflect in relevant invoices and receipts. Are you sure still you want to apply this?"
+                        )) {
                         loadershow();
                         $('#column_type').prop('disabled', false);
                         var columndata = $(this).serialize();
@@ -390,7 +402,9 @@
                         });
                     }
                 } else {
-                    if(confirm("Old invoice will not edit after apply this. Are you sure still you want to apply this?")){
+                    if (confirm(
+                            "Old invoice will not edit after apply this. Are you sure still you want to apply this?"
+                        )) {
                         loadershow();
                         var columndata = $(this).serialize();
                         $.ajax({
@@ -441,9 +455,8 @@
 
                         });
                     }
-                    
-                }
 
+                }
             });
         });
     </script>

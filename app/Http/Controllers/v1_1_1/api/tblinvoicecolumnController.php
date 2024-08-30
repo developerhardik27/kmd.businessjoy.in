@@ -113,6 +113,7 @@ class tblinvoicecolumnController extends commonController
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
+            'column_width' => 'required|numeric',
             'company_id' => 'required|numeric',
             'user_id' => 'required|numeric',
             'updated_by',
@@ -167,10 +168,10 @@ class tblinvoicecolumnController extends commonController
                     $invoicecolumn = $this->tbl_invoice_columnModel::create([
                         'column_name' => $request->column_name,
                         'column_type' => $request->column_type,
+                        'column_width' => $request->column_width,
                         'company_id' => $request->company_id,
                         'column_order' => $columnsequence,
                         'created_by' => $this->userId,
-
                     ]);
 
                     if ($invoicecolumn) {
@@ -249,6 +250,7 @@ class tblinvoicecolumnController extends commonController
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
+            'column_width' => 'required|numeric',
             'user_id' => 'required|numeric',
             'created_by',
             'created_at',
@@ -318,6 +320,7 @@ class tblinvoicecolumnController extends commonController
                 $invoicecolumn->update([
                     'column_name' => $request->column_name,
                     'column_type' => $request->column_type,
+                    'column_width' => $request->column_width,
                     'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);  

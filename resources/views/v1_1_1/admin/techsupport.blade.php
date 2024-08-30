@@ -249,13 +249,14 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-
-            function managetooltip(){
+            // refresh tooltip for dynamic data
+            function managetooltip() {
                 $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
                 // Reinitialize tooltips
                 $('body').find('[data-toggle="tooltip"]').tooltip();
             }
 
+            // add/remove disabled option on change assigned to  dynamic
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
@@ -266,6 +267,8 @@
                 }
                 $('#assignedto').multiselect('rebuild');
             });
+
+            // add/remove disabled option on change adnvace status to  dynamic
             $('#advancestatus').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
@@ -277,6 +280,7 @@
                 $('#advancestatus').multiselect('rebuild');
             });
 
+            // get user data and return new promise
             function getUserData() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -297,6 +301,7 @@
                 });
             }
 
+            // get filterd tech data if has any filter otherwise called without filter and return new promise
             function loadFilters() {
                 return new Promise((resolve, reject) => {
                     var filterData = JSON.parse(sessionStorage.getItem('filterData'));
@@ -325,6 +330,7 @@
                 });
             }
 
+            // intialize  function async and await
             async function initialize() {
                 try {
                     // Perform AJAX calls concurrently
@@ -338,7 +344,7 @@
                         $.each(userDataResponse.user, function(key, value) {
                             var optionValue = value.firstname + ' ' + value.lastname;
                             $('#assignedto').append(
-                                `<option value="${optionValue}">${optionValue}</option>`);
+                                `<option value="${value.id}">${optionValue}</option>`);
                         });
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options
@@ -374,11 +380,13 @@
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#advancestatus').multiselect({
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             // get and set customer support history list in the table
             function loaddata() {
                 loadershow();
@@ -476,6 +484,7 @@
                             toastr.error(response.message);
                             loaderhide();
                         } else {
+                            $('#tabledata').html('');
                             $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
                             loaderhide();
                         }
@@ -496,12 +505,6 @@
                     }
                 });
             }
-
-
-            // its commented because it is called in advancefilter condition who has been start of the script
-            //call function for loaddata
-            // loaddata();
-
 
             // show individual customer support history record into the popupbox
             $(document).on("click", ".view-btn", function() {
@@ -722,9 +725,10 @@
                         url: '{{ route('techsupport.index') }}',
                         data: data,
                         success: function(response) {
-                            if (response.status == 200 && response.techsupport != '') {
+                            if (response.status == 200 && response.techsupport != '') { 
                                 $('#data').DataTable().destroy();
                                 $('#tabledata').empty();
+                                $('#tabledata').html(' ');
                                 global_response = response;
                                 var id = 1;
                                 $.each(response.techsupport, function(key, value) {
@@ -796,12 +800,9 @@
                                                 </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
-                                });
-
+                                }); 
 
                                 $('#data').DataTable({
-
-
                                     "destroy": true, //use for reinitialize datatable
                                 });
                                 loaderhide();
@@ -809,13 +810,8 @@
                                 toastr.error(response.message);
                                 loaderhide();
                             } else {
-                                $('#data').DataTable().destroy();
-                                $('#data').DataTable({
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                                $('#tabledata').html(' ');
-                                $('#data').append(
-                                    `<tr><td colspan='7' >No Data Found</td></tr>`);
+                                $('#tabledata').html('');
+                                $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
                                 loaderhide();
                             }
                             // You can update your HTML with the data here if needed
@@ -837,16 +833,19 @@
                 }
             }
 
+            // call advance filter function on change advance filter
             $('.advancefilter').on('change', function() {
                 advancefilters();
             });
+
+            // call advance filter function on change sidebar filter
             $('.filtersubmit').on('click', function(e) {
                 e.preventDefault();
                 advancefilters();
                 closeNav()
             });
 
-            // remover all filter who has been in the advance filter sidevar
+            // remover all filter who has been in the advance filter sidebar
             $('.removepopupfilters').on('click', function() {
                 $('#fromdate').val('');
                 $('#todate').val('');
@@ -882,7 +881,6 @@
                 $('#advancestatus').multiselect('refresh');
                 $('#assignedto').multiselect('refresh');
                 loaddata();
-
             });
 
         });

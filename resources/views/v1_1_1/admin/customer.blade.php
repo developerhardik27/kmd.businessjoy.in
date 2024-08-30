@@ -45,13 +45,15 @@
         {{ route('admin.addcustomer') }}
     @endsection
     @section('addnewbutton')
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Customer"  class="btn btn-sm btn-primary">
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Customer"
+            class="btn btn-sm btn-primary">
             <span class="">+ New</span>
         </button>
     @endsection
 @endif
 @section('table-content')
-    <table id="data" class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
+    <table id="data"
+        class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
         <thead>
             <tr>
                 <th>Customer Id</th>
@@ -81,7 +83,7 @@
 
             var global_response = '';
 
-            // function for  get customers data and set it into table
+            // function for  get customers data and set it into datatable
             function loaddata() {
                 loadershow();
                 $.ajax({
@@ -177,6 +179,7 @@
                     }
                 });
             }
+
             //call data function for load customer data
             loaddata();
 
@@ -185,40 +188,7 @@
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/customer/statusupdate/' + statusid,
-                        data: {
-                            status: '0',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changecustomerstatus(statusid, 0);
                 }
             });
 
@@ -227,42 +197,47 @@
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/customer/statusupdate/' + statusid,
-                        data: {
-                            status: '1',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changecustomerstatus(statusid, 1);
                 }
             });
+
+            // function for change customer status (active/inactive)
+            function changecustomerstatus(customerid, statusvalue) {
+                $.ajax({
+                    type: 'put',
+                    url: '/api/customer/statusupdate/' + customerid,
+                    data: {
+                        status: statusvalue,
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                            loaddata();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
 
 
             // record delete 
@@ -304,61 +279,60 @@
                 }
             });
 
-            // view record
+
+            // view all details of specific record
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
                 $('#viewmodaltitle').html('<b>Customer Details</b>');
                 $.each(global_response.customer, function(key, customer) {
-                    if (customer.id == data) {  
-                            $('#details').append(`
-                                <tr>
-                                    <th>Company Name</th>       
-                                    <td>${(customer.company_name != null) ?customer.company_name : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Customer Name</th>       
-                                    <td>${(customer.firstname != null) ? customer.firstname : '-'} ${(customer.lastname != null) ?customer.lastname : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Email</th>       
-                                    <td>${(customer.email != null) ?customer.email : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Contact Number</th>       
-                                    <td>${(customer.contact_no != null) ?customer.contact_no : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>GST Number</th>       
-                                    <td>${(customer.gst_no != null) ?customer.gst_no : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Address</th>       
-                                    <td>${(customer.house_no_building_name != null) ? customer.house_no_building_name  : '-'}  ${customer.road_name_area_colony != null ? customer.road_name_area_colony : ''}</td>
-                                </tr>
-                                <tr>
-                                    <th>Pincode</th>       
-                                    <td>${(customer.pincode != null) ?customer.pincode : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>City</th>       
-                                    <td>${(customer.city_name != null) ?customer.city_name : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>State</th>       
-                                    <td>${(customer.state_name != null) ?customer.state_name : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Country</th>       
-                                    <td>${(customer.country_name != null) ?customer.country_name : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Created On</th>       
-                                    <td>${(customer.created_at_formatted != null) ?customer.created_at_formatted : '-'}</td>
-                                </tr>  
-                            `);
-                    
-
+                    if (customer.id == data) {
+                        $('#details').append(`
+                            <tr>
+                                <th>Company Name</th>       
+                                <td>${(customer.company_name != null) ?customer.company_name : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Customer Name</th>       
+                                <td>${(customer.firstname != null) ? customer.firstname : '-'} ${(customer.lastname != null) ?customer.lastname : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>       
+                                <td>${(customer.email != null) ?customer.email : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Contact Number</th>       
+                                <td>${(customer.contact_no != null) ?customer.contact_no : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>GST Number</th>       
+                                <td>${(customer.gst_no != null) ?customer.gst_no : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Address</th>       
+                                <td>${(customer.house_no_building_name != null) ? customer.house_no_building_name  : '-'}  ${customer.road_name_area_colony != null ? customer.road_name_area_colony : ''}</td>
+                            </tr>
+                            <tr>
+                                <th>Pincode</th>       
+                                <td>${(customer.pincode != null) ?customer.pincode : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>City</th>       
+                                <td>${(customer.city_name != null) ?customer.city_name : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>State</th>       
+                                <td>${(customer.state_name != null) ?customer.state_name : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Country</th>       
+                                <td>${(customer.country_name != null) ?customer.country_name : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Created On</th>       
+                                <td>${(customer.created_at_formatted != null) ?customer.created_at_formatted : '-'}</td>
+                            </tr>  
+                        `);
                     }
                 });
 

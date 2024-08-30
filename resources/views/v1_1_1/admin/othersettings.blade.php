@@ -42,12 +42,7 @@
                         type="button" id="editinvoicenumberBtn"
                         class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0 patternsettingBtn">
                         <i class="ri-edit-fill"></i>
-                    </button>
-                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Invoice Number Settings"
-                        type="button" id="addinvoicenumberBtn"
-                        class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0 patternsettingBtn">
-                        <i class="ri-add-fill"></i>
-                    </button>
+                    </button>  
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
@@ -414,6 +409,14 @@
 
 
 @push('ajax')
+
+    @isset($message)
+        <script>
+            // if  company has not any invoice number pattern so user will be redirect here when he click on create invoice link
+            alert('You have not invoice number pattern. Please first make invoice number pattern!');
+        </script>
+    @endisset
+
     <script>
         $('document').ready(function() {
 
@@ -422,11 +425,18 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            @isset($message)
-                alert('You have not invoice number pattern. Please first make invoice number pattern!');
-            @endisset
 
+            /*
+             * overview  ----------------
+             * initialize summernote editor
+             * overdue day and year start settings
+             * gst settings 
+             * terms and conditions settings
+             * invoice number pattern settings
+             * customer id settings
+             */
 
+            // intialize summernote editor for terms and conditions
             $('#t_and_c').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -441,10 +451,15 @@
                 height: 100,
             });
 
+
             loaderhide();
 
+            /*
+             *overdue and year start settings code start
+             */
             var overdueday = '';
 
+            // get ouverdue days , year start from , sgst , cgst , gst , invoice number(manually) , invoice date (manually) etc.. setttings function
             function getoverduedays() {
                 $.ajax({
                     type: 'GET',
@@ -525,24 +540,26 @@
                     }
                 });
             }
+
             getoverduedays();
+
+            // show overdue day and year start from  settings form
             $('#editoverdueday').on('click', function() {
+                $(this).hide();
                 getoverduedays();
                 if (overdueday != '') {
                     $('#overduedaysform').show();
                 }
             });
 
-            $('#editgstsettings').on('click', function() {
-                getoverduedays();
-                $('#gstsettingsform').show();
-            });
-
+            // hide overdue day and year start from settings form on click othersetting-cancelbtn
             $('#othersetting-cancelbtn').on('click', function() {
+                $('#editoverdueday').show();
                 $('#overduedaysform').hide();
                 $('#overduedaysform')[0].reset();
             });
 
+            // submit over due day and year start from setting form
             $('#overduedaysform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
@@ -557,6 +574,7 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
+                            $('#editoverdueday').show();
                             $('#overduedaysform').hide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
@@ -592,11 +610,27 @@
                 });
             });
 
+            /*
+             * overdue and year start settings code end
+             */
+
+            /*
+             * gst settings code start
+             */
+
+            // show gst settings form
+            $('#editgstsettings').on('click', function() {
+                getoverduedays();
+                $('#gstsettingsform').show();
+            });
+
+            //hide gst settings form
             $('#gst-cancelbtn').on('click', function() {
                 $('#gstsettingsform').hide();
                 $('#gstsettingsform')[0].reset();
             });
 
+            //submit gst settings form
             $('#gstsettingsform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
@@ -647,6 +681,14 @@
                 });
 
             });
+
+            /*
+             * gst settings code end
+             */
+
+            /*
+             *terms and conditions settings code start
+             */
 
             // get terms and conditions
             function loaddata() {
@@ -712,100 +754,64 @@
                 });
             }
 
-            //call function for loaddata
+            //call function for loaddata (terms and condition)
             loaddata();
 
-            //  t & cstatus update deactive              
+            //  t & cstatus update(active to inactive)            
             $(document).on("click", ".status-active", function() {
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/termsandconditions/statusupdate/' + statusid,
-                        data: {
-                            status: '0',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                // $('#status_' + statusid).html('<button data-status= ' +
-                                //     statusid +
-                                //     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>'
-                                // );
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changetcstatus(statusid, 0);
                 }
             });
 
-            //  t & c status update  active            
+            //  t & c status update (inactive to active)            
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/termsandconditions/statusupdate/' + statusid,
-                        data: {
-                            status: '1',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                // $('#status_' + statusid).html('<button data-status= ' +
-                                //     statusid +
-                                //     ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
-                                // );
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changetcstatus(statusid, 1);
                 }
             });
+
+            //chagne t&c status update function (active/inactive)
+            function changetcstatus(tcid, statusvalue) {
+                $.ajax({
+                    type: 'put',
+                    url: '/api/termsandconditions/statusupdate/' + tcid,
+                    data: {
+                        status: statusvalue,
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                            loaddata();
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
 
             // delete terms and conditions              
             $(document).on("click", ".del-btn", function() {
@@ -849,11 +855,14 @@
                 }
             });
 
+            // show add new terms and conditions form on click add new terms and condition btn
             $('#newtcBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#tcform').removeClass('d-none');
                 $('#newtcBtn').addClass('d-none');
             })
+
+            // hide add new terms and conditions form on click cancel tc button
             $('#canceltcBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#tcform')[0].reset();
@@ -862,11 +871,13 @@
                 $('#newtcBtn').removeClass('d-none');
             })
 
+            // reset add new terms and conditions form on  click reset tc button
             $('#resettcBtn').on('click', function(e) {
                 $('#tcform')[0].reset();
                 $('#t_and_c').summernote('code', '');
             })
-            // terms and conditions form submit
+
+            // submit terms and conditions form 
             $('#tcform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
@@ -915,10 +926,15 @@
                 });
             });
 
+            /*
+             *terms and conditions settings code end
+             */
 
+            /*
+             * invoice number code start
+             */
 
-            // invoice number settings 
-
+            // invoice number settings  user can add or not enter manual invoice number during create invoice
             $('#manualinvnumberswitch').on('change', function() {
                 var val = $(this).prop('checked') ? 'yes' : 'no';
                 if (confirm('Are you sure to update this setting?')) {
@@ -967,6 +983,7 @@
                 }
             });
 
+            // invoice number settings  user can add or not enter manual invoice date during create invoice
             $('#manualinvdateswitch').on('change', function() {
                 var val = $(this).prop('checked') ? 'yes' : 'no';
                 if (confirm('Are you sure to update this setting?')) {
@@ -1015,6 +1032,7 @@
                 }
             });
 
+            //get invoice pattern and set it 
             function getinvoicepatterns() {
                 $.ajax({
                     type: 'GET',
@@ -1025,8 +1043,7 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 && response.pattern != '') {
-                            $('#addinvoicenumberBtn').addClass('d-none');
+                        if (response.status == 200 && response.pattern != '') {  
                             var data = response.pattern[0];
                             // Update the HTML content
                             $.each(data, function(key, value) {
@@ -1077,13 +1094,16 @@
                     }
                 });
             }
+
             getinvoicepatterns();
 
-            $('#addinvoicenumberBtn,#editinvoicenumberBtn').on('click', function() {
+            // show add or edit invoice number pattern form on click add/edit invoice number btn
+            $('#editinvoicenumberBtn').on('click', function() {
                 $(this).addClass('d-none');
                 $('#invoicenumberpatternform').removeClass('d-none');
             });
 
+            // hide add/edit invoice number pattern form
             $('#cancelnumberpattern').on('click', function() {
                 $('#invoicenumberinputs').html(' ');
                 $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',
@@ -1092,6 +1112,7 @@
                 $('#invoicenumberpatternform').addClass('d-none');
             });
 
+            // append dynamic input on select type during create invoice number pattern
             $('#invoicepattern').on('change', function() {
 
                 var value = $(this).val();
@@ -1150,6 +1171,7 @@
                 $(this).val($(this).find('option:first').val());
             });
 
+            //delete dynamic input on click delete btn  during create invoice number pattern
             $(document).on('click', '.invoicepatterninputdlt', function() {
                 var inputtype = $(this).data('type');
 
@@ -1160,12 +1182,14 @@
                 $(this).closest('div').remove();
             });
 
+            // remove all dynamic appended input type on click reset pattern btn
             $('#resetpatterninput').on('click', function() {
                 $('#invoicenumberinputs').html(' ');
                 $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',
                     false);
             });
 
+            // submit invoice number pattern form
             $('#invoicenumberpatternform').on('submit', function(e) {
                 e.preventDefault();
 
@@ -1252,6 +1276,14 @@
                     toastr.error('Please select atleast one auto increment input');
                 }
             });
+            /*
+             * invoice number code end
+             */
+
+
+            /*
+             * customer id number code start
+             */
 
             // increment will start from last paused number 
             function startpatternfromoldnumber(data) {
@@ -1301,11 +1333,14 @@
                 });
             }
 
+            // show edit customer id form
             $('#editcustomeridBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#cidform').removeClass('d-none');
                 $('#editcustomeridBtn').addClass('d-none');
             })
+
+            // hide edit customer id form
             $('#cancelcustomeridBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#cidform')[0].reset();
@@ -1313,7 +1348,7 @@
                 $('#editcustomeridBtn').removeClass('d-none');
             })
 
-
+            // submit edit customer id form
             $('#cidform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
@@ -1361,6 +1396,11 @@
                 });
 
             });
+
+            /*
+             * customer id number code end
+             */
+
 
         });
     </script>

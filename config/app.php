@@ -170,7 +170,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
-        ConsoleTVs\Charts\ChartsServiceProvider::class,
+        ConsoleTVs\Charts\ChartsServiceProvider::class, 
     ])->toArray(),
 
     /*
@@ -190,4 +190,15 @@ return [
         'Charts' => ConsoleTVs\Charts\Facades\Charts::class,
     ])->toArray(),
 
+
+     /*
+    |--------------------------------------------------------------------------
+    | global variable
+    |--------------------------------------------------------------------------
+    |
+    | page load time
+    |
+    */
+
+    'page_load_threshold_ms' => 5000, // Time in milliseconds
 ];

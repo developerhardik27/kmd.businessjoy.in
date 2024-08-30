@@ -225,23 +225,23 @@
                                                                     ` : ''
                                                             }
                                                             ${(value.part_payment == 1) ? `    
-                                                                                                                    <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                                                                                                        <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                                                                                                <i class='ri-eye-fill'></i> 
-                                                                                                                        </button> 
-                                                                                                                    </span>
-                                                                                                                 ` : ''
+                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
+                                                                            <i class='ri-eye-fill'></i> 
+                                                                    </button> 
+                                                                </span>
+                                                                ` : ''
                                                             }
                                                             
                                                             ${(value.part_payment == 0 && value.status == 'paid') ? `    
-                                                                                                        <span> 
-                                                                                                            <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
-                                                                                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                                                                                    <i class="ri-download-line"></i>
-                                                                                                                </button>
-                                                                                                            </a>
-                                                                                                        </span>
-                                                                                         ` : ''
+                                                                    <span> 
+                                                                        <a href=/admin/generaterecieptall/${value.id}  target='_blank' >
+                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                                                <i class="ri-download-line"></i>
+                                                                            </button>
+                                                                        </a>
+                                                                    </span>
+                                                            ` : ''
                                                             }
                                                             
                                                           

@@ -2019,7 +2019,7 @@
             });
 
 
-
+            // check/uncheck all checkboxes module wise
             $(document).on('click', '.allcheck', function() {
                 if (userrp == 1) {
                     var module = $(this).data('module');
@@ -2080,7 +2080,7 @@
                 }
             })
 
-            // check menu if check any submenu(edit,delete,add...)
+            // check main menu if check any submenu(edit,delete,add...)
             $(document).on('change', '.clicksubmenu', function() {
                 if (userrp == 1) {
                     value = $(this).data('value');
@@ -2091,8 +2091,7 @@
             })
 
 
-            //for checkboxes reset
-
+            //for checkboxes reset 
             $(document).on('click', '.resetbtn', function() {
                 if (userrp == 1) {
                     var module = $(this).data('module');
@@ -2113,7 +2112,7 @@
                 }
             })
 
-
+            // redirect to user list page if click any cancel btn
             $(document).on('click', '.cancelbtn', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.user') }}"
