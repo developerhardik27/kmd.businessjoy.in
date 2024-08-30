@@ -263,7 +263,7 @@ class PdfController extends Controller
 
          return response()->json([
             'status' => 'success',
-            'downloadUrl' => url('/admin/download/' . $zipFileName) // Return the URL for downloading
+            'zipFileName' => route('file.download', $zipFileName)// Return the URL for downloading
          ]);
 
       } catch (Exception $e) {

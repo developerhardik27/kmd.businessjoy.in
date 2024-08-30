@@ -126,7 +126,7 @@
                         if (response.status === 'success') {
                             $('#invoicezipform')[0].reset();
                             // Redirect to the URL to start the file download
-                            window.location.href = response.downloadUrl;
+                            window.location.href = response.zipFileName;
                         } else {
                             toastr.error(response.message);
                         }
