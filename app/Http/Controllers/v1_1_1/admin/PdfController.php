@@ -241,7 +241,8 @@ class PdfController extends Controller
             $pdf->save($tempDir . '/' . $pdfFileName);
          }
 
-         $zipFileName = 'invoices_' . date('Ymdhis') . '.zip';
+         $withoutextensionzipFileName = 'invoices_' . date('Ymdhis');
+         $zipFileName = $withoutextensionzipFileName . '.zip';
          $zip = new ZipArchive;
          if ($zip->open(storage_path('app/' . $zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
             $files = Storage::files('temp_pdf');
@@ -263,7 +264,7 @@ class PdfController extends Controller
 
          return response()->json([
             'status' => 'success',
-            'zipFileName' => route('file.download', $zipFileName)// Return the URL for downloading
+            'zipFileName' => route('file.download', $withoutextensionzipFileName)// Return the URL for downloading
          ]);
 
       } catch (Exception $e) {
@@ -319,11 +320,11 @@ class PdfController extends Controller
       return $data;
    }
 
-   public function downloadZip($fileName)
+   public function downloadZip(string $fileName)
    {
-      $filePath = storage_path('app/' . $fileName);
-      if (file_exists($filePath)) {
-         return response()->download($filePath)->deleteFileAfterSend(true);
+      $filePath = storage_path('app/'); 
+      if (file_exists($filePath)) { 
+         return response()->download($filePath.$fileName.'.zip')->deleteFileAfterSend(true);
       }
 
       return response()->json([
