@@ -1,6 +1,4 @@
-<?php
-// $folderName = session('version');
-
+<?php 
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\landing\LandingPageController;
@@ -61,9 +59,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 return redirect()->route('admin.login')->with('error', 'Session Expired');
             }
         })->name('admin.welcome');
-
-
-
+ 
         Route::get('/setmenusession', [AdminLoginController::class, 'setmenusession'])->name('admin.setmenusession');
         Route::group(['middleware' => 'admin.guest'], function () {
             Route::get('/login', [AdminLoginController::class, 'index'])->name('admin.login')->withoutMiddleware([CheckSession::class]);
@@ -75,11 +71,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::get('/setpassword/{token}', [AdminLoginController::class, 'set_password'])->name('admin.setpassword')->withoutMiddleware([CheckSession::class]);
             Route::post('/setpassword/{token}', [AdminLoginController::class, 'post_set_password'])->name('admin.post_setpassword')->withoutMiddleware([CheckSession::class]);
         });
-
-
+ 
         Route::group(['middleware' => 'admin.auth'], function () {
-
-
+ 
             // Define a function to generate the controller class name based on the session value
             function getadminversion($controller)
             {
@@ -275,8 +269,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/EditTechsupport/{id}', [$TechSupportController, 'edit'])->name('admin.edittechsupport');
             });
 
-
-
+ 
             // blog module routes 
 
             // blog table route

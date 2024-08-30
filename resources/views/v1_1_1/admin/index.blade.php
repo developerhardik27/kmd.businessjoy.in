@@ -99,6 +99,23 @@
                                                             <div class="media-support-info ml-3">
                                                                 <h6>
                                                                     <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Paid Invoices"
+                                                                        class="btn btn-success btn-sm" id='invoicepaiddata'>
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        PAID
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-success">
+                                                                <span id="invoicepaid">0</span>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
                                                                         data-original-title="View Part Payment Invoices"
                                                                         class="btn btn-info btn-sm"
                                                                         id='invoicepartpaymentdata'>
@@ -109,24 +126,9 @@
                                                                     </button>
                                                                 </h6>
                                                             </div>
-                                                            <div class="profile-icon iq-bg-info"><span
-                                                                    id="invoicepartpayment">0</span></div>
-                                                        </li>
-                                                        <li class="d-flex mb-4 align-items-center">
-                                                            <div class="media-support-info ml-3">
-                                                                <h6>
-                                                                    <button data-toggle="tooltip" data-placement="bottom"
-                                                                        data-original-title="View Paid Invoices"
-                                                                        class="btn btn-success btn-sm" id='invoicepaiddata'>
-                                                                        <span>
-                                                                            <i class="ri-list-check"></i>
-                                                                        </span>
-                                                                        PAID
-                                                                    </button>
-                                                                </h6>
+                                                            <div class="profile-icon iq-bg-info">
+                                                                <span id="invoicepartpayment">0</span>
                                                             </div>
-                                                            <div class="profile-icon iq-bg-success"><span
-                                                                    id="invoicepaid">0</span></div>
                                                         </li>
                                                         <li class="d-flex mb-4 align-items-center">
                                                             <div class="media-support-info ml-3">
@@ -142,8 +144,9 @@
                                                                     </button>
                                                                 </h6>
                                                             </div>
-                                                            <div class="profile-icon iq-bg-secondary"><span
-                                                                    id="invoicepending">0</span></div>
+                                                            <div class="profile-icon iq-bg-secondary">
+                                                                <span id="invoicepending">0</span>
+                                                            </div>
                                                         </li>
                                                         <li class="d-flex mb-4 align-items-center">
                                                             <div class="media-support-info ml-3">
@@ -181,6 +184,17 @@
                                                         <h4 class="card-title"><span id="status_title"></span> Invoices
                                                         </h4>
                                                     </div>
+                                                    {{-- <div class="float-right my-1">
+                                                        <select name="invoicesbymonhts" id="invoicesbymonhts"
+                                                            class="float-right form-control">
+                                                            <option disabled>Select Days</option>
+                                                            <option value="1">Current Month</option>
+                                                            <option value="2">Last 2 Month</option>
+                                                            <option value="3">Last 3 Month</option>
+                                                            <option value="4">Last 4 Month</option>
+                                                            
+                                                        </select>
+                                                    </div> --}}
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="table-responsive scrollable-table" style="width: 100%">
@@ -286,11 +300,10 @@
                                                 <div class="iq-card-header d-flex justify-content-between">
                                                     <div class="iq-header-title">
                                                         <h4 class="card-title"><span id="status_title"></span>Upcoming
-                                                            Reminders </h4>
+                                                            Reminders 
+                                                        </h4>
                                                     </div>
-                                                </div>
-                                                <div class="iq-card-body">
-                                                    <div class="col-md-3 float-right my-1">
+                                                    <div class="float-right my-1">
                                                         <select name="reminderbydays" id="reminderbydays"
                                                             class="float-right form-control">
                                                             <option disabled>Select Days</option>
@@ -301,6 +314,8 @@
                                                             <option value="365">1 Year</option>
                                                         </select>
                                                     </div>
+                                                </div>
+                                                <div class="iq-card-body"> 
 
                                                     <div class="table-responsive scrollable-table" style="width: 100%">
                                                         <table class="table mb-0  table-borderless w-100" width="100%"
@@ -536,8 +551,7 @@
                                             <td class="text-center">
                                                 <div class="badge badge-pill iq-bg-success">${(value.status).replace('_',' ')}</div>
                                             </td>
-                                        </tr>`
-                            );
+                                        </tr>`);
                         });
                     } else {
                         $('#invoicedata').append(

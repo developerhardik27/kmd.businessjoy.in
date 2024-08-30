@@ -75,25 +75,25 @@
                     <label class="form-label" for="modulename">Module Name:</label><span style="color:red;"> *</span>
                     <select name="modulename" class="form-control" id="modulename">
                         <option value="" disabled selected>Select Module</option>
-                        @if (Session::has('invoice') && Session::get('invoice') == 'yes')
+                        @if (Session::has('invoice') && Session::get('invoice') == 'yes' || Session::get('admin_role') == 1)
                             <option value='invoice'>Invoice</option>
                         @endif
-                        @if (Session::has('lead') && Session::get('lead') == 'yes')
+                        @if ((Session::has('lead') && Session::get('lead') == 'yes') || Session::get('admin_role') == 1)
                             <option value='lead'>Lead</option>
                         @endif
-                        @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
+                        @if ((Session::has('customersupport') && Session::get('customersupport')) == 'yes' || Session::get('admin_role') == 1)
                             <option value='customersupport'>Customer Support</option>
                         @endif
-                        @if (Session::has('admin') && Session::get('admin') == 'yes')
+                        @if ((Session::has('admin') && Session::get('admin') == 'yes') || Session::get('admin_role') == 1)
                             <option value='admin'>Admin</option>
                         @endif
-                        @if (Session::has('account') && Session::get('account') == 'yes')
+                        @if ((Session::has('account') && Session::get('account') == 'yes') || Session::get('admin_role') == 1)
                             <option value='account'>Account</option>
                         @endif
-                        @if (Session::has('inventory') && Session::get('inventory') == 'yes')
+                        @if ((Session::has('inventory') && Session::get('inventory') == 'yes') || Session::get('admin_role') == 1)
                             <option value='inventory'>Inventory</option>
                         @endif
-                        @if (Session::has('reminder') && Session::get('reminder') == 'yes')
+                        @if ((Session::has('reminder') && Session::get('reminder') == 'yes') || Session::get('admin_role') == 1)
                             <option value='reminder'>Reminder</option>
                         @endif
                     </select>
@@ -171,11 +171,13 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            // redirect to techsupport list page on click cancel btn
             $('#cancelbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.techsupport') }}";
             });
 
+            // add/remove disabled option dynamically
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
@@ -187,6 +189,7 @@
                 $('#assignedto').multiselect('rebuild');
             });
 
+            // intialize summernote editor for description
             $('#description').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -205,7 +208,7 @@
             // get & set user data into form input for assign to ticket 
             $.ajax({
                 type: 'GET',
-                url: '{{ route('user.customersupportindex') }}',
+                url: '{{ route('user.techsupportindex') }}',
                 data: {
                     user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
@@ -240,13 +243,13 @@
                     console.error('Error:', error);
                 }
             });
-
-
+ 
             // user will be redirect if he is click on form cancel button
             $('#resetbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.techsupport') }}";
             });
+
             // submit form data
             $('#ticketform').submit(function(event) {
                 event.preventDefault();

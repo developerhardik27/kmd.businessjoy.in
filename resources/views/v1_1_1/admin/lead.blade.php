@@ -372,7 +372,7 @@
         function openNav() {
             var screenWidth = window.innerWidth;
             var width;
-
+            // dynamic width of right filter sidebar
             if (screenWidth >= 320 && screenWidth <= 768) {
                 width = "100%";
             } else if (screenWidth >= 769 && screenWidth <= 1024) {
@@ -867,10 +867,6 @@
                     }
                 });
             }
-
-            // it is commented beacause now it is calling conditionally 
-            //call function for loaddata
-            // loaddata();
 
 
             // view individual lead data

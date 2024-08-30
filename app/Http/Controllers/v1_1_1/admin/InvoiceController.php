@@ -49,7 +49,6 @@ class InvoiceController extends Controller
         $data = [
             'companydetails' => $companydetailsdata['companydetails'][0],
             'bankdetails' => $bankdetailsdata['bankdetail'][0]
-
         ];
 
         return view($this->version . '.admin.invoiceview', ['id' => $id, 'data' => $data]);

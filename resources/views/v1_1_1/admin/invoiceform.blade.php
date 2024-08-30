@@ -364,8 +364,8 @@
             // response status == 422 that means api has not got valid or required data
  
 
-            $('.withgstspan').hide();
-
+            // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
+            $('.withgstspan').hide(); 
             $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
@@ -381,17 +381,18 @@
                 }
             });
 
+            //function for refresh tooltip after dynamic record append,delete 
             function managetooltip(){
                 $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
                 // Reinitialize tooltips
                 $('body').find('[data-toggle="tooltip"]').tooltip();
             };
 
-            let allColumnData = [];
-            let allColumnNames = [];
-            let hiddencolumn = 0 ;
-            let formula = [];
-            let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
+            let allColumnData = []; // all column name with column details
+            let allColumnNames = []; // all column name 
+            let hiddencolumn = 0 ; // hidden columns 
+            let formula = [];  // formula
+            let sgst,cgst,gst,currentcurrency,currentcurrencysymbol; 
 
             // fetch other settings like gst and inv number and inv date 
             $.ajax({
@@ -504,8 +505,8 @@
                     token: "{{ session()->get('api_token') }}"
                 },
                 success: function(response) {
-                     allColumnData = response.columnname;
-                    //  if(allColumnData.length > 6){ 
+                     allColumnData = response.columnname; //store all column data for use globally in entire page
+                    //  if(allColumnData.length > 6){  
                     //      $('.producttable').css('width',allColumnData.length * 200 + 'px');
                     //  }
                     if (response.status == 200 && response.columnname != '') {
@@ -513,13 +514,13 @@
                         $.each(response.columnname, function(key, value) {
                             $.each(value, function(innerKey, innerValue) {
                                 if (innerKey === 'column_name') {
-                                    allColumnNames.push(innerValue);
+                                    allColumnNames.push(innerValue); // store column name
                                 }
                             });
                         });
                         
                         $('#columnname').prepend(
-                            `${allColumnData.map(columnName => `<th style="${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
+                            `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
                                 <th>Amount</th>
                                 <th>Move</th>
                                 <th>Action</th>
@@ -581,13 +582,12 @@
                         <th>Description</th>
                         <th>Quantity</th>`);
                     }
-                       $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
-                       $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3);
+                       $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
+                       $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3); // set autocolspan for add new button row
                 },
                 error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                        console.log(xhr.responseText); // Log the full error response for debugging
                         var errorMessage = "";
                         try {
                             var responseJSON = JSON.parse(xhr.responseText);
@@ -599,7 +599,7 @@
                     }
             });
             
-            // Handle moving row up
+            // Handle moving row up (editable-table)
             const $tableID = $("#table");
             $tableID.on("click", ".table-up", function() {
                 const $row = $(this).closest("tr"); // Use closest to get the closest ancestor
@@ -629,7 +629,7 @@
 
                             if (value.branch_name != null) {
                                 if (bankdetails.length > 0) {
-                                    bankdetails += '-'; // Add - between account_no and branch_name if both are present
+                                    bankdetails += '-'; // Add '-' between account no and branch name if both are present
                                 }
                                 bankdetails += value.branch_name;
                             } 
@@ -642,7 +642,8 @@
                             loaderhide();
                     } else {
                         $('#acc_details').append(
-                            `<option disabled '>No Data found </option>`);
+                            `<option disabled '>No Data found </option>`
+                        );
                     }
                 },
                 error: function(xhr, status, error) { // if calling api request error 
@@ -660,7 +661,7 @@
                     }
             });
 
-            // currency data fetch and set currensy dropdown
+            // currency data fetch from country table and set currensy dropdown
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
@@ -696,9 +697,9 @@
                         toastr.error(errorMessage);
                     }
             });
-
-           
+ 
             loaderhide();
+
             // customer data fetch and set customer dropdown
             function customers(customerid = 0) {
                 loadershow();
@@ -756,14 +757,14 @@
                                 )
                             });
                             $('#customer').val(customerid);
-                            $('.select2').select2();
-                            if(customerid != 0){ 
+                            $('.select2').select2();  // search bar in customer list
+                            if(customerid != 0){  // get customer data if its new added from add new customerform
                                 loadershow();
                                 var selectedOption = $('#customer').find('option:selected');
                             
                                 var gstno = selectedOption.data('gstno');
-                                if (gstno != null) {
-                                    $('#type').val(1);
+                                if (gstno != null) {    // show gst line if customer has gst no other wise hide
+                                    $('#type').val(1);  // set gst type to gst
                                     if(gst != 0){
                                         $('#sgstline,#cgstline').hide();
                                         $('#gstline').show();
@@ -774,7 +775,7 @@
                                     }
                                     dynamiccalculaton();
                                 } else {
-                                    $('#type').val(2);
+                                    $('#type').val(2); // set gst type to withoutgst
                                     $('#sgstline,#cgstline,#gstline').hide();
                                     dynamiccalculaton();
                                 }
@@ -843,7 +844,7 @@
 
             customers();
 
-            // fetch contry id from selected customer and set input value for hidden file
+            // fetch country id from selected customer and set input value for hidden file
             $('#customer').on('change', function() {
                 loadershow();
                 var selectedOption = $(this).find('option:selected');
@@ -910,23 +911,24 @@
                 });
             });
 
-
+            // append currency symbol according currency
             $('#currency').on('change',function(){
                 currentcurrency = $('#currency option:selected').data('currency');
                 currentcurrencysymbol = $('#currency option:selected').data('symbol');
                 $('.currentcurrencysymbol').text(currentcurrencysymbol);
             });
+
             // call function to append row in table  on click add new button 
-            var addname = 1; // for use to this variable is give to dynamic name and id to input type
+            var addname = 1; // for use to this variable for give to dynamic name and id to input 
             $('.add_div').on('click', function() {
-                addname++;
+                addname++; 
                 adddiv();
             });
 
             // function for add new row in table 
             function adddiv() {
-                $('#add_new_div').append(`
-                    <tr class="iteam_row_${addname}">
+                $('#add_new_div').append(
+                    `<tr class="iteam_row_${addname}">
                         ${allColumnData.map(columnData => {
                             var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
@@ -942,7 +944,7 @@
                             }).join('')
                         }
                         <td>
-                            <input type="number" step="any" data-id = ${addname} id="Amount_${addname}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
+                            <input type="number" step="any" data-id =${addname} id="Amount_${addname}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
                         </td>   
                         <td>
                             <span class="table-up">
@@ -957,7 +959,7 @@
                             </span>
                         </td>
                         <td>
-                            <span class='duplicate-row' data-id = ${addname}>
+                            <span class='duplicate-row' data-id = ${addname}> 
                                 <button type="button"  data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
                                 <i class="ri-align-bottom"></i>
                                 </button>
@@ -968,13 +970,13 @@
                                 </button>
                             </span>
                         </td>
-                    </tr>
-                `);
+                    </tr>`
+                );
                 managetooltip();
             };
 
 
-            // duplicate row 
+            //call function duplicate row 
             $(document).on('click', '.duplicate-row', function() {
                 if (confirm('Are you really want to add duplicate column?')) { 
                     addname++;
@@ -988,6 +990,7 @@
                 
             });
 
+            // function for duplicate row
             function duplicatediv(id){
                 $('#add_new_div').append(`
                     <tr class="iteam_row_${addname}">
@@ -1092,9 +1095,9 @@
                 }
             })
 
-            // submit form 
+            // submit invoice form 
             $('#invoiceform').submit(function(event) {
-                iteam_data = new Array();
+                iteam_data = new Array(); // row wise data
                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
@@ -1107,14 +1110,15 @@
 
                     // Iterate over each column name
                     $.each(allColumnNames, function (key, columnName) {
-                        var columnNameWithUnderscores = columnName.replace(/\s+/g, '_');
+                        var columnNameWithUnderscores = columnName.replace(/\s+/g, '_'); // add '_' place of ' ' (space) in column name
                         // Find the input within the current row by using the row number
                         var inputValue = $(row).find(`#${columnNameWithUnderscores}_${rowNumber}`).val();
                         rowData[columnNameWithUnderscores] = inputValue;
                     });
                       rowData['amount'] = $(row).find('#Amount_'+ rowNumber).val();
-                    iteam_data.push(rowData);
+                    iteam_data.push(rowData); // push row data to item_data array
                 });
+                // get other invoice details 
                 var country = $('#country').val();
                 var created = $('#created_by').val();
                 var company_id = $('#company_id').val();
@@ -1137,7 +1141,7 @@
                     gst : gst
                 }
 
-                
+                //make object of other invoice details
                 var data = {
                     country_id: country,
                     user_id: created,
@@ -1161,7 +1165,7 @@
                 }else{
                     data['gst'] = gstval ;
                 }
-                
+                //make invoice store request
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('invoice.store') }}",
@@ -1215,7 +1219,7 @@
             });
            
            
-
+            //check inv number will not duplicate (on manual inv number)
             $('#inv_number').on('blur',function(){
                 $('.error-msg').text('');
                 var inv_number = $(this).val();
@@ -1259,13 +1263,13 @@
                 });
             });
 
-
+            // redirect invoice list page on click cancel button
             $('#cancelbtn').on('click',function(){
                 loadershow();
                 window.location.href = "{{route('admin.invoice')}}" ;
             }); 
 
-            // dynamic calculation 
+            // dynamic calculation function 
             function dynamiccalculaton(targetdata){
                 var editid = $(targetdata).data('id');
                 var rowData = {};
@@ -1370,6 +1374,7 @@
                          
             }
 
+            // call dynamic calculation function on enter value in number input
             $(document).on('keyup change','.calculation',function(){ 
                 dynamiccalculaton(this);
             });
@@ -1377,7 +1382,7 @@
 
             // for add new customer 
 
-            // show country data in dropdown
+            // show country data in dropdown and set default value according logged in user
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
@@ -1522,6 +1527,7 @@
                 });
             }
 
+            // close pop up modal and reset new customer form
             $('#modal_cancelBtn').on('click',function(){
                 $('#customerform')[0].reset();
                 $('#exampleModalScrollable').modal('hide');

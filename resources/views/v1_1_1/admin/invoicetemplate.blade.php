@@ -1,5 +1,4 @@
-@php
-
+@php 
     // convert number to spelling:
     $words = Number::spell($invdata['grand_total']);
 
@@ -40,7 +39,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }} - invoicePDf</title>
@@ -145,16 +144,22 @@
             width: 100%;
             border-spacing: 10px;
             page-break-inside: avoid;
+            table-layout: auto;
             /* Prevent table from breaking across pages */
         }
 
         #data td,
         th {
             white-space: normal;
+            word-wrap: break-word; 
+        }
+        #data td{
+            line-break: anywhere !important;
         }
 
         td {
             padding: 0px 5px;
+            word-wrap: break-word;  
         }
 
         .currencysymbol {
@@ -304,9 +309,7 @@
                             @endif
                         </table>
                     </td>
-                    <td style="width: 10%;">
-
-                    </td>
+                    <td style="width: 10%;"></td>
                     <td style="width: 40%;padding:0;text-align: center;">
                         <div style="display: inline-block;">
                             @if ($companydetails['img'] != '')
@@ -374,11 +377,11 @@
                         </table>
                     </td>
                 </tr>
-                <tr style="overflow: hidden">
+                <tr>
                     <td colspan="3" id="data" style="padding:0;">
-                        <table cellspacing=0 cellpadding=0 class=" horizontal-border" width="100">
+                        <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class=" horizontal-border" width="100%">
                             <tr class="bgblue">
-                                <th><span style="padding-left: 5px"> # </span></th>
+                                <th><span style="padding-left: 5px;width:4%;"> # </span></th>
                                 @forelse ($productscolumn as $column)
                                     @php
                                         $columnname = strtoupper(str_replace('_', ' ', $column['column_name']));
@@ -389,7 +392,10 @@
                                             $loopnumber[] = $loop->iteration;
                                         @endphp
                                     @endif
-                                    <th style="text-align: center">{{ $columnname }}</th>
+                                    <th
+                                        style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">
+                                        {{ $columnname }}
+                                    </th>
                                 @empty
                                     <th>-</th>
                                 @endforelse
@@ -399,12 +405,10 @@
                             @foreach ($products as $row)
                                 @php $srno++ ; @endphp
                                 <tr>
-                                    <td style="text-align: center">{{ $srno }}</td>
+                                    <td style="text-align: center;width:4%">{{ $srno }}</td>
                                     @foreach ($row as $key => $val)
                                         @if ($loop->last)
-                                            <td style="text-align:right;" class="currencysymbol">
-                                                {{-- {{ $invdata['currency_symbol'] }}
-                                                    {{ formatDecimal($val) }} --}}
+                                            <td style="text-align:right;" class="currencysymbol"> 
                                                 {{ Number::currency($val, in: $invdata['currency']) }}
                                             </td>
                                         @elseif (in_array($loop->iteration, $loopnumber))
@@ -420,15 +424,7 @@
                                             </td>
                                         @else
                                             <td style="text-align:center;">
-                                                {{-- @if (strlen($val) > 40)
-                                                    @php
-                                                      $line =  nl2br(e($val)) ;
-                                                        $val = wordwrap($line, 40, '<br>', true);
-                                                    @endphp
-                                                    {!! $val !!}
-                                                @else --}}
                                                 {!! nl2br(e($val)) !!}
-                                                {{-- @endif --}}
                                             </td>
                                         @endif
                                     @endforeach
@@ -518,6 +514,7 @@
                             </tr>
                         </table>
                     </td>
+                </tr>    
                 <tr>
                     <td colspan="3" class="bgblue  bgspecial"
                         style="vertical-align: middle; text-align: center;font-style:italic">

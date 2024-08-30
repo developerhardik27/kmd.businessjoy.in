@@ -32,9 +32,9 @@ return new class extends Migration {
             $table->longText('show_col')->nullable();
             $table->integer('overdue_date')->nullable();
             $table->integer('t_and_c_id')->nullable();
-            $table->integer('last_increment_number')->nullable();
-            $table->integer('increment_type')->nullable();
-            $table->integer('pattern_type')->nullable();
+            $table->integer('last_increment_number')->nullable()->comment('use during increment by customer');
+            $table->integer('increment_type')->nullable()->comment('type-1 = by invoice , type-2 = by customer');
+            $table->integer('pattern_type')->nullable()->comment('type-1 = local , type-2 = global');
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

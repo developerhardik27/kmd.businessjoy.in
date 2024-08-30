@@ -40,7 +40,9 @@ class userController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
-        $this->rp = json_decode($permissions[0]['rp'], true);
+        if(isset($permissions[0]['rp'])){ 
+            $this->rp = json_decode($permissions[0]['rp'], true);
+        }
 
         $this->user_permissionModel = $this->getmodel('user_permission');
 

@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers\v1_1_1\api;
 
-use App\Http\Controllers\Controller;
-use App\Events\StatusChanged;
-use App\Listeners\SendStatusChangedEmail;
-use App\Mail\PendingReminder;
 use App\Mail\Status;
+use App\Models\User;
 use App\Models\tech_support;
-use App\Models\v1_1_1\reminder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Http\Request; 
+use Illuminate\Support\Carbon; 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Mail; 
 use Illuminate\Support\Facades\Validator;
 
 class techsupportController extends commonController
@@ -42,6 +38,8 @@ class techsupportController extends commonController
         $todate = Carbon::parse($request->todate);
         $status = $request->status;
         $assignedto = $request->assignedto;
+        $user = User::find($this->userId);
+
         // if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
         //     $activestatus = $request->activestatusvalue;
         // }
@@ -57,23 +55,51 @@ class techsupportController extends commonController
             $techsupportquery->whereIn('status', $status);
         }
         if (isset($assignedto)) {
-            $techsupportquery->where(function ($query) use ($assignedto) {
-                foreach ($assignedto as $value) {
-                    $query->orWhere('assigned_to', 'LIKE', '%' . $value . '%');
+            $assignedtoValues = is_array($assignedto) ? $assignedto : explode(',', $assignedto);
+            $techsupportquery->where(function ($query) use ($assignedtoValues) {
+                foreach ($assignedtoValues as $value) {
+                    // Exact match for the value surrounded by commas or being at the start/end
+                    $query->orWhere(function ($q) use ($value) {
+                        $q->where('assigned_to', 'LIKE', $value . ',%')
+                            ->orWhere('assigned_to', 'LIKE', '%,' . $value . ',%')
+                            ->orWhere('assigned_to', 'LIKE', '%,' . $value)
+                            ->orWhere('assigned_to', 'LIKE', $value);
+                    });
                 }
             });
         }
 
-        if ($this->rp['adminmodule']['techsupport']['alldata'] != 1) {
-            $techsupportquery->where('user_id', $this->userId);
+        if ($this->rp['adminmodule']['techsupport']['alldata'] == 1) {
+            if ($this->userId != 1) {
+                $techsupportquery->where(function ($query) use ($user) {
+                    $query->where('company_id', $this->companyId)
+                        ->orWhere(function ($q) use ($user) {
+                            $q->where('assigned_to', 'LIKE', $user->id . ',%')
+                                ->orWhere('assigned_to', 'LIKE', '%,' . $user->id . ',%')
+                                ->orWhere('assigned_to', 'LIKE', '%,' . $user->id)
+                                ->orWhere('assigned_to', 'LIKE', $user->id);
+                        });
+                });
+            }
+        } else {
+            $techsupportquery->where(function ($query) use ($user) {
+                $query->where('user_id', $this->userId)
+                    ->orWhere(function ($q) use ($user) {
+                        $q->where('assigned_to', 'LIKE', $user->id . ',%')
+                            ->orWhere('assigned_to', 'LIKE', '%,' . $user->id . ',%')
+                            ->orWhere('assigned_to', 'LIKE', '%,' . $user->id)
+                            ->orWhere('assigned_to', 'LIKE', $user->id);
+                    });
+            });
         }
+
         $techsupport = $techsupportquery->get();
 
 
         if ($techsupport->count() > 0) {
-             return $this->successresponse(200, 'techsupport',  $techsupport);
+            return $this->successresponse(200, 'techsupport', $techsupport);
         } else {
-             return $this->successresponse(404, 'techsupport', 'No Records Found');
+            return $this->successresponse(404, 'techsupport', 'No Records Found');
         }
     }
 
@@ -90,28 +116,28 @@ class techsupportController extends commonController
      */
     public function store(Request $request)
     {
-        
-            $validator = Validator::make($request->all(), [
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
-                'email' => 'required|email',
-                'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
-                'modulename' => 'required',
-                'description' => 'required',
-                'attachment.*' => 'nullable|mimes:jpg,jpeg,png,mp4,webm,pdf|max:10000',
-                'assignedto',
-                'issuetype' => 'required',
-                'status',
-                'remarks',
-                'ticket',
-                'created_at',
-                'updated_at',
-                'is_active',
-                'is_deleted',
-            ]);
+
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'required|email',
+            'contact_no' => 'required|regex:/^\+?[0-9]{1,15}$/|max:15',
+            'modulename' => 'required',
+            'description' => 'required',
+            'attachment.*' => 'nullable|mimes:jpg,jpeg,png,mp4,webm,pdf|max:10000',
+            'assignedto',
+            'issuetype' => 'required',
+            'status',
+            'remarks',
+            'ticket',
+            'created_at',
+            'updated_at',
+            'is_active',
+            'is_deleted',
+        ]);
 
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             $techsupportdata = [];
@@ -120,7 +146,7 @@ class techsupportController extends commonController
             if ($request->hasFile('attachment')) {
                 foreach ($request->file('attachment') as $attachment) {
                     $attachmentname = $request->first_name . time() . '-' . uniqid() . '.' . $attachment->getClientOriginalExtension();
-        
+
                     if (!file_exists('uploads/files/')) {
                         mkdir('uploads/files/', 0755, true);
                     }
@@ -157,7 +183,7 @@ class techsupportController extends commonController
                     $ticketupdate = $techsupport->update([
                         'ticket' => $ticket
                     ]);
-                    if ($ticketupdate) { 
+                    if ($ticketupdate) {
                         try {
                             Mail::to($techsupport->email)
                                 ->send(new Status($techsupport));
@@ -170,15 +196,15 @@ class techsupportController extends commonController
 
                             // Log the error or handle it accordingly
                         }
-                         return $this->successresponse(200, 'message', 'Ticket succesfully created');
+                        return $this->successresponse(200, 'message', 'Ticket succesfully created');
                     } else {
-                         return $this->successresponse(500, 'message', 'Ticket not succesfully created');
+                        return $this->successresponse(500, 'message', 'Ticket not succesfully created');
                     }
                 } else {
-                     return $this->successresponse(500, 'message', 'Ticket not succesfully created');
+                    return $this->successresponse(500, 'message', 'Ticket not succesfully created');
                 }
             } else {
-                 return $this->successresponse(500, 'message', 'Ticket not succesfully created');
+                return $this->successresponse(500, 'message', 'Ticket not succesfully created');
             }
         }
     }
@@ -194,9 +220,9 @@ class techsupportController extends commonController
             ->get();
 
         if ($techsupport->count() > 0) {
-             return $this->successresponse(200, 'techsupport', $techsupport);
+            return $this->successresponse(200, 'techsupport', $techsupport);
         } else {
-             return $this->successresponse(404, 'techsupport', $techsupport);
+            return $this->successresponse(404, 'techsupport', $techsupport);
         }
     }
 
@@ -208,12 +234,12 @@ class techsupportController extends commonController
         $techsupport = tech_support::find($id);
 
         if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-             return $this->successresponse(500, 'message', 'You are Unauthorized');
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         if ($techsupport) {
-             return $this->successresponse(200, 'techsupport', $techsupport);
+            return $this->successresponse(200, 'techsupport', $techsupport);
         } else {
-             return $this->successresponse(404, 'message',  "No Such Ticket Found!");
+            return $this->successresponse(404, 'message', "No Such Ticket Found!");
         }
     }
 
@@ -243,11 +269,11 @@ class techsupportController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-                 return $this->successresponse(500, 'message', 'You are Unauthorized');
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $ticket = tech_support::find($id);
@@ -272,9 +298,9 @@ class techsupportController extends commonController
                     'ticket' => $request->ticket,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-                 return $this->successresponse(200, 'message', 'Ticekt succesfully updated');
+                return $this->successresponse(200, 'message', 'Ticekt succesfully updated');
             } else {
-                 return $this->successresponse(404, 'message', 'No Such Ticket Found!');
+                return $this->successresponse(404, 'message', 'No Such Ticket Found!');
             }
         }
     }
@@ -288,11 +314,11 @@ class techsupportController extends commonController
 
         if ($this->rp['adminmodule']['techsupport']['alldata'] != 1) {
             if ($techsupport->created_by != $this->userId) {
-                 return $this->successresponse(500, 'message', 'You are Unauthorized');
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
         if ($this->rp['adminmodule']['techsupport']['delete'] != 1) {
-             return $this->successresponse(500, 'message', 'You are Unauthorized');
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($techsupport) {
@@ -300,9 +326,9 @@ class techsupportController extends commonController
                 'is_deleted' => 1
 
             ]);
-             return $this->successresponse(200, 'message', 'techsupport succesfully deleted');
+            return $this->successresponse(200, 'message', 'techsupport succesfully deleted');
         } else {
-             return $this->successresponse(404, 'message', 'No Such Ticket Found!');
+            return $this->successresponse(404, 'message', 'No Such Ticket Found!');
         }
     }
 
@@ -314,7 +340,7 @@ class techsupportController extends commonController
         $techsupport = DB::table('tech_supports')->where('id', $request->statusid)->get();
 
         if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-             return $this->successresponse(500, 'message', 'You are Unauthorized');
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($techsupport) {
@@ -337,10 +363,10 @@ class techsupportController extends commonController
                 // Log the error or handle it accordingly
             }
 
-             return $this->successresponse(200, 'message',  'status Succesfully Updated');
+            return $this->successresponse(200, 'message', 'status Succesfully Updated');
 
         } else {
-             return $this->successresponse(404, 'message', 'No Such Ticket Found!');
+            return $this->successresponse(404, 'message', 'No Such Ticket Found!');
         }
     }
 

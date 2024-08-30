@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\v1_1_1\api;
 
+use Exception;
 use App\Models\company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 
@@ -51,17 +54,22 @@ class versionupdateController extends commonController
                 ]);
 
 
-                if ($company->app_version != $request->version) {
+                if ($company->app_version) {
                     $paths = [];
                     switch ($request->version) {
                         case 'v1_1_1':
                             $paths = [
                                 'database/migrations/v1_1_1',
-                            ];
+                            ]; 
+                            if ($request->company == 1) {
+                                $paths = [
+                                    'database/migrations/newmasterdbtable',
+                                ];
+                            }  
                             break;
                         // Add more cases as needed
                     }
-  
+
                     if (!empty($paths)) {
                         // Run migrations only from the specified path
                         foreach ($paths as $path) {
@@ -70,7 +78,7 @@ class versionupdateController extends commonController
                                 '--database' => $company->dbname,
                             ]);
                         }
-                    } 
+                    }
 
                     config(['database.connections.dynamic_connection.database' => $company->dbname]);
 
@@ -80,17 +88,33 @@ class versionupdateController extends commonController
 
                     switch ($request->version) {
                         case 'v1_1_1':
-                            $getgstsettings = DB::connection('dynamic_connection')->table('invoice_other_settings')->select('sgst', 'cgst', 'gst')->first();
-                            $gstsettings = json_encode([
-                                'sgst' => $getgstsettings->sgst,
-                                'cgst' => $getgstsettings->cgst,
-                                'gst' => $getgstsettings->gst,
-                            ]);
-                            DB::connection('dynamic_connection')->table('invoices')->where('is_deleted', 0)->update([
-                                'gstsettings' => $gstsettings
-                            ]);
-                            break;
+                            try {
+                                if (Schema::hasTable('invoice_other_settings') && Schema::hasTable('invoices')) {
+                                    $getGstSettings = DB::connection('dynamic_connection')
+                                        ->table('invoice_other_settings')
+                                        ->select('sgst', 'cgst', 'gst')
+                                        ->first();
 
+                                    if ($getGstSettings) {
+                                        // Encode GST settings as JSON
+                                        $gstSettingsJson = json_encode([
+                                            'sgst' => $getGstSettings->sgst,
+                                            'cgst' => $getGstSettings->cgst,
+                                            'gst' => $getGstSettings->gst,
+                                        ]);
+
+                                        // Update 'invoices' table where 'gstsettings' is NULL or empty
+                                        DB::connection('dynamic_connection')
+                                            ->table('invoices')
+                                            ->where('is_deleted', 0)
+                                            ->whereIn('gstsettings', [null, ''])
+                                            ->update(['gstsettings' => $gstSettingsJson]);
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                Log::error($e);
+                            }
+                            break;
                     }
 
                     $company->app_version = $request->version;
@@ -99,8 +123,7 @@ class versionupdateController extends commonController
 
                     return $this->successresponse(200, 'message', 'Company version succesfully updated');
 
-                }
-                 else {
+                } else {
                     return $this->successresponse(500, 'message', 'This company is already in latest version.');
                 }
             } else {

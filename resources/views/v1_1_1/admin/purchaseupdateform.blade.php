@@ -67,12 +67,14 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset" class="btn iq-bg-danger float-right"><i class="ri-refresh-line"></i></button>
-                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update" class="btn btn-primary float-right my-0" ><i class="ri-check-line"></i></button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
+                        class="btn iq-bg-danger float-right"><i class="ri-refresh-line"></i></button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update"
+                        class="btn btn-primary float-right my-0"><i class="ri-check-line"></i></button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -85,6 +87,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
             var edit_id = @json($edit_id);
+            
             // show old data in fields
             $.ajax({
                 type: 'GET',
@@ -125,8 +128,7 @@
                     toastr.error(errorMessage);
                 }
             });
-
-
+ 
             //submit form
             $('#purchaseupdateform').submit(function(event) {
                 event.preventDefault();

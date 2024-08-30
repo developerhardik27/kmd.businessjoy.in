@@ -36,12 +36,12 @@ class AdminLoginController extends Controller
 
         if ($validator->passes()) {
 
-            if (User::where('email', '=', $request->email)->first()) {
-                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0])) {
-                    $admin = Auth::guard('admin')->user();
-                    $api_token = Str::random(60);
+            if (User::where('email', '=', $request->email)->first()) { // check if request email is registered or not
+                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0])) { //verify credentials
+                    $admin = Auth::guard('admin')->user(); // user
+                    $api_token = Str::random(60); // generate api token
 
-                    DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]);
+                    DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]); // store api token into user table for further activity
 
                     if ((($admin->role == 1) or ($admin->role == 2) or ($admin->role == 3)) && ($admin->is_active == 1)) {
 
@@ -52,6 +52,7 @@ class AdminLoginController extends Controller
                         DB::purge('dynamic_connection');
                         DB::reconnect('dynamic_connection');
 
+                        // fetch user permissions
                         $rpdetailsjson = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $admin->id)->get();
 
                         if ($rpdetailsjson->count() > 0) {
@@ -63,6 +64,7 @@ class AdminLoginController extends Controller
 
                             $menus = [];
 
+                            // check user permission function
                             function hasPermission($json, $module)
                             {
                                 if (isset($json[$module]) && !empty($module)) {
@@ -79,7 +81,9 @@ class AdminLoginController extends Controller
                             }
 
 
-
+                            /*
+                             * $menus (using in dashboard for showing menus) 
+                             */
 
 
 
@@ -148,14 +152,12 @@ class AdminLoginController extends Controller
                                     session(['menu' => 'blog']);
                                 }
                                 // $menus[] = 'blog';
-                            } 
-                                $request->session()->put([
-                                    'allmenu' => $menus
-                                ]); 
+                            }
+                            $request->session()->put([
+                                'allmenu' => $menus
+                            ]);
 
                         }
-
-
 
                         $request->session()->put([
                             'admin_role' => $admin->role,
@@ -184,10 +186,10 @@ class AdminLoginController extends Controller
 
                             if (session_status() !== PHP_SESSION_ACTIVE)
                                 session_start();
-                                session_destroy();
+                            session_destroy();
                             Auth::guard('admin')->logout();
                             return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
-                        }  
+                        }
                         return redirect()->route('admin.welcome');
                     } else {
                         Auth::guard('admin')->logout();
@@ -209,6 +211,7 @@ class AdminLoginController extends Controller
     {
         return view('admin.forgot');
     }
+
     public function reset_password($token)
     {
 
@@ -220,6 +223,7 @@ class AdminLoginController extends Controller
             abort(404);
         }
     }
+
     public function post_reset_password($token, Request $request)
     {
 
@@ -261,7 +265,6 @@ class AdminLoginController extends Controller
     }
 
 
-
     public function set_password($token)
     {
 
@@ -273,6 +276,7 @@ class AdminLoginController extends Controller
             abort(404);
         }
     }
+
     public function post_set_password($token, Request $request)
     {
         $user = User::where('pass_token', '=', $token)->first();
@@ -308,50 +312,4 @@ class AdminLoginController extends Controller
         return response()->json(['status' => $value]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-    }
 }

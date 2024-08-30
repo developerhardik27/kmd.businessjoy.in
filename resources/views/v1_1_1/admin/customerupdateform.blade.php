@@ -156,7 +156,7 @@
             // response status == 422 that means api has not got valid or required data
             // get selected customer data and show it into fields
 
-            
+            // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
             $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
@@ -370,6 +370,7 @@
                 });
             });
 
+            // redirect on customer list page on click cancel btn
             $('#cancelbtn').on('click',function(){
                 loadershow();
                 window.location.href = "{{route('admin.customer')}}" ;

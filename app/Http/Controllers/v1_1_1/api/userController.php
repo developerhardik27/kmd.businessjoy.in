@@ -46,6 +46,7 @@ class userController extends commonController
 
     }
 
+    // return username and company name
     public function username(Request $request)
     {
 
@@ -60,6 +61,7 @@ class userController extends commonController
         }
     }
 
+    // user details for profile
     public function userprofile(Request $request)
     {
 
@@ -88,6 +90,7 @@ class userController extends commonController
         }
     }
 
+    // user list who has customer support module permission
     public function customersupportuser()
     {
         $usersres = DB::table('users')
@@ -120,6 +123,7 @@ class userController extends commonController
         }
     }
 
+    // user list who has lead module permission
     public function leaduser()
     {
         $usersres = DB::table('users')
@@ -151,6 +155,7 @@ class userController extends commonController
         }
     }
 
+    // user list who has invoice module permission
     public function invoiceuser()
     {
         $usersres = DB::table('users')
@@ -172,6 +177,7 @@ class userController extends commonController
         }
     }
 
+    // user list who has techsupport module permission
     public function techsupportuser()
     {
 
@@ -262,12 +268,12 @@ class userController extends commonController
 
         $companymaxuser = $company->max_users;
 
-
+        // check company max user limit
         if ($user->count() >= $companymaxuser) {
             return $this->successresponse(500, 'message', 'You are reached your limits to create user');
         }
 
-
+        // validate incoming data request
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
@@ -296,13 +302,14 @@ class userController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
+            // check email already exist or not
             $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
 
             if (count($checkuseremail) > 0) {
                 return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
             }
 
-
+            
             if ($this->rp['adminmodule']['userpermission']['add'] == 1) {
 
                 //   check user permissions
@@ -481,7 +488,7 @@ class userController extends commonController
                 $rpjson = json_encode($this->rp);
             }
 
-            $passwordtoken = str::random(40);
+            $passwordtoken = str::random(40); // generate password token for set new password
             $userdata = [];
             if ($request->hasFile('img') && $request->hasFile('img') != '') {
                 $image = $request->file('img');
@@ -513,7 +520,7 @@ class userController extends commonController
                 'created_by' => $this->userId
             ]);
 
-            $users = User::insertgetId($user);
+            $users = User::insertgetId($user); // insert user data
 
             if ($users) {
                 $userrp = $this->user_permissionModel::create([
@@ -561,9 +568,7 @@ class userController extends commonController
         if ($userpermission->isNotEmpty()) {
             $userdata['userpermission'] = $userpermission[0]->rp;
         }
-
-
-
+ 
         if ($user) {
             return $this->successresponse(200, 'user', $userdata);
         } else {
@@ -842,7 +847,7 @@ class userController extends commonController
                 if ($request->password != '') {
                     $userupdatedata['password'] = Hash::make($request->password);
                 }
-                $user = $users->update($userupdatedata);
+                $user = $users->update($userupdatedata); //update user data
                 if ($user) {
                     if ($request->editrole == 1) {
                         return $this->successresponse(200, 'message', 'user succesfully updated');
@@ -953,7 +958,7 @@ class userController extends commonController
         return $this->successresponse(200, 'message', 'Password changed successfully');
     }
 
-
+    // set default page 
     public function setdefaultpage(Request $request, string $id)
     {
         $user = User::find($id);

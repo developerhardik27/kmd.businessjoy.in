@@ -348,7 +348,7 @@ Route::middleware($middlewareClass)->group(function () {
 
     // reminder modules route 
     // reminder customer route
-    $remindercustomerController = getversion('reminderCustomerController');
+    $remindercustomerController = getversion('remindercustomerController');
     Route::group([], function () use ($remindercustomerController) {
         Route::get('/remidercustomer/count', [$remindercustomerController, 'counttotalcustomer'])->name('remindercustomer.count');
         Route::get('/remindercustomer/customerreminders/{id}', [$remindercustomerController, 'customerreminders'])->name('remindercustomer.customerreminders');
