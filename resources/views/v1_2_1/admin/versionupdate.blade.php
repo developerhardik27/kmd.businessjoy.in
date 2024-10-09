@@ -98,7 +98,7 @@
                 loadershow();
                 $.ajax({
                     type: 'GET',
-                    url: '{{ route('company.companylist') }}',
+                    url: "{{ route('company.companylist') }}",
                     data: {
                         user_id: {{ session()->get('user_id') }},
                         company_id: {{ session()->get('company_id') }},
@@ -176,7 +176,7 @@
                     $('.error-msg').text('');
                     const formdata = $(this).serialize();
                     $.ajax({
-                        type: 'put',
+                        type: 'PUT',
                         url: "{{route('company.versionupdate')}}",
                         data:   formdata,   
                         success: function(response) {
