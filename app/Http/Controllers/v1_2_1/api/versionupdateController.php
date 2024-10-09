@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\v1_1_1\api;
+namespace App\Http\Controllers\v1_2_1\api;
 
 use Exception;
 use App\Models\company;
@@ -67,6 +67,7 @@ class versionupdateController extends commonController
                                 ];
                             }
                             break;
+
                         // Add more cases as needed
                     }
 
@@ -117,36 +118,34 @@ class versionupdateController extends commonController
                             break;
                         case 'v1_2_1':
                             $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
-                            foreach ($rp as $userrp) {
-                                $jsonrp = json_decode($userrp->rp, true);
-                                // dd($rp->invoicemodule);
-                                $newrp = [
-                                    "invoicenumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "invoicetandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "invoicestandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                ];
+                            if ($rp) {
+                                foreach ($rp as $userrp) {
+                                    $jsonrp = json_decode($userrp->rp, true);
+                                    // dd($rp->invoicemodule);
+                                    $newrp = [
+                                        "invoicenumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                        "invoicetandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                        "invoicestandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                        "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                        "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    ];
 
-                                if (!isset($jsonrp['invoicemodule']['invoicenumbersetting'])) {
+                                    if (!isset($jsonrp['invoicemodule']['invoicenumbersetting'])) {
 
-                                    // Update the 'invoicemodule' section with new permissions
-                                    $jsonrp['invoicemodule'] = array_merge($jsonrp['invoicemodule'], $newrp);
+                                        // Update the 'invoicemodule' section with new permissions
+                                        $jsonrp['invoicemodule'] = array_merge($jsonrp['invoicemodule'], $newrp);
 
-                                    // Encode updated permissions back to JSON
-                                    $updatedRpJson = json_encode($jsonrp);
-                                    // Update the database
-                                    DB::connection('dynamic_connection')->table('user_permissions')
-                                        ->where('user_id', $userrp->user_id)
-                                        ->update(['rp' => $updatedRpJson]);
+                                        // Encode updated permissions back to JSON
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+                                    }
                                 }
                             }
-
-                            // Confirm success 
-
                             break;
                     }
-
 
                     $company->app_version = $request->version;
                     $company->save();
