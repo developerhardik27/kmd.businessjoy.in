@@ -15,7 +15,7 @@
         @csrf
         <div class="form-group">
             <div id="newColForm" class="form-row d-none">
-                <div class="col-sm-4">
+                <div class="col-sm-4 mb-2">
                     <input type="hidden" name="token" id="token" value="{{ session('api_token') }}">
                     <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
                     <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
@@ -26,7 +26,7 @@
                         id="column_name">
                     <span class="error-msg" id="error-column_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-4 ">
+                <div class="col-sm-4 mb-2">
                     <select name="column_type" class="form-control " id="column_type">
                         <option selected disabled>Select Datatype</option>
                         <option value="text">Text</option>
@@ -37,7 +37,7 @@
                     </select>
                     <span class="error-msg" id="error-column_type" style="color: red"></span>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-2 mb-2">
                     <input type="number" class="form-control" name="column_width" id="column_width" placeholder="Column Width(%)"
                         required />
                     <span class="error-msg" id="error-column_width" style="color: red"></span>
