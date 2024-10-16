@@ -173,7 +173,8 @@ class AdminLoginController extends Controller
                         $_SESSION['folder_name'] = session('folder_name');
 
                         if (isset($admin->default_module) && isset($admin->default_page)) {
-                            session('menu', $admin->default_module);
+                            session(['menu' => $admin->default_module]);
+                            dd(session('menu'));
                             return redirect()->route('admin.' . $admin->default_page);
                         }
                         if (Session::get('menu') == null) {
