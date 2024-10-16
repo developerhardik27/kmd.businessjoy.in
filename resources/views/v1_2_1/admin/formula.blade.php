@@ -375,12 +375,12 @@
                                         </td>
                                         <td>
                                             <span>
-                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Formula" data-id='${value.id}' class="btn edit-btn iq-bg-success btn-rounded btn-sm my-0">
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Formula" data-id='${value.id}' class="btn edit-btn iq-bg-success btn-rounded btn-sm my-1">
                                                     <i class="ri-edit-fill"></i>
                                                 </button>
                                             </span>
                                             <span>
-                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Formula" data-id= '${value.id}' class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Formula" data-id= '${value.id}' class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-1">
                                                     <i class="ri-delete-bin-fill"></i>
                                                 </button>
                                             </span>

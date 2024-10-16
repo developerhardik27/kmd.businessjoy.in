@@ -79,10 +79,10 @@
                         <!-- <a href="#pricing" class="nav-item nav-link">Pricing</a>
                         <a href="#review" class="nav-item nav-link">Review</a> -->
                         <a href="#joinus" class="nav-item nav-link">Join Us</a>
-                        <a href="#contact" class="nav-item nav-link">Contact</a>
+                        <a href="#contact" class="nav-item nav-link">Contact</a> 
                     </div>
                     <a href="{{ route('admin.login') }}"
-                        class="btn btn-primary-gradient rounded-pill py-2 px-4 ms-3 d-none d-lg-block">
+                        class="btn btn-primary-gradient d-lg-block m-sm-0 ms-3 px-4 px-lg-4 px-sm-3 py-2 py-md-1 py-sm-1 rounded-pill">
                         Login</a>
                 </div>
             </nav>
