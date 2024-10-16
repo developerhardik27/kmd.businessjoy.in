@@ -42,6 +42,14 @@ class invoiceController extends commonController
 
     }
 
+
+    public function totalInvoice()
+    {
+        $invoices = DB::connection('dynamic_connection')->table('invoices')->where('is_deleted', 0)->count();
+
+        return $this->successresponse(200, 'invoice', $invoices);
+    }
+
     // chart monthly invoice counting
     public function monthlyInvoiceChart(Request $request)
     {
@@ -56,12 +64,25 @@ class invoiceController extends commonController
     //status vise invoice list
     public function status_list(Request $request)
     {
-        $currentMonth = Carbon::now()->format('Y-m');
 
-        $invoices = DB::connection('dynamic_connection')->table('invoices')->whereYear('inv_date', Carbon::now()->year)
-            ->whereMonth('inv_date', Carbon::now()->month)->where('created_by', $this->userId)->where('is_deleted', 0)
-            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"))
-            ->get();
+
+        $invoices = DB::connection('dynamic_connection')->table('invoices')
+            ->whereYear('inv_date', Carbon::now()->year)
+            ->where('is_deleted', 0)
+            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"));
+
+        if($request->invoicemonth == 'current'){
+            $invoices->whereMonth('inv_date', Carbon::now()->month);
+        }elseif($request->invoicemonth != 'all'){
+            $invoices->whereMonth('inv_date', $request->invoicemonth);
+        }    
+
+        if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
+            $invoices->where('created_by', $this->userId);
+        }
+
+
+        $invoices = $invoices->get();
         $groupedInvoices = $invoices->groupBy('status');
         return $groupedInvoices;
     }

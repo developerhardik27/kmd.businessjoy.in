@@ -521,7 +521,6 @@ class companyController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
-
             $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
                 ->select('company_details.img', 'company_details.pr_sign_img')->where('company.id', $id)
                 ->get();

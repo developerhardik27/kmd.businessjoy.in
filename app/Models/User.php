@@ -30,6 +30,7 @@ class User extends Authenticatable
         'default_module',
         'default_page',
         'api_token',
+        'super_api_token',
         'pass_token',
         'company_id',
         'created_by',

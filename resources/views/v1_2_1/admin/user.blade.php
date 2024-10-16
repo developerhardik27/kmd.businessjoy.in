@@ -62,8 +62,11 @@
                 <th>Email</th>
                 <th>ContactNo</th>
                 <th>CompanyName</th>
-                <th>UserRole</th>
-                <th>status</th>
+                <th>UserRole</th> 
+                <th>Status</th>
+                @if (session('user_id') == 1)
+                    <th>Login</th>
+                @endif
                 <th>View</th>
                 <th>Action</th>
             </tr>
@@ -97,6 +100,7 @@
                             var id = 1;
                             // You can update your HTML with the data here if needed     
                             $.each(response.user, function(key, value) { 
+                                var userLogin = "{{route('admin.superadminloginfromanyuser','__userId__')}}".replace('__userId__',value.id);
                                 $('#data').append(`<tr>
                                                         <td>${id}</td>
                                                         <td>${value.firstname  != null ? value.firstname : '-'}</td>
@@ -112,6 +116,15 @@
                                                               -
                                                             @endif
                                                         </td>
+                                                        @if (session('user_id') == 1)
+                                                            <td>
+                                                                <span>
+                                                                    <a href="${userLogin}" class="view-btn btn btn-outline-primary btn-rounded btn-sm my-0">
+                                                                        Login
+                                                                    </a>
+                                                                </span>
+                                                            </td>    
+                                                        @endif
                                                         <td>
                                                             @if (session('user_permissions.adminmodule.user.view') == '1') 
                                                                 <span data-toggle="tooltip" data-placement="bottom" data-original-title="View User Details">

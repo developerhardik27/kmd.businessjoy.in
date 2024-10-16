@@ -590,7 +590,7 @@
                 // currency data fetch and set currensy dropdown
                 $.ajax({
                     type: 'GET',
-                    url: '{{ route('country.index') }}',
+                    url: "{{ route('country.index') }}",
                     data: {
                         token: "{{ session()->get('api_token') }}",
                         company_id : " {{session()->get('company_id')}} ",
@@ -1415,7 +1415,7 @@
                  // show country data in dropdown
                 $.ajax({
                     type: 'GET',
-                    url: '{{ route('country.index') }}',
+                    url: "{{ route('country.index') }}",,
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
