@@ -1,4 +1,4 @@
-<?php 
+<?php
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\landing\LandingPageController;
@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/welcomemail', function () {
     return view('welcomemail');
 });
+
 Route::get('/invoicetemplate', function () {
     return view('v1_0_0.admin.invoicetemplate');
 });
@@ -18,12 +19,15 @@ Route::get('/invoicetemplate', function () {
 Route::get('/', function () {
     return view('welcome');
 });
+
 Route::get('/privacyandpolicies', function () {
     return view('privacypolicy');
 })->name('privacypolicy')->withoutMiddleware([CheckSession::class]);
+
 Route::get('/termsandconditions', function () {
     return view('termsandconditions');
 })->name('termsandconditions')->withoutMiddleware([CheckSession::class]);
+
 Route::get('/faq', function () {
     return view('faq');
 })->name('faq')->withoutMiddleware([CheckSession::class]);
@@ -59,8 +63,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 return redirect()->route('admin.login')->with('error', 'Session Expired');
             }
         })->name('admin.welcome');
- 
+
         Route::get('/setmenusession', [AdminLoginController::class, 'setmenusession'])->name('admin.setmenusession');
+        
         Route::group(['middleware' => 'admin.guest'], function () {
             Route::get('/login', [AdminLoginController::class, 'index'])->name('admin.login')->withoutMiddleware([CheckSession::class]);
             Route::post('/authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate')->withoutMiddleware([CheckSession::class]);
@@ -71,9 +76,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::get('/setpassword/{token}', [AdminLoginController::class, 'set_password'])->name('admin.setpassword')->withoutMiddleware([CheckSession::class]);
             Route::post('/setpassword/{token}', [AdminLoginController::class, 'post_set_password'])->name('admin.post_setpassword')->withoutMiddleware([CheckSession::class]);
         });
- 
+
         Route::group(['middleware' => 'admin.auth'], function () {
- 
+
             // Define a function to generate the controller class name based on the session value
             function getadminversion($controller)
             {
@@ -88,6 +93,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 }
 
             }
+
+            Route::get('/superadminloginfromanyuser/{userId}', [AdminLoginController::class, 'superAdminLoginFromAnyUser'])->name('admin.superadminloginfromanyuser');
 
             Route::get('/index', [HomeController::class, 'index'])->name('admin.index');
             Route::get('/logout', [HomeController::class, 'logout'])->name('admin.logout');
@@ -269,7 +276,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/EditTechsupport/{id}', [$TechSupportController, 'edit'])->name('admin.edittechsupport');
             });
 
- 
+
             // blog module routes 
 
             // blog table route

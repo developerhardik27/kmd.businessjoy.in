@@ -35,7 +35,7 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 $middlewareNamespace = 'App\\Http\\Middleware\\';
 try {
     // Retrieve the user and company version
-    $user = $request->has('user_id') ? User::find($request->user_id) : null;
+    $user = $request->has('user_id') ? User::find($request->user_id) : null; 
     $version = $user ? Company::find($user->company_id) : null;
     $versionexplode = $version ? $version->app_version : "v1_0_0";
 } catch (\Exception $e) {
@@ -204,6 +204,7 @@ Route::middleware($middlewareClass)->group(function () {
     $invoiceController = getversion('invoiceController');
     //invoice route
     Route::group([], function () use ($invoiceController) {
+        Route::get('/totalinvoice',[$invoiceController,'totalInvoice'])->name('invoice.totalinvoice');
         Route::get('/checkinvoicenumber', [$invoiceController, 'checkinvoicenumber'])->name('invoice.checkinvoicenumber');
         Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
         Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');

@@ -395,19 +395,43 @@
                 let formula = []; // formula
                 let sgst,cgst,gst,currentcurrency,currentcurrencysymbol;
 
+                const API_TOKEN = "{{ session()->get('api_token') }}";
+                const COMPANY_ID = "{{ session()->get('company_id') }}";
+                const USER_ID = "{{ session()->get('user_id') }}";
       
+                function ajaxRequest(type, url, data) {
+                return $.ajax({
+                    type,
+                    url,
+                    data
+                }); 
+            }
+
+            function handleAjaxError(xhr) {
+                if (xhr.status === 422) {
+                    var errors = xhr.responseJSON.errors;
+                    $.each(errors, function(key, value) {
+                        $('#error-' + key).text(value[0]);
+                    });
+                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                } else {
+                    var errorMessage = "An error occurred";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || errorMessage;
+                    } catch (e) {}
+                    toastr.error(errorMessage);
+                }
+            }
+
 
                 // fetch other settings like gst and inv number and inv date 
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('getoverduedays.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.overdueday != '') {
+                ajaxRequest('GET', "{{ route('getoverduedays.index') }}", { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status == 200 && response.overdueday != '') {
                             var othersettingdata = response.overdueday[0]; 
                             manualinvnumber = othersettingdata['invoice_number'];
                             manualinvdate = othersettingdata['invoice_date']; 
@@ -424,114 +448,72 @@
                             toastr.error(response.message);
                         }
                         loaderhide();
-                        // You can update your HTML with the data here if needed
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
-                });
-
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                });  
 
                 // fetch invoice formula for calculation 
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoiceformula.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.invoiceformula != '') {
+                ajaxRequest('GET', "{{ route('invoiceformula.index') }}", { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status == 200 && response.invoiceformula != '') {
                             formula = response.invoiceformula;
                         }else if(response.status == 500){
                             toastr.error(response.message);
                             loaderhide();
                         }
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
-                });
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
                 
                 // fetch users own columnname and set it into table 
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoice.columnname') }}",
-                    data: {
-                        user_id: {{ session()->get('user_id') }},
-                        company_id: {{ session()->get('company_id') }},
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        allColumnData = response.columnname;
+                ajaxRequest('GET', "{{ route('invoice.columnname') }}", { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    allColumnData = response.columnname;
                         // if(allColumnData.length > 6){ 
                         //     $('.producttable').css('width',allColumnData.length * 200 + 'px');
                         // }
-                        if (response.status == 200 && response.columnname != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.columnname, function(key, value) {
-                                $.each(value, function(innerKey, innerValue) {
-                                    if (innerKey === 'column_name') {
-                                        allColumnNames.push(innerValue);
-                                    }
-                                });
+                    if (response.status == 200 && response.columnname != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(response.columnname, function(key, value) {
+                            $.each(value, function(innerKey, innerValue) {
+                                if (innerKey === 'column_name') {
+                                    allColumnNames.push(innerValue);
+                                }
                             });
-                            
-                            $('#columnname').prepend(
-                                `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
-                                    <th>Amount</th>
-                                    <th>Move</th>
-                                    <th>Remove</th>
-                                `
-                                ); 
-                            
-                                managetooltip();
-                        } else if(response.status == 500){
-                                toastr.error(response.message);
-                                loaderhide();
-                        }else {
-                            $('#columnname').append(` <th>Name</th>
-                            <th>Description</th>
-                            <th>Quantity</th>`);
-                        }
-                        $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
-                        $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3);
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
+                        });
+                        
+                        $('#columnname').prepend(
+                            `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
+                                <th>Amount</th>
+                                <th>Move</th>
+                                <th>Remove</th>
+                            `
+                            ); 
+                        
+                            managetooltip();
+                    } else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                    }else {
+                        $('#columnname').append(` <th>Name</th>
+                        <th>Description</th>
+                        <th>Quantity</th>`);
                     }
+                    $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
+                    $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3);
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
                 });
+                
                 
                 // Handle moving row up
                 const $tableID = $("#table");
@@ -543,92 +525,62 @@
                 });
 
                 // account data fetch and set account detials dropdown
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoice.bankacc') }}",
-                    data: {
-                        user_id: {{ session()->get('user_id') }},
-                        company_id: {{ session()->get('company_id') }},
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.bank != '') {
-                            var countrecords = Object.keys(response.bank).length;
-                            // You can update your HTML with the data here if needed
-                            $.each(response.bank, function(key, value) {
-                                var bankdetails = '';
-                                if (value.account_no != null) {
-                                    bankdetails += value.account_no;
-                                } 
-                                if (value.branch_name != null) {
-                                    if (bankdetails.length > 0) {
-                                        bankdetails += '-'; // Add - between account_no and branch_name if both are present
-                                    }
-                                    bankdetails += value.branch_name;
+                ajaxRequest('GET', "{{ route('invoice.bankacc') }}", { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status == 200 && response.bank != '') {
+                        var countrecords = Object.keys(response.bank).length;
+                        // You can update your HTML with the data here if needed
+                        $.each(response.bank, function(key, value) {
+                            var bankdetails = '';
+                            if (value.account_no != null) {
+                                bankdetails += value.account_no;
+                            } 
+                            if (value.branch_name != null) {
+                                if (bankdetails.length > 0) {
+                                    bankdetails += '-'; // Add - between account_no and branch_name if both are present
                                 }
-                                $('#acc_details').append(
-                                    `<option ${countrecords === 1 ? 'selected' : ''} value='${value.id}'>${bankdetails}</option>`
-                                );
-                            });
-                        }else if(response.status == 500){
-                                toastr.error(response.message);
-                                loaderhide();
-                        } else {
-                            $('#acc_details').append(
-                                `<option disabled '>No Data found </option>`);
-                        }
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
+                                bankdetails += value.branch_name;
                             }
-                            toastr.error(errorMessage);
-                        }
-                });
+                            $('#acc_details').append(
+                                `<option ${countrecords === 1 ? 'selected' : ''} value='${value.id}'>${bankdetails}</option>`
+                            );
+                        });
+                    }else if(response.status == 500){
+                            toastr.error(response.message);
+                            loaderhide();
+                    } else {
+                        $('#acc_details').append(
+                            `<option disabled '>No Data found </option>`);
+                    }
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
 
                 // currency data fetch and set currensy dropdown
-                $.ajax({
-                    type: 'GET',
-                    url: "{ route('country.index') }}",
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id : " {{session()->get('company_id')}} ",
-                        user_id : " {{session()->get('user_id')}} ",
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.country != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.country, function(key, value) {
-                                $('#currency').append(
-                                    `<option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>`
-                                );
-                            });
-                        } else {
+                ajaxRequest('GET', "{{ route('country.index') }}", { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status == 200 && response.country != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(response.country, function(key, value) {
                             $('#currency').append(
-                                `<option disabled '>No Data found </option>`);
-                        }
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                });
+                                `<option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>`
+                            );
+                        });
+                    } else {
+                        $('#currency').append(
+                            `<option disabled '>No Data found </option>`);
+                    }
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }) 
 
             
                 loaderhide();
@@ -640,139 +592,78 @@
                     <option selected="" value=0 disabled=""> Select Customer</option>
                     <option value="add_customer" > Add New Customer </option>
                     `);
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('customer.invoicecustomer') }}",
-                        data: {
-                            company_id: {{ session()->get('company_id') }},
-                            user_id: {{ session()->get('user_id') }},
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.customer != '') {
-                                // You can update your HTML with the data here if needed
-                                $.each(response.customer, function(key, value) {
-                                    var customer = '';
-                                    if (value.firstname != null) {
-                                        customer += value.firstname;
-                                    }
+                    ajaxRequest('GET', "{{ route('customer.invoicecustomer') }}", { 
+                        token: API_TOKEN,
+                        company_id: COMPANY_ID,
+                        user_id: USER_ID
+                    }).done(function(response) {
+                        if (response.status == 200 && response.customer != '') {
+                            // You can update your HTML with the data here if needed
+                            $.each(response.customer, function(key, value) {
+                                const customerDetails = [value.firstname, value.lastname, value.company_name, value.contact_no, value.email].filter(Boolean).join(' - ');
 
-                                    if (value.lastname != null) {
-                                        if (customer.length > 0) {
-                                            customer += ' '; // Add space between firstname and lastname if both are present
-                                        }
-                                        customer += value.lastname;
-                                    }
-
-                                    if (value.company_name != null) {
-                                        if (customer.length > 0) {
-                                            customer += ' - '; // 
-                                        }
-                                        customer += value.company_name;
-                                    }
-
-                                    if (value.contact_no != null) {
-                                        if (customer.length > 0) {
-                                            customer += ' - '; // 
-                                        }
-                                        customer += value.contact_no;
-                                    }
-                                    
-                                    if (value.email != null) {
-                                        if (customer.length > 0) {
-                                            customer += ' - '; // 
-                                        }
-                                        customer += value.email;
-                                    }
-
-                                    $('#customer').append(
-                                        `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customer}</option>`
-                                    )
-                                });
-                                $('#customer').val(customerid); 
-                                $('.select2').select2();
-                                if(customerid != 0){ 
-                                    loadershow();
-                                    var selectedOption = $('#customer').find('option:selected'); 
-                                    var gstno = selectedOption.data('gstno');
-                                    if (gstno != null) {
-                                        $('#type').val(1);
-                                        if(gst != 0){
-                                            $('#sgstline,#cgstline').hide();
-                                            $('#gstline').show();
-                                        }else{
-                                            $('#gstline').hide();
-                                            $('#sgstline,#cgstline').show();
-        
-                                        } 
-                                        dynamiccalculaton();
-                                    } else {
-                                        $('#type').val(2);
-                                        $('#sgstline,#cgstline,#gstline').hide();
-                                        dynamiccalculaton();
-                                    }
-                                    let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
-                                    $.ajax({
-                                        type: 'GET',
-                                        url: customerSearchUrl,
-                                        data: {
-                                            token: "{{ session()->get('api_token') }}",
-                                            company_id: " {{ session()->get('company_id')}}",
-                                            user_id: " {{ session()->get('user_id')}}"
-                                        },
-                                        success: function(response) {
-                                            // You can update your HTML with the data here if needed
-                                            if (response.status == 200 && response.customers != '') {
-                                                var countryid = response.customer.country_id
-                                                if(countryid != null){
-                                                    $('#country').val(countryid);
-                                                    $('#currency').val(countryid);
-                                                    currentcurrency = $('#currency option:selected').data('currency');
-                                                    currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                                                    $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                                                }
-                                                
-                                            }else if(response.status == 500){
-                                                toastr.error(response.message);
-                                            }
-                                            loaderhide();
-                                        },
-                                        error: function(xhr, status, error) { // if calling api request error 
-                                            loaderhide();
-                                            console.log(xhr
-                                                .responseText); // Log the full error response for debugging
-                                            var errorMessage = "";
-                                            try {
-                                                var responseJSON = JSON.parse(xhr.responseText);
-                                                errorMessage = responseJSON.message || "An error occurred";
-                                            } catch (e) {
-                                                errorMessage = "An error occurred";
-                                            }
-                                            toastr.error(errorMessage);
-                                        }
-                                    });
+                                $('#customer').append(
+                                    `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customerDetails}</option>`
+                                )
+                            });
+                            $('#customer').val(customerid); 
+                            $('.select2').select2();
+                            if(customerid != 0){ 
+                                loadershow();
+                                var selectedOption = $('#customer').find('option:selected'); 
+                                var gstno = selectedOption.data('gstno');
+                                if (gstno != null) {
+                                    $('#type').val(1);
+                                    if(gst != 0){
+                                        $('#sgstline,#cgstline').hide();
+                                        $('#gstline').show();
+                                    }else{
+                                        $('#gstline').hide();
+                                        $('#sgstline,#cgstline').show();
+    
+                                    } 
+                                    dynamiccalculaton();
+                                } else {
+                                    $('#type').val(2);
+                                    $('#sgstline,#cgstline,#gstline').hide();
+                                    dynamiccalculaton();
                                 }
-                            }else if(response.status == 500){
-                                toastr.error(response.message);
-                            } else {
-                                $('#customer').append(`<option disabled '>No Data found </option>`);
+                                let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
+                                ajaxRequest('GET', customerSearchUrl, { 
+                                    token: API_TOKEN,
+                                    company_id: COMPANY_ID,
+                                    user_id: USER_ID
+                                }).done(function(response) {
+                                    // You can update your HTML with the data here if needed
+                                    if (response.status == 200 && response.customers != '') {
+                                        var countryid = response.customer.country_id
+                                        if(countryid != null){
+                                            $('#country').val(countryid);
+                                            $('#currency').val(countryid);
+                                            currentcurrency = $('#currency option:selected').data('currency');
+                                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
+                                        }
+                                        
+                                    }else if(response.status == 500){
+                                        toastr.error(response.message);
+                                    }
+                                    loaderhide();                                   
+                                }).fail(function(xhr) {
+                                    loaderhide();
+                                    handleAjaxError(xhr);
+                                }) 
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
+                        } else {
+                            $('#customer').append(`<option disabled '>No Data found </option>`);
                         }
-                    });
+                        loaderhide();
+                    }).fail(function(xhr) {
+                        loaderhide();
+                        handleAjaxError(xhr);
+                    }) 
                 }
 
                 customers();
@@ -781,129 +672,106 @@
                 // get & set invoice old data in the form input
                 var edit_id = @json($edit_id); 
                 let invoiceEditUrl = "{{route('invoice.edit','__editId__')}}".replace('__editId__',edit_id);
-                $.ajax({
-                    type: 'GET',
-                    url: invoiceEditUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }} "
-                    },
-                    success: function(response) { 
-                        if (response.status == 200) {  
-                            invdetails = response.data.invdetails ;
-                            productdetails = response.data.productdetails;
-                            $('#customer').val(invdetails.customer_id);
-                            $('.select2').select2();
-                            $('#payment').val(invdetails.payment_type);
-                            $('#currency').val(invdetails.currency_id);
-                            $('#acc_details').val(invdetails.account_id);
-                            if ((invdetails.cgst === null || invdetails.cgst === 0) &&
-                                (invdetails.sgst === null || invdetails.sgst === 0) &&
-                                (invdetails.gst === null || invdetails.gst === 0)) {
-                                $('#type').val(2);
-                                $('#sgstline,#cgstline,#gstline').hide();
-                            } else {
-                                $('#type').val(1);
-                            }
-                            $('#invoice_date').val(invdetails.inv_date_formatted); 
-                            $('#inv_number').val(invdetails.inv_no); 
-                            const gstsettings = JSON.parse(invdetails.gstsettings);  
-                            sgst = parseFloat(gstsettings.sgst);
-                            cgst = parseFloat(gstsettings.cgst);
-                            gst =  parseFloat(gstsettings.gst);
-                            totalgstpercentage = parseFloat(sgst) + parseFloat(cgst) ;  
-                            if (sgst % 1 === 0) { // Checks if sgst is an integer
-                                    $('#sgstpercentage').text(`(${sgst}.00 %)`);
-                            } else {
-                                $('#sgstpercentage').text(`(${sgst} %)`);
-                            }
-                            if (cgst % 1 === 0) { // Checks if cgst is an integer
-                                    $('#cgstpercentage').text(`(${cgst}.00 %)`);
-                            } else {
-                                $('#cgstpercentage').text(`(${cgst} %)`);
-                            }
-                            if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
-                                    $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
-                            } else {
-                                $('#gstpercentage').text(`(${totalgstpercentage} %)`);
-                            }
-                            if(gst != 0){
-                                $('#sgstline,#cgstline').hide();
-                            }else{
-                                $('#gstline').hide();
-                            }
-  
-                            // totalval = invdetails.total ;
-                            // grandtotalval = invdetails.grand_total ;
-                            // $('#totalamount').val(totalval);
-                            // $('#sgst').val(invdetails.sgst);
-                            // $('#cgst').val(invdetails.cgst);
-                            // $('#gst').val(invdetails.gst);
-                            // if(grandtotalval >= totalval){
-                            //     var roundoffval = grandtotalval - totalval ;
-                            //     $('#roundoff').val(`+ ${roundoffval.toFixed(2)}`);
-                            // }else{
-                            //     var roundoffval = totalval - grandtotalval ;
-                            //     $('#roundoff').val(`- ${roundoffval.toFixed(2)}`)
-                            // } 
-                            // $('#grandtotal').val(grandtotalval);
-                            $('#notes').val(invdetails.notes);
-
-
-                            const targetRow = $('#add_new_div'); 
-                            let dynamicidcount = 1; // Initialize outside the loop
-
-                            $.each(productdetails, function(key, value) {
-                                // Assuming `targetRow` is defined elsewhere
-                                targetRow.append(`
-                                    <tr class="iteam_row_${dynamicidcount}">
-                                        ${allColumnData.map(columnData => {
-                                            var columnName = columnData.column_name.replace(/\s+/g, '_');
-                                            if (columnData.is_hide === 1) hiddencolumn++; // Increment hiddencolumn conditionally
-                                            if (columnData.column_type === 'time') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}"></td>`;
-                                            } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0></td>`;
-                                            } else if (columnData.column_type === 'longtext') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><textarea name="${columnName}_${dynamicidcount}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" rows="1">${value[columnName]}</textarea></td>`;
-                                            } else {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="text" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}"></td>`;
-                                            }
-                                        }).join('')}
-                                        <td><input type="number" step="any" value="${value.amount}" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
-                                        <td>
-                                            <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
-                                            <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
-                                        </td>
-                                        <td>
-                                            <span class="duplicate-row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" type="button" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1"><i class="ri-align-bottom"></i></button></span>
-                                            <span class="remove-row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" type="button" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1"><i class="ri-delete-bin-2-line"></i></button></span>
-                                        </td>
-                                    </tr>
-                                `);
-                                managetooltip();
-                                addname = dynamicidcount;
-                                dynamiccalculaton(`#Amount_${addname}`);
-                                dynamicidcount++; // Increment dynamicidcount for the next row
-                                currentcurrency = $('#currency option:selected').data('currency');
-                                currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                            });
-
-
-                        } else if (response.status == 500) {
-                            toastr.error(response.message);
+                ajaxRequest('GET', invoiceEditUrl, { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status == 200) {  
+                        invdetails = response.data.invdetails ;
+                        productdetails = response.data.productdetails;
+                        $('#customer').val(invdetails.customer_id);
+                        $('.select2').select2();
+                        $('#payment').val(invdetails.payment_type);
+                        $('#currency').val(invdetails.currency_id);
+                        $('#acc_details').val(invdetails.account_id);
+                        if ((invdetails.cgst === null || invdetails.cgst === 0) &&
+                            (invdetails.sgst === null || invdetails.sgst === 0) &&
+                            (invdetails.gst === null || invdetails.gst === 0)) {
+                            $('#type').val(2);
+                            $('#sgstline,#cgstline,#gstline').hide();
+                        } else {
+                            $('#type').val(1);
                         }
-                        loaderhide();
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
+                        $('#invoice_date').val(invdetails.inv_date_formatted); 
+                        $('#inv_number').val(invdetails.inv_no); 
+                        const gstsettings = JSON.parse(invdetails.gstsettings);  
+                        sgst = parseFloat(gstsettings.sgst);
+                        cgst = parseFloat(gstsettings.cgst);
+                        gst =  parseFloat(gstsettings.gst);
+                        totalgstpercentage = parseFloat(sgst) + parseFloat(cgst) ;  
+                        if (sgst % 1 === 0) { // Checks if sgst is an integer
+                                $('#sgstpercentage').text(`(${sgst}.00 %)`);
+                        } else {
+                            $('#sgstpercentage').text(`(${sgst} %)`);
+                        }
+                        if (cgst % 1 === 0) { // Checks if cgst is an integer
+                                $('#cgstpercentage').text(`(${cgst}.00 %)`);
+                        } else {
+                            $('#cgstpercentage').text(`(${cgst} %)`);
+                        }
+                        if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
+                                $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
+                        } else {
+                            $('#gstpercentage').text(`(${totalgstpercentage} %)`);
+                        }
+                        if(gst != 0){
+                            $('#sgstline,#cgstline').hide();
+                        }else{
+                            $('#gstline').hide();
+                        } 
+                        $('#notes').val(invdetails.notes);
+
+
+                        const targetRow = $('#add_new_div'); 
+                        let dynamicidcount = 1; // Initialize outside the loop
+
+                        $.each(productdetails, function(key, value) {
+                            // Assuming `targetRow` is defined elsewhere
+                            targetRow.append(`
+                                <tr class="iteam_row_${dynamicidcount}">
+                                    ${allColumnData.map(columnData => {
+                                        var columnName = columnData.column_name.replace(/\s+/g, '_');
+                                        if (columnData.is_hide === 1) hiddencolumn++; // Increment hiddencolumn conditionally
+                                        if (columnData.column_type === 'time') {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}"></td>`;
+                                        } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0></td>`;
+                                        } else if (columnData.column_type === 'longtext') {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><textarea name="${columnName}_${dynamicidcount}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" rows="1">${value[columnName]}</textarea></td>`;
+                                        } else {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}"><input type="text" name="${columnName}_${dynamicidcount}" value="${value[columnName]}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}"></td>`;
+                                        }
+                                    }).join('')}
+                                    <td><input type="number" step="any" value="${value.amount}" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
+                                    <td>
+                                        <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
+                                        <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
+                                    </td>
+                                    <td>
+                                        <span class="duplicate-row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" type="button" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1"><i class="ri-align-bottom"></i></button></span>
+                                        <span class="remove-row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" type="button" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1"><i class="ri-delete-bin-2-line"></i></button></span>
+                                    </td>
+                                </tr>
+                            `);
+                            managetooltip();
+                            addname = dynamicidcount;
+                            dynamiccalculaton(`#Amount_${addname}`);
+                            dynamicidcount++; // Increment dynamicidcount for the next row
+                            currentcurrency = $('#currency option:selected').data('currency');
+                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
+                        });
+
+
+                    } else if (response.status == 500) {
+                        toastr.error(response.message);
                     }
-                });
-
-
+                    loaderhide();
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }) 
 
                 // fetch contry id from selected customer and set input value for hidden file
                 $('#customer').on('change', function() {
@@ -932,45 +800,30 @@
                         dynamiccalculaton();
                     }
                     customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',id);
-                    $.ajax({
-                        type: 'GET',
-                        url: customerSearchUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id')}}",
-                            user_id: " {{ session()->get('user_id')}}"
-                        },
-                        success: function(response) {
-                            // You can update your HTML with the data here if needed
-                            if (response.status == 200 && response.customers != '') {
-                                var countryid = response.customer.country_id
-                                if(countryid != null){
-                                    $('#country').val(countryid);
-                                    $('#currency').val(countryid);
-                                    currentcurrency = $('#currency option:selected').data('currency');
-                                    currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                                    $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                                }
-                                
-                            }else if(response.status == 500){
-                                toastr.error(response.message);
+                    ajaxRequest('GET', customerSearchUrl, { 
+                        token: API_TOKEN,
+                        company_id: COMPANY_ID,
+                        user_id: USER_ID
+                    }).done(function(response) {
+                        // You can update your HTML with the data here if needed
+                        if (response.status == 200 && response.customers != '') {
+                            var countryid = response.customer.country_id
+                            if(countryid != null){
+                                $('#country').val(countryid);
+                                $('#currency').val(countryid);
+                                currentcurrency = $('#currency option:selected').data('currency');
+                                currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                            
+                        }else if(response.status == 500){
+                            toastr.error(response.message);
                         }
-                    });
+                        loaderhide();     
+                    }).fail(function(xhr) {
+                        loaderhide();
+                        handleAjaxError(xhr);
+                    }) 
                 });
 
 
@@ -1275,8 +1128,8 @@
                         dynamiccalculaton(this);
                 });
  
-                
-                    // invoice update form 
+ 
+                // invoice update form 
                 $('#invoiceupdateform').submit(function(event) {
                     old_iteam_data = new Array();
                     iteam_data = new Array();
@@ -1320,6 +1173,8 @@
                         iteam_data.push(rowData);
                         old_iteam_data.push(oldproductrowData);
                     }); 
+
+
                     var country = $('#country').val();
                     var updated = $('#updated_by').val();
                     var company_id = $('#company_id').val();
@@ -1418,50 +1273,24 @@
 
 
                 //check inv number will not duplicate (on manual inv number)
-            $('#inv_number').on('blur',function(){
-                $('.error-msg').text('');
-                var inv_number = $(this).val();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoice.checkinvoicenumber') }}",
-                    data: {
+                $('#inv_number').on('blur',function(){
+                    $('.error-msg').text('');
+                    var inv_number = $(this).val();
+
+                    ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", { 
                         searchtype : 'update',
                         inv_id : edit_id ,
                         inv_number: inv_number ,
-                        token: "{{ session()->get('api_token') }}",
-                        company_id : " {{ session()->get('company_id')}}",
-                        user_id : " {{ session()->get('user_id')}}",
-                    },
-                    success: function(response) {  
+                        token: API_TOKEN,
+                        company_id: COMPANY_ID,
+                        user_id: USER_ID
+                    }).done(function(response) {
                         loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
+                    }).fail(function(xhr) {
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            var errorcontainer;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                                errorcontainer = '#error-' + key ;
-                            });
-                            $('html, body').animate({
-                                scrollTop: 0
-                            }, 1000);
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    }
+                        handleAjaxError(xhr);
+                    }); 
                 });
-            });
                
                 // redirect invoice list page on click cancel button
                 $('#cancelbtn').on('click',function(){
@@ -1473,15 +1302,10 @@
 
 
                  // show country data in dropdown
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('country.index') }}",
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-
-                        if (response.status == 200 && response.country != '') {
+                ajaxRequest('GET', "{{ route('country.index') }}", { 
+                    token: API_TOKEN, 
+                }).done(function(response) {
+                    if (response.status == 200 && response.country != '') {
                             // You can update your HTML with the data here if needed
                             $.each(response.country, function(key, value) {
                                 $('#modal_country').append(
@@ -1495,21 +1319,10 @@
                             $('#modal_country').append(`<option> No Data Found</option>`);
                         }
                         loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
-                });
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
     
 
                 // load state in dropdown when country change
@@ -1528,44 +1341,29 @@
                     if (id == 0) {
                         url = "{{ route('state.search', Auth::guard('admin')->user()->country_id ) }}";
                     }
-                    $.ajax({
-                        type: 'GET',
-                        url: url,
-                        data: {
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.state != '') {
-                                // You can update your HTML with the data here if needed
-                                $.each(response.state, function(key, value) {
-                                    $('#modal_state').append(
-                                        `<option value='${value.id}'> ${value.state_name}</option>`
-                                    )
-                                });
-                                if (id == 0) {
-                                    state_id = "{{ Auth::guard('admin')->user()->state_id }}";
-                                    $('#modal_state').val(state_id);
-                                    loadcity();
-                                }
-                            } else {
-                                $('#modal_state').append(`<option> No Data Found</option>`);
+                    ajaxRequest('GET',url, { 
+                        token: API_TOKEN, 
+                    }).done(function(response) {
+                        if (response.status == 200 && response.state != '') {
+                            // You can update your HTML with the data here if needed
+                            $.each(response.state, function(key, value) {
+                                $('#modal_state').append(
+                                    `<option value='${value.id}'> ${value.state_name}</option>`
+                                )
+                            });
+                            if (id == 0) {
+                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                                $('#modal_state').val(state_id);
+                                loadcity();
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                        } else {
+                            $('#modal_state').append(`<option> No Data Found</option>`);
                         }
-                    });
+                        loaderhide();
+                    }).fail(function(xhr) {
+                        loaderhide();
+                        handleAjaxError(xhr);
+                    }); 
                 }
  
                 // load city in dropdown when state select/change
@@ -1582,42 +1380,27 @@
                     if (id == 0) {
                         url = "{{ route('city.search', Auth::guard('admin')->user()->state_id ) }}";
                     }
-                    $.ajax({
-                        type: 'GET',
-                        url: url,
-                        data: {
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.city != '') {
-                                // You can update your HTML with the data here if needed
-                                $.each(response.city, function(key, value) {
-                                    $('#modal_city').append(
-                                        `<option value='${value.id}'> ${value.city_name}</option>`
-                                    )
-                                });
-                                if (id == 0) {
-                                    $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
-                                }
-                            } else {
-                                $('#modal_city').append(`<option> No Data Found</option>`);
+                    ajaxRequest('GET', url, { 
+                        token: API_TOKEN, 
+                    }).done(function(response) {
+                        if (response.status == 200 && response.city != '') {
+                            // You can update your HTML with the data here if needed
+                            $.each(response.city, function(key, value) {
+                                $('#modal_city').append(
+                                    `<option value='${value.id}'> ${value.city_name}</option>`
+                                )
+                            });
+                            if (id == 0) {
+                                $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                        } else {
+                            $('#modal_city').append(`<option> No Data Found</option>`);
                         }
-                    });
+                        loaderhide();
+                    }).fail(function(xhr) {
+                        loaderhide();
+                        handleAjaxError(xhr);
+                    }); 
                 } 
 
                 $('#modal_cancelBtn').on('click',function(){

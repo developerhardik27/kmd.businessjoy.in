@@ -186,8 +186,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
-        'Charts' => ConsoleTVs\Charts\Facades\Charts::class,
+        'PDF' =>  Barryvdh\DomPDF\ServiceProvider::class,
+        'Charts' => ConsoleTVs\Charts\ChartsServiceProvider::class,
     ])->toArray(),
 
 

@@ -27,7 +27,7 @@ class CheckToken
 
         if($sessionToken){
             // Check if the token is present in the database
-            $dbToken = User::where('api_token', $sessionToken)->first();
+            $dbToken = User::where('api_token', $sessionToken)->orWhere('super_api_token',$sessionToken)->first();
 
             if (!$dbToken) {
                 return response()->json(['error' => 'Invalid token'], 401);

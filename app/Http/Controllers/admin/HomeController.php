@@ -34,11 +34,16 @@ class HomeController extends Controller
     public function logout(Request $request)
     {
 
-        DB::table('users')
-            ->where('id', session('user_id'))
-            ->update(['api_token' => null]);
+        $user = DB::table('users')
+            ->where('id', session('user_id'));
 
-            $request->session()->flush();
+        if (session('loggedby') == 'admin') {
+            $user->update(['super_api_token' => null]);
+        }else{
+            $user->update(['api_token' => null]);
+        }
+
+        $request->session()->flush();
 
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
@@ -51,8 +56,8 @@ class HomeController extends Controller
     public function singlelogout(Request $request)
     {
 
-       $request->session()->flush();
-       
+        $request->session()->flush();
+
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
         session_destroy();

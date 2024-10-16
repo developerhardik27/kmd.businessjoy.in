@@ -25,6 +25,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+ 
         if(isset($request->search)){
             $search = $request->search;
         } else{

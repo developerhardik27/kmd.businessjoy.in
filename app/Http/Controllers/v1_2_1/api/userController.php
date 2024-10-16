@@ -103,7 +103,8 @@ class userController extends commonController
             ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
             ->where('users.is_deleted', 0)
-            ->where($this->db . '.user_permissions.rp', 'LIKE', '%"customersupport":{"show":"1","add":"1"%');
+            ->whereJsonContains( 'rp->customersupportmodule->customersupport->show',"1")
+            ->whereJsonContains( 'rp->customersupportmodule->customersupport->add',"1");
 
         if ($this->companyId != 1) {
             $users = $usersres->where('users.company_id', $this->companyId);
@@ -136,7 +137,8 @@ class userController extends commonController
             ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
             ->where('users.is_deleted', 0)
-            ->where($this->db . '.user_permissions.rp', 'LIKE', '%"lead":{"show":"1","add":"1"%');
+            ->whereJsonContains( 'rp->leadmodule->lead->add',"1")
+            ->whereJsonContains( 'rp->leadmodule->lead->show',"1");
 
         if ($this->companyId != 1) {
             $users = $usersres->where('users.company_id', $this->companyId);
@@ -164,7 +166,8 @@ class userController extends commonController
 
         if ($this->companyId != 1) {
             $users = $usersres->where('users.company_id', $this->companyId)
-                ->where($this->db . '.user_permissions.rp', 'LIKE', '%"invoice":{"show":"1","add":"1"%')
+            ->whereJsonContains( 'rp->invoicemodule->invoice->add',"1")
+            ->whereJsonContains( 'rp->invoicemodule->invoice->show',"1")
                 ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id');
         }
 
@@ -191,7 +194,10 @@ class userController extends commonController
             ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'users.updated_by', 'users.is_active')
             ->where('users.is_deleted', 0)
-            ->where($this->db . '.user_permissions.rp', 'LIKE', '%"techsupport":{"show":"1","add":"1","view":"1","edit":"1"%');
+            ->whereJsonContains( 'rp->adminmodule->techsupport->show',"1")
+            ->whereJsonContains( 'rp->adminmodule->techsupport->add',"1")
+            ->whereJsonContains( 'rp->adminmodule->techsupport->view',"1")
+            ->whereJsonContains( 'rp->adminmodule->techsupport->edit',"1");
 
         if ($this->companyId != 1) {
             $users = $usersres->where('users.company_id', $this->companyId);
@@ -476,7 +482,6 @@ class userController extends commonController
                 $blog_edit = (($this->rp['blogmodule']['blog']['edit'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) || $this->userId == 1) ? $request->editblog : "0";
                 $blog_delete = (($this->rp['blogmodule']['blog']['delete'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) || $this->userId == 1) ? $request->deleteblog : "0";
                 $blog_alldata = (($this->rp['blogmodule']['blog']['add'] == 1 && $this->rp['blogmodule']['blog']['add'] == 1) || $this->userId == 1) ? $request->alldatablog : "0";
-
 
 
 

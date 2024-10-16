@@ -358,6 +358,7 @@
 
             // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
             $('.withgstspan').hide(); 
+
             $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
@@ -386,17 +387,44 @@
             let formula = [];  // formula
             let sgst,cgst,gst,currentcurrency,currentcurrencysymbol; 
 
-            // fetch other settings like gst and inv number and inv date 
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('getoverduedays.index') }}",
-                data: {
-                    user_id: "{{ session()->get('user_id') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.overdueday != '') {
+
+            const API_TOKEN = "{{ session()->get('api_token') }}";
+            const COMPANY_ID = "{{ session()->get('company_id') }}";
+            const USER_ID = "{{ session()->get('user_id') }}";
+
+            function ajaxRequest(type, url, data) {
+                return $.ajax({
+                    type,
+                    url,
+                    data
+                }); 
+            }
+
+            function handleAjaxError(xhr) {
+                if (xhr.status === 422) {
+                    var errors = xhr.responseJSON.errors;
+                    $.each(errors, function(key, value) {
+                        $('#error-' + key).text(value[0]);
+                    });
+                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                } else {
+                    var errorMessage = "An error occurred";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || errorMessage;
+                    } catch (e) {}
+                    toastr.error(errorMessage);
+                }
+            }
+
+
+            // fetch other settings like gst and inv number and inv date
+            ajaxRequest('GET', "{{ route('getoverduedays.index') }}", { 
+                token: API_TOKEN,
+                company_id: COMPANY_ID,
+                user_id: USER_ID
+            }).done(function(response) {
+                if (response.status == 200 && response.overdueday != '') {
                         var othersettingdata = response.overdueday[0];
                         sgst = othersettingdata['sgst'];
                         cgst = othersettingdata['cgst'];
@@ -426,170 +454,132 @@
                         }
 
                         if(manualinvnumber == 0){
-                            $('#inv_number_div').hide()
+                            $('#inv_number_div').hide();
                         }
 
                         if(manualinvdate == 0){
-                            $('#inv_date_div').hide()
+                            $('#inv_date_div').hide();
                         }
 
                     } else if (response.status == 500) {
                         toastr.error(response.message);
                     }
                     loaderhide();
-                    // You can update your HTML with the data here if needed
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr
-                        .responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    toastr.error(errorMessage);
-                }
+            }).fail(function(xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
             });
 
-
-            // fetch invoice formula for calculation 
-            $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoiceformula.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.invoiceformula != '') {
-                            formula = response.invoiceformula;
-                        }else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
-                        }
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
-            });
             
-            // fetch users own columnname and set it into table 
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('invoice.columnname') }}",
-                data: {
-                    user_id: {{ session()->get('user_id') }},
-                    company_id: {{ session()->get('company_id') }},
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                     allColumnData = response.columnname; //store all column data for use globally in entire page
-                    //  if(allColumnData.length > 6){  
-                    //      $('.producttable').css('width',allColumnData.length * 200 + 'px');
-                    //  }
-                    if (response.status == 200 && response.columnname != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.columnname, function(key, value) {
-                            $.each(value, function(innerKey, innerValue) {
-                                if (innerKey === 'column_name') {
-                                    allColumnNames.push(innerValue); // store column name
-                                }
-                            });
+
+
+            // fetch invoice formula for calculation  
+            ajaxRequest('GET', "{{ route('invoiceformula.index') }}", { 
+                token: API_TOKEN,
+                company_id: COMPANY_ID,
+                user_id: USER_ID
+            }).done(function(response) {
+                if (response.status == 200 && response.invoiceformula != '') {
+                            formula = response.invoiceformula;
+                }else if(response.status == 500){
+                    toastr.error(response.message);
+                    loaderhide();
+                } 
+            }).fail(function(xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            }); 
+            
+            // fetch users own columnname and set it into table  
+            ajaxRequest('GET', "{{ route('invoice.columnname') }}", { 
+                token: API_TOKEN,
+                company_id: COMPANY_ID,
+                user_id: USER_ID
+            }).done(function(response) {
+                allColumnData = response.columnname; //store all column data for use globally in entire page
+                //  if(allColumnData.length > 6){  
+                //      $('.producttable').css('width',allColumnData.length * 200 + 'px');
+                //  }
+                if (response.status == 200 && response.columnname != '') {
+                    // You can update your HTML with the data here if needed
+                    $.each(response.columnname, function(key, value) {
+                        $.each(value, function(innerKey, innerValue) {
+                            if (innerKey === 'column_name') {
+                                allColumnNames.push(innerValue); // store column name
+                            }
                         });
-                        
-                        $('#columnname').prepend(
-                            `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
-                                <th>Amount</th>
-                                <th>Move</th>
-                                <th>Action</th>
-                            `
-                            );
+                    });
+                    
+                    $('#columnname').prepend(
+                        `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
+                            <th>Amount</th>
+                            <th>Move</th>
+                            <th>Action</th>
+                        `
+                        );
 
 
-                        const targetRow = $('#add_new_div');
-                      
-                        // Append input elements dynamically to the target row
-                        targetRow.append(`
-                             <tr class="iteam_row_1">
-                                 ${allColumnData.map(columnData => {
-                                    var columnName = columnData.column_name.replace(/\s+/g, '_');
-                                            var inputcontent = null ;
-                                           ( columnData.is_hide === 1 )? hiddencolumn++ : '';
-                                            if (columnData.column_type === 'time') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}"></td>`;
-                                            } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
-                                            } else if (columnData.column_type === 'longtext') {
-                                                return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" rows="1"></textarea></td>`;
-                                            } else {
-                                                return `<td class="invoicesubmit  ${(columnData.is_hide === 1)? 'd-none' :''} "><input type="text" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}"></td>`;
-                                            }
-                                        }).join('')
-                                 }
-                                <td><input type="number" step="any" data-id="1" class="form-control iteam_Amount changeprice calculation" id="Amount_1"
-                                        placeholder="Amount" name='Amount_1' min=0 required>
-                                </td>
-                                <td>
-                                    <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up"
-                                                aria-hidden="true"></i></a></span>
-                                    <span class="table-down"><a href="#!" class="indigo-text"><i
-                                                class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
-                                </td>
-                                <td>
-                                    <span class="duplicate-row" data-id="1">
-                                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" data-id="1" type="button"
-                                            class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
-                                            <i  class="ri-align-bottom"></i>
-                                        </button>
-                                    </span>
-                                    <span class="remove-row" data-id="1">
-                                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="1" type="button"
-                                            class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </button>
-                                    </span>
-                                </td>
-                             </tr>
-                        `);
-                        managetooltip();
-                    } else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
-                    }else {
-                        $('#columnname').append(` <th>Name</th>
-                        <th>Description</th>
-                        <th>Quantity</th>`);
-                    }
-                       $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
-                       $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3); // set autocolspan for add new button row
-                },
-                error: function(xhr, status, error) { // if calling api request error 
+                    const targetRow = $('#add_new_div');
+                    
+                    // Append input elements dynamically to the target row
+                    targetRow.append(`
+                            <tr class="iteam_row_1">
+                                ${allColumnData.map(columnData => {
+                                var columnName = columnData.column_name.replace(/\s+/g, '_');
+                                        var inputcontent = null ;
+                                        ( columnData.is_hide === 1 )? hiddencolumn++ : '';
+                                        if (columnData.column_type === 'time') {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}"></td>`;
+                                        } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_1" id="${columnName}_1" data-id="1" class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
+                                        } else if (columnData.column_type === 'longtext') {
+                                            return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" rows="1"></textarea></td>`;
+                                        } else {
+                                            return `<td class="invoicesubmit  ${(columnData.is_hide === 1)? 'd-none' :''} "><input type="text" name="${columnName}_1" id="${columnName}_1" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}"></td>`;
+                                        }
+                                    }).join('')
+                                }
+                            <td><input type="number" step="any" data-id="1" class="form-control iteam_Amount changeprice calculation" id="Amount_1"
+                                    placeholder="Amount" name='Amount_1' min=0 required>
+                            </td>
+                            <td>
+                                <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up"
+                                            aria-hidden="true"></i></a></span>
+                                <span class="table-down"><a href="#!" class="indigo-text"><i
+                                            class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
+                            </td>
+                            <td>
+                                <span class="duplicate-row" data-id="1">
+                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" data-id="1" type="button"
+                                        class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
+                                        <i  class="ri-align-bottom"></i>
+                                    </button>
+                                </span>
+                                <span class="remove-row" data-id="1">
+                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="1" type="button"
+                                        class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
+                                        <i class="ri-delete-bin-2-line"></i>
+                                    </button>
+                                </span>
+                            </td>
+                            </tr>
+                    `);
+                    managetooltip();
+                } else if(response.status == 500){
+                        toastr.error(response.message);
                         loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
-            });
+                }else {
+                    $('#columnname').append(` <th>Name</th>
+                    <th>Description</th>
+                    <th>Quantity</th>`);
+                }
+                $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
+                $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3); // set autocolspan for add new button row
+            }).fail(function(xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            });  
+
             
             // Handle moving row up (editable-table)
             const $tableID = $("#table");
@@ -601,16 +591,13 @@
             });
 
             // account data fetch and set account detials dropdown
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('invoice.bankacc') }}",
-                data: {
-                    user_id: {{ session()->get('user_id') }},
-                    company_id: {{ session()->get('company_id') }},
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.bank != '') {
+
+            ajaxRequest('GET', "{{ route('invoice.bankacc') }}", { 
+                token: API_TOKEN,
+                company_id: COMPANY_ID,
+                user_id: USER_ID
+            }).done(function(response) {
+                if (response.status == 200 && response.bank != '') {
                         var countrecords = Object.keys(response.bank).length;  
                         // You can update your HTML with the data here if needed
                         $.each(response.bank, function(key, value) {
@@ -637,33 +624,19 @@
                             `<option disabled '>No Data found </option>`
                         );
                     }
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
+            }).fail(function(xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
             });
-
+             
             // currency data fetch from country table and set currensy dropdown
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('country.index') }}",
-                data: {
-                    token: "{{ session()->get('api_token') }}",
-                    company_id : " {{session()->get('company_id')}} ",
-                    user_id : " {{session()->get('user_id')}} ",
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.country != '') {
+
+            ajaxRequest('GET', "{{ route('country.index') }}", { 
+                token: API_TOKEN,
+                company_id: COMPANY_ID,
+                user_id: USER_ID
+            }).done(function(response) {
+                if (response.status == 200 && response.country != '') {
                         // You can update your HTML with the data here if needed
                         $.each(response.country, function(key, value) {
                             $('#currency').append(
@@ -674,165 +647,98 @@
                         $('#currency').append(
                             `<option disabled '>No Data found </option>`);
                     }
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
-                    }
+            }).fail(function(xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
             });
+ 
  
             loaderhide();
 
             // customer data fetch and set customer dropdown
-            function customers(customerid = 0) {
+            function customers(customerid = 0) { 
                 loadershow();
                 $('#customer').html(`
                    <option selected="" value=0 disabled=""> Select Customer</option>
                    <option value="add_customer" > Add New Customer </option>
                 `);
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('customer.invoicecustomer') }}",
-                    data: {
-                        company_id: {{ session()->get('company_id') }},
-                        user_id: {{ session()->get('user_id') }},
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.customer != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.customer, function(key, value) {
-                                var customer = '';
-                                if (value.firstname != null) {
-                                    customer += value.firstname;
-                                }
 
-                                if (value.lastname != null) {
-                                    if (customer.length > 0) {
-                                        customer += ' '; // Add space between firstname and lastname if both are present
-                                    }
-                                    customer += value.lastname;
-                                }
+                ajaxRequest('GET', "{{ route('customer.invoicecustomer') }}", { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status == 200 && response.customer != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(response.customer, function(key, value) {
+                            const customerDetails = [value.firstname, value.lastname, value.company_name, value.contact_no, value.email].filter(Boolean).join(' - ');
 
-                                if (value.company_name != null) {
-                                    if (customer.length > 0) {
-                                        customer += ' - '; // 
-                                    }
-                                    customer += value.company_name;
-                                }
+                            $('#customer').append(
+                                `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customerDetails}</option>`
+                            )
+                        });
+                        $('#customer').val(customerid);
+                        $('.select2').select2();  // search bar in customer list
+                        if(customerid != 0){  // get customer data if its new added from add new customerform
+                            loadershow();
+                            var selectedOption = $('#customer').find('option:selected');
+                        
+                            var gstno = selectedOption.data('gstno');
+                            if (gstno != null) {    // show gst line if customer has gst no other wise hide
+                                $('#type').val(1);  // set gst type to gst
+                                if(gst != 0){
+                                    $('#sgstline,#cgstline').hide();
+                                    $('#gstline').show();
+                                }else{
+                                    $('#gstline').hide();
+                                    $('#sgstline,#cgstline').show();
 
-                                if (value.contact_no != null) {
-                                    if (customer.length > 0) {
-                                        customer += ' - '; // 
-                                    }
-                                    customer += value.contact_no;
                                 }
-
-                                if (value.email != null) {
-                                    if (customer.length > 0) {
-                                        customer += ' - '; // 
-                                    }
-                                    customer += value.email;
-                                }
-
-                                $('#customer').append(
-                                    `<option  data-gstno='${value.gst_no}' value='${value.id}'>${customer}</option>`
-                                )
-                            });
-                            $('#customer').val(customerid);
-                            $('.select2').select2();  // search bar in customer list
-                            if(customerid != 0){  // get customer data if its new added from add new customerform
-                                loadershow();
-                                var selectedOption = $('#customer').find('option:selected');
-                            
-                                var gstno = selectedOption.data('gstno');
-                                if (gstno != null) {    // show gst line if customer has gst no other wise hide
-                                    $('#type').val(1);  // set gst type to gst
-                                    if(gst != 0){
-                                        $('#sgstline,#cgstline').hide();
-                                        $('#gstline').show();
-                                    }else{
-                                        $('#gstline').hide();
-                                        $('#sgstline,#cgstline').show();
-    
-                                    }
-                                    dynamiccalculaton();
-                                } else {
-                                    $('#type').val(2); // set gst type to withoutgst
-                                    $('#sgstline,#cgstline,#gstline').hide();
-                                    dynamiccalculaton();
-                                }
-                                let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
-                                $.ajax({
-                                    type: 'GET',
-                                    url: customerSearchUrl,
-                                    data: {
-                                        token: "{{ session()->get('api_token') }}",
-                                        company_id: " {{ session()->get('company_id')}}",
-                                        user_id: " {{ session()->get('user_id')}}"
-                                    },
-                                    success: function(response) {
-                                        // You can update your HTML with the data here if needed
-                                        if (response.status == 200 && response.customers != '') {
-                                            var countryid = response.customer.country_id
-                                            if(countryid != null){
-                                                $('#country').val(countryid);
-                                                $('#currency').val(countryid);
-                                                currentcurrency = $('#currency option:selected').data('currency');
-                                                currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                                            }
-                                            
-                                        }else if(response.status == 500){
-                                            toastr.error(response.message);
-                                        }
-                                        loaderhide();
-                                    },
-                                    error: function(xhr, status, error) { // if calling api request error 
-                                        loaderhide();
-                                        console.log(xhr
-                                            .responseText); // Log the full error response for debugging
-                                        var errorMessage = "";
-                                        try {
-                                            var responseJSON = JSON.parse(xhr.responseText);
-                                            errorMessage = responseJSON.message || "An error occurred";
-                                        } catch (e) {
-                                            errorMessage = "An error occurred";
-                                        }
-                                        toastr.error(errorMessage);
-                                    }
-                                });
+                                dynamiccalculaton();
+                            } else {
+                                $('#type').val(2); // set gst type to withoutgst
+                                $('#sgstline,#cgstline,#gstline').hide();
+                                dynamiccalculaton();
                             }
-                        }else if(response.status == 500){
-                            toastr.error(response.message);
-                        } else {
-                            $('#customer').append(`<option disabled '>No Data found </option>`);
+                            let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
+
+                            ajaxRequest('GET', customerSearchUrl, { 
+                                token: API_TOKEN,
+                                company_id: COMPANY_ID,
+                                user_id: USER_ID
+                            }).done(function(response) {
+                                // You can update your HTML with the data here if needed
+                                if (response.status == 200 && response.customers != '') {
+                                    var countryid = response.customer.country_id
+                                    if(countryid != null){
+                                        $('#country').val(countryid);
+                                        $('#currency').val(countryid);
+                                        currentcurrency = $('#currency option:selected').data('currency');
+                                        currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                                        $('.currentcurrencysymbol').text(currentcurrencysymbol);
+                                    }
+                                    
+                                }else if(response.status == 500){
+                                    toastr.error(response.message);
+                                }
+                                loaderhide();
+                            }).fail(function(xhr) {
+                                loaderhide();
+                                handleAjaxError(xhr);
+                            }); 
                         }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
+                    }else if(response.status == 500){
+                        toastr.error(response.message);
+                    } else {
+                        $('#customer').append(`<option disabled '>No Data found </option>`);
                     }
+                    loaderhide();                   
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
                 });
+
+                
             };
 
             customers();
@@ -842,8 +748,8 @@
                 loadershow();
                 var selectedOption = $(this).find('option:selected');
                
-                var id = $(this).val();
-                if(id == 'add_customer'){
+                var customerid = $(this).val();
+                if(customerid == 'add_customer'){
                     $('#exampleModalScrollable').modal('show');
                 }
                 var gstno = selectedOption.data('gstno');
@@ -864,45 +770,32 @@
                     dynamiccalculaton();
                 }
                 customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
-                $.ajax({
-                    type: 'GET',
-                    url: customerSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id')}}",
-                        user_id: " {{ session()->get('user_id')}}"
-                    },
-                    success: function(response) {
-                        // You can update your HTML with the data here if needed
-                        if (response.status == 200 && response.customers != '') {
-                            var countryid = response.customer.country_id
-                            if(countryid != null){
-                                $('#country').val(countryid);
-                                $('#currency').val(countryid);
-                                currentcurrency = $('#currency option:selected').data('currency');
-                                currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                            }
-                            
-                        }else if(response.status == 500){
-                            toastr.error(response.message);
+
+                ajaxRequest('GET', customerSearchUrl, { 
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    // You can update your HTML with the data here if needed
+                    if (response.status == 200 && response.customers != '') {
+                        var countryid = response.customer.country_id
+                        if(countryid != null){
+                            $('#country').val(countryid);
+                            $('#currency').val(countryid);
+                            currentcurrency = $('#currency option:selected').data('currency');
+                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
                         }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
+                        
+                    }else if(response.status == 500){
+                        toastr.error(response.message);
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
+                
             });
 
             // append currency symbol according currency
@@ -1091,169 +984,99 @@
 
             // submit invoice form 
             $('#invoiceform').submit(function(event) {
-                iteam_data = new Array(); // row wise data
                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
-
-                $('tbody#add_new_div tr').each(function(index, row) {
-                    var rowData = {};
-
-                    // Extract the row number from the class of the current row element
-                    var rowNumber = $(row).attr('class').match(/\d+/)[0];
-
-                    // Iterate over each column name
-                    $.each(allColumnNames, function (key, columnName) {
-                        var columnNameWithUnderscores = columnName.replace(/\s+/g, '_'); // add '_' place of ' ' (space) in column name
-                        // Find the input within the current row by using the row number
-                        var inputValue = $(row).find(`#${columnNameWithUnderscores}_${rowNumber}`).val();
-                        rowData[columnNameWithUnderscores] = inputValue;
-                    });
-                      rowData['amount'] = $(row).find('#Amount_'+ rowNumber).val();
-                    iteam_data.push(rowData); // push row data to item_data array
-                });
-                // get other invoice details 
-                var country = $('#country').val();
-                var created = $('#created_by').val();
-                var company_id = $('#company_id').val();
-                var payment_type = $('#payment').val();
-                var account = $('#acc_details').val();
-                var invoice_date = $('#invoice_date').val();
-                var inv_number = $('#inv_number').val();
-                var currency = $('#currency').val();
-                var type = $('#type').val();
-                var customer = $('#customer').val();
-                var total_amount = $('#totalamount').val();
-                var sgstval = $('#sgst').val();
-                var cgstval = $('#cgst').val();
-                var gstval = $('#gst').val();
-                var grandtotal = $('#grandtotal').val();
-                var notes = $('#notes').val();
-                var gstsettings = {
-                    sgst : sgst ,
-                    cgst : cgst ,
-                    gst : gst
-                }
-
-                //make object of other invoice details
-                var data = {
-                    country_id: country,
-                    user_id: created,
-                    company_id: company_id,
-                    payment_mode: payment_type,
-                    bank_account: account,
-                    invoice_date: invoice_date,
-                    inv_number: inv_number,
-                    currency: currency,
-                    customer: customer,
-                    total_amount: total_amount,
-                    grandtotal : grandtotal,
-                    tax_type : type,
-                    notes: notes,
-                    gstsettings : gstsettings
-                };
-
-                if(gst == 0){
-                    data['sgst'] = sgstval ;
-                    data['cgst'] = cgstval ;
-                }else{
-                    data['gst'] = gstval ;
-                }
-                //make invoice store request
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('invoice.store') }}",
-                    data: {
-                        data,
-                        iteam_data,
-                        token: "{{ session()->get('api_token') }}",
-                        company_id : " {{ session()->get('company_id')}}",
-                        user_id : " {{ session()->get('user_id')}}",
-                    },
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
-                            window.location = "{{ route('admin.invoice') }}";
-
-                        }else if(response.status == 500){
-                            toastr.error(response.message);
-                        } else {
-                            toastr.error(response.message);
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            var errorcontainer;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                                errorcontainer = '#error-' + key ;
-                            });
-                            $('html, body').animate({
-                                scrollTop: 0
-                            }, 1000);
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
+                
+                const iteam_data = collectRowData();
+                const invoiceDetails = collectInvoiceDetails();
+                
+                ajaxRequest('POST', "{{ route('invoice.store') }}", {
+                    data: invoiceDetails,
+                    iteam_data,
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).done(function(response) {
+                    if (response.status === 200) {
+                        toastr.success(response.message);
+                        window.location = "{{ route('admin.invoice') }}";
+                    } else {
+                        toastr.error(response.message);
                     }
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
                 });
             });
-           
+
+            function collectRowData() {
+                const iteam_data = [];
+                $('tbody#add_new_div tr').each(function() {
+                    const rowData = {};
+                    const rowNumber = $(this).attr('class').match(/\d+/)[0];
+
+                    $.each(allColumnNames, function(key, columnName) {
+                        const columnNameWithUnderscores = columnName.replace(/\s+/g, '_');
+                        rowData[columnNameWithUnderscores] = $(this).find(`#${columnNameWithUnderscores}_${rowNumber}`).val();
+                    }.bind(this));
+                    
+                    rowData['amount'] = $(this).find(`#Amount_${rowNumber}`).val();
+                    iteam_data.push(rowData);
+                });
+                return iteam_data;
+            }
+
+            function collectInvoiceDetails() {
+                return {
+                    country_id: $('#country').val(),
+                    user_id: $('#created_by').val(),
+                    company_id: $('#company_id').val(),
+                    payment_mode: $('#payment').val(),
+                    bank_account: $('#acc_details').val(),
+                    invoice_date: $('#invoice_date').val(),
+                    inv_number: $('#inv_number').val(),
+                    currency: $('#currency').val(),
+                    customer: $('#customer').val(),
+                    total_amount: $('#totalamount').val(),
+                    grandtotal: $('#grandtotal').val(),
+                    tax_type: $('#type').val(),
+                    notes: $('#notes').val(),
+                    gstsettings: {
+                        sgst: sgst,
+                        cgst: cgst,
+                        gst: gst
+                    },
+                    ...getGSTValues()
+                };
+            }
+
+            function getGSTValues() {
+                if (gst === 0) {
+                    return {
+                        sgst: $('#sgst').val(),
+                        cgst: $('#cgst').val()
+                    };
+                } else {
+                    return {
+                        gst: $('#gst').val()
+                    };
+                }
+            } 
            
             //check inv number will not duplicate (on manual inv number)
-            $('#inv_number').on('blur',function(){
+            $('#inv_number').on('blur', function() {
                 $('.error-msg').text('');
-                var inv_number = $(this).val();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoice.checkinvoicenumber') }}",
-                    data: {
-                        inv_number: inv_number ,
-                        token: "{{ session()->get('api_token') }}",
-                        company_id : " {{ session()->get('company_id')}}",
-                        user_id : " {{ session()->get('user_id')}}",
-                    },
-                    success: function(response) {  
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            var errorcontainer;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                                errorcontainer = '#error-' + key ;
-                            });
-                            $('html, body').animate({
-                                scrollTop: 0
-                            }, 1000);
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    }
+                const inv_number = $(this).val();
+
+                ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", {
+                    inv_number,
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
                 });
             });
 
@@ -1296,75 +1119,73 @@
                         }
                 }
                    
-                    var results = {};
+                var results = {};
 
-                        formula.forEach(function (formula) {
-                            var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
-                            var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
-                             outputvalue =  performCalculation(formula.operation, value1, value2)
-                            iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
-                            results[formula.output_column] = outputvalue.toFixed(2);
-                            $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
-                        });
-                         var total = 0;
-                         $('input.changeprice').each(function(){
-                              total += parseFloat($(this).val());
-                         });
-                         total = total.toFixed(2);
-                         if(!isNaN(total)){
-                            $('#totalamount').val(total);
-                            if($('#type').val()==1){ 
-                                var sgstvalue = ((total * sgst) / 100);
-                                var cgstvalue = ((total * cgst) / 100);
-                                sgstvalue = sgstvalue.toFixed(2);
-                                cgstvalue = cgstvalue.toFixed(2);
-                                if(gst == 0){
-                                $('#sgst').val(sgstvalue);
-                                $('#cgst').val(cgstvalue);
-                                }else{
-                                    $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
-                                }
-                                var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue);
-                                grandtotalval = Math.round(totalval)
-                                if(grandtotalval >= totalval){
-                                    roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
-                                    if(roundoffval == 0){
-                                        $('#roundoff').val(`${roundoffval}`);
-                                    }else{ 
-                                        $('#roundoff').val(`+ ${roundoffval}`);
-                                    }
-                                }else{
-                                    roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
-                                    if(roundoffval == 0){
-                                        $('#roundoff').val(`${roundoffval}`);
-                                    }else{ 
-                                        $('#roundoff').val(`- ${roundoffval}`);
-                                    }  
-                                }
-                                $('#grandtotal').val(grandtotalval);
-                            }else{
-                                $('#grandtotal').val(Math.round(total));
-                                var totalval = parseFloat(total);
-                                grandtotalval = Math.round(totalval)
-                                if(grandtotalval >= totalval){
-                                    roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
-                                    if(roundoffval == 0){
-                                        $('#roundoff').val(`${roundoffval}`);
-                                    }else{ 
-                                        $('#roundoff').val(`+ ${roundoffval}`);
-                                    }
-                                }else{
-                                    roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
-                                    if(roundoffval == 0){
-                                        $('#roundoff').val(`${roundoffval}`);
-                                    }else{ 
-                                        $('#roundoff').val(`- ${roundoffval}`);
-                                    }
-                                }
-                            }
-                         }
-                         
-                         
+                formula.forEach(function (formula) {
+                    var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
+                    var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
+                        outputvalue =  performCalculation(formula.operation, value1, value2)
+                    iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
+                    results[formula.output_column] = outputvalue.toFixed(2);
+                    $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
+                });
+                var total = 0;
+                $('input.changeprice').each(function(){
+                    total += parseFloat($(this).val());
+                });
+                total = total.toFixed(2);
+                if(!isNaN(total)){
+                $('#totalamount').val(total);
+                if($('#type').val()==1){ 
+                    var sgstvalue = ((total * sgst) / 100);
+                    var cgstvalue = ((total * cgst) / 100);
+                    sgstvalue = sgstvalue.toFixed(2);
+                    cgstvalue = cgstvalue.toFixed(2);
+                    if(gst == 0){
+                    $('#sgst').val(sgstvalue);
+                    $('#cgst').val(cgstvalue);
+                    }else{
+                        $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
+                    }
+                    var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue);
+                    grandtotalval = Math.round(totalval)
+                    if(grandtotalval >= totalval){
+                        roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
+                        if(roundoffval == 0){
+                            $('#roundoff').val(`${roundoffval}`);
+                        }else{ 
+                            $('#roundoff').val(`+ ${roundoffval}`);
+                        }
+                    }else{
+                        roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
+                        if(roundoffval == 0){
+                            $('#roundoff').val(`${roundoffval}`);
+                        }else{ 
+                            $('#roundoff').val(`- ${roundoffval}`);
+                        }  
+                    }
+                    $('#grandtotal').val(grandtotalval);
+                }else{
+                    $('#grandtotal').val(Math.round(total));
+                    var totalval = parseFloat(total);
+                    grandtotalval = Math.round(totalval)
+                    if(grandtotalval >= totalval){
+                        roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
+                        if(roundoffval == 0){
+                            $('#roundoff').val(`${roundoffval}`);
+                        }else{ 
+                            $('#roundoff').val(`+ ${roundoffval}`);
+                        }
+                    }else{
+                        roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
+                        if(roundoffval == 0){
+                            $('#roundoff').val(`${roundoffval}`);
+                        }else{ 
+                            $('#roundoff').val(`- ${roundoffval}`);
+                        }
+                    }
+                }
+                }           
                          
             }
 
@@ -1377,45 +1198,29 @@
             // for add new customer 
 
             // show country data in dropdown and set default value according logged in user
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('country.index') }}",
-                data: {
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-
-                    if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.country, function(key, value) {
-                            $('#modal_country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
-                        });
-                        country_id = "{{ Auth::guard('admin')->user()->country_id }}";
-                        $('#modal_country').val(country_id);
-                        loadstate();
-                    } else {
-                        $('#modal_country').append(`<option> No Data Found</option>`);
-                    }
-                    loaderhide();
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr
-                        .responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    toastr.error(errorMessage);
+            ajaxRequest('GET', "{{ route('country.index') }}", { 
+                token: API_TOKEN, 
+            }).done(function(response) {
+                if (response.status == 200 && response.country != '') {
+                    // You can update your HTML with the data here if needed
+                    $.each(response.country, function(key, value) {
+                        $('#modal_country').append(
+                            `<option value='${value.id}'> ${value.country_name}</option>`
+                        )
+                    });
+                    country_id = "{{ Auth::guard('admin')->user()->country_id }}";
+                    $('#modal_country').val(country_id);
+                    loadstate();
+                } else {
+                    $('#modal_country').append(`<option> No Data Found</option>`);
                 }
-            });
+                loaderhide();
+            }).fail(function(xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            }); 
  
-             // load state in dropdown when country change
+            // load state in dropdown when country change
             $('#modal_country').on('change', function() {
                 loadershow(); 
                 $('#modal_city').html(`<option selected="" disabled="">Select your city</option>`);
@@ -1431,44 +1236,29 @@
                 if (id == 0) {
                     url = "{{ route('state.search', Auth::guard('admin')->user()->country_id ) }}";
                 }
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.state != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#modal_state').append(
-                                    `<option value='${value.id}'> ${value.state_name}</option>`
-                                )
-                            });
-                            if (id == 0) {
-                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
-                                $('#modal_state').val(state_id);
-                                loadcity();
-                            }
-                        } else {
-                            $('#modal_state').append(`<option> No Data Found</option>`);
+                ajaxRequest('GET', url, { 
+                    token: API_TOKEN,  
+                }).done(function(response) {
+                    if (response.status == 200 && response.state != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(response.state, function(key, value) {
+                            $('#modal_state').append(
+                                `<option value='${value.id}'> ${value.state_name}</option>`
+                            )
+                        });
+                        if (id == 0) {
+                            state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                            $('#modal_state').val(state_id);
+                            loadcity();
                         }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
+                    } else {
+                        $('#modal_state').append(`<option> No Data Found</option>`);
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
             }
  
             // load city in dropdown when state select/change
@@ -1485,42 +1275,28 @@
                 if (id == 0) {
                     url = "{{ route('city.search', Auth::guard('admin')->user()->state_id ) }}";
                 }
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.city, function(key, value) {
-                                $('#modal_city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                            if (id == 0) {
-                                $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
-                            }
-                        } else {
-                            $('#modal_city').append(`<option> No Data Found</option>`);
+
+                ajaxRequest('GET', url, { 
+                    token: API_TOKEN, 
+                }).done(function(response) {
+                    if (response.status == 200 && response.city != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(response.city, function(key, value) {
+                            $('#modal_city').append(
+                                `<option value='${value.id}'> ${value.city_name}</option>`
+                            )
+                        });
+                        if (id == 0) {
+                            $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
                         }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        toastr.error(errorMessage);
+                    } else {
+                        $('#modal_city').append(`<option> No Data Found</option>`);
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
             }
 
             // close pop up modal and reset new customer form
@@ -1558,8 +1334,7 @@
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                        console.log(xhr.responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             var errorcontainer;
