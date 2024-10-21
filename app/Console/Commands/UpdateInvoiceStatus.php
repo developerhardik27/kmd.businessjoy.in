@@ -34,34 +34,10 @@ class UpdateInvoiceStatus extends Command
 
     public function handle()
     {
-
-        // $fifteenDaysAgo = Carbon::now()->subDays(15);
-        // $companies = company::select('dbname')->where('is_deleted', 0)->get();
-        // foreach ($companies as $company) {
-        //     $dbname = $company->dbname;
-
-        //     config(['database.connections.dynamic_connection.database' => $dbname]);
-
-        //     // Establish connection to the dynamic database
-        //     DB::purge('dynamic_connection');
-        //     DB::reconnect('dynamic_connection');
-
-        //     // Execute the SQL statement
-        //     DB::connection('dynamic_connection')->table('invoices')
-        //         ->where('status', 'pending')
-        //         ->where('created_at', '<=', $fifteenDaysAgo)
-        //         ->update(['status' => 'due']);
-
-        // }
-        // $this->info('Invoice status updated successfully.');
-        // // Revert back to the default database connection
-        // DB::setDefaultConnection('mysql');
-
         $companies = Company::select('dbname')->where('is_deleted', 0)->get();
         foreach ($companies as $company) {
-            $dbname = $company->dbname;
-
-
+            $dbname = $company->dbname; 
+            
             try {
                 config(['database.connections.dynamic_connection.database' => $dbname]);
 
