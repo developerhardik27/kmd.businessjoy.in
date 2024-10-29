@@ -124,7 +124,7 @@ class tblinvoicecolumnController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
             //condition for check if user has permission to add record
             if ($this->rp['invoicemodule']['mngcol']['add'] != 1) {
@@ -163,28 +163,29 @@ class tblinvoicecolumnController extends commonController
                     $columnsequence = ++$maxColumnOrder;
                 }
 
-                if (DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType")) {
 
-                    $invoicecolumn = $this->tbl_invoice_columnModel::create([
-                        'column_name' => $request->column_name,
-                        'column_type' => $request->column_type,
-                        'column_width' => $request->column_width,
-                        'company_id' => $request->company_id,
-                        'column_order' => $columnsequence,
-                        'created_by' => $this->userId,
+                if (!Schema::connection('dynamic_connection')->hasColumn($tablename, $columnname)) {
+                    $addcolumn = DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType");
+                } 
+
+                $invoicecolumn = $this->tbl_invoice_columnModel::create([
+                    'column_name' => $request->column_name,
+                    'column_type' => $request->column_type,
+                    'column_width' => $request->column_width,
+                    'company_id' => $request->company_id,
+                    'column_order' => $columnsequence,
+                    'created_by' => $this->userId,
+                ]);
+
+                if ($invoicecolumn) {
+                    DB::connection('dynamic_connection')->table('invoices')->update([
+                        'is_editable' => 0
                     ]);
-
-                    if ($invoicecolumn) {
-                        DB::connection('dynamic_connection')->table('invoices')->update([
-                            'is_editable' => 0
-                        ]);
-                        return $this->successresponse(200, 'message', 'Invoice Columns  succesfully added');
-                    } else {
-                        return $this->successresponse(500, 'message', 'Invoice Columns not succesfully added');
-                    }
+                    return $this->successresponse(200, 'message', 'Invoice Columns  succesfully added');
                 } else {
                     return $this->successresponse(500, 'message', 'Invoice Columns not succesfully added');
                 }
+
             }
         }
     }
@@ -246,7 +247,7 @@ class tblinvoicecolumnController extends commonController
      */
     public function update(Request $request, string $id)
     {
- 
+
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
@@ -260,7 +261,7 @@ class tblinvoicecolumnController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             //condition for check if user has permission to search record
@@ -323,8 +324,8 @@ class tblinvoicecolumnController extends commonController
                     'column_width' => $request->column_width,
                     'updated_by' => $this->userId,
                     'updated_at' => date('Y-m-d H:i:s'),
-                ]);  
-                
+                ]);
+
                 return $this->successresponse(200, 'message', 'Invoice Column succesfully updated');
             } else {
                 return $this->successresponse(404, 'message', 'No Such Invoice Column Found!');
@@ -351,13 +352,13 @@ class tblinvoicecolumnController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-         // if column data found
+        // if column data found
         if ($invoicecolumn) {
 
             $tablename = 'mng_col';
             $columname = $invoicecolumn->column_name;
             $modifiedcolumname = str_replace(' ', '_', $invoicecolumn->column_name);
-            
+
             // check if column is using or not into formula if it is using then user will not able to delete it
             $checkrec = DB::connection('dynamic_connection')
                 ->table('tbl_invoice_formulas')
@@ -378,18 +379,18 @@ class tblinvoicecolumnController extends commonController
 
             // remove column name from invoice table  > show_col table
             DB::connection('dynamic_connection')
-            ->table('invoices')
-            ->whereRaw("show_col LIKE '%$modifiedcolumname,%'") // Match when the old column is not the last column
-            ->orWhereRaw("show_col LIKE '$modifiedcolumname,%'") // Match when the old column is the last column
-            ->orWhereRaw("show_col LIKE '%$modifiedcolumname'") // Match when the old column is the first or only column
-            ->update([
-                'show_col' => DB::raw("TRIM(BOTH ',' FROM REPLACE(CONCAT(',', show_col, ','), ',$modifiedcolumname,', ','))")
-            ]);
- 
+                ->table('invoices')
+                ->whereRaw("show_col LIKE '%$modifiedcolumname,%'") // Match when the old column is not the last column
+                ->orWhereRaw("show_col LIKE '$modifiedcolumname,%'") // Match when the old column is the last column
+                ->orWhereRaw("show_col LIKE '%$modifiedcolumname'") // Match when the old column is the first or only column
+                ->update([
+                    'show_col' => DB::raw("TRIM(BOTH ',' FROM REPLACE(CONCAT(',', show_col, ','), ',$modifiedcolumname,', ','))")
+                ]);
+
             // change column status is deleted = 1 that means column is deleted
             $invoicecolumn->update([
                 'is_deleted' => 1
-            ]); 
+            ]);
 
             return $this->successresponse(200, 'message', 'Invoice Column succesfully deleted');
         } else {
@@ -459,9 +460,9 @@ class tblinvoicecolumnController extends commonController
         }
 
         if ($successCount > 0) {
-            return $this->successresponse(200, 'message','Column Order Succesfully updated');
+            return $this->successresponse(200, 'message', 'Column Order Succesfully updated');
         } else {
-            return $this->successresponse(404, 'message','Column Order Not Succesfully upadated');
+            return $this->successresponse(404, 'message', 'Column Order Not Succesfully upadated');
         }
     }
 }
