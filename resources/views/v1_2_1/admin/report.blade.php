@@ -229,7 +229,7 @@
                     loadershow();
                     var deleteid = $(this).data('id');
                     var row = this;
-                    let reportLogDeleteUrl = "{{route('report.delete',__deleteId__)}}".replace('__deleteId__',deleteid);
+                    let reportLogDeleteUrl = "{{route('report.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
                     $.ajax({
                         type: 'PUT',
                         url: reportLogDeleteUrl,

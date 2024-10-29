@@ -266,7 +266,7 @@ class companyController extends commonController
             // required migrations path
             $paths = [
                 'database/migrations/individualcompanydb',
-                'database/migrations/v1_2_1',
+                'database/migrations/v1_1_1',
             ];
 
             // Run migrations only from the specified path
