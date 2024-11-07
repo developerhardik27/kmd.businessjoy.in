@@ -43,7 +43,7 @@ class AdminLoginController extends Controller
 
                     DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]); // store api token into user table for further activity
 
-                    if ((($admin->role == 1) or ($admin->role == 2) or ($admin->role == 3)) && ($admin->is_active == 1)) {
+                    if ((in_array($admin->role,[1,2,3])) && ($admin->is_active == 1)) {
 
                         $dbname = company::find($admin->company_id);
                         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
@@ -90,6 +90,14 @@ class AdminLoginController extends Controller
                                 session(['menu' => 'invoice']);
                                 session(['showinvoicesettings' => "yes"]);
                                 $menus[] = 'invoice';
+                            }
+
+                            if (hasPermission($rp, "quotationmodule")) {
+                                session(['quotation' => "yes"]);
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
+                                    session(['menu' => 'quotation']);
+                                }
+                                // $menus[] = 'quotation';
                             }
 
                             if (hasPermission($rp, "leadmodule")) {
@@ -382,6 +390,14 @@ class AdminLoginController extends Controller
                         session(['menu' => 'invoice']);
                         session(['showinvoicesettings' => "yes"]);
                         $menus[] = 'invoice';
+                    }
+
+                    if (hasPermission($rp, "quotationmodule")) {
+                        session(['quotation' => "yes"]);
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
+                            session(['menu' => 'quotation']);
+                        }
+                        // $menus[] = 'quotation';
                     }
 
                     if (hasPermission($rp, "leadmodule")) {

@@ -26,7 +26,7 @@
                             <img src="{{asset('admin/images/error/03.png')}}" class="img-fluid iq-error-img" alt="">
                             <h2 class="mb-0">Oops! This Page is Not Working.</h2>
                             <p>The requested is Internal Server Error.</p>
-                            <a class="btn btn-outline-primary mt-3" href="{{route('admin.index')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
+                            <a class="btn btn-outline-primary mt-3" href="{{route('admin.welcome')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
                         </div>
                     </div>
                 </div>

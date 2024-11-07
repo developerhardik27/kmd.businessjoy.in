@@ -300,14 +300,7 @@
                                                         valign="top" width="100%">
                                                         <h1
                                                             style="color:#292f37;direction:ltr;font-size:32px;font-weight:normal;line-height:120%;text-align:center;margin-top:0;margin-bottom:0;">
-                                                            @isset($user->subscribe)
-                                                                Thank you for subscribing to the BusinessJoy's
-                                                                newsletter!
-                                                            @else
-                                                                Thank You For Your Inquiry
-                                                            @endisset
-
-                                                        </h1>
+                                                            Thank You For Partner Request</h1>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -334,23 +327,29 @@
                                                     <p
                                                         style="margin: 0; line-height: 1.5; word-break: break-word; text-align: center; font-size: 14px; mso-line-height-alt: 21px; margin-top: 0; margin-bottom: 0;">
                                                         <span style="font-size: 14px;">
-                                                            @isset($user->subscribe)
-                                                                <span style="color: #666; font-size: 16px;"> We're
-                                                                    thrilled to have you with us. Get ready for the
-                                                                    latest updates, exclusive insights, and special
-                                                                    offers straight to your inbox.</span><br />
-                                                                <span style="color: #666; font-size: 16px;">Stay tuned!
-                                                                </span>
-                                                            @else
-                                                                <span style="color: #666; font-size: 16px;">We have
-                                                                    received your inquiry for our software product. Our
-                                                                    team will get in touch with you
-                                                                    shortly.</span><br />
-                                                                <span style="color: #999; font-size: 14px;">For any
-                                                                    urgent matters, please contact us<br />
-                                                            @endisset
+                                                            <span>Dear {{$partner->contact_person_name}} </span><br />
+                                                            <span>Company Name : {{$partner->company_name}} </span><br>
+                                                            <span>Email : {{$partner->contact_person_email}} </span> <br>
+                                                            <p>
+                                                                Thank you for submitting your request to Business Joy! We have successfully received it, and our team is
+                                                                currently reviewing the details.
+                                                            </p>
+                                                            <p>
+                                                                We appreciate you reaching out to us, and rest assured
+                                                                that we will give your request the attention it
+                                                                deserves. We aim to respond to all inquiries within
+                                                                 1-2 business days, but if we need
+                                                                any additional information, we’ll contact you promptly.
+                                                            </p>
+                                                            <p>If you have any immediate questions or need further assistance, feel free to reach out to us</p>
 
+                                                            <span>Thank you for your patience, and we look forward to assisting you!</span>
                                                         </span>
+                                                        <br>
+                                                        <br>
+                                                        <span>Best regards,</span><br>
+                                                        <span>Business Joy</span>
+
                                                 </div>
                                             </div>
                                             <table border="0" cellpadding="0" cellspacing="0" class="divider"
@@ -387,7 +386,7 @@
                                                         style="margin: 0; text-align: center; line-height: 1.5; word-break: break-word; font-size: 20px; mso-line-height-alt: 30px; margin-top: 0; margin-bottom: 0;">
                                                         <span style="font-size: 15px;">
                                                             {{-- <strong>
-                                                             Your Email :
+                                                                Your Email :
                                                             </strong>
                                                             <span>mayur@email.com</span> --}}
                                                         </span>
@@ -396,13 +395,12 @@
                                             </div>
                                             <div align="center" class="button-container"
                                                 style="padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;">
-                                                <a href="{{ url('/') }}"
-                                                    style="-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #ffffff; background: linear-gradient(to right, #97271f, #253566); border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; width: auto; width: auto; padding-top: 5px; padding-bottom: 5px; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;"
-                                                    target="_blank"><span
+                                                <a href="#"
+                                                    style="-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #ffffff; background: linear-gradient(to right, #97271f, #253566); border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; width: auto; width: auto; padding-top: 5px; padding-bottom: 5px; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;"><span
                                                         style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:2px;"><span
                                                             style="font-size: 16px; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;">
                                                             <strong style="color: #ffffff">
-                                                                Business Joy
+                                                                Thank You For Request
                                                             </strong></span></span></a>
                                             </div>
                                             <div style="background: linear-gradient(to right, #97271f, #253566);">

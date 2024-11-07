@@ -26,7 +26,7 @@
                             <img src="{{asset('admin/images/error/01.png')}}" class="img-fluid iq-error-img mb-0" alt="">
                             <h2 class="mb-0">Oops! This Page is Not Found.</h2>
                             <p>The requested page dose not exist.</p>
-                            <a class="btn btn-outline-primary" href="{{route('admin.index')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
+                            <a class="btn btn-outline-primary" href="{{route('admin.welcome')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
                         </div>
                     </div>
                 </div>

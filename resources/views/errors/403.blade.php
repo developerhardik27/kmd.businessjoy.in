@@ -25,7 +25,7 @@
                         <div class="iq-error">
                             <img src="{{asset('admin/images/error/403.png')}}" width="500px" style="margin-top: 150px" class="img-fluid mb-0" alt="">
                             <h2>Forbidden | {{ $exception->getMessage() }}</h2> 
-                            <a class="btn btn-outline-primary mt-3" href="{{route('admin.index')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
+                            <a class="btn btn-outline-primary mt-3" href="{{route('admin.welcome')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
                         </div>
                     </div>
                 </div>
