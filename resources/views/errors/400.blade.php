@@ -26,7 +26,7 @@
                             <img src="{{asset('admin/images/error/400.png')}}" width="450px" class="img-fluid mb-0" alt="">
                             <h2 class="mb-0">Bad Request.</h2> 
                             <p>{{ $exception->getMessage() }}</p>
-                            <a class="btn btn-outline-primary" href="{{route('admin.index')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
+                            <a class="btn btn-outline-primary" href="{{route('admin.welcome')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
                         </div>
                     </div>
                 </div>

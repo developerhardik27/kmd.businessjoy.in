@@ -520,9 +520,7 @@
                                                                                     & Policy</a> |
                                                                                 <a href="{{route('termsandconditions')}}"
                                                                                     style="text-decoration: none">Terms
-                                                                                    and conditions</a>|
-                                                                                <a href="tel:+917948558535"
-                                                                                    style="text-decoration: none">+91 7948558535</a> |
+                                                                                    and conditions</a>| 
                                                                                 <a href="mailto:support@businessjoy.com"
                                                                                     style="text-decoration: none">support@businessjoy.com</a>
                                                                             </p>
