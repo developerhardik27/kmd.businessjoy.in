@@ -25,7 +25,7 @@
                         <div class="iq-error">
                             <img src="{{asset('admin/images/error/401.png')}}" class="img-fluid mb-0" alt="">
                             <h2>Unauthorized</h2> 
-                            <a class="btn btn-outline-primary mt-3" href="{{route('admin.index')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
+                            <a class="btn btn-outline-primary mt-3" href="{{route('admin.welcome')}}"><i class="ri-home-4-line"></i>Back to Home</a>                            
                         </div>
                     </div>
                 </div>
