@@ -48,6 +48,7 @@ class HomeController extends Controller
         return redirect()->route('admin.login');
     }
 
+    // when user logged in new device then old session destroy and old user logout from old device automatic
     public function singlelogout(Request $request)
     {
 

@@ -275,12 +275,12 @@
                                 <a href="mailto:support@businessjoy.in">support@businessjoy.in</a>
                             </span>
                         </li>
-                        <li>
+                        {{-- <li>
                             <span>
                                 <b>Phone </b>:
                                 <a href="tel:+917948558535">079 48558535</a>
                             </span>
-                        </li> 
+                        </li>  --}}
                     </ul>
                     <p>
                         By using <a href="/"> Business Joy</a>, you agree to these Terms and Conditions. If you do not agree to these terms, please do not use our software.
@@ -303,8 +303,8 @@
                             Right Reserved.
 
                             <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                            Powered By <a class="border-bottom" href="https://www.oceanmnc.com" target="_blank">Ocean
-                                MNC</a>
+                            {{-- Powered By <a class="border-bottom" href="https://www.oceanmnc.com" target="_blank">Ocean
+                                MNC</a> --}}
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">

@@ -91,10 +91,10 @@
                 <div class="container px-lg-5">
                     <div class="row">
                         <div class="col-lg-7 text-center text-lg-start">
-                            <h1 class="text-white mb-4 animated slideInDown">Boost Your Account Process With Business
-                                Joy</h1>
-                            <p class="text-white pb-3 animated slideInDown">Make your business process Easy,Effective
-                                and Engaging</p>
+                            <h1 class="text-white mb-4 animated slideInDown">The Ultimate Customizable ERP & CRM
+                                Solution</h1>
+                            <p class="text-white pb-3 animated slideInDown">Empower Your Business with Total Flexibility
+                            </p>
                             <a href="#contact"
                                 class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill me-3 animated slideInLeft">Free
                                 Demo</a>
@@ -131,11 +131,13 @@
                         <h5 class="text-primary-gradient fw-medium">Your business problem</h5>
                         <h1 class="mb-4">Unbelivable Fact</h1>
                         <p class="mb-4">
-                            According to survery, 80% business get loss due not to Technology adoption every year. They
-                            work with slow process with paperwork, Invest more manpower, still they lack of work
-                            accuracy, employees get burned out with workload,some time lack of team member company has
-                            to oursource their tasks to outside the office which can be of higher cost, time, less
-                            sefety and security. At the end of the year they still get business loss.
+                            Unlock the full potential of your business with Business Joy – the all-in-one, fully
+                            <strong>customizable software builder </strong> designed to adapt to your <strong>unique
+                                business needs.</strong> With
+                            comprehensive CRM and ERP capabilities, Business Joy is the perfect solution for businesses
+                            looking to streamline operations, boost productivity, and scale seamlessly. Whether you're
+                            managing sales, inventory, or customer support, Business Joy molds to your workflows for
+                            maximum efficiency.
                         </p>
                         <div class="row g-4 mb-4">
                             <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">
@@ -760,13 +762,13 @@
                             alt="businessjoylogo">
                     </div>
                     <div class="col-md-6 col-lg-3">
-                        <h4 class="text-white mb-4">Address</h4>
-                        <p><i class="fa fa-map-marker-alt me-3"></i>India</p>
+                        <h4 class="text-white mb-4">Contact</h4>
+                        {{-- <p><i class="fa fa-map-marker-alt me-3"></i>India</p>
                         <p><a href="tel:+917948558535" class="text-white"><i
-                                    class="fa fa-phone-alt me-3"></i>+917948558535 </a></p>
+                                    class="fa fa-phone-alt me-3"></i>+917948558535 </a></p> --}}
                         <p><a href="mailto:support@businessjoy.in" class="text-white"><i
                                     class="fa fa-envelope me-3"></i>support@businessjoy.in</a></p>
-                        <div class="d-flex pt-2">
+                        {{-- <div class="d-flex pt-2">
                             <!-- <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a> -->
                             <a class="btn btn-outline-light btn-social" target="_blank"
                                 href="https://www.facebook.com/oceanmnc7/"><i class="fab fa-facebook-f"></i></a>
@@ -775,7 +777,7 @@
                             <a class="btn btn-outline-light btn-social" target="_blank"
                                 href="https://in.linkedin.com/company/ocean-mnc"><i
                                     class="fab fa-linkedin-in"></i></a>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <h4 class="text-white mb-4">Quick Link</h4>
@@ -810,8 +812,8 @@
                             Right Reserved.
 
                             <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                            Powered By <a class="border-bottom" href="https://www.oceanmnc.com" target="_blank">Ocean
-                                MNC</a>
+                            {{-- Powered By <a class="border-bottom" href="https://www.oceanmnc.com" target="_blank">Ocean
+                                MNC</a> --}}
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
@@ -831,10 +833,10 @@
         <!-- Back to Top -->
         <a href="#home" class="btn btn-lg btn-lg-square back-to-top pt-2"><i
                 class="bi bi-arrow-up text-white"></i></a>
-        <a id="whatsapp-button" href="https://wa.me/+917600596975?text=I%20am%20Interested%20in%20BusinessJoy"
+        {{-- <a id="whatsapp-button" href="https://wa.me/+917600596975?text=I%20am%20Interested%20in%20BusinessJoy"
             target="_blank">
             <i class="bi bi-whatsapp fa-2x"></i>
-        </a>
+        </a> --}}
     </div>
 
     <!-- JavaScript Libraries -->
