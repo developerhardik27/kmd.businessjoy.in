@@ -553,3 +553,11 @@ h6,
 .img-4 {
     max-width: 75% !important;
 }
+
+/* #modal-contactform .form-floating>.form-control, .form-floating>.form-select {
+    height: 45px !important;
+    padding: 10px !important;
+}
+#modal-contactform .form-floating>label{
+    padding: 8px !important;
+} */
