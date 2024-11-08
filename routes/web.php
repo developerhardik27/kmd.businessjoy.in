@@ -29,7 +29,7 @@ Route::get('/faq', function () {
     return view('faq');
 })->name('faq')->withoutMiddleware([CheckSession::class]);
 
-Route::get('/new', [LandingPageController::class, 'new'])->name('admin.new')->withoutMiddleware([CheckSession::class]);
+Route::post('/new', [LandingPageController::class, 'new'])->name('admin.new')->withoutMiddleware([CheckSession::class]);
 
 Route::group(['middleware' => ['CheckSession']], function () {
     // Your protected routes here...
