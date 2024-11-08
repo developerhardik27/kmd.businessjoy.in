@@ -34,7 +34,7 @@
     <link href="{{ asset('landing/css/style.css') }}" rel="stylesheet">
     <!-- Responsive Stylesheet -->
     <link href="{{ asset('landing/css/responsive.css') }}" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <style>
         .hero-header {
             margin-bottom: 0;
@@ -45,7 +45,7 @@
             text-transform: initial !important;
             letter-spacing: auto !important;
             font-weight: 300;
-            font-family: Heebo,sans-serif !important;
+            font-family: Heebo, sans-serif !important;
         }
 
         .card-title>button,
@@ -63,7 +63,7 @@
 
         .card-header button::before {
             font-family: 'Font Awesome 5 Free';
-            content:"\f0aa" ;
+            content: "\f0aa";
             position: absolute;
             /* content: '\25B2'; */
             /* float: right; */
@@ -80,7 +80,6 @@
             float: right;
             transition: all 0.5s;
         }
-        
     </style>
 </head>
 
@@ -455,6 +454,7 @@
     <!-- JavaScript Libraries -->
     <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
     <script src="{{ asset('admin/js/bootstrap.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('landing/lib/wow/wow.min.js') }}"></script>
     <script src="{{ asset('landing/lib/easing/easing.min.js') }}"></script>
     <script src="{{ asset('landing/lib/waypoints/waypoints.min.js') }}"></script>

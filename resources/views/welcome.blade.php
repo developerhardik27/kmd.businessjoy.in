@@ -45,6 +45,50 @@
     <!-- Responsive Stylesheet -->
     <link href="{{ asset('landing/css/responsive.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+    <style>
+        button,
+        .btn {
+            text-transform: initial !important;
+            letter-spacing: auto !important;
+            font-weight: 300;
+            font-family: Heebo, sans-serif !important;
+        }
+
+        .card-title>button,
+        .card-title>button:active {
+            display: block;
+            padding: 15px;
+            color: #555;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            word-spacing: 3px;
+            text-decoration: none;
+        }
+
+        .card-header button::before {
+            font-family: 'Font Awesome 5 Free';
+            content: "\f0aa";
+            position: absolute;
+            /* content: '\25B2'; */
+            /* float: right; */
+            transition: all 0.5s;
+            right: 30px;
+            font-size: 22px;
+        }
+
+        .card-header.active button::before {
+            font-family: 'Font Awesome 5 Free';
+            content: "\f0ab";
+            font-size: 22px;
+            /* Unicode for down arrow */
+            float: right;
+            transition: all 0.5s;
+        }
+    </style>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
@@ -73,15 +117,17 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav mx-auto py-0">
                         <a href="#home" id="hometab" class="nav-item nav-link active">Home</a>
-                        <a href="#about" class="nav-item nav-link">Business Problem</a>
+                        <a href="#customsoftwaebuilder" class="nav-item nav-link">Custom Software Builder</a>
                         <a href="#solution" class="nav-item nav-link">Solution</a>
-                        <a href="#feature" class="nav-item nav-link">Feature</a>
+                        <a href="#modules" class="nav-item nav-link">Modules</a>
                         <!-- <a href="#pricing" class="nav-item nav-link">Pricing</a>
                         <a href="#review" class="nav-item nav-link">Review</a> -->
-                        <a href="#joinus" class="nav-item nav-link">Join Us</a>
+                        {{-- <a href="#joinus" class="nav-item nav-link">Join Us</a> --}}
                         <a href="#contact" class="nav-item nav-link">Contact</a>
                     </div>
-                    <a href="{{ route('admin.login') }}"
+                    <a class="btn btn-primary-gradient d-lg-block ms-0 mx-2 rounded-pill text-white"
+                        data-bs-toggle="modal" data-bs-target="#modal">Get a Free Quote</a>
+                    <a href="{{ route('admin.login') }}" id="navbarLoginBtn"
                         class="btn btn-primary-gradient d-lg-block m-sm-0 ms-3 px-4 px-lg-4 px-sm-3 py-2 py-md-1 py-sm-1 rounded-pill">
                         Login</a>
                 </div>
@@ -124,12 +170,12 @@
 
 
         <!-- About Start -->
-        <div class="container-xxl py-5" id="about">
+        <div class="container-xxl py-5" id="customsoftwaebuilder">
             <div class="container py-5 px-lg-5">
                 <div class="row g-5 align-items-center">
-                    <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="col-lg-7 wow fadeInUp" data-wow-delay="0.1s">
                         <h5 class="text-primary-gradient fw-medium">Your business problem</h5>
-                        <h1 class="mb-4">Unbelivable Fact</h1>
+                        <h1 class="mb-4">Customizable Software Builder</h1>
                         <p class="mb-4">
                             Unlock the full potential of your business with Business Joy – the all-in-one, fully
                             <strong>customizable software builder </strong> designed to adapt to your <strong>unique
@@ -141,7 +187,7 @@
                         </p>
                         <div class="row g-4 mb-4">
                             <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">
-                                <div class="d-flex">
+                                <div class="display-flex">
                                     <i class="fa fa-cogs fa-2x text-primary-gradient flex-shrink-0 mt-1"></i>
                                     <div class="ms-3">
                                         <h2 class="mb-0" data-toggle="counter-up">1482</h2>
@@ -150,7 +196,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-6 wow fadeIn" data-wow-delay="0.7s">
-                                <div class="d-flex">
+                                <div class="display-flex">
                                     <i class="fa fa-comments fa-2x text-secondary-gradient flex-shrink-0 mt-1"></i>
                                     <div class="ms-3">
                                         <h2 class="mb-0" data-toggle="counter-up">827</h2>
@@ -163,7 +209,7 @@
                             class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">Yes, I want to
                             remove my business blockages!</a>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-5 display-flex">
                         <img class="img-fluid wow fadeInUp float-end img-2" data-wow-delay="0.5s"
                             src="{{ asset('landing/img/2.png') }}">
                     </div>
@@ -189,16 +235,21 @@
                     </div>
                     <div class="col-lg-8 wow fadeInUp" data-wow-delay="0.1s">
                         <h5 class="text-primary-gradient fw-medium">Solution</h5>
-                        <h1 class="mb-4">Here is the solution of your daily business challenges</h1>
-                        <p class="mb-4">Don't worry! business joy is here to reduce your headache and paperwork. It
-                            is
-                            fully sysmetic, automatic which will make your business in flow , smoothy, speedy, easy
-                            intergrate and engage with others. Most importantantly to stand with your competitors in the
-                            market.</p>
-                        <p><i class="fa fa-check text-primary-gradient me-3"></i>Absolutely Safe And Secure</p>
+                        <h1 class="mb-4">How Business Joy Stands Out Among ERP & CRM Solutions
+                        </h1>
+                        <p class="mb-4"><i class="fa fa-check text-primary-gradient me-3"></i>Business Joy is here
+                            to disrupt the market of CRM/ERP solutions by offering unmatched customization and
+                            flexibility. Unlike solutions other software builders, Business Joy is designed to mold
+                            precisely to your business’s needs, eliminating the limitations of one-size-fits-all
+                            solutions.</p>
+                        <p class="mb-4"><i class="fa fa-check text-primary-gradient me-3"></i>
+                            With Business Joy, you gain not just CRM but also integrated ERP modules to manage
+                            everything from lead generation to accounting—all within one flexible platform.
+                        </p>
+                        {{-- <p><i class="fa fa-check text-primary-gradient me-3"></i>Absolutely Safe And Secure</p>
                         <p><i class="fa fa-check text-primary-gradient me-3"></i>Genuine Standards</p>
                         <p class="mb-4"><i class="fa fa-check text-primary-gradient me-3"></i>Engaging and Clear UI
-                            (user Interface) and UX (user experience)</p>
+                            (user Interface) and UX (user experience)</p> --}}
                         <a href="#contact"
                             class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">Smooth my business
                             process</a>
@@ -209,59 +260,62 @@
         <!-- Screenshot End -->
 
         <!-- Features Start -->
-        <div class="container-xxl py-5" id="feature">
+        <div class="container-xxl py-5" id="modules">
             <div class="container py-5 px-lg-5">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Business Joy Features</h5>
-                    <h1 class="mb-5">Mind Blowing Features</h1>
+                    <h1 class="mb-5">Feature-Rich Modules</h1>
                 </div>
                 <div class="row g-4">
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                         <div class="feature-item bg-light rounded p-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-primary-gradient rounded-circle mb-4"
                                 style="width: 60px; height: 60px;">
-                                <i class="fa fa-eye text-white fs-4"></i>
+                                <i class="fa fa-file-invoice text-white fs-4"></i>
                             </div>
-                            <h5 class="mb-3">Account</h5>
-                            <p class="m-0">Experience unparalleled control and insight into customer relationships
-                                with our CRM's dynamic Account module, centralizing key data to drive precision &
-                                efficiency in your operations such as invoice, quotation, order etc.</p>
+                            <h5 class="mb-3">Invoice Module
+                            </h5>
+                            <p class="m-0">Simplify billing, track payments, and manage financial transactions
+                                effortlessly. Our invoice module is designed to handle everything from single invoices
+                                to complex billing cycles.</p>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
                         <div class="feature-item bg-light rounded p-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle mb-4"
                                 style="width: 60px; height: 60px;">
-                                <i class="fa fa-layer-group text-white fs-4"></i>
+                                <i class="fa fa-user-alt text-white fs-4"></i>
                             </div>
-                            <h5 class="mb-3">Lead</h5>
-                            <p class="m-0">Empower your sales journey with Business Joy's Lead module, a
-                                game-changing tool that seamlessly captures, nurtures, and converts leads, ensuring
-                                every opportunity is maximized for business growth.</p>
+                            <h5 class="mb-3">Lead Module</h5>
+                            <p class="m-0">Capture, track, and nurture leads in one place. Business Joy’s lead
+                                management module ensures that no potential client slips through the cracks.</p>
+                            <br>
+                            <br>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                         <div class="feature-item bg-light rounded p-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-primary-gradient rounded-circle mb-4"
                                 style="width: 60px; height: 60px;">
-                                <i class="fa fa-edit text-white fs-4"></i>
+                                <i class="fa fa-headphones text-white fs-4"></i>
                             </div>
-                            <h5 class="mb-3">Sales</h5>
-                            <p class="m-0">Revolutionize your sales strategy with Sales module, delivering a
-                                comprehensive and intuitive platform to streamline pipelines, boost team collaboration,
-                                and drive unparalleled success in every deal</p>
+                            <h5 class="mb-3">Customer Support Module
+                            </h5>
+                            <p class="m-0">Provide exceptional support with built-in ticketing, response tracking,
+                                and customer history. Ensure satisfaction and build lasting relationships.</p>
+                            <br>
+                            <br>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                         <div class="feature-item bg-light rounded p-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle mb-4"
                                 style="width: 60px; height: 60px;">
-                                <i class="fa fa-shield-alt text-white fs-4"></i>
+                                <i class="fa fa-calculator text-white fs-4"></i>
                             </div>
-                            <h5 class="mb-3">Task Management</h5>
-                            <p class="m-0">Boost your productivity and stay organized with our software's Task
-                                Management module, a powerful tool designed to efficiently plan, execute, and track
-                                tasks, ensuring seamless workflow and heightened success for your team
+                            <h5 class="mb-3">Account Module</h5>
+                            <p class="m-0">Monitor cash flow, manage expenses, and gain full financial transparency.
+                                Business Joy’s accounting module keeps your financials accurate and accessible.
                             <p>
                         </div>
                     </div>
@@ -269,26 +323,57 @@
                         <div class="feature-item bg-light rounded p-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-primary-gradient rounded-circle mb-4"
                                 style="width: 60px; height: 60px;">
-                                <i class="fa fa-cloud text-white fs-4"></i>
+                                <i class="fa fa-box-open text-white fs-4"></i>
                             </div>
-                            <h5 class="mb-3">Human Resource Management</h5>
-                            <p class="m-0">Enhance your workforce management with our CRM's Human Resource module,
-                                providing a comprehensive solution to streamline HR processes (Leave Management,
-                                Payroll, Announcements, Employee Documents), foster employee engagement, and productive
-                                workplace.</p>
+                            <h5 class="mb-3">Inventory Module</h5>
+                            <p class="m-0">Optimize stock levels, track products, and reduce overhead. With
+                                real-time insights into your inventory, you can keep operations running smoothly.</p>
+                            <br>
+                            <br>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                         <div class="feature-item bg-light rounded p-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle mb-4"
                                 style="width: 60px; height: 60px;">
-                                <i class="fa fa-mobile-alt text-white fs-4"></i>
+                                <i class="fa fa-clock text-white fs-4"></i>
                             </div>
-                            <h5 class="mb-3">Customer Support System</h5>
-                            <p class="m-0">Transform customer interactions into exceptional experiences with our
-                                CRM and ERP integrated system's Customer Support System module, designed to streamline
-                                query resolution, enhance
-                                communication, and ensure unparalleled satisfaction for lasting customer loyalty.</p>
+                            <h5 class="mb-3">Reminder Module
+                            </h5>
+                            <p class="m-0">Never miss a follow-up or deadline. Set reminders, automate
+                                notifications, and ensure that every task stays on track.</p>
+                            <br>
+                            <br>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="feature-item bg-light rounded p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle mb-4"
+                                style="width: 60px; height: 60px;">
+                                <i class="fa fa-chart-bar text-white fs-4"></i>
+                            </div>
+                            <h5 class="mb-3">Report Module
+                            </h5>
+                            <p class="m-0">Generate insights across departments with customizable reports. Make
+                                data-driven decisions with ease, from sales trends to customer feedback.
+                            </p>
+                            <br>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="feature-item bg-light rounded p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle mb-4"
+                                style="width: 60px; height: 60px;">
+                                <i class="fa fa-file-signature text-white fs-4"></i>
+                            </div>
+                            <h5 class="mb-3">Blog Module
+                            </h5>
+                            <p class="m-0">Engage customers and improve SEO with a built-in blog platform. Share
+                                news, updates, and valuable content to keep your audience engaged.</p>
+                            <br>
+                            <br>
                         </div>
                     </div>
                 </div>
@@ -299,47 +384,45 @@
         <div class="container-xxl py-5">
             <div class="container py-5 px-lg-5">
                 <div class="text-center pb-4 wow fadeInUp" data-wow-delay="0.1s">
-                    <h5 class="text-primary-gradient fw-medium">How It Works</h5>
-                    <h1 class="mb-5">3 Easy Steps</h1>
+                    <h5 class="text-primary-gradient fw-medium">Cost-Efficient & Scalable</h5>
+                    <h1 class="mb-5">Why Choose Business Joy?</h1>
                 </div>
                 <div class="row gy-5 gx-4 justify-content-center">
                     <div class="col-lg-4 col-sm-6 text-center pt-4 wow fadeInUp" data-wow-delay="0.1s">
                         <div class="position-relative bg-light rounded pt-5 pb-4 px-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-primary-gradient rounded-circle position-absolute top-0 start-50 translate-middle shadow"
                                 style="width: 100px; height: 100px;">
-                                <i class="fa fa-cog fa-3x text-white"></i>
+                                <i class="fa fa-edit fa-3x text-white"></i>
                             </div>
-                            <h5 class="mt-4 mb-3">Input</h5>
-                            <p class="mb-0">Supercharge your experience by inputting crucial data into our
-                                software—it's the key to unlocking unparalleled insights and maximizing your results.
-                                Your success begins with the first click—start transforming your data into actionable
-                                intelligence now</p>
+                            <h5 class="mt-4 mb-3">Total Customization</h5>
+                            <p class="mb-0">Tailor every module and feature to fit your specific business
+                                requirements. With Business Joy, you're not just getting software; you're getting a
+                                solution that evolves with you.
+                            </p>
                         </div>
                     </div>
                     <div class="col-lg-4 col-sm-6 text-center pt-4 wow fadeInUp" data-wow-delay="0.3s">
                         <div class="position-relative bg-light rounded pt-5 pb-4 px-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle position-absolute top-0 start-50 translate-middle shadow"
                                 style="width: 100px; height: 100px;">
-                                <i class="fa fa-address-card fa-3x text-white"></i>
+                                <i class="fa fa-mobile-alt fa-3x text-white"></i>
                             </div>
-                            <h5 class="mt-4 mb-3">Process</h5>
-                            <p class="mb-0">Revolutionize your workflow as our user-friendly interface simplifies
-                                data processing, slashing your time investment. Streamline tasks effortlessly,
-                                empowering you to focus on what matters most while our software efficiently handles the
-                                rest.</p>
+                            <h5 class="mt-4 mb-3">User-Friendly Interface</h5>
+                            <p class="mb-0">Our intuitive design makes it easy for any team member to dive in, manage
+                                tasks, and stay productive without steep learning curves.
+                            </p>
+                            <br>
                         </div>
                     </div>
                     <div class="col-lg-4 col-sm-6 text-center pt-4 wow fadeInUp" data-wow-delay="0.5s">
                         <div class="position-relative bg-light rounded pt-5 pb-4 px-4">
                             <div class="d-inline-flex align-items-center justify-content-center bg-primary-gradient rounded-circle position-absolute top-0 start-50 translate-middle shadow"
                                 style="width: 100px; height: 100px;">
-                                <i class="fa fa-check fa-3x text-white"></i>
+                                <i class="fa fa-plug fa-3x text-white"></i>
                             </div>
-                            <h5 class="mt-4 mb-3">Generate</h5>
-                            <p class="mb-0">Watch your business thrive as our product transforms raw data into
-                                comprehensive reports, insightful analyses, and tangible results. Harness the power of
-                                intelligent data processing to drive strategic decisions and fuel more growth for your
-                                enterprise.</p>
+                            <h5 class="mt-4 mb-3">Seamless Integration</h5>
+                            <p class="mb-0">Compatible with your existing tools and workflows, Business Joy easily
+                                integrates with your favorite applications, making data accessible and actionable. </p>
                         </div>
                     </div>
                 </div>
@@ -357,20 +440,24 @@
                             src="{{ asset('landing/img/4.png') }}">
                     </div>
                     <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
-                        <h5 class="text-primary-gradient fw-medium">Join Us</h5>
-                        <h1 class="mb-4">Final And Least Way To Your Business Growth</h1>
-                        <p class="mb-4">Fuel your business ambition with our software—the final, least-known pathway
-                            to insatiable growth. Feed your hunger for success and let our product be the catalyst for
-                            unparalleled prosperity</p>
+                        <h5 class="text-primary-gradient fw-medium">Ultimate</h5>
+                        <h1 class="mb-4">Designed for Businesses of All Sizes</h1>
+                        <p class="mb-4">Whether you're a small business looking to get organized or an enterprise
+                            needing powerful, scalable software, Business Joy is built for you. From e-commerce and
+                            retail to service-based businesses, Business Joy adapts seamlessly, making it ideal for any
+                            industry.
+                        </p>
                         <div class="row g-4">
-                            <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">
-                                <a href="#contact" class="d-flex bg-primary-gradient rounded py-3 px-4">
-                                    <i class="fa fa-link fa-3x text-white flex-shrink-0"></i>
-                                    <div class="ms-3">
-                                        <p class="text-white mb-0">Visit</p>
-                                        <h5 class="text-white mb-0">Business Joy</h5>
-                                    </div>
-                                </a>
+                            <div class="col-sm-6  wow fadeIn" data-wow-delay="0.5s">
+                                <div class="display-flex">
+                                    <a href="#contact" class="d-flex bg-primary-gradient rounded py-3 px-4">
+                                        <i class="fa fa-link fa-3x text-white flex-shrink-0"></i>
+                                        <div class="ms-3">
+                                            <p class="text-white mb-0">Visit</p>
+                                            <h5 class="text-white mb-0">Business Joy</h5>
+                                        </div>
+                                    </a>
+                                </div>
                             </div>
                             <!-- <div class="col-sm-6 wow fadeIn" data-wow-delay="0.7s">
                                 <a href="#contact" class="d-flex bg-secondary-gradient rounded py-3 px-4">
@@ -685,56 +772,66 @@
         <div class="container-xxl py-5" id="contact">
             <div class="container py-5 px-lg-5">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
-                    <h5 class="text-primary-gradient fw-medium">Inquiry</h5>
-                    <h1 class="mb-5">Get In Touch!</h1>
+                    <h5 class="text-primary-gradient fw-medium">Get In Touch!</h5>
+                    {{-- <h1 class="mb-5">Get In Touch!</h1> --}}
+                    <h1 class="mb-3">Ready to Transform Your Business?
+                    </h1>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
                         <div class="wow fadeInUp" data-wow-delay="0.3s">
-                            <p class="text-center mb-4">Unlock the power of innovation with our cutting-edge software
-                                solution. Contact us now to elevate your business with seamless technology integration
-                                and unparalleled efficiency</p>
-                            <form action="{{ route('admin.new') }}" method="get">
+                            <p class="text-center">Experience the power of a truly customizable CRM and ERP solution
+                                with Business Joy. Sign up now to be the first to access exclusive features and join the
+                                businesses that are redefining productivity and growth.</p>
+                            <form action="{{ route('admin.new') }}" class="bj-landing-forms" method="Post">
+                                @csrf
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" maxlength="30" id="name"
                                                 name="name" placeholder="Your Name" required>
-                                            <label for="name">Your Name</label>
+                                            <label for="name">Your Name*</label>
+                                            <span class="error-msg" id="error-name" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="email" class="form-control" id="email" name="email"
                                                 placeholder="Your Email" maxlength="40" required>
-                                            <label for="email">Your Email</label>
+                                            <label for="email">Your Email*</label>
+                                            <span class="error-msg" id="error-email" style="color: red"></span>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" maxlength="12"
+                                                id="mobile_number" name="mobile_number" placeholder="Mobile number"
+                                                required>
+                                            <label for="mobile_number">Mobile Number*</label>
+                                            <span class="error-msg" id="error-mobile_number"
+                                                style="color: red"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" id="subject" name="subject"
                                                 placeholder="Subject">
                                             <label for="subject">Subject</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" maxlength="12"
-                                                id="contact_no" name="contact_no" placeholder="Mobile number"
-                                                required>
-                                            <label for="contact_no">Mobile Number</label>
+                                            <span class="error-msg" id="error-subject" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-floating">
-                                            <textarea class="form-control" placeholder="Leave a message here" id="message" name="msg"
+                                            <textarea class="form-control" placeholder="Leave a message here" id="message" name="message"
                                                 style="height: 150px"></textarea>
-                                            <label for="message">Message</label>
+                                            <label for="message">Message*</label>
+                                            <span class="error-msg" id="error-message" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-12 text-center">
-                                        <button class="btn btn-primary-gradient rounded-pill fs-5 py-3 px-5"
-                                            type="submit">Skyrocket Your Business</button>
+                                        <button id="contactSubmitBtn"
+                                            class="btn btn-primary-gradient rounded-pill fs-5 py-3 px-5"
+                                            type="submit">Schedule a Free Demo</button>
                                     </div>
                                 </div>
                             </form>
@@ -744,6 +841,84 @@
             </div>
         </div>
         <!-- Contact End -->
+
+
+        {{-- faq start --}}
+        <div class="container-xxl py-5" id="contact">
+            <div class="container py-5 px-lg-5">
+                <div class="row mt-0">
+                    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                        <h5 class="text-primary-gradient fw-medium">FAQ</h5>
+                        {{-- <h1 class="mb-5">Get In Touch!</h1> --}}
+                        <h1 class="mb-3">Frequently Asked Questions
+                        </h1>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="accordion" id="accordionExample">
+                        <div class="card mb-1">
+                            <div class="card-header active" id="headingOne">
+                                <h2 class="mb-0 card-title">
+                                    <button class="btn btn-link btn-block text-left" type="button"
+                                        data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                                        aria-controls="collapseOne">
+                                        1. Is Business Joy customizable?
+                                    </button>
+                                </h2>
+                            </div>
+
+                            <div id="collapseOne" class="collapse card-collapse show" aria-labelledby="headingOne"
+                                data-parent="#accordionExample">
+                                <div class="card-body">
+                                    Absolutely! Every module can be tailored to meet your business needs.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-1">
+                            <div class="card-header" id="headingTwo">
+                                <h2 class="mb-0 card-title">
+                                    <button class="btn btn-link btn-block text-left collapsed" type="button"
+                                        data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
+                                        aria-controls="collapseTwo">
+                                        2. What support do you offer?
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseTwo" class="card-collapse collapse" aria-labelledby="headingTwo"
+                                data-parent="#accordionExample">
+                                <div class="card-body">
+                                    Our dedicated team is here to assist you with implementation, training, and ongoing
+                                    support to ensure success at every stage.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-1">
+                            <div class="card-header" id="headingThree">
+                                <h2 class="mb-0 card-title">
+                                    <button class="btn btn-link btn-block text-left collapsed" type="button"
+                                        data-toggle="collapse" data-target="#collapseThree" aria-expanded="false"
+                                        aria-controls="collapseThree">
+                                        3. Is Business Joy suitable for small businesses?
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseThree" class="collapse card-collapse" aria-labelledby="headingThree"
+                                data-parent="#accordionExample">
+                                <div class="card-body">
+                                    Yes! Business Joy is designed to be cost-effective and adaptable, making it a
+                                    perfect fit for small to medium-sized businesses.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center w-100">
+                    <a href="{{ route('faq') }}"
+                        class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">More FAQ</a>
+                </div>
+            </div>
+        </div>
+        {{-- faq end --}}
 
 
         <!-- Footer Start -->
@@ -784,6 +959,7 @@
                         <a class="btn btn-link" href="#contact">Contact Us</a>
                         <a class="btn btn-link" href="{{ route('privacypolicy') }}">Privacy Policy</a>
                         <a class="btn btn-link" href="{{ route('termsandconditions') }}">Terms & Condition</a>
+                        <a class="btn btn-link" href="{{ route('faq') }}">FAQ</a>
                     </div>
 
                     <div class="col-md-6 col-lg-3">
@@ -791,11 +967,12 @@
                         <p>Raise your inbox with exclusive insights and product updates—subscribe now for a front-row
                             seat to innovation</p>
                         <div class="position-relative w-100 mt-3">
-                            <form action="{{ route('admin.new') }}" method="get">
+                            <form action="{{ route('admin.new') }}" class="bj-landing-forms" method="post">
                                 @csrf
                                 <input type="hidden" name="subscribe" value="yes">
                                 <input class="form-control border-0 rounded-pill w-100 ps-4 pe-5" type="email"
                                     placeholder="Your Email" name="email" style="height: 48px;">
+                                <span class="error-msg" id="error-email" style="color: red"></span>
                                 <button type="submit"
                                     class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i
                                         class="fa fa-paper-plane text-primary-gradient fs-4"></i></button>
@@ -839,12 +1016,13 @@
         </a> --}}
     </div>
 
+    @include('modal')
+
     <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
+    <script src="{{ asset('admin/js/bootstrap.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="{{ asset('landing/lib/wow/wow.min.js') }}"></script>
     <script src="{{ asset('landing/lib/easing/easing.min.js') }}"></script>
     <script src="{{ asset('landing/lib/waypoints/waypoints.min.js') }}"></script>
@@ -853,6 +1031,17 @@
 
     <!-- Template Javascript -->
     <script src="{{ asset('landing/js/main.js') }}"></script>
+
+    <script>
+        $('.card-collapse').on('show.bs.collapse', function() {
+            $(this).siblings('.card-header').addClass('active');
+        });
+
+        $('.card-collapse').on('hide.bs.collapse', function() {
+            $(this).siblings('.card-header').removeClass('active');
+        });
+    </script>
+
     @if (Session::has('success'))
         <script>
             var msg = "{{ Session::get('success') }}";
@@ -876,7 +1065,108 @@
                     $(this).val(inputValue.replace(/\D/g, ''));
                 }
             });
+
+
+            $('form.bj-landing-forms').submit(function(event) {
+                event.preventDefault();
+                $('.error-msg').text('');
+                var this_form = $(this); // Capture form context
+                var formData = new FormData(this); // Create FormData from the form
+                var action = $(this).attr('action'); // Get the form action URL
+
+                grecaptcha.ready(function() {
+                    var recaptchaSiteKey = "{{ env('RECAPTCHA_SITE_KEY') }}";
+                    grecaptcha.execute(recaptchaSiteKey, {
+                            action: 'submit'
+                        })
+                        .then(function(token) {
+                            // Append reCAPTCHA response token to formData
+                            formData.append('g-recaptcha-response', token);
+
+                            // Now that the token is appended, send the AJAX request
+                            $.ajax({
+                                type: 'POST',
+                                url: action,
+                                data: formData,
+                                processData: false, // Don't process the data (important for FormData)
+                                contentType: false, // Don't set contentType (important for FormData)
+                                success: function(response) {
+                                    // Handle the server response
+                                    if (response.status == 200) {
+                                        toastr.success(response.message);
+                                        this_form[0].reset();
+                                    } else if (response.status == 500) {
+                                        toastr.error(response.message);
+                                    } else {
+                                        toastr.error('Something went wrong!');
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.log(xhr.responseText);
+                                    if (xhr.status === 422) {
+                                        var errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            $(this_form).find('#error-' +
+                                                key).text(value[
+                                                0]);
+                                        });
+                                    } else {
+                                        var errorMessage = "";
+                                        try {
+                                            var responseJSON = JSON.parse(xhr
+                                                .responseText);
+                                            errorMessage = responseJSON.message ||
+                                                "An error occurred";
+                                        } catch (e) {
+                                            errorMessage = "An error occurred";
+                                        }
+                                        toastr.error(errorMessage);
+                                    }
+                                }
+                            });
+                        })
+                        .catch(function(error) {
+                            console.error('reCAPTCHA execution error:', error);
+                            toastr.error("Failed to verify reCAPTCHA, please try again.");
+                        });
+                });
+            });
+
+
         });
+    </script>
+    <script>
+        function setCookie(cname, cvalue, exdays) {
+            const d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(name) === 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function checkCookie() {
+            let popup = getCookie("Popup");
+            if (popup === "") {
+                setTimeout(function() {
+                    $('#modal').modal('show');
+                }, 10000); // 10 seconds
+                setCookie("Popup", 'yes', 1);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", checkCookie); // Ensure the checkCookie runs after DOM is loaded
     </script>
 </body>
 
