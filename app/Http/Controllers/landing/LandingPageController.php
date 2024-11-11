@@ -21,14 +21,15 @@ class LandingPageController extends Controller
  
         if (isset($request->subscribe)) {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
+                'email' => 'required|email|max:50',
             ]);
         } else {
             $validator = Validator::make($request->all(), [
-                'name' => 'required|alpha',
-                'email' => 'required|email',
+                'name' => 'required|alpha|max:30',
+                'email' => 'required|email|max:50',
+                'subject' => 'nullable|string|max:25' ,
                 'mobile_number' => 'required|digits_between:10,12',
-                'message' => 'required'
+                'message' => 'required|max:200'
             ]);
         }
 
