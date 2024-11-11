@@ -41,7 +41,7 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating">
-                                                    <input type="text" class="form-control" maxlength="12"
+                                                    <input type="text" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '');" maxlength="12"
                                                         id="mobile_number" name="mobile_number"
                                                         placeholder="Mobile number" required>
                                                     <label for="mobile_number">Mobile Number*</label>
@@ -52,7 +52,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="subject"
-                                                        name="subject" placeholder="Subject">
+                                                        name="subject" placeholder="Subject" maxlength="25">
                                                     <label for="subject">Subject</label>
                                                     <span class="error-msg" id="error-subject"
                                                         style="color: red"></span>
@@ -60,7 +60,7 @@
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating">
-                                                    <textarea class="form-control" placeholder="Leave a message here" id="message" name="message" style="height: 150px"></textarea>
+                                                    <textarea class="form-control" placeholder="Leave a message here" id="message" name="message" style="height: 150px" maxlength="200"></textarea>
                                                     <label for="message">Message*</label>
                                                     <span class="error-msg" id="error-message"
                                                         style="color: red"></span>

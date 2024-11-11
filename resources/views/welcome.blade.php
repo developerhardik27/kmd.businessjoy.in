@@ -142,8 +142,9 @@
                             <p class="text-white pb-3 animated slideInDown">Empower Your Business with Total Flexibility
                             </p>
                             <a href="#contact"
-                                class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill me-3 animated slideInLeft">Free
-                                Demo</a>
+                                class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill me-3 animated slideInLeft">
+                                Contact Us
+                            </a>
                             <!-- <a href="#contact"
                                 class="btn btn-secondary-gradient py-sm-3 px-4 px-sm-5 rounded-pill animated slideInRight">Contact
                                 Us</a> -->
@@ -205,9 +206,9 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#contact"
+                        {{-- <a href="#contact"
                             class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">Yes, I want to
-                            remove my business blockages!</a>
+                            remove my business blockages!</a> --}}
                     </div>
                     <div class="col-lg-5 display-flex">
                         <img class="img-fluid wow fadeInUp float-end img-2" data-wow-delay="0.5s"
@@ -250,9 +251,9 @@
                         <p><i class="fa fa-check text-primary-gradient me-3"></i>Genuine Standards</p>
                         <p class="mb-4"><i class="fa fa-check text-primary-gradient me-3"></i>Engaging and Clear UI
                             (user Interface) and UX (user experience)</p> --}}
-                        <a href="#contact"
+                        {{-- <a href="#contact"
                             class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">Smooth my business
-                            process</a>
+                            process</a> --}}
                     </div>
                 </div>
             </div>
@@ -447,14 +448,14 @@
                             retail to service-based businesses, Business Joy adapts seamlessly, making it ideal for any
                             industry.
                         </p>
-                        <div class="row g-4">
-                            <div class="col-sm-6  wow fadeIn" data-wow-delay="0.5s">
+                        <div class="col-lg-10 col-xl-8 text-center">
+                            <div class="wow fadeIn" data-wow-delay="0.5s">
                                 <div class="display-flex">
                                     <a href="#contact" class="d-flex bg-primary-gradient rounded py-3 px-4">
                                         <i class="fa fa-link fa-3x text-white flex-shrink-0"></i>
                                         <div class="ms-3">
-                                            <p class="text-white mb-0">Visit</p>
-                                            <h5 class="text-white mb-0">Business Joy</h5>
+                                            <p class="text-white mb-0">Yes!</p>
+                                            <h5 class="text-white mb-0">I am strongly interested</h5>
                                         </div>
                                     </a>
                                 </div>
@@ -804,9 +805,10 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" maxlength="12"
-                                                id="mobile_number" name="mobile_number" placeholder="Mobile number"
-                                                required>
+                                            <input type="text" class="form-control"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                                maxlength="12" id="mobile_number" name="mobile_number"
+                                                placeholder="Mobile number" required>
                                             <label for="mobile_number">Mobile Number*</label>
                                             <span class="error-msg" id="error-mobile_number"
                                                 style="color: red"></span>
@@ -815,7 +817,7 @@
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" id="subject" name="subject"
-                                                placeholder="Subject">
+                                                placeholder="Subject" maxlength="25">
                                             <label for="subject">Subject</label>
                                             <span class="error-msg" id="error-subject" style="color: red"></span>
                                         </div>
@@ -823,7 +825,7 @@
                                     <div class="col-12">
                                         <div class="form-floating">
                                             <textarea class="form-control" placeholder="Leave a message here" id="message" name="message"
-                                                style="height: 150px"></textarea>
+                                                style="height: 150px" maxlength="200"></textarea>
                                             <label for="message">Message*</label>
                                             <span class="error-msg" id="error-message" style="color: red"></span>
                                         </div>
