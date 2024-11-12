@@ -103,8 +103,8 @@
         <!-- Navbar & Hero End -->
 
         <div>
-            <div class="row mt-0">
-                <div class="col-sm-12  d-flex   justify-content-center align-items-center">
+            <div class="m-0 row">
+                <div class="col-sm-12 d-flex text-center justify-content-center align-items-center">
                     <h2 style="font-size:50px">Privacy And Policy</h2>
                 </div>
             </div>
@@ -287,7 +287,7 @@
                                 MNC</a> --}}
                         </div>
                         <div class="col-md-6 text-center text-md-end">
-                            <div class="footer-menu">
+                            <div class="footer-menu custom-display-flex">
                                 <a href="/">Home</a>
                                 <a href="{{route('faq')}}">FAQs</a>
                                 <a href="{{ route('termsandconditions') }}">Terms & Conditions</a>

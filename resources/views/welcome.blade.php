@@ -995,7 +995,7 @@
                                 MNC</a> --}}
                         </div>
                         <div class="col-md-6 text-center text-md-end">
-                            <div class="footer-menu">
+                            <div class="footer-menu custom-display-flex">
                                 <a href="#home">Home</a>
                                 <a href="{{ route('faq') }}">FAQs</a>
                                 <a href="{{ route('termsandconditions') }}">Terms & Conditions</a>

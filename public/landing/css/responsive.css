@@ -32,7 +32,6 @@
 
   .container-xxl {
     margin: 0 !important;
-    padding-bottom: 0 !important;
   }
 
   .card-header button::before {
@@ -45,6 +44,13 @@
 
   .form-floating>label {
     padding: 8px !important;
+  }
+
+  .custom-display-flex {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
   }
 }
 
@@ -86,7 +92,6 @@
 
   .container-xxl {
     margin: 0 !important;
-    padding-bottom: 0 !important;
   }
 
   .card-header button::before {
@@ -107,7 +112,7 @@
   #navbarLoginBtn {
     margin: 0 !important;
   }
- 
+
   .text-primary-gradient {
     text-align: center !important;
   }
@@ -128,10 +133,9 @@
 
   .container-xxl {
     margin: 0 !important;
-    padding-bottom: 0 !important;
   }
 
   .card-header button::before {
     right: 8px !important;
-  }   
+  }
 }
