@@ -943,6 +943,8 @@
                         {{-- <p><i class="fa fa-map-marker-alt me-3"></i>India</p>
                         <p><a href="tel:+917948558535" class="text-white"><i
                                     class="fa fa-phone-alt me-3"></i>+917948558535 </a></p> --}}
+                        <p><a href="mailto:inquiry@businessjoy.in" class="text-white"><i
+                                    class="fa fa-envelope me-3"></i>inquiry@businessjoy.in</a></p>
                         <p><a href="mailto:support@businessjoy.in" class="text-white"><i
                                     class="fa fa-envelope me-3"></i>support@businessjoy.in</a></p>
                         {{-- <div class="d-flex pt-2">
