@@ -38,6 +38,12 @@
     <style>
         .hero-header {
             margin-bottom: 0;
+            padding: 8rem 0 0 0;
+        }
+
+        .hero-header h1 {
+            position: relative;
+            top: -25px
         }
 
         button,
@@ -80,11 +86,24 @@
             float: right;
             transition: all 0.5s;
         }
+
+        @media (max-width: 1024px) {
+            .hero-header {
+                padding: 4rem 0 0 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-header h1 { 
+                top: -33px;
+                font-size: 22px;
+            }
+        }
     </style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
-    <div class="container-xxl bg-white p-0">
+    <div class="p-0">
         <!-- Spinner Start -->
         <div id="spinner"
             class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -96,7 +115,7 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0" id="home">
+        <div class="position-relative p-0" id="home">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
                 <a href="/" class="navbar-brand p-0">
                     <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
@@ -114,20 +133,13 @@
                 </div>
             </nav>
 
-            <div class="container-xxl bg-primary hero-header">
-
+            <div class="hero-header">
+                <div class="col-sm-12 text-center">
+                    <h1 class="text-white">Frequently Asked questions</h1>
+                </div>
             </div>
         </div>
         <!-- Navbar & Hero End -->
-
-
-
-
-        <div class="m-0 row">
-            <div class="col-sm-12 d-flex text-center justify-content-center align-items-center">
-                <h2 style="font-size:50px">Frequently Asked questions</h2>
-            </div>
-        </div>
 
 
         <div class="container mt-5">
@@ -419,11 +431,7 @@
         </div>
 
         <!-- Footer Start -->
-        <div class="container-fluid bg-primary text-light footer wow fadeIn" data-wow-delay="0.1s">
-            <div class="container py-5 px-lg-5">
-                <div class="row g-5">
-                </div>
-            </div>
+        <div class="p-0 text-light footer wow fadeIn" data-wow-delay="0.1s">
             <div class="container px-lg-5">
                 <div class="copyright">
                     <div class="row">

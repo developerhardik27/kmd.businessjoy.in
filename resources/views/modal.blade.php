@@ -60,7 +60,7 @@
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating">
-                                                    <textarea class="form-control" placeholder="Leave a message here" id="message" name="message" style="height: 150px" maxlength="200"></textarea>
+                                                    <textarea class="form-control" placeholder="Leave a message here" id="message" name="message" style="height: 150px" maxlength="1000"></textarea>
                                                     <label for="message">Message*</label>
                                                     <span class="error-msg" id="error-message"
                                                         style="color: red"></span>
