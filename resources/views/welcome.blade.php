@@ -7,8 +7,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Joy: Integrated CRM & ERP System </title>
+    <meta name="title" content="Business Joy - No-Code CRM & ERP | Custom Software Builder for Scalable Business Solutions">
     <meta name="description"
-        content="Discover how Business Joy CRM can streamline your customer relationship management with advanced modules for invoicing, lead management, customer support, and more.">
+        content="Build custom CRM and ERP solutions with Business Joy’s no-code app builder. Subscribe per module, create custom workflows, and scale your no-code app with ease. Perfect for 2024 business needs.">
     <meta name="keywords"
         content="CRM software, customer relationship management, invoicing, lead management, customer support, Business Joy,Enterprise Resource Planning Software, ERP Software">
     <meta name="robots" content="index, follow">
@@ -137,9 +138,8 @@
                 <div class="container px-lg-5">
                     <div class="row">
                         <div class="col-lg-7 text-center text-lg-start">
-                            <h1 class="text-white mb-4 animated slideInDown">The Ultimate Customizable ERP & CRM
-                                Solution</h1>
-                            <p class="text-white pb-3 animated slideInDown">Empower Your Business with Total Flexibility
+                            <h1 class="text-white mb-4 animated slideInDown">Your All-in-One No-Code App Builder for Custom CRM & ERP Solutions</h1>
+                            <p class="text-white pb-3 animated slideInDown">Create powerful business applications without coding. Customize workflows, manage processes, and scale with ease using Business Joy’s flexible modules.
                             </p>
                             <a href="#contact"
                                 class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill me-3 animated slideInLeft">
@@ -153,7 +153,7 @@
                             data-wow-delay="0.3s">
                             {{-- <div class=""> --}}
                             <img class="img-fluid" id="img1" src="{{ asset('landing/img/11.png') }}"
-                                alt="">
+                                alt="Business Joy No-Code App Builder">
                             {{-- </div> --}}
                             {{-- <div class="owl-carousel screenshot-carousel">
                                 <img class="img-fluid" src="{{asset('landing/img/screenshot-1.png')}}" alt="">
@@ -212,7 +212,7 @@
                     </div>
                     <div class="col-lg-5 display-flex">
                         <img class="img-fluid wow fadeInUp float-end img-2" data-wow-delay="0.5s"
-                            src="{{ asset('landing/img/2.png') }}">
+                            src="{{ asset('landing/img/2.png') }}" alt="Custom Workflow Creator">
                     </div>
                 </div>
             </div>
@@ -230,7 +230,7 @@
                     <div class="col-lg-4  mock-p-0 ps-0 d-flex justify-content-center justify-content-lg-end wow fadeInUp"
                         data-wow-delay="0.3s">
                         <div class="">
-                            <img class="img-fluid img-3" src="{{ asset('landing/img/3.png') }}" alt="">
+                            <img class="img-fluid img-3" src="{{ asset('landing/img/3.png') }}" alt="Scalable CRM Solution">
 
                         </div>
                     </div>
@@ -385,8 +385,9 @@
         <div class="py-5">
             <div class="container py-5 px-lg-5">
                 <div class="text-center pb-4 wow fadeInUp" data-wow-delay="0.1s">
-                    <h5 class="text-primary-gradient fw-medium">Cost-Efficient & Scalable</h5>
+                    <h5 class="text-primary-gradient fw-medium">No-Code CRM/ERP Solution</h5>
                     <h1 class="mb-5">Why Choose Business Joy?</h1>
+                    <p>Summarize Business Joy's unique benefits, emphasizing that it’s an affordable, scalable, no-code app solution that allows for quick customization and is designed for both small businesses and larger enterprises. Emphasize that Business Joy is a modern solution that fits well with 2024 trends in no-code app development.</p>
                 </div>
                 <div class="row gy-5 gx-4 justify-content-center">
                     <div class="col-lg-4 col-sm-6 text-center pt-4 wow fadeInUp" data-wow-delay="0.1s">
@@ -395,10 +396,8 @@
                                 style="width: 100px; height: 100px;">
                                 <i class="fa fa-edit fa-3x text-white"></i>
                             </div>
-                            <h5 class="mt-4 mb-3">Total Customization</h5>
-                            <p class="mb-0">Tailor every module and feature to fit your specific business
-                                requirements. With Business Joy, you're not just getting software; you're getting a
-                                solution that evolves with you.
+                            <h5 class="mt-4 mb-3">Affordable modular design</h5>
+                            <p class="mb-0">Start with essential modules and add as needed.
                             </p>
                         </div>
                     </div>
@@ -408,9 +407,8 @@
                                 style="width: 100px; height: 100px;">
                                 <i class="fa fa-mobile-alt fa-3x text-white"></i>
                             </div>
-                            <h5 class="mt-4 mb-3">User-Friendly Interface</h5>
-                            <p class="mb-0">Our intuitive design makes it easy for any team member to dive in, manage
-                                tasks, and stay productive without steep learning curves.
+                            <h5 class="mt-4 mb-3">Easy-to-use no-code platform </h5>
+                            <p class="mb-0">Custom software without programming.
                             </p>
                             <br>
                         </div>
@@ -421,9 +419,9 @@
                                 style="width: 100px; height: 100px;">
                                 <i class="fa fa-plug fa-3x text-white"></i>
                             </div>
-                            <h5 class="mt-4 mb-3">Seamless Integration</h5>
-                            <p class="mb-0">Compatible with your existing tools and workflows, Business Joy easily
-                                integrates with your favorite applications, making data accessible and actionable. </p>
+                            <h5 class="mt-4 mb-3">Scalable no-code app solution </h5>
+                            <p class="mb-0">Adapt as your business grows and needs change.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -775,15 +773,13 @@
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Get In Touch!</h5>
                     {{-- <h1 class="mb-5">Get In Touch!</h1> --}}
-                    <h1 class="mb-3">Ready to Transform Your Business?
+                    <h1 class="mb-3">Ready to Build Your No-Code CRM & ERP Solution?
                     </h1>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
                         <div class="wow fadeInUp" data-wow-delay="0.3s">
-                            <p class="text-center">Experience the power of a truly customizable CRM and ERP solution
-                                with Business Joy. Sign up now to be the first to access exclusive features and join the
-                                businesses that are redefining productivity and growth.</p>
+                            <p class="text-center">Join hundreds of businesses creating custom workflows, managing operations, and scaling effortlessly with Business Joy. Try it free and discover how easy it is to build a no-code CRM and ERP that’s uniquely yours.</p>
                             <form action="{{ route('admin.new') }}" class="bj-landing-forms" method="Post">
                                 @csrf
                                 <div class="row g-3">
