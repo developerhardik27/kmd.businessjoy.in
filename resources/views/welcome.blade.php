@@ -92,7 +92,7 @@
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
-    <div class="container-xxl bg-white p-0">
+    <div class="bg-white p-0">
         <!-- Spinner Start -->
         <div id="spinner"
             class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -104,7 +104,7 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0" id="home">
+        <div class="position-relative p-0" id="home">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
                 <a href="" class="navbar-brand p-0">
                     <!-- <h1 class="m-0">FitApp</h1> -->
@@ -133,7 +133,7 @@
                 </div>
             </nav>
 
-            <div class="container-xxl bg-primary hero-header">
+            <div class="hero-header">
                 <div class="container px-lg-5">
                     <div class="row">
                         <div class="col-lg-7 text-center text-lg-start">
@@ -171,7 +171,7 @@
 
 
         <!-- About Start -->
-        <div class="container-xxl py-5" id="customsoftwaebuilder">
+        <div class="py-5" id="customsoftwaebuilder">
             <div class="container py-5 px-lg-5">
                 <div class="row g-5 align-items-center">
                     <div class="col-lg-7 wow fadeInUp" data-wow-delay="0.1s">
@@ -224,7 +224,7 @@
 
 
         <!-- Screenshot Start -->
-        <div class="container-xxl py-5" id="solution">
+        <div class="py-5" id="solution">
             <div class="container py-5 px-lg-5">
                 <div class="row g-5 align-items-center">
                     <div class="col-lg-4  mock-p-0 ps-0 d-flex justify-content-center justify-content-lg-end wow fadeInUp"
@@ -261,7 +261,7 @@
         <!-- Screenshot End -->
 
         <!-- Features Start -->
-        <div class="container-xxl py-5" id="modules">
+        <div class="py-5" id="modules">
             <div class="container py-5 px-lg-5">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Business Joy Features</h5>
@@ -382,7 +382,7 @@
         </div>
         <!-- Features End -->
         <!-- Process Start -->
-        <div class="container-xxl py-5">
+        <div class="py-5">
             <div class="container py-5 px-lg-5">
                 <div class="text-center pb-4 wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Cost-Efficient & Scalable</h5>
@@ -433,7 +433,7 @@
 
 
         <!-- Download Start -->
-        <div class="container-xxl py-5" id="joinus">
+        <div class="py-5" id="joinus">
             <div class="container py-5 px-lg-5">
                 <div class="row g-5 align-items-center">
                     <div class="col-lg-6 ps-0  mock-p-0">
@@ -448,7 +448,7 @@
                             retail to service-based businesses, Business Joy adapts seamlessly, making it ideal for any
                             industry.
                         </p>
-                        <div class="col-lg-10 col-xl-8 text-center">
+                        <div class="col-lg-10 col-xl-8 text-start">
                             <div class="wow fadeIn" data-wow-delay="0.5s">
                                 <div class="display-flex">
                                     <a href="#contact" class="d-flex bg-primary-gradient rounded py-3 px-4">
@@ -478,7 +478,7 @@
 
 
         <!-- Pricing Start -->
-        <!-- <div class="container-xxl py-5" id="pricing">
+        <!-- <div class="py-5" id="pricing">
             <div class="container py-5 px-lg-5">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Pricing Plan</h5>
@@ -680,7 +680,7 @@
 
 
         <!-- Testimonial Start -->
-        <!-- <div class="container-xxl py-5" id="review">
+        <!-- <div class="py-5" id="review">
             <div class="container py-5 px-lg-5">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Testimonial</h5>
@@ -770,7 +770,7 @@
 
 
         <!-- Contact Start -->
-        <div class="container-xxl py-5" id="contact">
+        <div class="py-5" id="contact">
             <div class="container py-5 px-lg-5">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">Get In Touch!</h5>
@@ -825,7 +825,7 @@
                                     <div class="col-12">
                                         <div class="form-floating">
                                             <textarea class="form-control" placeholder="Leave a message here" id="message" name="message"
-                                                style="height: 150px" maxlength="200"></textarea>
+                                                style="height: 150px" maxlength="1000"></textarea>
                                             <label for="message">Message*</label>
                                             <span class="error-msg" id="error-message" style="color: red"></span>
                                         </div>
@@ -846,7 +846,7 @@
 
 
         {{-- faq start --}}
-        <div class="container-xxl py-5" id="contact">
+        <div class="py-5" id="contact">
             <div class="container py-5 px-lg-5">
                 <div class="row mt-0">
                     <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
