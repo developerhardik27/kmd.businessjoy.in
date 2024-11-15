@@ -286,7 +286,7 @@
                 <div class="col sm-12">
                     <h4>Governing Law</h4>
                     <p>
-                        These Terms shall be governed and construed in accordance with the laws of [Your Country/State],
+                        These Terms shall be governed and construed in accordance with the laws of India,
                         without regard to its conflict of law provisions.
                     </p>
                 </div>
@@ -311,7 +311,7 @@
                         <li>
                             <span>
                                 <b>Email </b>:
-                                <a href="mailto:support@businessjoy.in">support@businessjoy.in</a>
+                                <a href="mailto:support@businessjoy.in">support@businessjoy.in</a> / <a href="mailto:inquiry@businessjoy.in">inquiry@businessjoy.in</a>
                             </span>
                         </li>
                         {{-- <li>
