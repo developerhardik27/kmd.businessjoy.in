@@ -36,35 +36,55 @@
     <link href="{{ asset('landing/css/responsive.css') }}" rel="stylesheet">
 
     <style> 
-        .hero-header{
+         .hero-header {
             margin-bottom: 0;
+            padding: 8rem 0 0 0;
         }
+
+        .hero-header h1 {
+            position: relative;
+            top: -25px
+        }
+
         button ,.btn{
             text-transform: capitalize !important;
             letter-spacing: auto !important ; 
             font-weight: 400;
         }
 
-        div.container div {
+        div.content div {
             margin-top: 10px;
         }
 
-        div.container div p {
+        div.content div p {
             margin-top: 10px;
         }
 
-        div.container ul {
+        div.content ul {
             margin-top: 10px;
         }
 
-        div.container ul li {
+        div.content ul li {
             margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-header {
+                padding: 4rem 0 0 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-header h1 {
+                top: -33px;
+                font-size: 22px;
+            }
         }
     </style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
-    <div class="container-xxl bg-white p-0">
+    <div class="p-0">
         <!-- Spinner Start -->
         <div id="spinner"
             class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -76,7 +96,7 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0" id="home">
+        <div class="position-relative p-0" id="home">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
                 <a href="/" class="navbar-brand p-0">
                     <!-- <h1 class="m-0">FitApp</h1> -->
@@ -96,20 +116,16 @@
                 </div>
             </nav>
 
-            <div class="container-xxl bg-primary hero-header">
-
+            <div class="hero-header">
+                <div class="col-sm-12 d-flex text-center justify-content-center align-items-center">
+                    <h1 class="text-white">Privacy And Policy</h1>
+                </div>
             </div>
         </div>
         <!-- Navbar & Hero End -->
 
-        <div>
-            <div class="m-0 row">
-                <div class="col-sm-12 d-flex text-center justify-content-center align-items-center">
-                    <h2 style="font-size:50px">Privacy And Policy</h2>
-                </div>
-            </div>
-        </div>
-        <div class="container mt-5">
+        
+        <div class="container content mt-5">
             <div class="row">
                 <div class="col-sm-12">
                     <h6 class="font-weight-normal">Last updated: 2024-06-06</h6>
@@ -271,10 +287,6 @@
 
         <!-- Footer Start -->
         <div class="container-fluid bg-primary text-light footer wow fadeIn" data-wow-delay="0.1s">
-            <div class="container py-5 px-lg-5">
-                <div class="row g-5">
-                </div>
-            </div>
             <div class="container px-lg-5">
                 <div class="copyright">
                     <div class="row">
