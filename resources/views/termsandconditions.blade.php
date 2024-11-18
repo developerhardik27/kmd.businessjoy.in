@@ -64,6 +64,7 @@
 
         div.content ul {
             margin-top: 10px;
+            text-align: left;
         }
 
         div.content ul li {
@@ -138,7 +139,7 @@
                 <div class="col-sm-12">
                     <h6 class="font-weight-normal">Last updated: 2024-06-06</h6>
                     <h4>Introduction</h4>
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled text-center">
                         <li>
                             Welcome to <a href="/">Business Joy</a> . These Terms and Conditions ("Terms") govern
                             your access to and use of our CRM software and services, including all associated modules

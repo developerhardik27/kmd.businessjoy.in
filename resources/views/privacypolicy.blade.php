@@ -62,6 +62,7 @@
 
         div.content ul {
             margin-top: 10px;
+            text-align: left;
         }
 
         div.content ul li {
@@ -138,7 +139,7 @@
                 <div class="col-sm-12">
                     <h6 class="font-weight-normal">Last updated: 2024-06-06</h6>
                     <h4>Who we are</h4>
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled text-center">
                         <li>
                             Business Joy, your trusted CRM software solution. We are committed to protecting your
                             privacy and ensuring the security of your personal data. This Privacy Policy outlines how we
