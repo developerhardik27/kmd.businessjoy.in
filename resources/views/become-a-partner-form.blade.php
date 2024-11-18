@@ -107,185 +107,126 @@
         </div>
 
         <!-- Contact Start -->
-        <div class="mb-4" id="become-a-partner">
+        <div class="mb-5" id="become-a-partner">
             <div class="container px-lg-5">
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
                         <div class="wow fadeInUp" data-wow-delay="0.3s">
-                            <form action="{{ route('admin.storenewpartner') }}" method="Post" id="becomeAPartnerForm">
+                            <form action="{{ route('admin.storenewpartner') }}" class="bj-landing-forms" method="Post" id="becomeAPartnerForm">
                                 @csrf
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class(['form-control', 'is-invalid' => $errors->has('company_name')]) maxlength="30"
-                                                id="company_name" name="company_name" value="{{ old('company_name') }}"
-                                                placeholder="Company Name" required>
+                                            <input type="text" @class(['form-control']) maxlength="30"
+                                                id="company_name" name="company_name" placeholder="Company Name"
+                                                required>
                                             <label for="company_name">Company Name*</label>
-                                            @error('company_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_name" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('company_website'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control']) maxlength="50"
                                                 id="company_website" name="company_website"
-                                                value="{{ old('company_website') }}" placeholder="Company Website">
+                                                placeholder="Company Website">
                                             <label for="company_website">Company Website</label>
-                                            @error('company_website')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_website" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-floating">
-                                            <textarea @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('company_address'),
-                                            ]) placeholder="Company Address" id="company_address" name="company_address"
-                                                style="height: 150px">{{ old('company_address') }}</textarea>
+                                            <textarea @class(['form-control']) placeholder="Company Address" id="company_address" name="company_address"
+                                                style="height: 150px" maxlength="200"></textarea>
                                             <label for="company_address">Company Address</label>
-                                            @error('company_address')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_address" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class(['form-control', 'is-invalid' => $errors->has('company_area')]) maxlength="30"
-                                                id="company_area" name="company_area"
-                                                value="{{ old('company_area') }}" placeholder="Company Website">
+                                            <input type="text" @class(['form-control'])
+                                                id="company_area" name="company_area" placeholder="Company Area">
                                             <label for="company_area">Company Area</label>
-                                            @error('company_area')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_area" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('company_pincode'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control'])
                                                 id="company_pincode" name="company_pincode"
-                                                value="{{ old('company_pincode') }}" placeholder="Company Website">
+                                                placeholder="Company Pincode">
                                             <label for="company_pincode">Company Pincode</label>
-                                            @error('company_pincode')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_pincode" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class(['form-control', 'is-invalid' => $errors->has('company_city')]) maxlength="30"
-                                                id="company_city" name="company_city"
-                                                value="{{ old('company_city') }}" placeholder="Company Website">
+                                            <input type="text" @class(['form-control'])
+                                                id="company_city" name="company_city" placeholder="Company city">
                                             <label for="company_city">Company City</label>
-                                            @error('company_city')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_city" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('company_state'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control'])
                                                 id="company_state" name="company_state"
-                                                value="{{ old('company_state') }}" placeholder="Company Website">
+                                                placeholder="Company State">
                                             <label for="company_state">Company State</label>
-                                            @error('company_state')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_state" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('company_country'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control'])
                                                 id="company_country" name="company_country"
-                                                value="{{ old('company_country') }}" placeholder="Company Website">
+                                                placeholder="Company Country">
                                             <label for="company_country">Company Country</label>
-                                            @error('company_country')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_country" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('company_tax_identification_number'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control']) 
                                                 id="company_tax_identification_number"
                                                 name="company_tax_identification_number"
-                                                value="{{ old('company_tax_identification_number') }}"
-                                                placeholder="Company Website">
+                                                placeholder="Company Tac Identification Number">
                                             <label for="company_tax_identification_number">Company Tax Identification
                                                 Number</label>
-                                            @error('company_tax_identification_number')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-company_tax_identification_number" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('contact_person_name'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control'])
                                                 id="contact_person_name" name="contact_person_name"
-                                                value="{{ old('contact_person_name') }}"
-                                                placeholder="Company Website" required>
+                                                placeholder="Company Person Name" required>
                                             <label for="contact_person_name">Contact Person Name*</label>
-                                            @error('contact_person_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-contact_person_name" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="email" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('contact_person_email'),
-                                            ]) maxlength="30"
+                                            <input type="email" @class(['form-control'])
                                                 id="contact_person_email" name="contact_person_email"
-                                                value="{{ old('contact_person_email') }}"
-                                                placeholder="Company Website" required>
+                                                placeholder="Company Person Email" required>
                                             <label for="contact_person_email">Contact Person Email*</label>
-                                            @error('contact_person_email')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-contact_person_email" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
-                                            <input type="text" @class([
-                                                'form-control',
-                                                'is-invalid' => $errors->has('contact_person_mobile_number'),
-                                            ]) maxlength="30"
+                                            <input type="text" @class(['form-control']) 
                                                 id="contact_person_mobile_number" name="contact_person_mobile_number"
-                                                value="{{ old('contact_person_mobile_number') }}"
-                                                placeholder="Company Website" required>
+                                                placeholder="Contact Person Mobile Number" required>
                                             <label for="contact_person_mobile_number">Contact Person Mobile
                                                 Number*</label>
-                                            @error('contact_person_mobile_number')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <span class="error-msg" id="error-contact_person_mobile_number" style="color: red"></span>
                                         </div>
                                     </div>
                                     <div class="col-12 text-center">
                                         <button id="submitBtn"
                                             class="btn btn-primary-gradient rounded-pill fs-5 py-3 px-5"
-                                            type="submit">Submit</button>
-                                        <span id="waitingBtn" class="btn btn-primary-gradient rounded-pill">Please
-                                            Wait...</span>
+                                            type="submit">Submit</button> 
                                     </div>
                                 </div>
                             </form>
@@ -421,19 +362,7 @@
     @endif
     <script>
         $("document").ready(function() {
-
-
-            if ($('.is-invalid').length) {
-                // Scroll the first invalid field into view
-                $('html, body').animate({
-                    scrollTop: $('.is-invalid').first().offset().top -
-                        100 // Adjust scroll position to bring field into view (you can change the -100 value if needed)
-                }, 500); // Scroll speed in milliseconds
-            }
-
-            $('#submitBtn').show();
-            $('#waitingBtn').hide();
-
+  
             $('#contact_person_mobile_number').on('input', function() {
                 var inputValue = $(this).val();
                 var digitOnlyRegex = /^\d*$/; // Regular expression to allow only digits
@@ -442,13 +371,7 @@
                     // Remove non-digit characters from the input
                     $(this).val(inputValue.replace(/\D/g, ''));
                 }
-            });
-
-            $('#becomeAPartnerForm').on('submit', function() {
-                $('#submitBtn').hide();
-                $('#waitingBtn').show();
-            });
-
+            }); 
 
             $('form.bj-landing-forms').submit(function(event) {
                 event.preventDefault();
