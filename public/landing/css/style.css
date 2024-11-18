@@ -160,7 +160,7 @@ h6,
     font-weight: 500;
     color: var(--dark) !important;
     outline: none;
-    transition: .5s;
+    /* transition: .5s; */
 }
 
 .navbar-light .navbar-nav .nav-link::before {
