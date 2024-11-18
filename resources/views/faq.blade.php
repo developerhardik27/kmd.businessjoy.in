@@ -91,7 +91,7 @@
             transition: all 0.5s;
         } 
 
-        
+
         .card-header{
             padding: 10px 0 10px 0 !important;
             text-align : left ;
@@ -130,7 +130,7 @@
 
         <!-- Navbar & Hero Start -->
         <div class="position-relative p-0" id="home">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+            <nav class="navbar navbar-expand-lg navbar-light justify-content-center px-4 px-lg-5 py-3 py-lg-0">
                 <a href="/" class="navbar-brand p-0">
                     <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
                 </a> 

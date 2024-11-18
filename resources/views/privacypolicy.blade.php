@@ -71,11 +71,7 @@
 
         .footer{
             margin-top: 10px ;
-        }
-
-        button.navbar-toggler {
-            display: none;
-        }
+        } 
 
         @media (max-width: 1024px) {
             .hero-header {
@@ -106,23 +102,11 @@
 
         <!-- Navbar & Hero Start -->
         <div class="position-relative p-0" id="home">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+            <nav class="navbar navbar-expand-lg navbar-light justify-content-center px-4 px-lg-5 py-3 py-lg-0">
                 <a href="/" class="navbar-brand p-0">
                     <!-- <h1 class="m-0">FitApp</h1> -->
                     <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto py-0">
-                        
-                    </div>
-                    <a href="{{ route('admin.login') }}"
-                        class="btn btn-primary-gradient rounded-pill py-2 px-4 ms-3 d-none d-lg-block">
-                        Login</a>
-                </div>
+                </a> 
             </nav>
 
             <div class="hero-header">
