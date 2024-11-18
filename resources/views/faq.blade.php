@@ -87,6 +87,14 @@
             transition: all 0.5s;
         }
 
+        .footer{
+            margin-top: 10px ;
+        }
+
+        button.navbar-toggler {
+            display: none;
+        }
+
         @media (max-width: 1024px) {
             .hero-header {
                 padding: 4rem 0 0 0;

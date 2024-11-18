@@ -7,7 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Joy: Integrated CRM & ERP System </title>
-    <meta name="title" content="Business Joy - No-Code CRM & ERP | Custom Software Builder for Scalable Business Solutions">
+    <meta name="title"
+        content="Business Joy - No-Code CRM & ERP | Custom Software Builder for Scalable Business Solutions">
     <meta name="description"
         content="Build custom CRM and ERP solutions with Business Joy’s no-code app builder. Subscribe per module, create custom workflows, and scale your no-code app with ease. Perfect for 2024 business needs.">
     <meta name="keywords"
@@ -88,6 +89,10 @@
             float: right;
             transition: all 0.5s;
         }
+
+        .grecaptcha-badge {
+            visibility: hidden !important;
+        }
     </style>
     <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 </head>
@@ -138,8 +143,11 @@
                 <div class="container px-lg-5">
                     <div class="row">
                         <div class="col-lg-7 text-center text-lg-start">
-                            <h1 class="text-white mb-4 animated slideInDown">Your All-in-One No-Code App Builder for Custom CRM & ERP Solutions</h1>
-                            <p class="text-white pb-3 animated slideInDown">Create powerful business applications without coding. Customize workflows, manage processes, and scale with ease using Business Joy’s flexible modules.
+                            <h1 class="text-white mb-4 animated slideInDown">Your All-in-One No-Code App Builder for
+                                Custom CRM & ERP Solutions</h1>
+                            <p class="text-white pb-3 animated slideInDown">Create powerful business applications
+                                without coding. Customize workflows, manage processes, and scale with ease using
+                                Business Joy’s flexible modules.
                             </p>
                             <a href="#contact"
                                 class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill me-3 animated slideInLeft">
@@ -173,7 +181,7 @@
         <!-- About Start -->
         <div class="py-5" id="customsoftwaebuilder">
             <div class="container py-5 px-lg-5">
-                <div class="row g-5 align-items-center">
+                <div class="row align-items-center">
                     <div class="col-lg-7 wow fadeInUp" data-wow-delay="0.1s">
                         <h5 class="text-primary-gradient fw-medium">Your business problem</h5>
                         <h1 class="mb-4">Customizable Software Builder</h1>
@@ -226,11 +234,12 @@
         <!-- Screenshot Start -->
         <div class="py-5" id="solution">
             <div class="container py-5 px-lg-5">
-                <div class="row g-5 align-items-center">
+                <div class="row  align-items-center">
                     <div class="col-lg-4  mock-p-0 ps-0 d-flex justify-content-center justify-content-lg-end wow fadeInUp"
                         data-wow-delay="0.3s">
                         <div class="">
-                            <img class="img-fluid img-3" src="{{ asset('landing/img/3.png') }}" alt="Scalable CRM Solution">
+                            <img class="img-fluid img-3" src="{{ asset('landing/img/3.png') }}"
+                                alt="Scalable CRM Solution">
 
                         </div>
                     </div>
@@ -387,7 +396,10 @@
                 <div class="text-center pb-4 wow fadeInUp" data-wow-delay="0.1s">
                     <h5 class="text-primary-gradient fw-medium">No-Code CRM/ERP Solution</h5>
                     <h1 class="mb-5">Why Choose Business Joy?</h1>
-                    <p>Summarize Business Joy's unique benefits, emphasizing that it’s an affordable, scalable, no-code app solution that allows for quick customization and is designed for both small businesses and larger enterprises. Emphasize that Business Joy is a modern solution that fits well with 2024 trends in no-code app development.</p>
+                    <p>Summarize Business Joy's unique benefits, emphasizing that it’s an affordable, scalable, no-code
+                        app solution that allows for quick customization and is designed for both small businesses and
+                        larger enterprises. Emphasize that Business Joy is a modern solution that fits well with 2024
+                        trends in no-code app development.</p>
                 </div>
                 <div class="row gy-5 gx-4 justify-content-center">
                     <div class="col-lg-4 col-sm-6 text-center pt-4 wow fadeInUp" data-wow-delay="0.1s">
@@ -433,7 +445,7 @@
         <!-- Download Start -->
         <div class="py-5" id="joinus">
             <div class="container py-5 px-lg-5">
-                <div class="row g-5 align-items-center">
+                <div class="row align-items-center">
                     <div class="col-lg-6 ps-0  mock-p-0">
                         <img class="img-fluid wow fadeInUp img-4" data-wow-delay="0.1s"
                             src="{{ asset('landing/img/4.png') }}">
@@ -779,7 +791,9 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
                         <div class="wow fadeInUp" data-wow-delay="0.3s">
-                            <p class="text-center">Join hundreds of businesses creating custom workflows, managing operations, and scaling effortlessly with Business Joy. Try it free and discover how easy it is to build a no-code CRM and ERP that’s uniquely yours.</p>
+                            <p class="text-center">Join hundreds of businesses creating custom workflows, managing
+                                operations, and scaling effortlessly with Business Joy. Try it free and discover how
+                                easy it is to build a no-code CRM and ERP that’s uniquely yours.</p>
                             <form action="{{ route('admin.new') }}" class="bj-landing-forms" method="Post">
                                 @csrf
                                 <div class="row g-3">
@@ -896,15 +910,15 @@
                                     <button class="btn btn-link btn-block text-left collapsed" type="button"
                                         data-toggle="collapse" data-target="#collapseThree" aria-expanded="false"
                                         aria-controls="collapseThree">
-                                        3. Is Business Joy suitable for small businesses?
+                                        3. Is businessjoy suitable for any size of business?
                                     </button>
                                 </h2>
                             </div>
                             <div id="collapseThree" class="collapse card-collapse" aria-labelledby="headingThree"
                                 data-parent="#accordionExample">
                                 <div class="card-body">
-                                    Yes! Business Joy is designed to be cost-effective and adaptable, making it a
-                                    perfect fit for small to medium-sized businesses.
+                                    Yes! Business Joy is designed to be cost-effective and
+                                    adaptable, making it a perfect fit for small to large-sized businesses.
                                 </div>
                             </div>
                         </div>
@@ -922,8 +936,7 @@
         <!-- Footer Start -->
         <div class="container-fluid bg-primary text-light footer wow fadeIn" data-wow-delay="0.1s">
             <div class="container py-5 px-lg-5">
-                <div class="row g-5">
-
+                <div class="row">
                     <div class="col-md-6 col-lg-3">
                         <!-- <h4 class="text-white mb-4">Popular Link</h4>
                         <a class="btn btn-link" href="">About Us</a>
@@ -1074,6 +1087,10 @@
                 var formData = new FormData(this); // Create FormData from the form
                 var action = $(this).attr('action'); // Get the form action URL
 
+                var submitBtn = this_form.find("input[type='submit'], button[type='submit']")
+                // disable submit buttons during AJAX request
+                submitBtn.prop('disabled', true); // disable submit btn
+
                 grecaptcha.ready(function() {
                     var recaptchaSiteKey = "{{ env('RECAPTCHA_SITE_KEY') }}";
                     grecaptcha.execute(recaptchaSiteKey, {
@@ -1100,6 +1117,7 @@
                                     } else {
                                         toastr.error('Something went wrong!');
                                     }
+                                    submitBtn.prop('disabled', false);
                                 },
                                 error: function(xhr, status, error) {
                                     console.log(xhr.responseText);
@@ -1122,6 +1140,7 @@
                                         }
                                         toastr.error(errorMessage);
                                     }
+                                    submitBtn.prop('disabled', false);
                                 }
                             });
                         })
