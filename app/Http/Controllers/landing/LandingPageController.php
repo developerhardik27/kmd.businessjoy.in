@@ -18,7 +18,7 @@ class LandingPageController extends Controller
 {
     public function new(Request $request)
     {
- 
+
         if (isset($request->subscribe)) {
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email|max:50',
@@ -27,7 +27,7 @@ class LandingPageController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|alpha|max:30',
                 'email' => 'required|email|max:50',
-                'subject' => 'nullable|alpha|max:25' ,
+                'subject' => 'nullable|alpha|max:25',
                 'mobile_number' => 'required|digits_between:10,12',
                 'message' => 'required|max:200'
             ]);
@@ -41,7 +41,7 @@ class LandingPageController extends Controller
             ], 422);
         } else {
 
-           
+
             // Get the reCAPTCHA response token
             $recaptchaResponse = $request->input('g-recaptcha-response');
 
@@ -51,7 +51,7 @@ class LandingPageController extends Controller
                     'message' => 'reCAPTCHA response is missing.',
                 ], 500);
             }
-              
+
             $secretKey = env('RECAPTCHA_SECRET_KEY'); // Get the secret key from .env file
 
             // Send a request to Google's reCAPTCHA API to verify the token
@@ -63,7 +63,7 @@ class LandingPageController extends Controller
                 ],
             ]);
 
-            $data = json_decode($response->getBody()->getContents()); 
+            $data = json_decode($response->getBody()->getContents());
 
             if ($data->success && $data->score >= 0.7) {
 
@@ -96,11 +96,11 @@ class LandingPageController extends Controller
                         ->get();
 
 
-                    if (count($checkoldrec) > 1) { 
+                    if (count($checkoldrec) > 1) {
                         return response()->json([
                             'status' => 500,
                             'message' => 'You are already subscribed!.',
-                        ], 500); 
+                        ], 500);
                     }
 
 
@@ -129,19 +129,19 @@ class LandingPageController extends Controller
 
 
                     $user = 'oceanmnc1512@gmail.com';
-                    Mail::to($request->email)->bcc('parthdeveloper9@gmail.com')->send(new ThankYouMail($request));
-                    Mail::to($user)->bcc('parthdeveloper9@gmail.com')->send(new LandingPageMail($request));
+                    Mail::to($request->email)->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new ThankYouMail($request));
+                    Mail::to($user)->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new LandingPageMail($request));
 
                     return response()->json([
                         'status' => 200,
                         'message' => 'Your request successfully submitted.',
-                    ], 200); 
+                    ], 200);
 
                 } else {
-                     return response()->json([
+                    return response()->json([
                         'status' => 500,
                         'message' => 'Something went wrong! please try again some time later.',
-                    ], 500); 
+                    ], 500);
                 }
 
             }
@@ -174,49 +174,95 @@ class LandingPageController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withInput()->withErrors($validator);
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages()
+            ], 422);
         }
 
 
-        $checkEmail = bj_partner::where('contact_person_email', $request->contact_person_email)->exists();
-        $errors = [];
-        if ($checkEmail) {
-            $errors['contact_person_email'] = 'You have already requested for partnership. please contact to support.';
+
+        // Get the reCAPTCHA response token
+        $recaptchaResponse = $request->input('g-recaptcha-response');
+
+        if (empty($recaptchaResponse)) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'reCAPTCHA response is missing.',
+            ], 500);
         }
 
-        $checkMobileNumber = bj_partner::where('contact_person_mobile', $request->contact_person_mobile_number)->exists();
+        $secretKey = env('RECAPTCHA_SECRET_KEY'); // Get the secret key from .env file
 
-        if ($checkMobileNumber) {
-            $errors['contact_person_mobile_number'] = 'You have already requested for partnership. please contact to support.';
-        }
-
-        if (count($errors) > 0) {
-            Mail::to(env('MAIL_FROM_ADDRESS', 'businessjoy.in@gmail.com'))->bcc(['parthdeveloper9@gmail.com'])->send(new becomePartnerMail($request));
-            return redirect()->back()->withInput()->withErrors($errors);
-        }
-
-        $partner = bj_partner::create([
-            'company_name' => $request->company_name,
-            'company_website' => $request->company_website,
-            'company_address' => $request->company_address,
-            'company_area' => $request->company_area,
-            'company_pincode' => $request->company_pincode,
-            'company_city' => $request->company_city,
-            'company_state' => $request->company_state,
-            'company_country' => $request->company_country,
-            'company_tax_id_number' => $request->company_tax_identification_number,
-            'contact_person_name' => $request->contact_person_name,
-            'contact_person_email' => $request->contact_person_email,
-            'contact_person_mobile' => $request->contact_person_mobile_number,
+        // Send a request to Google's reCAPTCHA API to verify the token
+        $client = new Client();
+        $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
+            'form_params' => [
+                'secret' => $secretKey,
+                'response' => $recaptchaResponse,
+            ],
         ]);
 
-        if ($partner) {
-            Mail::to($request->contact_person_email)->bcc(['jay@oceanmnc.com', 'parthdeveloper9@gmail.com'])->send(new becomePartnerMail($request));
+        $data = json_decode($response->getBody()->getContents());
 
-            return redirect()->back()->with('success', 'Thank You! Your request succesfully submitted');
-        } else {
-            return redirect()->back()->with('error', 'Your request not succesfully submit');
+        if ($data->success && $data->score >= 0.7) {
+
+
+            $checkEmail = bj_partner::where('contact_person_email', $request->contact_person_email)->exists();
+            $errors = [];
+            if ($checkEmail) {
+                $errors['contact_person_email'] = 'You have already requested for partnership. please contact to support.';
+            }
+
+            $checkMobileNumber = bj_partner::where('contact_person_mobile', $request->contact_person_mobile_number)->exists();
+
+            if ($checkMobileNumber) {
+                $errors['contact_person_mobile_number'] = 'You have already requested for partnership. please contact to support.';
+            }
+
+            if (count($errors) > 0) {
+                Mail::to(env('MAIL_FROM_ADDRESS', 'businessjoy.in@gmail.com'))->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new becomePartnerMail($request));
+                return response()->json([
+                    'status' => 422,
+                    'errors' => $errors
+                ], 422);
+            }
+
+            $partner = bj_partner::create([
+                'company_name' => $request->company_name,
+                'company_website' => $request->company_website,
+                'company_address' => $request->company_address,
+                'company_area' => $request->company_area,
+                'company_pincode' => $request->company_pincode,
+                'company_city' => $request->company_city,
+                'company_state' => $request->company_state,
+                'company_country' => $request->company_country,
+                'company_tax_id_number' => $request->company_tax_identification_number,
+                'contact_person_name' => $request->contact_person_name,
+                'contact_person_email' => $request->contact_person_email,
+                'contact_person_mobile' => $request->contact_person_mobile_number,
+            ]);
+
+            if ($partner) {
+                Mail::to($request->contact_person_email)->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new becomePartnerMail($request));
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Thank You! Your request succesfully submitted',
+                ], 200); 
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Your request not succesfully submit',
+                ], 500);  
+            }
+
         }
+
+        // If verification fails, send an error response
+        return response()->json([
+            'status' => 500,
+            'message' => 'reCAPTCHA verification failed. Please try again.',
+        ]);
 
     }
 }
