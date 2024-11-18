@@ -27,7 +27,7 @@ class LandingPageController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|alpha|max:30',
                 'email' => 'required|email|max:50',
-                'subject' => 'nullable|string|max:25' ,
+                'subject' => 'nullable|alpha|max:25' ,
                 'mobile_number' => 'required|digits_between:10,12',
                 'message' => 'required|max:200'
             ]);

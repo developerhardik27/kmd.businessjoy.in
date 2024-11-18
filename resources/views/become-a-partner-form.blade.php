@@ -49,14 +49,38 @@
 
     <style>
         .hero-header {
-            margin: 0px;
+            margin-bottom: 0;
+            padding: 8rem 0 0 0;
+        }
+
+        .hero-header h1 {
+            position: relative;
+            top: -25px
+        }
+
+        @media (max-width: 1024px) {
+            .hero-header {
+                padding: 4rem 0 0 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-header h1 {
+                top: -33px;
+                font-size: 22px;
+            }
+        }
+
+        .grecaptcha-badge {
+            visibility: hidden !important;
         }
     </style>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
-    <div class="container-xxl bg-white p-0">
+    <div class="p-0">
         <!-- Spinner Start -->
         <div id="spinner"
             class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -68,54 +92,34 @@
 
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0" id="home">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+        <div class="position-relative p-0" id="home">
+            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0 justify-content-center">
                 <a href="" class="navbar-brand p-0">
                     <!-- <h1 class="m-0">FitApp</h1> -->
                     <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto py-0">
-                        <a href="#home" id="hometab" class="nav-item nav-link active">Home</a>
-                        <a href="#about" class="nav-item nav-link">Business Problem</a>
-                        <a href="#solution" class="nav-item nav-link">Solution</a>
-                        <a href="#feature" class="nav-item nav-link">Feature</a>
-                        <!-- <a href="#pricing" class="nav-item nav-link">Pricing</a>
-                        <a href="#review" class="nav-item nav-link">Review</a> -->
-                        <a href="#joinus" class="nav-item nav-link">Join Us</a>
-                        <a href="#contact" class="nav-item nav-link">Contact</a>
-                    </div>
-                    <a href="{{ route('admin.login') }}"
-                        class="btn btn-primary-gradient d-lg-block m-sm-0 ms-3 px-4 px-lg-4 px-sm-3 py-2 py-md-1 py-sm-1 rounded-pill">
-                        Login</a>
-                </div>
             </nav>
-            <div class="container-xxl bg-primary hero-header">
+            <div class="hero-header">
+                <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                    <h1 class="mb-5 text-white">Become a Partner</h1>
+                </div>
             </div>
         </div>
 
         <!-- Contact Start -->
-        <div class="container-xxl" id="become-a-partner">
+        <div class="mb-4" id="become-a-partner">
             <div class="container px-lg-5">
-                <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
-                    <h1 class="mb-5">Become a Partner</h1>
-                </div>
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
                         <div class="wow fadeInUp" data-wow-delay="0.3s">
-                            <form action="{{ route('admin.storenewpartner') }}" method="Post"
-                                id="becomeAPartnerForm">
+                            <form action="{{ route('admin.storenewpartner') }}" method="Post" id="becomeAPartnerForm">
                                 @csrf
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" @class(['form-control', 'is-invalid' => $errors->has('company_name')]) maxlength="30"
-                                                id="company_name" name="company_name"
-                                                value="{{ old('company_name') }}" placeholder="Company Name" required>
+                                                id="company_name" name="company_name" value="{{ old('company_name') }}"
+                                                placeholder="Company Name" required>
                                             <label for="company_name">Company Name*</label>
                                             @error('company_name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -313,6 +317,8 @@
                         {{-- <p><i class="fa fa-map-marker-alt me-3"></i>India</p>
                         <p><a href="tel:+917948558535" class="text-white"><i
                                     class="fa fa-phone-alt me-3"></i>+917948558535 </a></p> --}}
+                        <p><a href="mailto:inquiry@businessjoy.in" class="text-white"><i
+                                    class="fa fa-envelope me-3"></i>inquiry@businessjoy.in</a></p>
                         <p><a href="mailto:support@businessjoy.in" class="text-white"><i
                                     class="fa fa-envelope me-3"></i>support@businessjoy.in</a></p>
                         {{-- <div class="d-flex pt-2">
@@ -328,7 +334,7 @@
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <h4 class="text-white mb-4">Quick Link</h4>
-                        <a class="btn btn-link" href="#contact">Contact Us</a>
+                        <a class="btn btn-link" href="{{ route('faq') }}">FAQ</a>
                         <a class="btn btn-link" href="{{ route('privacypolicy') }}">Privacy Policy</a>
                         <a class="btn btn-link" href="{{ route('termsandconditions') }}">Terms & Condition</a>
                     </div>
@@ -338,11 +344,12 @@
                         <p>Raise your inbox with exclusive insights and product updates—subscribe now for a front-row
                             seat to innovation</p>
                         <div class="position-relative w-100 mt-3">
-                            <form action="{{ route('admin.new') }}" method="get">
+                            <form action="{{ route('admin.new') }}" class="bj-landing-forms" method="post">
                                 @csrf
                                 <input type="hidden" name="subscribe" value="yes">
                                 <input class="form-control border-0 rounded-pill w-100 ps-4 pe-5" type="email"
                                     placeholder="Your Email" name="email" style="height: 48px;">
+                                <span class="error-msg" id="error-email" style="color: red"></span>
                                 <button type="submit"
                                     class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i
                                         class="fa fa-paper-plane text-primary-gradient fs-4"></i></button>
@@ -364,7 +371,7 @@
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
-                                <a href="#home">Home</a>
+                                {{-- <a href="#home">Home</a> --}}
                                 <a href="{{ route('faq') }}">FAQs</a>
                                 <a href="{{ route('termsandconditions') }}">Terms & Conditions</a>
                                 <a href="{{ route('privacypolicy') }}">Privacy Policy</a>
@@ -417,11 +424,12 @@
 
 
             if ($('.is-invalid').length) {
-            // Scroll the first invalid field into view
-            $('html, body').animate({
-                scrollTop: $('.is-invalid').first().offset().top - 100  // Adjust scroll position to bring field into view (you can change the -100 value if needed)
-            }, 500);  // Scroll speed in milliseconds
-        }
+                // Scroll the first invalid field into view
+                $('html, body').animate({
+                    scrollTop: $('.is-invalid').first().offset().top -
+                        100 // Adjust scroll position to bring field into view (you can change the -100 value if needed)
+                }, 500); // Scroll speed in milliseconds
+            }
 
             $('#submitBtn').show();
             $('#waitingBtn').hide();
@@ -439,6 +447,78 @@
             $('#becomeAPartnerForm').on('submit', function() {
                 $('#submitBtn').hide();
                 $('#waitingBtn').show();
+            });
+
+
+            $('form.bj-landing-forms').submit(function(event) {
+                event.preventDefault();
+                $('.error-msg').text('');
+                var this_form = $(this); // Capture form context
+                var formData = new FormData(this); // Create FormData from the form
+                var action = $(this).attr('action'); // Get the form action URL
+
+                var submitBtn = this_form.find("input[type='submit'], button[type='submit']")
+                // disable submit buttons during AJAX request
+                submitBtn.prop('disabled', true); // disable submit btn
+
+                grecaptcha.ready(function() {
+                    var recaptchaSiteKey = "{{ env('RECAPTCHA_SITE_KEY') }}";
+                    grecaptcha.execute(recaptchaSiteKey, {
+                            action: 'submit'
+                        })
+                        .then(function(token) {
+                            // Append reCAPTCHA response token to formData
+                            formData.append('g-recaptcha-response', token);
+
+                            // Now that the token is appended, send the AJAX request
+                            $.ajax({
+                                type: 'POST',
+                                url: action,
+                                data: formData,
+                                processData: false, // Don't process the data (important for FormData)
+                                contentType: false, // Don't set contentType (important for FormData)
+                                success: function(response) {
+                                    // Handle the server response
+                                    if (response.status == 200) {
+                                        toastr.success(response.message);
+                                        this_form[0].reset();
+                                    } else if (response.status == 500) {
+                                        toastr.error(response.message);
+                                    } else {
+                                        toastr.error('Something went wrong!');
+                                    }
+                                    submitBtn.prop('disabled', false);
+                                },
+                                error: function(xhr, status, error) {
+                                    console.log(xhr.responseText);
+                                    if (xhr.status === 422) {
+                                        var errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            $(this_form).find('#error-' +
+                                                key).text(value[
+                                                0]);
+                                        });
+                                    } else {
+                                        var errorMessage = "";
+                                        try {
+                                            var responseJSON = JSON.parse(xhr
+                                                .responseText);
+                                            errorMessage = responseJSON.message ||
+                                                "An error occurred";
+                                        } catch (e) {
+                                            errorMessage = "An error occurred";
+                                        }
+                                        toastr.error(errorMessage);
+                                    }
+                                    submitBtn.prop('disabled', false);
+                                }
+                            });
+                        })
+                        .catch(function(error) {
+                            console.error('reCAPTCHA execution error:', error);
+                            toastr.error("Failed to verify reCAPTCHA, please try again.");
+                        });
+                });
             });
 
         });
