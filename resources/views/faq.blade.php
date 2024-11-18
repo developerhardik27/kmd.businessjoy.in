@@ -36,6 +36,10 @@
     <link href="{{ asset('landing/css/responsive.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <style>
+        body {
+            text-align: center;
+        }
+
         .hero-header {
             margin-bottom: 0;
             padding: 8rem 0 0 0;
@@ -56,8 +60,7 @@
 
         .card-title>button,
         .card-title>button:active {
-            display: block;
-            padding: 15px;
+            display: block; 
             color: #555;
             font-size: 16px;
             font-weight: bold;
@@ -65,6 +68,7 @@
             letter-spacing: 1px;
             word-spacing: 3px;
             text-decoration: none;
+            text-align: left
         }
 
         .card-header button::before {
@@ -85,14 +89,16 @@
             /* Unicode for down arrow */
             float: right;
             transition: all 0.5s;
+        } 
+
+        
+        .card-header{
+            padding: 10px 0 10px 0 !important;
+            text-align : left ;
         }
 
-        .footer{
-            margin-top: 10px ;
-        }
-
-        button.navbar-toggler {
-            display: none;
+        .card-body{
+            text-align: left
         }
 
         @media (max-width: 1024px) {
@@ -102,7 +108,7 @@
         }
 
         @media (max-width: 480px) {
-            .hero-header h1 { 
+            .hero-header h1 {
                 top: -33px;
                 font-size: 22px;
             }
@@ -127,20 +133,8 @@
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
                 <a href="/" class="navbar-brand p-0">
                     <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto py-0">
-                    </div>
-                    <a href="{{ route('admin.login') }}"
-                        class="btn btn-primary-gradient rounded-pill py-2 px-4 ms-3 d-none d-lg-block">
-                        Login</a>
-                </div>
-            </nav>
-
+                </a> 
+            </nav> 
             <div class="hero-header">
                 <div class="col-sm-12 text-center">
                     <h1 class="text-white">Frequently Asked questions</h1>
@@ -150,7 +144,7 @@
         <!-- Navbar & Hero End -->
 
 
-        <div class="container mt-5">
+        <div class="container mt-5 mb-5">
             <p>
                 Welcome to the Business Joy FAQ page! Here you'll find answers to common questions about our CRM
                 software.
