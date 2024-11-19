@@ -144,7 +144,7 @@
         <!-- Navbar & Hero End -->
 
 
-        <div class="container mt-5 mb-5">
+        <div class="container my-5">
             <p>
                 Welcome to the Business Joy FAQ page! Here you'll find answers to common questions about our CRM
                 software.
