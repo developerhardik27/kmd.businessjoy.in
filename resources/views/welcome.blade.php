@@ -937,7 +937,7 @@
         <div class="container-fluid bg-primary text-light footer wow fadeIn" data-wow-delay="0.1s">
             <div class="container py-5 px-lg-5">
                 <div class="row">
-                    <div class="col-md-6 col-lg-3">
+                    <div class="col-md-6 col-lg-3 text-center">
                         <!-- <h4 class="text-white mb-4">Popular Link</h4>
                         <a class="btn btn-link" href="">About Us</a>
                         <a class="btn btn-link" href="">Contact Us</a>
@@ -971,7 +971,7 @@
                         <h4 class="text-white mb-4">Quick Link</h4>
                         <a class="btn btn-link" href="#contact">Contact Us</a>
                         <a class="btn btn-link" href="{{ route('privacypolicy') }}">Privacy Policy</a>
-                        <a class="btn btn-link" href="{{ route('termsandconditions') }}">Terms & Condition</a>
+                        <a class="btn btn-link" href="{{ route('termsandconditions') }}">Terms & Conditions</a>
                         <a class="btn btn-link" href="{{ route('faq') }}">FAQ</a>
                     </div>
 
@@ -997,7 +997,7 @@
             <div class="container px-lg-5">
                 <div class="copyright">
                     <div class="row">
-                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <div class="col-md-6 text-md-start mb-3 mb-md-0">
                             &copy; <a class="border-bottom" href="https://www.businessjoy.in">Business Joy</a>, All
                             Right Reserved.
 
