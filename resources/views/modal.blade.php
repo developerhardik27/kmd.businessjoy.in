@@ -12,8 +12,8 @@
                             <h1 class="mb-3">Ready to Transform Your Business?
                             </h1>
                         </div>
-                        <div class="row justify-content-center">
-                            <div class="col-12">
+                        <div class="row justify-content-center custom-p-sm-0">
+                            <div class="col-12 custom-p-sm-0">
                                 <div class="">
                                     <p class="text-center">Experience the power of a truly customizable CRM and ERP
                                         solution
