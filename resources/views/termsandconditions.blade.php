@@ -122,7 +122,7 @@
         </div>
         <!-- Navbar & Hero End -->
 
-        <div class="container content mt-5">
+        <div class="container content my-5">
             <div class="row">
                 <div class="col-sm-12">
                     <h6 class="font-weight-normal">Last updated: 2024-06-06</h6>
