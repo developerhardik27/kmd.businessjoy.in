@@ -60,7 +60,7 @@
 
         .card-title>button,
         .card-title>button:active {
-            display: block; 
+            display: block;
             color: #555;
             font-size: 16px;
             font-weight: bold;
@@ -89,15 +89,15 @@
             /* Unicode for down arrow */
             float: right;
             transition: all 0.5s;
-        } 
-
-
-        .card-header{
-            padding: 10px 0 10px 0 !important;
-            text-align : left ;
         }
 
-        .card-body{
+
+        .card-header {
+            padding: 10px 0 10px 0 !important;
+            text-align: left;
+        }
+
+        .card-body {
             text-align: left
         }
 
@@ -133,8 +133,8 @@
             <nav class="navbar navbar-expand-lg navbar-light justify-content-center px-4 px-lg-5 py-3 py-lg-0">
                 <a href="/" class="navbar-brand p-0">
                     <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
-                </a> 
-            </nav> 
+                </a>
+            </nav>
             <div class="hero-header">
                 <div class="col-sm-12 text-center">
                     <h1 class="text-white">Frequently Asked questions</h1>

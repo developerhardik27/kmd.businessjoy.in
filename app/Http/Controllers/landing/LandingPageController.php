@@ -77,7 +77,7 @@ class LandingPageController extends Controller
                     $dbname = 'staging_business_joy_parth_fy6';
                 } else {
                     // For any other host, provide a default
-                    $dbname = 'business_joy_oceanmnc_fay';
+                    $dbname = 'business_joy_Oceanmnc_pev';
                 }
 
                 config(['database.connections.dynamic_connection.database' => $dbname]);

@@ -24,6 +24,21 @@
     text-align: center !important;
   }
 
+  div.footer div.row{
+    text-align: left !important;
+  }
+
+  div.footer div.row img{
+    width: 60% !important;
+    padding-bottom: 10px !important;
+  }
+
+  .footer .footer-menu a {
+    margin: 0; 
+    padding: 0;
+    border: none;
+}
+
   .display-flex {
     display: flex;
     justify-content: center;
@@ -84,6 +99,14 @@
     text-align: center !important;
   }
 
+  div.footer div.row{
+    text-align: left !important;
+  }
+
+  div.footer div.row img{
+    width: 60% !important; 
+  }
+
   .display-flex {
     display: flex;
     justify-content: center;
@@ -123,6 +146,11 @@
 
   div.container div.row {
     text-align: center !important;
+  }
+
+  div.footer div.row img{
+    width: 60% !important; 
+    padding-bottom: 10px !important;
   }
 
   .display-flex {
