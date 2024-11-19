@@ -270,8 +270,8 @@ h6,
 
 /*** Hero Header ***/
 .hero-header {
-    margin-bottom: 6rem;
-    padding: 16rem 0 0 0;
+    /* margin-bottom: 6rem; */
+    padding: 11rem 0 0 0;
     background:
         /* url(../img/bg-circle.png),
         url(../img/bg-triangle.png),
@@ -284,9 +284,26 @@ h6,
     background-repeat: no-repeat;
 }
 
+
 @media (max-width: 991.98px) {
     .hero-header {
-        padding: 6rem 0 9rem 0;
+        padding: 6rem 0 0rem 0;
+    }
+}
+
+@media (max-width: 768.98px) {
+    .hero-header {
+        padding: 4rem 0 0rem 0;
+    }
+}
+
+@media (max-width: 480.98px) {
+    .hero-header {
+        padding: 3rem 0 0rem 0;
+    }
+
+    div.py-5 {
+        padding: 2rem 0px 0px 0px !important;
     }
 }
 
