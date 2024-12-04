@@ -415,10 +415,15 @@
                                                             <b><i class="fas fa-envelope pr-2"></i></b>
                                                             <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
                                                         </span>
-                                                        <span class='d-flex'>
+                                                        <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-phone-alt pr-2"></i></b>
                                                             <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
                                                         </span>  
+                                                        @if (session('user_id') == 1)
+                                                            <span>
+                                                                <b><i class="fas fa-building pr-2"></i></b> ${value.company_name} 
+                                                            </span>
+                                                        @endif
                                                     </td>
                                                     <td>
                                                         <span  class="d-inline-block" style="max-width: 150px;">
@@ -517,61 +522,61 @@
                             ticket.attachment :
                             (ticket.attachment ? JSON.parse(ticket.attachment) : []);
                         $('#details').append(`
-                                                <tr> 
-                                                    <td>Ticket Number</td>
-                                                    <th>${ticket.ticket}</th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>first name</td>
-                                                    <th>${ticket.first_name}</th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>last name</td>
-                                                    <th>${ticket.last_name}</th>
-                                                </tr> 
-                                                <tr>
-                                                    <td>email</td>
-                                                    <th>${ticket.email}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>contact Number</td>
-                                                    <th>${ticket.contact_no}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Status</td>
-                                                    <th>${ticket.status}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Moduel Name</td>
-                                                    <th>${ticket.module_name}</th>
-                                                <tr>
-                                                    <td>Issue type</td>
-                                                    <th>${ticket.issue_type}</th>
-                                                </tr>
-                                               <tr>
-                                                    <td>Created On</td>
-                                                    <th>${ticket.created_at_formatted}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td >Notes</td>
-                                                    <th class='text-wrap'>${ticket.description != null ? ticket.description : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td >Remarks</td>
-                                                    <th class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td >Attachments</td>
-                                                     <th>
-                                                        ${attachments.length > 0
-                                                            ? attachments.map(attachment => 
-                                                                `<a class='text-primary font-weight-bold' href='/uploads/files/${attachment}' target='_blank'>${attachment}</a>`
-                                                            ).join('<br>') // Display each attachment on a new line
-                                                            : '-'
-                                                        }
-                                                    </th>
-                                                </tr>
-                     `);
+                            <tr> 
+                                <td>Ticket Number</td>
+                                <th>${ticket.ticket}</th>
+                            </tr> 
+                            <tr> 
+                                <td>first name</td>
+                                <th>${ticket.first_name}</th>
+                            </tr> 
+                            <tr> 
+                                <td>last name</td>
+                                <th>${ticket.last_name}</th>
+                            </tr> 
+                            <tr>
+                                <td>email</td>
+                                <th>${ticket.email}</th>
+                            </tr>
+                            <tr>
+                                <td>contact Number</td>
+                                <th>${ticket.contact_no}</th>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <th>${ticket.status.replace(/_/g, ' ')}</th>
+                            </tr>
+                            <tr>
+                                <td>Module Name</td>
+                                <th>${ticket.module_name}</th>
+                            <tr>
+                                <td>Issue type</td>
+                                <th>${ticket.issue_type}</th>
+                            </tr>
+                            <tr>
+                                <td>Created On</td>
+                                <th>${ticket.created_at_formatted}</th>
+                            </tr>
+                            <tr>
+                                <td >Notes</td>
+                                <th class='text-wrap'>${ticket.description != null ? ticket.description : '-'}</th>
+                            </tr>
+                            <tr>
+                                <td >Remarks</td>
+                                <th class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</th>
+                            </tr>
+                            <tr>
+                                <td> Attachments </td>
+                                <th>
+                                    ${attachments.length > 0
+                                        ? attachments.map(attachment => 
+                                            `<a class='text-primary font-weight-bold' href='/uploads/files/${attachment}' target='_blank'>${attachment}</a>`
+                                        ).join('<br>') // Display each attachment on a new line
+                                        : '-'
+                                    }
+                                </th>
+                            </tr>
+                        `);
                     }
                 });
             });
@@ -725,7 +730,7 @@
                         url: "{{ route('techsupport.index') }}",
                         data: data,
                         success: function(response) {
-                            if (response.status == 200 && response.techsupport != '') { 
+                            if (response.status == 200 && response.techsupport != '') {
                                 $('#data').DataTable().destroy();
                                 $('#tabledata').empty();
                                 $('#tabledata').html(' ');
@@ -800,7 +805,7 @@
                                                 </tr>`)
                                     $('#status_' + value.id).val(value.status);
                                     id++;
-                                }); 
+                                });
 
                                 $('#data').DataTable({
                                     "destroy": true, //use for reinitialize datatable
