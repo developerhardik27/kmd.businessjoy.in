@@ -5,11 +5,11 @@ namespace App\Http\Controllers\v1_2_1\api;
 use App\Mail\Status;
 use App\Models\User;
 use App\Models\tech_support;
-use Illuminate\Http\Request; 
-use Illuminate\Support\Carbon; 
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log; 
-use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class techsupportController extends commonController
@@ -45,14 +45,40 @@ class techsupportController extends commonController
         // }
 
         $techsupportquery = DB::table('tech_supports')
-            ->select('id', 'first_name', 'last_name', 'email', 'contact_no', 'module_name', 'description', 'attachment', 'issue_type', 'status', 'remarks', 'assigned_to', 'assigned_by', 'ticket', 'user_id', 'company_id', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted')
-            ->where('is_deleted', 0)->orderBy('id', 'DESC');
+            ->leftJoin('company', 'tech_supports.company_id', 'company.id')
+            ->LeftJoin('company_details', 'company.company_details_id', 'company_details.id')
+            ->select(
+                'tech_supports.id',
+                'tech_supports.first_name',
+                'tech_supports.last_name',
+                'tech_supports.email',
+                'tech_supports.contact_no',
+                'tech_supports.module_name',
+                'tech_supports.description',
+                'tech_supports.attachment',
+                'tech_supports.issue_type',
+                'tech_supports.status',
+                'tech_supports.remarks',
+                'tech_supports.assigned_to',
+                'tech_supports.assigned_by',
+                'tech_supports.ticket',
+                'tech_supports.user_id',
+                'tech_supports.company_id',
+                'tech_supports.created_by',
+                'tech_supports.updated_by',
+                DB::raw("DATE_FORMAT(tech_supports.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),
+                'tech_supports.updated_at',
+                'tech_supports.is_active',
+                'tech_supports.is_deleted',
+                'company_details.name as company_name'
+            )
+            ->where('tech_supports.is_deleted', 0)->orderBy('id', 'DESC');
 
         if (isset($fromdate) && isset($todate)) {
-            $techsupportquery->whereBetween('created_at', [$fromdate, $todate->addDay()]);
+            $techsupportquery->whereBetween('tech_supports.created_at', [$fromdate, $todate->addDay()]);
         }
         if (isset($status)) {
-            $techsupportquery->whereIn('status', $status);
+            $techsupportquery->whereIn('tech_supports.status', $status);
         }
         if (isset($assignedto)) {
             $assignedtoValues = is_array($assignedto) ? $assignedto : explode(',', $assignedto);
@@ -60,10 +86,10 @@ class techsupportController extends commonController
                 foreach ($assignedtoValues as $value) {
                     // Exact match for the value surrounded by commas or being at the start/end
                     $query->orWhere(function ($q) use ($value) {
-                        $q->where('assigned_to', 'LIKE', $value . ',%')
-                            ->orWhere('assigned_to', 'LIKE', '%,' . $value . ',%')
-                            ->orWhere('assigned_to', 'LIKE', '%,' . $value)
-                            ->orWhere('assigned_to', 'LIKE', $value);
+                        $q->where('tech_supports.assigned_to', 'LIKE', $value . ',%')
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $value . ',%')
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $value)
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', $value);
                     });
                 }
             });
@@ -72,23 +98,23 @@ class techsupportController extends commonController
         if ($this->rp['adminmodule']['techsupport']['alldata'] == 1) {
             if ($this->userId != 1) {
                 $techsupportquery->where(function ($query) use ($user) {
-                    $query->where('company_id', $this->companyId)
+                    $query->where('tech_supports.company_id', $this->companyId)
                         ->orWhere(function ($q) use ($user) {
-                            $q->where('assigned_to', 'LIKE', $user->id . ',%')
-                                ->orWhere('assigned_to', 'LIKE', '%,' . $user->id . ',%')
-                                ->orWhere('assigned_to', 'LIKE', '%,' . $user->id)
-                                ->orWhere('assigned_to', 'LIKE', $user->id);
+                            $q->where('tech_supports.assigned_to', 'LIKE', $user->id . ',%')
+                                ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $user->id . ',%')
+                                ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $user->id)
+                                ->orWhere('tech_supports.assigned_to', 'LIKE', $user->id);
                         });
                 });
             }
         } else {
             $techsupportquery->where(function ($query) use ($user) {
-                $query->where('user_id', $this->userId)
+                $query->where('tech_supports.user_id', $this->userId)
                     ->orWhere(function ($q) use ($user) {
-                        $q->where('assigned_to', 'LIKE', $user->id . ',%')
-                            ->orWhere('assigned_to', 'LIKE', '%,' . $user->id . ',%')
-                            ->orWhere('assigned_to', 'LIKE', '%,' . $user->id)
-                            ->orWhere('assigned_to', 'LIKE', $user->id);
+                        $q->where('tech_supports.assigned_to', 'LIKE', $user->id . ',%')
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $user->id . ',%')
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $user->id)
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', $user->id);
                     });
             });
         }
