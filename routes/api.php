@@ -6,6 +6,7 @@ use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\mailcontroller;
 use App\Http\Controllers\api\otherapiController;
 use App\Http\Controllers\api\stateController;
+use App\Models\api_authorization;
 use App\Models\company;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,10 +26,9 @@ use Illuminate\Support\Facades\Route;
 // mail route
 Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 
-// middleware route group   
-$middlewareClass = 'App\\Http\\Middleware\\v1_0_0\\CheckToken';
+// middleware route group 
 
-Route::middleware($middlewareClass)->group(function () {
+Route::middleware('dynamic.version')->group(function () {
 
     function getversion($controller)
     {
@@ -40,23 +40,41 @@ Route::middleware($middlewareClass)->group(function () {
             if ($request->has('user_id')) {
                 // Retrieve the user if the user_id exists in the request
                 $user = User::find($request->user_id);
+
+                // If the user exists, retrieve the company's version
+                if ($user) {
+                    $version = Company::find($user->company_id);
+                }
+            } elseif ($request->has('site_key') && $request->has('server_key')) {
+                $company_id = api_authorization::where('site_key', $request->site_key)
+                    ->where('server_key', $request->server_key)
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->select('company_id')
+                    ->first();
+
+                // If the user exists, retrieve the company's version
+                if ($company_id) {
+                    $version = Company::find($company_id->company_id);
+                }
+
             }
 
-            // If the user exists, retrieve the company's version
-            if ($user) {
-                $version = Company::find($user->company_id);
-            }
+
 
             // Determine the version based on whether the user and version exist
             $versionexplode = $version ? $version->app_version : "v1_0_0";
+
+
+
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
             $versionexplode = "v1_0_0"; // Set a default version
         }
-        $controller = 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
 
-        return $controller;
+
+        return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
     // Default version is 1 if company not found
 
@@ -90,8 +108,8 @@ Route::middleware($middlewareClass)->group(function () {
 
     // version control route
     $versionupdateController = getversion('versionupdateController');
-    Route::controller($versionupdateController)->group(function () {
-        Route::put('/company/versionupdate', 'updatecompanyversion')->name('company.versionupdate');
+    Route::group([], function () use ($versionupdateController) {
+        Route::put('/company/versionupdate', [$versionupdateController, 'updatecompanyversion'])->name('company.versionupdate');
     });
 
     // product route
@@ -184,26 +202,26 @@ Route::middleware($middlewareClass)->group(function () {
 
     $invoiceController = getversion('invoiceController');
     //invoice route
-    Route::controller($invoiceController)->group(function () {
-        Route::get('/totalinvoice', 'totalInvoice')->name('invoice.totalinvoice');
-        Route::get('/checkinvoicenumber', 'checkinvoicenumber')->name('invoice.checkinvoicenumber');
-        Route::get('/currency', 'currency')->name('invoice.currency');
-        Route::get('/bdetails', 'bdetails')->name('invoice.bankacc');
-        Route::get('/columnname', 'columnname')->name('invoice.columnname');
-        Route::get('/numbercolumnname', 'numbercolumnname')->name('invoice.numbercolumnname');
-        Route::get('/inv_list', 'inv_list')->name('invoice.inv_list');
-        Route::put('/inv_status/{id}', 'status')->name('invoice.status');
-        Route::get('/invoice/{id}', 'index')->name('invoice.index');
-        Route::post('/invoice/insert', 'store')->name('invoice.store');
-        Route::get('/invoice/search/{id}', 'show')->name('invoice.search');
-        Route::get('/invoice/inv_details/{id}', 'inv_details')->name('invoice.inv_details');
-        Route::get('/invoice/edit/{id}', 'edit')->name('invoice.edit');
-        Route::put('/invoice/update/{id}', 'update')->name('invoice.update');
-        Route::put('/invoice/delete/{id}', 'destroy')->name('invoice.delete');
-        Route::get('status_list', 'status_list')->name('invoice.status_list');
-        Route::get('chart', 'monthlyInvoiceChart')->name('invoice.chart');
-        Route::get('/reportlogs', 'reportlogsdetails')->name('report.logs');
-        Route::put('/reportlog/delete/{id}', 'reportlogdestroy')->name('report.delete');
+    Route::group([], function () use ($invoiceController) {
+        Route::get('/totalinvoice', [$invoiceController, 'totalInvoice'])->name('invoice.totalinvoice');
+        Route::get('/checkinvoicenumber', [$invoiceController, 'checkinvoicenumber'])->name('invoice.checkinvoicenumber');
+        Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
+        Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');
+        Route::get('/columnname', [$invoiceController, 'columnname'])->name('invoice.columnname');
+        Route::get('/numbercolumnname', [$invoiceController, 'numbercolumnname'])->name('invoice.numbercolumnname');
+        Route::get('/inv_list', [$invoiceController, 'inv_list'])->name('invoice.inv_list');
+        Route::put('/inv_status/{id}', [$invoiceController, 'status'])->name('invoice.status');
+        Route::get('/invoice/{id}', [$invoiceController, 'index'])->name('invoice.index');
+        Route::post('/invoice/insert', [$invoiceController, 'store'])->name('invoice.store');
+        Route::get('/invoice/search/{id}', [$invoiceController, 'show'])->name('invoice.search');
+        Route::get('/invoice/inv_details/{id}', [$invoiceController, 'inv_details'])->name('invoice.inv_details');
+        Route::get('/invoice/edit/{id}', [$invoiceController, 'edit'])->name('invoice.edit');
+        Route::put('/invoice/update/{id}', [$invoiceController, 'update'])->name('invoice.update');
+        Route::put('/invoice/delete/{id}', [$invoiceController, 'destroy'])->name('invoice.delete');
+        Route::get('status_list', [$invoiceController, 'status_list'])->name('invoice.status_list');
+        Route::get('chart', [$invoiceController, 'monthlyInvoiceChart'])->name('invoice.chart');
+        Route::get('/reportlogs', [$invoiceController, 'reportlogsdetails'])->name('report.logs');
+        Route::put('/reportlog/delete/{id}', [$invoiceController, 'reportlogdestroy'])->name('report.delete');
     });
 
     //payment_details route 
@@ -385,13 +403,13 @@ Route::middleware($middlewareClass)->group(function () {
 
     // blog  route
     $blogController = getversion('blogController');
-    Route::controller($blogController)->group(function () {
-        Route::get('/blog', 'index')->name('blog.index');
-        Route::post('/blog/insert', 'store')->name('blog.store');
-        Route::get('/blog/search/{id}', 'show')->name('blog.search');
-        Route::get('/blog/edit/{id}', 'edit')->name('blog.edit');
-        Route::post('/blog/update/{id}', 'update')->name('blog.update');
-        Route::put('/blog/delete/{id}', 'destroy')->name('blog.delete');
+    Route::group([], function () use ($blogController) {
+        Route::get('/blog', [$blogController, 'index'])->name('blog.index');
+        Route::post('/blog/insert', [$blogController, 'store'])->name('blog.store');
+        Route::get('/blog/search/{slug}', [$blogController, 'show'])->name('blog.search');
+        Route::get('/blog/edit/{id}', [$blogController, 'edit'])->name('blog.edit');
+        Route::post('/blog/update/{id}', [$blogController, 'update'])->name('blog.update');
+        Route::put('/blog/delete/{id}', [$blogController, 'destroy'])->name('blog.delete');
     });
 
     // api_authorization  route

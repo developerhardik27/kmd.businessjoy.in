@@ -68,6 +68,9 @@ class versionupdateController extends commonController
                             }
                             break;
                         case 'v1_2_1':
+                            $paths = [
+                                'database/migrations/v1_2_1',
+                            ];
                             if ($request->company == 1) {
                                 $paths = [
                                     'database/migrations/newmasterdbtable',

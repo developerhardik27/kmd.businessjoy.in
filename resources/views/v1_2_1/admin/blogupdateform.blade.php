@@ -71,6 +71,15 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
+                    <label for="short_description">Short Description</label> 
+                    <textarea name="short_description" placeholder="Blog Short Description" class="form-control" id="short_description" cols="" rows="2"></textarea>
+                    <span class="error-msg" id="error-short_description" style="color: red"></span>
+                </div> 
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
                     <label for="content">Content</label>
                     <textarea name="content" placeholder="Blog Content" class="form-control" id="content" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-content" style="color: red"></span>
@@ -83,7 +92,7 @@
                     <label for="blog_image">Image</label><br>
                     <img src="" alt="" id="oldimg" width="100px">
                     <input type="file" name="blog_image" id="blog_image" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB.
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and has dimensions of 600 x 400 px.
                     </p>
                     <span class="error-msg" id="error-blog_image" style="color: red"></span>
                 </div>
@@ -135,6 +144,20 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            $('#content').summernote({
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['table']],
+                    ['view', ['fullscreen', 'codeview']]
+                ],
+                placeholder: 'Add Content',
+                tabsize: 2,
+                height: 100
+            });
 
 
 
@@ -286,7 +309,8 @@
                             $('#slug').val(data.slug);
                             $('#meta_dsc').val(data.meta_dsc);
                             $('#meta_keywords').val(data.meta_keywords);
-                            $('#content').val(data.content);
+                            $('#short_description').val(data.short_desc);
+                            $('#content').summernote('code',data.content);
 
                             var imageUrl = '{{ asset('blog/') }}' + '/' + data.img;
                             $('#oldimg').attr('src', imageUrl);

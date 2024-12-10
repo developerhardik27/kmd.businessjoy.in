@@ -34,14 +34,14 @@
                                                 value="{{ session('api_token') }}" placeholder="token" required />
                                             <label for="company">Company</label><span style="color:red;">*</span>
                                             <select class="form-control select2" id="company" name="company" required>
-                                                <option selected=""> Select Company</option>
+                                                <option selected disabled> Select Company</option>
                                             </select>
                                             <span class="error-msg" id="error-company" style="color: red"></span>
                                         </div>
                                         <div class="col-sm-4">
                                             <label for="version">Version</label><span style="color:red;">*</span>
                                             <select class="form-control" id="version" name="version" required>
-                                                <option selected=""> Select Version</option>
+                                                <option selected disabled> Select Version</option>
                                                 <option value="v1_1_0">V1.1.0</option>
                                                 <option value="v1_1_1">V1.1.1</option>
                                                 <option value="v1_2_1">V1.2.1</option>
