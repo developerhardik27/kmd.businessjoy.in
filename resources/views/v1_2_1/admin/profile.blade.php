@@ -477,6 +477,13 @@
                                                             @endif
                                                         </optgroup>
                                                     @endif
+                                                    @if (Session::has('blog') && Session::get('blog') == 'yes')
+                                                        <optgroup label="blog" data-module="blog">
+                                                            @if (session('user_permissions.blogmodule.blog.show') == '1')
+                                                                <option value="blog">blog</option>
+                                                            @endif 
+                                                        </optgroup>
+                                                    @endif
                                                 </select>
                                             </div>
                                         </form>
