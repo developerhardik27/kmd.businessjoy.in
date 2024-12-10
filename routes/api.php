@@ -6,6 +6,7 @@ use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\mailcontroller;
 use App\Http\Controllers\api\otherapiController;
 use App\Http\Controllers\api\stateController;
+use App\Models\api_authorization;
 use App\Models\company;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,23 +32,7 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 
 // middleware route group 
 
-// Resolve middleware dynamically based on version
-$middlewareNamespace = 'App\\Http\\Middleware\\';
-try {
-    // Retrieve the user and company version
-    $user = $request->has('user_id') ? User::find($request->user_id) : null; 
-    $version = $user ? Company::find($user->company_id) : null;
-    $versionexplode = $version ? $version->app_version : "v1_0_0";
-} catch (\Exception $e) {
-    // Log the error or handle gracefully
-    $versionexplode = "v1_0_0"; // Default version in case of error
-}
-
-$middlewareClass = $middlewareNamespace . $versionexplode . '\\CheckToken';
-
-
-
-Route::middleware($middlewareClass)->group(function () {
+Route::middleware('dynamic.version')->group(function () {
 
     function getversion($controller)
     {
@@ -60,20 +45,40 @@ Route::middleware($middlewareClass)->group(function () {
             if ($request->has('user_id')) {
                 // Retrieve the user if the user_id exists in the request
                 $user = User::find($request->user_id);
+
+                // If the user exists, retrieve the company's version
+                if ($user) {
+                    $version = Company::find($user->company_id);
+                }
+            } elseif ($request->has('site_key') && $request->has('server_key')) {
+                $company_id = api_authorization::where('site_key', $request->site_key)
+                    ->where('server_key', $request->server_key)
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->select('company_id')
+                    ->first();
+
+                // If the user exists, retrieve the company's version
+                if ($company_id) {
+                    $version = Company::find($company_id->company_id);
+                }
+
             }
 
-            // If the user exists, retrieve the company's version
-            if ($user) {
-                $version = Company::find($user->company_id);
-            }
+
 
             // Determine the version based on whether the user and version exist
             $versionexplode = $version ? $version->app_version : "v1_0_0";
+
+
+
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message
             $versionexplode = "v1_0_0"; // Set a default version
         }
+
+
         return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
     // Default version is 1 if company not found
@@ -109,7 +114,7 @@ Route::middleware($middlewareClass)->group(function () {
 
     // version control route
     $versionupdateController = getversion('versionupdateController');
-    Route::group([], function () use ($versionupdateController) { 
+    Route::group([], function () use ($versionupdateController) {
         Route::put('/company/versionupdate', [$versionupdateController, 'updatecompanyversion'])->name('company.versionupdate');
     });
 
@@ -204,7 +209,7 @@ Route::middleware($middlewareClass)->group(function () {
     $invoiceController = getversion('invoiceController');
     //invoice route
     Route::group([], function () use ($invoiceController) {
-        Route::get('/totalinvoice',[$invoiceController,'totalInvoice'])->name('invoice.totalinvoice');
+        Route::get('/totalinvoice', [$invoiceController, 'totalInvoice'])->name('invoice.totalinvoice');
         Route::get('/checkinvoicenumber', [$invoiceController, 'checkinvoicenumber'])->name('invoice.checkinvoicenumber');
         Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
         Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');
@@ -407,7 +412,7 @@ Route::middleware($middlewareClass)->group(function () {
     Route::group([], function () use ($blogController) {
         Route::get('/blog', [$blogController, 'index'])->name('blog.index');
         Route::post('/blog/insert', [$blogController, 'store'])->name('blog.store');
-        Route::get('/blog/search/{id}', [$blogController, 'show'])->name('blog.search');
+        Route::get('/blog/search/{slug}', [$blogController, 'show'])->name('blog.search');
         Route::get('/blog/edit/{id}', [$blogController, 'edit'])->name('blog.edit');
         Route::post('/blog/update/{id}', [$blogController, 'update'])->name('blog.update');
         Route::put('/blog/delete/{id}', [$blogController, 'destroy'])->name('blog.delete');
