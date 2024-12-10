@@ -40,12 +40,12 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="meta_dsc">Meta Description</label> 
-                    <textarea name="meta_dsc" placeholder="meta description" class="form-control" id="meta_dsc" cols="" rows="2"></textarea>
+                    <textarea name="meta_dsc" placeholder="Meta Description" class="form-control" id="meta_dsc" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_dsc" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="meta_keywords">Meta Keywords</label> 
-                    <textarea name="meta_keywords" placeholder="meta keywords" class="form-control" id="meta_keywords" cols="" rows="2"></textarea>
+                    <textarea name="meta_keywords" placeholder="Meta Keywords" class="form-control" id="meta_keywords" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_keywords" style="color: red"></span>
                 </div>
             </div>
@@ -73,6 +73,15 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
+                    <label for="short_description">Short Description</label> 
+                    <textarea name="short_description" placeholder="Blog Short Description" class="form-control" id="short_description" cols="" rows="2"></textarea>
+                    <span class="error-msg" id="error-short_description" style="color: red"></span>
+                </div> 
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
                     <label for="content">Content</label> 
                     <textarea name="content" placeholder="Blog Content" class="form-control" id="content" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-content" style="color: red"></span>
@@ -84,7 +93,7 @@
                 <div class="col-sm-6">
                     <label for="blog_image">Image</label><br>
                     <input type="file" name="blog_image" id="blog_image" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB.
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and has dimensions of 600 x 400 px.
                     </p>
                     <span class="error-msg" id="error-blog_image" style="color: red"></span>
                 </div>
@@ -112,6 +121,23 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+
+
+            $('#content').summernote({
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['table']],
+                    ['view', ['fullscreen', 'codeview']]
+                ],
+                placeholder: 'Add Content',
+                tabsize: 2,
+                height: 100
+            });
+
             function getCategoryData() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -238,8 +264,7 @@
                 }
                 $('#tag').multiselect('rebuild');
             });
-
-
+   
             // submit form data
             $('#blogform').submit(function(event) {
                 event.preventDefault();

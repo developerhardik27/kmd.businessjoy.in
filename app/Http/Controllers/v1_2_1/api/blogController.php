@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\v1_2_1\api;
 
-use App\Models\api_authorization;
 use App\Models\company;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -19,7 +20,7 @@ class blogController extends commonController
     {
 
 
-        if(isset($request->company_id) && isset($request->user_id)){
+        if (isset($request->company_id) && isset($request->user_id)) {
             $this->dbname($request->company_id);
             $this->companyId = $request->company_id;
             $this->userId = $request->user_id;
@@ -27,7 +28,7 @@ class blogController extends commonController
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
             $this->rp = json_decode($permissions[0]['rp'], true);
-        }elseif(isset($request->site_key) && isset($request->server_key)){
+        } elseif (isset($request->site_key) && isset($request->server_key)) {
             if ($request->ajax()) {
                 // Request was made via Ajax
                 $domainName = $_SERVER['HTTP_ORIGIN'];
@@ -46,11 +47,11 @@ class blogController extends commonController
             if ($company_id->isEmpty()) {
                 // Handle case where no record is found
                 $this->returnresponse();
-            }else{
+            } else {
                 $this->dbname($company_id[0]->company_id);
                 $this->companyId = $company_id[0]->company_id;
             }
-        }else{
+        } else {
             $this->returnresponse();
         }
         $this->masterdbname = DB::connection()->getDatabaseName();
@@ -74,8 +75,30 @@ class blogController extends commonController
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
             ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y')"))
-            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', 'blogs.created_at')
+            ->select(
+                'users.firstname',
+                'users.lastname',
+                'blogs.id',
+                'blogs.title',
+                'blogs.img',
+                'blogs.content',
+                'blogs.slug',
+                'blogs.short_desc',
+                DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'),
+                DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'),
+                DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y')")
+            )
+            ->groupBy(
+                'users.firstname',
+                'users.lastname',
+                'blogs.id',
+                'blogs.title',
+                'blogs.img',
+                'blogs.content',
+                'blogs.slug',
+                'blogs.short_desc',
+                'blogs.created_at'
+            )
             ->where('blogs.is_deleted', 0)->orderBy('blogs.id', 'DESC');
 
         if (isset($catids)) {
@@ -95,9 +118,9 @@ class blogController extends commonController
         $blogs = $blogsquery->get();
 
         if ($blogs->count() > 0) {
-           return $this->successresponse(200, 'blog', $blogs);  
+            return $this->successresponse(200, 'blog', $blogs);
         } else {
-           return $this->successresponse(404, 'blog','No Records Found');  
+            return $this->successresponse(404, 'blog', 'No Records Found');
         }
     }
 
@@ -120,12 +143,13 @@ class blogController extends commonController
             'content' => 'required|string',
             'meta_dsc' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
+            'short_description' => 'nullable|string',
             'category' => 'required',
             'tag' => 'required',
             'blog_image' => 'required|image|mimes:jpg,jpeg,png|max:10240'
         ]);
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -133,7 +157,7 @@ class blogController extends commonController
                 $blogdata = [];
                 if ($request->hasFile('blog_image') && $request->hasFile('blog_image') != '') {
                     $image = $request->file('blog_image');
-                    $imageName = $request->title . time() . '.' . $image->getClientOriginalExtension();
+                    $imageName = Str::random('5') . time() . '.' . $image->getClientOriginalExtension();
 
                     if (!file_exists('blog/')) {
                         mkdir('blog/', 0755, true);
@@ -155,18 +179,19 @@ class blogController extends commonController
                     'cat_ids' => $categories,
                     'meta_dsc' => $request->meta_dsc,
                     'meta_keywords' => $request->meta_keywords,
+                    'short_desc' => $request->short_description,
                     'created_by' => $this->userId,
                 ]);
 
                 $blog = $this->blogModel::create($blog);
 
                 if ($blog) {
-                   return $this->successresponse(200, 'message', 'Blog succesfully added');  
+                    return $this->successresponse(200, 'message', 'Blog succesfully added');
                 } else {
-                   return $this->successresponse(500, 'message', 'Blog not succesfully added');  
+                    return $this->successresponse(500, 'message', 'Blog not succesfully added');
                 }
             } else {
-               return $this->successresponse(500, 'message', 'You are Unauthorized');  
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
     }
@@ -174,7 +199,7 @@ class blogController extends commonController
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $id)
+    public function show(Request $request, string $slug)
     {
         $blogs = DB::connection('dynamic_connection')
             ->table('blogs')
@@ -185,19 +210,19 @@ class blogController extends commonController
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
             ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
-            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.content', 'blogs.created_at', 'blogs.cat_ids')
+            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc','blogs.meta_dsc','meta_keywords','blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
+            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc','blogs.meta_dsc','meta_keywords','blogs.content', 'blogs.created_at', 'blogs.cat_ids')
             ->where('blogs.is_deleted', 0)
-            ->where('blogs.id', $id)
+            ->where('blogs.slug', $slug)
             ->get();
 
 
 
         if ($blogs->count() > 0) {
-           return $this->successresponse(200, 'blog', $blogs);  
-          
+            return $this->successresponse(200, 'blog', $blogs);
+
         } else {
-           return $this->successresponse(404, 'blog','No Records Found');  
+            return $this->successresponse(404, 'blog', 'No Records Found');
         }
     }
 
@@ -210,12 +235,12 @@ class blogController extends commonController
 
         if ($blog->count() > 0) {
             if ($this->rp['blogmodule']['blog']['view'] == 1) {
-               return $this->successresponse(200, 'blog',$blog);  
+                return $this->successresponse(200, 'blog', $blog);
             } else {
-               return $this->successresponse(500, 'message', 'You are Unauthorized');  
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-           return $this->successresponse(404, 'blog', 'No Records Found');  
+            return $this->successresponse(404, 'blog', 'No Records Found');
         }
         //
     }
@@ -231,18 +256,19 @@ class blogController extends commonController
             'content' => 'required|string',
             'meta_dsc' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
+            'short_description' => 'nullable|string',
             'category' => 'required',
             'tag' => 'required',
             'blog_image' => 'nullable|image|mimes:jpg,jpeg,png|max:10240'
         ]);
 
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             $blog = $this->blogModel::find($id);
             if (!$blog) {
-               return $this->successresponse(500, 'message', 'No such Blog found!');  
+                return $this->successresponse(500, 'message', 'No such Blog found!');
             }
             if ($this->rp['blogmodule']['blog']['edit'] == 1) {
 
@@ -274,6 +300,7 @@ class blogController extends commonController
                     'cat_ids' => $categories,
                     'meta_dsc' => $request->meta_dsc,
                     'meta_keywords' => $request->meta_keywords,
+                    'short_desc' => $request->short_description,
                     'updated_by' => $this->userId,
                     'updated_at' => now(),
                 ]);
@@ -284,12 +311,12 @@ class blogController extends commonController
                 $update = $this->blogModel::where('id', $id)->update($blog);
 
                 if ($update) {
-                   return $this->successresponse(520000, 'message', 'Blog succesfully Updated');  
+                    return $this->successresponse(200, 'message', 'Blog succesfully Updated');
                 } else {
-                   return $this->successresponse(500, 'message', 'Blog not succesfully Updated');  
+                    return $this->successresponse(500, 'message', 'Blog not succesfully Updated');
                 }
             } else {
-               return $this->successresponse(500, 'message', 'You are Unauthorized');  
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
         }
@@ -308,12 +335,12 @@ class blogController extends commonController
                 $blog->update([
                     'is_deleted' => 1
                 ]);
-               return $this->successresponse(200, 'message', 'blog succesfully deleted');  
+                return $this->successresponse(200, 'message', 'blog succesfully deleted');
             } else {
-               return $this->successresponse(500, 'message', 'You are Unauthorized');  
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-           return $this->successresponse(404, 'message','No Such blog category Found!');  
+            return $this->successresponse(404, 'message', 'No Such blog category Found!');
         }
     }
 }

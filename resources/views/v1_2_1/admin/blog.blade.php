@@ -96,47 +96,49 @@
                     },
                     success: function(response) {
                         // if response has data then it will be append into list table
-                        if (response.status == 200 && response.blog != '') {
+                        if (response.status == 200 && response.blog != '') { 
                             $('#data').DataTable().destroy();
                             $('#tabledata').empty();
                             // You can update your HTML with the data here if needed
                             global_response = response;
                             var id = 1;
                             $.each(response.blog, function(key, value) {
-                                $('#data').append(`<tr>
-                                                        <td>${id}</td>
-                                                        <td>${value.title != null ? value.title : '-'}</td>  
-                                                        <td>
-                                                            @if (session('user_permissions.blogmodule.blog.view') == '11')
-                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details"><button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
-                                                            @else
-                                                              -
-                                                            @endif
-                                                        </td> 
-                                                        @if (session('user_permissions.blogmodule.blog.edit') == '1' ||
-                                                                session('user_permissions.blogmodule.blog.delete') == '1')
-                                                            <td>
-                                                                @if (session('user_permissions.blogmodule.blog.edit') == '1')
-                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                        <a href='EditBlog/${value.id}'>
-                                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                                <i class="ri-edit-fill"></i>
-                                                                            </button>
-                                                                        </a>
-                                                                    </span>
-                                                                @endif
-                                                                @if (session('user_permissions.blogmodule.blog.delete') == '1')
-                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                                            <i class="ri-delete-bin-fill"></i>
-                                                                        </button>
-                                                                    </span>
-                                                                @endif    
-                                                            </td>
-                                                        @else
-                                                            <td> - </td>
-                                                        @endif   
-                                                    </tr>`)
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.title != null ? value.title : '-'}</td>  
+                                        <td>
+                                            @if (session('user_permissions.blogmodule.blog.view') == '11')
+                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details"><button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td> 
+                                        @if (session('user_permissions.blogmodule.blog.edit') == '1' ||
+                                                session('user_permissions.blogmodule.blog.delete') == '1')
+                                            <td>
+                                                @if (session('user_permissions.blogmodule.blog.edit') == '1')
+                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                                        <a href='EditBlog/${value.id}'>
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
+                                                            </button>
+                                                        </a>
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.blogmodule.blog.delete') == '1')
+                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif    
+                                            </td>
+                                        @else
+                                            <td> - </td>
+                                        @endif   
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
@@ -147,7 +149,7 @@
                         } else if (response.status == 500) { // if database not found
                             toastr.error(response.message);
                         } else { // if request has not found any bank details record
-                            $('#data').append(`<tr><td colspan='4' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='4' >No Data Found</td></tr>`)
                         }
                         loaderhide();
                     },
@@ -175,7 +177,8 @@
                     loadershow();
                     var deleteid = $(this).data('id');
                     var row = this;
-                    let blogDeleteUrl = "{{route('blog.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
+                    let blogDeleteUrl = "{{ route('blog.delete', '__deleteId__') }}".replace('__deleteId__',
+                        deleteid);
                     $.ajax({
                         type: 'PUT',
                         url: blogDeleteUrl,
@@ -219,27 +222,27 @@
             //     $.each(global_response.bankdetail, function(key, bankdetail) {
             //         if (bankdetail.id == data) {
             //             $('#details').append(`
-            //                     <tr>
-            //                         <th>Holder Name</th>
-            //                         <td>${(bankdetail.holder_name != null)? bankdetail.holder_name : '-'}</td>
-            //                     </tr>
-            //                     <tr>
-            //                         <th>Account Number</th>
-            //                         <td>${(bankdetail.account_no!= null)? bankdetail.account_no : '-'}</td>
-            //                     </tr>
-            //                     <tr>
-            //                         <th>IFSC Code</th>
-            //                         <td>${(bankdetail.ifsc_code!= null)? bankdetail.ifsc_code : '-'}</td>
-            //                     </tr>
-            //                     <tr>
-            //                         <th>Swift Code</th>
-            //                         <td>${(bankdetail.swift_code!= null)? bankdetail.swift_code : '-'}</td>
-            //                     </tr>
-            //                     <tr>
-            //                         <th>Branch Name</th>
-            //                         <td>${(bankdetail.branch_name!= null)? bankdetail.branch_name : '-'}</td>
-            //                     </tr>
-            //             `);
+        //                     <tr>
+        //                         <th>Holder Name</th>
+        //                         <td>${(bankdetail.holder_name != null)? bankdetail.holder_name : '-'}</td>
+        //                     </tr>
+        //                     <tr>
+        //                         <th>Account Number</th>
+        //                         <td>${(bankdetail.account_no!= null)? bankdetail.account_no : '-'}</td>
+        //                     </tr>
+        //                     <tr>
+        //                         <th>IFSC Code</th>
+        //                         <td>${(bankdetail.ifsc_code!= null)? bankdetail.ifsc_code : '-'}</td>
+        //                     </tr>
+        //                     <tr>
+        //                         <th>Swift Code</th>
+        //                         <td>${(bankdetail.swift_code!= null)? bankdetail.swift_code : '-'}</td>
+        //                     </tr>
+        //                     <tr>
+        //                         <th>Branch Name</th>
+        //                         <td>${(bankdetail.branch_name!= null)? bankdetail.branch_name : '-'}</td>
+        //                     </tr>
+        //             `);
             //         }
             //     });
             // });
