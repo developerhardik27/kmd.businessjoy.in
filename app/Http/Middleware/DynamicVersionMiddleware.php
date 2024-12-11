@@ -2,11 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\api_authorization;
-use App\Models\company;
 use Closure;
 use App\Models\User;
+use App\Models\company;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
+use Illuminate\Support\Facades\Log;
 
 class DynamicVersionMiddleware
 {
@@ -43,6 +44,8 @@ class DynamicVersionMiddleware
             }
             $versionexplode = $version ? $version->app_version : "v1_0_0"; // Default version
         } catch (\Exception $e) {
+            Log::info($version);
+            Log::info($e);
             // Handle error gracefully
             $versionexplode = "v1_0_0"; // Default version in case of error
         }
