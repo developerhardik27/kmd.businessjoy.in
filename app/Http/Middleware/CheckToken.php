@@ -33,7 +33,7 @@ class CheckToken
                 return response()->json(['error' => 'Invalid token'], 401);
             }
         }elseif(isset($request->site_key) && isset($request->server_key)){
-            $domainName = $request->getHost();
+            $domainName = basename($request->header('Origin'));
             $authorize = api_authorization::where('site_key', $request->site_key)
                        ->where('server_key', $request->server_key)
                        ->where('domain_name', 'LIKE', '%' . $domainName . '%')
