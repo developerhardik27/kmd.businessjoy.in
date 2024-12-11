@@ -18,7 +18,7 @@ class CheckToken
     public function handle(Request $request, Closure $next): Response
     {
 
-        
+       
         // Check if the token is present in the session
         $sessionToken = $request->token;
         if ((!$sessionToken) && !isset($request->site_key) && !isset($request->server_key) ) {
@@ -36,7 +36,7 @@ class CheckToken
             $domainName = basename($request->header('Origin'));
             $authorize = api_authorization::where('site_key', $request->site_key)
                        ->where('server_key', $request->server_key)
-                       ->where('domain_name', 'LIKE', '%' . $domainName . '%')
+                       ->whereRaw('FIND_IN_SET(?, domain_name)', [$domainName])
                        ->first();
 
             if (!$authorize) {
