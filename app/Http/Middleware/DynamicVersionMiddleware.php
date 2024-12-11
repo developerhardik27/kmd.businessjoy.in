@@ -44,8 +44,7 @@ class DynamicVersionMiddleware
             }
             $versionexplode = $version ? $version->app_version : "v1_0_0"; // Default version
         } catch (\Exception $e) {
-            Log::info($version);
-            Log::info($e);
+            Log::error("Error determining version: " . $e->getMessage());
             // Handle error gracefully
             $versionexplode = "v1_0_0"; // Default version in case of error
         }
