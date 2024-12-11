@@ -17,14 +17,14 @@ class CheckToken
      */
     public function handle(Request $request, Closure $next): Response
     {
+
+        
         // Check if the token is present in the session
         $sessionToken = $request->token;
-        if (!$sessionToken) {
+        if ((!$sessionToken) && !isset($request->site_key) && !isset($request->server_key) ) {
             return response()->json(['error' => 'Unauthorized'], 401);
-        }elseif(!isset($request->site_key) && !isset($request->server_key)){
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
+        } 
+        
         if($sessionToken){
             // Check if the token is present in the database
             $dbToken = User::where('api_token', $sessionToken)->orWhere('super_api_token',$sessionToken)->first();

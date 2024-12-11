@@ -28,7 +28,7 @@ Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
 
 // middleware route group 
 
-Route::middleware('dynamic.version')->group(function () {
+Route::middleware(['dynamic.version','checkToken'])->group(function () {
 
     function getversion($controller)
     {
