@@ -90,15 +90,7 @@ class AdminLoginController extends Controller
                                 session(['menu' => 'invoice']);
                                 session(['showinvoicesettings' => "yes"]);
                                 $menus[] = 'invoice';
-                            }
-
-                            if (hasPermission($rp, "quotationmodule")) {
-                                session(['quotation' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
-                                    session(['menu' => 'quotation']);
-                                }
-                                // $menus[] = 'quotation';
-                            }
+                            }  
 
                             if (hasPermission($rp, "leadmodule")) {
                                 session(['lead' => "yes"]);
@@ -390,15 +382,7 @@ class AdminLoginController extends Controller
                         session(['menu' => 'invoice']);
                         session(['showinvoicesettings' => "yes"]);
                         $menus[] = 'invoice';
-                    }
-
-                    if (hasPermission($rp, "quotationmodule")) {
-                        session(['quotation' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
-                            session(['menu' => 'quotation']);
-                        }
-                        // $menus[] = 'quotation';
-                    }
+                    }  
 
                     if (hasPermission($rp, "leadmodule")) {
                         session(['lead' => "yes"]);

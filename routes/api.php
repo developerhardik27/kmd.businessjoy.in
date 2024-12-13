@@ -404,6 +404,7 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     // blog  route
     $blogController = getversion('blogController');
     Route::group([], function () use ($blogController) {
+        Route::get('/getslug', [$blogController, 'getSlug'])->name('blog.getslug');
         Route::get('/blog', [$blogController, 'index'])->name('blog.index');
         Route::post('/blog/insert', [$blogController, 'store'])->name('blog.store');
         Route::get('/blog/search/{slug}', [$blogController, 'show'])->name('blog.search');

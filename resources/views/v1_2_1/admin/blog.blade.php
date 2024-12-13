@@ -46,9 +46,9 @@
     {{ route('admin.addblog') }}
 @endsection
 @section('addnewbutton')
-    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Account"
+    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Blog"
         class="btn btn-sm btn-primary">
-        <span class="">+ Add New</span>
+        <span class="">+ Add New Blog</span>
     </button>
 @endsection
 {{-- @endif --}}
@@ -96,7 +96,7 @@
                     },
                     success: function(response) {
                         // if response has data then it will be append into list table
-                        if (response.status == 200 && response.blog != '') { 
+                        if (response.status == 200 && response.blog != '') {
                             $('#data').DataTable().destroy();
                             $('#tabledata').empty();
                             // You can update your HTML with the data here if needed
@@ -143,7 +143,11 @@
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
+                            var search = {!! json_encode($search) !!}
                             $('#data').DataTable({
+                                "search": {
+                                    "search": search
+                                },
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) { // if database not found

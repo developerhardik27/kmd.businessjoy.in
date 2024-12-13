@@ -10,6 +10,38 @@
     Blog Tag
 @endsection
 
+@section('style')
+    <style>
+        .ui-widget-header {
+            background: #1518b117 !important;
+            border: 1px solid #e1ded9 !important;
+        }
+
+        .btn-info {
+            background-color: #253566 !important;
+            border-color: #253566 !important;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #39519b !important;
+            color: rgb(255, 255, 255);
+        }
+
+        .btn-success {
+            background-color: #67d5a5d9 !important;
+            border-color: var(--iq-success) !important;
+            color: black !important;
+        }
+
+        .btn-success:hover {
+            background-color: #16d07ffa !important;
+            border-color: var(--iq-success) !important;
+            color: rgb(250, 250, 250) !important;
+        }
+    </style>
+@endsection
+
 @section('form-content')
     <form id="blogtagform" name="blogtagform">
         @csrf
@@ -96,13 +128,13 @@
                                                         <td>  
                                                             <span>
                                                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Column" data-id='${value.id}'
-                                                                     class="btn edit-btn iq-bg-success btn-rounded btn-sm my-1">
+                                                                     class="btn edit-btn btn-success btn-rounded btn-sm my-1">
                                                                     <i class="ri-edit-fill"></i>
                                                                 </button>
                                                             </span>
                                                             <span>
                                                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Column" data-id= '${value.id}'
-                                                                    class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-1">
+                                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-1">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
