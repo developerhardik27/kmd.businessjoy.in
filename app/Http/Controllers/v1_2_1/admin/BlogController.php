@@ -25,9 +25,16 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view($this->version . '.admin.blog');
+
+        if (isset($request->search)) {
+            $search = $request->search;
+        } else {
+            $search = '';
+        }
+
+        return view($this->version . '.admin.blog', ["search" => $search]);
     }
 
     /**

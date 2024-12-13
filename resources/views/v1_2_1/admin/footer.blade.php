@@ -129,8 +129,10 @@
             else if("{{ session()->get('menu') }}" == 'reminder') {
                 var url = "{{ route('admin.reminder') }}?search=" + encodeURIComponent(search);
             }
-            else{
+            else if("{{ session()->get('menu') }}" == 'Customer support'){
                 var url = "{{ route('admin.customersupport') }}?search=" + encodeURIComponent(search);
+            }else if("{{ session()->get('menu') }}" == 'blog'){
+                var url = "{{ route('admin.blog') }}?search=" + encodeURIComponent(search);
             }
             window.location.href = url;
         })

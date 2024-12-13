@@ -55,14 +55,14 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="category">Categories:</label> <span style="color:red;">*</span><br />
                     <select name="category[]" class="form-control multiple" id="category" multiple>
-                        <option value="" disabled selected>Select Category</option>
+                        <option value="" disabled selected>-- Select Category --</option>
                     </select>
                     <span class="error-msg" id="error-category" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="tag">Tag:</label> <span style="color:red;">*</span><br />
                     <select name="tag[]" class="form-control multiple" id="tag" multiple>
-                        <option value="" disabled selected>Select Tag</option>
+                        <option value="" disabled selected>-- Select Tag --</option>
                     </select>
                     <span class="error-msg" id="error-tag" style="color: red"></span>
                 </div>
@@ -71,17 +71,19 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <label for="short_description">Short Description</label> 
-                    <textarea name="short_description" placeholder="Blog Short Description" class="form-control" id="short_description" cols="" rows="2"></textarea>
+                    <label for="short_description">Short Description</label>
+                    <textarea name="short_description" placeholder="Blog Short Description" class="form-control" id="short_description"
+                        cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-short_description" style="color: red"></span>
-                </div> 
+                </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
                     <label for="content">Content</label>
-                    <textarea name="content" placeholder="Blog Content" class="form-control" id="content" cols="" rows="2"></textarea>
+                    <textarea name="content" placeholder="Blog Content" class="form-control" id="content" cols=""
+                        rows="2"></textarea>
                     <span class="error-msg" id="error-content" style="color: red"></span>
                 </div>
             </div>
@@ -92,7 +94,8 @@
                     <label for="blog_image">Image</label><br>
                     <img src="" alt="" id="oldimg" width="100px">
                     <input type="file" name="blog_image" id="blog_image" width="100%" />
-                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and has dimensions of 600 x 400 px.
+                    <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and
+                        has dimensions of 600 x 400 px.
                     </p>
                     <span class="error-msg" id="error-blog_image" style="color: red"></span>
                 </div>
@@ -292,7 +295,7 @@
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old data in fields
-                let blogEditUrl = "{{route('blog.edit','__editId__')}}".replace('__editId__',edit_id);
+                let blogEditUrl = "{{ route('blog.edit', '__editId__') }}".replace('__editId__', edit_id);
                 $.ajax({
                     type: 'GET',
                     url: blogEditUrl,
@@ -310,7 +313,7 @@
                             $('#meta_dsc').val(data.meta_dsc);
                             $('#meta_keywords').val(data.meta_keywords);
                             $('#short_description').val(data.short_desc);
-                            $('#content').summernote('code',data.content);
+                            $('#content').summernote('code', data.content);
 
                             var imageUrl = '{{ asset('blog/') }}' + '/' + data.img;
                             $('#oldimg').attr('src', imageUrl);
@@ -352,6 +355,46 @@
                 });
             }
 
+
+            $('#title').on('change', function() {
+                var edit_id = @json($edit_id);
+                $('#slug').val('');
+                $('#error-slug').text('');
+                var element = $(this);
+                $.ajax({
+                    type: 'get',
+                    url: "{{ route('blog.getslug') }}",
+                    data: {
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}",
+                        slug: element.val(),
+                        edit_id: edit_id,
+                    },
+                    success: function(response) {
+                        $('#slug').val(response.slug);
+                        if (response.status == 422) {
+                            $('#error-slug').text(response.message);
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
+
+
             $('#blog_image').on('change', function(event) {
                 var input = event.target;
                 var input = event.target;
@@ -362,10 +405,12 @@
                     reader.onload = function(e) {
                         $('#oldimg').attr('src', e.target.result);
                     }
-                     
+
                     reader.readAsDataURL(input.files[0]);
                 }
             });
+
+
 
             //submit form
             $('#blogupdateform').submit(function(event) {

@@ -57,6 +57,42 @@ class blogController extends commonController
         $this->masterdbname = DB::connection()->getDatabaseName();
         $this->blogModel = $this->getmodel('blog');
     }
+
+    public function getSlug(Request $request)
+    {
+        $slug = '';
+
+        if ($request->slug) {
+            $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0);
+
+            if ($request->edit_id) {
+                $checkSlug = $checkSlug->whereNot('id', $request->edit_id);
+            }
+
+            $checkSlug = $checkSlug->exists();
+
+            if ($checkSlug) {
+                return response()->json([
+                    'status' => 422,
+                    'slug' => str::slug($request->slug),
+                    'message' => 'Slug is already in use.'
+                ], status: 200);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'slug' => str::slug($request->slug)
+            ], 200);
+
+        }
+
+        return response()->json([
+            'status' => 500,
+            'slug' => $slug,
+            'message' => 'slug is empty'
+        ], 200);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -138,18 +174,28 @@ class blogController extends commonController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
+            'title' => 'required|string|max:50',
             'slug' => 'required|string',
             'content' => 'required|string',
             'meta_dsc' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
-            'short_description' => 'nullable|string',
+            'short_description' => 'nullable|string|max:100',
             'category' => 'required',
             'tag' => 'required',
             'blog_image' => 'required|image|mimes:jpg,jpeg,png|max:10240'
         ]);
         if ($validator->fails()) {
+
+            if ($request->slug) {
+                $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0)->exists();
+
+                if ($checkSlug) {
+                    $validator->errors()->add('slug', 'Slug is already in use.');
+                }
+            }
+
             return $this->errorresponse(422, $validator->messages());
+
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -210,8 +256,8 @@ class blogController extends commonController
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
             ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc','blogs.meta_dsc','meta_keywords','blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
-            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc','blogs.meta_dsc','meta_keywords','blogs.content', 'blogs.created_at', 'blogs.cat_ids')
+            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc', 'blogs.meta_dsc', 'meta_keywords', 'blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
+            ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc', 'blogs.meta_dsc', 'meta_keywords', 'blogs.content', 'blogs.created_at', 'blogs.cat_ids')
             ->where('blogs.is_deleted', 0)
             ->where('blogs.slug', $slug)
             ->get();
@@ -242,7 +288,7 @@ class blogController extends commonController
         } else {
             return $this->successresponse(404, 'blog', 'No Records Found');
         }
-        //
+        
     }
 
     /**
@@ -251,18 +297,33 @@ class blogController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
+            'title' => 'required|string|max:50',
             'slug' => 'required|string',
             'content' => 'required|string',
             'meta_dsc' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
-            'short_description' => 'nullable|string',
+            'short_description' => 'nullable|string|max:100',
             'category' => 'required',
             'tag' => 'required',
             'blog_image' => 'nullable|image|mimes:jpg,jpeg,png|max:10240'
         ]);
 
         if ($validator->fails()) {
+
+            if ($request->slug) {
+                $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0);
+
+                if ($request->edit_id) {
+                    $checkSlug = $checkSlug->whereNot('id', $request->edit_id);
+                }
+
+                $checkSlug = $checkSlug->exists(); 
+
+                if ($checkSlug) {
+                    $validator->errors()->add('slug', 'Slug is already in use.');
+                }
+            }
+
             return $this->errorresponse(422, $validator->messages());
         } else {
 

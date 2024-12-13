@@ -84,10 +84,19 @@ class blogcategoryController extends commonController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string',
+            'category_name' => 'required|string|max:20',
         ]);
 
         if ($validator->fails()) {
+
+            if ($request->category_name) {
+                $checkcategory = $this->blogcategorymodel::where('cat_name', $request->category_name)->where('is_deleted', 0)->exists();
+
+                if ($checkcategory) {
+                    $validator->errors()->add('cat_name', 'Duplicate category name');
+                }
+            }
+
             return $this->errorresponse(422, $validator->messages());
         } else {
 
@@ -144,10 +153,19 @@ class blogcategoryController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string',
+            'category_name' => 'required|string|max:20',
         ]);
 
         if ($validator->fails()) {
+            
+            if ($request->category_name) {
+                $checkcategory = $this->blogcategorymodel::where('cat_name', $request->category_name)->where('is_deleted', 0)->where('id',$id)->exists();
+
+                if ($checkcategory) {
+                    $validator->errors()->add('cat_name', 'Duplicate category name');
+                }
+            }
+
             return $this->errorresponse(422, $validator->messages());
         } else {
 
@@ -184,12 +202,12 @@ class blogcategoryController extends commonController
                 $blogcategory->update([
                     'is_deleted' => 1
                 ]);
-                return $this->successresponse(200, 'message','blog category succesfully deleted');
+                return $this->successresponse(200, 'message', 'blog category succesfully deleted');
             } else {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         } else {
-            return $this->successresponse(404, 'message',  'No Such blog category Found!');
+            return $this->successresponse(404, 'message', 'No Such blog category Found!');
         }
     }
 }

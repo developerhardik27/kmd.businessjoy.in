@@ -238,7 +238,7 @@
                                     </a>
                                 </li>
                             @endif
-                        @else
+                        @elseif (Session::has('menu') && Session::get('menu') == 'Customer support')
                             @if (session('user_permissions.customersupportmodule.customersupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.customersupport') ? 'active' : '' }}">
                                     <a href="{{ route('admin.customersupport') }}" class="iq-waves-effect">

@@ -88,10 +88,19 @@ class blogtagController extends commonController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tag_name' => 'required|string',
+            'tag_name' => 'required|string|max:50',
         ]);
 
         if ($validator->fails()) {
+
+            if ($request->tag_name) {
+                $checkTag = $this->blogtagModel::where('tag_name', $request->tag_name)->where('is_deleted', 0)->exists();
+
+                if ($checkTag) {
+                    $validator->errors()->add('tag_name', 'Duplicate tag name');
+                }
+            }
+
             return $this->errorresponse(422, $validator->messages());
         } else {
 
@@ -148,10 +157,19 @@ class blogtagController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'tag_name' => 'required|string',
+            'tag_name' => 'required|string|max:50',
         ]);
 
         if ($validator->fails()) {
+
+            if ($request->tag_name) {
+                $checkTag = $this->blogtagModel::where('tag_name', $request->tag_name)->where('is_deleted', 0)->where('id',$id)->exists();
+
+                if ($checkTag) {
+                    $validator->errors()->add('tag_name', 'Duplicate tag name');
+                }
+            }
+
             return $this->errorresponse(422, $validator->messages());
         } else {
 
