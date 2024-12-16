@@ -131,12 +131,12 @@
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">
-                        <i class='ri-close-line'></i>
+                        Cancel
                     </button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
-                        class="btn iq-bg-danger float-right mr-2"><i class='ri-refresh-line'></i></button>
+                        class="btn iq-bg-danger float-right mr-2">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update"
-                        class="btn btn-primary float-right my-0"><i class='ri-check-line'></i></button>
+                        class="btn btn-primary float-right my-0">Save</i></button>
                 </div>
             </div>
         </div>

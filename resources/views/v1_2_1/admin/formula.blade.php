@@ -41,13 +41,11 @@
                 <div class="form-row">
                     <div class="col-sm-12">
                         <button type="button" class="btn btn-secondary float-right" id="cancelbtn" data-toggle="tooltip"
-                            data-placement="bottom" data-original-title="Cancel"><i class="ri-close-line"></i></button>
+                            data-placement="bottom" data-original-title="Cancel">Cancel</button>
                         <button id="resetbtn" type="reset" data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Reset Formula Details" class="btn iq-bg-danger mr-2 float-right"><i
-                                class="ri-refresh-line"></i></button>
+                            data-original-title="Reset Formula Details" class="btn iq-bg-danger mr-2 float-right">Reset</button>
                         <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Submit Formula Details" class="btn btn-primary float-right my-0"><i
-                                class="ri-check-line"></i></button>
+                            data-original-title="Submit Formula Details" class="btn btn-primary float-right my-0">Save</button>
                     </div>
                 </div>
             </div>

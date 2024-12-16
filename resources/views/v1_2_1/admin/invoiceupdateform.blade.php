@@ -190,7 +190,7 @@
                     <div class="col-sm-12">
                         <button id="cancelbtn" type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel" class="btn btn-secondary btn-rounded float-right">Cancel</button>
                         <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
-                        <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update Details" class="btn btn-primary float-right my-0" >Update</button>
+                        <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Update Details" class="btn btn-primary float-right my-0" >Save</button>
                     </div>
             </div>
             </div>

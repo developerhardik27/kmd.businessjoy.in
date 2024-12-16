@@ -73,8 +73,7 @@
                     <div class="password-container">
                         <input type="password" id="password" name='password' class="form-control"
                             id="exampleInputPassword3" value="" placeholder="update Password (not mandatory)"
-                            autocomplete="new-password">
-                        <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
+                            autocomplete="new-passwordSave
                     </div>
                     <span class="error-msg" id="error-password" style="color: red"></span>
                 </div>
@@ -130,15 +129,15 @@
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         class="btn btn-secondary float-right cancelbtn">
-                        <i class='ri-close-line'></i>
+                        Cancel
                     </button>
                     <button type="reset" id="formreset" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Reset" class="btn iq-bg-danger float-right resetbtn mr-2">
-                        <i class='ri-refresh-line'></i>
+                        Reset
                     </button>
                     <button type="submit" id="formsubmit" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Update" class="btn btn-primary float-right my-0 submitBtn">
-                        <i class='ri-check-line'></i>
+                        Submit
                     </button>
                 </div>
             </div>
@@ -405,17 +404,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="adminmodulereset" data-module="admin"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Admin Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="adminmodulesubmit"
                                                 class="btn btn-primary float-right my-0 submitBtn" data-toggle="tooltip"
-                                                data-placement="bottom" data-original-title="Save"><i
-                                                    class='ri-check-line'></i></button>
+                                                data-placement="bottom" data-original-title="Save">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -918,7 +916,8 @@
                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.edit') == '1' || $user_id == 1)
                                             <tr id="invoicecustomeridsetting">
                                                 <td> <input type="checkbox" class="clickmenu"
-                                                        data-value='invoicecustomeridsetting' id="showinvoicecustomeridsettingmenu"
+                                                        data-value='invoicecustomeridsetting'
+                                                        id="showinvoicecustomeridsettingmenu"
                                                         name="showinvoicecustomeridsettingmenu" value="1">
                                                 </td>
                                                 <td>Invoice Customer Id Settings</td>
@@ -926,8 +925,8 @@
                                                     @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.add') == '1' || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicecustomeridsettingmenu'
-                                                            id="addinvoicecustomeridsetting" name="addinvoicecustomeridsetting"
-                                                            value="1">
+                                                            id="addinvoicecustomeridsetting"
+                                                            name="addinvoicecustomeridsetting" value="1">
                                                     @else
                                                         -
                                                     @endif
@@ -936,8 +935,8 @@
                                                     @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.view') == '1' || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicecustomeridsettingmenu'
-                                                            id="viewinvoicecustomeridsetting" name="viewinvoicecustomeridsetting"
-                                                            value="1">
+                                                            id="viewinvoicecustomeridsetting"
+                                                            name="viewinvoicecustomeridsetting" value="1">
                                                     @else
                                                         -
                                                     @endif
@@ -946,8 +945,8 @@
                                                     @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.edit') == '1' || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicecustomeridsettingmenu'
-                                                            id="editinvoicecustomeridsetting" name="editinvoicecustomeridsetting"
-                                                            value="1">
+                                                            id="editinvoicecustomeridsetting"
+                                                            name="editinvoicecustomeridsetting" value="1">
                                                     @else
                                                         -
                                                     @endif
@@ -956,8 +955,8 @@
                                                     @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.delete') == '1' || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicecustomeridsettingmenu'
-                                                            id="deleteinvoicecustomeridsetting" name="deleteinvoicecustomeridsetting"
-                                                            value="1">
+                                                            id="deleteinvoicecustomeridsetting"
+                                                            name="deleteinvoicecustomeridsetting" value="1">
                                                     @else
                                                         -
                                                     @endif
@@ -966,8 +965,8 @@
                                                     @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.alldata') == '1' || $user_id == 1)
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showinvoicecustomeridsettingmenu'
-                                                            id="alldatainvoicecustomeridsetting" name="alldatainvoicecustomeridsetting"
-                                                            value="1">
+                                                            id="alldatainvoicecustomeridsetting"
+                                                            name="alldatainvoicecustomeridsetting" value="1">
                                                     @else
                                                         -
                                                     @endif
@@ -1091,17 +1090,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="invoicemodulereset" data-module="invoice"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Invoice Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="invoicemodulsubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1199,17 +1197,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="leadmodulereset" data-module="lead"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Lead Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="leadmodulesubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1310,18 +1307,17 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="customersupportmodulereset"
                                                 data-module="customersupport" data-toggle="tooltip"
                                                 data-placement="bottom"
                                                 data-original-title="Reset Customer Support Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="customersupportmodulesubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1417,17 +1413,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="accountmodulereset" data-module="account"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Account Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="accountsubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1523,17 +1518,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="inventorymodulereset" data-module="inventory"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Inventory Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="inventorymodulesubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1689,17 +1683,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="remindermodulereset" data-module="reminder"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Reminder Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="remindermodulesubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1803,17 +1796,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="reportmodulereset" data-module="report"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset report Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="reportmodulesubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1910,17 +1902,16 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="blogmodulereset" data-module="blog"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset blog Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="blogmodulesubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -2048,7 +2039,7 @@
 
             var edit_id = @json($edit_id);
             // show old data in fields
-            let userSearchUrl = "{{route('user.search','__editId__')}}".replace('__editId__',edit_id);
+            let userSearchUrl = "{{ route('user.search', '__editId__') }}".replace('__editId__', edit_id);
             $.ajax({
                 type: 'GET',
                 url: userSearchUrl,
@@ -2174,7 +2165,8 @@
 
             // show country data in dropdown and old country selected
             function loadstate(country, state) {
-                let  stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country);
+                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -2212,7 +2204,7 @@
 
             // show state data in dropdown and old state selected
             function loadcity(state, city) {
-                let citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -2253,7 +2245,8 @@
                 loadershow();
                 var country = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country);
+                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -2294,7 +2287,7 @@
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
-                citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
