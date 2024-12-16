@@ -458,12 +458,12 @@
             //submit form
             $('#blogupdateform').submit(function(event) {
                 event.preventDefault();
-                loadershow();
                 $('.error-msg').text('');
                 // Validate the Meta Keywords field
                 if (!validateMetaKeywords()) {
                     return false; // Stop form submission if validation fails
                 }
+                loadershow();
                 var formdata = new FormData($(this)[0]);
                 $.ajax({
                     type: 'POST',
