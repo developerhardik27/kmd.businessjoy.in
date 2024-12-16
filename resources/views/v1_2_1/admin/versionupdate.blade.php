@@ -56,7 +56,7 @@
                                                 class="btn iq-bg-danger float-right mr-2" id="resetBtn">Reset</button>
                                             <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Save"
-                                                class="btn btn-primary float-right my-0">Save</button>
+                                                class="btn btn-primary float-right my-0">Submit</button>
                                         </div>
                                     </div>
                                 </div>

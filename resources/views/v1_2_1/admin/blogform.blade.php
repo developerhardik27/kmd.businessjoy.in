@@ -10,6 +10,14 @@
     New Blog
 @endsection
 
+@section('style')
+    <style>
+        div.btn-group {
+            border: 1px solid grey;
+        }
+    </style>
+@endsection
+
 
 @section('form-content')
     <form id="blogform" name="blogform" enctype="multipart/form-data">
@@ -24,12 +32,12 @@
                     <input type="hidden" name="company_id" class="form-control" value="{{ $company_id }}"
                         placeholder="company_id" required />
                     <label for="title">Title</label><span style="color:red;">*</span>
-                    <input id="title" type="text" name="title" class="form-control" placeholder="Title" required />
+                    <input id="title" type="text" name="title" maxlength="100" class="form-control" placeholder="Title" required />
                     <span class="error-msg" id="error-title" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="slug">Slug</label><span style="color:red;">*</span>
-                    <input type="text" name="slug" readonly class="form-control" id="slug" value=""
+                    <input type="text" name="slug" maxlength="100" readonly class="form-control" id="slug" value=""
                         placeholder="Slug" required />
                     <span class="error-msg" id="error-slug" style="color: red"></span>
                 </div>
@@ -39,15 +47,17 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="meta_dsc">Meta Description</label>
-                    <textarea name="meta_dsc" placeholder="Meta Description" class="form-control" id="meta_dsc" cols=""
+                    <textarea name="meta_dsc" maxlength="200" placeholder="Meta Description" class="form-control" id="meta_dsc" cols=""
                         rows="2"></textarea>
                     <span class="error-msg" id="error-meta_dsc" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="meta_keywords">Meta Keywords</label>
-                    <textarea name="meta_keywords" placeholder="Meta Keywords" class="form-control" id="meta_keywords" cols=""
-                        rows="2"></textarea>
+                    <textarea name="meta_keywords" maxlength="200" placeholder="Enter comma-separated keywords e.g., abc," class="form-control" id="meta_keywords"
+                        cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_keywords" style="color: red"></span>
+                    <p style="font-size: 0.9em; color: #666;">If provided, please enter keywords separated by commas,
+                        without spaces before or after commas.</p>
                 </div>
             </div>
         </div>
@@ -73,7 +83,7 @@
             <div class="form-row">
                 <div class="col-sm-12">
                     <label for="short_description">Short Description</label>
-                    <textarea name="short_description" placeholder="Blog Short Description" class="form-control" id="short_description"
+                    <textarea name="short_description" maxlength="250" placeholder="Blog Short Description" class="form-control" id="short_description"
                         cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-short_description" style="color: red"></span>
                 </div>
@@ -92,8 +102,8 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="blog_image">Image</label><br>
-                    <input type="file" name="blog_image" id="blog_image" width="100%" />
+                    <label for="blog_image">Thumbnail Image</label><br>
+                    <input type="file" accept=".png , .jpg , .jpeg" name="blog_image" id="blog_image" width="100%" />
                     <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and
                         has dimensions of 600 x 400 px.
                     </p>
@@ -104,10 +114,10 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
-                        class="btn iq-bg-danger float-right"><i class='ri-refresh-line'></i></button>
+                    <button type="reset" id="resetBtn" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Reset" class="btn iq-bg-danger float-right">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save Blog"
-                        class="btn btn-primary float-right my-0"><i class='ri-check-line'></i></button>
+                        class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -117,7 +127,42 @@
 
 @push('ajax')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <script>
+        function validateMetaKeywords() {
+            var metaKeywords = $('#meta_keywords').val().trim();
+            var errorMsg = $('#error-meta_keywords');
 
+            // Clear previous error message
+            errorMsg.text("");
+
+            // If the field is empty, skip validation (no error)
+            if (metaKeywords === "") {
+                return true; // Field is optional, so no validation needed if empty
+            }
+
+            // Check if the value contains only letters, numbers, and commas (no spaces after commas, etc.)
+            var regex = /^[a-zA-Z0-9\s,]+$/;
+            if (!regex.test(metaKeywords)) {
+                errorMsg.text("Meta keywords must be comma-separated.");
+                return false;
+            }
+
+            // Check for consecutive commas or spaces before or after commas
+            var commaRegex = /,,|\s+,|,\s/;
+            if (commaRegex.test(metaKeywords)) {
+                errorMsg.text("Meta keywords should not have consecutive commas or spaces before/after commas.");
+                return false;
+            }
+
+            // Check if there's at least one comma
+            if (!metaKeywords.includes(",")) {
+                errorMsg.text("Meta keywords must be separated by commas.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
     <script>
         $('document').ready(function() {
 
@@ -270,7 +315,7 @@
                 $('#tag').multiselect('rebuild');
             });
 
- 
+
             $('#title').on('change', function() {
                 $('#slug').val('');
                 $('#error-slug').text('');
@@ -286,7 +331,7 @@
                     },
                     success: function(response) {
                         $('#slug').val(response.slug);
-                        if (response.status == 422) { 
+                        if (response.status == 422) {
                             $('#error-slug').text(response.message);
                         }
                         loaderhide();
@@ -307,10 +352,37 @@
                 });
             });
 
+            $('#resetBtn').on('click', function(e) {
+                e.preventDefault();
+                $(this).closest('form')[0].reset();
+
+                if ($('#category').find('option:disabled').length == 0) {
+                    $('#category').prepend(
+                        '<option selected disabled>-- Select Category --</option>'
+                    ); // prepend "Please choose an option"
+                }
+
+                $('#category').multiselect('rebuild');
+
+                if ($('#tag').find('option:disabled').length == 0) {
+                    $('#tag').prepend(
+                        '<option selected disabled>-- Select Tag --</option>'
+                    ); // prepend "Please choose an option"
+                }
+                $('#tag').multiselect('rebuild');
+
+                $('#content').summernote('reset');
+
+            });
+
             // submit form data
             $('#blogform').submit(function(event) {
                 event.preventDefault();
                 $('.error-msg').text('');
+                // Validate the Meta Keywords field
+                if (!validateMetaKeywords()) {
+                    return false; // Stop form submission if validation fails
+                }
                 loadershow();
                 var formdata = new FormData($(this)[0]);
                 $.ajax({

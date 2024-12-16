@@ -57,11 +57,13 @@
                         id="tag_name">
                     <span class="error-msg" id="error-tag_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-2 mt--2">
+                <div class="col-sm-5">
                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Submit"
-                        class="btn btn-primary"><i class="ri-check-line"></i></button>
-                    <button type="reset" class="btn iq-bg-danger" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset"><i class="ri-refresh-line"></i></button>
+                        class="btn btn-primary m-1">Save</button>
+                    <button type="reset" class="btn iq-bg-danger m-1" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Reset">Reset</button>
+                    <button type="button" id="cancelbtn" class="btn iq-bg-secondary m-1" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Cancel">Cancel</button>
                 </div>
             </div>
             <div id="newTagBtnDiv" class="form-row ">
@@ -101,7 +103,15 @@
                 e.preventDefault();
                 $('#newblogtagform').removeClass('d-none');
                 $('#newTagBtnDiv').addClass('d-none');
-            })
+            });
+
+            $('#cancelbtn').on('click',function(e){ 
+                e.preventDefault();
+                $('#newblogtagform').addClass('d-none');
+                $('#newTagBtnDiv').removeClass('d-none');
+                $('#tag_name').val('');
+                $('#edit_id').val('');
+            });
 
 
             // fetch column name and append into column list table
@@ -119,6 +129,8 @@
                     },
                     success: function(response) {
                         if (response.status == 200 && response.blogtag != '') {
+                            $('#data').DataTable().destroy();
+                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             $.each(response.blogtag, function(key, value) {
@@ -141,6 +153,9 @@
                                                         </td>
                                                     </tr>`)
                                 id++;
+                            });
+                            $('#data').DataTable({ 
+                                "destroy": true, //use for reinitialize datatable
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();

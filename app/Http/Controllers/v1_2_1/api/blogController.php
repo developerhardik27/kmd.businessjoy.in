@@ -119,10 +119,10 @@ class blogController extends commonController
                 'blogs.img',
                 'blogs.content',
                 'blogs.slug',
-                'blogs.short_desc',
+                'blogs.short_desc', 
                 DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'),
                 DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'),
-                DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y')")
+                DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y') as created_at_formatted")
             )
             ->groupBy(
                 'users.firstname',
@@ -174,12 +174,12 @@ class blogController extends commonController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:50',
-            'slug' => 'required|string',
+            'title' => 'required|string|max:100',
+            'slug' => 'required|string|max:100',
             'content' => 'required|string',
-            'meta_dsc' => 'nullable|string',
-            'meta_keywords' => 'nullable|string',
-            'short_description' => 'nullable|string|max:100',
+            'meta_dsc' => 'nullable|string|max:200',
+            'meta_keywords' => 'nullable|string|max:200',
+            'short_description' => 'nullable|string|max:250',
             'category' => 'required',
             'tag' => 'required',
             'blog_image' => 'required|image|mimes:jpg,jpeg,png|max:10240'
@@ -288,7 +288,7 @@ class blogController extends commonController
         } else {
             return $this->successresponse(404, 'blog', 'No Records Found');
         }
-        
+
     }
 
     /**
@@ -297,12 +297,12 @@ class blogController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:50',
-            'slug' => 'required|string',
+            'title' => 'required|string|max:100',
+            'slug' => 'required|string|max:100',
             'content' => 'required|string',
-            'meta_dsc' => 'nullable|string',
-            'meta_keywords' => 'nullable|string',
-            'short_description' => 'nullable|string|max:100',
+            'meta_dsc' => 'nullable|string|max:200',
+            'meta_keywords' => 'nullable|string|max:200',
+            'short_description' => 'nullable|string|max:250',
             'category' => 'required',
             'tag' => 'required',
             'blog_image' => 'nullable|image|mimes:jpg,jpeg,png|max:10240'
@@ -317,7 +317,7 @@ class blogController extends commonController
                     $checkSlug = $checkSlug->whereNot('id', $request->edit_id);
                 }
 
-                $checkSlug = $checkSlug->exists(); 
+                $checkSlug = $checkSlug->exists();
 
                 if ($checkSlug) {
                     $validator->errors()->add('slug', 'Slug is already in use.');

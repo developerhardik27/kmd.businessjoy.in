@@ -193,8 +193,8 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="reset" id="resetbtn" data-toggle=tooltip  data-placement="bottom" data-original-title="Cancel" class="btn iq-bg-danger float-right"><i class="ri-close-line"></i></button>
-                    <button type="submit" data-toggle=tooltip  data-placement="bottom" data-original-title="Submit" class="btn btn-primary float-right my-0"><i class="ri-check-line"></i></button>
+                    <button type="reset" id="resetbtn" data-toggle=tooltip  data-placement="bottom" data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
+                    <button type="submit" data-toggle=tooltip  data-placement="bottom" data-original-title="Submit" class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>

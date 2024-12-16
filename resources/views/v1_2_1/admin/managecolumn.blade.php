@@ -44,12 +44,11 @@
                 </div>
                 <div class="col-sm-2 mt--2">
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Submit Column Details" class="btn btn-primary"><i
-                            class="ri-check-line"></i></button>
+                        data-original-title="Submit Column Details" class="btn btn-primary">Save</button>
                     <button type="reset" class="btn iq-bg-danger mr-2" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Column Details"><i class="ri-refresh-line"></i></button>
+                        data-original-title="Reset Column Details">Reset</button>
                     <button type="button" class="btn btn-secondary" id="cancelbtn" data-toggle="tooltip"
-                        data-placement="bottom" data-original-title="Cancel"><i class="ri-close-line"></i></button>
+                        data-placement="bottom" data-original-title="Cancel">Cancel</button>
                 </div>
             </div>
             <div id="newColBtnDiv" class="form-row ">

@@ -105,7 +105,7 @@
             <div class="form-row">
                  <div class="col-sm-12">
                      <button type="reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" >Submit</button>
+                     <button type="submit" class="btn btn-primary float-right my-0">Save</button>
                  </div>
             </div>
          </div>

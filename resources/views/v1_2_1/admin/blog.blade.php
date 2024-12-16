@@ -59,7 +59,6 @@
             <tr>
                 <th>Id</th>
                 <th>Title</th>
-                <th>View</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -106,17 +105,19 @@
                                 $('#tabledata').append(`
                                     <tr>
                                         <td>${id}</td>
-                                        <td>${value.title != null ? value.title : '-'}</td>  
-                                        <td>
-                                            @if (session('user_permissions.blogmodule.blog.view') == '11')
-                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details"><button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td> 
+                                        <td>${value.title != null ? value.title : '-'}</td>   
                                         @if (session('user_permissions.blogmodule.blog.edit') == '1' ||
                                                 session('user_permissions.blogmodule.blog.delete') == '1')
-                                            <td>
+                                            <td> 
+                                                @if (session('user_permissions.blogmodule.blog.view') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
+                                                        <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                            <i class="ri-indent-decrease"></i>
+                                                        </button>
+                                                    </span>
+                                                @else
+                                                    -
+                                                @endif 
                                                 @if (session('user_permissions.blogmodule.blog.edit') == '1')
                                                     <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                         <a href='EditBlog/${value.id}'>
@@ -153,7 +154,7 @@
                         } else if (response.status == 500) { // if database not found
                             toastr.error(response.message);
                         } else { // if request has not found any bank details record
-                            $('#tabledata').append(`<tr><td colspan='4' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
                         }
                         loaderhide();
                     },
@@ -220,36 +221,40 @@
             });
 
             // view bank data in pop-up
-            // $(document).on("click", ".view-btn", function() {
-            //     $('#details').html('');
-            //     var data = $(this).data('view');
-            //     $.each(global_response.bankdetail, function(key, bankdetail) {
-            //         if (bankdetail.id == data) {
-            //             $('#details').append(`
-        //                     <tr>
-        //                         <th>Holder Name</th>
-        //                         <td>${(bankdetail.holder_name != null)? bankdetail.holder_name : '-'}</td>
-        //                     </tr>
-        //                     <tr>
-        //                         <th>Account Number</th>
-        //                         <td>${(bankdetail.account_no!= null)? bankdetail.account_no : '-'}</td>
-        //                     </tr>
-        //                     <tr>
-        //                         <th>IFSC Code</th>
-        //                         <td>${(bankdetail.ifsc_code!= null)? bankdetail.ifsc_code : '-'}</td>
-        //                     </tr>
-        //                     <tr>
-        //                         <th>Swift Code</th>
-        //                         <td>${(bankdetail.swift_code!= null)? bankdetail.swift_code : '-'}</td>
-        //                     </tr>
-        //                     <tr>
-        //                         <th>Branch Name</th>
-        //                         <td>${(bankdetail.branch_name!= null)? bankdetail.branch_name : '-'}</td>
-        //                     </tr>
-        //             `);
-            //         }
-            //     });
-            // });
+            $(document).on("click", ".view-btn", function() {
+                $('#details').html('');
+                var data = $(this).data('view');
+                $.each(global_response.blog, function(key, blog) {
+                    if (blog.id == data) {
+                        $('#details').append(`
+                            <tr>
+                                <th>Categories</th>
+                                <td>${(blog.categories != null)? blog.categories : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Tags</th>
+                                <td>${(blog.tags!= null)? blog.tags : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Title</th>
+                                <td>${(blog.title!= null)? blog.title : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Short Description</th>
+                                <td>${(blog.short_desc!= null)? blog.short_desc : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Created On</th>
+                                <td>${(blog.created_at_formatted!= null)? blog.created_at_formatted : '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Created By</th>
+                                <td>${(blog.firstname!= null)? blog.firstname : ''} ${(blog.lastname!= null)? blog.lastname : '-'}</td>
+                            </tr>
+                        `);
+                    }
+                });
+            });
         });
     </script>
 @endpush
