@@ -100,6 +100,7 @@ class blogController extends commonController
     {
         $recent_post = $request->recent_post;
         $category = $request->category;
+        $tag = $request->tag;
         $catids = $request->catids;
 
         $blogsquery = DB::connection('dynamic_connection')
@@ -119,7 +120,7 @@ class blogController extends commonController
                 'blogs.img',
                 'blogs.content',
                 'blogs.slug',
-                'blogs.short_desc', 
+                'blogs.short_desc',
                 DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'),
                 DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'),
                 DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y') as created_at_formatted")
@@ -139,12 +140,16 @@ class blogController extends commonController
 
         if (isset($catids)) {
             foreach ($catids as $value) {
-                $blogsquery = $blogsquery->orWhere('blogs.cat_ids', 'LIKE', '%' . $value . '%');
+                $blogsquery = $blogsquery->orWhere('blog_categories.id', $value);
             }
         }
 
         if (isset($category)) {
-            $blogsquery = $blogsquery->where('blogs.cat_ids', 'LIKE', '%' . $category . '%');
+            $blogsquery = $blogsquery->where('blog_categories.slug', $category);
+        }
+
+        if (isset($tag)) {
+            $blogsquery = $blogsquery->where('blog_tags.slug', $tag);
         }
 
         if (isset($recent_post)) {

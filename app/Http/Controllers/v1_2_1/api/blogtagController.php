@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\v1_2_1\api;
 
-use App\Models\api_authorization;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -88,7 +89,7 @@ class blogtagController extends commonController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tag_name' => 'required|string|max:50',
+            'tag_name' => 'required|string|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -108,6 +109,7 @@ class blogtagController extends commonController
 
                 $blogtag = $this->blogtagModel::create([
                     'tag_name' => $request->tag_name,
+                    'slug' =>  Str::slug($request->tag_name) ,
                     'created_by' => $this->userId,
                 ]);
 
@@ -157,7 +159,7 @@ class blogtagController extends commonController
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'tag_name' => 'required|string|max:50',
+            'tag_name' => 'required|string|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -183,6 +185,7 @@ class blogtagController extends commonController
                 $this->blogtagModel::where('id', $id) // Specify the condition to update the correct record
                     ->update([
                         'tag_name' => $request->tag_name,
+                        'slug' =>  Str::slug($request->tag_name) ,
                         'updated_by' => $this->userId,
                         'updated_at' => now(),
                     ]);

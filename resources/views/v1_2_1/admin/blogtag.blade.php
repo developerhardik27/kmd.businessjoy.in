@@ -53,7 +53,7 @@
                     <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
                     <input type="hidden" name="updated_by" id="updated_by">
                     <input type="hidden" name="edit_id" id="edit_id">
-                    <input type="text" class="form-control form-input" name="tag_name" placeholder="Tag Name"
+                    <input type="text" maxlength="30" class="form-control form-input" name="tag_name" placeholder="Tag Name"
                         id="tag_name">
                     <span class="error-msg" id="error-tag_name" style="color: red"></span>
                 </div>
@@ -202,7 +202,7 @@
                                 $('#edit_id').val(editid);
                                 $('#tag_name').val(blogtagdata.tag_name); 
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                   toastr.error(response.message);
                             } else {
                                 toastr.error(response.message);
                             }
