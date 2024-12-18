@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\v1_2_1\api;
 
-use App\Models\api_authorization;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -104,6 +105,7 @@ class blogcategoryController extends commonController
 
                 $blogcategory = $this->blogcategorymodel::create([
                     'cat_name' => $request->category_name,
+                    'slug' =>  Str::slug($request->category_name) ,
                     'created_by' => $this->userId,
                 ]);
 
@@ -180,6 +182,7 @@ class blogcategoryController extends commonController
                 $this->blogcategorymodel::where('id', $id) // Specify the condition to update the correct record
                     ->update([
                         'cat_name' => $request->category_name,
+                        'slug' =>  Str::slug($request->category_name) ,
                         'updated_by' => $this->userId,
                         'updated_at' => now(),
                     ]);

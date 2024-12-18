@@ -52,7 +52,7 @@
                     <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
                     <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
                     <input type="hidden" name="edit_id" id="edit_id">
-                    <input type="text" class="form-control form-input" name="category_name" placeholder="Category Name"
+                    <input type="text" maxlength="20" class="form-control form-input" name="category_name" placeholder="Category Name"
                         id="category_name">
                     <span class="error-msg" id="error-category_name" style="color: red"></span>
                 </div>
