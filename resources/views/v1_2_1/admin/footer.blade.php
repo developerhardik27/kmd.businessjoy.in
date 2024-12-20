@@ -69,7 +69,7 @@
 
         function loaderhide() {
             $("#loader-container").hide();
-            $("#wrapper").removeClass("blurred-content").addClass("remove-blur");
+            $(".wrapper").removeClass("blurred-content").addClass("remove-blur");
         }
         //   end loader function 
 </script>
