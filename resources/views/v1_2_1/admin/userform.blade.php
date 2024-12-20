@@ -34,6 +34,10 @@
             color: #888;
             /* Adjust color as needed */
         }
+
+        .special-color {
+            color: #6546d2;
+        }
     </style>
 @endsection
 
@@ -177,8 +181,8 @@
                                                 </th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -189,10 +193,11 @@
                                         <tbody id="admincheckboxes">
                                             @if (session('user_permissions.adminmodule.company.add') == '1' || $user_id == 1)
                                                 <tr id="company">
-                                                    <td rowspan="{{ $rowspan }}"> <input type="checkbox"
-                                                            class="clickmenu" data-value='company' id="showcompanymenu"
-                                                            name="showcompanymenu" value="1"></td>
                                                     <td rowspan="{{ $rowspan }}">Company</td>
+                                                    <td rowspan="{{ $rowspan }}">
+                                                        <input type="checkbox" class="clickmenu" data-value='company'
+                                                            id="showcompanymenu" name="showcompanymenu" value="1">
+                                                    </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -263,11 +268,11 @@
                                             @endif
                                             @if (session('user_permissions.adminmodule.user.add') == '1' || $user_id == 1)
                                                 <tr id="user">
+                                                    <td>User</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='user'
                                                             id="showusermenu" name="showusermenu" value="1">
                                                     </td>
-                                                    <td>User</td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -317,12 +322,12 @@
                                             @endif
                                             @if ((Session::has('admin_role') && Session::get('admin_role') == 1) || $user_id == 1)
                                                 <tr id="techsupport">
+                                                    <td>Tech support</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='techsupport'
                                                             id="showtechsupportmenu" name="showtechsupportmenu"
                                                             value="1">
                                                     </td>
-                                                    <td>Tech support</td>
                                                     <td>
                                                         <input type="checkbox" class="clicksubmenu"
                                                             data-value='showtechsupportmenu' id="addtechsupport"
@@ -356,12 +361,12 @@
                                             @endif
                                             @if (session('user_permissions.adminmodule.user.add') == '1' || $user_id == 1)
                                                 <tr id="userpermission">
+                                                    <td>User Permission</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu"
                                                             data-value='userpermission' id="showuserpermissionmenu"
                                                             name="showuserpermissionmenu" value="1">
                                                     </td>
-                                                    <td>User Permission</td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.userpermission.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -461,8 +466,8 @@
                                                 </th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15% ;">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15% ;">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -473,11 +478,11 @@
                                         <tbody id="invoicecheckboxes">
                                             @if (session('user_permissions.invoicemodule.invoice.add') == '1' || $user_id == 1)
                                                 <tr id="invoice">
+                                                    <td>Invoice</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='invoice'
                                                             id="showinvoicemenu" name="showinvoicemenu" value="1">
                                                     </td>
-                                                    <td>Invoice</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoice.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -526,12 +531,20 @@
                                                 </tr>
                                             @endif
 
+                                            <tr>
+                                                <td class="p-0" style="border-right: 0;"> <span
+                                                        class="btn expandsettingsbutton"
+                                                        data-target="invoice_settings_rows"><i
+                                                            class="ri ri-2x ri-arrow-right-circle-fill"></i> Invoice
+                                                        Settings</span></td>
+                                            </tr>
+
                                             @if (session('user_permissions.invoicemodule.mngcol.add') == '1' || $user_id == 1)
-                                                <tr id="mngcol">
+                                                <tr id="mngcol" class="invoice_settings_rows subsettingrows">
+                                                    <td>Manage Invoice Column</td>
                                                     <td> <input type="checkbox" class="clickmenu" data-value='mngcol'
                                                             id="showmngcolmenu" name="showmngcolmenu" value="1">
                                                     </td>
-                                                    <td>Manage Invoice Column</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.mngcol.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -582,11 +595,11 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.formula.add') == '1' || $user_id == 1)
-                                                <tr id="formula">
+                                                <tr id="formula" class="invoice_settings_rows subsettingrows">
+                                                    <td>Invoice Formula</td>
                                                     <td> <input type="checkbox" class="clickmenu" data-value='formula'
                                                             id="showformulamenu" name="showformulamenu" value="1">
                                                     </td>
-                                                    <td>Invoice Formula</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -637,12 +650,15 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicesetting">
+                                                <tr id="invoicesetting" class="invoice_settings_rows subsettingrows">
+                                                    <td class="p-0"><span class="btn expandsettingsbutton"
+                                                            data-target="invoice_other_settings_rows"><i
+                                                                class="ri ri-2x ri-arrow-right-circle-fill"></i>
+                                                            Invoice/Settings</span></td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='invoicesetting' id="showinvoicesettingmenu"
                                                             name="showinvoicesettingmenu" value="1">
                                                     </td>
-                                                    <td>Invoice/Settings</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -697,13 +713,14 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicenumbersetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicenumbersetting">
+                                                <tr id="invoicenumbersetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
+                                                    <td>Invoice Number Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='invoicenumbersetting'
                                                             id="showinvoicenumbersettingmenu"
                                                             name="showinvoicenumbersettingmenu" value="1">
                                                     </td>
-                                                    <td>Invoice Number Settings</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicenumbersetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -759,13 +776,15 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicetandcsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicetandcsetting">
-                                                    <td> <input type="checkbox" class="clickmenu"
+                                                <tr id="invoicetandcsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
+                                                    <td>Invoice T&C Settings</td>
+                                                    <td>
+                                                        <input type="checkbox" class="clickmenu"
                                                             data-value='invoicetandcsetting'
                                                             id="showinvoicetandcsettingmenu"
                                                             name="showinvoicetandcsettingmenu" value="1">
                                                     </td>
-                                                    <td>Invoice T&C Settings</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -821,13 +840,15 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicestandardsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicestandardsetting">
-                                                    <td> <input type="checkbox" class="clickmenu"
+                                                <tr id="invoicestandardsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
+                                                    <td>Invoice Standard Settings</td>
+                                                    <td>
+                                                        <input type="checkbox" class="clickmenu"
                                                             data-value='invoicestandardsetting'
                                                             id="showinvoicestandardsettingmenu"
                                                             name="showinvoicestandardsettingmenu" value="1">
                                                     </td>
-                                                    <td>Invoice Standard Settings</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicestandardsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -883,12 +904,13 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicegstsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicegstsetting">
+                                                <tr id="invoicegstsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
+                                                    <td>Invoice GST Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='invoicegstsetting' id="showinvoicegstsettingmenu"
                                                             name="showinvoicegstsettingmenu" value="1">
                                                     </td>
-                                                    <td>Invoice GST Settings</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicegstsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -944,13 +966,14 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicecustomeridsetting">
+                                                <tr id="invoicecustomeridsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
+                                                    <td>Invoice Customer Id Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='invoicecustomeridsetting'
                                                             id="showinvoicecustomeridsettingmenu"
                                                             name="showinvoicecustomeridsettingmenu" value="1">
                                                     </td>
-                                                    <td>Invoice Customer Id Settings</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1007,11 +1030,11 @@
 
                                             @if (session('user_permissions.invoicemodule.bank.add') == '1' || $user_id == 1)
                                                 <tr id="bank">
+                                                    <td>Bank</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='bank'
                                                             id="showbankmenu" name="showbankmenu" value="1">
                                                     </td>
-                                                    <td>Bank</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.bank.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1062,11 +1085,11 @@
 
                                             @if (session('user_permissions.invoicemodule.customer.add') == '1' || $user_id == 1)
                                                 <tr id="customer">
+                                                    <td>Customer</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='customer'
                                                             id="showcustomermenu" name="showcustomermenu" value="1">
                                                     </td>
-                                                    <td>Customer</td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1158,8 +1181,8 @@
                                                 </th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1170,11 +1193,11 @@
                                         <tbody id="leadcheckboxes">
                                             @if (session('user_permissions.leadmodule.lead.add') == '1' || $user_id == 1)
                                                 <tr id="lead">
+                                                    <td>Lead</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='lead'
                                                             id="showleadmenu" name="showleadmenu" value="1">
                                                     </td>
-                                                    <td>Lead</td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.lead.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1265,8 +1288,8 @@
                                                 </th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1277,12 +1300,12 @@
                                         <tbody id="customersupportcheckboxes">
                                             @if (session('user_permissions.customersupportmodule.customersupport.add') == '1' || $user_id == 1)
                                                 <tr id="customersupport">
+                                                    <td>Customer Support</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu"
                                                             data-value='customersupport' id="showcustomersupportmenu"
                                                             name="showcustomersupportmenu" value="1">
                                                     </td>
-                                                    <td>Customer Support</td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1378,8 +1401,8 @@
                                                         class="allcheck"></th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1390,12 +1413,12 @@
                                         <tbody id="accountcheckboxes">
                                             @if (session('user_permissions.accountmodule.purchase.add') == '1' || $user_id == 1)
                                                 <tr id="purchase">
+                                                    <td>Purchase</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='purchase'
                                                             id="showpurchasemenu" name="showpurchasemenu"
                                                             value="1">
                                                     </td>
-                                                    <td>Purchase</td>
                                                     <td>
                                                         @if (session('user_permissions.accountmodule.purchase.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1484,8 +1507,8 @@
                                                         class="allcheck"></th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1496,12 +1519,12 @@
                                         <tbody id="inventorycheckboxes">
                                             @if (session('user_permissions.inventorymodule.product.add') == '1' || $user_id == 1)
                                                 <tr id="product">
+                                                    <td>Product</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='product'
                                                             id="showproductmenu" name="showproductmenu"
                                                             value="1">
                                                     </td>
-                                                    <td>Product</td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.product.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1591,8 +1614,8 @@
                                                         class="allcheck"></th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1603,12 +1626,12 @@
                                         <tbody id="remindercheckboxes">
                                             @if (session('user_permissions.remindermodule.reminder.add') == '1' || $user_id == 1)
                                                 <tr id="reminder">
+                                                    <td>Reminder</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='reminder'
                                                             id="showremindermenu" name="showremindermenu"
                                                             value="1">
                                                     </td>
-                                                    <td>Reminder</td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminder.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1658,12 +1681,12 @@
                                             @endif
                                             @if (session('user_permissions.remindermodule.remindercustomer.add') == '1' || $user_id == 1)
                                                 <tr id="remindercustomer">
+                                                    <td>Reminder Customer</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu"
                                                             data-value='remindercustomer' id="showremindercustomermenu"
                                                             name="showremindercustomermenu" value="1">
                                                     </td>
-                                                    <td>Reminder Customer</td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1757,8 +1780,8 @@
                                                         class="allcheck"></th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1769,11 +1792,11 @@
                                         <tbody id="reportcheckboxes">
                                             @if (session('user_permissions.reportmodule.report.add') == '1' || $user_id == 1)
                                                 <tr id="report">
+                                                    <td rowspan="3">report</td>
                                                     <td rowspan="3">
                                                         <input type="checkbox" class="clickmenu" data-value='report'
                                                             id="showreportmenu" name="showreportmenu" value="1">
                                                     </td>
-                                                    <td rowspan="3">report</td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.report.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1870,8 +1893,8 @@
                                                         class="allcheck"></th>
                                             </tr>
                                             <tr>
-                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Menus</th>
+                                                <th scope="col" style="width:15%">Show/Hide</th>
                                                 <th scope="col">Add</th>
                                                 <th scope="col">View</th>
                                                 <th scope="col">Edit</th>
@@ -1882,11 +1905,11 @@
                                         <tbody id="blogcheckboxes">
                                             @if (session('user_permissions.blogmodule.blog.add') == '1' || $user_id == 1)
                                                 <tr id="blog">
+                                                    <td rowspan="3">blog</td>
                                                     <td rowspan="3">
                                                         <input type="checkbox" class="clickmenu" data-value='blog'
                                                             id="showblogmenu" name="showblogmenu" value="1">
                                                     </td>
-                                                    <td rowspan="3">blog</td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blog.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
@@ -1959,7 +1982,6 @@
                                 </div>
                             </div>
                         @endif
-
                     </div>
                 </div>
             @endif
@@ -2000,6 +2022,17 @@
                     true); // permission related all checkoboxes disable if user has not permission
             }
 
+            $('.subsettingrows').slideUp();
+
+            $('.expandsettingsbutton').on('click', function() {
+                let targetrows = $(this).data('target');
+                $('tr.' + targetrows).slideToggle();
+                // Toggle 'special-color' class on both the button and the target rows
+                $(this).toggleClass('special-color'); // Add/remove class on the button
+                $('tr.' + targetrows).toggleClass('special-color'); // Add/remove class on the target rows
+                $(this).find('i').toggleClass('ri-arrow-right-circle-fill ri-arrow-down-circle-fill');
+            });
+
             // function for get user record - it will return promise
             function getUserData() {
                 return new Promise((resolve, reject) => {
@@ -2035,7 +2068,6 @@
                         $.each(userDataResponse.user, function(key, value) {
                             var optionValue = ((value.firstname != null) ? value.firstname : '') + ' ' +
                                 ((value.lastname != null) ? value.lastname : '');
-                            console.log(value.lastname);
                             $('#assignedto').append(
                                 `<option value="${value.id}">${optionValue}</option>`);
                         });
@@ -2311,7 +2343,6 @@
 
                     if (module == 'report') {
                         $('#assignedto option').prop('selected', false);
-                        console.log($("#assignedto option:disabled").length);
                         if ($("#assignedto option:disabled").length == 0) {
                             $("#assignedto").prepend(
                                 '<option value="" disabled selected>-- Select User --</option>');
@@ -2343,7 +2374,6 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        console.log(response);
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user

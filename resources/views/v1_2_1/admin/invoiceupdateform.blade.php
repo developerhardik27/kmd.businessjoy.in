@@ -382,6 +382,15 @@
                     }
                 });
 
+                // This will listen for any change event on the form's inputs.
+                $('#add_new_div').on('change', 'input, textarea', function() {
+                    // Iterate through all the inputs and update their title attribute with their current value.
+                    $('#add_new_div input, #add_new_div textarea').each(function() {
+                        var inputValue = $(this).val();  // Get the current value of the input/textarea
+                        $(this).attr('title', inputValue);  // Set the title attribute with the value
+                    });
+                });
+
                  //function for refresh tooltip after dynamic record append,delete 
                 function managetooltip(){
                     $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
