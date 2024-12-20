@@ -37,6 +37,12 @@
         .special-color {
             color: #6546d2;
         }
+
+        table , table th , table td{
+            border-right: transparent !important;
+            border-left: transparent !important;
+        }
+
     </style>
 @endsection
 
