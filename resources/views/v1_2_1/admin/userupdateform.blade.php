@@ -2014,11 +2014,23 @@
 
             $('.expandsettingsbutton').on('click', function() {
                 let targetrows = $(this).data('target');
+                let isInvoiceSettings = targetrows === 'invoice_settings_rows';
+
                 $('tr.' + targetrows).slideToggle();
                 // Toggle 'special-color' class on both the button and the target rows
                 $(this).toggleClass('special-color'); // Add/remove class on the button
                 $('tr.' + targetrows).toggleClass('special-color'); // Add/remove class on the target rows
                 $(this).find('i').toggleClass('ri-arrow-right-circle-fill ri-arrow-down-circle-fill'); 
+
+                // If 'Invoice Settings' is collapsed, also collapse 'Invoice Other Settings'
+                if (isInvoiceSettings) {
+                    let isInvoiceSettingsVisible = $('tr.' + targetrows).hasClass("special-color"); 
+                    if (!isInvoiceSettingsVisible) {  // If Invoice Settings is collapsed, collapse Invoice Other Settings as well
+                        $('tr.invoice_other_settings_rows').slideUp(); 
+                        $('tr.invoice_other_settings_rows').removeClass('special-color'); 
+                        $('.expandsettingsbutton[data-target="invoice_other_settings_rows"]').find('i').removeClass('ri-arrow-down-circle-fill').addClass('ri-arrow-right-circle-fill');
+                    }
+                }
             });
 
             function getUserData() {

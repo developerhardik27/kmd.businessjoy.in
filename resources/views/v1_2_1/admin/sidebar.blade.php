@@ -5,7 +5,7 @@
     </div>
     <!-- loader END -->
     <!-- Wrapper Start -->
-    <div class="wrapper .blurred-content">
+    <div class="wrapper blurred-content">
         <!-- Sidebar  -->
         <div class="iq-sidebar">
             <div class="iq-sidebar-logo d-flex justify-content-between">
