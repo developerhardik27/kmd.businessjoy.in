@@ -43,3 +43,11 @@
         </div>
     </div>
 @endsection
+
+@push('ajax')
+    <script>
+        $('document').ready(function() {
+            loaderhide();
+        });
+    </script>
+@endpush
