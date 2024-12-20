@@ -359,6 +359,15 @@
             // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
             $('.withgstspan').hide(); 
 
+            // This will listen for any change event on the form's inputs.
+            $('#add_new_div').on('change', 'input, textarea', function() {
+                // Iterate through all the inputs and update their title attribute with their current value.
+                $('#add_new_div input, #add_new_div textarea').each(function() {
+                    var inputValue = $(this).val();  // Get the current value of the input/textarea
+                    $(this).attr('title', inputValue);  // Set the title attribute with the value
+                });
+            });
+
             $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
