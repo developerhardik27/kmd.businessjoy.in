@@ -82,6 +82,7 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     $customerController = getversion('customerController');
     Route::controller($customerController)->group(function () {
         Route::get('/invoicecustomer', 'invoicecustomer')->name('customer.invoicecustomer');
+        Route::get('/quotationcustomer', 'quotationcustomer')->name('customer.quotationcustomer');
         Route::get('/customer', 'index')->name('customer.index');
         Route::post('/customer/insert', 'store')->name('customer.store');
         Route::get('/customer/search/{id}', 'show')->name('customer.search');
@@ -247,7 +248,7 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     // tbl_invoice_column route 
     $tblinvoicecolumnController = getversion('tblinvoicecolumnController');
     Route::controller($tblinvoicecolumnController)->group(function () {
-        Route::get('/formulacolumnlist', 'formula')->name('invoicecolumn.formulacolumnlist');
+        Route::get('/invoice/formulacolumnlist', 'formula')->name('invoicecolumn.formulacolumnlist');
         Route::get('/invoicecolumn', 'index')->name('invoicecolumn.index');
         Route::post('/invoicecolumn/insert', 'store')->name('invoicecolumn.store');
         Route::post('/invoicecolumn/columnorder', 'columnorder')->name('invoicecolumn.columnorder');
@@ -422,6 +423,73 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::get('/apiauthorization/edit/{id}', 'edit')->name('apiauthorization.edit');
         Route::post('/apiauthorization/update/{id}', 'update')->name('apiauthorization.update');
         Route::put('/apiauthorization/delete/{id}', 'destroy')->name('apiauthorization.delete');
+    });
+
+     // tbl_quotation_column route 
+     $tblquotationcolumnController = getversion('tblquotationcolumnController');
+     Route::controller($tblquotationcolumnController)->group(function () {
+         Route::get('/quotation/formulacolumnlist', 'formula')->name('quotationcolumn.formulacolumnlist');
+         Route::get('/quotationcolumn', 'index')->name('quotationcolumn.index');
+         Route::post('/quotationcolumn/insert', 'store')->name('quotationcolumn.store');
+         Route::post('/quotationcolumn/columnorder', 'columnorder')->name('quotationcolumn.columnorder');
+         Route::get('/quotationcolumn/search/{id}', 'show')->name('quotationcolumn.search');
+         Route::get('/quotationcolumn/edit/{id}', 'edit')->name('quotationcolumn.edit');
+         Route::post('/quotationcolumn/update/{id}', 'update')->name('quotationcolumn.update');
+         Route::put('/quotationcolumn/delete/{id}', 'destroy')->name('quotationcolumn.delete');
+         Route::put('/quotationcolumn/hide/{id}', 'hide')->name('quotationcolumn.hide');
+     });
+
+
+      // tbl_quotation_formula route 
+    $tblquotationformulaController = getversion('tblquotationformulaController');
+    Route::controller($tblquotationformulaController)->group(function () {
+        Route::get('/quotationformula', 'index')->name('quotationformula.index');
+        Route::post('/quotationformula/insert', 'store')->name('quotationformula.store');
+        Route::post('/quotationformula/formulaorder', 'formulaorder')->name('quotationformula.formulaorder');
+        Route::get('/quotationformula/search/{id}', 'show')->name('quotationformula.search');
+        Route::get('/quotationformula/edit/{id}', 'edit')->name('quotationformula.edit');
+        Route::post('/quotationformula/update/{id}', 'update')->name('quotationformula.update');
+        Route::put('/quotationformula/delete/{id}', 'destroy')->name('quotationformula.delete');
+    });
+
+    $tblquotationothersettingController = getversion('tblquotationothersettingController');
+    Route::controller($tblquotationothersettingController)->group(function () {
+        Route::get('/quotation/getoverduedays', 'getoverduedays')->name('getquotationoverduedays.index');
+        Route::get('/quotationnumberpatterns', 'quotationnumberpatternindex')->name('quotationnumberpatterns.index');
+        Route::post('/quotation/getoverduedays/update/{id}', 'overduedayupdate')->name('getquotationoverduedays.update');
+        Route::post('/quotationpattern/update', 'quotationpatternstore')->name('quotationpattern.store');
+        Route::post('/quotation/gstsettings/update/{id}', 'gstsettingsupdate')->name('quotationgstsettingsupdate.update');
+        Route::get('/quotation/termsandconditions', 'termsandconditionsindex')->name('quotationtermsandconditions.index');
+        Route::post('/quotation/termsandconditions/insert', 'quotationtcstore')->name('quotationtermsandconditions.store');
+        Route::get('/quotation/termsandconditions/edit/{id}', 'tcedit')->name('quotationtermsandconditions.edit');
+        Route::post('/quotation/termsandconditions/update/{id}', 'tcupdate')->name('quotationtermsandconditions.update');
+        Route::put('/quotation/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('quotationtermsandconditions.statusupdate');
+        Route::put('/quotation/termsandconditions/delete/{id}', 'tcdestroy')->name('quotationtermsandconditions.delete');
+        Route::post('/manualquotationnumber', 'manual_quotation_number')->name('othersettings.updatequotationnumberstatus');
+        Route::post('/manualquotationdate', 'manual_quotation_date')->name('othersettings.updatequotationdatestatus');
+    });
+
+    $quotationController = getversion('quotationController');
+    //quotation route
+    Route::group([], function () use ($quotationController) {
+        Route::get('/quotation/totalquotation', [$quotationController, 'totalQuotation'])->name('quotation.totalquotation');
+        Route::get('/quotation/status_list', [$quotationController, 'status_list'])->name('quotation.status_list');
+        Route::get('/quotation/chart', [$quotationController, 'monthlyQuotationChart'])->name('quotation.chart');
+        Route::get('/quotation/checkquotationnumber', [$quotationController, 'checkquotationnumber'])->name('quotation.checkquotationnumber');
+        Route::get('/quotation/currency', [$quotationController, 'currency'])->name('quotation.currency');
+        Route::get('/quotation/columnname', [$quotationController, 'columnname'])->name('quotation.columnname');
+        Route::get('/quotation/numbercolumnname', [$quotationController, 'numbercolumnname'])->name('quotation.numbercolumnname');
+        Route::get('/quotatoin/quotation_list', [$quotationController, 'quotation_list'])->name('quotation.quotation_list');
+        Route::put('/quotation_status/{id}', [$quotationController, 'status'])->name('quotation.status');
+        Route::get('/quotation/{id}', [$quotationController, 'index'])->name('quotation.index');
+        Route::post('/quotation/insert', [$quotationController, 'store'])->name('quotation.store');
+        Route::get('/quotation/search/{id}', [$quotationController, 'show'])->name('quotation.search');
+        Route::get('/quotation/quotation_details/{id}', [$quotationController, 'quotation_details'])->name('quotation.quotation_details');
+        Route::get('/quotation/edit/{id}', [$quotationController, 'edit'])->name('quotation.edit');
+        Route::put('/quotation/update/{id}', [$quotationController, 'update'])->name('quotation.update');
+        Route::put('/quotation/delete/{id}', [$quotationController, 'destroy'])->name('quotation.delete');
+        Route::get('/quotation/remarks/{id}', [$quotationController, 'getquotationremarks'])->name('quotation.getquotationremarks');
+        Route::post('/quotation/updateremarks', [$quotationController, 'updatequotationremarks'])->name('quotation.updatequotationremarks');
     });
 
 });

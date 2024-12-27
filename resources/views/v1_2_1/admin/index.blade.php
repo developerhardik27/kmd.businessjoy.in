@@ -520,7 +520,7 @@
                         $('#invoicepaid').text(0);
                         $('#invoicepending').text(0);
                         $('#invoicecancel').text(0);
-                        $('invoice#due').text(0);
+                        $('#invoicedue').text(0);
 
 
                         if (response == '') {
@@ -558,7 +558,7 @@
                         if (response.due) {
                             console.log('due');
                             due = response.due;
-                            $('invoice#due').text(due.length)
+                            $('#invoicedue').text(due.length)
                             invoiceduedata = response.due;
                         }
                         if (response.status == 500) {

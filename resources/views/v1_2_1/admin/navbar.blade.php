@@ -40,7 +40,7 @@
                                 @endif
                                 @if (session('user_permissions.invoicemodule.customer.show') == '1')
                                     <li>
-                                        <a href="{{ route('admin.customer') }}" class="nav-link">
+                                        <a href="{{ route('admin.invoicecustomer') }}" class="nav-link">
                                             <i class="ri-group-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Customers List"></i>
                                         </a>
                                     </li>
