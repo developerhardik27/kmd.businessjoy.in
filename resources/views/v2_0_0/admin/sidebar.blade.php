@@ -147,7 +147,7 @@
                                     class="{{ request()->routeIs('admin.quotatoin', 'admin.addquotation') ? 'active' : '' }}">
                                     <a href="#quotationinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
                                         aria-expanded="false"><i
-                                            class="ri ri-quill-pen-line"></i><span>Quotation</span><i
+                                            class="ri ri-clipboard-line"></i><span>Quotation</span><i
                                             class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                                     <ul id="quotationinfo" class="iq-submenu collapse"
                                         data-parent="#iq-sidebar-toggle">

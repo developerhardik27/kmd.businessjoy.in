@@ -75,11 +75,11 @@ class QuotationController extends Controller
         $quotationothersettingdetails = json_decode($quotationothersettingcontent);
 
         if ($quotationothersettingdetails->status != 200 || count($quotationothersettingdetails->pattern) < 2) {
-            return view($this->version . '.admin.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+            return view($this->version . '.admin.quotationothersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
        
         if ($columndetails->status != 200) {
-            return view($this->version . '.admin.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+            return view($this->version . '.admin.quotationmanagecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
         return view($this->version . '.admin.quotationform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
