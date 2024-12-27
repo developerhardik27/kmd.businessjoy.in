@@ -186,7 +186,7 @@
                             </tr> 
                             @isset($quotationdata['email']) 
                                 <tr>
-                                    <td class="font-weight-bold bgblue">
+                                    <td colspan="2" class="font-weight-bold bgblue">
                                         Email : {{$quotationdata['email']}}
                                     </td>
                                 </tr>

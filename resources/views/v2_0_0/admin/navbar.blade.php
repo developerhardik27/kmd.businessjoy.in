@@ -159,7 +159,7 @@
                                     @endif
                                     @if (Session::has('quotation') && Session::get('quotation') == 'yes')
                                         <a class="iq-sub-card changemenu " href="#" data-value="quotation"><i
-                                            class="ri ri-quill-pen-line"></i> Quotation</a>
+                                            class="ri ri-clipboard-line"></i> Quotation</a>
                                     @endif
                                     @if (Session::has('lead') && Session::get('lead') == 'yes')
                                         <a class="iq-sub-card changemenu" href="#" data-value="lead"> <i
