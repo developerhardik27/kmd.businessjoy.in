@@ -131,6 +131,12 @@ class tblinvoicecolumnController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
+            $modifiedcolumnname = strtolower(str_replace(' ','_',$request->column_name)) ;
+            $defaultcolumns = ['invoice_id','id','amount','created_by','updated_by','created_at','updated_at','is_active','is_deleted'];
+            if(in_array($modifiedcolumnname,$defaultcolumns)){
+                return $this->successresponse(500, 'message', "'$request->column_name'" . " column is a default system field and cannot be added or modified manually, so there is no need to add it again.");
+            }
+
             $invoicecolumn = $this->tbl_invoice_columnModel::all()
                 ->where('column_name', $request->column_name)
                 ->where('is_deleted', 0);
@@ -265,6 +271,12 @@ class tblinvoicecolumnController extends commonController
             //condition for check if user has permission to search record
             if ($this->rp['invoicemodule']['mngcol']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
+            $modifiedcolumnname = strtolower(str_replace(' ','_',$request->column_name)) ;
+            $defaultcolumns = ['invoice_id','id','amount','created_by','updated_by','created_at','updated_at','is_active','is_deleted'];
+            if(in_array($modifiedcolumnname,$defaultcolumns)){
+                return $this->successresponse(500, 'message', "'$request->column_name'" . " column is a default system field and cannot be added or modified manually, so there is no need to add it again.");
             }
 
             $invoicecolumn = $this->tbl_invoice_columnModel::find($id);

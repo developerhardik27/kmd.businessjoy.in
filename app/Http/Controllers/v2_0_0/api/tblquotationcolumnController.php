@@ -128,6 +128,12 @@ class tblquotationcolumnController extends commonController
             if ($this->rp['quotationmodule']['quotationmngcol']['add'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
+ 
+            $modifiedcolumnname = strtolower(str_replace(' ','_',$request->column_name)) ;
+            $defaultcolumns = ['quotation_id','id','amount','created_by','updated_by','created_at','updated_at','is_active','is_deleted'];
+            if(in_array($modifiedcolumnname,$defaultcolumns)){
+                return $this->successresponse(500, 'message', "'$request->column_name'" . " column is a default system field and cannot be added or modified manually, so there is no need to add it again.");
+            }
 
             $quotationcolumn = $this->tbl_quotation_columnModel::all()
                 ->where('column_name', $request->column_name)
@@ -264,6 +270,13 @@ class tblquotationcolumnController extends commonController
             if ($this->rp['quotationmodule']['quotationmngcol']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are unauthorized');
             }
+
+            $modifiedcolumnname = strtolower(str_replace(' ','_',$request->column_name)) ;
+            $defaultcolumns = ['quotation_id','id','amount','created_by','updated_by','created_at','updated_at','is_active','is_deleted'];
+            if(in_array($modifiedcolumnname,$defaultcolumns)){
+                return $this->successresponse(500, 'message', "'$request->column_name'" . " column is a default system field and cannot be added or modified manually, so there is no need to add it again.");
+            }
+
 
             $quotationcolumn = $this->tbl_quotation_columnModel::find($id);
 
