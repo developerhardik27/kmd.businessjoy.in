@@ -39,8 +39,7 @@
                     <span style="color: red"><b> &#9888; {{ Session::get('error') }}</b></span>
                 @endif
                 <a href="{{ route('admin.forgot') }}">Forget your Password?</a>
-                <button>Sign In</button>
-                <p><a href="#">Version 1.0</a></p>
+                <button>Sign In</button> 
             </form>
         </div>
     </div>
