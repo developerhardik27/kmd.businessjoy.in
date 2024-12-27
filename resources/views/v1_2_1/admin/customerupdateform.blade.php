@@ -195,7 +195,7 @@
 
             // get & set customer old data in the form input
             var edit_id = @json($edit_id);
-            let customerSearchUrl = "{{ route('customer.search', '__editId__') }}".replace('__editId', edit_id);
+            let customerSearchUrl = "{{ route('customer.search', '__editId__') }}".replace('__editId__', edit_id);
             $.ajax({
                 type: 'GET',
                 url: customerSearchUrl,
@@ -253,7 +253,7 @@
 
             //show state data in dropdown
             function loadstate(country, state) {
-                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId', country);
+                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__', country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -281,7 +281,7 @@
 
             // show city data in dropdown
             function loadcity(state, city) {
-                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId', state);
+                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -313,7 +313,7 @@
                 loadershow();
                 var country = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId',
+                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
                     country);
                 $.ajax({
                     type: 'GET',
@@ -346,7 +346,7 @@
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
-                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId', state);
+                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -376,7 +376,7 @@
             // redirect on customer list page on click cancel btn
             $('#cancelbtn').on('click', function() {
                 loadershow();
-                window.location.href = "{{ route('admin.customer') }}";
+                window.location.href = "{{ route('admin.invoicecustomer') }}";
             });
 
             // subimt form
@@ -394,7 +394,7 @@
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.customer') }}";
+                            window.location = "{{ route('admin.invoicecustomer') }}";
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);

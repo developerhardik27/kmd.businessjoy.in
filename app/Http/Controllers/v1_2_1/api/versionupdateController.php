@@ -77,6 +77,13 @@ class versionupdateController extends commonController
                                 ];
                             }
                             break;
+                        case 'v2_0_0':
+                            if ($request->company != 1) {
+                                $paths = [
+                                    'database/migrations/v2_0_0',
+                                ];
+                            }
+                            break;
 
                         // Add more cases as needed
                     }
@@ -154,6 +161,57 @@ class versionupdateController extends commonController
                                     }
                                 }
                             }
+                            break;
+                        case 'v2_0_0':
+                            $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                            if ($rp) {
+                                foreach ($rp as $userrp) {
+                                    $jsonrp = json_decode($userrp->rp, true);
+                                    // dd($rp->invoicemodule);
+                                    $newrp = [
+                                        'quotationmodule' => [
+                                            "quotation" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationmngcol" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationformula" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationnumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationtandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationstandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationgstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            "quotationcustomer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                        ]
+                                    ];
+
+                                    if (!isset($jsonrp['quotationmodule'])) {
+
+                                        // Update the 'invoicemodule' section with new permissions
+                                        $jsonrp = array_merge($jsonrp, $newrp);
+
+                                        // Encode updated permissions back to JSON
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+                                    }
+                                }
+                            }
+
+                            if (Schema::connection('dynamic_connection')->hasTable('quotation_other_settings')) {
+                                $setDefaultSettings = DB::connection('dynamic_connection')
+                                    ->table('quotation_other_settings')
+                                    ->insert([
+                                        'overdue_day' => 30,
+                                        'year_start' => date('Y-m-d', strtotime('2024-04-01')),
+                                        'sgst' => 9,
+                                        'cgst' => 9,
+                                        'gst' => 0,
+                                        'customer_id' => 1,
+                                        'current_customer_id' => 1,
+                                        'created_by' => $this->userId,
+                                    ]);
+                            }
+
                             break;
                     }
 

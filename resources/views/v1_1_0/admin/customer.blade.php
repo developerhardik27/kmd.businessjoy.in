@@ -42,7 +42,7 @@
 @endsection
 @if (session('user_permissions.invoicemodule.customer.add') == '1')
     @section('addnew')
-        {{ route('admin.addcustomer') }}
+        {{ route('admin.addinvoicecustomer') }}
     @endsection
     @section('addnewbutton')
         <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Customer"  class="btn btn-sm btn-primary">

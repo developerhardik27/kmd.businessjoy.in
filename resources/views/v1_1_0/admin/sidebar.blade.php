@@ -76,7 +76,7 @@
                                         session('user_permissions.invoicemodule.formula.show') == '1')
                                     <li
                                         class="{{ implode(' ', [
-                                            request()->routeIs('admin.invoicesettings', 'admin.managecolumn', 'admin.formula', 'admin.othersettings')
+                                            request()->routeIs('admin.invoicesettings', 'admin.invoicemanagecolumn', 'admin.invoiceformula', 'admin.invoiceothersettings')
                                                 ? 'active'
                                                 : '',
                                         ]) }}">
@@ -90,16 +90,16 @@
                                             data-parent="#invoiceinfo">
                                             @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
                                                 <li
-                                                    class="{{ request()->routeIs('admin.managecolumn') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.managecolumn') }}">
+                                                    class="{{ request()->routeIs('admin.invoicemanagecolumn') ? 'active' : '' }}">
+                                                    <a href="{{ route('admin.invoicemanagecolumn') }}">
                                                         <i class="ri-file-add-line"></i>
                                                         Manage Columns
                                                     </a>
                                                 </li>
                                             @endif
                                             @if (session('user_permissions.invoicemodule.formula.view') == '1')
-                                                <li class="{{ request()->routeIs('admin.formula') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.formula') }}">
+                                                <li class="{{ request()->routeIs('admin.invoiceformula') ? 'active' : '' }}">
+                                                    <a href="{{ route('admin.invoiceformula') }}">
                                                         <i class="ri-file-list-line"></i>
                                                         Set Formula
                                                     </a>
@@ -107,8 +107,8 @@
                                             @endif
                                             @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
                                                 <li
-                                                    class="{{ request()->routeIs('admin.othersettings') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.othersettings') }}">
+                                                    class="{{ request()->routeIs('admin.invoiceothersettings') ? 'active' : '' }}">
+                                                    <a href="{{ route('admin.invoiceothersettings') }}">
                                                         <i class="ri-settings-5-line"></i>
                                                         Other Setting
                                                     </a>
@@ -127,8 +127,8 @@
                                 </li>
                             @endif
                             @if (session('user_permissions.invoicemodule.customer.show') == '1')
-                                <li class="{{ request()->routeIs('admin.customer') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.customer') }}" class="iq-waves-effect">
+                                <li class="{{ request()->routeIs('admin.invoicecustomer') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.invoicecustomer') }}" class="iq-waves-effect">
                                         <i class="ri-group-line"></i>
                                         <span>customers</span>
                                     </a>

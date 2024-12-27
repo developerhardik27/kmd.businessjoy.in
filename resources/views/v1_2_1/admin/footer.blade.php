@@ -8,8 +8,7 @@
             <div class="col-lg-6">
                 <ul class="list-inline mb-0">
                     <li class="list-inline-item"><a href="#">Version 1.2.1</a></li>
-                    <li class="list-inline-item"><a href="#">Privacy Policy</a></li>
-                    <li class="list-inline-item"><a href="#">Terms of Use</a></li>
+                    <li class="list-inline-item"><a href="{{ route('privacypolicy') }}">Privacy Policy</a></li> 
                 </ul>
             </div>
             <div class="col-lg-6 text-right">

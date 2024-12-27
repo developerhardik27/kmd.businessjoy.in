@@ -131,27 +131,50 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
             //  admin routes end------
 
-            // invoice module routes start 
+            
             // customer route 
             $CustomerController = getadminversion('CustomerController');
             Route::controller($CustomerController)->group(function () {
-                Route::get('/Customer', 'index')->name('admin.customer')->middleware('checkPermission:invoicemodule,customer,show');
-                Route::get('/AddNewCustomer', 'create')->name('admin.addcustomer')->middleware('checkPermission:invoicemodule,customer,add');
-                Route::post('/StoreNewCustomer', 'store')->name('admin.storecustomer')->middleware('checkPermission:invoicemodule,customer,add');
-                Route::get('/SearchCustomer/{id}', 'show')->name('admin.searchcustomer')->middleware('checkPermission:invoicemodule,customer,view ');
-                Route::get('/EditCustomer/{id}', 'edit')->name('admin.editcustomer')->middleware('checkPermission:invoicemodule,customer,edit');
-                Route::put('/UpdateCustomer/{id}', 'update')->name('admin.updatecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
-                Route::put('/DeleteCustomer/{id}', 'destroy')->name('admin.deletecustomer')->middleware('checkPermission:invoicemodule,customer,delete');
+                Route::get('/invoice/Customer', 'index')->name('admin.invoicecustomer')->middleware('checkPermission:invoicemodule,customer,show');
+                Route::get('/invoice/AddNewCustomer', 'create')->name('admin.addinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,add');
+                Route::post('/invoice/StoreNewCustomer', 'store')->name('admin.storeinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,add');
+                Route::get('/invoice/SearchCustomer/{id}', 'show')->name('admin.searchinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,view ');
+                Route::get('/invoice/EditCustomer/{id}', 'edit')->name('admin.editinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
+                Route::put('/invoice/UpdateCustomer/{id}', 'update')->name('admin.updateinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
+                Route::put('/invoice/DeleteCustomer/{id}', 'destroy')->name('admin.deleteinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,delete');
+               
+                Route::get('/quotation/Customer', 'index')->name('admin.quotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,show');
+                Route::get('/quotation/AddNewCustomer', 'create')->name('admin.addquotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,add');
+                Route::post('/quotation/StoreNewCustomer', 'store')->name('admin.storequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,add');
+                Route::get('/quotation/SearchCustomer/{id}', 'show')->name('admin.searquotationchcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,view ');
+                Route::get('/quotation/EditCustomer/{id}', 'edit')->name('admin.editquotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,edit');
+                Route::put('/quotation/UpdateCustomer/{id}', 'update')->name('admin.updatequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,edit');
+                Route::put('/quotation/DeleteCustomer/{id}', 'destroy')->name('admin.deletequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,delete');
             });
+
+             // quotation route
+             $QuotationController = getadminversion('QuotationController');
+             Route::controller($QuotationController)->group(function () {
+                 Route::get('quotation', 'index')->name('admin.quotation')->middleware('checkPermission:quotationmodule,quotation,show');
+                 Route::get('quotation/managecolumn', 'managecolumn')->name('admin.quotationmanagecolumn')->middleware('checkPermission:quotationmodule,quotationmngcol,edit');
+                 Route::get('quotation/formula', 'formula')->name('admin.quotationformula')->middleware('checkPermission:quotationmodule,quotationformula,edit');
+                 Route::get('quotation/othersettings', 'othersettings')->name('admin.quotationothersettings')->middleware('checkPermission:quotationmodule,quotationsetting,view');
+                 Route::get('/AddNewQuotation', 'create')->name('admin.addquotation')->middleware('checkPermission:quotationmodule,quotation,add');
+                 Route::post('/StoreNewQuotation', 'store')->name('admin.storequotation')->middleware('checkPermission:quotationmodule,quotation,add');
+                 Route::get('/SearchQuotation/{id}', 'show')->name('admin.searchquotation')->middleware('checkPermission:quotationmodule,quotation,view');
+                 Route::get('/EditQuotation/{id}', 'edit')->name('admin.editquotation')->middleware('checkPermission:quotationmodule,quotation,edit');
+                 Route::put('/UpdateQuotation/{id}', 'update')->name('admin.updatequotation')->middleware('checkPermission:quotationmodule,quotation,edit');
+                 Route::put('/DeleteQuotation/{id}', 'destroy')->name('admin.deletequotation')->middleware('checkPermission:quotationmodule,quotation,delete');
+             });
 
             // invoice route
             $InvoiceController = getadminversion('InvoiceController');
             Route::controller($InvoiceController)->group(function () {
                 Route::get('/invoiceview/{id}', 'invoiceview')->name('admin.invoiceview')->middleware('checkPermission:invoicemodule,invoice,show');
                 Route::get('/invoice', 'index')->name('admin.invoice')->middleware('checkPermission:invoicemodule,invoice,show');
-                Route::get('/managecolumn', 'managecolumn')->name('admin.managecolumn')->middleware('checkPermission:invoicemodule,mngcol,edit');
-                Route::get('/formula', 'formula')->name('admin.formula')->middleware('checkPermission:invoicemodule,formula,edit');
-                Route::get('/othersettings', 'othersettings')->name('admin.othersettings')->middleware('checkPermission:invoicemodule,invoicesetting,view');
+                Route::get('/invoice/managecolumn', 'managecolumn')->name('admin.invoicemanagecolumn')->middleware('checkPermission:invoicemodule,mngcol,edit');
+                Route::get('/invoice/formula', 'formula')->name('admin.invoiceformula')->middleware('checkPermission:invoicemodule,formula,edit');
+                Route::get('/invoice/othersettings', 'othersettings')->name('admin.invoiceothersettings')->middleware('checkPermission:invoicemodule,invoicesetting,view');
                 Route::get('/AddNewInvoice', 'create')->name('admin.addinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
                 Route::post('/StoreNewInvoice', 'store')->name('admin.storeinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
                 Route::get('/SearchInvoice/{id}', 'show')->name('admin.searchinvoice')->middleware('checkPermission:invoicemodule,invoice,view');
@@ -294,6 +317,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($PdfController)->group(function () {
                 Route::get('/download/{fileName}', 'downloadZip')->name('file.download');
                 Route::get('/generatepdf/{id}', 'generatepdf')->name('invoice.generatepdf')->middleware('checkPermission:invoicemodule,invoice,view');
+                Route::get('/generatequotationpdf/{id}', 'generatequotationpdf')->name('quotation.generatepdf')->middleware('checkPermission:quotationmodule,quotation,view');
                 Route::post('/generatepdfzip', 'generatepdfzip')->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', 'generatereciept')->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/generaterecieptall/{id}', 'generaterecieptall')->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
