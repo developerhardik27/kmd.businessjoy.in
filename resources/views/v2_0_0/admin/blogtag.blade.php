@@ -219,20 +219,18 @@
 
             // delete column if it is not has data of any
             $(document).on("click", ".del-btn", function() {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'if you will delete it, then it will be removed from blog automatically if it in use!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var deleteid = $(this).data('id');
-                        var row = this;
+                var deleteid = $(this).data('id');
+                var row = this; 
+                let blogTagDeleteUrl = "{{ route('blogtag.delete', '__deleteId__') }}"
+                    .replace('__deleteId__', deleteid);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'if you will delete it, then it will be removed from blog automatically if it in use!', // Text
+                    'Yes, delete it!', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'warning', // Icon type (warning icon)
+                    function() { 
                         loadershow();
-                        let blogTagDeleteUrl = "{{ route('blogtag.delete', '__deleteId__') }}"
-                            .replace('__deleteId__', deleteid);
                         $.ajax({
                             type: 'PUT',
                             url: blogTagDeleteUrl,
@@ -243,22 +241,34 @@
                             },
                             success: function(response) {
                                 if (response.status == 200) {
-                                    toastr.success(response.message);
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
                                     $(row).closest("tr").fadeOut();
                                 } else if (response.status == 500) {
-                                    toastr.error(response.message);
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
                                 } else {
-                                    toastr.error(response.message);
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
                                 }
                                 loaderhide();
                             },
                             error: function(error) {
                                 loaderhide();
-                                toastr.error('Something Went Wrong !');
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
                         });
                     }
-                });
+                );
             });
 
             // add or edit column form submit
@@ -283,13 +293,22 @@
                             $('#newblogtagform').addClass('d-none');
                             $('#newTagBtnDiv').removeClass('d-none');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#tag_name').val('');
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                           Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                           Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -310,7 +329,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

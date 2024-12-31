@@ -8,7 +8,7 @@
             <div class="col-lg-6">
                 <ul class="list-inline mb-0">
                     <li class="list-inline-item"><a href="#">Version 2.0.0</a></li>
-                    <li class="list-inline-item"><a href="{{ route('privacypolicy') }}">Privacy Policy</a></li> 
+                    <li class="list-inline-item"><a href="{{ route('privacypolicy') }}">Privacy Policy</a></li>
                 </ul>
             </div>
             <div class="col-lg-6 text-right">
@@ -72,6 +72,45 @@
         $(".wrapper").removeClass("blurred-content").addClass("remove-blur");
     }
     //   end loader function 
+
+    // sweet alert functions
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            // On mouse enter, stop the timer
+            toast.addEventListener('mouseenter', () => {
+                Swal.stopTimer();
+            });
+
+            // On mouse leave, resume the timer
+            toast.addEventListener('mouseleave', () => {
+                Swal.resumeTimer();
+            });
+        }
+    });
+
+    // Function to show the SweetAlert2 confirmation box with dynamic icon
+    function showConfirmationDialog(title, text, confirmText, cancelText, icon, callback) {
+        Swal.fire({
+            title: title, // Dynamic title
+            text: text, // Dynamic text
+            icon: icon, // Dynamic icon (can be 'warning', 'error', 'success', 'info', 'question')
+            showCancelButton: true, // Show cancel button
+            confirmButtonText: confirmText, // Dynamic confirm button text
+            confirmButtonColor: "#253566",
+            cancelButtonText: cancelText, // Dynamic cancel button text
+            cancelButtonColor: "#FF7A29",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                callback(); // Execute the callback function after the loader
+            }
+        });
+    }
 </script>
 <script>
     $('document').ready(function() {

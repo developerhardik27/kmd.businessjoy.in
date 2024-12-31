@@ -11,12 +11,13 @@
 
 @section('style')
     <style>
-        select + .btn-group {
+        select+.btn-group {
             border: 1px solid #ced4da;
             width: 100%;
             border-radius: 5px;
         }
-        .dropdown-menu{
+
+        .dropdown-menu {
             width: 100%;
         }
     </style>
@@ -35,13 +36,14 @@
                     <input type="hidden" name="company_id" class="form-control" value="{{ $company_id }}"
                         placeholder="company_id" required />
                     <label for="title">Title</label><span style="color:red;">*</span>
-                    <input id="title" maxlength="100" type="text" name="title" class="form-control" placeholder="Title" required />
+                    <input id="title" maxlength="100" type="text" name="title" class="form-control"
+                        placeholder="Title" required />
                     <span class="error-msg" id="error-title" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="slug">Slug</label><span style="color:red;">*</span>
-                    <input type="text" readonly maxlength="100" name="slug" class="form-control" id="slug" value=""
-                        placeholder="Slug" required />
+                    <input type="text" readonly maxlength="100" name="slug" class="form-control" id="slug"
+                        value="" placeholder="Slug" required />
                     <span class="error-msg" id="error-slug" style="color: red"></span>
                 </div>
             </div>
@@ -50,17 +52,16 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="meta_dsc">Meta Description</label>
-                    <textarea name="meta_dsc" maxlength="200" placeholder="meta description" class="form-control" id="meta_dsc" cols=""
-                        rows="2"></textarea>
+                    <textarea name="meta_dsc" maxlength="200" placeholder="meta description" class="form-control" id="meta_dsc"
+                        cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_dsc" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="meta_keywords">Meta Keywords</label>
-                    <textarea name="meta_keywords" maxlength="200" placeholder="Enter comma-separated keywords e.g., abc," class="form-control"
-                        id="meta_keywords" cols="" rows="2"></textarea>
+                    <textarea name="meta_keywords" maxlength="200" placeholder="Enter comma-separated keywords e.g., abc,"
+                        class="form-control" id="meta_keywords" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_keywords" style="color: red"></span>
-                    <p style="font-size: 0.9em; color: #666;">If provided, please enter keywords separated by commas,
-                        without spaces before or after commas.</p>
+                    <p style="font-size: 0.9em; color: #666;">If provided, please enter keywords separated by commas.</p>
                 </div>
             </div>
         </div>
@@ -86,8 +87,8 @@
             <div class="form-row">
                 <div class="col-sm-12">
                     <label for="short_description">Short Description</label>
-                    <textarea name="short_description" maxlength="250" placeholder="Blog Short Description" class="form-control" id="short_description"
-                        cols="" rows="2"></textarea>
+                    <textarea name="short_description" maxlength="250" placeholder="Blog Short Description" class="form-control"
+                        id="short_description" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-short_description" style="color: red"></span>
                 </div>
             </div>
@@ -144,16 +145,18 @@
                 return true; // Field is optional, so no validation needed if empty
             }
 
-            // Check if the value contains only letters, numbers, commas, and optionally spaces after commas
-            var regex = /^[a-zA-Z0-9]+( ?[,]? ?[a-zA-Z0-9]+)*$/;
-            if (!regex.test(metaKeywords)) {
-                errorMsg.text("Meta keywords must be comma-separated, with no consecutive commas and optional spaces before and after commas.");
-                return false;
+            // If there is only one keyword (no commas), it's allowed
+            if (!metaKeywords.includes(",")) {
+                return true;
             }
 
-            // Check if there's at least one comma
-            if (!metaKeywords.includes(",")) {
-                errorMsg.text("Meta keywords must be separated by commas.");
+            // Check if the value contains only letters, numbers, commas, and exactly one space before or after commas
+            var regex = /^[a-zA-Z0-9]+( ?\, ?[a-zA-Z0-9]+)*$/;
+
+            if (!regex.test(metaKeywords)) {
+                errorMsg.text(
+                    "Meta keywords must be comma-separated with exactly one space before or after each comma. No consecutive commas allowed."
+                );
                 return false;
             }
 
@@ -245,7 +248,10 @@
                         $('#category').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (categoryDataResponse.status == 500) {
-                        toastr.error(categoryDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: categoryDataResponse.message
+                        });
                     } else {
                         $('#category').append(`<option> No Blog Category Found </option>`);
                     }
@@ -260,7 +266,10 @@
                         $('#tag').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (tagDataResponse.status == 500) {
-                        toastr.error(tagDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: tagDataResponse.message
+                        });
                     } else {
                         $('#tag').append(`<option> No Blog Tag Found </option>`);
                     }
@@ -271,7 +280,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -354,7 +366,10 @@
                             });
                             $('#category').multiselect('rebuild');
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -370,7 +385,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -409,7 +427,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });
@@ -473,12 +494,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.blog') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            })
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            })
                         }
                         loaderhide();
                     },
@@ -499,7 +529,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
