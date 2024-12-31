@@ -83,13 +83,22 @@
         .note-editing-area .card-block {
             display: block !important;
         }
+
         .multiselect-container {
             width: 300px;
             max-height: 300px;
             overflow: auto;
             /* Set your desired width here */
         }
+
+        div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm) {
+            background-color: #253566 !important;
+        }
+
+        div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel) {
+            background-color: #FF7A29 !important;
+        }
     </style>
-   
+
     @yield('style')
 </head>

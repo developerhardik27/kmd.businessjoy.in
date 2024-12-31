@@ -12,8 +12,13 @@
 
 @section('style')
     <style>
-        div.btn-group {
-            border: 1px solid grey;
+        select + .btn-group {
+            border: 1px solid #ced4da;
+            width: 100%;
+            border-radius: 5px;
+        }
+        .dropdown-menu{
+            width: 100%;
         }
     </style>
 @endsection
@@ -32,13 +37,14 @@
                     <input type="hidden" name="company_id" class="form-control" value="{{ $company_id }}"
                         placeholder="company_id" required />
                     <label for="title">Title</label><span style="color:red;">*</span>
-                    <input id="title" type="text" name="title" maxlength="100" class="form-control" placeholder="Title" required />
+                    <input id="title" type="text" name="title" maxlength="100" class="form-control"
+                        placeholder="Title" required />
                     <span class="error-msg" id="error-title" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="slug">Slug</label><span style="color:red;">*</span>
-                    <input type="text" name="slug" maxlength="100" readonly class="form-control" id="slug" value=""
-                        placeholder="Slug" required />
+                    <input type="text" name="slug" maxlength="100" readonly class="form-control" id="slug"
+                        value="" placeholder="Slug" required />
                     <span class="error-msg" id="error-slug" style="color: red"></span>
                 </div>
             </div>
@@ -47,14 +53,14 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="meta_dsc">Meta Description</label>
-                    <textarea name="meta_dsc" maxlength="200" placeholder="Meta Description" class="form-control" id="meta_dsc" cols=""
-                        rows="2"></textarea>
+                    <textarea name="meta_dsc" maxlength="200" placeholder="Meta Description" class="form-control" id="meta_dsc"
+                        cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_dsc" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="meta_keywords">Meta Keywords</label>
-                    <textarea name="meta_keywords" maxlength="200" placeholder="Enter comma-separated keywords e.g., abc," class="form-control" id="meta_keywords"
-                        cols="" rows="2"></textarea>
+                    <textarea name="meta_keywords" maxlength="200" placeholder="Enter comma-separated keywords e.g., abc,"
+                        class="form-control" id="meta_keywords" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_keywords" style="color: red"></span>
                     <p style="font-size: 0.9em; color: #666;">If provided, please enter keywords separated by commas,
                         without spaces before or after commas.</p>
@@ -83,8 +89,8 @@
             <div class="form-row">
                 <div class="col-sm-12">
                     <label for="short_description">Short Description</label>
-                    <textarea name="short_description" maxlength="250" placeholder="Blog Short Description" class="form-control" id="short_description"
-                        cols="" rows="2"></textarea>
+                    <textarea name="short_description" maxlength="250" placeholder="Blog Short Description" class="form-control"
+                        id="short_description" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-short_description" style="color: red"></span>
                 </div>
             </div>
@@ -103,7 +109,8 @@
             <div class="form-row">
                 <div class="col-sm-6">
                     <label for="blog_image">Thumbnail Image</label><br>
-                    <input type="file" accept=".png , .jpg , .jpeg" name="blog_image" id="blog_image" width="100%" />
+                    <input type="file" accept=".png , .jpg , .jpeg" name="blog_image" id="blog_image"
+                        width="100%" />
                     <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and
                         has dimensions of 600 x 400 px.
                     </p>
@@ -140,17 +147,10 @@
                 return true; // Field is optional, so no validation needed if empty
             }
 
-            // Check if the value contains only letters, numbers, and commas (no spaces after commas, etc.)
-            var regex = /^[a-zA-Z0-9\s,]+$/;
+            // Check if the value contains only letters, numbers, commas, and optionally spaces after commas
+            var regex = /^[a-zA-Z0-9]+( ?[,]? ?[a-zA-Z0-9]+)*$/;
             if (!regex.test(metaKeywords)) {
-                errorMsg.text("Meta keywords must be comma-separated.");
-                return false;
-            }
-
-            // Check for consecutive commas or spaces before or after commas
-            var commaRegex = /,,|\s+,|,\s/;
-            if (commaRegex.test(metaKeywords)) {
-                errorMsg.text("Meta keywords should not have consecutive commas or spaces before/after commas.");
+                errorMsg.text("Meta keywords must be comma-separated, with no consecutive commas and optional spaces before and after commas.");
                 return false;
             }
 

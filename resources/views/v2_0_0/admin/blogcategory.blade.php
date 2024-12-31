@@ -178,9 +178,8 @@
             loaddata();
 
 
-            // edit column if it is not used for any invoice
-            $(document).on("click", ".edit-btn", function() {
-                if (confirm("You want edit this Category ?")) {
+            // edit column if it is not used for any
+            $(document).on("click", ".edit-btn", function() { 
                     loadershow();
                     var editid = $(this).data('id');
                     $('#newblogcategoryform').removeClass('d-none');
@@ -212,15 +211,21 @@
                             console.error('Error:', error);
                         }
                     });
-                }
+                
             });
 
 
-            // delete column if it is not has data of any invoice
+            // delete column if it is not has data of any
             $(document).on("click", ".del-btn", function() {
-                if (confirm(
-                        'Are you sure to delete this category?'
-                    )) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'if you will delete it, then it will be removed from blog automatically if it in use!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel',
+                }).then((result) => {
+                    if (result.isConfirmed) {
                     var deleteid = $(this).data('id');
                     var row = this;
                     loadershow();
@@ -251,6 +256,7 @@
                         }
                     });
                 }
+            }); 
             });
 
 
