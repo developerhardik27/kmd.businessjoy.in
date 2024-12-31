@@ -109,7 +109,7 @@ class blogtagController extends commonController
 
                 $blogtag = $this->blogtagModel::create([
                     'tag_name' => $request->tag_name,
-                    'slug' =>  Str::slug($request->tag_name) ,
+                    'slug' => Str::slug($request->tag_name),
                     'created_by' => $this->userId,
                 ]);
 
@@ -165,7 +165,7 @@ class blogtagController extends commonController
         if ($validator->fails()) {
 
             if ($request->tag_name) {
-                $checkTag = $this->blogtagModel::where('tag_name', $request->tag_name)->where('is_deleted', 0)->where('id',$id)->exists();
+                $checkTag = $this->blogtagModel::where('tag_name', $request->tag_name)->where('is_deleted', 0)->where('id', $id)->exists();
 
                 if ($checkTag) {
                     $validator->errors()->add('tag_name', 'Duplicate tag name');
@@ -185,7 +185,7 @@ class blogtagController extends commonController
                 $this->blogtagModel::where('id', $id) // Specify the condition to update the correct record
                     ->update([
                         'tag_name' => $request->tag_name,
-                        'slug' =>  Str::slug($request->tag_name) ,
+                        'slug' => Str::slug($request->tag_name),
                         'updated_by' => $this->userId,
                         'updated_at' => now(),
                     ]);
@@ -205,6 +205,43 @@ class blogtagController extends commonController
 
         if ($blogtag) {
             if ($this->rp['blogmodule']['blog']['delete'] == 1) {
+
+                // Fetch only blogs where the tag ID exists in the tag_ids list
+                $checktagexist = DB::connection('dynamic_connection')
+                    ->table('blogs')
+                    ->whereRaw("FIND_IN_SET(?, blogs.tag_ids) > 0", [$id]) // Use the tag ID to filter
+                    ->get();
+
+                if ($checktagexist->isNotEmpty()) {
+                    //  you want to remove a specific tag ID:
+                    $tagIdToRemove = $id;  // Tag ID you want to remove (can be dynamic)
+
+                    foreach ($checktagexist as $blog) {
+                        // Get the current comma-separated list of tag IDs
+                        $tagIds = $blog->tag_ids;
+
+                        // Check if the tag exists in the list (using FIND_IN_SET for safety)
+                        if (strpos($tagIds, (string) $tagIdToRemove) !== false) {
+
+                            // Remove the tag from the comma-separated list
+                            $newTagIds = array_filter(explode(',', $tagIds), function ($tagId) use ($tagIdToRemove) {
+                                return $tagId != $tagIdToRemove;
+                            });
+
+                            // Rebuild the comma-separated list
+                            $newTagIdsString = implode(',', $newTagIds);
+
+                            // Update the blog record with the new list
+                            DB::connection('dynamic_connection')
+                                ->table('blogs')
+                                ->where('id', $blog->id)  // Assuming 'id' is the primary key
+                                ->update(['tag_ids' => $newTagIdsString]);
+
+
+                        }
+                    }
+                }
+  
                 $blogtag->update([
                     'is_deleted' => 1
                 ]);

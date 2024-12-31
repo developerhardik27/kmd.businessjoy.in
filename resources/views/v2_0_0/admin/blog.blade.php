@@ -41,7 +41,7 @@
         }
     </style>
 @endsection
-{{-- @if (session('user_permissions.invoicemodule.bank.add') == '1') --}}
+ 
 @section('addnew')
     {{ route('admin.addblog') }}
 @endsection
@@ -51,7 +51,7 @@
         <span class="">+ Add New Blog</span>
     </button>
 @endsection
-{{-- @endif --}}
+ 
 @section('table-content')
     <table id="data"
         class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
@@ -59,6 +59,8 @@
             <tr>
                 <th>Id</th>
                 <th>Title</th>
+                <th>Published Date</th>
+                <th>Published By</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -105,7 +107,9 @@
                                 $('#tabledata').append(`
                                     <tr>
                                         <td>${id}</td>
-                                        <td>${value.title != null ? value.title : '-'}</td>   
+                                        <td>${value.title != null ? value.title : '-'}</td> 
+                                        <td>${value.created_at_formatted != null ? value.created_at_formatted : '-'}</td>  
+                                        <td>${value.firstname != null ? value.firstname : '-'} ${value.firstname != null ? value.lastname : ''}</td> 
                                         @if (session('user_permissions.blogmodule.blog.edit') == '1' ||
                                                 session('user_permissions.blogmodule.blog.delete') == '1')
                                             <td> 
@@ -178,46 +182,59 @@
 
             // delete bank             
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you sure to delete this blog ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let blogDeleteUrl = "{{ route('blog.delete', '__deleteId__') }}".replace('__deleteId__',
-                        deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: blogDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success('succesfully deleted');
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'to delete this blog !',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadershow();
+                        var deleteid = $(this).data('id');
+                        var row = this;
+                        let blogDeleteUrl = "{{ route('blog.delete', '__deleteId__') }}".replace(
+                            '__deleteId__',
+                            deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: blogDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    toastr.success('succesfully deleted');
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    toastr.error(response.message);
+                                } else {
+                                    toastr.error('something went wrong !');
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                toastr.error(errorMessage);
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             });
 
             // view bank data in pop-up
@@ -244,12 +261,12 @@
                                 <td>${(blog.short_desc!= null)? blog.short_desc : '-'}</td>
                             </tr>
                             <tr>
-                                <th>Created On</th>
+                                <th>Published On</th>
                                 <td>${(blog.created_at_formatted!= null)? blog.created_at_formatted : '-'}</td>
                             </tr>
                             <tr>
-                                <th>Created By</th>
-                                <td>${(blog.firstname!= null)? blog.firstname : ''} ${(blog.lastname!= null)? blog.lastname : '-'}</td>
+                                <th>Published By</th>
+                                <td>${(blog.firstname!= null)? blog.firstname : '-'} ${(blog.lastname!= null)? blog.lastname : ''}</td>
                             </tr>
                         `);
                     }

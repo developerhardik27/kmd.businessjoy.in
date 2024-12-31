@@ -105,7 +105,7 @@ class blogcategoryController extends commonController
 
                 $blogcategory = $this->blogcategorymodel::create([
                     'cat_name' => $request->category_name,
-                    'slug' =>  Str::slug($request->category_name) ,
+                    'slug' => Str::slug($request->category_name),
                     'created_by' => $this->userId,
                 ]);
 
@@ -159,9 +159,9 @@ class blogcategoryController extends commonController
         ]);
 
         if ($validator->fails()) {
-            
+
             if ($request->category_name) {
-                $checkcategory = $this->blogcategorymodel::where('cat_name', $request->category_name)->where('is_deleted', 0)->where('id',$id)->exists();
+                $checkcategory = $this->blogcategorymodel::where('cat_name', $request->category_name)->where('is_deleted', 0)->where('id', $id)->exists();
 
                 if ($checkcategory) {
                     $validator->errors()->add('cat_name', 'Duplicate category name');
@@ -182,7 +182,7 @@ class blogcategoryController extends commonController
                 $this->blogcategorymodel::where('id', $id) // Specify the condition to update the correct record
                     ->update([
                         'cat_name' => $request->category_name,
-                        'slug' =>  Str::slug($request->category_name) ,
+                        'slug' => Str::slug($request->category_name),
                         'updated_by' => $this->userId,
                         'updated_at' => now(),
                     ]);
@@ -202,6 +202,44 @@ class blogcategoryController extends commonController
 
         if ($blogcategory) {
             if ($this->rp['blogmodule']['blog']['delete'] == 1) {
+
+                // Fetch only blogs where the cat ID exists in the cat_ids list
+                $checkcatexist = DB::connection('dynamic_connection')
+                    ->table('blogs')
+                    ->whereRaw("FIND_IN_SET(?, blogs.cat_ids) > 0", [$id]) // Use the cat ID to filter
+                    ->get();
+
+                if ($checkcatexist->isNotEmpty()) {
+                    // you want to remove a specific category ID:
+                    $catIdToRemove = $id;  // cat ID you want to remove (can be dynamic)
+
+                    foreach ($checkcatexist as $blog) {
+                        // Get the current comma-separated list of cat IDs
+                        $catIds = $blog->cat_ids;
+
+                        // Check if the cat exists in the list (using FIND_IN_SET for safety)
+                        if (strpos($catIds, (string) $catIdToRemove) !== false) {
+
+                            // Remove the cat from the comma-separated list
+                            $newCatIds = array_filter(explode(',', $catIds), function ($catId) use ($catIdToRemove) {
+                                return $catId != $catIdToRemove;
+                            });
+
+                            // Rebuild the comma-separated list
+                            $newCatIdsString = implode(',', $newCatIds);
+
+                            // Update the blog record with the new list
+                            DB::connection('dynamic_connection')
+                                ->table('blogs')
+                                ->where('id', $blog->id)  // Assuming 'id' is the primary key
+                                ->update(['cat_ids' => $newCatIdsString]);
+
+
+                        }
+                    }
+                }
+
+
                 $blogcategory->update([
                     'is_deleted' => 1
                 ]);

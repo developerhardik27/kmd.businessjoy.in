@@ -59,7 +59,8 @@
 <script src="{{ asset('admin/js/custom.js') }}"></script>
 {{-- summernot javascript --}}
 <script src="{{ asset('admin/js/summernote-bs4.js') }}"></script>
-
+{{-- sweet alert  --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // function for loader hide and show 
     function loadershow() {

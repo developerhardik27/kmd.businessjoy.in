@@ -11,8 +11,13 @@
 
 @section('style')
     <style>
-        div.btn-group {
-            border: 1px solid grey;
+        select + .btn-group {
+            border: 1px solid #ced4da;
+            width: 100%;
+            border-radius: 5px;
+        }
+        .dropdown-menu{
+            width: 100%;
         }
     </style>
 @endsection
@@ -139,17 +144,10 @@
                 return true; // Field is optional, so no validation needed if empty
             }
 
-            // Check if the value contains only letters, numbers, and commas (no spaces after commas, etc.)
-            var regex = /^[a-zA-Z0-9\s,]+$/;
+            // Check if the value contains only letters, numbers, commas, and optionally spaces after commas
+            var regex = /^[a-zA-Z0-9]+( ?[,]? ?[a-zA-Z0-9]+)*$/;
             if (!regex.test(metaKeywords)) {
-                errorMsg.text("Meta keywords must be comma-separated.");
-                return false;
-            }
-
-            // Check for consecutive commas or spaces before or after commas
-            var commaRegex = /,,|\s+,|,\s/;
-            if (commaRegex.test(metaKeywords)) {
-                errorMsg.text("Meta keywords should not have consecutive commas or spaces before/after commas.");
+                errorMsg.text("Meta keywords must be comma-separated, with no consecutive commas and optional spaces before and after commas.");
                 return false;
             }
 

@@ -53,8 +53,8 @@
                     <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
                     <input type="hidden" name="updated_by" id="updated_by">
                     <input type="hidden" name="edit_id" id="edit_id">
-                    <input type="text" maxlength="30" class="form-control form-input" name="tag_name" placeholder="Tag Name"
-                        id="tag_name">
+                    <input type="text" maxlength="30" class="form-control form-input" name="tag_name"
+                        placeholder="Tag Name" id="tag_name">
                     <span class="error-msg" id="error-tag_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-5">
@@ -62,8 +62,8 @@
                         class="btn btn-primary m-1">Save</button>
                     <button type="reset" class="btn iq-bg-danger m-1" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Reset">Reset</button>
-                    <button type="button" id="cancelbtn" class="btn iq-bg-secondary m-1" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Cancel">Cancel</button>
+                    <button type="button" id="cancelbtn" class="btn iq-bg-secondary m-1" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Cancel">Cancel</button>
                 </div>
             </div>
             <div id="newTagBtnDiv" class="form-row ">
@@ -105,7 +105,7 @@
                 $('#newTagBtnDiv').addClass('d-none');
             });
 
-            $('#cancelbtn').on('click',function(e){ 
+            $('#cancelbtn').on('click', function(e) {
                 e.preventDefault();
                 $('#newblogtagform').addClass('d-none');
                 $('#newTagBtnDiv').removeClass('d-none');
@@ -154,7 +154,7 @@
                                                     </tr>`)
                                 id++;
                             });
-                            $('#data').DataTable({ 
+                            $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
@@ -178,80 +178,87 @@
             loaddata();
 
 
-            // edit column if it is not used for any invoice
+            // edit column if it is not used for any 
             $(document).on("click", ".edit-btn", function() {
-                if (confirm("You want edit this tag ?")) {
-                    loadershow(); 
-                    var editid = $(this).data('id');
-                    $('#newblogtagform').removeClass('d-none');
-                    $('#newTagBtnDiv').addClass('d-none');
-                    let blogTagEditUrl = "{{ route('blogtag.edit', '__editId__') }}"
+
+                loadershow();
+                var editid = $(this).data('id');
+                $('#newblogtagform').removeClass('d-none');
+                $('#newTagBtnDiv').addClass('d-none');
+                let blogTagEditUrl = "{{ route('blogtag.edit', '__editId__') }}"
                     .replace('__editId__', editid);
-                    $.ajax({
-                        type: 'GET',
-                        url: blogTagEditUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.blogtag != '') {
-                                var blogtagdata = response.blogtag;
-                                $('#updated_by').val("{{ session()->get('user_id') }}");
-                                $('#edit_id').val(editid);
-                                $('#tag_name').val(blogtagdata.tag_name); 
-                            } else if (response.status == 500) {
-                                   toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                        },
-                        error: function(error) { 
-                            loaderhide();
-                            console.error('Error:', error);
+                $.ajax({
+                    type: 'GET',
+                    url: blogTagEditUrl,
+                    data: {
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.blogtag != '') {
+                            var blogtagdata = response.blogtag;
+                            $('#updated_by').val("{{ session()->get('user_id') }}");
+                            $('#edit_id').val(editid);
+                            $('#tag_name').val(blogtagdata.tag_name);
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error(response.message);
                         }
-                    });
-                }
+                        loaderhide();
+                    },
+                    error: function(error) {
+                        loaderhide();
+                        console.error('Error:', error);
+                    }
+                });
+
             });
 
 
-            // delete column if it is not has data of any invoice
+            // delete column if it is not has data of any
             $(document).on("click", ".del-btn", function() {
-                if (confirm(
-                        'Are you sure to delete this tag?'
-                        )) {
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    loadershow();
-                    let blogTagDeleteUrl = "{{ route('blogtag.delete', '__deleteId__') }}"
-                    .replace('__deleteId__', deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: blogTagDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: {{ session()->get('company_id') }},
-                            user_id: {{ session()->get('user_id') }},
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'if you will delete it, then it will be removed from blog automatically if it in use!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var deleteid = $(this).data('id');
+                        var row = this;
+                        loadershow();
+                        let blogTagDeleteUrl = "{{ route('blogtag.delete', '__deleteId__') }}"
+                            .replace('__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: blogTagDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: {{ session()->get('company_id') }},
+                                user_id: {{ session()->get('user_id') }},
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    toastr.success(response.message);
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    toastr.error(response.message);
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                loaderhide();
+                                toastr.error('Something Went Wrong !');
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            toastr.error('Something Went Wrong !');
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             });
 
             // add or edit column form submit
@@ -262,7 +269,7 @@
                 var columndata = $(this).serialize();
                 if (editid != '') {
                     url = "{{ route('blogtag.update', '__editId__') }}"
-                    .replace('__editId__', editid);
+                        .replace('__editId__', editid);
                 } else {
                     url = "{{ route('blogtag.store') }}"
                 }
