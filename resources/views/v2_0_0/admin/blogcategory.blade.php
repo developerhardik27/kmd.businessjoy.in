@@ -160,7 +160,10 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
                         }
@@ -179,84 +182,101 @@
 
 
             // edit column if it is not used for any
-            $(document).on("click", ".edit-btn", function() { 
-                    loadershow();
-                    var editid = $(this).data('id');
-                    $('#newblogcategoryform').removeClass('d-none');
-                    $('#newCategoryBtnDiv').addClass('d-none');
-                    let blogCategoryEditUrl = "{{ route('blogcategory.edit', '__editId__') }}".replace(
-                        '__editId__', editid);
-                    $.ajax({
-                        type: 'GET',
-                        url: blogCategoryEditUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.blogcategory != '') {
-                                var blogcategorydata = response.blogcategory;
-                                $('#edit_id').val(editid);
-                                $('#category_name').val(blogcategorydata.cat_name);
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            console.error('Error:', error);
+            $(document).on("click", ".edit-btn", function() {
+                loadershow();
+                var editid = $(this).data('id');
+                $('#newblogcategoryform').removeClass('d-none');
+                $('#newCategoryBtnDiv').addClass('d-none');
+                let blogCategoryEditUrl = "{{ route('blogcategory.edit', '__editId__') }}".replace(
+                    '__editId__', editid);
+                $.ajax({
+                    type: 'GET',
+                    url: blogCategoryEditUrl,
+                    data: {
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.blogcategory != '') {
+                            var blogcategorydata = response.blogcategory;
+                            $('#edit_id').val(editid);
+                            $('#category_name').val(blogcategorydata.cat_name);
+                        } else if (response.status == 500) {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
-                    });
-                
+                        loaderhide();
+                    },
+                    error: function(error) {
+                        loaderhide();
+                        console.error('Error:', error);
+                    }
+                });
+
             });
 
 
             // delete column if it is not has data of any
             $(document).on("click", ".del-btn", function() {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'if you will delete it, then it will be removed from blog automatically if it in use!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    loadershow();
-                    let blogCategoryDeleteUrl = "{{ route('blogcategory.delete', '__deleteId__') }}"
-                        .replace('__deleteId__', deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: blogCategoryDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: {{ session()->get('company_id') }},
-                            user_id: {{ session()->get('user_id') }},
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                var deleteid = $(this).data('id');
+                var row = this;
+                let blogCategoryDeleteUrl =
+                    "{{ route('blogcategory.delete', '__deleteId__') }}"
+                    .replace('__deleteId__', deleteid);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'if you will delete it, then it will be removed from blog automatically if it in use!', // Text
+                    'Yes, delete it!', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'warning', // Icon type (warning icon)
+                    function() {
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: blogCategoryDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: {{ session()->get('company_id') }},
+                                user_id: {{ session()->get('user_id') }},
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                loaderhide();
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            toastr.error('Something Went Wrong !');
-                        }
-                    });
-                }
-            }); 
+                        });
+                    }
+                );
             });
 
 
@@ -281,13 +301,22 @@
                             $('#newblogcategoryform').addClass('d-none');
                             $('#newCategoryBtnDiv').removeClass('d-none');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#category_name').val('');
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -308,7 +337,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

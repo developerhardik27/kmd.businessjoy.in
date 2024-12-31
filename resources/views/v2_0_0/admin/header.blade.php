@@ -91,13 +91,13 @@
             /* Set your desired width here */
         }
 
-        div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm) {
+        /* div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm) {
             background-color: #253566 !important;
         }
 
         div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel) {
             background-color: #FF7A29 !important;
-        }
+        } */
     </style>
 
     @yield('style')

@@ -41,7 +41,7 @@
         }
     </style>
 @endsection
- 
+
 @section('addnew')
     {{ route('admin.addblog') }}
 @endsection
@@ -51,7 +51,7 @@
         <span class="">+ Add New Blog</span>
     </button>
 @endsection
- 
+
 @section('table-content')
     <table id="data"
         class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
@@ -156,9 +156,12 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) { // if database not found
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else { // if request has not found any bank details record
-                            $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
                         }
                         loaderhide();
                     },
@@ -172,7 +175,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -182,21 +188,20 @@
 
             // delete bank             
             $(document).on("click", ".del-btn", function() {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'to delete this blog !',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel',
-                }).then((result) => {
-                    if (result.isConfirmed) {
+
+                var deleteid = $(this).data('id');
+                var row = this;
+                let blogDeleteUrl = "{{ route('blog.delete', '__deleteId__') }}".replace(
+                    '__deleteId__',
+                    deleteid);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this blog!', // Text
+                    'Yes, delete it!', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'warning', // Icon type (warning icon)
+                    function() {
                         loadershow();
-                        var deleteid = $(this).data('id');
-                        var row = this;
-                        let blogDeleteUrl = "{{ route('blog.delete', '__deleteId__') }}".replace(
-                            '__deleteId__',
-                            deleteid);
                         $.ajax({
                             type: 'PUT',
                             url: blogDeleteUrl,
@@ -207,21 +212,30 @@
                             },
                             success: function(response) {
                                 if (response.status == 200) {
-                                    toastr.success('succesfully deleted');
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
                                     $(row).closest("tr").fadeOut();
                                 } else if (response.status == 500) {
-                                    toastr.error(response.message);
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
                                 } else {
-                                    toastr.error('something went wrong !');
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
                                 }
                                 loaderhide();
                             },
                             error: function(xhr, status,
-                            error) { // if calling api request error 
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
                                     .responseText
-                                    ); // Log the full error response for debugging
+                                ); // Log the full error response for debugging
                                 var errorMessage = "";
                                 try {
                                     var responseJSON = JSON.parse(xhr.responseText);
@@ -230,11 +244,16 @@
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
-                                toastr.error(errorMessage);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+
                             }
                         });
                     }
-                });
+                );
+
             });
 
             // view bank data in pop-up
