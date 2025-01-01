@@ -119,7 +119,7 @@
                 var formData = $(this).serialize();
 
                 $.ajax({
-                    url: "{{route('invoice.generatepdfzip')}}", // Your API endpoint
+                    url: "{{ route('invoice.generatepdfzip') }}", // Your API endpoint
                     method: 'POST',
                     data: formData,
                     success: function(response) {
@@ -128,11 +128,18 @@
                             // Redirect to the URL to start the file download
                             window.location.href = response.zipFileName;
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                     },
                     error: function(xhr) {
-                        toastr.error('An error occurred while generating the ZIP file.');
+                        Toast.fire({
+                            icon: "error",
+                            title: 'An error occurred while generating the ZIP file.'
+                        });
+
                     },
                     complete: function() {
                         loaderhide(); // Hide the loader
@@ -142,11 +149,16 @@
 
 
             @if (Session::has('success'))
-                toastr.success('{{ Session::get('success') }}');
+                Toast.fire({
+                    icon: "success",
+                    title: "{{ Session::get('success') }}"
+                });
             @endif
-
             @if (Session::has('error'))
-                toastr.error('{{ Session::get('error') }}');
+                Toast.fire({
+                    icon: "error",
+                    title: "{{ Session::get('error') }}"
+                });
             @endif
 
 
@@ -195,7 +207,10 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='7' >No Data Found</td></tr>`)
                         }
@@ -213,7 +228,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -225,45 +243,71 @@
 
             // delete report log             
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let reportLogDeleteUrl = "{{route('report.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: reportLogDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let reportLogDeleteUrl = "{{ route('report.delete', '__deleteId__') }}"
+                            .replace(
+                                '__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: reportLogDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
+
             });
 
 

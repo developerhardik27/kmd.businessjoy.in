@@ -121,7 +121,10 @@
             // response status == 422 that means api has not got valid or required data
 
             @if (Session::has('message'))
-                toastr.error('You have not any column for download this quotation.');
+                Toast.fire({
+                    icon: "error",
+                    title: 'You have not any column for download this quotation.'
+                });
             @endif
 
             var global_response = '';
@@ -162,8 +165,12 @@
                                     customer += value.company_name;
                                 }
 
-                                let quotationEditUrl = "{{route('admin.editquotation','__quotationId__')}}".replace('__quotationId__',value.id);
-                                let generateQuotationPdfUrl = "{{route('quotation.generatepdf','__quotationId__')}}".replace('__quotationId__',value.id);
+                                let quotationEditUrl =
+                                    "{{ route('admin.editquotation', '__quotationId__') }}"
+                                    .replace('__quotationId__', value.id);
+                                let generateQuotationPdfUrl =
+                                    "{{ route('quotation.generatepdf', '__quotationId__') }}"
+                                    .replace('__quotationId__', value.id);
                                 $('#data').append(`<tr>
                                                         <td>${value.quotation_number != null  ? value.quotation_number : '-' }</td>
                                                         <td>${value.quotation_date_formatted}</td>
@@ -198,14 +205,14 @@
                                                                 </span>
                                                                 ${(value.is_editable == 1)?  
                                                                         `   
-                                                                            <span>
-                                                                                <a href=${quotationEditUrl}>
-                                                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                                                        <i class="ri-edit-fill"></i>
-                                                                                    </button>
-                                                                                </a>
-                                                                            </span>
-                                                                        `
+                                                                                                        <span>
+                                                                                                            <a href=${quotationEditUrl}>
+                                                                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                                                                                                    <i class="ri-edit-fill"></i>
+                                                                                                                </button>
+                                                                                                            </a>
+                                                                                                        </span>
+                                                                                                    `
                                                                     : ''
                                                                 }
                                                             @endif
@@ -235,7 +242,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#data').append(`<tr><td colspan='7'>No Data Found</td></tr>`);
                         }
@@ -252,7 +262,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -261,46 +274,71 @@
 
             // record delete 
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this quotation ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let quotationDeleteUrl = "{{ route('quotation.delete', '__deleteId__') }}".replace(
-                        '__deleteId__', deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: quotationDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }} ",
-                            user_id: " {{ session()->get('user_id') }} "
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message)
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('Quotation not delete');
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this quotation?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let quotationDeleteUrl = "{{ route('quotation.delete', '__deleteId__') }}"
+                            .replace(
+                                '__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: quotationDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: " {{ session()->get('company_id') }} ",
+                                user_id: " {{ session()->get('user_id') }} "
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    loaddata();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: 'Quotation not delete'
+                                    });
+
+                                    loaderhide();
+                                }
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             });
 
             // view record
@@ -334,16 +372,25 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message); 
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            })
                             loaddata();
-                            if(value == 'rejected'){
+                            if (value == 'rejected') {
                                 $('#remarksmodal').modal('show');
                                 showRemarksModal(id);
                             }
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('Status not updated');
+                            Toast.fire({
+                                icon: "error",
+                                title: 'Status not updated'
+                            });
                         }
                         loaderhide();
                     },
@@ -358,7 +405,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -368,22 +418,34 @@
                 var oldstatus = $(this).data('original-value'); //get original quotation status value
                 var statusid = $(this).data('status'); // get quotation id
                 var status = $(this).val(); //get current value
-                if (confirm('Are you sure to change this record ?')) {
-                    loadershow(); 
-                    $(this).data('original-value', status); // set current value to original value
-                    statuschange(statusid, status);
-                    loaderhide();
-                } else {
-                    $('#status_' + statusid).val(
-                        oldstatus
-                    ); // if user will cancelled to change status then set original value as it is
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change this record?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        element.data('original-value',
+                            status); // set current value to original value
+                        statuschange(statusid, status);
+                        loaderhide();
+                    },
+                    () => {
+                        // Error callback
+                        $('#status_' + statusid).val(
+                            oldstatus
+                        ); // if user will cancelled to change status then set original value as it is
+                    }
+                );
             });
 
 
-            function showRemarksModal(quotationId){
+            function showRemarksModal(quotationId) {
                 $('#remarksform')[0].reset();
-                $('#remarksdiv').html(''); 
+                $('#remarksdiv').html('');
                 $('#quotation_id').val(quotationId);
                 loadershow();
                 let quotationUrl = "{{ route('quotation.getquotationremarks', '__quotationId__') }}"
@@ -416,7 +478,7 @@
             });
 
             $('#remarkseditbtn').on('click', function() {
-                $(this).addClass('d-none');  
+                $(this).addClass('d-none');
                 $('#remarksdiv').addClass('d-none');
                 $('#remarks').removeClass('d-none').attr('readonly', false);
                 $('#remarkssubmitbtn').removeClass('d-none');
@@ -425,7 +487,7 @@
                     height: 300, // Adjust the height as needed
                     focus: true, // Set focus to the editor
                 });
-                $('#remarks').summernote('code',$('#remarksdiv').html());
+                $('#remarks').summernote('code', $('#remarksdiv').html());
             });
 
 
@@ -468,7 +530,10 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            })
                             $('#remarksform')[0].reset(); // Reset form
                             // Destroy Summernote when the modal is closed
                             $('#remarks').summernote('code', '');
@@ -476,9 +541,15 @@
                             $('#remarksmodal').modal('hide');
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -499,7 +570,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

@@ -51,10 +51,10 @@
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="col-sm-12"> 
+                                        <div class="col-sm-12">
                                             <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                                                data-original-title="Reset"
-                                                class="btn iq-bg-danger float-right mr-2" id="resetBtn">Reset</button>
+                                                data-original-title="Reset" class="btn iq-bg-danger float-right mr-2"
+                                                id="resetBtn">Reset</button>
                                             <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Save"
                                                 class="btn btn-primary float-right my-0">Save</button>
@@ -78,7 +78,7 @@
                         </div>
                         <div class="iq-card-body">
                             <div class="col md-4">
-                                 <a href="{{asset('versionchange/v1_1_1/v1_1_1.rtf')}}">V1.1.1</a>
+                                <a href="{{ asset('versionchange/v1_1_1/v1_1_1.rtf') }}">V1.1.1</a>
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,10 @@
                             });
                             $('.select2').select2();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#company').html(`<option>No Data Found<option>`);
                         }
@@ -156,7 +159,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -164,7 +170,7 @@
             loaddata(); // this function is for get company details
 
 
-            $('#resetBtn').on('click',function(e){ 
+            $('#resetBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#versioncontrolform')[0].reset();
                 $('.select2').select2();
@@ -172,50 +178,73 @@
 
             $('#versioncontrolform').submit(function(event) {
                 event.preventDefault();
-                if(confirm('Are you sure to change this company version?')){ 
-                    loadershow();  
-                    $('.error-msg').text('');
-                    const formdata = $(this).serialize();
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{route('company.versionupdate')}}",
-                        data:   formdata,   
-                        success: function(response) {
-                            // Handle the response from the server
-                            if (response.status == 200) { 
-                                // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
-                                $('#versioncontrolform')[0].reset(); 
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            if (xhr.status === 422) {
-                                var errors = xhr.responseJSON.errors;
-                                $.each(errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
-                            } else {
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message || "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change this company version?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $('.error-msg').text('');
+                        const formdata = $(this).serialize();
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('company.versionupdate') }}",
+                            data: formdata,
+                            success: function(response) {
+                                // Handle the response from the server
+                                if (response.status == 200) {
+                                    // You can perform additional actions, such as showing a success message or redirecting the user
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    $('#versioncontrolform')[0].reset();
+                                    loaddata();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
                                 }
-                                toastr.error(errorMessage);
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
+                                if (xhr.status === 422) {
+                                    var errors = xhr.responseJSON.errors;
+                                    $.each(errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    var errorMessage = "";
+                                    try {
+                                        var responseJSON = JSON.parse(xhr.responseText);
+                                        errorMessage = responseJSON.message ||
+                                            "An error occurred";
+                                    } catch (e) {
+                                        errorMessage = "An error occurred";
+                                    }
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: errorMessage
+                                    });
+                                }
                             }
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             });
 
         });

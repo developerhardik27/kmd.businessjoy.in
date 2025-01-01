@@ -193,8 +193,10 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-12">
-                    <button type="reset" id="resetbtn" data-toggle=tooltip  data-placement="bottom" data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
-                    <button type="submit" data-toggle=tooltip  data-placement="bottom" data-original-title="Submit" class="btn btn-primary float-right my-0">Save</button>
+                    <button type="reset" id="resetbtn" data-toggle=tooltip data-placement="bottom"
+                        data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
+                    <button type="submit" data-toggle=tooltip data-placement="bottom" data-original-title="Submit"
+                        class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -345,7 +347,10 @@
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: userDataResponse.message
+                        });
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
                     }
@@ -358,7 +363,10 @@
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
                     } else if (leadStageDataResponse.status == 500) {
-                        toastr.error(leadStageDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: leadStageDataResponse.message
+                        });
                     } else {
                         $('#leadstage').append(`<option> No Lead Stage Found </option>`);
                     }
@@ -372,7 +380,10 @@
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
                     } else if (leadStatusDataResponse.status == 500) {
-                        toastr.error(leadStageleadStatusDataResponseDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: leadStatusDataResponse.message
+                        });
                     } else {
                         $('#status').append(`<option> No Lead Stage Found </option>`);
                     }
@@ -383,7 +394,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -419,12 +433,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.lead') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -445,7 +468,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 })

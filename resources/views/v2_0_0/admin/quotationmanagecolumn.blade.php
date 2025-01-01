@@ -38,8 +38,8 @@
                     <span class="error-msg" id="error-column_type" style="color: red"></span>
                 </div>
                 <div class="col-sm-2 mb-2">
-                    <input type="number" class="form-control" name="column_width" id="column_width" placeholder="Column Width(%)"
-                        required />
+                    <input type="number" class="form-control" name="column_width" id="column_width"
+                        placeholder="Column Width(%)" required />
                     <span class="error-msg" id="error-column_width" style="color: red"></span>
                 </div>
                 <div class="col-sm-2 mt--2">
@@ -60,8 +60,7 @@
         </div>
     </form>
     <hr>
-    <table id="data"
-        class="table  table-bordered display table-responsive-lg table-striped text-center">
+    <table id="data" class="table  table-bordered display table-responsive-lg table-striped text-center">
         <thead>
             <tr>
                 <th>Sr</th>
@@ -169,7 +168,10 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
                         }
@@ -190,117 +192,170 @@
             $(document).on("click", '.hide-btn', function() {
                 hidevalue = $(this).val();
                 var columnid = $(this).data('id');
-                if (confirm(
-                        'Old quotation will not edit after apply this changes. Are you sure still you want to Update this Column?'
-                    )) {
-                    var row = this;
-                    let quotationColumnHideUrl = "{{ route('quotationcolumn.hide','__columnId__') }}".replace('__columnId__',columnid);
-                    loadershow();
-                    $.ajax({
-                        type: 'PUT',
-                        url: quotationColumnHideUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: {{ session()->get('company_id') }},
-                            user_id: {{ session()->get('user_id') }},
-                            hidevalue
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'Old quotation will not edit after apply this changes. still you want to Update this Column?', // Text
+                    'Yes, update',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        let quotationColumnHideUrl = "{{ route('quotationcolumn.hide', '__columnId__') }}"
+                            .replace('__columnId__', columnid);
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: quotationColumnHideUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: {{ session()->get('company_id') }},
+                                user_id: {{ session()->get('user_id') }},
+                                hidevalue
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    loaddata();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                loaderhide();
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            toastr.error('Something Went Wrong !');
-                        }
-                    });
-                }
+                        });
+                    } 
+                ); 
             });
 
 
             // edit column 
             $(document).on("click", ".edit-btn", function() {
-                if (confirm("You want edit this Column ?")) {
-                    loadershow();
-                    $('#column_type').prop('disabled', true);
-                    var editid = $(this).data('id');
-                    $('#newColForm').removeClass('d-none');
-                    $('#newColBtnDiv').addClass('d-none');
-                    let quotationColumnEditUrl = "{{ route('quotationcolumn.edit','__editId__') }}".replace('__editId__',editid);
-                    $.ajax({
-                        type: 'GET',
-                        url: quotationColumnEditUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.quotationcolumn != '') {
-                                var quotationcolumndata = response.quotationcolumn;
-                                $('#updated_by').val("{{ session()->get('user_id') }}");
-                                $('#edit_id').val(editid);
-                                $('#column_name').val(quotationcolumndata.column_name);
-                                $('#column_type').val(quotationcolumndata.column_type);
-                                $('#column_width').val(quotationcolumndata.column_width);
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                var editid = $(this).data('id');
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'You want edit this Column?', // Text
+                    'Yes, edit',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $('#column_type').prop('disabled', true);
+                        $('#newColForm').removeClass('d-none');
+                        $('#newColBtnDiv').addClass('d-none');
+                        let quotationColumnEditUrl = "{{ route('quotationcolumn.edit', '__editId__') }}"
+                            .replace('__editId__', editid);
+                        $.ajax({
+                            type: 'GET',
+                            url: quotationColumnEditUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(response) {
+                                if (response.status == 200 && response.quotationcolumn != '') {
+                                    var quotationcolumndata = response.quotationcolumn;
+                                    $('#updated_by').val("{{ session()->get('user_id') }}");
+                                    $('#edit_id').val(editid);
+                                    $('#column_name').val(quotationcolumndata.column_name);
+                                    $('#column_type').val(quotationcolumndata.column_type);
+                                    $('#column_width').val(quotationcolumndata.column_width);
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                $('#column_type').prop('disabled', false);
+                                loaderhide();
+                                console.error('Error:', error);
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            $('#column_type').prop('disabled', false);
-                            loaderhide();
-                            console.error('Error:', error);
-                        }
-                    });
-                }
+                        });
+                    } 
+                ); 
             });
 
 
             // delete column 
             $(document).on("click", ".del-btn", function() {
-                if (confirm(
-                        'This column will remove from old quotations. Are you sure you want to remove this column?'
-                    )) {
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    loadershow();
-                    let quotationColumnDeleteUrl = "{{ route('quotationcolumn.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: quotationColumnDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: {{ session()->get('company_id') }},
-                            user_id: {{ session()->get('user_id') }},
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'This column will remove from old quotations.still you want to remove this column?', // Text
+                    'Yes, remvoe',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let quotationColumnDeleteUrl = "{{ route('quotationcolumn.delete', '__deleteId__') }}"
+                            .replace('__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: quotationColumnDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: {{ session()->get('company_id') }},
+                                user_id: {{ session()->get('user_id') }},
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                loaderhide();
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            toastr.error('Something Went Wrong !');
-                        }
-                    });
-                }
+                        });
+                    } 
+                ); 
             });
 
             // manage column order  (it will show order by in quotation)
@@ -324,18 +379,30 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
                     error: function(error) {
                         loaderhide();
-                        toastr.error('Something Went Wrong !');
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
+                        });
                     }
                 });
             });
@@ -351,114 +418,151 @@
             $('#columnform').submit(function(e) {
                 e.preventDefault();
                 var editid = $('#edit_id').val()
+                $('#column_type').prop('disabled', false);
+                var columndata = $(this).serialize();
+                $('#column_type').prop('disabled', true);
+
                 if (editid != '') {
-                    if (confirm(
-                            "Edited column name will reflect in relevant quotatoins. Are you sure still you want to apply this?"
-                        )) {
-                        loadershow();
-                        $('#column_type').prop('disabled', false);
-                        var columndata = $(this).serialize();
-                        $('#column_type').prop('disabled', true);
-                        let quotationColumnUpdateUrl = "{{ route('quotationcolumn.update','__editId__') }}".replace('__editId__',editid);
-                        $.ajax({
-                            type: "POST",
-                            url: quotationColumnUpdateUrl,
-                            data: columndata,
-                            success: function(response) {
-                                $('#column_type').prop('disabled', false);
-                                if (response.status == 200) {
-                                    $('#edit_id').val('');
-                                    $('#newColForm').addClass('d-none');
-                                    $('#newColBtnDiv').removeClass('d-none');
-                                    // You can perform additional actions, such as showing a success message or redirecting the user
-                                    toastr.success(response.message);
-                                    $('#columnform')[0].reset();
-                                    loaddata();
-                                } else if (response.status == 500) {
-                                    toastr.error(response.message);
-                                } else {
-                                    toastr.error(response.message);
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status, error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText); // Log the full error response for debugging
-                                if (xhr.status === 422) {
-                                    var errors = xhr.responseJSON.errors;
-                                    $.each(errors, function(key, value) {
-                                        $('#error-' + key).text(value[0]);
-                                    });
-                                } else {
-                                    var errorMessage = "";
-                                    try {
-                                        var responseJSON = JSON.parse(xhr.responseText);
-                                        errorMessage = responseJSON.message ||
-                                            "An error occurred";
-                                    } catch (e) {
-                                        errorMessage = "An error occurred";
+                    showConfirmationDialog(
+                        'Are you sure?',  // Title
+                        'Edited column name will reflect in relevant quotatoins. still you want to apply this?', // Text
+                        'Yes, apply',  // Confirm button text
+                        'No, cancel', // Cancel button text
+                        'question', // Icon type (question icon)
+                        () => {
+                            // Success callback
+                            loadershow();
+                            let quotationColumnUpdateUrl =
+                                "{{ route('quotationcolumn.update', '__editId__') }}"
+                                .replace('__editId__', editid);
+                            $.ajax({
+                                type: "POST",
+                                url: quotationColumnUpdateUrl,
+                                data: columndata,
+                                success: function(response) {
+                                    $('#column_type').prop('disabled', false);
+                                    if (response.status == 200) {
+                                        $('#edit_id').val('');
+                                        $('#newColForm').addClass('d-none');
+                                        $('#newColBtnDiv').removeClass('d-none');
+                                        // You can perform additional actions, such as showing a success message or redirecting the user
+                                        Toast.fire({
+                                            icon: "success",
+                                            title: response.message
+                                        });
+                                        $('#columnform')[0].reset();
+                                        loaddata();
+                                    } else if (response.status == 500) {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: response.message
+                                        });
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: response.message
+                                        });
                                     }
-                                    toastr.error(errorMessage);
+                                    loaderhide();
+                                },
+                                error: function(xhr, status, error) { // if calling api request error 
+                                    loaderhide();
+                                    console.log(xhr
+                                        .responseText); // Log the full error response for debugging
+                                    if (xhr.status === 422) {
+                                        var errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            $('#error-' + key).text(value[0]);
+                                        });
+                                    } else {
+                                        var errorMessage = "";
+                                        try {
+                                            var responseJSON = JSON.parse(xhr.responseText);
+                                            errorMessage = responseJSON.message ||
+                                                "An error occurred";
+                                        } catch (e) {
+                                            errorMessage = "An error occurred";
+                                        }
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: errorMessage
+                                        });
+                                    }
                                 }
-                            }
-                        });
-                    }
+                            });
+                        } 
+                    ); 
                 } else {
-                    if (confirm(
-                            "Old quotation will not edit after apply this. Are you sure still you want to apply this?"
-                        )) {
-                        loadershow();
-                        var columndata = $(this).serialize();
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('quotationcolumn.store') }}",
-                            data: columndata,
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    $('#newColForm').addClass('d-none');
-                                    $('#newColBtnDiv').removeClass('d-none');
-                                    // You can perform additional actions, such as showing a success message or redirecting the user
-                                    toastr.success(response.message);
-                                    $('#columnform')[0].reset();
-                                    loaddata();
-                                } else if (response.status == 500) {
-                                    toastr.error(response.message);
-                                } else if (response.status == 422) {
-                                    $('.error-msg').text('');
-                                    $.each(response.errors, function(key, value) {
-                                        $('#error-' + key).text(value[0]);
-                                    });
-                                } else {
-                                    toastr.error(response.message);
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status, error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText); // Log the full error response for debugging
-                                if (xhr.status === 422) {
-                                    var errors = xhr.responseJSON.errors;
-                                    $.each(errors, function(key, value) {
-                                        $('#error-' + key).text(value[0]);
-                                    });
-                                } else {
-                                    var errorMessage = "";
-                                    try {
-                                        var responseJSON = JSON.parse(xhr.responseText);
-                                        errorMessage = responseJSON.message ||
-                                            "An error occurred";
-                                    } catch (e) {
-                                        errorMessage = "An error occurred";
+                    showConfirmationDialog(
+                        'Are you sure?',  // Title
+                        'Old quotation will not edit after apply this. still you want to apply this?', // Text
+                        'Yes, apply',  // Confirm button text
+                        'No, cancel', // Cancel button text
+                        'question', // Icon type (question icon)
+                        () => {
+                            // Success callback
+                            loadershow(); 
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('quotationcolumn.store') }}",
+                                data: columndata,
+                                success: function(response) {
+                                    if (response.status == 200) {
+                                        $('#newColForm').addClass('d-none');
+                                        $('#newColBtnDiv').removeClass('d-none');
+                                        // You can perform additional actions, such as showing a success message or redirecting the user
+                                        Toast.fire({
+                                            icon: "success",
+                                            title: response.message
+                                        });
+                                        $('#columnform')[0].reset();
+                                        loaddata();
+                                    } else if (response.status == 500) {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: response.message
+                                        });
+                                    } else if (response.status == 422) {
+                                        $('.error-msg').text('');
+                                        $.each(response.errors, function(key, value) {
+                                            $('#error-' + key).text(value[0]);
+                                        });
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: response.message
+                                        });
                                     }
-                                    toastr.error(errorMessage);
+                                    loaderhide();
+                                },
+                                error: function(xhr, status, error) { // if calling api request error 
+                                    loaderhide();
+                                    console.log(xhr
+                                        .responseText); // Log the full error response for debugging
+                                    if (xhr.status === 422) {
+                                        var errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            $('#error-' + key).text(value[0]);
+                                        });
+                                    } else {
+                                        var errorMessage = "";
+                                        try {
+                                            var responseJSON = JSON.parse(xhr.responseText);
+                                            errorMessage = responseJSON.message ||
+                                                "An error occurred";
+                                        } catch (e) {
+                                            errorMessage = "An error occurred";
+                                        }
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: errorMessage
+                                        });
+                                    }
                                 }
-                            }
-
-                        });
-                    }
-
+        
+                            });
+                        } 
+                    ); 
                 }
             });
         });

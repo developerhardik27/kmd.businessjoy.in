@@ -433,7 +433,10 @@
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: userDataResponse.message
+                        });
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -448,7 +451,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -489,8 +495,8 @@
                             var id = 1;
                             $.each(response.customersupport, function(key, value) {
                                 var name = (value.first_name != null ? value.first_name :
-                                        '') + ' ' + (value.last_name != null ? value.last_name :
-                                        '')
+                                    '') + ' ' + (value.last_name != null ? value.last_name :
+                                    '')
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
@@ -568,7 +574,10 @@
                             });
                             loaderhide();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         } else {
                             $('#data').append(`<tr><td colspan='8' >No Data Found</td></tr>`);
@@ -587,10 +596,13 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
-            } 
+            }
 
             // show individual customer support history record into the popupbox
             $(document).on("click", ".view-btn", function() {
@@ -657,41 +669,62 @@
 
             // change customer support status
             $(document).on('change', '.status', function() {
-                var oldstatus = $(this).data('original-value');
-                if (confirm('Are you Sure That to change status  ?')) {
-                    loadershow();
-                    var statusid = $(this).data('statusid');
-                    var fieldid = $(this).attr('id');
-                    var statusvalue = $('#' + fieldid).val();
-                    $(this).data('original-value', statusvalue);
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('customersupport.changestatus') }}",
-                        data: {
-                            statusid: statusid,
-                            statusvalue: statusvalue,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message);
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                var element = $(this);
+                var oldstatus = element.data('original-value');
+
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('statusid');
+                        var fieldid = element.attr('id');
+                        var statusvalue = $('#' + fieldid).val();
+                        element.data('original-value', statusvalue);
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('customersupport.changestatus') }}",
+                            data: {
+                                statusid: statusid,
+                                statusvalue: statusvalue,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                advancefilters();
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) { 
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                    loaderhide(); 
+                                } else { 
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    advancefilters(); 
+                                }
                             }
-                        }
-                    });
-                } else {
-                    loaderhide();
-                    var fieldid = $(this).attr('id');
-                    $('#' + fieldid).val(oldstatus);
-                }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        loaderhide();
+                        var fieldid = element.attr('id');
+                        $('#' + fieldid).val(oldstatus);
+                    }
+                );
             })
 
             //  on click edit button this will be save advanced filter data on 
@@ -725,36 +758,54 @@
 
             // delete customer support record
             $(document).on("click", ".dltbtn", function() {
-
-                if (confirm("Are you Sure that to delete this record")) {
-                    loadershow();
-                    var id = $(this).data('uid');
-                    var row = this;
-
-                    $.ajax({
-                        url: "{{ route('customersupport.delete') }}",
-                        type: 'PUT',
-                        data: {
-                            id: id,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message)
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                var id = $(this).data('uid');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            url: "{{ route('customersupport.delete') }}",
+                            type: 'PUT',
+                            data: {
+                                id: id,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                $(row).closest("tr").fadeOut();
-                            }
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                    loaderhide();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                }
 
-                        }
-                    });
-                }
+                            }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                    }
+                );
             })
 
 
@@ -817,7 +868,8 @@
                                 var id = 1;
                                 $.each(response.customersupport, function(key, value) {
                                     var name = (value.first_name != null ? value.first_name :
-                                        '') + ' ' + (value.last_name != null ? value.last_name :
+                                        '') + ' ' + (value.last_name != null ? value
+                                        .last_name :
                                         '')
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
@@ -896,19 +948,24 @@
                                 });
                                 loaderhide();
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
-                                loaderhide();
-                            } else {
-                                $('#data').DataTable().destroy();
-                                $('#data').DataTable({
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                                $('#tabledata').html(' ');
-                                $('#data').append(
-                                    `<tr><td colspan='8' >No Data Found</td></tr>`);
-                                loaderhide();
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                    loaderhide();
+                                } else {
+                                    $('#data').DataTable().destroy();
+                                    $('#data').DataTable({
+                                        "destroy": true, //use for reinitialize datatable
+                                    });
+                                    $('#tabledata').html(' ');
+                                    $('#data').append(
+                                        `<tr><td colspan='8' >No Data Found</td></tr>`);
+                                    loaderhide();
+                                }
+                                // You can update your HTML with the data here if needed
                             }
-                            // You can update your HTML with the data here if needed
                         },
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
@@ -921,9 +978,15 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            if (data.status == false) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                            }
                         }
                     });
+
                 }
             }
 
@@ -1015,7 +1078,9 @@
                             `<b>Call History</b> - ${ticket.first_name} ${ticket.last_name}`);
                     }
                 });
-                let customerSupportHistorySearchUrl = "{{route('customersupporthistory.search','__historyId__')}}".replace('__historyId__',historyid);
+                let customerSupportHistorySearchUrl =
+                    "{{ route('customersupporthistory.search', '__historyId__') }}".replace(
+                        '__historyId__', historyid);
                 $.ajax({
                     type: 'GET',
                     url: customerSupportHistorySearchUrl,
@@ -1037,14 +1102,18 @@
                             `);
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
-                            loaderhide();
-                        } else {
-                            $('.historyrecord').append(`
-                                <div class="col-12">
-                                   No history Found
-                                </div>
-                            `);
+                            if (data.status == false) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
+                            } else {
+                                $('.historyrecord').append(`
+                                    <div class="col-12">
+                                    No history Found
+                                    </div>
+                                `);
+                            }
                         }
 
                         loaderhide();
@@ -1060,7 +1129,12 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        if (data.status == false) {
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
+                        }
                     }
                 });
             });
@@ -1069,7 +1143,7 @@
                 $('#customersupporthistoryform')[0].reset();
                 $('#history_notes').summernote('code', '');
             });
- 
+
             // customersupporthistoryform submit 
             $('#customersupporthistoryform').submit(function(e) {
                 e.preventDefault();
@@ -1090,18 +1164,30 @@
                             $('#history_notes').summernote('code', '');
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
-                            $('#customersupporthistoryform')[0].reset();
-                            $('#addcallhistory').modal('hide');
-                            loaddata();
-                        } else if (response.status == 500) {
-                            toastr.error(response.message);
-                            loaderhide();
-                        } else {
-                            loaderhide();
-                            toastr.error(response.message);
+                            if (data.status == false) {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
+                                $('#customersupporthistoryform')[0].reset();
+                                $('#addcallhistory').modal('hide');
+                                loaddata();
+                            } else if (response.status == 500) {
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    if (data.status == false) {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: response.message
+                                        });
+                                    }
+                                }
+                            }
                         }
-
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         $('#history_notes').summernote('code', '');
@@ -1121,10 +1207,15 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            if (data.status == false) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                            }
                         }
                     }
-                })
+                });
             });
         });
     </script>

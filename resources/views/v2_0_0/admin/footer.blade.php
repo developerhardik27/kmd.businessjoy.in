@@ -95,7 +95,7 @@
     });
 
     // Function to show the SweetAlert2 confirmation box with dynamic icon
-    function showConfirmationDialog(title, text, confirmText, cancelText, icon, callback) {
+    function showConfirmationDialog(title, text, confirmText, cancelText, icon, callback, errorCallback) {
         Swal.fire({
             title: title, // Dynamic title
             text: text, // Dynamic text
@@ -108,6 +108,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 callback(); // Execute the callback function after the loader
+            } else if (result.isDismissed && errorCallback) {
+                errorCallback(); // Execute the error callback if canceled and errorCallback is provided
             }
         });
     }
@@ -183,11 +185,18 @@
                 },
                 success: function(response) {
                     $('#menuOption').html($(this).html());
-                    toastr.success(`Logged in ${response.status} succesfully`);
+                    Toast.fire({
+                        icon: "success",
+                        title: `Logged in ${response.status} succesfully`
+                    });
+
                     window.location.href = "{{ route('admin.welcome') }}";
                 },
                 error: function(error) {
-                    toastr.error('Something Went Wrong!');
+                    Toast.fire({
+                        icon: "error",
+                        title: "something went wrong!"
+                    });
                 }
             });
         });

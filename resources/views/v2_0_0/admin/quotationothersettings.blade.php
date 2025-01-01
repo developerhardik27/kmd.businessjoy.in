@@ -35,7 +35,7 @@
 
 @section('page-content')
     <div id="content-page" class="content-page ">
-        <div class="container-fluid">  
+        <div class="container-fluid">
             @if (session('user_permissions.quotationmodule.quotationnumbersetting.edit') == 1)
                 <div class="row">
                     <div class="col-sm-12 col-lg-12">
@@ -68,7 +68,7 @@
                                                     <option value="cidai">Auto Increment According To Customer</option>
                                                 </select>
                                                 <span class="text-info">You can use auto increment input only once</span>
-                                                 <br>
+                                                <br>
                                             </div>
                                             <div class="col-sm-4">
                                                 <label for="patterntype">Quotation Pattern Type</label>
@@ -242,7 +242,7 @@
                                                     class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
-                                                    Quotation Expired Days : <input type="number" id="expired_day"
+                                                Quotation Expired Days : <input type="number" id="expired_day"
                                                     name='expired_day' class="form-control" placeholder="Expired days"
                                                     min="1" required />
                                                 <span class="error-msg" id="error-expired_day"
@@ -364,7 +364,7 @@
                             </div>
                         </div>
                     </div>
-                @endif  
+                @endif
             </div>
         </div>
     </div>
@@ -462,7 +462,8 @@
                                 $('#gstdisabledswitch').prop('checked', false); // Uncheck the checkbox
                             }
                             if (quotation_number == 1) {
-                                $('#manualquotnumberswitch').prop('checked', true); // Check the checkbox
+                                $('#manualquotnumberswitch').prop('checked',
+                                    true); // Check the checkbox
                             } else {
                                 $('#manualquotnumberswitch').prop('checked',
                                     false); // Uncheck the checkbox
@@ -473,9 +474,12 @@
                             } else {
                                 $('#manualquotdateswitch').prop('checked',
                                     false); // Uncheck the checkbox
-                            }  
+                            }
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#overduedays').html(`<b>Not set</b> `);
                             $('#yearstartdate').html(`<b>Not set</b>`);
@@ -497,7 +501,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -525,7 +532,8 @@
                 event.preventDefault();
                 loadershow();
                 editid = $('#expired_day').data('id');
-                let getOverDueDaysUpdateUrl = "{{ route('getquotationoverduedays.update','__editId__') }}".replace('__editId__',editid);
+                let getOverDueDaysUpdateUrl = "{{ route('getquotationoverduedays.update', '__editId__') }}"
+                    .replace('__editId__', editid);
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
@@ -538,13 +546,22 @@
                             $('#editoverdueday').show();
                             $('#overduedaysform').hide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#overduedaysform')[0].reset();
                             getoverduedays();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -565,7 +582,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -596,7 +616,8 @@
                 event.preventDefault();
                 loadershow();
                 editid = $('#sgst').data('id');
-                let gstSettingsUpdateUrl = "{{ route('quotationgstsettingsupdate.update','__editId__') }}".replace('__editId__',editid);
+                let gstSettingsUpdateUrl = "{{ route('quotationgstsettingsupdate.update', '__editId__') }}"
+                    .replace('__editId__', editid);
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
@@ -608,13 +629,22 @@
                         if (response.status == 200) {
                             $('#gstsettingsform').hide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#gstsettingsform')[0].reset();
                             getoverduedays();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -636,7 +666,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -692,7 +725,10 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
                         }
@@ -710,7 +746,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -720,25 +759,45 @@
 
             //  t & cstatus update(active to inactive)            
             $(document).on("click", ".status-active", function() {
-                if (confirm('Are you really want to change status to inactive ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changetcstatus(statusid, 0);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status to inactive?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('status');
+                        changetcstatus(statusid, 0);
+                    }
+                );
             });
 
             //  t & c status update (inactive to active)            
             $(document).on("click", ".status-deactive", function() {
-                if (confirm('Are you really want to change status to active ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changetcstatus(statusid, 1);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status to active?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('status');
+                        changetcstatus(statusid, 1);
+                    }
+                );
             });
 
             //chagne t&c status update function (active/inactive)
             function changetcstatus(tcid, statusvalue) {
-                let termsAndConditionsStatusUpdateUrl = "{{ route('quotationtermsandconditions.statusupdate','__tcId__') }}".replace('__tcId__',tcid);
+                let termsAndConditionsStatusUpdateUrl =
+                    "{{ route('quotationtermsandconditions.statusupdate', '__tcId__') }}".replace('__tcId__',
+                        tcid);
                 $.ajax({
                     type: 'PUT',
                     url: termsAndConditionsStatusUpdateUrl,
@@ -750,12 +809,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -770,52 +838,81 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
 
             // delete terms and conditions              
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let termsAndConditionsDeleteUrl = "{{ route('quotationtermsandconditions.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: termsAndConditionsDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let termsAndConditionsDeleteUrl =
+                            "{{ route('quotationtermsandconditions.delete', '__deleteId__') }}"
+                            .replace(
+                                '__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: termsAndConditionsDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             });
 
             // show add new terms and conditions form on click add new terms and condition btn
@@ -855,14 +952,23 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#tcform')[0].reset();
                             $('#t_and_c').summernote('code', '');
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -883,7 +989,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -899,100 +1008,147 @@
 
             // quotation number settings  user can add or not enter manual quotation number during create quotation
             $('#manualquotnumberswitch').on('change', function() {
-                var val = $(this).prop('checked') ? 'yes' : 'no';
-                if (confirm('Are you sure to update this setting?')) {
-                    var quotnumberstatus = 0;
-                    if (val == 'yes') {
-                        quotnumberstatus = 1;
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('othersettings.updatequotationnumberstatus') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            status: quotnumberstatus
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                element = $(this);
+                var val = element.prop('checked') ? 'yes' : 'no';
+
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to update this setting', // Text
+                    'Yes, update', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        var quotnumberstatus = 0;
+                        if (val == 'yes') {
+                            quotnumberstatus = 1;
                         }
-                    });
-                } else {
-                    if (val == 'yes') {
-                        $(this).prop('checked', false);
-                    } else {
-                        $(this).prop('checked', true);
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{ route('othersettings.updatequotationnumberstatus') }}",
+                            data: {
+                                user_id: "{{ session()->get('user_id') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                token: "{{ session()->get('api_token') }}",
+                                status: quotnumberstatus
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                                // You can update your HTML with the data here if needed
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                            }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        if (val == 'yes') {
+                            element.prop('checked', false);
+                        } else {
+                            element.prop('checked', true);
+                        }
                     }
-                }
+                );
             });
 
             // quotation number settings  user can add or not enter manual quotation date during create quotation
             $('#manualquotdateswitch').on('change', function() {
-                var val = $(this).prop('checked') ? 'yes' : 'no';
-                if (confirm('Are you sure to update this setting?')) {
-                    var quotdatestatus = 0;
-                    if (val == 'yes') {
-                        quotdatestatus = 1
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('othersettings.updatequotationdatestatus') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            status: quotdatestatus
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                element = $(this);
+                var val = element.prop('checked') ? 'yes' : 'no';
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to update this setting?', // Text
+                    'Yes, update', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        var quotdatestatus = 0;
+                        if (val == 'yes') {
+                            quotdatestatus = 1
                         }
-                    });
-                } else {
-                    if (val == 'yes') {
-                        $(this).prop('checked', false);
-                    } else {
-                        $(this).prop('checked', true);
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{ route('othersettings.updatequotationdatestatus') }}",
+                            data: {
+                                user_id: "{{ session()->get('user_id') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                token: "{{ session()->get('api_token') }}",
+                                status: quotdatestatus
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                                // You can update your HTML with the data here if needed
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                            }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        if (val == 'yes') {
+                            element.prop('checked', false);
+                        } else {
+                            element.prop('checked', true);
+                        }
                     }
-                }
+                );
             });
 
             //get quotation pattern and set it 
@@ -1032,8 +1188,11 @@
                                 }
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
-                        } else { 
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                        } else {
                             $('#domesticquotationpattern').text('Yet not set');
                             $('#globalquotationpattern').text('Yet not set');
 
@@ -1052,7 +1211,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -1185,7 +1347,10 @@
                             // Handle the response from the server
                             if (response.status == 200) {
                                 // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
                                 $('#quotationnumberpatternform')[0].reset();
                                 $('#quotationnumberinputs').html(' ');
                                 $('#quotationpattern').find(
@@ -1196,20 +1361,36 @@
                                 $('#editquotationnumberBtn').removeClass('d-none');
                                 getquotationpatterns();
                             } else if (response.status == 1) {
-                                if (confirm(response.message)) {
-                                    startpatternfromoldnumber(data);
-                                } else {
-                                    $('#quotationnumberpatternform')[0].reset();
-                                    $('#quotationnumberinputs').html(' ');
-                                    $('#quotationpattern').find(
-                                        'option[value="ai"],option[value="cidai"]').prop(
-                                        'disabled',
-                                        false);
-                                }
+                                showConfirmationDialog(
+                                    'Are you sure?', // Title
+                                    response.message, // Text
+                                    'Yes', // Confirm button text
+                                    'No, cancel', // Cancel button text
+                                    'question', // Icon type (question icon)
+                                    () => {
+                                        // Success callback
+                                        startpatternfromoldnumber(data);
+                                    },
+                                    () => {
+                                        // Error callback
+                                        $('#quotationnumberpatternform')[0].reset();
+                                        $('#quotationnumberinputs').html(' ');
+                                        $('#quotationpattern').find(
+                                            'option[value="ai"],option[value="cidai"]').prop(
+                                            'disabled',
+                                            false);
+                                    }
+                                );  
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
-                                toastr.error('something went wrong !');
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
                             loaderhide();
                         },
@@ -1230,12 +1411,18 @@
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
-                                toastr.error(errorMessage);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
                         }
                     });
                 } else {
-                    toastr.error('Please select atleast one auto increment input');
+                    Toast.fire({
+                        icon: "error",
+                        title: "Please select atleast one auto increment input"
+                    });
                 }
             });
             /*
@@ -1258,17 +1445,27 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#quotationnumberpatternform')[0].reset();
                             $('#quotationnumberinputs').html(' ');
-                            $('#quotationpattern').find('option[value="ai"],option[value="cidai"]').prop(
-                                'disabled',
-                                false);
+                            $('#quotationpattern').find('option[value="ai"],option[value="cidai"]')
+                                .prop(
+                                    'disabled',
+                                    false);
                             getquotationpatterns();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -1289,11 +1486,14 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
-            } 
+            }
         });
     </script>
 @endpush

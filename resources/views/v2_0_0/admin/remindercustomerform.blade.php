@@ -278,7 +278,10 @@
                         loadstate(1, 7);
                         loadcity(7);
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     } else {
                         $('#country').append(`<option disabled> No Data Found</option>`);
                     }
@@ -296,7 +299,10 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
 
@@ -304,7 +310,7 @@
             //show state data in dropdown
             function loadstate(country, state) {
                 let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
-                country);
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -366,7 +372,8 @@
                 loadershow();
                 var country_id = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country_id);
+                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country_id);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -382,7 +389,10 @@
                                 )
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`);
                         }
@@ -399,7 +409,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });
@@ -409,7 +422,7 @@
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
-                citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -425,7 +438,10 @@
                                 )
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }
@@ -443,7 +459,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });
@@ -463,14 +482,23 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location =
                                 "{{ route('admin.remindercustomer') }}"; // redirect on customer list page
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
 
@@ -492,7 +520,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

@@ -200,13 +200,16 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
 
             // load state in dropdown when country change
             $('#country').on('change', function() {
-                loadershow(); 
+                loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your city</option>`);
                 var country_id = $(this).val();
                 loadstate(country_id);
@@ -215,9 +218,9 @@
             // load state in dropdown and set default value accroding logged in user if user not select manual
             function loadstate(id = 0) {
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                var url = "{{route('state.search','__id__')}}".replace('__id__',id);
+                var url = "{{ route('state.search', '__id__') }}".replace('__id__', id);
                 if (id == 0) {
-                    url = "{{route('state.search', Auth::guard('admin')->user()->country_id) }}";
+                    url = "{{ route('state.search', Auth::guard('admin')->user()->country_id) }}";
                 }
                 $.ajax({
                     type: 'GET',
@@ -254,14 +257,17 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
- 
+
             // load city in dropdown when state select/change
             $('#state').on('change', function() {
-                loadershow(); 
+                loadershow();
                 var state_id = $(this).val();
                 loadcity(state_id);
             });
@@ -269,7 +275,7 @@
             // load city in dropdown and set default value accroding logged in user if user not select manual
             function loadcity(id = 0) {
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
-                url = "{{route('city.search','__id__')}}".replace('__id__',id);;
+                url = "{{ route('city.search', '__id__') }}".replace('__id__', id);;
                 if (id == 0) {
                     url = "{{ route('city.search', Auth::guard('admin')->user()->state_id) }}";
                 }
@@ -306,7 +312,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -334,13 +343,22 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.company') }}";
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -361,7 +379,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

@@ -140,13 +140,13 @@
                                                         <td>  
                                                             <span>
                                                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Column" data-id='${value.id}'
-                                                                     class="btn edit-btn btn-success btn-rounded btn-sm my-1">
+                                                                     class="btn edit-btn btn-success btn-rounded btn-sm my-0 mb-2">
                                                                     <i class="ri-edit-fill"></i>
                                                                 </button>
                                                             </span>
                                                             <span>
                                                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Column" data-id= '${value.id}'
-                                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-1">
+                                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -160,7 +160,10 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
                         }
@@ -202,9 +205,15 @@
                             $('#edit_id').val(editid);
                             $('#tag_name').val(blogtagdata.tag_name);
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -220,7 +229,7 @@
             // delete column if it is not has data of any
             $(document).on("click", ".del-btn", function() {
                 var deleteid = $(this).data('id');
-                var row = this; 
+                var row = this;
                 let blogTagDeleteUrl = "{{ route('blogtag.delete', '__deleteId__') }}"
                     .replace('__deleteId__', deleteid);
                 showConfirmationDialog(
@@ -228,8 +237,8 @@
                     'if you will delete it, then it will be removed from blog automatically if it in use!', // Text
                     'Yes, delete it!', // Confirm button text
                     'No, cancel', // Cancel button text
-                    'warning', // Icon type (warning icon)
-                    function() { 
+                    'question', // Icon type (question icon)
+                    function() {
                         loadershow();
                         $.ajax({
                             type: 'PUT',
@@ -300,12 +309,12 @@
                             $('#tag_name').val('');
                             loaddata();
                         } else if (response.status == 500) {
-                           Toast.fire({
+                            Toast.fire({
                                 icon: "error",
                                 title: response.message
                             });
                         } else {
-                           Toast.fire({
+                            Toast.fire({
                                 icon: "error",
                                 title: response.message
                             });

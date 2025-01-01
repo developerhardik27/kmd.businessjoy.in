@@ -64,7 +64,8 @@
                     <span class="error-msg" id="error-amount" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="next_reminder">Next Reminder Date:</label><span style="color:red;">*</span>
+                    <label class="form-label" for="next_reminder">Next Reminder Date:</label><span
+                        style="color:red;">*</span>
                     <input type="datetime-local" class="form-control" name="next_reminder" id="next_reminder" />
                     <span class="m-1 text-info btn dynamic-date" data-months="6">After 6 Months</span>
                     <span class="m-1 text-info btn dynamic-date" data-months="9">After 9 Months</span>
@@ -94,12 +95,14 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Save">Save</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Reset">Reset</button>
+                    <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Save">Save</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -139,13 +142,13 @@
 
             var now = new Date();
             var nextReminderDate = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate(), now
-                    .getHours(), now.getMinutes());
-                var nextReminderFormatted = nextReminderDate.getFullYear() + '-' +
-                    ('0' + (nextReminderDate.getMonth() + 1)).slice(-2) + '-' +
-                    ('0' + nextReminderDate.getDate()).slice(-2) + 'T' +
-                    ('0' + nextReminderDate.getHours()).slice(-2) + ':' +
-                    ('0' + nextReminderDate.getMinutes()).slice(-2);
-                $("#next_reminder").val(nextReminderFormatted);
+                .getHours(), now.getMinutes());
+            var nextReminderFormatted = nextReminderDate.getFullYear() + '-' +
+                ('0' + (nextReminderDate.getMonth() + 1)).slice(-2) + '-' +
+                ('0' + nextReminderDate.getDate()).slice(-2) + 'T' +
+                ('0' + nextReminderDate.getHours()).slice(-2) + ':' +
+                ('0' + nextReminderDate.getMinutes()).slice(-2);
+            $("#next_reminder").val(nextReminderFormatted);
 
             $(".dynamic-date").click(function() {
                 var monthsToAdd = parseInt($(this).data("months"));
@@ -182,7 +185,10 @@
                                 )
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#customer').append(`<option disabled '>No Data found </option>`);
                         }
@@ -199,7 +205,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -228,12 +237,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.reminder') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -254,7 +272,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 })

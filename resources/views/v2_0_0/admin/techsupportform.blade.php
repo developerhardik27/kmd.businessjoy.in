@@ -75,7 +75,7 @@
                     <label class="form-label" for="modulename">Module Name:</label><span style="color:red;"> *</span>
                     <select name="modulename" class="form-control" id="modulename">
                         <option value="" disabled selected>Select Module</option>
-                        @if (Session::has('invoice') && Session::get('invoice') == 'yes' || Session::get('admin_role') == 1)
+                        @if ((Session::has('invoice') && Session::get('invoice') == 'yes') || Session::get('admin_role') == 1)
                             <option value='invoice'>Invoice</option>
                         @endif
                         @if ((Session::has('lead') && Session::get('lead') == 'yes') || Session::get('admin_role') == 1)
@@ -231,7 +231,11 @@
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -243,7 +247,7 @@
                     console.error('Error:', error);
                 }
             });
- 
+
             // user will be redirect if he is click on form cancel button
             $('#resetbtn').on('click', function() {
                 loadershow();
@@ -267,15 +271,26 @@
                         if (response.status == 200) {
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.techsupport') }}";
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                             loaderhide();
                         } else {
                             loaderhide();
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         }
 
                     },
@@ -302,9 +317,11 @@
                             loaderhide();
                         } else {
                             loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            Toast.fire({
+                                icon: "error",
+                                title: 'An error occurred while processing your request. Please try again later.'
+                            });
+
                         }
                     }
                 })

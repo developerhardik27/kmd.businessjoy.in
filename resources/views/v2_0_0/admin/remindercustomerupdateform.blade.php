@@ -113,12 +113,14 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Update">Save</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Reset">Reset</button>
+                    <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Update">Save</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -133,7 +135,8 @@
 
             // get & set customer old data in the form input
             var edit_id = @json($edit_id);
-            let reminderCustomerSearchUrl = "{{route('remindercustomer.search','__editId__')}}".replace('__editId__',edit_id);
+            let reminderCustomerSearchUrl = "{{ route('remindercustomer.search', '__editId__') }}".replace(
+                '__editId__', edit_id);
             $.ajax({
                 type: 'GET',
                 url: reminderCustomerSearchUrl,
@@ -159,7 +162,10 @@
                         loadstate(country, state);
                         loadcity(state, city);
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
                     loaderhide();
                 },
@@ -197,7 +203,8 @@
             });
             //show state data in dropdown
             function loadstate(country, state) {
-                let  stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country);
+                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -227,7 +234,7 @@
 
             // show city data in dropdown
             function loadcity(state, city) {
-               let citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -259,7 +266,8 @@
                 loadershow();
                 var country = $(this).val();
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country);
+                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -291,7 +299,7 @@
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
-                citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -332,13 +340,22 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.remindercustomer') }}";
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -359,7 +376,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });;
                         }
                     }
                 });

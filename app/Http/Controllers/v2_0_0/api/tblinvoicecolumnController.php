@@ -42,6 +42,7 @@ class tblinvoicecolumnController extends commonController
 
     public function formula(Request $request)
     {
+  
         //condition for check if user has permission to view record
 
         // if ($this->rp['invoicemodule']['mngcol']['view'] != 1) {
@@ -83,8 +84,7 @@ class tblinvoicecolumnController extends commonController
 
         // if ($this->rp['invoicemodule']['mngcol']['view'] != 1) {
         //     return $this->successresponse(500, 'message', 'You are Unauthorized');
-        // }
-
+        // } 
 
         $invoicecolumn = $this->tbl_invoice_columnModel::orderBy('column_order')
             ->where('is_deleted', 0)->get();

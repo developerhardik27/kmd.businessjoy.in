@@ -105,7 +105,7 @@
             // get column list for make formula  (column type = number) and set in into all drop down
             $.ajax({
                 type: "GET",
-                url: "{{ route('invoicecolumn.formulacolumnlist') }}",
+                url: "{{route('invoicecolumn.formulacolumnlist')}}",
                 data: {
                     user_id: "{{ session()->get('user_id') }}",
                     company_id: "{{ session()->get('company_id') }}",
@@ -171,7 +171,10 @@
                                             </tr>
                         `);
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     } else {
                         $('#add_new_div').append(`
                                             <tr class="iteam_row row">
@@ -226,7 +229,10 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
 
@@ -333,12 +339,20 @@
 
             // remove row of make formula
             $(document).on('click', '.remove-row', function() {
-                if (confirm('Are you sure to delete this formula?')) {
-                    $(this).parents("tr").detach();
-                    addnamedltbtn--;
-                    $(this).tooltip('dispose');
-                    $(this).tooltip();
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to delete this formula?', // Text
+                    'Yes, delete',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        element.parents("tr").detach();
+                        addnamedltbtn--;
+                        element.tooltip('dispose');
+                        element.tooltip();
+                    } 
+                ); 
             });
             // code end for add row,totalrow and delete add row and totalrow
 
@@ -389,7 +403,10 @@
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='7' >No Data Found</td></tr>`)
                         }
@@ -407,7 +424,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -417,100 +437,134 @@
 
             // edit formula 
             $(document).on("click", ".edit-btn", function() {
-                if (confirm(
-                        "Old invoice will not edit after apply this changes. Are you sure still you want to edit this Formula?"
-                    )) {
-                    loadershow();
-                    var editid = $(this).data('id');
+                var editid = $(this).data('id');
                     let invoiceFormulaEditUrl = "{{ route('invoiceformula.edit', '__editId__') }}".replace(
                         '__editId__', editid);
-                    $.ajax({
-                        type: 'GET',
-                        url: invoiceFormulaEditUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }}",
-                            user_id: " {{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.invoiceformula != '') {
-                                var invoiceformula = response.invoiceformula;
-                                $('#updated_by').val("{{ session()->get('user_id') }}");
-                                $('#edit_id').val(editid);
-                                $('#firstcolumn_1').val(invoiceformula.first_column).focus();
-                                $('#operation_1').val(invoiceformula.operation);
-                                $('#secondcolumn_1').val(invoiceformula.second_column);
-                                $('#output_1').val(invoiceformula.output_column);
-                                $('#newFormulaForm').removeClass('d-none');
-                                $('#newFormulaBtnDiv').addClass('d-none');
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('Something Went Wrong! please try again later ');
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'Old invoice will not edit after apply this changes. still you want to edit this Formula?', // Text
+                    'Yes, edit',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow(); 
+                        $.ajax({
+                            type: 'GET',
+                            url: invoiceFormulaEditUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: " {{ session()->get('company_id') }}",
+                                user_id: " {{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200 && response.invoiceformula != '') {
+                                    var invoiceformula = response.invoiceformula;
+                                    $('#updated_by').val("{{ session()->get('user_id') }}");
+                                    $('#edit_id').val(editid);
+                                    $('#firstcolumn_1').val(invoiceformula.first_column).focus();
+                                    $('#operation_1').val(invoiceformula.operation);
+                                    $('#secondcolumn_1').val(invoiceformula.second_column);
+                                    $('#output_1').val(invoiceformula.output_column);
+                                    $('#newFormulaForm').removeClass('d-none');
+                                    $('#newFormulaBtnDiv').addClass('d-none');
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );  
             });
 
             // delete formula
             $(document).on("click", ".del-btn", function() {
-                if (confirm(
-                        'Old invoice will not edit after apply this changes. Are you sure still you want to delete this Formula'
-                    )) {
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let invoiceFormulaDelelteUrl = "{{ route('invoiceformula.delete', '__deleteId__') }}"
-                        .replace('__deleteId__', deleteid);
-                    loadershow();
-                    $.ajax({
-                        type: 'PUT',
-                        url: invoiceFormulaDelelteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }}",
-                            user_id: " {{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success('Formula succesfully deleted');
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                var row = this;
+                let invoiceFormulaDelelteUrl = "{{ route('invoiceformula.delete', '__deleteId__') }}"
+                    .replace('__deleteId__', deleteid);
+
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'Old invoice will not edit after apply this changes. still you want to delete this Formula', // Text
+                    'Yes, delete',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: invoiceFormulaDelelteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: " {{ session()->get('company_id') }}",
+                                user_id: " {{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: 'Formula succesfully deleted'
+                                    }); 
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    } 
+                ); 
             });
 
 
@@ -535,12 +589,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -555,7 +618,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });
@@ -602,15 +668,18 @@
                     if (hasRepeatedColumns(currentArray)) {
                         hasError = true;
                         $(this).addClass('error-row');
-                        toastr.error('Repeated columns found in the rows.');
-                        return; // Stop processing if there's an issue
-                    }
-
+                        Toast.fire({
+                            icon: "error",
+                            title: "Repeated columns found in the rows."
+                        }); 
                     // Check if the output column is unique across all rows
                     if (uniqueOutputColumns.includes(currentArray[3])) {
                         hasError = true;
                         $(this).addClass('error-row');
-                        toastr.error('Duplicate output column found across rows.');
+                        Toast.fire({
+                            icon: "error",
+                            title: "Duplicate output column found across rows."
+                        }); 
                         return; // Stop processing if there's an issue
                     }
                     uniqueOutputColumns.push(currentArray[3]);
@@ -668,117 +737,72 @@
 
 
                 if (hasDuplicateCombinations(formula_data)) {
-                    toastr.error('Duplicate combinations found.');
+                    Toast.fire({
+                        icon: "error",
+                        title: "Duplicate combinations found.!"
+                    }); 
                 }
 
                 if (!hasError) {
-                    if (confirm(
-                            "Old invoice will not edit after apply this changes. Are you sure still you want to apply this changes ?"
-                        )) {
 
-                        loadershow();
-                        var editid = $('#edit_id').val();
-                        if (editid != '') {
-                            var updated_by = $('#updated_by').val();
-                            var first_column = $('#firstcolumn_1').val();
-                            var operation = $('#operation_1').val();
-                            var second_column = $('#secondcolumn_1').val();
-                            var output_column = $('#output_1').val();
-                            let invoiceFormulaUpdateUrl =
-                                "{{ route('invoiceformula.update', '__editId__') }}".replace('__editId__',
-                                    editid);
-                            $.ajax({
-                                type: "POST",
-                                url: invoiceFormulaUpdateUrl,
-                                data: {
-                                    first_column,
-                                    operation,
-                                    second_column,
-                                    output_column,
-                                    editid,
-                                    updated_by,
-                                    token: "{{ session()->get('api_token') }}",
-                                    company_id: "{{ session()->get('company_id') }}",
-                                    user_id: "{{ session()->get('user_id') }}",
-                                },
-                                success: function(response) {
-                                    if (response.status == 200) {
-                                        $('#edit_id').val('');
-                                        // You can perform additional actions, such as showing a success message or redirecting the user
-                                        toastr.success(response.message);
-                                        $('#formulaform')[0].reset();
-                                        $('#newFormulaForm').addClass('d-none');
-                                        $('#newFormulaBtnDiv').removeClass('d-none');
-                                        loaddata();
-                                    } else if (response.status == 500) {
-                                        toastr.error(response.message);
-                                    } else {
-                                        toastr.error(response.message);
-                                    }
-                                    loaderhide();
-
-                                },
-                                error: function(xhr, status,
-                                    error) { // if calling api request error 
-                                    loaderhide();
-                                    console.log(xhr
-                                        .responseText
-                                    ); // Log the full error response for debugging
-                                    if (xhr.status === 422) {
-                                        var errors = xhr.responseJSON.errors;
-                                        $.each(errors, function(key, value) {
-                                            $('#error-' + key).text(value[0]);
-                                        });
-                                    } else {
-                                        var errorMessage = "";
-                                        try {
-                                            var responseJSON = JSON.parse(xhr.responseText);
-                                            errorMessage = responseJSON.message ||
-                                                "An error occurred";
-                                        } catch (e) {
-                                            errorMessage = "An error occurred";
-                                        }
-                                        toastr.error(errorMessage);
-                                    }
-                                }
-                            });
-                        } else {
-                            formuladata = [];
-                            var i = 0;
-                            $('table tr.iteam_row').each(function() {
-                                formuladata[i] = new Array();
-                                formuladata[i][0] = $(this).find('td').find('.firstcolumn').val();
-                                formuladata[i][1] = $(this).find('td').find('.operation').val();
-                                formuladata[i][2] = $(this).find('td').find('.secondcolumn').val();
-                                formuladata[i][3] = $(this).find('td').find('.output').val();
-                                i++;
-                            });
-                            var company_id = $('#company_id').val();
-                            var created_by = $('#user_id').val();
-                            if (formuladata != '') {
+                    showConfirmationDialog(
+                        'Are you sure?',  // Title
+                        'Old invoice will not edit after apply this changes. still you want to apply this changes?', // Text
+                        'Yes, apply',  // Confirm button text
+                        'No, cancel', // Cancel button text
+                        'question', // Icon type (question icon)
+                        () => {
+                            // Success callback
+                            loadershow();
+                            var editid = $('#edit_id').val();
+                            if (editid != '') {
+                                var updated_by = $('#updated_by').val();
+                                var first_column = $('#firstcolumn_1').val();
+                                var operation = $('#operation_1').val();
+                                var second_column = $('#secondcolumn_1').val();
+                                var output_column = $('#output_1').val();
+                                let invoiceFormulaUpdateUrl =
+                                    "{{ route('invoiceformula.update', '__editId__') }}".replace('__editId__',
+                                        editid);
                                 $.ajax({
                                     type: "POST",
-                                    url: "{{ route('invoiceformula.store') }}",
+                                    url: invoiceFormulaUpdateUrl,
                                     data: {
-                                        formuladata,
+                                        first_column,
+                                        operation,
+                                        second_column,
+                                        output_column,
+                                        editid,
+                                        updated_by,
                                         token: "{{ session()->get('api_token') }}",
-                                        company_id: company_id,
-                                        user_id: created_by
+                                        company_id: "{{ session()->get('company_id') }}",
+                                        user_id: "{{ session()->get('user_id') }}",
                                     },
                                     success: function(response) {
                                         if (response.status == 200) {
+                                            $('#edit_id').val('');
                                             // You can perform additional actions, such as showing a success message or redirecting the user
-                                            toastr.success(response.message);
+                                            Toast.fire({
+                                                icon: "success",
+                                                title: response.message
+                                            });
                                             $('#formulaform')[0].reset();
                                             $('#newFormulaForm').addClass('d-none');
                                             $('#newFormulaBtnDiv').removeClass('d-none');
                                             loaddata();
                                         } else if (response.status == 500) {
-                                            toastr.error(response.message);
+                                            Toast.fire({
+                                                icon: "error",
+                                                title: response.message
+                                            });
                                         } else {
-                                            toastr.error(response.message);
+                                            Toast.fire({
+                                                icon: "error",
+                                                title: response.message
+                                            });
                                         }
                                         loaderhide();
+
                                     },
                                     error: function(xhr, status,
                                         error) { // if calling api request error 
@@ -800,13 +824,91 @@
                                             } catch (e) {
                                                 errorMessage = "An error occurred";
                                             }
-                                            toastr.error(errorMessage);
+                                            Toast.fire({
+                                                icon: "error",
+                                                title: errorMessage
+                                            });
                                         }
                                     }
                                 });
+                            } else {
+                                formuladata = [];
+                                var i = 0;
+                                $('table tr.iteam_row').each(function() {
+                                    formuladata[i] = new Array();
+                                    formuladata[i][0] = $(this).find('td').find('.firstcolumn').val();
+                                    formuladata[i][1] = $(this).find('td').find('.operation').val();
+                                    formuladata[i][2] = $(this).find('td').find('.secondcolumn').val();
+                                    formuladata[i][3] = $(this).find('td').find('.output').val();
+                                    i++;
+                                });
+                                var company_id = $('#company_id').val();
+                                var created_by = $('#user_id').val();
+                                if (formuladata != '') {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "{{ route('invoiceformula.store') }}",
+                                        data: {
+                                            formuladata,
+                                            token: "{{ session()->get('api_token') }}",
+                                            company_id: company_id,
+                                            user_id: created_by
+                                        },
+                                        success: function(response) {
+                                            if (response.status == 200) {
+                                                // You can perform additional actions, such as showing a success message or redirecting the user
+                                                Toast.fire({
+                                                    icon: "success",
+                                                    title: response.message
+                                                });
+                                                $('#formulaform')[0].reset();
+                                                $('#newFormulaForm').addClass('d-none');
+                                                $('#newFormulaBtnDiv').removeClass('d-none');
+                                                loaddata();
+                                            } else if (response.status == 500) {
+                                                Toast.fire({
+                                                    icon: "error",
+                                                    title: response.message
+                                                });
+                                            } else {
+                                                Toast.fire({
+                                                    icon: "error",
+                                                    title: response.message
+                                                });
+                                            }
+                                            loaderhide();
+                                        },
+                                        error: function(xhr, status,
+                                            error) { // if calling api request error 
+                                            loaderhide();
+                                            console.log(xhr
+                                                .responseText
+                                            ); // Log the full error response for debugging
+                                            if (xhr.status === 422) {
+                                                var errors = xhr.responseJSON.errors;
+                                                $.each(errors, function(key, value) {
+                                                    $('#error-' + key).text(value[0]);
+                                                });
+                                            } else {
+                                                var errorMessage = "";
+                                                try {
+                                                    var responseJSON = JSON.parse(xhr.responseText);
+                                                    errorMessage = responseJSON.message ||
+                                                        "An error occurred";
+                                                } catch (e) {
+                                                    errorMessage = "An error occurred";
+                                                }
+                                                Toast.fire({
+                                                    icon: "error",
+                                                    title: errorMessage
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
                             }
-                        }
-                    }
+                        } 
+                    ); 
                 }
 
             });

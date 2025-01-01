@@ -127,7 +127,11 @@
                                 );
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         } else {
                             $('#company').append(`<option>No Data Found<option>`);
                         }
@@ -143,7 +147,11 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+
                     }
                 });
             } // companylist fetch when click new authorization button
@@ -197,7 +205,11 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         } else {
                             $('#tabledata').append(`<tr><td colspan='4' >No Data Found</td></tr>`)
                         }
@@ -217,39 +229,57 @@
 
             // edit column if it is not used for any invoice
             $(document).on("click", ".edit-btn", function() {
-                if (confirm("You want edit this record ?")) {
-                    loadershow();
-                    var editid = $(this).data('id');
-                    $('.newapiauthform').removeClass('d-none');
-                    $('#newapiauthBtnDiv').addClass('d-none');
-                    apiAuthorizationEditUrl = "{{route('apiauthorization.edit','__editId__')}}".replace('__editId__',editid) ;
-                    $.ajax({
-                        type: 'GET',
-                        url: apiAuthorizationEditUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200 && response.apiauth != '') {
-                                var apiauthdata = response.apiauth;
-                                $('#edit_id').val(editid);
-                                $('#domain_name').val(apiauthdata.domain_name);
-                                $('#company').val(apiauthdata.company_id);
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                var editid = $(this).data('id');
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'edit this record?', // Text
+                    'Yes, edit', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $('.newapiauthform').removeClass('d-none');
+                        $('#newapiauthBtnDiv').addClass('d-none');
+                        apiAuthorizationEditUrl = "{{ route('apiauthorization.edit', '__editId__') }}"
+                            .replace(
+                                '__editId__', editid);
+                        $.ajax({
+                            type: 'GET',
+                            url: apiAuthorizationEditUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(response) {
+                                if (response.status == 200 && response.apiauth != '') {
+                                    var apiauthdata = response.apiauth;
+                                    $('#edit_id').val(editid);
+                                    $('#domain_name').val(apiauthdata.domain_name);
+                                    $('#company').val(apiauthdata.company_id);
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                loaderhide();
+                                console.error('Error:', error);
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            console.error('Error:', error);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             });
 
 
@@ -258,7 +288,7 @@
                 $('#details').html('');
                 var data = $(this).data('view');
                 $.each(global_response.apiauth, function(key, apiauth) {
-                    if (apiauth.id == data) { 
+                    if (apiauth.id == data) {
                         $('#details').append(`
                                 <tr>
                                     <th>Company Name</th>
@@ -284,36 +314,62 @@
 
             // delete column if it is not has data of any invoice
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you sure to delete this record?')) {
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    loadershow();
-                    apiAuthorizationDeleteUrl = "{{route('apiauthorization.delete','__deleteId__')}}".replace('__deleteId__',deleteid) ;
-                    $.ajax({
-                        type: 'PUT',
-                        url: apiAuthorizationDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: {{ session()->get('company_id') }},
-                            user_id: {{ session()->get('user_id') }},
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        apiAuthorizationDeleteUrl =
+                            "{{ route('apiauthorization.delete', '__deleteId__') }}"
+                            .replace('__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: apiAuthorizationDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: {{ session()->get('company_id') }},
+                                user_id: {{ session()->get('user_id') }},
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+
+                                }
+                                loaderhide();
+                            },
+                            error: function(error) {
+                                loaderhide();
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(error) {
-                            loaderhide();
-                            toastr.error('Something Went Wrong !');
-                        }
-                    });
-                }
+                        });
+                    }
+                );
+
             });
 
 
@@ -324,7 +380,8 @@
                 var editid = $('#edit_id').val()
                 var columndata = $(this).serialize();
                 if (editid != '') {
-                    url = "{{route('apiauthorization.update','__editId__')}}".replace('__editId__',editid) ;
+                    url = "{{ route('apiauthorization.update', '__editId__') }}".replace('__editId__',
+                        editid);
                 } else {
                     url = "{{ route('apiauthorization.store') }}"
                 }
@@ -338,14 +395,26 @@
                             $('.newapiauthform').addClass('d-none');
                             $('#newapiauthBtnDiv').removeClass('d-none');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+
                             $('#domain_name').val('');
                             $('#company').prop('selectedIndex', 0);
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         }
                         loaderhide();
                     },
@@ -366,7 +435,11 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
+
                         }
                     }
                 });

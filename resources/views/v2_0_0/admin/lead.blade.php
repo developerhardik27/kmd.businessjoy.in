@@ -124,11 +124,11 @@
 
 
         /* .multiselect-container {
-                                width: 300px;
-                                max-height: 300px;
-                                overflow: auto;
-                            }
-                        */
+                                                width: 300px;
+                                                max-height: 300px;
+                                                overflow: auto;
+                                            }
+                                        */
 
         .sidenav .btn-group {
             width: 100%;
@@ -482,7 +482,10 @@
                                 $('#advancestatus').multiselect(
                                     'rebuild'); // Rebuild multiselect after appending options 
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
                                 $('#advancestatus').append(
                                     `<option> No Lead Status Found </option>`);
@@ -501,7 +504,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -532,7 +538,10 @@
                                 $('#leadstagestatus').multiselect(
                                     'rebuild'); // Rebuild multiselect after appending options 
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
                                 $('#leadstagestatus').append(
                                     `<option> No Lead Stage Found </option>`);
@@ -551,7 +560,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -582,7 +594,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -613,7 +628,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -679,7 +697,10 @@
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: userDataResponse.message
+                        });
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
                     }
@@ -696,7 +717,10 @@
                         $('#source').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (sourceDataResponse.status == 500) {
-                        toastr.error(sourceDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: sourceDataResponse.message
+                        });
                     } else {
                         $('#source').append(`<option disabled> No Source Found </option>`);
                         $('#source').multiselect(
@@ -711,7 +735,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -759,7 +786,8 @@
                             global_response = response;
                             var id = 1;
                             $.each(response.lead, function(key, value) {
-                                var name = (value.first_name != null ? value.first_name : '')  + ' ' + (value.last_name!= null ? value.last_name : '')
+                                var name = (value.first_name != null ? value.first_name : '') +
+                                    ' ' + (value.last_name != null ? value.last_name : '')
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
@@ -845,7 +873,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').html(`<tr><td colspan='7' >No Data Found</td></tr>`);
                         }
@@ -863,7 +894,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -962,108 +996,162 @@
 
             // change lead status
             $(document).on('change', '.status', function() {
+                element = $(this);
                 var oldstatus = $(this).data('original-value');
-                if (confirm('Are you Sure That to change status  ?')) {
-                    loadershow();
-                    var statusid = $(this).data('statusid');
-                    var fieldid = $(this).attr('id');
-                    var statusvalue = $('#' + fieldid).val();
-                    $(this).data('original-value', statusvalue);
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('lead.changestatus') }}",
-                        data: {
-                            statusid: statusid,
-                            statusvalue: statusvalue,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }} ",
-                            user_id: " {{ session()->get('user_id') }} ",
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message);
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('statusid');
+                        var fieldid = element.attr('id');
+                        var statusvalue = $('#' + fieldid).val();
+                        element.data('original-value', statusvalue);
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('lead.changestatus') }}",
+                            data: {
+                                statusid: statusid,
+                                statusvalue: statusvalue,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: " {{ session()->get('company_id') }} ",
+                                user_id: " {{ session()->get('user_id') }} ",
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                advancefilters();
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                    loaderhide();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    advancefilters();
+                                }
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                                reject(errorMessage);
                             }
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                            reject(errorMessage);
-                        }
-                    });
-                } else {
-                    loaderhide();
-                    var fieldid = $(this).attr('id');
-                    $('#' + fieldid).val(oldstatus);
-                }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        loaderhide();
+                        var fieldid = element.attr('id');
+                        $('#' + fieldid).val(oldstatus);
+                    }
+                );
             })
 
             // change lead stage status
             $(document).on('change', '.leadstage', function() {
+                element = $(this);
                 var oldstatus = $(this).data('original-value');
-                if (confirm('Are you Sure That to change lead stage status  ?')) {
-                    loadershow();
-                    var leadstageid = $(this).data('leadstageid');
-                    var fieldid = $(this).attr('id');
-                    var leadstagevalue = $('#' + fieldid).val();
-                    $(this).data('original-value', leadstagevalue);
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('lead.changeleadstage') }}",
-                        data: {
-                            leadstageid,
-                            leadstagevalue,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message);
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change lead stage status?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var leadstageid = element.data('leadstageid');
+                        var fieldid = element.attr('id');
+                        var leadstagevalue = $('#' + fieldid).val();
+                        element.data('original-value', leadstagevalue);
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('lead.changeleadstage') }}",
+                            data: {
+                                leadstageid,
+                                leadstagevalue,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                advancefilters();
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+
+                                    loaderhide();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    advancefilters();
+                                }
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                                reject(errorMessage);
                             }
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                            reject(errorMessage);
-                        }
-                    });
-                } else {
-                    loaderhide();
-                    var leadstageid = $(this).attr('id');
-                    $('#' + leadstageid).val(oldstatus);
-                }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        loaderhide();
+                        var leadstageid = element.attr('id');
+                        $('#' + leadstageid).val(oldstatus);
+                    }
+                );
             })
 
             // lead edit redirect - save advanced filter data as it is on local storage session
@@ -1102,48 +1190,70 @@
 
             // lead delete
             $(document).on("click", ".dltbtn", function() {
+                var id = $(this).data('uid');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('lead.delete') }}",
+                            data: {
+                                id: id,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
 
-                if (confirm("Are you Sure to delete this record")) {
-                    loadershow();
-                    var id = $(this).data('uid');
-                    var row = this;
-
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('lead.delete') }}",
-                        data: {
-                            id: id,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            if (data.status == false) {
-                                toastr.error(data.message)
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
-                            } else {
-                                toastr.success(data.message);
-                                $(row).closest("tr").fadeOut();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                                reject(errorMessage);
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                            reject(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             })
 
 
@@ -1229,7 +1339,9 @@
                                 global_response = response;
                                 var id = 1;
                                 $.each(response.lead, function(key, value) {
-                                    var name = (value.first_name != null ? value.first_name : '')  + ' ' + (value.last_name!= null ? value.last_name : '')
+                                    var name = (value.first_name != null ? value.first_name :
+                                        '') + ' ' + (value.last_name != null ? value
+                                        .last_name : '')
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
@@ -1315,7 +1427,10 @@
                                     "destroy": true, //use for reinitialize datatable
                                 });
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
                                 $('#tabledata').html(`<tr><td colspan='7' >No Data Found</td></tr>`);
                             }
@@ -1333,7 +1448,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -1463,7 +1581,8 @@
                             `<b>Call History</b> - ${lead.first_name} ${lead.last_name}`);
                     }
                 });
-                let leadHistorySearchUrl = "{{ route('leadhistory.search','__historyId__') }}".replace('__historyId__',historyid);
+                let leadHistorySearchUrl = "{{ route('leadhistory.search', '__historyId__') }}".replace(
+                    '__historyId__', historyid);
                 $.ajax({
                     type: 'GET',
                     url: leadHistorySearchUrl,
@@ -1485,7 +1604,10 @@
                             `);
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('.historyrecord').append(`
                                 <div class="col-12">
@@ -1506,7 +1628,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                         reject(errorMessage);
                     }
                 });
@@ -1538,14 +1663,23 @@
                         if (response.status == 200) {
                             $('#history_notes').summernote('code', '');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#leadhistoryform')[0].reset();
                             $('#addcallhistory').modal('hide');
                             advancefilters();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -1567,7 +1701,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 })

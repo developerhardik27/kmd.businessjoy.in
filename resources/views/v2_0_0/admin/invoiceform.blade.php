@@ -422,7 +422,10 @@
                         var responseJSON = JSON.parse(xhr.responseText);
                         errorMessage = responseJSON.message || errorMessage;
                     } catch (e) {}
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             }
 
@@ -471,7 +474,10 @@
                         }
 
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
                     loaderhide();
             }).fail(function(xhr) {
@@ -491,7 +497,10 @@
                 if (response.status == 200 && response.invoiceformula != '') {
                             formula = response.invoiceformula;
                 }else if(response.status == 500){
-                    toastr.error(response.message);
+                    Toast.fire({
+                        icon: "error",
+                        title: response.message
+                    });
                     loaderhide();
                 } 
             }).fail(function(xhr) {
@@ -575,7 +584,10 @@
                     `);
                     managetooltip();
                 } else if(response.status == 500){
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                         loaderhide();
                 }else {
                     $('#columnname').append(` <th>Name</th>
@@ -626,7 +638,10 @@
                             );
                         });
                     }else if(response.status == 500){
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                     } else {
                         $('#acc_details').append(
@@ -728,7 +743,10 @@
                                     }
                                     
                                 }else if(response.status == 500){
-                                    toastr.error(response.message);
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
                                 }
                                 loaderhide();
                             }).fail(function(xhr) {
@@ -737,7 +755,10 @@
                             }); 
                         }
                     }else if(response.status == 500){
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     } else {
                         $('#customer').append(`<option disabled '>No Data found </option>`);
                     }
@@ -797,7 +818,10 @@
                         }
                         
                     }else if(response.status == 500){
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
                     loaderhide();
                 }).fail(function(xhr) {
@@ -874,16 +898,23 @@
 
             //call function duplicate row 
             $(document).on('click', '.duplicate-row', function() {
-                if (confirm('Are you really want to add duplicate column?')) { 
-                    addname++;
-                    var id = $(this).data('id'); 
-                    duplicatediv(id);
-                    if('#Amount_'.id != null || '#Amount_'.id != ''){
-                        dynamiccalculaton();
+                var element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to add duplicate column?', // Text
+                    'Yes, add',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        var id = element.data('id'); 
+                        addname++;
+                        duplicatediv(id);
+                        if('#Amount_'.id != null || '#Amount_'.id != ''){
+                            dynamiccalculaton();
+                        } 
+                        managetooltip();
                     } 
-                    managetooltip();
-                }
-                
+                );   
             });
 
             // function for duplicate row
@@ -938,15 +969,21 @@
 
             // delete row 
             $(document).on('click', '.remove-row', function() {
-                if (confirm('Are you really want to delete this ?')) {
-                    var row = $(this).closest("tr");
-            
-                    // Dispose of tooltips in the row to be removed
-                    managetooltip();
-                    
-                    // Remove the row
-                    row.remove();
-                }
+                var element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to delete this?', // Text
+                    'Yes, delete',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        var row = element.closest("tr"); 
+                        // Dispose of tooltips in the row to be removed
+                        managetooltip(); 
+                        // Remove the row
+                        row.remove();
+                    } 
+                );   
             });
 
             // call function for gst or without gst counting
@@ -1008,10 +1045,16 @@
                     user_id: USER_ID
                 }).done(function(response) {
                     if (response.status === 200) {
-                        toastr.success(response.message);
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
                         window.location = "{{ route('admin.invoice') }}";
                     } else {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
                 }).fail(function(xhr) {
                     loaderhide();
@@ -1332,12 +1375,21 @@
                             $('#exampleModalScrollable').modal('hide');
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             customers(response.customer_id); 
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
 
                         }else if(response.status == 500){
-                            toastr.error(response.message); 
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            }); 
                         } else {
-                            toastr.error(response.message); 
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            }); 
                         }
                         loaderhide();
                     },
@@ -1362,7 +1414,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

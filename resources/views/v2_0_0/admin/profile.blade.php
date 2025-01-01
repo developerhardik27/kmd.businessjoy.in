@@ -433,10 +433,10 @@
                                                             @endif
                                                             @if (session('user_permissions.quotationmodule.quotation.view') == '1')
                                                                 <option value="quotation">Quotation</option>
-                                                            @endif 
+                                                            @endif
                                                             @if (session('user_permissions.quotationmodule.quotationcustomer.show') == '1')
                                                                 <option value="quotationcustomer">Customers</option>
-                                                            @endif 
+                                                            @endif
                                                         </optgroup>
                                                     @endif
                                                     @if (Session::has('lead') && Session::get('lead') == 'yes')
@@ -494,7 +494,7 @@
                                                         <optgroup label="blog" data-module="blog">
                                                             @if (session('user_permissions.blogmodule.blog.show') == '1')
                                                                 <option value="blog">blog</option>
-                                                            @endif 
+                                                            @endif
                                                         </optgroup>
                                                     @endif
                                                 </select>
@@ -571,9 +571,17 @@
                         $('#homepage').val(user.default_page);
                         previousValue = user.default_page;
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+
                     } else {
-                        toastr.error('something went wrong !');
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
+                        });
+
                     }
                     loaderhide();
                 },
@@ -588,7 +596,11 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
+
                 }
             });
 
@@ -636,9 +648,16 @@
                         $('#company_signature_img').prepend(signImgElement);
 
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+
                     } else {
-                        toastr.error('something went wrong !');
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
+                        });
                     }
                     loaderhide();
                 },
@@ -652,7 +671,11 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
+
                 }
             });
 
@@ -685,7 +708,7 @@
                             $('#pincode').val(user.pincode);
                             var imgElement = $('<img>').attr('src', '/uploads/' + user.img)
                                 .attr('alt', 'profile-pic').attr('class',
-                                'profile-pic rounded');
+                                    'profile-pic rounded');
                             $('#userprofile').prepend(imgElement);
                             country = user.country_id;
                             state = user.state_id;
@@ -695,9 +718,16 @@
                             loadstate(country, state);
                             loadcity(state, city);
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -712,7 +742,11 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+
                     }
                 });
             });
@@ -848,7 +882,11 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+
                     }
                 });
             });
@@ -889,7 +927,11 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+
                     }
                 });
             });
@@ -913,15 +955,27 @@
                         if (response.status == 200) {
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+
                             $('#personal_information').removeClass('d-none');
                             $('#edit_personal_information').addClass('d-none');
                             $('#userprofile .profile-pic').remove();
                             $('#usereditform')[0].reset();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         }
                         loaderhide();
                     },
@@ -942,7 +996,11 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
+
                         }
                     }
                 });
@@ -967,12 +1025,24 @@
                         if (response.status == 200) {
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+
                             $('#changepasswordform')[0].reset();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+
                         }
                         loaderhide();
                     },
@@ -993,7 +1063,11 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
+
                         }
                     }
                 });
@@ -1006,62 +1080,87 @@
                 var dataModule = optgroup.data('module');
                 var page = selectedOption.val();
 
-                if (confirm('Are You Want to Change Homepage?')) {
-                    loadershow();
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('user.setdefaultpage', $id) }}",
-                        data: {
-                            default_module: dataModule,
-                            default_page: page,
-                            token: "{{ session('api_token') }}",
-                            company_id: "{{ session('company_id') }}",
-                            user_id: "{{ session('user_id') }}",
-                        },
-                        success: function(response) {
-                            // Handle the response from the server
-                            if (response.status == 200) {
-                                loaderhide();
-                                // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
-                                $('#defaultpage').val(page);
-                                previousValue =
-                                    page // Update previousValue to the current value
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status,
-                            error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText
-                            ); // Log the full error response for debugging
-                            if (xhr.status === 422) {
-                                var errors = xhr.responseJSON.errors;
-                                $.each(errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                });
-                            } else {
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                toastr.error(errorMessage);
-                            }
-                        }
-                    });
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to Change Homepage?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{ route('user.setdefaultpage', $id) }}",
+                            data: {
+                                default_module: dataModule,
+                                default_page: page,
+                                token: "{{ session('api_token') }}",
+                                company_id: "{{ session('company_id') }}",
+                                user_id: "{{ session('user_id') }}",
+                            },
+                            success: function(response) {
+                                // Handle the response from the server
+                                if (response.status == 200) {
+                                    loaderhide();
+                                    // You can perform additional actions, such as showing a success message or redirecting the user
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
 
-                } else {
-                    $(this).val(previousValue); // Revert to the previous value
-                }
+                                    $('#defaultpage').val(page);
+                                    previousValue =
+                                        page // Update previousValue to the current value
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                if (xhr.status === 422) {
+                                    var errors = xhr.responseJSON.errors;
+                                    $.each(errors, function(key, value) {
+                                        $('#error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    var errorMessage = "";
+                                    try {
+                                        var responseJSON = JSON.parse(xhr.responseText);
+                                        errorMessage = responseJSON.message ||
+                                            "An error occurred";
+                                    } catch (e) {
+                                        errorMessage = "An error occurred";
+                                    }
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: errorMessage
+                                    });
+
+                                }
+                            }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        $(this).val(previousValue); // Revert to the previous value
+                    }
+                );
             });
 
         });

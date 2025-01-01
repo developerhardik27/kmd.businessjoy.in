@@ -135,9 +135,11 @@
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Customer Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
+                        data-original-title="Reset Customer Details"
+                        class="btn iq-bg-danger float-right mr-2">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Update Customer Details" class="btn btn-primary float-right my-0">Save</button>
+                        data-original-title="Update Customer Details"
+                        class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -240,7 +242,10 @@
                         loadcity(state, city);
 
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
                     loaderhide();
                 },
@@ -253,7 +258,8 @@
 
             //show state data in dropdown
             function loadstate(country, state) {
-                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__', country);
+                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -376,7 +382,7 @@
             // redirect on customer list page on click cancel btn
             $('#cancelbtn').on('click', function() {
                 loadershow();
-                window.location.href = "{{ route('admin.'.session()->get('menu') . 'customer') }}";
+                window.location.href = "{{ route('admin.' . session()->get('menu') . 'customer') }}";
             });
 
             // subimt form
@@ -393,13 +399,23 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
-                            window.location.href = "{{ route('admin.'.session()->get('menu') . 'customer') }}";
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });;
+                            window.location.href =
+                                "{{ route('admin.' . session()->get('menu') . 'customer') }}";
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -420,7 +436,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });;
                         }
                     }
                 });

@@ -115,7 +115,7 @@
                                             <td> 
                                                 @if (session('user_permissions.blogmodule.blog.view') == '1')
                                                     <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
-                                                        <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                        <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0 mb-2">
                                                             <i class="ri-indent-decrease"></i>
                                                         </button>
                                                     </span>
@@ -125,7 +125,7 @@
                                                 @if (session('user_permissions.blogmodule.blog.edit') == '1')
                                                     <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
                                                         <a href='EditBlog/${value.id}'>
-                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0 mb-2">
                                                                 <i class="ri-edit-fill"></i>
                                                             </button>
                                                         </a>
@@ -133,7 +133,7 @@
                                                 @endif
                                                 @if (session('user_permissions.blogmodule.blog.delete') == '1')
                                                     <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
                                                             <i class="ri-delete-bin-fill"></i>
                                                         </button>
                                                     </span>
@@ -199,7 +199,7 @@
                     'to delete this blog!', // Text
                     'Yes, delete it!', // Confirm button text
                     'No, cancel', // Cancel button text
-                    'warning', // Icon type (warning icon)
+                    'question', // Icon type (question icon)
                     function() {
                         loadershow();
                         $.ajax({

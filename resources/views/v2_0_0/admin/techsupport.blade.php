@@ -350,7 +350,10 @@
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: userDataResponse
+                        });
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -365,7 +368,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -486,7 +492,10 @@
                             });
                             loaderhide();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         } else {
                             $('#tabledata').html('');
@@ -506,7 +515,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -518,7 +530,8 @@
                 $.each(global_response.techsupport, function(key, ticket) {
                     if (ticket.id == data) {
                         // Ensure ticket.attachment is an array
-                        let attachments = Array.isArray(ticket.attachment) ? ticket.attachment : (ticket.attachment ? JSON.parse(ticket.attachment) : []);
+                        let attachments = Array.isArray(ticket.attachment) ? ticket.attachment : (
+                            ticket.attachment ? JSON.parse(ticket.attachment) : []);
                         $('#details').append(`
                             <tr> 
                                 <td>Ticket Number</td>
@@ -582,41 +595,62 @@
 
             // change customer support status
             $(document).on('change', '.status', function() {
-                var oldstatus = $(this).data('original-value');
-                if (confirm('Are you Sure That to change status  ?')) {
-                    loadershow();
-                    var statusid = $(this).data('statusid');
-                    var fieldid = $(this).attr('id');
-                    var statusvalue = $('#' + fieldid).val();
-                    $(this).data('original-value', statusvalue);
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('techsupport.changestatus') }}",
-                        data: {
-                            statusid: statusid,
-                            statusvalue: statusvalue,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message);
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                var element = $(this);
+                var oldstatus = element.data('original-value');
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('statusid');
+                        var fieldid = element.attr('id');
+                        var statusvalue = $('#' + fieldid).val();
+                        element.data('original-value', statusvalue);
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('techsupport.changestatus') }}",
+                            data: {
+                                statusid: statusid,
+                                statusvalue: statusvalue,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                advancefilters();
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                    loaderhide();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+
+                                    advancefilters();
+                                }
                             }
-                        }
-                    });
-                } else {
-                    loaderhide();
-                    var fieldid = $(this).attr('id');
-                    $('#' + fieldid).val(oldstatus);
-                }
+                        });
+                    },
+                    () => {
+                        // Error callback
+                        loaderhide();
+                        var fieldid = element.attr('id');
+                        $('#' + fieldid).val(oldstatus);
+                    }
+                );
             })
 
             //  on click edit button this will be save advanced filter data on 
@@ -649,36 +683,55 @@
             // delete customer support record
             $(document).on("click", ".dltbtn", function() {
 
-                if (confirm("Are you Sure that to delete this record")) {
-                    loadershow();
-                    var id = $(this).data('uid');
-                    var row = this;
+                var id = $(this).data('uid');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, ', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
 
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('techsupport.delete') }}",
-                        data: {
-                            id: id,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message)
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('techsupport.delete') }}",
+                            data: {
+                                id: id,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                $(row).closest("tr").fadeOut();
-                            }
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });;
+                                    loaderhide();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
 
-                        }
-                    });
-                }
-            })
+                                    $(row).closest("tr").fadeOut();
+                                }
+
+                            }
+                        });
+                    }
+                );
+
+            });
 
 
             // record filter 
@@ -810,7 +863,10 @@
                                 });
                                 loaderhide();
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                                 loaderhide();
                             } else {
                                 $('#tabledata').html('');
@@ -830,7 +886,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     });
                 }
