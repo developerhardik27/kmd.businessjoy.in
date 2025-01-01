@@ -10,92 +10,93 @@
 @endsection
 
 @section('form-content')
-<form id="newreminderform" name="newreminderform">
-    @csrf
-    <div class="form-group">
-        <div class="form-row">
-            <div class="col-sm-6">
-                <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                    placeholder="user_id" required />
-                <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
-                    placeholder="company_id" required />
-                <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                    placeholder="token" required />
-                <label for="customer">Customer</label><span style="color:red;">*</span><br>
-                <select class="form-control" id="customer" name="customer_id" required>
-                    <option selected="" disabled=""> Select Customer</option>
-                </select>
-                <span class="error-msg" id="error-customer_id" style="color: red"></span>
-            </div>
-            <div class="col-sm-6">
-                <label class="form-label" for="service_type">Service Type:</label><span style="color:red;">*</span>
-                <select name="service_type" class="form-control" id="service_type">
-                    <option disabled selected>Select Customer Type</option>
-                    <option value="paid">Paid</option>
-                    <option value="free">Free</option>
-                </select>
-                <span class="error-msg" id="error-service_type" style="color: red"></span>
-            </div>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="form-row">
-            <div class="col-sm-6">
-                <label class="form-label" for="product_name">Product Name:</label><span style="color:red;">*</span>
-                <input type="text" class="form-control" name="product_name" id="product_name"
-                    placeholder="Product Name" />
-                <span class="error-msg" id="error-product_name" style="color: red"></span>
-            </div>
-            <div class="col-sm-6">
-                <label class="form-label" for="product_unique_id">Product Unique Id:</label>
-                <input type="text" class="form-control" name="product_unique_id" id="product_unique_id"
-                    placeholder="Product Unique Id" />
-                <span class="error-msg" id="error-product_unique_id" style="color: red"></span>
+    <form id="newreminderform" name="newreminderform">
+        @csrf
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                        placeholder="user_id" required />
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
+                    <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                        placeholder="token" required />
+                    <label for="customer">Customer</label><span style="color:red;">*</span><br>
+                    <select class="form-control" id="customer" name="customer_id" required>
+                        <option selected="" disabled=""> Select Customer</option>
+                    </select>
+                    <span class="error-msg" id="error-customer_id" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="service_type">Service Type:</label><span style="color:red;">*</span>
+                    <select name="service_type" class="form-control" id="service_type">
+                        <option disabled selected>Select Customer Type</option>
+                        <option value="paid">Paid</option>
+                        <option value="free">Free</option>
+                    </select>
+                    <span class="error-msg" id="error-service_type" style="color: red"></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="form-group">
-        <div class="form-row">
-            <div class="col-sm-6">
-                <label class="form-label" for="amount"> Amount :</label><span style="color:red;">*</span>
-                <input type="text" class="form-control" name="amount" id="amount" placeholder="Amount" />
-                <span class="error-msg" id="error-amount" style="color: red"></span>
-            </div>
-            <div class="col-sm-6">
-                <label class="form-label" for="next_reminder">Next Reminder Date:</label><span style="color:red;">*</span>
-                <input type="datetime-local" class="form-control" name="next_reminder" id="next_reminder" />
-                <span class="m-1 text-info btn dynamic-date" data-months="6">After 6 Months</span>
-                <span class="m-1 text-info btn dynamic-date" data-months="9">After 9 Months</span>
-                <span class="error-msg" id="error-next_reminder" style="color: red"></span>
-            </div>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="form-row">
-            <div class="col-sm-12">
-                <label class="form-label" for="before_services_notes">Before Services Notes:</label>
-                <textarea name="before_services_notes" placeholder="Before Services Notes" class="form-control"
-                    id="before_services_notes" cols="" rows="2"></textarea>
-                <span class="error-msg" id="error-before_services_notes" style="color: red"></span>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="product_name">Product Name:</label><span style="color:red;">*</span>
+                    <input type="text" class="form-control" name="product_name" id="product_name"
+                        placeholder="Product Name" />
+                    <span class="error-msg" id="error-product_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="product_unique_id">Product Unique Id:</label>
+                    <input type="text" class="form-control" name="product_unique_id" id="product_unique_id"
+                        placeholder="Product Unique Id" />
+                    <span class="error-msg" id="error-product_unique_id" style="color: red"></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="form-group">
-        <div class="form-row">
-            <div class="col-sm-12">
-                <label class="form-label" for="after_services_notes">After Services Notes:</label>
-                <textarea name="after_services_notes" placeholder="After Services Notes" class="form-control"
-                    id="after_services_notes" cols="" rows="2"></textarea>
-                <span class="error-msg" id="error-after_services_notes" style="color: red"></span>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6">
+                    <label class="form-label" for="amount"> Amount :</label><span style="color:red;">*</span>
+                    <input type="text" class="form-control" name="amount" id="amount" placeholder="Amount" />
+                    <span class="error-msg" id="error-amount" style="color: red"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="next_reminder">Next Reminder Date:</label><span
+                        style="color:red;">*</span>
+                    <input type="datetime-local" class="form-control" name="next_reminder" id="next_reminder" />
+                    <span class="m-1 text-info btn dynamic-date" data-months="6">After 6 Months</span>
+                    <span class="m-1 text-info btn dynamic-date" data-months="9">After 9 Months</span>
+                    <span class="error-msg" id="error-next_reminder" style="color: red"></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="button-container">
-        <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
-        <div id="loader" class="loader"></div>
-        <button id="resetbtn" type="reset" class="btn iq-bg-danger">Cancel</button>
-    </div>
-</form>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
+                    <label class="form-label" for="before_services_notes">Before Services Notes:</label>
+                    <textarea name="before_services_notes" placeholder="Before Services Notes" class="form-control"
+                        id="before_services_notes" cols="" rows="2"></textarea>
+                    <span class="error-msg" id="error-before_services_notes" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-12">
+                    <label class="form-label" for="after_services_notes">After Services Notes:</label>
+                    <textarea name="after_services_notes" placeholder="After Services Notes" class="form-control"
+                        id="after_services_notes" cols="" rows="2"></textarea>
+                    <span class="error-msg" id="error-after_services_notes" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
+            <div id="loader" class="loader"></div>
+            <button id="resetbtn" type="reset" class="btn iq-bg-danger">Cancel</button>
+        </div>
+    </form>
 @endsection
 
 @push('ajax')
@@ -201,7 +202,10 @@
                         });
 
                     } else if (customerDataResponse.status == 500) {
-                        toastr.error(customerDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: customerDataResponse.message
+                        });
                     } else {
                         $('#customer').append(`<option> No Custoer Found </option>`);
                     }
@@ -215,7 +219,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -225,7 +232,8 @@
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old data in fields
-                let reminderSearchUrl = "{{ route('reminder.search','__editId__') }}".replace('__editId__',edit_id);
+                let reminderSearchUrl = "{{ route('reminder.search', '__editId__') }}".replace('__editId__',
+                edit_id);
                 $.ajax({
                     type: 'GET',
                     url: reminderSearchUrl,
@@ -249,7 +257,10 @@
                             $('#customer').val(data.customer_id);
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -265,7 +276,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -285,12 +299,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.reminder') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -311,7 +334,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 })

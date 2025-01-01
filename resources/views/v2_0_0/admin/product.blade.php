@@ -149,7 +149,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`);
                         }
@@ -166,7 +169,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -176,44 +182,65 @@
 
             // delete product
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let productDeleteUrl = "{{ route('product.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: productDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let productDeleteUrl = "{{ route('product.delete', '__deleteId__') }}".replace(
+                            '__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: productDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: 'something went wrong!'
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             });
 
             //view product detail

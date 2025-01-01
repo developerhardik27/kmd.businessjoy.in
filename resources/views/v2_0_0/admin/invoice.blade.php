@@ -38,7 +38,7 @@
             background-color: #16d07ffa !important;
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
-        } 
+        }
     </style>
 @endsection
 
@@ -135,7 +135,10 @@
             // response status == 422 that means api has not got valid or required data
 
             @if (Session::has('message'))
-                toastr.error('You have not any column for download this invoice');
+                Toast.fire({
+                    icon: "error",
+                    title: 'You have not any column for download this invoice'
+                });
             @endif
 
             var global_response = '';
@@ -176,9 +179,16 @@
                                     customer += value.company_name;
                                 }
 
-                                let generateInvoicePdfUrl = "{{route('invoice.generatepdf','__invoiceId__')}}".replace('__invoiceId__',value.id);
-                                let generateInvoiceReceiptAllUrl = "{{route('invoice.generaterecieptll','__invoiceId__')}}".replace('__invoiceId__',value.id);
-                                let invoiceEditUrl = "{{route('admin.editinvoice','__invoiceId__')}}".replace('__invoiceId__',value.id);
+                                let generateInvoicePdfUrl =
+                                    "{{ route('invoice.generatepdf', '__invoiceId__') }}"
+                                    .replace('__invoiceId__', value.id);
+                                let generateInvoiceReceiptAllUrl =
+                                    "{{ route('invoice.generaterecieptll', '__invoiceId__') }}"
+                                    .replace('__invoiceId__', value.id);
+                                let invoiceEditUrl =
+                                    "{{ route('admin.editinvoice', '__invoiceId__') }}"
+                                    .replace(
+                                        '__invoiceId__', value.id);
 
                                 $('#data').append(`<tr>
                                                         <td>${value.inv_no}</td>
@@ -212,41 +222,41 @@
                                                         </td>
                                                         <td>
                                                             ${(value.status != 'paid') ? `
-                                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                                                                <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
-                                                                                    <i class='ri-paypal-fill'></i>
-                                                                                </button>
-                                                                            </span>
-                                                                    ` : ''
+                                                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                                                                                <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
+                                                                                                    <i class='ri-paypal-fill'></i>
+                                                                                                </button>
+                                                                                            </span>
+                                                                                    ` : ''
                                                             }
                                                             ${(value.part_payment == 1 && value.status == 'paid' && value.pending_amount != null) ? `    
-                                                                    <span> 
-                                                                        <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
-                                                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
-                                                                                    <i class="ri-download-line"></i>
-                                                                                </button>
-                                                                        </a>
-                                                                    </span>
-                                                                    ` : ''
+                                                                                    <span> 
+                                                                                        <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
+                                                                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
+                                                                                                    <i class="ri-download-line"></i>
+                                                                                                </button>
+                                                                                        </a>
+                                                                                    </span>
+                                                                                    ` : ''
                                                             }
                                                             ${(value.part_payment == 1) ? `    
-                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                                            <i class='ri-eye-fill'></i> 
-                                                                    </button> 
-                                                                </span>
-                                                                ` : ''
+                                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
+                                                                                            <i class='ri-eye-fill'></i> 
+                                                                                    </button> 
+                                                                                </span>
+                                                                                ` : ''
                                                             }
                                                             
                                                             ${(value.part_payment == 0 && value.status == 'paid') ? `    
-                                                                    <span> 
-                                                                        <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
-                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                                                <i class="ri-download-line"></i>
-                                                                            </button>
-                                                                        </a>
-                                                                    </span>
-                                                            ` : ''
+                                                                                    <span> 
+                                                                                        <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
+                                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                                                                <i class="ri-download-line"></i>
+                                                                                            </button>
+                                                                                        </a>
+                                                                                    </span>
+                                                                            ` : ''
                                                             }
                                                             
                                                           
@@ -255,13 +265,13 @@
                                                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1') 
                                                              ${(value.is_editable == 1)?  
                                                                     `  <span>
-                                                                                    <a href=${invoiceEditUrl}>
-                                                                                        <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                                                            <i class="ri-edit-fill"></i>
-                                                                                        </button>
-                                                                                    </a>
-                                                                                </span>
-                                                                            `
+                                                                                                    <a href=${invoiceEditUrl}>
+                                                                                                        <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+                                                                                                            <i class="ri-edit-fill"></i>
+                                                                                                        </button>
+                                                                                                    </a>
+                                                                                                </span>
+                                                                                            `
                                                                 : ''
                                                             }
                                                             @endif
@@ -283,15 +293,18 @@
                             var search = {!! json_encode($search) !!}
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
-                            $('#data').DataTable({ 
-                                'order' : [],
+                            $('#data').DataTable({
+                                'order': [],
                                 "search": {
                                     "search": search
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
                         }
@@ -308,7 +321,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -317,45 +333,71 @@
 
             // record delete 
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this invoice ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let invoiceDeleteUrl = "{{route('invoice.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: invoiceDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: " {{ session()->get('company_id') }} ",
-                            user_id: " {{ session()->get('user_id') }} "
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message)
-                                loaddata();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('Invoice not Delete');
+                var deleteid = $(this).data('id');
+                var row = this;
+                let invoiceDeleteUrl = "{{ route('invoice.delete', '__deleteId__') }}".replace(
+                    '__deleteId__', deleteid);
+
+                showConfirmationDialog(
+                    'Are you sure?',
+                    'to delete this invoice?',
+                    'Yes, delete it',
+                    'No, cancel',
+                    'question',
+                    () => {
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: invoiceDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: " {{ session()->get('company_id') }} ",
+                                user_id: " {{ session()->get('user_id') }} "
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    loaddata();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "invoice not deleted."
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
+
+
             });
 
             // view record
@@ -377,7 +419,7 @@
             //status change function
             function statuschange(id, value) {
                 loadershow();
-                let invoiceStatusUrl = "{{route('invoice.status','__id__')}}".replace('__id__',id);
+                let invoiceStatusUrl = "{{ route('invoice.status', '__id__') }}".replace('__id__', id);
                 $.ajax({
                     type: 'PUT',
                     url: invoiceStatusUrl,
@@ -389,12 +431,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message)
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            }); 
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            }); 
                         } else {
-                            toastr.error('Status not Updated');
+                            Toast.fire({
+                                icon: "error",
+                                title: "Status not updated."
+                            }); 
                         }
                         loaderhide();
                     },
@@ -409,26 +460,36 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        }); 
                     }
                 });
             }
 
             //call status change function
             $(document).on("change", ".status", function() {
-                var oldstatus = $(this).data('original-value'); //get original invoice status value
-                var statusid = $(this).data('status'); // get invoice id
-                var status = $(this).val(); //get current value
-                if (confirm('Are you Sure to Change this Record ?')) {
-                    loadershow();
-                    $(this).data('original-value', status); // set current value to original value
-                    statuschange(statusid, status);
-                    loaderhide();
-                } else {
-                    $('#status_' + statusid).val(
-                        oldstatus
-                    ); // if user will cancelled to change status then set original value as it is
-                }
+                var element = $(this);
+                var oldstatus = element.data('original-value'); //get original invoice status value
+                var statusid = element.data('status'); // get invoice id
+                var status = element.val(); //get current value
+                showConfirmationDialog(
+                    'Are you sure?',
+                    'to change this record status ?',
+                    'Yes, change it',
+                    'No, cancel',
+                    'question',
+                    () => {
+                        loadershow();
+                        element.data('original-value', status); // set current value to original value
+                        statuschange(statusid, status);
+                        loaderhide(); // Success callback
+                    },
+                    () => {
+                        $('#status_' + statusid).val(oldstatus);
+                    }
+                );
             });
 
             // form reset every time when on click make payment button
@@ -438,7 +499,10 @@
                 var amount = $(this).data('amount');
                 $('#inv_id').val(invoiceid);
                 loadershow();
-                let pendingPaymentDetailsUrl = "{{route('paymentdetails.pendingpayment','__invoiceId__')}}".replace('__invoiceId__',invoiceid);
+                let pendingPaymentDetailsUrl =
+                    "{{ route('paymentdetails.pendingpayment', '__invoiceId__') }}".replace(
+                        '__invoiceId__',
+                        invoiceid);
                 $.ajax({
                     type: 'GET',
                     url: pendingPaymentDetailsUrl,
@@ -470,7 +534,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
 
@@ -481,7 +548,8 @@
                 loadershow();
                 $('#details').html('');
                 var invoiceid = $(this).data('id');
-                let paymentDetailsSearchUrl = "{{route('paymentdetails.search','__invoiceId__')}}".replace('__invoiceId__',invoiceid);
+                let paymentDetailsSearchUrl = "{{ route('paymentdetails.search', '__invoiceId__') }}"
+                    .replace('__invoiceId__', invoiceid);
                 $.ajax({
                     type: 'GET',
                     url: paymentDetailsSearchUrl,
@@ -494,7 +562,9 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             $.each(response.paymentdetail, function(key, value) {
-                                let generateInvoiceReceiptUrl = "{{route('invoice.generatereciept','__invoiceId__')}}".replace('__invoiceId__',value.id);
+                                let generateInvoiceReceiptUrl =
+                                    "{{ route('invoice.generatereciept', '__invoiceId__') }}"
+                                    .replace('__invoiceId__', value.id);
                                 $('#details').append(`
                                     <tr>
                                         <td>
@@ -521,14 +591,22 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            $('#details').html(`<tr>
-                                        <td>
-                                           No data Found
-                                        </td>
-                                    </tr>`);
-                            toastr.error(response.message);
+                            $('#details').html(`
+                                <tr>
+                                    <td>
+                                        No data Found
+                                    </td>
+                                </tr>
+                            `);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -543,7 +621,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             })
@@ -567,14 +648,23 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            }); 
                             loaddata();
                             $('#paymentform')[0].reset();
                             $('#paymentmodal').modal('hide');
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            }); 
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            }); 
                         }
                         loaderhide();
                     },
@@ -595,7 +685,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

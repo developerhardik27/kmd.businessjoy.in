@@ -55,7 +55,8 @@
                     <span class="error-msg" id="error-product_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="product_unique_id">Product Unique Id:</label><span style="color:red;">*</span>
+                    <label class="form-label" for="product_unique_id">Product Unique Id:</label><span
+                        style="color:red;">*</span>
                     <input type="text" class="form-control" name="product_unique_id" id="product_unique_id"
                         placeholder="Product Unique Id" />
                     <span class="error-msg" id="error-product_unique_id" style="color: red"></span>
@@ -70,7 +71,8 @@
                     <span class="error-msg" id="error-amount" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="reminder_status">Reminder Status:</label><span style="color:red;">*</span>
+                    <label class="form-label" for="reminder_status">Reminder Status:</label><span
+                        style="color:red;">*</span>
                     <select name="reminder_status" class="form-control" id="reminder_status">
                         <option disabled selected>Select Customer Type</option>
                         <option value="pending">Pending</option>
@@ -90,7 +92,8 @@
                     <span class="error-msg" id="error-service_completed_date" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label class="form-label" for="next_reminder">Next Reminder Date:</label><span style="color:red;">*</span>
+                    <label class="form-label" for="next_reminder">Next Reminder Date:</label><span
+                        style="color:red;">*</span>
                     <input type="datetime-local" class="form-control" name="next_reminder" id="next_reminder" />
                     <span class="m-1 text-info btn dynamic-date" data-months="6">After 6 Months</span>
                     <span class="m-1 text-info btn dynamic-date" data-months="9">After 9 Months</span>
@@ -120,12 +123,14 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset">Reset</button>
-                     <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Update">Save</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Reset">Reset</button>
+                    <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip"
+                        data-placement="bottom" data-original-title="Update">Save</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -164,13 +169,13 @@
 
             var now = new Date();
             var nextReminderDate = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate(), now
-                    .getHours(), now.getMinutes());
-                var nextReminderFormatted = nextReminderDate.getFullYear() + '-' +
-                    ('0' + (nextReminderDate.getMonth() + 1)).slice(-2) + '-' +
-                    ('0' + nextReminderDate.getDate()).slice(-2) + 'T' +
-                    ('0' + nextReminderDate.getHours()).slice(-2) + ':' +
-                    ('0' + nextReminderDate.getMinutes()).slice(-2);
-                $("#next_reminder").val(nextReminderFormatted);
+                .getHours(), now.getMinutes());
+            var nextReminderFormatted = nextReminderDate.getFullYear() + '-' +
+                ('0' + (nextReminderDate.getMonth() + 1)).slice(-2) + '-' +
+                ('0' + nextReminderDate.getDate()).slice(-2) + 'T' +
+                ('0' + nextReminderDate.getHours()).slice(-2) + ':' +
+                ('0' + nextReminderDate.getMinutes()).slice(-2);
+            $("#next_reminder").val(nextReminderFormatted);
 
             $(".dynamic-date").click(function() {
                 var monthsToAdd = parseInt($(this).data("months"));
@@ -231,7 +236,10 @@
                                 `<option value="${value.id}">${optionValue}</option>`);
                         });
                     } else if (customerDataResponse.status == 500) {
-                        toastr.error(customerDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: customerDataResponse.message
+                        });
                     } else {
                         $('#customer').append(`<option> No Custoer Found </option>`);
                     }
@@ -245,7 +253,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -255,7 +266,8 @@
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old data in fields
-                let reminderSearchUrl = "{{route('reminder.search','__editId__')}}".replace('__editId__',edit_id);
+                let reminderSearchUrl = "{{ route('reminder.search', '__editId__') }}".replace('__editId__',
+                edit_id);
                 $.ajax({
                     type: 'GET',
                     url: reminderSearchUrl,
@@ -280,7 +292,10 @@
                             $('#customer').find('option:disabled').remove(); // remove disabled option
                             $('#customer').val(data.customer_id);
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -296,7 +311,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -316,12 +334,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.reminder') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -342,7 +369,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

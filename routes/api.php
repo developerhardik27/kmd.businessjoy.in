@@ -109,8 +109,8 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
 
     // version control route
     $versionupdateController = getversion('versionupdateController');
-    Route::group([], function () use ($versionupdateController) {
-        Route::put('/company/versionupdate', [$versionupdateController, 'updatecompanyversion'])->name('company.versionupdate');
+    Route::controller($versionupdateController)->group(function() {
+        Route::put('/company/versionupdate', 'updatecompanyversion')->name('company.versionupdate');
     });
 
     // product route
@@ -201,29 +201,7 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::put('/bank/delete/{id}', 'destroy')->name('bank.delete');
     });
 
-    $invoiceController = getversion('invoiceController');
-    //invoice route
-    Route::group([], function () use ($invoiceController) {
-        Route::get('/totalinvoice', [$invoiceController, 'totalInvoice'])->name('invoice.totalinvoice');
-        Route::get('/checkinvoicenumber', [$invoiceController, 'checkinvoicenumber'])->name('invoice.checkinvoicenumber');
-        Route::get('/currency', [$invoiceController, 'currency'])->name('invoice.currency');
-        Route::get('/bdetails', [$invoiceController, 'bdetails'])->name('invoice.bankacc');
-        Route::get('/columnname', [$invoiceController, 'columnname'])->name('invoice.columnname');
-        Route::get('/numbercolumnname', [$invoiceController, 'numbercolumnname'])->name('invoice.numbercolumnname');
-        Route::get('/inv_list', [$invoiceController, 'inv_list'])->name('invoice.inv_list');
-        Route::put('/inv_status/{id}', [$invoiceController, 'status'])->name('invoice.status');
-        Route::get('/invoice/{id}', [$invoiceController, 'index'])->name('invoice.index');
-        Route::post('/invoice/insert', [$invoiceController, 'store'])->name('invoice.store');
-        Route::get('/invoice/search/{id}', [$invoiceController, 'show'])->name('invoice.search');
-        Route::get('/invoice/inv_details/{id}', [$invoiceController, 'inv_details'])->name('invoice.inv_details');
-        Route::get('/invoice/edit/{id}', [$invoiceController, 'edit'])->name('invoice.edit');
-        Route::put('/invoice/update/{id}', [$invoiceController, 'update'])->name('invoice.update');
-        Route::put('/invoice/delete/{id}', [$invoiceController, 'destroy'])->name('invoice.delete');
-        Route::get('status_list', [$invoiceController, 'status_list'])->name('invoice.status_list');
-        Route::get('chart', [$invoiceController, 'monthlyInvoiceChart'])->name('invoice.chart');
-        Route::get('/reportlogs', [$invoiceController, 'reportlogsdetails'])->name('report.logs');
-        Route::put('/reportlog/delete/{id}', [$invoiceController, 'reportlogdestroy'])->name('report.delete');
-    });
+  
 
     //payment_details route 
     $PaymentController = getversion('PaymentController');
@@ -269,6 +247,30 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::get('/invoiceformula/edit/{id}', 'edit')->name('invoiceformula.edit');
         Route::post('/invoiceformula/update/{id}', 'update')->name('invoiceformula.update');
         Route::put('/invoiceformula/delete/{id}', 'destroy')->name('invoiceformula.delete');
+    });
+
+      $invoiceController = getversion('invoiceController');
+    //invoice route
+    Route::controller($invoiceController)->group(function () {
+        Route::get('/totalinvoice','totalInvoice')->name('invoice.totalinvoice');
+        Route::get('/checkinvoicenumber','checkinvoicenumber')->name('invoice.checkinvoicenumber');
+        Route::get('/currency','currency')->name('invoice.currency');
+        Route::get('/bdetails','bdetails')->name('invoice.bankacc');
+        Route::get('/columnname','columnname')->name('invoice.columnname');
+        Route::get('/numbercolumnname','numbercolumnname')->name('invoice.numbercolumnname');
+        Route::get('/inv_list','inv_list')->name('invoice.inv_list');
+        Route::put('/inv_status/{id}','status')->name('invoice.status');
+        Route::get('/invoice/{id}','index')->name('invoice.index');
+        Route::post('/invoice/insert','store')->name('invoice.store');
+        Route::get('/invoice/search/{id}','show')->name('invoice.search');
+        Route::get('/invoice/inv_details/{id}','inv_details')->name('invoice.inv_details');
+        Route::get('/invoice/edit/{id}','edit')->name('invoice.edit');
+        Route::put('/invoice/update/{id}','update')->name('invoice.update');
+        Route::put('/invoice/delete/{id}','destroy')->name('invoice.delete');
+        Route::get('status_list','status_list')->name('invoice.status_list');
+        Route::get('chart','monthlyInvoiceChart')->name('invoice.chart');
+        Route::get('/reportlogs','reportlogsdetails')->name('report.logs');
+        Route::put('/reportlog/delete/{id}','reportlogdestroy')->name('report.delete');
     });
 
     // lead route 
@@ -403,15 +405,15 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     });
 
     // blog  route
-    $blogController = getversion('blogController');
-    Route::group([], function () use ($blogController) {
-        Route::get('/getslug', [$blogController, 'getSlug'])->name('blog.getslug');
-        Route::get('/blog', [$blogController, 'index'])->name('blog.index');
-        Route::post('/blog/insert', [$blogController, 'store'])->name('blog.store');
-        Route::get('/blog/search/{slug}', [$blogController, 'show'])->name('blog.search');
-        Route::get('/blog/edit/{id}', [$blogController, 'edit'])->name('blog.edit');
-        Route::post('/blog/update/{id}', [$blogController, 'update'])->name('blog.update');
-        Route::put('/blog/delete/{id}', [$blogController, 'destroy'])->name('blog.delete');
+    $blogController = getversion('blogController'); 
+        Route::controller($blogController)->group(function () {
+        Route::get('/getslug',  'getSlug')->name('blog.getslug');
+        Route::get('/blog',  'index')->name('blog.index');
+        Route::post('/blog/insert',  'store')->name('blog.store');
+        Route::get('/blog/search/{slug}',  'show')->name('blog.search');
+        Route::get('/blog/edit/{id}',  'edit')->name('blog.edit');
+        Route::post('/blog/update/{id}',  'update')->name('blog.update');
+        Route::put('/blog/delete/{id}',  'destroy')->name('blog.delete');
     });
 
     // api_authorization  route
@@ -471,25 +473,25 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
 
     $quotationController = getversion('quotationController');
     //quotation route
-    Route::group([], function () use ($quotationController) {
-        Route::get('/quotation/totalquotation', [$quotationController, 'totalQuotation'])->name('quotation.totalquotation');
-        Route::get('/quotation/status_list', [$quotationController, 'status_list'])->name('quotation.status_list');
-        Route::get('/quotation/chart', [$quotationController, 'monthlyQuotationChart'])->name('quotation.chart');
-        Route::get('/quotation/checkquotationnumber', [$quotationController, 'checkquotationnumber'])->name('quotation.checkquotationnumber');
-        Route::get('/quotation/currency', [$quotationController, 'currency'])->name('quotation.currency');
-        Route::get('/quotation/columnname', [$quotationController, 'columnname'])->name('quotation.columnname');
-        Route::get('/quotation/numbercolumnname', [$quotationController, 'numbercolumnname'])->name('quotation.numbercolumnname');
-        Route::get('/quotatoin/quotation_list', [$quotationController, 'quotation_list'])->name('quotation.quotation_list');
-        Route::put('/quotation_status/{id}', [$quotationController, 'status'])->name('quotation.status');
-        Route::get('/quotation/{id}', [$quotationController, 'index'])->name('quotation.index');
-        Route::post('/quotation/insert', [$quotationController, 'store'])->name('quotation.store');
-        Route::get('/quotation/search/{id}', [$quotationController, 'show'])->name('quotation.search');
-        Route::get('/quotation/quotation_details/{id}', [$quotationController, 'quotation_details'])->name('quotation.quotation_details');
-        Route::get('/quotation/edit/{id}', [$quotationController, 'edit'])->name('quotation.edit');
-        Route::put('/quotation/update/{id}', [$quotationController, 'update'])->name('quotation.update');
-        Route::put('/quotation/delete/{id}', [$quotationController, 'destroy'])->name('quotation.delete');
-        Route::get('/quotation/remarks/{id}', [$quotationController, 'getquotationremarks'])->name('quotation.getquotationremarks');
-        Route::post('/quotation/updateremarks', [$quotationController, 'updatequotationremarks'])->name('quotation.updatequotationremarks');
+    Route::controller($quotationController)->group(function () {
+        Route::get('/quotation/totalquotation',  'totalQuotation')->name('quotation.totalquotation');
+        Route::get('/quotation/status_list',  'status_list')->name('quotation.status_list');
+        Route::get('/quotation/chart',  'monthlyQuotationChart')->name('quotation.chart');
+        Route::get('/quotation/checkquotationnumber',  'checkquotationnumber')->name('quotation.checkquotationnumber');
+        Route::get('/quotation/currency',  'currency')->name('quotation.currency');
+        Route::get('/quotation/columnname',  'columnname')->name('quotation.columnname');
+        Route::get('/quotation/numbercolumnname',  'numbercolumnname')->name('quotation.numbercolumnname');
+        Route::get('/quotatoin/quotation_list',  'quotation_list')->name('quotation.quotation_list');
+        Route::put('/quotation_status/{id}',  'status')->name('quotation.status');
+        Route::get('/quotation/{id}',  'index')->name('quotation.index');
+        Route::post('/quotation/insert',  'store')->name('quotation.store');
+        Route::get('/quotation/search/{id}',  'show')->name('quotation.search');
+        Route::get('/quotation/quotation_details/{id}',  'quotation_details')->name('quotation.quotation_details');
+        Route::get('/quotation/edit/{id}',  'edit')->name('quotation.edit');
+        Route::put('/quotation/update/{id}',  'update')->name('quotation.update');
+        Route::put('/quotation/delete/{id}',  'destroy')->name('quotation.delete');
+        Route::get('/quotation/remarks/{id}',  'getquotationremarks')->name('quotation.getquotationremarks');
+        Route::post('/quotation/updateremarks',  'updatequotationremarks')->name('quotation.updatequotationremarks');
     });
 
 });

@@ -87,7 +87,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
             var edit_id = @json($edit_id);
-            let purchaseSearchUrl = "{{route('purchase.search','__editId__')}}".replace('__editId__',edit_id);
+            let purchaseSearchUrl = "{{ route('purchase.search', '__editId__') }}".replace('__editId__', edit_id);
             // show old data in fields
             $.ajax({
                 type: 'GET',
@@ -108,9 +108,15 @@
                         $('#date').val(response.purchases.date);
                         company = response.purchases.company_id;
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     } else {
-                        toastr.error('Something went wrong');
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
+                        });
                     }
                     loaderhide();
                 },
@@ -125,10 +131,13 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
- 
+
             //submit form
             $('#purchaseupdateform').submit(function(event) {
                 event.preventDefault();
@@ -147,12 +156,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.purchase') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -173,7 +191,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

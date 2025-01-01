@@ -411,7 +411,10 @@
                         var responseJSON = JSON.parse(xhr.responseText);
                         errorMessage = responseJSON.message || errorMessage;
                     } catch (e) {}
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             }
 
@@ -436,7 +439,10 @@
                             }
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                 }).fail(function(xhr) {
@@ -453,7 +459,10 @@
                     if (response.status == 200 && response.quotationformula != '') {
                             formula = response.quotationformula;
                         }else if(response.status == 500){
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         }
                 }).fail(function(xhr) {
@@ -491,8 +500,11 @@
                         
                             managetooltip();
                     } else if(response.status == 500){
-                            toastr.error(response.message);
-                            loaderhide();
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                        loaderhide();
                     }else {
                         $('#columnname').append(` <th>Name</th>
                         <th>Description</th>
@@ -601,7 +613,10 @@
                                         }
                                         
                                     }else if(response.status == 500){
-                                        toastr.error(response.message);
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: response.message
+                                        });
                                     }
                                     loaderhide();                                   
                                 }).fail(function(xhr) {
@@ -610,7 +625,10 @@
                                 }) 
                             }
                         }else if(response.status == 500){
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#customer').append(`<option disabled '>No Data found </option>`);
                         }
@@ -718,7 +736,10 @@
 
 
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
                     loaderhide();
                 }).fail(function(xhr) {
@@ -770,7 +791,10 @@
                             }
                             
                         }else if(response.status == 500){
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();     
                     }).fail(function(xhr) {
@@ -844,16 +868,24 @@
 
                 // duplicate row 
                 $(document).on('click', '.duplicate-row', function() {
-                    if (confirm('Are you really want to add duplicate column?')) { 
-                        addname++;
-                        var id = $(this).data('id'); 
-                        duplicatediv(id);
-                        if('#Amount_'.id != null || '#Amount_'.id != ''){
-                            dynamiccalculaton();
+                    element = $(this);
+                    showConfirmationDialog(
+                        'Are you sure?',  // Title
+                        'to add duplicate column?', // Text
+                        'Yes',  // Confirm button text
+                        'No, cancel', // Cancel button text
+                        'question', // Icon type (question icon)
+                        () => {
+                            // Success callback
+                            addname++;
+                            var id = element.data('id'); 
+                            duplicatediv(id);
+                            if('#Amount_'.id != null || '#Amount_'.id != ''){
+                                dynamiccalculaton();
+                            } 
+                            managetooltip();
                         } 
-                        managetooltip();
-                    }
-                    
+                    ); 
                 });
 
                 function duplicatediv(id){
@@ -912,19 +944,27 @@
         
                     // Dispose tooltip before detaching the row
                     managetooltip();
-                    
-                    if (confirm('Are you sure you want to delete this row?')) {
-                        $row.detach();
-                    var oldproductid =  $(this).data('oldproduct-id'); 
-                    if(oldproductid){
-                        oldproductsid.push(oldproductid);
-                    }
-                        // Delay reinitializing tooltip to ensure DOM changes are completed
-                        setTimeout(function() {
-                            managetooltip();
-                            dynamiccalculaton();
-                        }, 100); // Adjust delay time as needed
-                    } 
+                    element = $(this);
+                    showConfirmationDialog(
+                        'Are you sure?',  // Title
+                        'to delete this row?', // Text
+                        'Yes, delete',  // Confirm button text
+                        'No, cancel', // Cancel button text
+                        'question', // Icon type (question icon)
+                        () => {
+                            // Success callback
+                            $row.detach();
+                            var oldproductid =  element.data('oldproduct-id'); 
+                            if(oldproductid){
+                                oldproductsid.push(oldproductid);
+                            }
+                            // Delay reinitializing tooltip to ensure DOM changes are completed
+                            setTimeout(function() {
+                                managetooltip();
+                                dynamiccalculaton();
+                            }, 100); // Adjust delay time as needed
+                        } 
+                    );   
                 });
 
                 // call function for gst or without gst counting
@@ -1181,13 +1221,22 @@
                             // Handle the response from the server
                             if (response.status == 200) {
                                 // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
                                 window.location = "{{ route('admin.quotation') }}";
 
                             }else if(response.status == 500){
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             }
                             loaderhide();
                         },
@@ -1213,7 +1262,10 @@
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
-                                toastr.error(errorMessage);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
                         }
                     });
@@ -1379,12 +1431,20 @@
                                 $('#exampleModalScrollable').modal('hide');
                                 // You can perform additional actions, such as showing a success message or redirecting the user
                                 customers(response.customer_id); 
-                                toastr.success(response.message);
-
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                }); 
                             }else if(response.status == 500){
-                                toastr.error(response.message); 
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                }); 
                             } else {
-                                toastr.error(response.message); 
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                }); 
                             }
                             loaderhide();
                         },
@@ -1410,7 +1470,10 @@
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
-                                toastr.error(errorMessage);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
                         }
                     });

@@ -42,7 +42,7 @@
 @endsection
 @if (session('user_permissions.invoicemodule.customer.add') == '1')
     @section('addnew')
-        {{ route('admin.add'.session('menu').'customer') }}
+        {{ route('admin.add' . session('menu') . 'customer') }}
     @endsection
     @section('addnewbutton')
         <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Customer"
@@ -102,7 +102,9 @@
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
                             $.each(response.customer, function(key, value) {
-                                let editCustomerUrl = "{{route('admin.edit'.session('menu').'customer','__customerid__')}}".replace('__customerid__',value.id) ;
+                                let editCustomerUrl =
+                                    "{{ route('admin.edit' . session('menu') . 'customer', '__customerid__') }}"
+                                    .replace('__customerid__', value.id);
                                 $('#data').append(`<tr>
                                                     <td>${value.customer_id}</td>
                                                     <td>${(value.firstname != null) ? value.firstname : '-' }</td>
@@ -110,14 +112,16 @@
                                                     <td>${(value.company_name != null) ?value.company_name : '-'}</td>
                                                     <td>${(value.contact_no != null) ?value.contact_no : '-'}</td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.customer.edit') == '1' || session('user_permissions.quotationmodule.quotaioncustomer.edit') == '1')
+                                                        @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                                session('user_permissions.quotationmodule.quotaioncustomer.edit') == '1')
                                                             ${value.is_active == 1 ? '<span data-toggle="tooltip" data-placement="bottom" data-original-title="InActive" id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></span>'  : '<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></span>'}
                                                         @else
                                                           -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.invoicemodule.customer.view') == '1' || session('user_permissions.quotationmodule.quotatoincustomer.view') == '1' )
+                                                        @if (session('user_permissions.invoicemodule.customer.view') == '1' ||
+                                                                session('user_permissions.quotationmodule.quotatoincustomer.view') == '1')
                                                             <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
                                                                 <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
                                                                     <i class="ri-indent-decrease"></i>
@@ -127,9 +131,13 @@
                                                           -    
                                                         @endif
                                                     </td>
-                                                    @if (session('user_permissions.invoicemodule.customer.edit') == '1' || session('user_permissions.quotationmodule.quotationcustomer.edit') == '1' || session('user_permissions.invoicemodule.customer.delete') == '1' || session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
+                                                    @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                            session('user_permissions.quotationmodule.quotationcustomer.edit') == '1' ||
+                                                            session('user_permissions.invoicemodule.customer.delete') == '1' ||
+                                                            session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
                                                         <td>
-                                                            @if (session('user_permissions.invoicemodule.customer.edit') == '1' || session('user_permissions.quotationmodule.quotationcustomer.edit') == '1')
+                                                            @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                                    session('user_permissions.quotationmodule.quotationcustomer.edit') == '1')
                                                                 <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Customer">
                                                                     <a href=${editCustomerUrl}>
                                                                         <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
@@ -138,7 +146,8 @@
                                                                     </a>
                                                                 </span>
                                                             @endif
-                                                            @if (session('user_permissions.invoicemodule.customer.delete') == '1' || session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
+                                                            @if (session('user_permissions.invoicemodule.customer.delete') == '1' ||
+                                                                    session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
                                                                 <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Customer Details">
                                                                     <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                                         <i class="ri-delete-bin-fill"></i>
@@ -159,7 +168,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#data').append(`<tr><td colspan='8' >No Data Found</td></tr>`);
                         }
@@ -175,7 +187,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -185,25 +200,44 @@
 
             //  customer status update active to deactive              
             $(document).on("click", ".status-active", function() {
-                if (confirm('Are you really want to change status to inactive ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changecustomerstatus(statusid, 0);
-                }
+                element = $(this)
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to change status to inactive?', // Text
+                    'Yes, change',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('status');
+                        changecustomerstatus(statusid, 0);
+                    } 
+                ); 
             });
-
+            
             //  customer status update  deactive to active            
             $(document).on("click", ".status-deactive", function() {
-                if (confirm('Are you really want to change status to active ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changecustomerstatus(statusid, 1);
-                }
+                element = $(this)
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to change status to active?', // Text
+                    'Yes, change',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('status');
+                        changecustomerstatus(statusid, 1);
+                    } 
+                );  
             });
 
             // function for change customer status (active/inactive)
             function changecustomerstatus(customerid, statusvalue) {
-                let customerStatusUpdateUrl = "{{route('customer.statusupdate','__customerId__')}}".replace('__customerId__',customerid);
+                let customerStatusUpdateUrl = "{{ route('customer.statusupdate', '__customerId__') }}".replace(
+                    '__customerId__', customerid);
                 $.ajax({
                     type: 'PUT',
                     url: customerStatusUpdateUrl,
@@ -215,12 +249,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });;
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -235,7 +278,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -243,42 +289,57 @@
 
             // record delete 
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var $deleteid = $(this).data('id');
-                    var row = this;
-                    let customerDeleteUrl = "{{route('customer.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: customerDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            loaderhide();
-                            if (response.status == 200) {
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
+                var $deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to delete this record?', // Text
+                    'Yes, delete',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let customerDeleteUrl = "{{ route('customer.delete', '__deleteId__') }}".replace(
+                            '__deleteId__', deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: customerDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                loaderhide();
+                                if (response.status == 200) {
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    } 
+                );  
             });
 
 

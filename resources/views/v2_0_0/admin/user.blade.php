@@ -62,7 +62,7 @@
                 <th>Email</th>
                 <th>ContactNo</th>
                 <th>CompanyName</th>
-                <th>UserRole</th> 
+                <th>UserRole</th>
                 <th>Status</th>
                 @if (session('user_id') == 1)
                     <th>Login</th>
@@ -99,8 +99,10 @@
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed     
-                            $.each(response.user, function(key, value) { 
-                                var userLogin = "{{route('admin.superadminloginfromanyuser','__userId__')}}".replace('__userId__',value.id);
+                            $.each(response.user, function(key, value) {
+                                var userLogin =
+                                    "{{ route('admin.superadminloginfromanyuser', '__userId__') }}"
+                                    .replace('__userId__', value.id);
                                 $('#data').append(`<tr>
                                                         <td>${id}</td>
                                                         <td>${value.firstname  != null ? value.firstname : '-'}</td>
@@ -174,7 +176,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
                         }
@@ -192,7 +197,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -202,118 +210,171 @@
 
             //  user status update active to deactive              
             $(document).on("click", ".status-active", function() {
-                if (confirm('Are you really want to change status to inactive ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changeuserstatus(statusid, 0);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status to inactive?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('status');
+                        changeuserstatus(statusid, 0);
+                    }
+                );
             });
 
             //  user status update deactive to  active            
             $(document).on("click", ".status-deactive", function() {
-                if (confirm('Are you really want to change status to active ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status'); 
-                    changeuserstatus(statusid, 1);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status to active?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var statusid = element.data('status');
+                        changeuserstatus(statusid, 1);
+                    }
+                );
             });
 
             function changeuserstatus(userid, statusvalue) {
-                let userStatusUpdateUrl = "{{route('user.statusupdate','__userId__')}}".replace('__userId__',userid);
+                let userStatusUpdateUrl = "{{ route('user.statusupdate', '__userId__') }}".replace('__userId__',
+                    userid);
                 $.ajax({
-                        type: 'PUT',
-                        url: userStatusUpdateUrl,
-                        data: {
-                            status: statusvalue,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                if(statusvalue == 1){
-                                    $('#status_' + userid).html('<button data-status= ' +
-                                        userid +
-                                        ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
-                                    ); 
-                                }else{
-                                    $('#status_' + userid).html('<button data-status= ' +
+                    type: 'PUT',
+                    url: userStatusUpdateUrl,
+                    data: {
+                        status: statusvalue,
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+                            if (statusvalue == 1) {
+                                $('#status_' + userid).html('<button data-status= ' +
+                                    userid +
+                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
+                                );
+                            } else {
+                                $('#status_' + userid).html('<button data-status= ' +
                                     userid +
                                     ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
-                                }
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                        } else if (response.status == 500) {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
-                    });
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+                    }
+                });
             }
- 
+
             // record delete 
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let userDeleteUrl = "{{route('user.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: userDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let userDeleteUrl = "{{ route('user.delete', '__deleteId__') }}".replace(
+                            '__deleteId__',
+                            deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: userDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             });
 
             // view record
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
-                var data = $(this).data('view');// get userid
+                var data = $(this).data('view'); // get userid
                 $.each(global_response.user, function(key, user) {
-                    if (user.id == data) {  // get user record
+                    if (user.id == data) { // get user record
                         $('#details').append(`
                                 <tr>
                                     <th>Name</th>                         

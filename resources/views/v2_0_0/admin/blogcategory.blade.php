@@ -140,13 +140,13 @@
                                                         <td>  
                                                             <span>
                                                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Category" data-id='${value.id}'
-                                                                     class="btn edit-btn btn-success btn-rounded btn-sm my-1">
+                                                                     class="btn edit-btn btn-success btn-rounded btn-sm my-0 mb-2">
                                                                     <i class="ri-edit-fill"></i>
                                                                 </button>
                                                             </span>
                                                             <span>
                                                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Category" data-id= '${value.id}'
-                                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-1">
+                                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
                                                                     <i class="ri-delete-bin-fill"></i>
                                                                 </button>
                                                             </span>
@@ -236,7 +236,7 @@
                     'if you will delete it, then it will be removed from blog automatically if it in use!', // Text
                     'Yes, delete it!', // Confirm button text
                     'No, cancel', // Cancel button text
-                    'warning', // Icon type (warning icon)
+                    'question', // Icon type (question icon)
                     function() {
                         loadershow();
                         $.ajax({

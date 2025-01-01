@@ -224,7 +224,7 @@
                 tabsize: 2,
                 height: 100
             });
-  
+
             // get & set user data into form input for assing to ticket 
             function getUserData() {
                 return new Promise((resolve, reject) => {
@@ -265,7 +265,10 @@
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: userDataResponse.message
+                        });
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -280,7 +283,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -297,7 +303,8 @@
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old customer support data in fields
-                let techSupportSearchUrl = "{{route('techsupport.search','__editId__')}}".replace('__editId__',edit_id);
+                let techSupportSearchUrl = "{{ route('techsupport.search', '__editId__') }}".replace('__editId__',
+                    edit_id);
                 $.ajax({
                     type: 'GET',
                     url: techSupportSearchUrl,
@@ -331,7 +338,10 @@
                             }
                             $('#assignedto').multiselect('rebuild');
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             loaderhide();
                         }
                         loaderhide();
@@ -342,7 +352,7 @@
                     }
                 });
             }
- 
+
             //submit form
             $('#ticketupdateform').submit(function(event) {
                 event.preventDefault();
@@ -365,16 +375,28 @@
                         if (response.status == 200) {
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.techsupport') }}";
 
                         } else if (response.status == 422) {
-                            toastr.error(response.errors);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             loaderhide();
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
 
                     },
@@ -388,9 +410,11 @@
                             loaderhide();
                         } else {
                             loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            Toast.fire({
+                                icon: "error",
+                                title: "An error occurred while processing your request. Please try again later."
+                            });
+
                         }
                     }
                 });

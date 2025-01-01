@@ -669,9 +669,9 @@
                                             @if (session('user_permissions.quotationmodule.quotationsetting.add') == '1' || $user_id == 1)
                                                 <tr id="quotationsetting" class="quotation_settings_rows subsettingrows">
                                                     <td><span class="btn expandsettingsbutton"
-                                                        data-target="quotation_other_settings_rows"><i
-                                                            class="ri ri-2x ri-arrow-right-circle-fill"></i>
-                                                        Quotation/Settings</span></td>
+                                                            data-target="quotation_other_settings_rows"><i
+                                                                class="ri ri-2x ri-arrow-right-circle-fill"></i>
+                                                            Quotation/Settings</span></td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='quotationsetting' id="showquotationsettingmenu"
                                                             name="showquotationsettingmenu" value="1">
@@ -730,7 +730,8 @@
                                                 </tr>
                                             @endif
                                             @if (session('user_permissions.quotationmodule.quotationnumbersetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationnumbersetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationnumbersetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation Number Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='quotationnumbersetting'
@@ -791,7 +792,8 @@
                                                 </tr>
                                             @endif
                                             @if (session('user_permissions.quotationmodule.quotationtandcsetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationtandcsetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationtandcsetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation T&C Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='quotationtandcsetting'
@@ -852,7 +854,8 @@
                                                 </tr>
                                             @endif
                                             @if (session('user_permissions.quotationmodule.quotationstandardsetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationstandardsetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationstandardsetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation Standard Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='quotationstandardsetting'
@@ -913,7 +916,8 @@
                                                 </tr>
                                             @endif
                                             @if (session('user_permissions.quotationmodule.quotationgstsetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationgstsetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationgstsetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation GST Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
                                                             data-value='quotationgstsetting'
@@ -2656,12 +2660,13 @@
                 if (isInvoiceSettings) {
                     let isInvoiceSettingsVisible = $('tr.' + targetrows).hasClass("special-color");
                     if (!
-                        isInvoiceSettingsVisible) { // If Invoice Settings is collapsed, collapse Invoice Other Settings as well
+                        isInvoiceSettingsVisible
+                        ) { // If Invoice Settings is collapsed, collapse Invoice Other Settings as well
                         $('tr.invoice_other_settings_rows').slideUp();
                         $('tr.invoice_other_settings_rows').removeClass('special-color');
                         $('.expandsettingsbutton[data-target="invoice_other_settings_rows"]').find('i')
                             .removeClass('ri-arrow-down-circle-fill').addClass(
-                            'ri-arrow-right-circle-fill');
+                                'ri-arrow-right-circle-fill');
                     }
                 }
 
@@ -2669,12 +2674,13 @@
                 else if (isQuotationSettings) {
                     let isQuotationSettingsVisible = $('tr.' + targetrows).hasClass("special-color");
                     if (!
-                        isQuotationSettingsVisible) { // If Invoice Settings is collapsed, collapse Invoice Other Settings as well
+                        isQuotationSettingsVisible
+                        ) { // If Invoice Settings is collapsed, collapse Invoice Other Settings as well
                         $('tr.quotation_other_settings_rows').slideUp();
                         $('tr.quotation_other_settings_rows').removeClass('special-color');
                         $('.expandsettingsbutton[data-target="quotation_other_settings_rows"]').find('i')
                             .removeClass('ri-arrow-down-circle-fill').addClass(
-                            'ri-arrow-right-circle-fill');
+                                'ri-arrow-right-circle-fill');
                     }
                 }
             });
@@ -2723,7 +2729,10 @@
                             $('.permission-row input[type="checkbox"]').attr('disabled', true);
                         }
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        	Toast.fire({
+                                icon: "error",
+                                title: userDataResponse.message
+                            }) ;
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
                     }
@@ -2735,8 +2744,11 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
-                    loaderhide();
+                    Toast.fire({
+                        icon: "error",
+                        title:"An error occurred while initializing"
+                    });
+                    
                 }
             }
 
@@ -2794,7 +2806,10 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
 
@@ -2842,7 +2857,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -2888,7 +2906,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -3023,12 +3044,21 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            })
                             window.location = "{{ route('admin.user') }}";
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            })
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            })
                         }
                         loaderhide();
                     },
@@ -3049,7 +3079,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

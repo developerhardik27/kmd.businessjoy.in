@@ -123,10 +123,10 @@
         }
 
         /* .multiselect-container {
-                width: 300px;
-                max-height: 300px;
-                overflow: auto;
-        } */
+                            width: 300px;
+                            max-height: 300px;
+                            overflow: auto;
+                    } */
 
         .sidenav .btn-group {
             width: 100%;
@@ -209,10 +209,12 @@
     <div class="col-md-12 text-right pr-5">
         <div class="m-2 float-right">
             <!-- Use any element to open the sidenav -->
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Advance filters" onclick="openNav()" class="btn btn-sm btn-rounded btn-info">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Advance filters" onclick="openNav()"
+                class="btn btn-sm btn-rounded btn-info">
                 <i class="ri-filter-line"></i>
             </button>
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Filters" class="btn btn-info btn-rounded btn-sm removefilters">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Filters"
+                class="btn btn-info btn-rounded btn-sm removefilters">
                 <i class="ri ri-refresh-line"></i>
             </button>
         </div>
@@ -220,13 +222,14 @@
             <select class="advancefilter multiple form-control w-100" id="area" multiple="multiple">
                 <option disabled selected>-- Select Area --</option>
             </select>
-        </div>  
+        </div>
         <div class="m-2 float-right">
             <input type="radio" class="is_active advancefilter" id="paid" name="service_type" value="paid">
             <label for="paid">Paid</label>
             <input type="radio" class="is_active advancefilter" id="free" name="service_type" value="free">
             <label for="free">Free</label>
-            <input type="radio" class="is_active advancefilter" value="all" checked id="all" name="service_type">
+            <input type="radio" class="is_active advancefilter" value="all" checked id="all"
+                name="service_type">
             <label for="all">All</label>
         </div>
     </div>
@@ -236,7 +239,8 @@
             {{ route('admin.addreminder') }}
         @endsection
         @section('addnewbutton')
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Reminder" class="btn btn-sm btn-primary">
+            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Reminder"
+                class="btn btn-sm btn-primary">
                 <span class="">+ Reminder</span>
             </button>
         @endsection
@@ -366,7 +370,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -397,12 +404,16 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
                 });
             }
+
             function getCitiesname() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -427,7 +438,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -473,7 +487,7 @@
             async function initialize() {
                 try {
                     // Perform AJAX calls concurrently
-                    const [areaDataResponse,customerDataResponse, cityDataResponse] = await Promise.all([
+                    const [areaDataResponse, customerDataResponse, cityDataResponse] = await Promise.all([
                         getAreaNames(),
                         getCustomerName(),
                         getCitiesname()
@@ -491,7 +505,10 @@
                         $('#area').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (areaDataResponse.status == 500) {
-                        toastr.error(areaDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: areaDataResponse.message
+                        });
                     } else {
                         $('#area').append(`<option> No area Found </option>`);
                     }
@@ -507,7 +524,10 @@
                         $('#customer').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (customerDataResponse.status == 500) {
-                        toastr.error(customerDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: customerDataResponse.message
+                        });
                     } else {
                         $('#customer').append(`<option> No area Found </option>`);
                     }
@@ -523,7 +543,10 @@
                         $('#city').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options 
                     } else if (cityDataResponse.status == 500) {
-                        toastr.error(cityDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: cityDataResponse.message
+                        });
                     } else {
                         $('#city').append(`<option disabled> No City Found </option>`);
                         $('#city').multiselect(
@@ -538,7 +561,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -653,7 +679,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').html(`<tr><td colspan='8' >No Data Found</td></tr>`);
                         }
@@ -671,7 +700,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -765,70 +797,105 @@
 
             // change reminder stage status
             $(document).on('change', '.reminder_status', function() {
-                var oldstatus = $(this).data('original-value');
-                if (confirm('Are you sure you want to change status?')) {
-                    loadershow();
-                    var reminderstatusid = $(this).data('reminder_status_id');
-                    var fieldid = $(this).attr('id');
-                    var reminderstatusvalue = $('#' + fieldid).val();
-                    $(this).data('original-value', reminderstatusvalue);
-                    let last_service_date;
-                    if (reminderstatusvalue == 'completed') {
-                        var now = new Date();
-                        last_service_date = now.getFullYear() + '-' +
-                            ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-                            ('0' + now.getDate()).slice(-2) + 'T' +
-                            ('0' + now.getHours()).slice(-2) + ':' +
-                            ('0' + now.getMinutes()).slice(-2);
-                    }
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('reminder.changestatus') }}",
-                        data: {
-                            last_service_date,
-                            reminderstatusid,
-                            reminderstatusvalue,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            loaderhide();
-                            if (data.status == false) {
-                                toastr.error(data.message);
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
+                var element = $(this);
+                var oldstatus = element.data('original-value');
+
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to change status?', // Text
+                    'Yes, change', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var reminderstatusid = element.data('reminder_status_id');
+                        var fieldid = element.attr('id');
+                        var reminderstatusvalue = $('#' + fieldid).val();
+                        element.data('original-value', reminderstatusvalue);
+                        let last_service_date;
+                        if (reminderstatusvalue == 'completed') {
+                            var now = new Date();
+                            last_service_date = now.getFullYear() + '-' +
+                                ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+                                ('0' + now.getDate()).slice(-2) + 'T' +
+                                ('0' + now.getHours()).slice(-2) + ':' +
+                                ('0' + now.getMinutes()).slice(-2);
+                        }
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('reminder.changestatus') }}",
+                            data: {
+                                last_service_date,
+                                reminderstatusid,
+                                reminderstatusvalue,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
                                 loaderhide();
-                            } else {
-                                toastr.success(data.message);
-                                advancefilters();
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                    loaderhide();
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    advancefilters();
+                                }
+                            },
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                                reject(errorMessage);
                             }
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                            reject(errorMessage);
+                        });
+                        if (reminderstatusvalue == 'completed') {
+                            showConfirmationDialog(
+                                'Are you sure?', // Title
+                                'to create new reminder for this customer?', // Text
+                                'Yes, create', // Confirm button text
+                                'No, cancel', // Cancel button text
+                                'question', // Icon type (question icon)
+                                () => {
+                                    // Success callback
+                                    window.location.href = "AddNewReminder/" + reminderstatusid;
+                                }
+                            );
                         }
-                    });
-                    if (reminderstatusvalue == 'completed') {
-                        if (confirm('Are you want to create new reminder for this customer?')) {
-                            window.location.href = "AddNewReminder/" + reminderstatusid;
-                        }
+                    },
+                    () => {
+                        // Error callback
+                        loaderhide();
+                        var reminderstatusid = element.attr('id');
+                        $('#' + reminderstatusid).val(oldstatus);
                     }
-                } else {
-                    loaderhide();
-                    var reminderstatusid = $(this).attr('id');
-                    $('#' + reminderstatusid).val(oldstatus);
-                }
+                );
             })
 
             // lead edit redirect - save advanced filter data as it is on local storage session
@@ -868,47 +935,68 @@
             // lead delete
             $(document).on("click", ".dltbtn", function() {
 
-                if (confirm("Are you Sure to delete this record")) {
-                    loadershow();
-                    var id = $(this).data('uid');
-                    var row = this;
-
-                    $.ajax({
-                        type: 'PUT',
-                        url: "{{ route('reminder.delete') }}",
-                        data: {
-                            id: id,
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(data) {
-                            if (data.status == false) {
-                                toastr.error(data.message)
-                            } else if (data.status == 500) {
-                                toastr.error(data.message);
-                            } else {
-                                toastr.success(data.message);
-                                $(row).closest("tr").fadeOut();
+                var id = $(this).data('uid');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this record?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: "{{ route('reminder.delete') }}",
+                            data: {
+                                id: id,
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}"
+                            },
+                            success: function(data) {
+                                if (data.status == false) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else if (data.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: data.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: data.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                                reject(errorMessage);
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                            reject(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    }
+                );
             })
 
 
@@ -978,13 +1066,14 @@
                     data.activestatusvalue = activestatusvalue;
                 }
 
-                if (fromdate == '' && todate == '' && pincode == '' && reminder_status == ''&& customer == '' && city == '' &&
+                if (fromdate == '' && todate == '' && pincode == '' && reminder_status == '' && customer == '' &&
+                    city == '' &&
                     area == '' && last_service == '' &&
                     next_reminder == '' && activestatusvalue == '') {
                     loaddata();
                 }
                 if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || pincode != '' || reminder_status !=
-                    ''|| customer != '' || city != '' || area != '' ||
+                    '' || customer != '' || city != '' || area != '' ||
                     last_service != '' || next_reminder != '' || activestatusvalue != '') {
                     loadershow();
                     $.ajax({
@@ -1064,7 +1153,10 @@
                                     "destroy": true, //use for reinitialize datatable
                                 });
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
                                 $('#tabledata').html(`<tr><td colspan='8' >No Data Found</td></tr>`);
                             }
@@ -1082,7 +1174,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                             reject(errorMessage);
                         }
                     });
@@ -1110,7 +1205,8 @@
 
                 $('#customer option').prop('selected', false);
                 if ($("#customer option:not(:disabled)").length > 0) {
-                    $("#customer").prepend('<option value="" disabled selected>-- Select Customer --</option>');
+                    $("#customer").prepend(
+                        '<option value="" disabled selected>-- Select Customer --</option>');
                 }
                 $('#customer option:first').prop('selected', true);
                 $('#customer').multiselect('refresh');
@@ -1156,7 +1252,8 @@
                         '<option value="" disabled selected>-- Select Reminder Status --</option>');
                 }
                 if ($("#customer option:not(:disabled)").length > 0) {
-                    $("#customer").prepend('<option value="" disabled selected>-- Select Customer --</option>');
+                    $("#customer").prepend(
+                        '<option value="" disabled selected>-- Select Customer --</option>');
                 }
                 if ($("#city option:not(:disabled)").length > 0) {
                     $("#city").prepend('<option value="" disabled selected>-- Select City --</option>');

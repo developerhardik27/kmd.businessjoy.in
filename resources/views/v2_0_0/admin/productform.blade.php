@@ -61,12 +61,14 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                     <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset" class="btn iq-bg-danger float-right">Reset</button>
-                     <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save" class="btn btn-primary float-right my-0" >Save</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
+                        class="btn iq-bg-danger float-right">Reset</button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save"
+                        class="btn btn-primary float-right my-0">Save</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -92,13 +94,22 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.product') }}";
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
 
@@ -120,11 +131,14 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
-            })  
+            })
         });
     </script>
 @endpush

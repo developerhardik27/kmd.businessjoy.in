@@ -531,7 +531,10 @@
                             $('#startcid').html(`<b>${data.customer_id}</b>`);
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#overduedays').html(`<b>Not set</b> `);
                             $('#yearstartdate').html(`<b>Not set</b>`);
@@ -553,7 +556,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -594,13 +600,22 @@
                             $('#editoverdueday').show();
                             $('#overduedaysform').hide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#overduedaysform')[0].reset();
                             getoverduedays();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -621,7 +636,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -664,13 +682,22 @@
                         if (response.status == 200) {
                             $('#gstsettingsform').hide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#gstsettingsform')[0].reset();
                             getoverduedays();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -692,7 +719,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -748,7 +778,10 @@
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
                             $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
                         }
@@ -766,7 +799,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -776,20 +812,36 @@
 
             //  t & cstatus update(active to inactive)            
             $(document).on("click", ".status-active", function() {
-                if (confirm('Are you really want to change status to inactive ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changetcstatus(statusid, 0);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to change status to inactive?', // Text
+                    'Yes, change',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        loadershow();
+                        var statusid = element.data('status');
+                        changetcstatus(statusid, 0);
+                    } 
+                );  
             });
 
             //  t & c status update (inactive to active)            
             $(document).on("click", ".status-deactive", function() {
-                if (confirm('Are you really want to change status to active ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changetcstatus(statusid, 1);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to change status to active?', // Text
+                    'Yes, change',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        loadershow();
+                        var statusid = element.data('status');
+                        changetcstatus(statusid, 1);
+                    } 
+                );  
             });
 
             //chagne t&c status update function (active/inactive)
@@ -806,12 +858,21 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -826,52 +887,75 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
 
             // delete terms and conditions              
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    var row = this;
-                    let termsAndConditionsDeleteUrl = "{{ route('termsandconditions.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
-                    $.ajax({
-                        type: 'PUT',
-                        url: termsAndConditionsDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to delete this record?', // Text
+                    'Yes, delete',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        let termsAndConditionsDeleteUrl = "{{ route('termsandconditions.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
+                        $.ajax({
+                            type: 'PUT',
+                            url: termsAndConditionsDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    } 
+                );  
             });
 
             // show add new terms and conditions form on click add new terms and condition btn
@@ -911,14 +995,23 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#tcform')[0].reset();
                             $('#t_and_c').summernote('code', '');
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -939,7 +1032,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -956,99 +1052,143 @@
             // invoice number settings  user can add or not enter manual invoice number during create invoice
             $('#manualinvnumberswitch').on('change', function() {
                 var val = $(this).prop('checked') ? 'yes' : 'no';
-                if (confirm('Are you sure to update this setting?')) {
-                    var invnumberstatus = 0;
-                    if (val == 'yes') {
-                        invnumberstatus = 1;
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('othersettings.updateinvoicenumberstatus') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            status: invnumberstatus
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to update this setting?', // Text
+                    'Yes, update',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        loadershow();
+                        // Success callback
+                        var invnumberstatus = 0;
+                        if (val == 'yes') {
+                            invnumberstatus = 1;
                         }
-                    });
-                } else {
-                    if (val == 'yes') {
-                        $(this).prop('checked', false);
-                    } else {
-                        $(this).prop('checked', true);
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{ route('othersettings.updateinvoicenumberstatus') }}",
+                            data: {
+                                user_id: "{{ session()->get('user_id') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                token: "{{ session()->get('api_token') }}",
+                                status: invnumberstatus
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                                // You can update your HTML with the data here if needed
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                            }
+                        });
+                    }, 
+                    () => {
+                        if (val == 'yes') {
+                            element.prop('checked', false);
+                        } else {
+                            element.prop('checked', true);
+                        }
                     }
-                }
+                );
+
+                 
             });
 
             // invoice number settings  user can add or not enter manual invoice date during create invoice
             $('#manualinvdateswitch').on('change', function() {
                 var val = $(this).prop('checked') ? 'yes' : 'no';
-                if (confirm('Are you sure to update this setting?')) {
-                    var invdatestatus = 0;
-                    if (val == 'yes') {
-                        invdatestatus = 1
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('othersettings.updateinvoicedatestatus') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}",
-                            status: invdatestatus
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                            } else {
-                                toastr.error(response.message);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
+                element = $(this);
+
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to update this setting?', // Text
+                    'Yes, update',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        var invdatestatus = 0;
+                        if (val == 'yes') {
+                            invdatestatus = 1
                         }
-                    });
-                } else {
-                    if (val == 'yes') {
-                        $(this).prop('checked', false);
-                    } else {
-                        $(this).prop('checked', true);
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{ route('othersettings.updateinvoicedatestatus') }}",
+                            data: {
+                                user_id: "{{ session()->get('user_id') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                token: "{{ session()->get('api_token') }}",
+                                status: invdatestatus
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                }
+                                loaderhide();
+                                // You can update your HTML with the data here if needed
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
+                            }
+                        });
+                    }, 
+                    () => {
+                        // Error callback
+                        if (val == 'yes') {
+                            element.prop('checked', false);
+                        } else {
+                            element.prop('checked', true);
+                        }
                     }
-                }
+                );  
             });
 
             //get invoice pattern and set it 
@@ -1088,7 +1228,10 @@
                                 }
                             });
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else { 
                             $('#domesticinvoicepattern').text('Yet not set');
                             $('#globalinvoicepattern').text('Yet not set');
@@ -1108,7 +1251,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -1241,31 +1387,44 @@
                             // Handle the response from the server
                             if (response.status == 200) {
                                 // You can perform additional actions, such as showing a success message or redirecting the user
-                                toastr.success(response.message);
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
                                 $('#invoicenumberpatternform')[0].reset();
                                 $('#invoicenumberinputs').html(' ');
-                                $('#invoicepattern').find(
-                                    'option[value="ai"],option[value="cidai"]').prop(
-                                    'disabled',
-                                    false);
+                                $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',false);
                                 $('#invoicenumberpatternform').addClass('d-none');
                                 $('#editinvoicenumberBtn').removeClass('d-none');
                                 getinvoicepatterns();
                             } else if (response.status == 1) {
-                                if (confirm(response.message)) {
-                                    startpatternfromoldnumber(data);
-                                } else {
-                                    $('#invoicenumberpatternform')[0].reset();
-                                    $('#invoicenumberinputs').html(' ');
-                                    $('#invoicepattern').find(
-                                        'option[value="ai"],option[value="cidai"]').prop(
-                                        'disabled',
-                                        false);
-                                }
+                                showConfirmationDialog(
+                                    'Are you sure?',  // Title
+                                    response.message, // Text
+                                    'Yes, ',  // Confirm button text
+                                    'No, cancel', // Cancel button text
+                                    'question', // Icon type (question icon)
+                                    () => {
+                                        // Success callback
+                                        startpatternfromoldnumber(data);
+                                    }, 
+                                    () => {
+                                        // Error callback
+                                        $('#invoicenumberpatternform')[0].reset();
+                                        $('#invoicenumberinputs').html(' ');
+                                        $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',false);
+                                    }
+                                );  
                             } else if (response.status == 500) {
-                                toastr.error(response.message);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
                             } else {
-                                toastr.error('something went wrong !');
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
+                                });
                             }
                             loaderhide();
                         },
@@ -1286,12 +1445,18 @@
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
-                                toastr.error(errorMessage);
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
                         }
                     });
                 } else {
-                    toastr.error('Please select atleast one auto increment input');
+                    Toast.fire({
+                        icon: "error",
+                        title: "Please select atleast one auto increment input"
+                    }); 
                 }
             });
             /*
@@ -1314,7 +1479,10 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#invoicenumberpatternform')[0].reset();
                             $('#invoicenumberinputs').html(' ');
                             $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop(
@@ -1322,9 +1490,15 @@
                                 false);
                             getinvoicepatterns();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -1345,7 +1519,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });
@@ -1379,15 +1556,24 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             $('#cidform')[0].reset();
                             $('#cidform').addClass('d-none');
                             $('#editcustomeridBtn').removeClass('d-none');
                             getoverduedays();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -1408,7 +1594,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

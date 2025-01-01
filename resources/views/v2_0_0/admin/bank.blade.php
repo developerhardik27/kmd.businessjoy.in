@@ -139,7 +139,10 @@
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else if (response.status == 500) { // if database not found
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else { // if request has not found any bank details record
                             $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
                         }
@@ -155,7 +158,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -165,20 +171,36 @@
 
             //  bank status update active to  deactive              
             $(document).on("click", ".status-active", function() {
-                if (confirm('Are you really want to change status to inactive ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changebankstatus(statusid, 0);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to change status to inactive ?', // Text
+                    'Yes, change',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        loadershow();
+                        var statusid = element.data('status');
+                        changebankstatus(statusid, 0);
+                    } 
+                ); 
             });
 
             //  bank status update  deactive to  active            
             $(document).on("click", ".status-deactive", function() {
-                if (confirm('Are you really want to change status to active ?')) {
-                    loadershow();
-                    var statusid = $(this).data('status');
-                    changebankstatus(statusid, 1);
-                }
+                element = $(this);
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to change status to active ?', // Text
+                    'Yes, change',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        loadershow();
+                        var statusid = element.data('status');
+                        changebankstatus(statusid, 1);
+                    } 
+                );  
             });
 
             // function for change bank status (active/inactive)
@@ -195,12 +217,22 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+
                             loaddata();
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error('something went wrong !');
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
                         }
                         loaderhide();
                     },
@@ -215,52 +247,75 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
 
             // delete bank             
             $(document).on("click", ".del-btn", function() {
-                if (confirm('Are you really want to delete this record ?')) {
-                    loadershow();
-                    var deleteid = $(this).data('id');
-                    let bankDetailsDeleteUrl = "{{route('bank.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
-                    var row = this;
-                    $.ajax({
-                        type: 'PUT',
-                        url: bankDetailsDeleteUrl,
-                        data: {
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}",
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success('succesfully deleted');
-                                $(row).closest("tr").fadeOut();
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
+                var deleteid = $(this).data('id');
+                let bankDetailsDeleteUrl = "{{route('bank.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?',  // Title
+                    'to delete this record ?', // Text
+                    'Yes, delete',  // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: bankDetailsDeleteUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "succesfully deleted"
+                                    }); 
+                                    $(row).closest("tr").fadeOut();
+                                } else if (response.status == 500) {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message
+                                    });
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status, error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText); // Log the full error response for debugging
+                                var errorMessage = "";
+                                try {
+                                    var responseJSON = JSON.parse(xhr.responseText);
+                                    errorMessage = responseJSON.message || "An error occurred";
+                                } catch (e) {
+                                    errorMessage = "An error occurred";
+                                }
+                                Toast.fire({
+                                    icon: "error",
+                                    title: errorMessage
+                                });
                             }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
-                }
+                        });
+                    } 
+                ); 
             });
 
             // view bank data in pop-up

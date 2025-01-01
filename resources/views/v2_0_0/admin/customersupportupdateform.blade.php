@@ -60,7 +60,8 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
-                        placeholder="Whatsapp Mobile Number" onkeyup="numberMobile(event);" minlength="10" maxlength="15" required />
+                        placeholder="Whatsapp Mobile Number" onkeyup="numberMobile(event);" minlength="10" maxlength="15"
+                        required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>
             </div>
@@ -132,12 +133,14 @@
         </div>
         <div class="form-group">
             <div class="form-row">
-                 <div class="col-sm-12">
-                    <button type="reset" id="resetbtn" data-toggle=tooltip  data-placement="bottom" data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
-                    <button type="submit" data-toggle=tooltip  data-placement="bottom" data-original-title="Update" class="btn btn-primary float-right my-0">Save</button>
-                 </div>
+                <div class="col-sm-12">
+                    <button type="reset" id="resetbtn" data-toggle=tooltip data-placement="bottom"
+                        data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
+                    <button type="submit" data-toggle=tooltip data-placement="bottom" data-original-title="Update"
+                        class="btn btn-primary float-right my-0">Save</button>
+                </div>
             </div>
-         </div>
+        </div>
     </form>
 @endsection
 
@@ -179,7 +182,8 @@
                     $(this).find('option:disabled').remove(); // remove disabled option
                 } else {
                     $(this).prepend(
-                    '<option selected disabled>-- Select User --</option>'); // prepend "Please choose an option"
+                        '<option selected disabled>-- Select User --</option>'
+                    ); // prepend "Please choose an option"
                 }
                 $('#assignedto').multiselect('rebuild');
             });
@@ -245,7 +249,10 @@
                             'rebuild'); // Rebuild multiselect after appending options
                         loaderhide();
                     } else if (userDataResponse.status == 500) {
-                        toastr.error(userDataResponse.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: userDataResponse.message
+                        });
                         loaderhide();
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
@@ -260,7 +267,10 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    toastr.error("An error occurred while initializing");
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
                     loaderhide();
                 }
             }
@@ -275,7 +285,8 @@
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old customer support data in fields
-                let customerSupportSearchUrl = "{{route('customersupport.search','__editId__')}}".replace('__editId__',edit_id);
+                let customerSupportSearchUrl = "{{ route('customersupport.search', '__editId__') }}".replace(
+                    '__editId__', edit_id);
                 $.ajax({
                     type: 'GET',
                     url: customerSupportSearchUrl,
@@ -309,7 +320,10 @@
                             });
                             $('#assignedto').multiselect('rebuild');
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         }
                         loaderhide();
@@ -342,16 +356,22 @@
                         if (response.status == 200) {
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.customersupport') }}";
-
-                        } else if (response.status == 422) {
-                            toastr.error(response.errors);
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
 
                     },
@@ -365,9 +385,11 @@
                             loaderhide();
                         } else {
                             loaderhide();
-                            toastr.error(
-                                'An error occurred while processing your request. Please try again later.'
-                            );
+                            Toast.fire({
+                                icon: "error",
+                                title: 'An error occurred while processing your request. Please try again later.'
+                            });
+
                         }
                     }
                 });

@@ -27,7 +27,7 @@
                 <div class="col-sm-6">
                     <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email" value=""
-                        placeholder="Enter Email" autocomplete="off"/>
+                        placeholder="Enter Email" autocomplete="off" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
             </div>
@@ -86,13 +86,17 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6">
-                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan" style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
+                    <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
+                        rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                     <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
-                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan" style="color:red;">*</span>
-                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2" placeholder="e.g. sardar patel road, jagatpur"></textarea>
+                    <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan"
+                        style="color:red;">*</span>
+                    <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"
+                        placeholder="e.g. sardar patel road, jagatpur"></textarea>
                     <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
                 </div>
             </div>
@@ -151,7 +155,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
- 
+
             //get country data and set into dropdown
             $.ajax({
                 type: 'GET',
@@ -182,13 +186,16 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
 
             // get company old data from api and set it into form input
             var edit_id = @json($edit_id);
-            let companySearchUrl = "{{ route('company.search','__editId__') }}".replace('__editId__',edit_id);
+            let companySearchUrl = "{{ route('company.search', '__editId__') }}".replace('__editId__', edit_id);
             $.ajax({
                 type: 'GET',
                 url: companySearchUrl,
@@ -217,11 +224,17 @@
                         loadcity(state, city);
                         loaderhide();
                     } else if (response.status == 500) {
-                        toastr.error(response.message);
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                         loaderhide();
                     } else {
                         loaderhide();
-                        toastr.error('something went wrong !');
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
+                        });
                     }
 
                     // You can update your HTML with the data here if needed
@@ -236,7 +249,10 @@
                     } catch (e) {
                         errorMessage = "An error occurred";
                     }
-                    toastr.error(errorMessage);
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
+                    });
                 }
             });
 
@@ -244,7 +260,8 @@
 
             // set state data in dropdown 
             function loadstate(country, state) {
-                let stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country);
+                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $.ajax({
                     type: 'GET',
                     url: stateSearchUrl,
@@ -276,14 +293,17 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
 
             // set city data in dropdown      
             function loadcity(state, city) {
-                let citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -315,7 +335,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             }
@@ -325,7 +348,8 @@
             $('#country').on('change', function() {
                 loadershow();
                 var country = $(this).val();
-                 stateSearchUrl = "{{route('state.search','__countryId__')}}".replace('__countryId__',country);
+                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
+                    country);
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 $.ajax({
                     type: 'GET',
@@ -358,7 +382,10 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });
@@ -368,7 +395,7 @@
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 var state = $(this).val();
-                citySearchUrl = "{{route('city.search','__stateId__')}}".replace('__stateId__',state);
+                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
                 $.ajax({
                     type: 'GET',
                     url: citySearchUrl,
@@ -400,15 +427,18 @@
                         } catch (e) {
                             errorMessage = "An error occurred";
                         }
-                        toastr.error(errorMessage);
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });
 
             // redirect on company list page on click cancel btn
-            $('#cancelbtn').on('click',function(){
+            $('#cancelbtn').on('click', function() {
                 loadershow();
-               window.location.href = "{{route('admin.company')}}" ;
+                window.location.href = "{{ route('admin.company') }}";
             });
 
             //submit company update form
@@ -427,13 +457,22 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            toastr.success(response.message);
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
                             window.location = "{{ route('admin.company') }}";
 
                         } else if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         } else {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                         }
                         loaderhide();
                     },
@@ -454,7 +493,10 @@
                             } catch (e) {
                                 errorMessage = "An error occurred";
                             }
-                            toastr.error(errorMessage);
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
                         }
                     }
                 });

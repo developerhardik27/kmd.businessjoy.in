@@ -609,7 +609,10 @@
                             invoiceduedata = response.due;
                         }
                         if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         }
                     }
@@ -1055,7 +1058,10 @@
                             quotationreviseddata = response.revised;
                         }
                         if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         }
                     }
@@ -1355,7 +1361,10 @@
                             $('#remindercompleted').text(completed.length)
                         }
                         if (response.status == 500) {
-                            toastr.error(response.message);
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
                             loaderhide();
                         }
                     }
