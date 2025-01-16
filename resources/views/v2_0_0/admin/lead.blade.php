@@ -791,7 +791,7 @@
                                 $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
-                                                        ${value.company != null ? "<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b></span>" : '' }
+                                                         ${value.company != null ? `<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b>${value.company}</span>` : '' }
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
                                                             <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
                                                         </span>
@@ -1345,7 +1345,7 @@
                                     $('#data').append(`<tr>
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
-                                                        ${value.company != null ? "<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b></span>" : '' }
+                                                        ${value.company != null ? `<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b>${value.company}</span>` : '' }
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
                                                             <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
                                                         </span>
