@@ -500,11 +500,11 @@ class AdminLoginController extends Controller
                 return redirect()->route('admin.welcome');
             } else {
                 Auth::guard('admin')->logout();
-                return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel');
+                return redirect()->route('admin.login')->with('error', 'User is unauthorized to access admin panel');
             }
 
         } else {
-            return redirect()->route('admin.login')->with('error', 'You are not Registered !');
+            return redirect()->route('admin.login')->with('error', 'User is not Registered !');
         }
 
     }

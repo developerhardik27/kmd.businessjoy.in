@@ -256,8 +256,9 @@
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
+                        $('.error-msg').text('');
                         // Success callback
-                        loadershow();
+                        loadershow(); 
                         $('#column_type').prop('disabled', true);
                         $('#newColForm').removeClass('d-none');
                         $('#newColBtnDiv').addClass('d-none');
@@ -507,6 +508,7 @@
                                 url: "{{ route('quotationcolumn.store') }}",
                                 data: columndata,
                                 success: function(response) {
+                                    $('#column_type').prop('disabled', false);
                                     if (response.status == 200) {
                                         $('#newColForm').addClass('d-none');
                                         $('#newColBtnDiv').removeClass('d-none');
@@ -537,6 +539,7 @@
                                 },
                                 error: function(xhr, status, error) { // if calling api request error 
                                     loaderhide();
+                                    $('#column_type').prop('disabled', false);
                                     console.log(xhr
                                         .responseText); // Log the full error response for debugging
                                     if (xhr.status === 422) {

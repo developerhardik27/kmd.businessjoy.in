@@ -255,6 +255,7 @@
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
+                        $('.error-msg').text('');
                         // Success callback
                         loadershow();
                         var editid = element.data('id');
@@ -504,6 +505,7 @@
                                 url: "{{ route('invoicecolumn.store') }}",
                                 data: columndata,
                                 success: function(response) {
+                                    $('#column_type').prop('disabled', false);
                                     if (response.status == 200) {
                                         $('#newColForm').addClass('d-none');
                                         $('#newColBtnDiv').removeClass('d-none');
@@ -512,7 +514,6 @@
                                             icon: "success",
                                             title: response.message
                                         });
-                                        $('#column_type').prop('disabled', false);
                                         $('#columnform')[0].reset();
                                         loaddata();
                                     } else if (response.status == 500) {
@@ -535,6 +536,7 @@
                                 },
                                 error: function(xhr, status, error) { // if calling api request error 
                                     loaderhide();
+                                    $('#column_type').prop('disabled', false);
                                     console.log(xhr
                                         .responseText); // Log the full error response for debugging
                                     if (xhr.status === 422) {

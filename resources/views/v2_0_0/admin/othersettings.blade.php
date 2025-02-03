@@ -320,7 +320,7 @@
                                         </div>
                                         <div class="form-row mt-1">
                                             <div class="col-sm-6">
-                                                GST : <div
+                                               Combined GST : <div
                                                     class="custom-control custom-switch custom-switch-text custom-control-inline">
                                                     <div class="custom-switch-inner">
                                                         <p class="mb-0">
@@ -355,7 +355,7 @@
                                 </form>
                                 SGST : <span id="viewsgst"> </span> <br>
                                 CGST : <span id="viewcgst"> </span> <br>
-                                GST : <span id="viewgst">
+                                Combined GST : <span id="viewgst">
                                     <div class="custom-control custom-switch custom-control-inline">
                                         <input type="checkbox" class="custom-control-input" disabled=""
                                             checked="" id="gstdisabledswitch">
