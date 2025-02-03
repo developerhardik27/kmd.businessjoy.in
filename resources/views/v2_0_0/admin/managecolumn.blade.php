@@ -422,7 +422,6 @@
                 var columndata = element.serialize(); 
                 $('#column_type').prop('disabled', true); // Disable again after serialization
                 if (editid != '') {
-
                     showConfirmationDialog(
                         'Are you sure?',  // Title
                         'Edited column name will reflect in relevant invoices and receipts. still you want to apply this?', // Text
@@ -490,8 +489,7 @@
                             });
                         }
                     ); 
-                } else {
-
+                } else { 
                     showConfirmationDialog(
                         'Are you sure?',  // Title
                         'Old invoice will not edit after apply this.still you want to apply this?', // Text
@@ -514,6 +512,7 @@
                                             icon: "success",
                                             title: response.message
                                         });
+                                        $('#column_type').prop('disabled', false);
                                         $('#columnform')[0].reset();
                                         loaddata();
                                     } else if (response.status == 500) {

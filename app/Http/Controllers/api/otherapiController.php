@@ -72,6 +72,7 @@ class otherapiController extends Controller
             'budget' => $request->budget,
             'source' => $request->source,
             'upload' => $request->document,
+            'notes' => $request->message,
             'audience_type' => 'cool',
             'attempt_lead' => 0
         ]);

@@ -672,6 +672,8 @@
                             icon: "error",
                             title: "Repeated columns found in the rows."
                         }); 
+                    }    
+                    
                     // Check if the output column is unique across all rows
                     if (uniqueOutputColumns.includes(currentArray[3])) {
                         hasError = true;

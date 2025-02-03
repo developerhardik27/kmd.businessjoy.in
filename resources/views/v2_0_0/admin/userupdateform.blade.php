@@ -84,6 +84,7 @@
                     <div class="password-container">
                         <input type="password" id="password" name='password' class="form-control" value=""
                             placeholder="update Password (not mandatory)" autocomplete="new-passwordSave">
+                        <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                     </div>
                     <span class="error-msg" id="error-password" style="color: red"></span>
                 </div>
