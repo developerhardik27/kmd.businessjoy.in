@@ -29,7 +29,7 @@
                     </div>
                 </div>
             </div>
-            <div id="sidebar-scrollbar">
+            <div id="sidebar-scrollbar" style="height: 80%">
                 <nav class="iq-sidebar-menu">
                     <ul id="iq-sidebar-toggle" class="iq-menu">
                         <li class="iq-menu-title"><i class="ri-subtract-line"></i><span>Home</span></li>
