@@ -399,7 +399,8 @@
                                     $loopnumber[] = $loop->iteration;
                                 @endphp
                             @endif
-                            <th style="text-align: center;width:auto;">
+                            <th
+                                style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">
                                 {{ $columnname }}
                             </th>
                         @empty
