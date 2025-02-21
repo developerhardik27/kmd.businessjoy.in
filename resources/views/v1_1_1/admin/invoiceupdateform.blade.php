@@ -1415,7 +1415,7 @@
                  // show country data in dropdown
                 $.ajax({
                     type: 'GET',
-                    url: "{{ route('country.index') }}",,
+                    url: "{{ route('country.index') }}",
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
