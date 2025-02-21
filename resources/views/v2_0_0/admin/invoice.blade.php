@@ -221,42 +221,46 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            ${(value.status != 'paid') ? `
-                                                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                                                                                <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
-                                                                                                    <i class='ri-paypal-fill'></i>
-                                                                                                </button>
-                                                                                            </span>
-                                                                                    ` : ''
+                                                            ${(value.status != 'paid') ?
+                                                                `
+                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                                                        <button data-toggle="modal" data-target="#paymentmodal" data-amount="${value.grand_total}" data-id='${value.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
+                                                                            <i class='ri-paypal-fill'></i>
+                                                                        </button>
+                                                                    </span>
+                                                                ` : ''
                                                             }
-                                                            ${(value.part_payment == 1 && value.status == 'paid' && value.pending_amount != null) ? `    
-                                                                                    <span> 
-                                                                                        <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
-                                                                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
-                                                                                                    <i class="ri-download-line"></i>
-                                                                                                </button>
-                                                                                        </a>
-                                                                                    </span>
-                                                                                    ` : ''
+                                                            ${(value.part_payment == 1 && value.status == 'paid' && value.pending_amount != null) ? 
+                                                                `    
+                                                                    <span> 
+                                                                        <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
+                                                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-info btn-outline-dark btn-rounded btn-sm my-0" >
+                                                                                    <i class="ri-download-line"></i>
+                                                                                </button>
+                                                                        </a>
+                                                                    </span>
+                                                                ` : ''
                                                             }
-                                                            ${(value.part_payment == 1) ? `    
-                                                                                <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                                                                    <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                                                            <i class='ri-eye-fill'></i> 
-                                                                                    </button> 
-                                                                                </span>
-                                                                                ` : ''
+                                                            ${(value.part_payment == 1) ?
+                                                                `    
+                                                                    <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                                                        <button  data-id='${value.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
+                                                                                <i class='ri-eye-fill'></i> 
+                                                                        </button> 
+                                                                    </span>
+                                                                ` : ''
                                                             }
                                                             
-                                                            ${(value.part_payment == 0 && value.status == 'paid') ? `    
-                                                                                    <span> 
-                                                                                        <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
-                                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                                                                <i class="ri-download-line"></i>
-                                                                                            </button>
-                                                                                        </a>
-                                                                                    </span>
-                                                                            ` : ''
+                                                            ${(value.part_payment == 0 && value.status == 'paid') ? 
+                                                                `    
+                                                                    <span> 
+                                                                        <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
+                                                                            <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                                                <i class="ri-download-line"></i>
+                                                                            </button>
+                                                                        </a>
+                                                                    </span>
+                                                                ` : ''
                                                             }
                                                             
                                                           
@@ -265,13 +269,13 @@
                                                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1') 
                                                              ${(value.is_editable == 1)?  
                                                                     `  <span>
-                                                                                                    <a href=${invoiceEditUrl}>
-                                                                                                        <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                                                                            <i class="ri-edit-fill"></i>
-                                                                                                        </button>
-                                                                                                    </a>
-                                                                                                </span>
-                                                                                            `
+                                                                            <a href=${invoiceEditUrl}>
+                                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+                                                                                    <i class="ri-edit-fill"></i>
+                                                                                </button>
+                                                                            </a>
+                                                                        </span>
+                                                                    `
                                                                 : ''
                                                             }
                                                             @endif

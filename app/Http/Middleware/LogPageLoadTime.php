@@ -60,6 +60,6 @@ class LogPageLoadTime
 
     protected function saveLog(array $logInfo)
     {
-        DB::table('page_load_logs')->insert($logInfo);
+        DB::connection('mysql')->table('page_load_logs')->insert($logInfo);
     }
 }
