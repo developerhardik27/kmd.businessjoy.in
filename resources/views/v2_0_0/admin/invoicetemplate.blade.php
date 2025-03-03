@@ -450,80 +450,77 @@
                         </tr>
                     @endfor
                     {{-- end product data  --}} 
-                </tbody>
-            </table>
-
-            <table style="table-layout: fixed" class="border horizontal-border data">
-                <tr>
-                    <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
-                        Subtotal
-                    </td>
-                    <td class="right removeborder currencysymbol text-right" id="subtotal">
-                        {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
-                    </td>
-                </tr>
-                @if ($othersettings['gst'] == 0)
-                    @if ($invdata['sgst'] >= 1)
-                        <tr>
-                            <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                class="left removeborder ">
-                                SGST({{ $othersettings['sgst'] }}%)
-                            </td>
-                            <td style="text-align: right ;" class="currencysymbol" id="sgst">
-                                {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                    @endif
-                    @if ($invdata['cgst'] >= 1)
-                        <tr>
-                            <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                class="left removeborder ">
-                                CGST({{ $othersettings['cgst'] }}%)
-                            </td>
-                            <td style="text-align: right" class=" currencysymbol" id="cgst">
-                                {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                    @endif
-                @else
-                    @if ($invdata['gst'] >= 1)
-                        <tr>
-                            <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                class="left removeborder ">
-                                GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
-                            </td>
-                            <td style="text-align: right" class="currencysymbol " id="gst">
-                                {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
-                            </td>
-                        </tr>
-                    @endif
-                @endif
-                @unless ($roundof == 0)
-                    <tr style="font-size:15px;text-align: right">
+                    <tr>
                         <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
-                            Round of
+                            Subtotal
                         </td>
-                        <td class="right currencysymbol text-right">
-                            {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                        <td class="right removeborder currencysymbol text-right" id="subtotal">
+                            {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
-                @endunless
-                <tr style="font-size:15px;text-align: right">
-                    <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
-                        <b>Total</b>
-                    </td>
-                    <td class="right currencysymbol text-right">
-                        {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
-                    </td>
-                </tr>
-                <tr class="removeborder">
-                    <td colspan="@php echo (count($products[0])+1); @endphp" class="text-right"
-                        style="vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
-                        <strong>{{ $invdata['currency'] }} {{ $words }} Only</strong>
-                    </td>
-                </tr>
+                    @if ($othersettings['gst'] == 0)
+                        @if ($invdata['sgst'] >= 1)
+                            <tr>
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removeborder ">
+                                    SGST({{ $othersettings['sgst'] }}%)
+                                </td>
+                                <td style="text-align: right ;" class="currencysymbol" id="sgst">
+                                    {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($invdata['cgst'] >= 1)
+                            <tr>
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removeborder ">
+                                    CGST({{ $othersettings['cgst'] }}%)
+                                </td>
+                                <td style="text-align: right" class=" currencysymbol" id="cgst">
+                                    {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @else
+                        @if ($invdata['gst'] >= 1)
+                            <tr>
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removeborder ">
+                                    GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
+                                </td>
+                                <td style="text-align: right" class="currencysymbol " id="gst">
+                                    {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @endif
+                    @unless ($roundof == 0)
+                        <tr style="font-size:15px;text-align: right">
+                            <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                                Round of
+                            </td>
+                            <td class="right currencysymbol text-right">
+                                {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                            </td>
+                        </tr>
+                    @endunless
+                    <tr style="font-size:15px;text-align: right">
+                        <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                            <b>Total</b>
+                        </td>
+                        <td class="right currencysymbol text-right">
+                            {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
+                        </td>
+                    </tr>
+                    <tr class="removeborder">
+                        <td colspan="@php echo (count($products[0])+1); @endphp" class="text-right"
+                            style="vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
+                            <strong>{{ $invdata['currency'] }} {{ $words }} Only</strong>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
-
+ 
             <table class="horizontal-border border">
                 <tr>
                     <td colspan="3" class="bgblue  bgspecial"

@@ -57,7 +57,7 @@ class tblleadhistoryController extends commonController
         ]);
 
         if ($validator->fails()) {
-            return $this->errorresponse(422,$validator->messages());
+            return $this->errorresponse(422, $validator->messages());
         } else {
 
             if ($this->rp['leadmodule']['lead']['add'] != 1) {
@@ -108,6 +108,9 @@ class tblleadhistoryController extends commonController
             ->orderBy('id', 'DESC')
             ->get();
 
+        if ($lead->count() == 0) {
+            return $this->successresponse(404, 'leadhistory', $lead);
+        }
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             if ($lead[0]->created_by != $this->userId) {
