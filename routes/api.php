@@ -113,6 +113,18 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::put('/company/versionupdate', 'updatecompanyversion')->name('company.versionupdate');
     });
 
+    // product category route
+    $productcategoryController = getversion('productcategoryController');
+    Route::controller($productcategoryController)->group(function () { 
+        Route::get('/fetchproductcategory', 'fetchCategory')->name('productcategory.fetchCategory');
+        Route::get('/productcategory', 'index')->name('productcategory.index');
+        Route::post('/productcategory/insert', 'store')->name('productcategory.store');
+        Route::get('/productcategory/edit/{id}', 'edit')->name('productcategory.edit');
+        Route::put('/productcategory/update/{id}', 'update')->name('productcategory.update');
+        Route::put('/productcategory/statusupdate/{id}', 'statusupdate')->name('productcategory.statusupdate');
+        Route::put('/productcategory/delete/{id}', 'destroy')->name('productcategory.delete');
+    });
+
     // product route
     $productController = getversion('productController');
     Route::controller($productController)->group(function () {
@@ -122,6 +134,29 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::get('/product/edit/{id}', 'edit')->name('product.edit');
         Route::put('/product/update/{id}', 'update')->name('product.update');
         Route::put('/product/delete/{id}', 'destroy')->name('product.delete');
+
+        Route::get('/productcolumnmapping', 'columnmappingindex')->name('productcolumnmapping.index');
+        Route::post('/productcolumnmapping/insert', 'storecolumnmapping')->name('productcolumnmapping.store');
+        Route::get('/productcolumnmapping/edit/{id}', 'editcolumnmapping')->name('productcolumnmapping.edit');
+        Route::put('/productcolumnmapping/update/{id}', 'updatecolumnmapping')->name('productcolumnmapping.update');
+        Route::put('/productcolumnmapping/delete/{id}', 'destroycolumnmapping')->name('productcolumnmapping.delete');
+    });
+
+    // temp file route
+    $tempimageController = getversion('tempimageController');
+    Route::controller($tempimageController)->group(function () {
+        Route::post('/docupload',  'store')->name('temp.docupload');
+        Route::delete('/docdelete', 'deleteFile')->name('temp.docdelete');
+    });
+
+    // temp file route
+    $inventoryController = getversion('inventoryController');
+    Route::controller($inventoryController)->group(function () {
+        Route::get('/inventory',  'index')->name('inventory.index');
+        Route::get('/incominginventory/{id}',  'incominginventory')->name('inventory.incominginventory');
+        Route::put('/inventory/quantityupdate/{id}',  'quantityupdate')->name('inventory.quantityupdate');
+        Route::put('/inventory/onhandquantityupdate/{id}',  'onhandquantityupdate')->name('inventory.onhandquantityupdate');
+        Route::put('/inventory/availablequantityupdate/{id}',  'availablequantityupdate')->name('inventory.availablequantityupdate');
     });
 
 
@@ -211,6 +246,18 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::get('pendingpayment/{id}', 'pendingpayment')->name('paymentdetails.pendingpayment');
     });
 
+     // supplier route
+     $supplierController = getversion('supplierController');
+     Route::controller($supplierController)->group(function () {
+         Route::get('/supplier', 'index')->name('supplier.index');
+         Route::post('/supplier/insert', 'store')->name('supplier.store');
+         Route::get('/supplier/search/{id}', 'show')->name('supplier.search');
+         Route::get('/supplier/edit/{id}', 'edit')->name('supplier.edit');
+         Route::put('/supplier/statusupdate/{id}', 'statusupdate')->name('supplier.statusupdate');
+         Route::put('/supplier/update/{id}', 'update')->name('supplier.update');
+         Route::put('/supplier/delete/{id}', 'destroy')->name('supplier.delete');
+     });
+
 
     // purchases route 
     $purchaseController = getversion('purchaseController');
@@ -218,9 +265,12 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::get('/purchase', 'index')->name('purchase.index');
         Route::post('/purchase/insert', 'store')->name('purchase.store');
         Route::get('/purchase/search/{id}', 'show')->name('purchase.search');
+        Route::get('/purchase/timeline/{id}', 'timeline')->name('purchase.timeline');
         Route::get('/purchase/edit/{id}', 'edit')->name('purchase.edit');
         Route::post('/purchase/update/{id}', 'update')->name('purchase.update');
+        Route::post('/purchase/receiveinventory/{id}', 'receiveinventory')->name('purchase.receiveinventory');
         Route::put('/purchase/delete/{id}', 'destroy')->name('purchase.delete');
+        Route::put('/purchase/statusupdate/{id}', 'changestatus')->name('purchase.changestatus');
     });
 
     // tbl_invoice_column route 

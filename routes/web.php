@@ -131,7 +131,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
             //  admin routes end------
 
-            
+
             // customer route 
             $CustomerController = getadminversion('CustomerController');
             Route::controller($CustomerController)->group(function () {
@@ -142,7 +142,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/invoice/EditCustomer/{id}', 'edit')->name('admin.editinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
                 Route::put('/invoice/UpdateCustomer/{id}', 'update')->name('admin.updateinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
                 Route::put('/invoice/DeleteCustomer/{id}', 'destroy')->name('admin.deleteinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,delete');
-               
+
                 Route::get('/quotation/Customer', 'index')->name('admin.quotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,show');
                 Route::get('/quotation/AddNewCustomer', 'create')->name('admin.addquotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,add');
                 Route::post('/quotation/StoreNewCustomer', 'store')->name('admin.storequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,add');
@@ -152,20 +152,20 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::put('/quotation/DeleteCustomer/{id}', 'destroy')->name('admin.deletequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,delete');
             });
 
-             // quotation route
-             $QuotationController = getadminversion('QuotationController');
-             Route::controller($QuotationController)->group(function () {
-                 Route::get('quotation', 'index')->name('admin.quotation')->middleware('checkPermission:quotationmodule,quotation,show');
-                 Route::get('quotation/managecolumn', 'managecolumn')->name('admin.quotationmanagecolumn')->middleware('checkPermission:quotationmodule,quotationmngcol,edit');
-                 Route::get('quotation/formula', 'formula')->name('admin.quotationformula')->middleware('checkPermission:quotationmodule,quotationformula,edit');
-                 Route::get('quotation/othersettings', 'othersettings')->name('admin.quotationothersettings')->middleware('checkPermission:quotationmodule,quotationsetting,view');
-                 Route::get('/AddNewQuotation', 'create')->name('admin.addquotation')->middleware('checkPermission:quotationmodule,quotation,add');
-                 Route::post('/StoreNewQuotation', 'store')->name('admin.storequotation')->middleware('checkPermission:quotationmodule,quotation,add');
-                 Route::get('/SearchQuotation/{id}', 'show')->name('admin.searchquotation')->middleware('checkPermission:quotationmodule,quotation,view');
-                 Route::get('/EditQuotation/{id}', 'edit')->name('admin.editquotation')->middleware('checkPermission:quotationmodule,quotation,edit');
-                 Route::put('/UpdateQuotation/{id}', 'update')->name('admin.updatequotation')->middleware('checkPermission:quotationmodule,quotation,edit');
-                 Route::put('/DeleteQuotation/{id}', 'destroy')->name('admin.deletequotation')->middleware('checkPermission:quotationmodule,quotation,delete');
-             });
+            // quotation route
+            $QuotationController = getadminversion('QuotationController');
+            Route::controller($QuotationController)->group(function () {
+                Route::get('quotation', 'index')->name('admin.quotation')->middleware('checkPermission:quotationmodule,quotation,show');
+                Route::get('quotation/managecolumn', 'managecolumn')->name('admin.quotationmanagecolumn')->middleware('checkPermission:quotationmodule,quotationmngcol,edit');
+                Route::get('quotation/formula', 'formula')->name('admin.quotationformula')->middleware('checkPermission:quotationmodule,quotationformula,edit');
+                Route::get('quotation/othersettings', 'othersettings')->name('admin.quotationothersettings')->middleware('checkPermission:quotationmodule,quotationsetting,view');
+                Route::get('/AddNewQuotation', 'create')->name('admin.addquotation')->middleware('checkPermission:quotationmodule,quotation,add');
+                Route::post('/StoreNewQuotation', 'store')->name('admin.storequotation')->middleware('checkPermission:quotationmodule,quotation,add');
+                Route::get('/SearchQuotation/{id}', 'show')->name('admin.searchquotation')->middleware('checkPermission:quotationmodule,quotation,view');
+                Route::get('/EditQuotation/{id}', 'edit')->name('admin.editquotation')->middleware('checkPermission:quotationmodule,quotation,edit');
+                Route::put('/UpdateQuotation/{id}', 'update')->name('admin.updatequotation')->middleware('checkPermission:quotationmodule,quotation,edit');
+                Route::put('/DeleteQuotation/{id}', 'destroy')->name('admin.deletequotation')->middleware('checkPermission:quotationmodule,quotation,delete');
+            });
 
             // invoice route
             $InvoiceController = getadminversion('InvoiceController');
@@ -203,10 +203,19 @@ Route::group(['middleware' => ['CheckSession']], function () {
             // invoice module routes end -----
 
             // inventory module routes start 
+            // product category route 
+            $ProductCategoryController = getadminversion('ProductCategoryController');
+            Route::controller($ProductCategoryController)->group(function () {
+                Route::get('/Productcategory', 'index')->name('admin.productcategory')->middleware('checkPermission:inventorymodule,productcategory,show');
+                Route::get('/AddNewProductcategory', 'create')->name('admin.addproductcategory')->middleware('checkPermission:inventorymodule,productcategory,add');
+                Route::get('/EditProductcategory/{id}', 'edit')->name('admin.editproductcategory')->middleware('checkPermission:inventorymodule,productcategory,edit');
+            });
+
             // product route 
             $ProductController = getadminversion('ProductController');
             Route::controller($ProductController)->group(function () {
                 Route::get('/Product', 'index')->name('admin.product')->middleware('checkPermission:inventorymodule,product,show');
+                Route::get('/ProductColumnMapping', 'productcolumnmapping')->name('admin.productcolumnmapping')->middleware('checkPermission:inventorymodule,productcolumnmapping,add');
                 Route::get('/AddNewProduct', 'create')->name('admin.addproduct')->middleware('checkPermission:inventorymodule,product,add');
                 Route::post('/StoreNewProduct', 'store')->name('admin.storeproduct')->middleware('checkPermission:inventorymodule,product,add');
                 Route::get('/SearchProduct/{id}', 'show')->name('admin.searchproduct')->middleware('checkPermission:inventorymodule,product,view');
@@ -214,20 +223,32 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::put('/UpdateProduct/{id}', 'update')->name('admin.updateproduct')->middleware('checkPermission:inventorymodule,product,edit');
                 Route::put('/DeleteProduct/{id}', 'destroy')->name('admin.deleteproduct')->middleware('checkPermission:inventorymodule,product,delete');
             });
-            // inventory module routes end----- 
 
-            // account module routes start 
+            // product category route 
+            $InventoryController = getadminversion('InventoryController');
+            Route::controller($InventoryController)->group(function () {
+                Route::get('/Inventory', 'index')->name('admin.inventory')->middleware('checkPermission:inventorymodule,inventory,show');
+            });
+
+            // suppliers route 
+            $SupplierController = getadminversion('SupplierController');
+            Route::controller($SupplierController)->group(function () {
+                Route::get('/Suppliers', 'index')->name('admin.supplier')->middleware('checkPermission:inventorymodule,supplier,show');
+                Route::get('/AddNewSuppliers', 'create')->name('admin.addsupplier')->middleware('checkPermission:inventorymodule,supplier,add');
+                Route::get('/EditSuppliers/{id}', 'edit')->name('admin.editsupplier')->middleware('checkPermission:inventorymodule,supplier,edit');
+            });
+
             // purchase route
             $PurchaseController = getadminversion('PurchaseController');
             Route::controller($PurchaseController)->group(function () {
-                Route::get('/Purchase', 'index')->name('admin.purchase')->middleware('checkPermission:accountmodule,purchase,show');
-                Route::get('/AddNewPurchase', 'create')->name('admin.addpurchase')->middleware('checkPermission:accountmodule,purchase,add');
-                Route::post('/StoreNewPurchase', 'store')->name('admin.storepurchase')->middleware('checkPermission:accountmodule,purchase,add');
-                Route::get('/SearchPurchase/{id}', 'show')->name('admin.searchpurchase')->middleware('checkPermission:accountmodule,purchase,view');
-                Route::get('/EditPurchase/{id}', 'edit')->name('admin.editpurchase')->middleware('checkPermission:accountmodule,purchase,edit');
-                Route::put('/UpdatePurchase/{id}', 'update')->name('admin.updatepurchase')->middleware('checkPermission:accountmodule,purchase,edit');
-                Route::put('/DeletePurchase/{id}', 'destroy')->name('admin.deletepurchase')->middleware('checkPermission:accountmodule,purchase,delete');
+                Route::get('/Purchase', 'index')->name('admin.purchase')->middleware('checkPermission:inventorymodule,purchase,show');
+                Route::get('/AddNewPurchase', 'create')->name('admin.addpurchase')->middleware('checkPermission:inventorymodule,purchase,add');
+                Route::get('/ViewPurchase/{id}', 'show')->name('admin.viewpurchase')->middleware('checkPermission:inventorymodule,purchase,view');
+                Route::get('/EditPurchase/{id}', 'edit')->name('admin.editpurchase')->middleware('checkPermission:inventorymodule,purchase,edit');
             });
+            // inventory module routes end----- 
+
+            // account module routes start 
             // account module routes end-----
 
             // lead module routes start 

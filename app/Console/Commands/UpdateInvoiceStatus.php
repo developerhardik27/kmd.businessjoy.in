@@ -54,18 +54,23 @@ class UpdateInvoiceStatus extends Command
 
                     // Log the result
                     \Log::info("Updated invoices for database: $dbname. Rows affected: $updated.");
+                    $this->info("Updated invoices for database: $dbname. Rows affected: $updated.");
                 } else {
                     // Log if the table does not exist
                     \Log::warning("Table 'invoices' does not exist in database: $dbname.");
+                    $this->info("Table 'invoices' does not exist in database: $dbname.");
                 }
             } catch (\Exception $e) {
                 // Log the error
                 \Log::error("Error updating invoices for database: $dbname. Error: " . $e->getMessage());
+                $this->info("Error updating invoices for database: $dbname. Error: " . $e->getMessage());
             }
+            
+            $this->info('Invoice status updated successfully.');
 
         }
 
-        $this->info('Invoice status updated successfully.');
+       
 
         // Revert back to the default database connection
         DB::setDefaultConnection('mysql');
