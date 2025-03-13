@@ -83,6 +83,13 @@ class versionupdateController extends commonController
                                 ];
                             }
                             break;
+                        case 'v3_0_0':
+                            if ($request->company != 1) {
+                                $paths = [
+                                    'database/migrations/v3_0_0',
+                                ];
+                            }
+                            break;
                         // Add more cases as needed
                     }
 
@@ -195,7 +202,7 @@ class versionupdateController extends commonController
                                 }
                             }
 
-                            if (Schema::connection('dynamic_connection')->hasTable('quotation_other_settings')) { 
+                            if (Schema::connection('dynamic_connection')->hasTable('quotation_other_settings')) {
                                 $setDefaultSettings = DB::connection('dynamic_connection')
                                     ->table('quotation_other_settings')
                                     ->insert([
@@ -210,6 +217,33 @@ class versionupdateController extends commonController
                                     ]);
                             }
 
+                            break;
+                        case 'v3_0_0':
+                            $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                            if ($rp) {
+                                foreach ($rp as $userrp) {
+                                    $jsonrp = json_decode($userrp->rp, true);
+
+                                    if (isset($jsonrp['accountmodule']['purchase'])) {
+
+                                        unset($jsonrp['accountmodule']['purchase']);
+
+                                        // Add or update the 'purchase' section in the 'inventorymodule'
+                                        $jsonrp['inventorymodule']['purchase'] = ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null];
+                                        $jsonrp['inventorymodule']['productcategory'] = ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null];
+                                        $jsonrp['inventorymodule']['productcolumnmapping'] = ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null];
+                                        $jsonrp['inventorymodule']['inventory'] = ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null];
+                                        $jsonrp['inventorymodule']['supplier'] = ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null];
+
+                                        // Encode updated permissions back to JSON
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+                                    }
+                                }
+                            }
                             break;
                     }
 

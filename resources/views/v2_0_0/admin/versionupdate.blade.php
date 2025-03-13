@@ -46,6 +46,7 @@
                                                 <option value="v1_1_1">V1.1.1</option>
                                                 <option value="v1_2_1">V1.2.1</option>
                                                 <option value="v2_0_0">V2.0.0</option>
+                                                <option value="v3_0_0">V3.0.0</option>
                                             </select>
                                             <span class="error-msg" id="error-version" style="color: red"></span>
                                         </div>
