@@ -645,7 +645,7 @@
                             title: response.message
                         });
                     }else {
-                        $('#product').append(`<option disabled>No Data found </option>`);
+                        $('#product').append(`<option disabled>No Product found </option>`);
                     }
                     loaderhide();                   
                 }).fail(function(xhr) {
@@ -1253,88 +1253,95 @@
                 $('#product').on('change', function () {
                     selectedproduct = $(this).val();
                     addname++;
+                    if(columnlinks.length > 1){ 
+                        if (productdata != null) {
+                            $.each(productdata, function (key, value) {
+                                if (value.id == selectedproduct) {
+                                    $('#add_new_div').append(
+                                        `<tr class="iteam_row_${addname}" data-inventory="${value.id}">
+                                            ${allColumnData.map(columnData => {
+                                                var columnName = columnData.column_name.replace(/\s+/g, '_');
+                                                var inputcontent = null;
 
-                    if (productdata != null) {
-                        $.each(productdata, function (key, value) {
-                            if (value.id == selectedproduct) {
-                                $('#add_new_div').append(
-                                    `<tr class="iteam_row_${addname}" data-inventory="${value.id}">
-                                        ${allColumnData.map(columnData => {
-                                            var columnName = columnData.column_name.replace(/\s+/g, '_');
-                                            var inputcontent = null;
+                                                // Initialize productColumnValue as empty
+                                                let productColumnValue = 1;
 
-                                            // Initialize productColumnValue as empty
-                                            let productColumnValue = 1;
-
-                                            // Check if the column matches the invoice_column in columnlinks
-                                            let matchingLink = columnlinks.find(link => link.invoice_column === columnName);
-                                            if (matchingLink) {
-                                                // Get the product data column value from the matching link
-                                                productColumnValue = value[matchingLink.product_column] || '';  // Fallback to empty string if no value
-                                                text = '' ;
-                                                validation = '';
-                                                if(matchingLink.product_column == 'quantity'){
-                                                    var text = `<p class="text-muted">Available Stock : ${value.available_stock}</p>`;
-                                                    if(value.continue_selling == 0){ 
-                                                        validation = `max="${value.available_stock}"`; 
+                                                // Check if the column matches the invoice_column in columnlinks
+                                                let matchingLink = columnlinks.find(link => link.invoice_column === columnName);
+                                                if (matchingLink) {
+                                                    // Get the product data column value from the matching link
+                                                    productColumnValue = value[matchingLink.product_column] || '';  // Fallback to empty string if no value
+                                                    text = '' ;
+                                                    validation = '';
+                                                    if(matchingLink.product_column == 'quantity'){
+                                                        var text = `<p class="text-muted">Available Stock : ${value.available_stock}</p>`;
+                                                        if(value.continue_selling == 0){ 
+                                                            validation = `max="${value.available_stock}"`; 
+                                                        }
                                                     }
                                                 }
-                                            }
 
-                                            // Handle different column types and set the value accordingly
-                                            if (columnData.column_type === 'time') {
-                                                inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <input type="time" value="${productColumnValue}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
-                                                                    class="form-control iteam_${columnName}">
-                                                                </td>`;
-                                            } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
-                                                inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <input type="number" value="${productColumnValue}" step="any" name="${columnName}_${addname}" ${validation} id='${columnName}_${addname}' 
-                                                                    data-id=${addname} class="form-control iteam_${columnName} counttotal calculation" min=0>
-                                                                    ${text}
-                                                                </td>`;
-                                            } else if (columnData.column_type === 'longtext') {
-                                                inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName}" rows="1">${productColumnValue}</textarea>
-                                                                </td>`;
-                                            } else {
-                                                inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <input type="text" value="${productColumnValue}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
-                                                                    class="form-control iteam_${columnName}" placeholder="${columnData.column_name}">
-                                                                </td>`;
-                                            }
+                                                // Handle different column types and set the value accordingly
+                                                if (columnData.column_type === 'time') {
+                                                    inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
+                                                                        <input type="time" value="${productColumnValue}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
+                                                                        class="form-control iteam_${columnName}">
+                                                                    </td>`;
+                                                } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
+                                                    inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
+                                                                        <input type="number" value="${productColumnValue}" step="any" name="${columnName}_${addname}" ${validation} id='${columnName}_${addname}' 
+                                                                        data-id=${addname} class="form-control iteam_${columnName} counttotal calculation" min=0>
+                                                                        ${text}
+                                                                    </td>`;
+                                                } else if (columnData.column_type === 'longtext') {
+                                                    inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
+                                                                        <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName}" rows="1">${productColumnValue}</textarea>
+                                                                    </td>`;
+                                                } else {
+                                                    inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
+                                                                        <input type="text" value="${productColumnValue}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
+                                                                        class="form-control iteam_${columnName}" placeholder="${columnData.column_name}">
+                                                                    </td>`;
+                                                }
 
-                                            return inputcontent;
-                                        }).join('')}
-                                        <td>
-                                            <input type="number" step="any" data-id=${addname} id="Amount_${addname}" data-product="${value.id}" min=0 name="Amount_${addname}" 
-                                            class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
-                                        </td>
-                                        <td>
-                                            <span class="table-up">
-                                                <a href="#!" class="indigo-text">
-                                                    <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
-                                                </a>
-                                            </span>
-                                            <span class="table-down">
-                                                <a href="#!" class="indigo-text">
-                                                    <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
-                                                </a>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class='remove-row' data-id=${addname}>
-                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                                    <i class="ri-delete-bin-2-line"></i>
-                                                </button>
-                                            </span>
-                                        </td>
-                                    </tr>`
-                                ); 
-                                managetooltip();
-                            }
+                                                return inputcontent;
+                                            }).join('')}
+                                            <td>
+                                                <input type="number" step="any" data-id=${addname} id="Amount_${addname}" data-product="${value.id}" min=0 name="Amount_${addname}" 
+                                                class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
+                                            </td>
+                                            <td>
+                                                <span class="table-up">
+                                                    <a href="#!" class="indigo-text">
+                                                        <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
+                                                    </a>
+                                                </span>
+                                                <span class="table-down">
+                                                    <a href="#!" class="indigo-text">
+                                                        <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
+                                                    </a>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class='remove-row' data-id=${addname}>
+                                                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
+                                                        <i class="ri-delete-bin-2-line"></i>
+                                                    </button>
+                                                </span>
+                                            </td>
+                                        </tr>`
+                                    ); 
+                                    managetooltip();
+                                }
+                            });
+                            dynamiccalculaton('#Amount_'+addname);
+                        }
+                    
+                    }else{
+                        Toast.fire({
+                            icon: "info",
+                            title: "Product column mapping required to use product"
                         });
-                        dynamiccalculaton('#Amount_'+addname);
                     }
                 });
 

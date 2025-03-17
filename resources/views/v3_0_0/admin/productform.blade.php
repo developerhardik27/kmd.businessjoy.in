@@ -379,16 +379,8 @@
 
                             }
                         });
-                    } else if (response.status == 500) { // if database not found
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    } else { // if request has not found any bank details record
-                        Toast.fire({
-                            icon: "error",
-                            title: "something went wrong!"
-                        });
+                    }  else { // if request has not found
+                        console.log(response);
                     }
                     loaderhide();
                 },

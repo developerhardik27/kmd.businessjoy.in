@@ -560,7 +560,7 @@
                         title: response.message
                     });
                 } else {
-                    $('#products').append(`<option disabled>No Data found </option>`);
+                    $('#products').append(`<option disabled>No Product found </option>`);
                 }
                 loaderhide();
             }).fail(function(xhr) {
