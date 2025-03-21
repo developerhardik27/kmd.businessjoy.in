@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->renameColumn('product_code', 'sku'); // Rename 'product_code' to 'sku'
             
             //add new columns 
+            $table->text('short_description')->nullable();
             $table->longtext('product_media')->nullable();
             $table->string('product_category', 50)->nullable();
             $table->integer('track_quantity')->default(1);
@@ -45,13 +46,13 @@ return new class extends Migration {
 
             // Revert changes made to columns (change nullable/column types back)
             $table->string('name')->nullable()->change();   
-            $table->text('short_description')->nullable()->change();   
             $table->text('description')->nullable()->change();   
             $table->string('sku')->nullable()->change();   
             $table->string('unit')->nullable()->change();
             $table->double('price_per_unit')->nullable()->change();  
-
+            
             // Drop the newly added columns
+            $table->dropColumn('short_description');   
             $table->dropColumn('product_media');
             $table->dropColumn('product_category');
             $table->dropColumn('track_quantity');

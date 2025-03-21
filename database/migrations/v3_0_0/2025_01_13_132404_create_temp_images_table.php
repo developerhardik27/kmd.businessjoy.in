@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('temp_images', function (Blueprint $table) {
             $table->id();
             $table->string('media_name');
+            $table->text('original_name')->nullable();
             $table->timestamps();
         });
     }
