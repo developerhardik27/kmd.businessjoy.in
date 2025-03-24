@@ -96,6 +96,7 @@ class invoiceController extends commonController
         }
         return $this->successresponse(200, 'currency', $currency);
     }
+    
     //get bank details
     public function bdetails(Request $request)
     {
@@ -157,7 +158,6 @@ class invoiceController extends commonController
         }
         return $this->successresponse(200, 'columnname', $columnname);
     }
-
 
     //get column name whose data type nubmer
     public function numbercolumnname(Request $request)
@@ -235,16 +235,7 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
         return $this->successresponse(200, 'invoice', $invoice);
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.
@@ -312,16 +303,15 @@ class invoiceController extends commonController
 
             if (isset($data['inv_number'])) { //user entered manully inv number
                 if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                    $patterntype = 1;
+                    $patterntype = 1; // pattern type = 1 -> local
                 }
-                // check if inv number already exist.
+                // check inv number already exist.
                 $checkinvnumberrec = $this->invoiceModel::where('inv_no', $data['inv_number'])->where('is_deleted', 0)->first();
                 if ($checkinvnumberrec) {
                     return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
                 }
                 $inv_no = $data['inv_number'];
-            } else {
-                //generate dynmaic inv number
+            } else { //generate dynmaic inv number
                 $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
                 $currentMonth = date('m'); // Current month
                 $currentDay = date('d'); // Current day
@@ -344,7 +334,7 @@ class invoiceController extends commonController
                 $patterntype = '';
 
                 if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                    $patterntype = 1;
+                    $patterntype = 1; //  // pattern type = 1 -> local
                     $increment_number = 1;
                     do {
                         $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
@@ -358,8 +348,8 @@ class invoiceController extends commonController
                         } else {
                             $oldinvoice = $this->invoiceModel::where('customer_id', $customerid)
                                 ->where('is_deleted', 0)
-                                ->where('inv_number_type', 'a')
-                                ->where('increment_type', 2)
+                                ->where('inv_number_type', 'a') // a means dynamic generated number
+                                ->where('increment_type', 2) // increment type 2 = increment invoice number by customer
                                 ->orderBy('last_increment_number', 'desc')
                                 ->select('last_increment_number')
                                 ->first();
@@ -382,19 +372,19 @@ class invoiceController extends commonController
 
 
                 } else {
-                    $patterntype = 2;
-                    $increment_number = 1;
+                    $patterntype = 2; // pattern type 2 = global 
+                    $increment_number = 1; 
 
                     do {
                         $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
                         $inv_no = $getpattern->invoice_pattern;
-                        if ($getpattern->increment_type == 1) {
+                        if ($getpattern->increment_type == 1) { // increment by invoice
                             // Replace placeholders with actual values
                             $ai = $getpattern->current_increment_number;
                             $getpattern->update([
                                 'current_increment_number' => $ai + 1
                             ]);
-                        } else {
+                        } else { // increment by customer
                             $oldinvoice = $this->invoiceModel::where('customer_id', $customerid)
                                 ->where('is_deleted', 0)
                                 ->where('increment_type', 2)
@@ -445,25 +435,25 @@ class invoiceController extends commonController
                     'pattern_type' => $patterntype
                 ];
 
-                if ($data['invoice_date']) {
+                if ($data['invoice_date']) { // if user entered manually 
                     $invoicerec['inv_date'] = $data['invoice_date'];
                 }
 
-                if ($data['inv_number']) {
+                if ($data['inv_number']) { // if user enetered manually 
                     $invoicerec['inv_number_type'] = 'm';  // set flag "m" if user entered manully inv number - default(a)
                 }
 
-                if (isset($cidai) && $cidai != '') {
+                if (isset($cidai) && $cidai != '') { // incase invoice number increment by customer 
                     $invoicerec['last_increment_number'] = $cidai;
                     $invoicerec['increment_type'] = 2;
                 } else {
-                    $invoicerec['increment_type'] = 1;
+                    $invoicerec['increment_type'] = 1; // incase invoice number increment by invoice
                 }
 
-                if ($data['tax_type'] != 2) {
+                if ($data['tax_type'] != 2) {  // if combine gst
                     if (isset($data['gst'])) {
                         $invoicerec['gst'] = $data['gst'];
-                    } else {
+                    } else { // if sepereate gst 
                         $invoicerec['sgst'] = $data['sgst'];
                         $invoicerec['cgst'] = $data['cgst'];
                     }
@@ -508,8 +498,8 @@ class invoiceController extends commonController
                             if ($quantitycolumn->count() > 0) {
                                 $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
 
-                                $updateinventory->available = $updateinventory->available - $row[$quantitycolumn[0]];
-                                $updateinventory->on_hand = $updateinventory->on_hand - $row[$quantitycolumn[0]];
+                                $updateinventory->available -= $row[$quantitycolumn[0]];
+                                $updateinventory->on_hand -= $row[$quantitycolumn[0]];
 
                                 $updateinventory->save();
                             }
@@ -896,8 +886,7 @@ class invoiceController extends commonController
 
         return $this->successresponse(404, 'message', 'Invoice not successfully deleted!');
     }
-
-
+ 
     // use for pdf
     public function inv_details(string $id)
     {
@@ -959,6 +948,13 @@ class invoiceController extends commonController
         ]);
     }
 
+    /**
+     * Summary of status
+     * update invoice status 
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function status(Request $request, string $id)
     {
         $invoices = $this->invoiceModel::where('id', $id)
@@ -971,8 +967,13 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'message', 'invoice  status not succesfully updated!');
         }
     }
-
-
+ 
+    /**
+     * Summary of reportlogsdetails
+     * report log by user
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function reportlogsdetails(Request $request)
     {
         if ($this->rp['reportmodule']['report']['log'] != 1) {
@@ -991,6 +992,14 @@ class invoiceController extends commonController
 
 
     }
+    
+    /**
+     * Summary of reportlogdestroy
+     * delete report log history record
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function reportlogdestroy(Request $request, string $id)
     {
         if ($this->rp['reportmodule']['report']['delete'] != 1) {

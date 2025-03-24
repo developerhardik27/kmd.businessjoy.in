@@ -25,9 +25,7 @@ class tempimageController extends commonController
         $this->rp = json_decode($permissions[0]['rp'], true);
         $this->temp_imageModel = $this->getmodel('temp_image');
 
-    }
-
-
+    } 
 
     public function store(Request $request)
     {
@@ -78,8 +76,7 @@ class tempimageController extends commonController
         }
 
         return $this->successresponse(500, 'message', 'File not successfully uploaded');
-    }
-
+    } 
 
     public function deleteFile(Request $request)
     {
@@ -112,7 +109,5 @@ class tempimageController extends commonController
 
         return $this->errorresponse(404, 'message', 'File record not found');
     }
-
-
-
+ 
 }

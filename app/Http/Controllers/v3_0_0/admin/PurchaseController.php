@@ -35,7 +35,7 @@ class PurchaseController extends Controller
         } else {
             $search = '';
         }
-        return view($this->version . '.admin.purchase', ['search' => $search]);
+        return view($this->version . '.admin.Purchase.purchase', ['search' => $search]);
     }
 
     /**
@@ -43,7 +43,7 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        return view($this->version . '.admin.purchaseform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id')]);
+        return view($this->version . '.admin.Purchase.purchaseform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id')]);
     }
 
     /**
@@ -52,7 +52,7 @@ class PurchaseController extends Controller
     public function show(string $id)
     {
         $Purchase = $this->purchaseModel::findOrFail($id); 
-        return view($this->version . '.admin.purchaseview', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'id' => $id]);
+        return view($this->version . '.admin.Purchase.purchaseview', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'id' => $id]);
     }
 
     /**
@@ -63,7 +63,7 @@ class PurchaseController extends Controller
     
         $Purchase = $this->purchaseModel::findOrFail($id); 
 
-        return view($this->version . '.admin.purchaseupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.Purchase.purchaseupdateform', ['edit_id' => $id]);
     }
 
 }

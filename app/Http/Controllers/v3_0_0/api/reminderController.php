@@ -25,10 +25,7 @@ class reminderController extends commonController
 
         $this->reminderModel = $this->getmodel('reminder');
     }
-
-
-
-
+ 
     // chart monthly reminder counting
     public function monthlyInvoiceChart(Request $request)
     {
@@ -157,15 +154,7 @@ class reminderController extends commonController
             return $this->successresponse(404, 'reminder', 'No Records Found');
         }
         return $this->successresponse(200, 'reminder', $reminder);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.

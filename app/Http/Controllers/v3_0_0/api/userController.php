@@ -248,15 +248,7 @@ class userController extends commonController
         }
 
         return $this->successresponse(200, 'user', $users);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.
@@ -742,7 +734,6 @@ class userController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',

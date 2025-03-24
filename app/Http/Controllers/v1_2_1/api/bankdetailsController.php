@@ -136,8 +136,7 @@ class bankdetailsController extends commonController
                     'branch_name' => $request->branch_name,
                     'account_no' => $request->account_number,
                     'swift_code' => $request->swift_code,
-                    'ifsc_code' => $request->ifsc_code,
-                    'address' => $request->address,
+                    'ifsc_code' => $request->ifsc_code, 
                     'created_by' => $this->userId,
                 ]);
 

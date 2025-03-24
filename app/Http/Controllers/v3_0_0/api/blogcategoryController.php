@@ -58,7 +58,9 @@ class blogcategoryController extends commonController
     }
 
     /**
-     * Display a listing of the resource.
+     * Summary of index
+     * return blog category list
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -70,17 +72,12 @@ class blogcategoryController extends commonController
             return $this->successresponse(404, 'blogcategory', 'No Records Found');
         }
     }
-
+ 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Summary of store
+     * store new blog category
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -120,17 +117,12 @@ class blogcategoryController extends commonController
 
         }
     }
-
+ 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Summary of edit
+     * edit blog category
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function edit(string $id)
     {
@@ -153,7 +145,11 @@ class blogcategoryController extends commonController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Summary of update
+     * update blog category
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, string $id)
     {
@@ -196,7 +192,10 @@ class blogcategoryController extends commonController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Summary of destroy
+     * destroy blog category
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function destroy(string $id)
     {

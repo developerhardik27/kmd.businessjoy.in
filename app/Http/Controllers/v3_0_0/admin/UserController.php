@@ -25,14 +25,13 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
- 
         if(isset($request->search)){
             $search = $request->search;
         } else{
             $search = '';
         }
 
-        return view($this->version.'.admin.user',['search' => $search]);
+        return view($this->version.'.admin.User.user',['search' => $search]);
     }
 
     /**
@@ -52,23 +51,7 @@ class UserController extends Controller
             $allow = "yes" ;
         }
 
-        return view($this->version.'.admin.userform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'),'allow' => $allow]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return view($this->version.'.admin.User.userform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'),'allow' => $allow]);
     }
 
     /**
@@ -79,42 +62,23 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $this->authorize('view', $user);
 
-
-        return view($this->version.'.admin.userupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
-
-
-
+        return view($this->version.'.admin.User.userupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
+
     public function edituser(string $id)
     {
-
         $user = User::findOrFail($id);
         $this->authorize('view', $user);
 
-        return view($this->version.'.admin.edituser', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
+        return view($this->version.'.admin.User.edituser', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
+
     public function profile(string $id)
     {
-
         $user = User::findOrFail($id);
         $this->authorize('view', $user);
 
-        return view($this->version.'.admin.profile', ['user_id' => Session::get('user_id'),'company_id' => Session::get('company_id'), 'id' => $id ]);
+        return view($this->version.'.admin.User.profile', ['user_id' => Session::get('user_id'),'company_id' => Session::get('company_id'), 'id' => $id ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

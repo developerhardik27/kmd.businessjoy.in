@@ -58,10 +58,7 @@ class tblinvoicecolumnController extends commonController
         }
         return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
     }
-
-
-
-
+ 
     public function column_details(string $id)
     {
 
@@ -93,15 +90,7 @@ class tblinvoicecolumnController extends commonController
             return $this->successresponse(404, 'invoicecolumn', 'No Records Found');
         }
         return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.
@@ -407,9 +396,7 @@ class tblinvoicecolumnController extends commonController
 
 
     }
-
-
-
+ 
     /**
      * Hide the specified Record from Invoice form.
      */

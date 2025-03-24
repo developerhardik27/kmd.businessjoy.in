@@ -30,7 +30,7 @@ class TblLeadController extends Controller
         } else {
             $search = '';
         }
-        return view($this->version . '.admin.lead', ['search' => $search]);
+        return view($this->version . '.admin.Lead.lead', ['search' => $search]);
     }
 
     /**
@@ -38,46 +38,14 @@ class TblLeadController extends Controller
      */
     public function create()
     {
-        return view($this->version . '.admin.leadform');
+        return view($this->version . '.admin.Lead.leadform');
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
+   
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        return view($this->version . '.admin.leadupdateform', ['edit_id' => $id]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+        return view($this->version . '.admin.Lead.leadupdateform', ['edit_id' => $id]);
+    } 
 }

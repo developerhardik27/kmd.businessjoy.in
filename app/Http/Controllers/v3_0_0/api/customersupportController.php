@@ -29,6 +29,7 @@ class customersupportController extends commonController
         $this->customer_supportModel = $this->getmodel('customer_support');
 
     }
+    
     /**
      * Display a listing of the resource.
      */
@@ -87,15 +88,7 @@ class customersupportController extends commonController
         return $this->successresponse(200, 'customersupport', $customersupport);
 
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
+  
     /**
      * Store a newly created resource in storage.
      */
@@ -297,8 +290,7 @@ class customersupportController extends commonController
         return $this->successresponse(200, 'message', 'customersupport succesfully deleted');
     }
 
-    // change status 
-
+    // change status  
     public function changestatus(Request $request)
     {
         $customersupport = $this->customer_supportModel::where('id', $request->statusid)->get();

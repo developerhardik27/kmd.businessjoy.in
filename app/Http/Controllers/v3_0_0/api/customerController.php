@@ -111,14 +111,7 @@ class customerController extends commonController
         return $this->successresponse(200, 'customer', $customers);
 
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-    }
-
+ 
     /**
      * Store a newly created resource in storage.
      */

@@ -29,15 +29,15 @@ class QuotationController extends Controller
      */
     public function managecolumn()
     {
-        return view($this->version . '.admin.quotationmanagecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Quotation.quotationmanagecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     public function formula()
     {
-        return view($this->version . '.admin.quotationformula', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Quotation.quotationformula', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     public function othersettings()
     {
-        return view($this->version . '.admin.quotationothersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Quotation.quotationothersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -51,7 +51,7 @@ class QuotationController extends Controller
             $search = '';
         }
 
-        return view($this->version . '.admin.quotation', ['search' => $search]);
+        return view($this->version . '.admin.Quotation.quotation', ['search' => $search]);
     }
 
 
@@ -81,24 +81,9 @@ class QuotationController extends Controller
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.quotationmanagecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
-        return view($this->version . '.admin.quotationform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Quotation.quotationform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -110,22 +95,7 @@ class QuotationController extends Controller
         
         $is_editable = $quotation->is_editable;
 
-        return view($this->version . '.admin.quotationupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
+        return view($this->version . '.admin.Quotation.quotationupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

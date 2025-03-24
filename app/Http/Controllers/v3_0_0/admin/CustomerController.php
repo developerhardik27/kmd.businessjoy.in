@@ -28,8 +28,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-
-        return view($this->version . '.admin.customer');
+        return view($this->version . '.admin.Customer.customer');
     }
 
     /**
@@ -38,23 +37,7 @@ class CustomerController extends Controller
     public function create()
     {
 
-        return view($this->version . '.admin.customerform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return view($this->version . '.admin.Customer.customerform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -62,32 +45,7 @@ class CustomerController extends Controller
      */
     public function edit(string $id)
     {
-        $dbname = company::find(Session::get('company_id'));
-        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
-
-        // Establish connection to the dynamic database
-        DB::purge('dynamic_connection');
-        DB::reconnect('dynamic_connection');
-
-        // $customer =  $this->customerModel::findOrFail($id);
-        // $this->authorize('view', $customer);
-
-        return view($this->version . '.admin.customerupdateform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'edit_id' => $id]);
+        return view($this->version . '.admin.Customer.customerupdateform', ['company_id' => Session::get('company_id'), 'user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

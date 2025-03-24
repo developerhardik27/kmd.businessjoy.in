@@ -33,11 +33,11 @@ class ProductController extends Controller
             $search = '';
         }
 
-        return view($this->version . '.admin.product', ["search" => $search]);
+        return view($this->version . '.admin.Product.product', ["search" => $search]);
     }
 
     public function productcolumnmapping(){
-        return view($this->version . '.admin.productcolumnmapping', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Product.productcolumnmapping', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -46,25 +46,10 @@ class ProductController extends Controller
     public function create()
     {
 
-        return view($this->version . '.admin.productform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Product.productform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
+   
     /**
      * Show the form for editing the specified resource.
      */
@@ -74,22 +59,7 @@ class ProductController extends Controller
         // $product = $this->productmodel::findOrFail($id);
         // $this->authorize('view', $product);
 
-        return view($this->version . '.admin.productupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
+        return view($this->version . '.admin.Product.productupdateform', ['user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

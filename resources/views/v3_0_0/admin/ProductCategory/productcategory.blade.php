@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder . '.admin.mastertable')
+@extends($folder . '.admin.Layout.mastertable')
 
 @section('page_title')
     Inventory - Product Categories

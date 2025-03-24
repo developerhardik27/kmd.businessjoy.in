@@ -35,7 +35,12 @@ class bankdetailsController extends commonController
         $this->bankdetailmodel = $this->getmodel('bank_detail');
     }
 
-    // using for pdf
+    /**
+     * Summary of bankdetailspdf
+     * use for pdf 
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function bankdetailspdf(string $id)
     {
         $bankdetailres = $this->bankdetailmodel::where('id', $id);
@@ -53,6 +58,12 @@ class bankdetailsController extends commonController
         }
     }
 
+    /**
+     * Summary of bank_details
+     * use for pdf
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function bank_details(string $id)
     {
         if ($this->rp['invoicemodule']['bank']['view'] != 1) {
@@ -68,7 +79,10 @@ class bankdetailsController extends commonController
     }
 
     /**
-     * Display a listing of the resource.
+     * Summary of index
+     * return bank account list
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -89,17 +103,12 @@ class bankdetailsController extends commonController
         }
             return $this->successresponse(200, 'bankdetail', $bankdetail);
     }
-
+ 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Summary of store
+     * store new bankdetails
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -133,8 +142,7 @@ class bankdetailsController extends commonController
                 'branch_name' => $request->branch_name,
                 'account_no' => $request->account_number,
                 'swift_code' => $request->swift_code,
-                'ifsc_code' => $request->ifsc_code,
-                'address' => $request->address,
+                'ifsc_code' => $request->ifsc_code, 
                 'created_by' => $this->userId,
             ]);
 
@@ -146,25 +154,13 @@ class bankdetailsController extends commonController
 
         }
     }
-
+ 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Summary of update
+     * update bank details status
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, string $id)
     {
@@ -196,7 +192,11 @@ class bankdetailsController extends commonController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Summary of destroy
+     * delete bank details record
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, string $id)
     {

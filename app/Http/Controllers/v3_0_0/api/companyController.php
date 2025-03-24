@@ -47,7 +47,6 @@ class companyController extends commonController
         $this->invoice_other_settingModel = $this->getmodel('invoice_other_setting');
     }
 
-
     // for using pdf 
     public function companydetailspdf($id)
     {
@@ -126,8 +125,7 @@ class companyController extends commonController
         return $this->successresponse(200, 'company', $company);
 
     }
-
-
+ 
     /**
      * Display a listing of the resource.
      */
@@ -175,14 +173,6 @@ class companyController extends commonController
 
         return $this->successresponse(200, 'company', $company);
 
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -650,24 +640,7 @@ class companyController extends commonController
 
         return $this->successresponse(200, 'message', 'company succesfully deleted');
     }
-
-    // for join tables company to another table
-    public function joincompany()
-    {
-        $company = DB::table('company')
-            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-            ->select('company.id', 'company_details.name')->where('company.is_deleted', 0)->where('company.is_active', 1)
-            ->get();
-
-        if ($company->isEmpty()) {
-
-            return $this->successresponse(404, 'company', 'No Records Found');
-        }
-
-        return $this->successresponse(200, 'company', $company);
-
-    }
-
+ 
     // company active/deactive function
     public function statusupdate(Request $request, string $id)
     {

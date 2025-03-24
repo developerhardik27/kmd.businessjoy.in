@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder . '.admin.masterpage')
+@extends($folder . '.admin.Layout.masterpage')
 
 @section('page_title')
     {{ config('app.name') }} - Welcome

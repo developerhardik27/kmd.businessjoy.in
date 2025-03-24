@@ -58,6 +58,12 @@ class blogController extends commonController
         $this->blogModel = $this->getmodel('blog');
     }
 
+    /**
+     * Summary of getSlug
+     * return unique slug base on blog title 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getSlug(Request $request)
     {
         $slug = '';
@@ -94,7 +100,10 @@ class blogController extends commonController
     }
 
     /**
-     * Display a listing of the resource.
+     * Summary of index
+     * return blog list without content because its not necessary
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -162,17 +171,12 @@ class blogController extends commonController
         return $this->successresponse(200, 'blog', $blogs);
 
     }
-
+  
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Summary of store
+     * store new blog
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -247,7 +251,10 @@ class blogController extends commonController
     }
 
     /**
-     * Display the specified resource.
+     * Summary of show 
+     * @param \Illuminate\Http\Request $request
+     * @param string $slug
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function show(Request $request, string $slug)
     {
@@ -273,7 +280,10 @@ class blogController extends commonController
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Summary of edit
+     * return blog details for edit blog
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function edit(string $id)
     {
@@ -294,7 +304,11 @@ class blogController extends commonController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Summary of update
+     * update blog
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, string $id)
     {
