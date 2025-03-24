@@ -186,10 +186,6 @@ class AdminLoginController extends Controller
                             session_start();
                         $_SESSION['folder_name'] = session('folder_name');
 
-                        if (isset($admin->default_module) && isset($admin->default_page)) {
-                            session(['menu' => $admin->default_module]); 
-                            return redirect()->route('admin.' . $admin->default_page);
-                        }
                         if (Session::get('menu') == null) {
                             DB::table('users')
                                 ->where('id', $admin->id)
@@ -202,6 +198,11 @@ class AdminLoginController extends Controller
                             session_destroy();
                             Auth::guard('admin')->logout();
                             return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
+                        }
+                        
+                        if (isset($admin->default_module) && isset($admin->default_page)) {
+                            session(['menu' => $admin->default_module]); 
+                            return redirect()->route('admin.' . $admin->default_page);
                         }
                         return redirect()->route('admin.welcome');
                     } else {
@@ -535,10 +536,8 @@ class AdminLoginController extends Controller
                     session_start();
                 $_SESSION['folder_name'] = session('folder_name');
 
-                if (isset($admin->default_module) && isset($admin->default_page)) {
-                    session(['menu' => $admin->default_module]); 
-                    return redirect()->route('admin.' . $admin->default_page);
-                }
+               
+
                 if (Session::get('menu') == null) {
                     DB::table('users')
                         ->where('id', $admin->id)
@@ -552,6 +551,12 @@ class AdminLoginController extends Controller
                     Auth::guard('admin')->logout();
                     return redirect()->route('admin.login')->with('error', 'User has not any permission');
                 }
+
+                if (isset($admin->default_module) && isset($admin->default_page)) {
+                    session(['menu' => $admin->default_module]); 
+                    return redirect()->route('admin.' . $admin->default_page);
+                }
+
                 return redirect()->route('admin.welcome');
             } else {
                 Auth::guard('admin')->logout();
