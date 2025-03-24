@@ -109,13 +109,13 @@ class InvoiceController extends Controller
         $invoiceothersettingdetails = json_decode($invoiceothersettingcontent);
 
         if ($invoiceothersettingdetails->status != 200 || count($invoiceothersettingdetails->pattern) < 2) {
-            return view($this->version . '.admin.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+            return view($this->version . '.admin.Invoice.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
         if ($bdetails->status != 200) {
-            return view($this->version . '.admin.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+            return view($this->version . '.admin.Invoice.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
         if ($columndetails->status != 200) {
-            return view($this->version . '.admin.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+            return view($this->version . '.admin.Invoice.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
         return view($this->version . '.admin.Invoice.invoiceform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }

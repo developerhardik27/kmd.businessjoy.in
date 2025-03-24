@@ -20,7 +20,7 @@ class ReportController extends Controller
     }
 
     public function index(){
-        return view($this->version . '.admin.report',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Report.report',['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
 
