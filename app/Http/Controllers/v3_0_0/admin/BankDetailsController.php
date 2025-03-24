@@ -26,7 +26,7 @@ class BankDetailsController extends Controller
      */
     public function index()
     { 
-        return view($this->version . '.admin.bank');
+        return view($this->version . '.admin.Bank.bank');
     }
 
     /**
@@ -34,27 +34,7 @@ class BankDetailsController extends Controller
      */
     public function create()
     {
-        return view($this->version . '.admin.bankform', ['company_id' => Session::get('company_id')]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-
-        $bank_detail = $this->bankdetailModel::findOrFail($id);
-        $this->authorize('view', $bank_detail);
-
-        return view($this->version . '.admin.bankview', ['id', $id]);
+        return view($this->version . '.admin.Bank.bankform', ['company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -65,22 +45,7 @@ class BankDetailsController extends Controller
         $bank_detail = $this->bankdetailModel::findOrFail($id);
         $this->authorize('view', $bank_detail);
 
-        return view($this->version . '.admin.bankupdateform', ['company_id' => Session::get('company_id'), 'edit_id' => $id]);
+        return view($this->version . '.admin.Bank.bankupdateform', ['company_id' => Session::get('company_id'), 'edit_id' => $id]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

@@ -51,7 +51,7 @@ class InvoiceController extends Controller
             'bankdetails' => $bankdetailsdata['bankdetail'][0]
         ];
 
-        return view($this->version . '.admin.invoiceview', ['id' => $id, 'data' => $data]);
+        return view($this->version . '.admin.Invoice.invoiceview', ['id' => $id, 'data' => $data]);
     }
 
     /**
@@ -59,15 +59,15 @@ class InvoiceController extends Controller
      */
     public function managecolumn()
     {
-        return view($this->version . '.admin.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Invoice.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     public function formula()
     {
-        return view($this->version . '.admin.formula', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Invoice.formula', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     public function othersettings()
     {
-        return view($this->version . '.admin.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Invoice.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -81,7 +81,7 @@ class InvoiceController extends Controller
             $search = '';
         }
 
-        return view($this->version . '.admin.invoice', ['search' => $search]);
+        return view($this->version . '.admin.Invoice.invoice', ['search' => $search]);
     }
 
 
@@ -117,23 +117,7 @@ class InvoiceController extends Controller
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
-        return view($this->version . '.admin.invoiceform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return view($this->version . '.admin.Invoice.invoiceform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
     /**
@@ -146,22 +130,7 @@ class InvoiceController extends Controller
         
         $is_editable = $invoice->is_editable;
 
-        return view($this->version . '.admin.invoiceupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
+        return view($this->version . '.admin.Invoice.invoiceupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

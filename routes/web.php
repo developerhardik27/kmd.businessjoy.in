@@ -100,13 +100,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($CompanyController)->group(function () {
                 Route::get('/Company', 'index')->name('admin.company')->middleware('checkPermission:adminmodule,company,show');
                 Route::get('/AddNewCompany', 'create')->name('admin.addcompany')->middleware('checkPermission:adminmodule,company,add');
-                Route::post('/StoreNewCompany', 'store')->name('admin.storecompany')->middleware('checkPermission:adminmodule,company,add');
-                Route::get('/viewCompany/{id}', 'show')->name('admin.viewcompany')->middleware('checkPermission:adminmodule,company,view');
                 Route::get('/EditCompany/{id}', 'edit')->name('admin.editcompany')->middleware('checkPermission:adminmodule,company,edit');
                 Route::get('/companyprofile/{id}', 'companyprofile')->name('admin.companyprofile');
                 Route::get('/EditCompanyprofile/{id}', 'editcompany')->name('admin.editcompanyprofile')->middleware('checkPermission:adminmodule,company,edit');
-                Route::put('/UpdateCompany/{id}', 'update')->name('admin.updatecompany')->middleware('checkPermission:adminmodule,company,edit');
-                // Route::put('/DeleteCompany/{id}','destroy')->name('admin.deletecompany'); 
                 Route::get('/ApiAuthorization', 'api_authorization')->name('admin.api_authorization');
             });
 
@@ -115,13 +111,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($UserController)->group(function () {
                 Route::get('/User', 'index')->name('admin.user')->middleware('checkPermission:adminmodule,user,show');
                 Route::get('/AddNewUser', 'create')->name('admin.adduser')->middleware('checkPermission:adminmodule,user,add');
-                Route::post('/StoreNewUser', 'store')->name('admin.storeuser')->middleware('checkPermission:adminmodule,user,add');
-                Route::get('/SearchUser/{id}', 'show')->name('admin.searchuser')->middleware('checkPermission:adminmodule,user,view');
                 Route::get('/EditUser/{id}', 'edit')->name('admin.edituser')->middleware('checkPermission:adminmodule,user,edit');
                 Route::get('/EditUserdetail/{id}', 'edituser')->name('admin.edituserdetail')->middleware('checkPermission:adminmodule,user,edit');
                 Route::get('/userprofile/{id}', 'profile')->name('admin.userprofile');
-                Route::put('/UpdateUser/{id}', 'update')->name('admin.updateuser')->middleware('checkPermission:adminmodule,user,edit');
-                Route::put('/DeleteUser/{id}', 'destroy')->name('admin.deleteuser')->middleware('checkPermission:adminmodule,user,delete');
             });
 
             $VersionUpdateController = getadminversion('VersionUpdateController');
@@ -137,19 +129,11 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($CustomerController)->group(function () {
                 Route::get('/invoice/Customer', 'index')->name('admin.invoicecustomer')->middleware('checkPermission:invoicemodule,customer,show');
                 Route::get('/invoice/AddNewCustomer', 'create')->name('admin.addinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,add');
-                Route::post('/invoice/StoreNewCustomer', 'store')->name('admin.storeinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,add');
-                Route::get('/invoice/SearchCustomer/{id}', 'show')->name('admin.searchinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,view ');
                 Route::get('/invoice/EditCustomer/{id}', 'edit')->name('admin.editinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
-                Route::put('/invoice/UpdateCustomer/{id}', 'update')->name('admin.updateinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,edit');
-                Route::put('/invoice/DeleteCustomer/{id}', 'destroy')->name('admin.deleteinvoicecustomer')->middleware('checkPermission:invoicemodule,customer,delete');
 
                 Route::get('/quotation/Customer', 'index')->name('admin.quotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,show');
                 Route::get('/quotation/AddNewCustomer', 'create')->name('admin.addquotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,add');
-                Route::post('/quotation/StoreNewCustomer', 'store')->name('admin.storequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,add');
-                Route::get('/quotation/SearchCustomer/{id}', 'show')->name('admin.searquotationchcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,view ');
                 Route::get('/quotation/EditCustomer/{id}', 'edit')->name('admin.editquotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,edit');
-                Route::put('/quotation/UpdateCustomer/{id}', 'update')->name('admin.updatequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,edit');
-                Route::put('/quotation/DeleteCustomer/{id}', 'destroy')->name('admin.deletequotationcustomer')->middleware('checkPermission:quotationmodule,quotationcustomer,delete');
             });
 
             // quotation route
@@ -160,11 +144,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('quotation/formula', 'formula')->name('admin.quotationformula')->middleware('checkPermission:quotationmodule,quotationformula,edit');
                 Route::get('quotation/othersettings', 'othersettings')->name('admin.quotationothersettings')->middleware('checkPermission:quotationmodule,quotationsetting,view');
                 Route::get('/AddNewQuotation', 'create')->name('admin.addquotation')->middleware('checkPermission:quotationmodule,quotation,add');
-                Route::post('/StoreNewQuotation', 'store')->name('admin.storequotation')->middleware('checkPermission:quotationmodule,quotation,add');
-                Route::get('/SearchQuotation/{id}', 'show')->name('admin.searchquotation')->middleware('checkPermission:quotationmodule,quotation,view');
                 Route::get('/EditQuotation/{id}', 'edit')->name('admin.editquotation')->middleware('checkPermission:quotationmodule,quotation,edit');
-                Route::put('/UpdateQuotation/{id}', 'update')->name('admin.updatequotation')->middleware('checkPermission:quotationmodule,quotation,edit');
-                Route::put('/DeleteQuotation/{id}', 'destroy')->name('admin.deletequotation')->middleware('checkPermission:quotationmodule,quotation,delete');
             });
 
             // invoice route
@@ -176,11 +156,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/invoice/formula', 'formula')->name('admin.invoiceformula')->middleware('checkPermission:invoicemodule,formula,edit');
                 Route::get('/invoice/othersettings', 'othersettings')->name('admin.invoiceothersettings')->middleware('checkPermission:invoicemodule,invoicesetting,view');
                 Route::get('/AddNewInvoice', 'create')->name('admin.addinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
-                Route::post('/StoreNewInvoice', 'store')->name('admin.storeinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
-                Route::get('/SearchInvoice/{id}', 'show')->name('admin.searchinvoice')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/EditInvoice/{id}', 'edit')->name('admin.editinvoice')->middleware('checkPermission:invoicemodule,invoice,edit');
-                Route::put('/UpdateInvoice/{id}', 'update')->name('admin.updateinvoice')->middleware('checkPermission:invoicemodule,invoice,edit');
-                Route::put('/DeleteInvoice/{id}', 'destroy')->name('admin.deleteinvoice')->middleware('checkPermission:invoicemodule,invoice,delete');
             });
 
             // bank route 
@@ -188,11 +164,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($BankDetailsController)->group(function () {
                 Route::get('/Bank', 'index')->name('admin.bank')->middleware('checkPermission:invoicemodule,bank,show');
                 Route::get('/AddNewBank', 'create')->name('admin.addbank')->middleware('checkPermission:invoicemodule,bank,add');
-                Route::post('/StoreNewBank', 'store')->name('admin.storebank')->middleware('checkPermission:invoicemodule,bank,add');
-                Route::get('/SearchBank/{id}', 'show')->name('admin.searchbank')->middleware('checkPermission:invoicemodule,bank,view');
                 Route::get('/EditBank/{id}', 'edit')->name('admin.editbank')->middleware('checkPermission:invoicemodule,bank,edit');
-                Route::put('/UpdateBank/{id}', 'update')->name('admin.updatebank')->middleware('checkPermission:invoicemodule,bank,edit');
-                Route::put('/DeleteBank/{id}', 'destroy')->name('admin.deletebank')->middleware('checkPermission:invoicemodule,bank,delete');
             });
 
             // report route 
@@ -217,11 +189,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Product', 'index')->name('admin.product')->middleware('checkPermission:inventorymodule,product,show');
                 Route::get('/ProductColumnMapping', 'productcolumnmapping')->name('admin.productcolumnmapping')->middleware('checkPermission:inventorymodule,productcolumnmapping,add');
                 Route::get('/AddNewProduct', 'create')->name('admin.addproduct')->middleware('checkPermission:inventorymodule,product,add');
-                Route::post('/StoreNewProduct', 'store')->name('admin.storeproduct')->middleware('checkPermission:inventorymodule,product,add');
-                Route::get('/SearchProduct/{id}', 'show')->name('admin.searchproduct')->middleware('checkPermission:inventorymodule,product,view');
                 Route::get('/EditProduct/{id}', 'edit')->name('admin.editproduct')->middleware('checkPermission:inventorymodule,product,edit');
-                Route::put('/UpdateProduct/{id}', 'update')->name('admin.updateproduct')->middleware('checkPermission:inventorymodule,product,edit');
-                Route::put('/DeleteProduct/{id}', 'destroy')->name('admin.deleteproduct')->middleware('checkPermission:inventorymodule,product,delete');
             });
 
             // product category route 
@@ -257,12 +225,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($TblLeadController)->group(function () {
                 Route::get('/Lead', 'index')->name('admin.lead')->middleware('checkPermission:leadmodule,lead,show');
                 Route::get('/AddNewLead', 'create')->name('admin.addlead')->middleware('checkPermission:leadmodule,lead,add');
-                Route::post('/StoreNewLead', 'store')->name('admin.storelead')->middleware('checkPermission:leadmodule,lead,add');
-                Route::get('/SearchLead/{id}', 'show')->name('admin.searchlead')->middleware('checkPermission:leadmodule,lead,view');
                 Route::get('/EditLead/{id}', 'edit')->name('admin.editlead')->middleware('checkPermission:leadmodule,lead,edit');
-                Route::put('/UpdateLead/{id}', 'update')->name('admin.updatelead')->middleware('checkPermission:leadmodule,lead,edit');
-                Route::put('/DeleteLead/{id}', 'destroy')->name('admin.deletelead')->middleware('checkPermission:leadmodule,lead,delete');
             });
+
             // lead module routes end----- 
 
             // customer support module routes start 
@@ -271,11 +236,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($CustomerSupportController)->group(function () {
                 Route::get('/customersupport', 'index')->name('admin.customersupport')->middleware('checkPermission:customersupportmodule,customersupport,show');
                 Route::get('/AddNewcustomersupport', 'create')->name('admin.addcustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,add');
-                Route::post('/StoreNewcustomersupport', 'store')->name('admin.storecustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,add');
-                Route::get('/Searchcustomersupport/{id}', 'show')->name('admin.searchcustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,view');
                 Route::get('/Editcustomersupport/{id}', 'edit')->name('admin.editcustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,edit');
-                Route::put('/Updatecustomersupport/{id}', 'update')->name('admin.updatecustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,edit');
-                Route::put('/Deletecustomersupport/{id}', 'destroy')->name('admin.deletecustomersupport')->middleware('checkPermission:customersupportmodule,customersupport,delete');
             });
             // customer support module routes end ----- 
 
@@ -285,11 +246,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($ReminderCustomerController)->group(function () {
                 Route::get('/ReminderCustomer', 'index')->name('admin.remindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,show');
                 Route::get('/AddNewReminderCustomer', 'create')->name('admin.addremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,add');
-                Route::post('/StoreNewReminderCustomer', 'store')->name('admin.storeremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,add');
-                Route::get('/SearchReminderCustomer/{id}', 'show')->name('admin.searchremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,view ');
                 Route::get('/EditReminderCustomer/{id}', 'edit')->name('admin.editremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,edit');
-                Route::put('/UpdateReminderCustomer/{id}', 'update')->name('admin.updateremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,edit');
-                Route::put('/DeleteReminderCustomer/{id}', 'destroy')->name('admin.deleteremindercustomer')->middleware('checkPermission:remindermodule,remindercustomer,delete');
             });
             // reminder customer route end 
 
@@ -298,11 +255,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($ReminderController)->group(function () {
                 Route::get('/Reminder', 'index')->name('admin.reminder')->middleware('checkPermission:remindermodule,reminder,show');
                 Route::get('/AddNewReminder/{id?}', 'create')->name('admin.addreminder')->middleware('checkPermission:remindermodule,reminder,add');
-                Route::post('/StoreNewReminder', 'store')->name('admin.storereminder')->middleware('checkPermission:remindermodule,reminder,add');
-                Route::get('/SearchReminder/{id}', 'show')->name('admin.searchreminder')->middleware('checkPermission:remindermodule,reminder,view');
                 Route::get('/EditReminder/{id}', 'edit')->name('admin.editreminder')->middleware('checkPermission:remindermodule,reminder,edit');
-                Route::put('/UpdateReminder/{id}', 'update')->name('admin.updatereminder')->middleware('checkPermission:remindermodule,reminder,edit');
-                Route::put('/DeleteReminder/{id}', 'destroy')->name('admin.deletereminder')->middleware('checkPermission:remindermodule,reminder,delete');
             });
 
 
@@ -324,11 +277,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewBlog', 'create')->name('admin.addblog')->middleware('checkPermission:blogmodule,blog,add');
                 Route::get('/BlogTag', 'blogtag')->name('admin.blogtag')->middleware('checkPermission:blogmodule,blog,add');
                 Route::get('/BlogCategory', 'blogcategory')->name('admin.blogcategory')->middleware('checkPermission:blogmodule,blog,add');
-                Route::post('/StoreNewBlog', 'store')->name('admin.storeblog')->middleware('checkPermission:blogmodule,blog,add');
-                Route::get('/SearchBlog/{id}', 'show')->name('admin.searchblog')->middleware('checkPermission:blogmodule,blog,view');
                 Route::get('/EditBlog/{id}', 'edit')->name('admin.editblog')->middleware('checkPermission:blogmodule,blog,edit');
-                Route::put('/UpdateBlog/{id}', 'update')->name('admin.updateblog')->middleware('checkPermission:blogmodule,blog,edit');
-                Route::put('/DeleteBlog/{id}', 'destroy')->name('admin.deleteblog')->middleware('checkPermission:blogmodule,blog,delete');
             });
 
 

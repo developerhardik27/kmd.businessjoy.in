@@ -24,9 +24,7 @@ class remindercustomerController extends commonController
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->customerModel = $this->getmodel('reminder_customer');
-    }
-
-
+    } 
 
     public function customerreminders(Request $request, string $id)
     {
@@ -46,11 +44,12 @@ class remindercustomerController extends commonController
 
     }
 
-    public function counttotalcustomer(Request $request)
+     public function counttotalcustomer(Request $request)
     {
         $totalcustomer = $this->customerModel::where('is_deleted', 0)->count();
         return $this->successresponse(200, 'customer', $totalcustomer);
     }
+
     public function remindercustomer(Request $request)
     {
         $customersres = $this->customerModel::where('is_deleted', 0);
@@ -92,14 +91,7 @@ class remindercustomerController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         return $this->successresponse(200, 'customer', $customers);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.

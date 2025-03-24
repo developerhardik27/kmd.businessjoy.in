@@ -24,38 +24,15 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        return view($this->version.'.admin.company');
+        return view($this->version.'.admin.Company.company');
     }
-
-       
-    
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {    
-        return view($this->version.'.admin.companyform',['user_id'=> Session::get('user_id') ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {  
- 
-        $company = company::findOrFail($id);
-        $this->authorize('view', $company);
-
-        return view($this->version.'.admin.comanyview',['id',$id]);
+        return view($this->version.'.admin.Company.companyform',['user_id'=> Session::get('user_id') ]);
     }
 
     /**
@@ -65,35 +42,19 @@ class CompanyController extends Controller
     { 
         $company = company::findOrFail($id);
         $this->authorize('view', $company);
-        return view($this->version.'.admin.companyupdateform',['user_id'=> Session::get('user_id') ,'edit_id' => $id ]);
+        return view($this->version.'.admin.Company.companyupdateform',['user_id'=> Session::get('user_id') ,'edit_id' => $id ]);
     }
     public function companyprofile(string $id)
     {     
         $company = company::findOrFail($id);
         $this->authorize('view', $company);
-        return view($this->version.'.admin.companyprofile',['user_id'=> Session::get('user_id')]);
+        return view($this->version.'.admin.Company.companyprofile',['user_id'=> Session::get('user_id')]);
     }
     public function editcompany(string $id)
     {     
         $company = company::findOrFail($id);
         $this->authorize('view', $company);
-        return view($this->version.'.admin.editcompany',['user_id'=> Session::get('user_id') ,'edit_id' =>  $id  ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view($this->version.'.admin.Company.editcompany',['user_id'=> Session::get('user_id') ,'edit_id' =>  $id  ]);
     }
 
     public function api_authorization(){
@@ -102,6 +63,6 @@ class CompanyController extends Controller
             abort(403);
         }
 
-        return view($this->version . '.admin.api_authorization', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Company.api_authorization', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 }

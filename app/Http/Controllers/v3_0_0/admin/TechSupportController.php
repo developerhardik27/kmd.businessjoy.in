@@ -25,7 +25,7 @@ class TechSupportController extends Controller
     public function index(Request $request)
     {
        
-        return view($this->version . '.admin.techsupport');
+        return view($this->version . '.admin.TechSupport.techsupport');
     }
 
     /**
@@ -33,7 +33,7 @@ class TechSupportController extends Controller
      */
     public function create()
     {
-        return view($this->version . '.admin.techsupportform');
+        return view($this->version . '.admin.TechSupport.techsupportform');
     }
 
     /**
@@ -41,6 +41,6 @@ class TechSupportController extends Controller
      */
     public function edit(string $id)
     {
-        return view($this->version . '.admin.techsupportupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.TechSupport.techsupportupdateform', ['edit_id' => $id]);
     }
 }

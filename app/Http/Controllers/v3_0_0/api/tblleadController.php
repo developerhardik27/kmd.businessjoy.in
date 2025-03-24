@@ -27,8 +27,7 @@ class tblleadController extends commonController
 
         $this->tblleadModel = $this->getmodel('tbllead');
     }
-
-
+ 
     public function leadstatusname(Request $request)
     {
         $leadstatus = DB::table('leadstatus_name')
@@ -43,6 +42,7 @@ class tblleadController extends commonController
         }
         return $this->successresponse(200, 'leadstatus', $leadstatus);
     }
+
     public function leadstagename(Request $request)
     {
         $lead = DB::table('leadstage')
@@ -131,15 +131,7 @@ class tblleadController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         return $this->successresponse(200, 'lead', $lead);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.
@@ -359,7 +351,6 @@ class tblleadController extends commonController
     }
 
     // change status 
-
     public function changestatus(Request $request)
     {
 

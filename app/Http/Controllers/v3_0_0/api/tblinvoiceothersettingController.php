@@ -46,6 +46,7 @@ class tblinvoiceothersettingController extends commonController
         }
         return $this->successresponse(200, 'overdueday', $overdueday);
     }
+
     public function invoicenumberpatternindex()
     {
         $pattern = $this->invoice_number_patternModel::where('is_deleted', 0)->select('invoice_pattern', 'pattern_type', 'start_increment_number', 'increment_type')->get();
@@ -438,6 +439,7 @@ class tblinvoiceothersettingController extends commonController
             return $this->successresponse(200, 'message', 'Invoice number settings succesfully updated');
         }
     }
+    
     public function manual_invoice_date(Request $request)
     {
 

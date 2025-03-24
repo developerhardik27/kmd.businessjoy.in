@@ -47,6 +47,7 @@ class tblquotationothersettingController extends commonController
         }
         return $this->successresponse(200, 'overdueday', $overdueday);
     }
+
     public function quotationnumberpatternindex()
     {
         $pattern = $this->quotation_number_patternModel::where('is_deleted', 0)
@@ -72,6 +73,7 @@ class tblquotationothersettingController extends commonController
         }
             return $this->successresponse(200, 'termsandconditions', $termsandcondition);
     }
+    
     public function overduedayupdate(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [

@@ -23,8 +23,6 @@ class InventoryController extends Controller
      */
     public function index(Request $request)
     {
-
-      
-        return view($this->version . '.admin.inventory');
+        return view($this->version . '.admin.Inventory.inventory');
     }
 }

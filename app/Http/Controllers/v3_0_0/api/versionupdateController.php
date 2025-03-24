@@ -19,6 +19,15 @@ class versionupdateController extends commonController
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
     }
+    
+
+    /**
+     * Summary of updatecompanyversion
+     * upgrade company version
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+
     public function updatecompanyversion(Request $request)
     {
 
@@ -94,7 +103,7 @@ class versionupdateController extends commonController
                     }
 
                     if (!empty($paths)) {
-                        // Run migrations only from the specified path
+                        // Run migrations only from the specified path and specific db
                         foreach ($paths as $path) {
                             Artisan::call('migrate', [
                                 '--path' => $path,
@@ -143,7 +152,6 @@ class versionupdateController extends commonController
                             if ($rp) {
                                 foreach ($rp as $userrp) {
                                     $jsonrp = json_decode($userrp->rp, true);
-                                    // dd($rp->invoicemodule);
                                     $newrp = [
                                         "invoicenumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                         "invoicetandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -172,7 +180,6 @@ class versionupdateController extends commonController
                             if ($rp) {
                                 foreach ($rp as $userrp) {
                                     $jsonrp = json_decode($userrp->rp, true);
-                                    // dd($rp->invoicemodule);
                                     $newrp = [
                                         'quotationmodule' => [
                                             "quotation" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -189,7 +196,7 @@ class versionupdateController extends commonController
 
                                     if (!isset($jsonrp['quotationmodule'])) {
 
-                                        // Update the 'invoicemodule' section with new permissions
+                                        // add the 'quotation module' section with new permissions
                                         $jsonrp = array_merge($jsonrp, $newrp);
 
                                         // Encode updated permissions back to JSON

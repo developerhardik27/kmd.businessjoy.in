@@ -292,8 +292,7 @@ class productcategoryController extends commonController
 
         return $this->successresponse(200, 'message', 'status succesfully updated');
     }
-
-
+ 
     private function updateChildCategoriesStatus($category, $column , $value)
     {
         // Find child categories where parent_id is the category's id

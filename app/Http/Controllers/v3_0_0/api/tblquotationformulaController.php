@@ -51,15 +51,7 @@ class tblquotationformulaController extends commonController
             return $this->successresponse(404, 'quotationformula', 'No records found');
         }
         return $this->successresponse(200, 'quotationformula', $quotationformula);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.

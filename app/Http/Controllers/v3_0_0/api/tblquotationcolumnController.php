@@ -36,8 +36,7 @@ class tblquotationcolumnController extends commonController
         $this->tbl_quotation_columnModel = $this->getmodel('tbl_quotation_column');
     }
 
-    //  for formula list
-
+    //  for formula list 
     public function formula(Request $request)
     {
         //condition for check if user has permission to view record
@@ -55,10 +54,7 @@ class tblquotationcolumnController extends commonController
         }
         return $this->successresponse(200, 'quotationcolumn', $quotationcolumn);
     }
-
-
-
-
+ 
     public function column_details(string $id)
     {
 
@@ -92,15 +88,7 @@ class tblquotationcolumnController extends commonController
         }
         return $this->successresponse(200, 'quotationcolumn', $quotationcolumn);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
+ 
     /**
      * Store a newly created resource in storage.
      */

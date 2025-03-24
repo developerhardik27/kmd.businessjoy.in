@@ -30,7 +30,7 @@ class CustomerSupportController extends Controller
         } else {
             $search = '';
         }
-        return view($this->version . '.admin.customersupport', ['search' => $search]);
+        return view($this->version . '.admin.CustomerSupport.customersupport', ['search' => $search]);
     }
 
     /**
@@ -38,23 +38,7 @@ class CustomerSupportController extends Controller
      */
     public function create()
     {
-        return view($this->version . '.admin.customersupportform');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return view($this->version . '.admin.CustomerSupport.customersupportform');
     }
 
     /**
@@ -62,22 +46,7 @@ class CustomerSupportController extends Controller
      */
     public function edit(string $id)
     {
-        return view($this->version . '.admin.customersupportupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.CustomerSupport.customersupportupdateform', ['edit_id' => $id]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

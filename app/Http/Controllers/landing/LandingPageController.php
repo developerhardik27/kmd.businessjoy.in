@@ -69,14 +69,11 @@ class LandingPageController extends Controller
 
                 $host = $_SERVER['HTTP_HOST'];
 
-                if ($host === 'localhost:8000') {
-                    // If the host is localhost
+                if ($host === 'localhost:8000') {  // If the host is localhost
                     $dbname = 'bj_shree_vinayak_battery_zone_k9r';
-                } elseif ($host === 'staging.businessjoy.in') {
-                    // If the host is staging.businessjoy.in
+                } elseif ($host === 'staging.businessjoy.in') {  // If the host is staging.businessjoy.in
                     $dbname = 'staging_business_joy_parth_fy6';
-                } else {
-                    // For any other host, provide a default
+                } else {  // For any other host, provide a default
                     $dbname = 'business_joy_Oceanmnc_pev';
                 }
 

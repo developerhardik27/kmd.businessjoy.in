@@ -201,16 +201,7 @@ class quotationController extends commonController
         }
             return $this->successresponse(200, 'quotation', $quotation);
     }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
+ 
     /**
      * Store a newly created resource in storage.
      */
@@ -710,7 +701,6 @@ class quotationController extends commonController
         return $this->successresponse(404, 'message', 'Quotation not successfully deleted!');
     }
 
-
     /**
      * get the specified resource from storage.
      */
@@ -738,9 +728,7 @@ class quotationController extends commonController
      * update the specified resource from storage.
      */
     public function updatequotationremarks(Request $request)
-    {
-
-
+    { 
         $validator = validator::make($request->all(), [
             'remarks' => 'required',
             'quotatoin_id' => 'required'
@@ -767,11 +755,9 @@ class quotationController extends commonController
 
     }
 
-
     // use for pdf
     public function quotation_details(string $id)
-    {
-
+    { 
         $columnname = $this->quotationModel::find($id);
 
         if (!$columnname) {
@@ -844,9 +830,7 @@ class quotationController extends commonController
             return $this->successresponse(404, 'message', 'Quotation status not succesfully updated!');
         }
     }
-
-
-
+  
     // check quotation number exist or not
     public function checkquotationnumber(Request $request)
     {

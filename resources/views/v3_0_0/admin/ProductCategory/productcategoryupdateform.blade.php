@@ -1,7 +1,7 @@
 @php
     $folder = session('folder_name');
 @endphp
-@extends($folder . '.admin.masterlayout')
+@extends($folder . '.admin.Layout.masterlayout')
 @section('page_title')
     {{ config('app.name') }} - Update Product Category
 @endsection

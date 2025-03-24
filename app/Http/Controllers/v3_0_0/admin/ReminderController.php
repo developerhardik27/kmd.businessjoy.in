@@ -30,7 +30,7 @@ class ReminderController extends Controller
         } else {
             $search = '';
         }
-        return view($this->version . '.admin.reminder', ['search' => $search]);
+        return view($this->version . '.admin.Reminder.reminder', ['search' => $search]);
     }
 
     /**
@@ -39,25 +39,9 @@ class ReminderController extends Controller
     public function create(string $id=null)
     {
         if(isset($id)){
-            return view($this->version . '.admin.newreminderform', ['edit_id' => $id]);
+            return view($this->version . '.admin.Reminder.newreminderform', ['edit_id' => $id]);
         }
-        return view($this->version . '.admin.reminderform');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return view($this->version . '.admin.Reminder.reminderform');
     }
 
     /**
@@ -65,22 +49,7 @@ class ReminderController extends Controller
      */
     public function edit(string $id)
     {
-        return view($this->version . '.admin.reminderupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.Reminder.reminderupdateform', ['edit_id' => $id]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

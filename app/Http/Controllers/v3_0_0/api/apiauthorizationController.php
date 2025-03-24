@@ -24,17 +24,24 @@ class apiauthorizationController extends commonController
         $this->checkuser();
     }
 
+    /**
+     * Summary of checkuser
+     * check user is super admin
+     * @return void
+     */
     public function checkuser()
     {
         if ($this->companyId != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized!');
         }
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        // get company list 
         $apiauth = DB::table('api_authorization')
             ->join('company', 'api_authorization.company_id', '=', 'company.id')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
@@ -50,15 +57,8 @@ class apiauthorizationController extends commonController
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
+     * create site and server key for outside api calling
      */
     public function store(Request $request)
     {
@@ -71,7 +71,7 @@ class apiauthorizationController extends commonController
             return $this->errorresponse(422,$validator->messages());
         } else {
 
-            do {
+            do { // generate unique site and server key 
                 $sitekey = Str::random(40);
                 $serverkey = Str::random(40);
 
@@ -96,15 +96,7 @@ class apiauthorizationController extends commonController
             }
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
+ 
     /**
      * Show the form for editing the specified resource.
      */

@@ -72,10 +72,8 @@ class PdfController extends Controller
       // return view($this->version . '.admin.invoicetemplate', $data);
       $pdfname = $data['invdata']['inv_no'] . ' ' . $companyname . ' ' . date('d-M-y') . '.pdf';
 
-      // $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.invoicedetail', $data)->setPaper('a4', 'portrait');
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.invoicetemplate', $data)->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.invoicetemplate', $data)->setPaper('a4', 'portrait');
 
-      // return view($this->version . '.admin.invoicetemplate', $data);
       return $pdf->stream($pdfname);
 
    }
@@ -137,16 +135,11 @@ class PdfController extends Controller
          'margin_left' => 0,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentreciept', $data)->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentreciept', $data)->setPaper('a4', 'portrait');
 
       $name = 'Reciept ' . $paymentdata['paymentdetail']['receipt_number'] . '.pdf';
       // return view($this->version . '.admin.paymentreciept', $data);
       return $pdf->stream($name);
-
-      // $pdf = PDF::setOptions($options)->loadView('admin.invoicedetail',[ 'payment' => $paymentdata['payment']])->setPaper('a4', 'portrait');
-
-      // return $pdf->stream($name);
-
 
    }
    public function generaterecieptall(string $id)
@@ -175,7 +168,7 @@ class PdfController extends Controller
          'margin_left' => 0,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentpaidreciept', $data)->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentpaidreciept', $data)->setPaper('a4', 'portrait');
 
       $name = 'Receipt ' . $data['payment'][0]['receipt_number'] . '.pdf';
 
@@ -185,11 +178,6 @@ class PdfController extends Controller
 
       // return view($this->version . '.admin.paymentpaidreciept', $data);
       return $pdf->stream($name);
-
-      // $pdf = PDF::setOptions($options)->loadView('admin.invoicedetail',[ 'payment' => $paymentdata['payment']])->setPaper('a4', 'portrait');
-
-      // return $pdf->stream($name);
-
 
    }
 
@@ -236,7 +224,7 @@ class PdfController extends Controller
 
          foreach ($invoices as $invoice) {
             $data = $this->prepareDataForPDF($invoice);
-            $pdf = PDF::loadView($this->version . '.admin.invoicetemplate', $data)->setPaper('a4', 'portrait');
+            $pdf = PDF::loadView($this->version . '.admin.PDF.invoicetemplate', $data)->setPaper('a4', 'portrait');
             $pdfFileName = $invoice->inv_no . '_' . $invoice->company_name . '_' . $invoice->created_at->format('d-M-y') . '.pdf';
             $pdf->save($tempDir . '/' . $pdfFileName);
          }
@@ -373,12 +361,8 @@ class PdfController extends Controller
       // return view($this->version . '.admin.quotationtemplate', $data);
       $pdfname = $data['quotationdata']['quotation_number'] . ' ' . $companyname . ' ' . date('d-M-y') . '.pdf';
 
-      // return view($this->version . '.admin.quotationtemplate', $data);
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.quotationtemplate', $data)->setPaper('a4', 'portrait');
 
-      // $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.quotationdetail', $data)->setPaper('a4', 'portrait');
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.quotationtemplate', $data)->setPaper('a4', 'portrait');
-
-      // return view($this->version . '.admin.quotationtemplate', $data);
       return $pdf->stream($pdfname);
 
    }

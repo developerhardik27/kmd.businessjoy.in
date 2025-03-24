@@ -25,6 +25,12 @@ class AdminLoginController extends Controller
         return view('admin.login');
     }
 
+    /**
+     * Summary of authenticate
+     * - check user credential and check permissions
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\RedirectResponse
+     */
     public function authenticate(Request $request)
     {
 
@@ -214,11 +220,46 @@ class AdminLoginController extends Controller
     }
 
 
+    /**
+     * Summary of forgot
+     * forgot page view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function forgot()
     {
         return view('admin.forgot');
     }
 
+    
+    /**
+     * Summary of forgot_password
+     * varify  and return reset password link on email
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function forgot_password(Request $request)
+    {
+
+        $user = User::where('email', '=', $request->email)->first();
+
+        if (!empty($user)) {
+            $user->pass_token = str::random(40);
+            $user->save();
+
+            Mail::to($user->email)->bcc('parthdeveloper9@gmail.com')->send(new ForgotPasswordMail($user));
+
+            return redirect()->back()->with('success', 'plz check your mailbox and reset your password');
+        } else {
+            return redirect()->back()->with('error', 'sorry ! you are not registered ');
+        }
+    }
+
+    /**
+     * Summary of reset_password
+     * reset password page view
+     * @param mixed $token
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function reset_password($token)
     {
 
@@ -230,6 +271,10 @@ class AdminLoginController extends Controller
             abort(404);
         }
     }
+
+    /**
+     * reset password
+     */
 
     public function post_reset_password($token, Request $request)
     {
@@ -254,24 +299,13 @@ class AdminLoginController extends Controller
     }
 
 
-    public function forgot_password(Request $request)
-    {
 
-        $user = User::where('email', '=', $request->email)->first();
-
-        if (!empty($user)) {
-            $user->pass_token = str::random(40);
-            $user->save();
-
-            Mail::to($user->email)->bcc('parthdeveloper9@gmail.com')->send(new ForgotPasswordMail($user));
-
-            return redirect()->back()->with('success', 'plz check your mailbox and reset your password');
-        } else {
-            return redirect()->back()->with('error', 'sorry ! you are not registered ');
-        }
-    }
-
-
+    /**
+     * Summary of set_password
+     * set new password view page
+     * @param mixed $token
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function set_password($token)
     {
 
@@ -284,6 +318,13 @@ class AdminLoginController extends Controller
         }
     }
 
+    /**
+     * Summary of post_set_password
+    * set new password 
+     * @param mixed $token
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function post_set_password($token, Request $request)
     {
         $user = User::where('pass_token', '=', $token)->first();
@@ -308,6 +349,12 @@ class AdminLoginController extends Controller
         }
     }
 
+    /**
+     * Summary of setmenusession
+     * store menu in session base on user permission
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function setmenusession(Request $request)
     {
 
@@ -319,7 +366,15 @@ class AdminLoginController extends Controller
         return response()->json(['status' => $value]);
     }
 
-    public function superAdminLoginFromAnyUser(Request $request, string $userId)
+    /**
+     * Summary of superAdminLoginFromAnyUser
+     * super admin login from any user 
+     * @param \Illuminate\Http\Request $request
+     * @param string $userId
+     * @return mixed|\Illuminate\Http\RedirectResponse
+     */
+
+     public function superAdminLoginFromAnyUser(Request $request, string $userId)
     {
 
         if (session('user_id') != 1) {

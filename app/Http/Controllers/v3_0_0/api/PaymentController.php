@@ -40,6 +40,7 @@ class PaymentController extends commonController
         return $this->successresponse(200, 'paymentdetail', $paymentdetail);
 
     }
+    
     // use for pdf
     public function paymentdetail(string $id)
     {
@@ -51,7 +52,6 @@ class PaymentController extends commonController
         }
         return $this->successresponse(200, 'paymentdetail', $paymentdetail);
     }
-
 
     /**
      * pending payment.
@@ -84,15 +84,7 @@ class PaymentController extends commonController
         return $this->successresponse(200, 'payment', $payment);
 
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
+  
     /**
      * Store a newly created resource in storage.
      */
@@ -197,14 +189,7 @@ class PaymentController extends commonController
             }
         }
     }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
+    
     /**
      * Show the form for editing the specified resource.
      */
@@ -212,20 +197,5 @@ class PaymentController extends commonController
     {
         //
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+ 
 }

@@ -18,7 +18,7 @@ class BlogController extends Controller
             $this->version = $_SESSION['folder_name'];
             $this->blogModel = 'App\\Models\\' . $this->version . "\\blog";
         } else {
-            $this->blogModel = 'App\\Models\\v1_2_1\\blog';
+            $this->blogModel = 'App\\Models\\v3_0_0\\blog';
         }
 
     }
@@ -34,7 +34,7 @@ class BlogController extends Controller
             $search = '';
         }
 
-        return view($this->version . '.admin.blog', ["search" => $search]);
+        return view($this->version . '.admin.Blog.blog', ["search" => $search]);
     }
 
     /**
@@ -42,24 +42,8 @@ class BlogController extends Controller
      */
     public function create()
     {
-        return view($this->version . '.admin.blogform', ['company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Blog.blogform', ['company_id' => Session::get('company_id')]);
 
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -67,33 +51,17 @@ class BlogController extends Controller
      */
     public function edit(string $id)
     {
-        return view($this->version . '.admin.blogupdateform', ['company_id' => Session::get('company_id'),'user_id' => Session::get('user_id'), 'edit_id' => $id]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view($this->version . '.admin.Blog.blogupdateform', ['company_id' => Session::get('company_id'),'user_id' => Session::get('user_id'), 'edit_id' => $id]);
     }
 
     public function blogcategory()
     {
-        return view($this->version . '.admin.blogcategory', ['company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Blog.blogcategory', ['company_id' => Session::get('company_id')]);
 
     }
     public function blogtag()
     {
-        return view($this->version . '.admin.blogtag', ['company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Blog.blogtag', ['company_id' => Session::get('company_id')]);
 
     }
 }

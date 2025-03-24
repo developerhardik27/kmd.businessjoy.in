@@ -29,6 +29,7 @@ class techsupportController extends commonController
         $this->rp = json_decode($permissions[0]['rp'], true);
 
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -126,15 +127,7 @@ class techsupportController extends commonController
             return $this->successresponse(404, 'techsupport', 'No Records Found');
         }
         return $this->successresponse(200, 'techsupport', $techsupport);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.
@@ -385,6 +378,5 @@ class techsupportController extends commonController
             return $this->successresponse(404, 'message', 'No Such Ticket Found!');
         }
     }
-
 
 }

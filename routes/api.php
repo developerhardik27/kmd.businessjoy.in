@@ -2,8 +2,7 @@
 
 use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\countryController;
-use App\Http\Controllers\api\dbscriptController;
-use App\Http\Controllers\api\mailcontroller;
+use App\Http\Controllers\api\dbscriptController; 
 use App\Http\Controllers\api\otherapiController;
 use App\Http\Controllers\api\stateController;
 use App\Models\api_authorization;
@@ -22,10 +21,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-// mail route
-Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
-
+ 
 // middleware route group 
 
 Route::middleware(['dynamic.version','checkToken'])->group(function () {
@@ -191,7 +187,6 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::post('/techsupport/update/{id}', 'update')->name('techsupport.update');
         Route::put('/techsupport/delete', 'destroy')->name('techsupport.delete');
         Route::put('/techsupport/changestatus', 'changestatus')->name('techsupport.changestatus');
-        Route::put('/techsupport/changeleadstage', 'changeleadstage')->name('techsupport.changeleadstage');
     });
 
 
@@ -229,9 +224,7 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     $bankdetailsController = getversion('bankdetailsController');
     Route::controller($bankdetailsController)->group(function () {
         Route::get('/bank', 'index')->name('bank.index');
-        Route::post('/bank/insert', 'store')->name('bank.store');
-        Route::get('/bank/search/{id}', 'show')->name('bank.search');
-        Route::get('/bank/edit/{id}', 'edit')->name('bank.edit');
+        Route::post('/bank/insert', 'store')->name('bank.store'); 
         Route::put('/bank/update/{id}', 'update')->name('bank.update');
         Route::put('/bank/delete/{id}', 'destroy')->name('bank.delete');
     });
@@ -342,12 +335,8 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     // lead call history route
     $tblleadhistoryController = getversion('tblleadhistoryController');
     Route::controller($tblleadhistoryController)->group(function () {
-        Route::get('/leadhistory', 'index')->name('leadhistory.index');
         Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
         Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
-        Route::get('/leadhistory/edit/{id}', 'edit')->name('leadhistory.edit');
-        Route::post('/leadhistory/update/{id}', 'update')->name('leadhistory.update');
-        Route::put('/leadhistory/delete', 'destroy')->name('leadhistory.delete');
     });
 
     // customer suppport route 
@@ -366,12 +355,8 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     // customer support call history route
     $customersupporthistoryController = getversion('customersupporthistoryController');
     Route::controller($customersupporthistoryController)->group(function () {
-        Route::get('/customersupporthistory', 'index')->name('customersupporthistory.index');
         Route::post('/customersupporthistory/insert', 'store')->name('customersupporthistory.store');
         Route::get('/customersupporthistory/search/{id}', 'show')->name('customersupporthistory.search');
-        Route::get('/customersupporthistory/edit/{id}', 'edit')->name('customersupporthistory.edit');
-        Route::post('/customersupporthistory/update/{id}', 'update')->name('customersupporthistory.update');
-        Route::put('/customersupporthistory/delete', 'destroy')->name('customersupporthistory.delete');
     });
 
     //common controller route
@@ -437,7 +422,6 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     Route::controller($blogcategoryController)->group(function () {
         Route::get('/blogcategory', 'index')->name('blogcategory.index');
         Route::post('/blogcategory/insert', 'store')->name('blogcategory.store');
-        Route::get('/blogcategory/search/{id}', 'show')->name('blogcategory.search');
         Route::get('/blogcategory/edit/{id}', 'edit')->name('blogcategory.edit');
         Route::post('/blogcategory/update/{id}', 'update')->name('blogcategory.update');
         Route::put('/blogcategory/delete/{id}', 'destroy')->name('blogcategory.delete');
@@ -448,7 +432,6 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     Route::controller($blogtagController)->group(function () {
         Route::get('/blogtag', 'index')->name('blogtag.index');
         Route::post('/blogtag/insert', 'store')->name('blogtag.store');
-        Route::get('/blogtag/search/{id}', 'show')->name('blogtag.search');
         Route::get('/blogtag/edit/{id}', 'edit')->name('blogtag.edit');
         Route::post('/blogtag/update/{id}', 'update')->name('blogtag.update');
         Route::put('/blogtag/delete/{id}', 'destroy')->name('blogtag.delete');
@@ -471,7 +454,6 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     Route::controller($apiauthorizationController)->group(function () {
         Route::get('/apiauthorization', 'index')->name('apiauthorization.index');
         Route::post('/apiauthorization/insert', 'store')->name('apiauthorization.store');
-        Route::get('/apiauthorization/search/{id}', 'show')->name('apiauthorization.search');
         Route::get('/apiauthorization/edit/{id}', 'edit')->name('apiauthorization.edit');
         Route::post('/apiauthorization/update/{id}', 'update')->name('apiauthorization.update');
         Route::put('/apiauthorization/delete/{id}', 'destroy')->name('apiauthorization.delete');

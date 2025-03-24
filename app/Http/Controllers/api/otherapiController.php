@@ -90,6 +90,12 @@ class otherapiController extends Controller
         }
     }
 
+    /**
+     * Summary of store
+     * oceanmnc visitor activity store
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     { 
         $data = $request->validate([
