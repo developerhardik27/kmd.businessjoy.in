@@ -49,7 +49,7 @@ class invoiceController extends commonController
     {
         $invoices = $this->invoiceModel::where('is_deleted', 0)->count();
 
-        return $this->successresponse(200, 'invoice', $invoices || 0);
+        return $this->successresponse(200, 'invoice', $invoices);
     }
 
     // chart monthly invoice counting

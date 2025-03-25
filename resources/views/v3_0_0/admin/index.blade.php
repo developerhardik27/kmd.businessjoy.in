@@ -91,6 +91,14 @@
                                                     <div class="iq-header-title">
                                                         <h4 class="card-title">Monthly Invoices</h4>
                                                     </div>
+                                                    <div class="float-right my-1">
+                                                        <select name="invoicesbymonths" id="invoicesbymonths"
+                                                            class="float-right form-control m-0 p-0">
+                                                            <option disabled>Select Month</option>
+                                                            <option value="all">Select All</option>
+                                                            <option value="current" selected>Current Month</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <ul class="suggestions-lists m-0 p-0">
@@ -182,15 +190,7 @@
                                                     <div class="iq-header-title">
                                                         <h4 class="card-title"><span id="invoice_status_title"></span> Invoices
                                                         </h4>
-                                                    </div>
-                                                    <div class="float-right my-1">
-                                                        <select name="invoicesbymonths" id="invoicesbymonths"
-                                                            class="float-right form-control">
-                                                            <option disabled>Select Month</option>
-                                                            <option value="all">Select All</option>
-                                                            <option value="current" selected>Current Month</option>
-                                                        </select>
-                                                    </div>
+                                                    </div> 
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="table-responsive scrollable-table" style="width: 100%">
@@ -252,6 +252,14 @@
                                                 <div class="iq-card-header d-flex justify-content-between">
                                                     <div class="iq-header-title">
                                                         <h4 class="card-title">Monthly Quotations</h4>
+                                                    </div>
+                                                    <div class="float-right my-1">
+                                                        <select name="quotationsbymonths" id="quotationsbymonths"
+                                                            class="float-right form-control m-0 p-0">
+                                                            <option disabled>Select Month</option>
+                                                            <option value="all">Select All</option>
+                                                            <option value="current" selected>Current Month</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div class="iq-card-body">
@@ -355,15 +363,7 @@
                                                     <div class="iq-header-title">
                                                         <h4 class="card-title"><span id="quotation_status_title"></span> Quotations
                                                         </h4>
-                                                    </div>
-                                                    <div class="float-right my-1">
-                                                        <select name="quotationsbymonths" id="quotationsbymonths"
-                                                            class="float-right form-control">
-                                                            <option disabled>Select Month</option>
-                                                            <option value="all">Select All</option>
-                                                            <option value="current" selected>Current Month</option>
-                                                        </select>
-                                                    </div>
+                                                    </div> 
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="table-responsive scrollable-table" style="width: 100%">
@@ -425,6 +425,17 @@
                                                     <div class="iq-header-title">
                                                         <h4 class="card-title">Reminders</h4>
                                                     </div>
+                                                    <div class="float-right my-1">
+                                                        <select name="reminderbydays" id="reminderbydays"
+                                                            class="float-right form-control m-0 p-0">
+                                                            <option disabled>Select Days</option>
+                                                            <option value="7">7 Days</option>
+                                                            <option value="15">15 Days</option>
+                                                            <option value="30" selected>1 Month</option>
+                                                            <option value="180">6 Months</option>
+                                                            <option value="365">1 Year</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <ul class="suggestions-lists m-0 p-0">
@@ -440,10 +451,13 @@
                                                         </li>
                                                         <li class="d-flex mb-4 align-items-center">
                                                             <div class="media-support-info ml-3">
-                                                                <h6><button class="btn btn-danger btn-sm"
-                                                                        id="reminderinprogressdata"><span><i
-                                                                                class="ri-list-check"></i></span>In
-                                                                        Progress</button></h6>
+                                                                <h6>
+                                                                    <button class="btn btn-danger btn-sm" id="reminderinprogressdata">
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>In Progress
+                                                                    </button>
+                                                                </h6>
                                                             </div>
                                                             <div class="profile-icon iq-bg-danger"><span
                                                                     id="reminderinprogress">0</span></div>
@@ -470,18 +484,7 @@
                                                         <h4 class="card-title"><span id="reminder_status_title"></span>Upcoming
                                                             Reminders
                                                         </h4>
-                                                    </div>
-                                                    <div class="float-right my-1">
-                                                        <select name="reminderbydays" id="reminderbydays"
-                                                            class="float-right form-control">
-                                                            <option disabled>Select Days</option>
-                                                            <option value="7">7 Days</option>
-                                                            <option value="15">15 Days</option>
-                                                            <option value="30" selected>1 Month</option>
-                                                            <option value="180">6 Months</option>
-                                                            <option value="365">1 Year</option>
-                                                        </select>
-                                                    </div>
+                                                    </div> 
                                                 </div>
                                                 <div class="iq-card-body">
 
