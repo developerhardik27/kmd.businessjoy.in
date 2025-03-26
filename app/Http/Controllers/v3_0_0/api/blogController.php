@@ -263,7 +263,7 @@ class blogController extends commonController
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
             ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc', 'blogs.meta_dsc', 'meta_keywords', 'blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at"))
+            ->select('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc', 'blogs.meta_dsc', 'meta_keywords', 'blogs.content', 'blogs.cat_ids', DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'), DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'), DB::raw("DATE_FORMAT(blogs.created_at, '%d-%M-%Y')as created_at_formatted"))
             ->groupBy('users.firstname', 'users.lastname', 'blogs.id', 'blogs.title', 'blogs.img', 'blogs.short_desc', 'blogs.meta_dsc', 'meta_keywords', 'blogs.content', 'blogs.created_at', 'blogs.cat_ids')
             ->where('blogs.is_deleted', 0)
             ->where('blogs.slug', $slug)
