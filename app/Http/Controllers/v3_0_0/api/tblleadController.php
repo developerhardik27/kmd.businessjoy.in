@@ -345,7 +345,6 @@ class tblleadController extends commonController
 
         $lead->update([
             'is_deleted' => 1
-
         ]);
         return $this->successresponse(200, 'message', 'lead succesfully deleted');
     }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\v3_0_0\api;
 
-use App\Http\Controllers\Controller;
+use Throwable;
 use App\Models\company;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class commonController extends Controller
 {
@@ -65,13 +67,52 @@ class commonController extends Controller
 
         return response()->json($response,$code);
     }
+
+
     public function errorresponse($status , $errorsdata , $code = 422){
+
+
+        if($status == 422){ 
+            $response = [
+                'status' => $status,
+                'errors' => $errorsdata
+            ]; 
+            return response()->json($response,$code);
+        }
+
         $response = [
             'status' => $status,
-            'errors' => $errorsdata
+            "message" => $errorsdata
         ];
+ 
+        return response()->json($response,200);
 
-        return response()->json($response,$code);
+
+
     }
+
+
+    protected function executeTransaction(callable $callback)
+    {
+       
+        DB::beginTransaction(); // Start transaction on default connection
+        DB::connection('dynamic_connection')->beginTransaction(); // Start transaction on dynamic_connection
+
+        try { 
+            $result = $callback();
+            
+            DB::commit(); // Commit default connection
+            DB::connection('dynamic_connection')->commit(); // Commit dynamic connection
+
+            return $result;
+        } catch (Throwable $e) {
+            DB::rollBack(); // Rollback default connection
+            DB::connection('dynamic_connection')->rollBack(); // Rollback dynamic connection
+            
+            Log::error("Transaction Rolled Back: " . $e->getMessage());
+            return $this->errorResponse(500, $e->getMessage());
+        }
+    }
+
 
 }

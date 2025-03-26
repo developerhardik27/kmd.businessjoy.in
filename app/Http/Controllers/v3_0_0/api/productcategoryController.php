@@ -230,35 +230,39 @@ class productcategoryController extends commonController
      */
     public function destroy(string $id)
     {
-        $productcategory = $this->productCategoryModel::find($id);
 
-        if (!$productcategory) {
-            return $this->successresponse(404, 'message', 'No such product category found!');
-        }
+        return $this->executeTransaction(function() use ($id){
 
-        if ($this->rp['inventorymodule']['productcategory']['alldata'] != 1) {
-            if ($productcategory->created_by != $this->userId) {
+            $productcategory = $this->productCategoryModel::find($id);
+
+            if (!$productcategory) {
+                return $this->successresponse(404, 'message', 'No such product category found!');
+            }
+
+            if ($this->rp['inventorymodule']['productcategory']['alldata'] != 1) {
+                if ($productcategory->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+            }
+            //condition for check if user has permission to delete record
+            if ($this->rp['inventorymodule']['productcategory']['delete'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        //condition for check if user has permission to delete record
-        if ($this->rp['inventorymodule']['productcategory']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-       
-        $productcategory->update([
-            'is_deleted' => 1
-        ]);
+        
+            $productcategory->update([
+                'is_deleted' => 1
+            ]);
 
-        $product = $this->productModel::where('product_category',$id)->update([
-            'product_category' => null
-        ]);
+            $product = $this->productModel::where('product_category',$id)->update([
+                'product_category' => null
+            ]);
 
-         // Function to update child categories based on parent_id
-         $this->updateChildCategoriesStatus($productcategory,'is_deleted', 1);
+            // Function to update child categories based on parent_id
+            $this->updateChildCategoriesStatus($productcategory,'is_deleted', 1);
 
 
-        return $this->successresponse(200, 'message', 'Product succesfully deleted');
+            return $this->successresponse(200, 'message', 'Product succesfully deleted');
+        });
     }
 
     /**
@@ -267,30 +271,32 @@ class productcategoryController extends commonController
     public function statusupdate(Request $request, string $id)
     {
 
-        $productcategory = $this->productCategoryModel::find($id);
+        return $this->executeTransaction(function() use ($request ,$id){
+            $productcategory = $this->productCategoryModel::find($id);
 
-        if (!$productcategory) { 
-            return $this->successresponse(404, 'message', 'No such product category found!');
-        }
-
-        if ($this->rp['inventorymodule']['productcategory']['alldata'] != 1) {
-            if ($productcategory->created_by != $this->userId) {
-                return $this->successresponse(500, 'message', "You are Unauthorized!");
+            if (!$productcategory) { 
+                return $this->successresponse(404, 'message', 'No such product category found!');
             }
-        }
-       
-        if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
-        $productcategory->update([
-            'is_active' => $request->status
-        ]);
+            if ($this->rp['inventorymodule']['productcategory']['alldata'] != 1) {
+                if ($productcategory->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', "You are Unauthorized!");
+                }
+            }
+        
+            if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
 
-        // Function to update child categories based on parent_id
-        $updateupdateChildCategorie = $this->updateChildCategoriesStatus($productcategory,'is_active', $request->status);
+            $productcategory->update([
+                'is_active' => $request->status
+            ]);
 
-        return $this->successresponse(200, 'message', 'status succesfully updated');
+            // Function to update child categories based on parent_id
+            $updateupdateChildCategorie = $this->updateChildCategoriesStatus($productcategory,'is_active', $request->status);
+
+            return $this->successresponse(200, 'message', 'status succesfully updated');
+        });
     }
  
     private function updateChildCategoriesStatus($category, $column , $value)

@@ -96,14 +96,14 @@ class invoiceController extends commonController
         }
         return $this->successresponse(200, 'currency', $currency);
     }
-    
+
     //get bank details
     public function bdetails(Request $request)
     {
         $bank = DB::connection('dynamic_connection')->table('bank_details')
-        ->where('is_active', 1)
-        ->where('is_deleted', 0) 
-        ->get();
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
 
         if ($bank->isEmpty()) {
             return $this->successresponse(404, 'bank', 'No Records Found');
@@ -235,7 +235,7 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
         return $this->successresponse(200, 'invoice', $invoice);
-    } 
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -243,293 +243,290 @@ class invoiceController extends commonController
     public function store(Request $request)
     {
 
-        $data = $request->data; // invoice details
-        $itemdata = $request->iteam_data; // product details
+        return $this->executeTransaction(function () use ($request) {
 
-        // validate incoming request data
-        $validator = Validator::make($data, [
-            "payment_mode" => 'required',
-            "bank_account" => 'required',
-            "customer" => 'required',
-            "total_amount" => 'required|numeric',
-            "sgst" => 'nullable|numeric',
-            "cgst" => 'nullable|numeric',
-            "gst" => 'nullable|numeric',
-            "currency" => 'required|numeric',
-            "tax_type" => 'required|numeric',
-            "country_id",
-            "user_id",
-            'notes',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
+            $data = $request->data; // invoice details
+            $itemdata = $request->iteam_data; // product details
 
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
+            // validate incoming request data
+            $validator = Validator::make($data, [
+                "payment_mode" => 'required',
+                "bank_account" => 'required',
+                "customer" => 'required',
+                "total_amount" => 'required|numeric',
+                "sgst" => 'nullable|numeric',
+                "cgst" => 'nullable|numeric',
+                "gst" => 'nullable|numeric',
+                "currency" => 'required|numeric',
+                "tax_type" => 'required|numeric',
+                "country_id",
+                "user_id",
+                'notes',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
 
-            if ($this->rp['invoicemodule']['invoice']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-            //fetch all column for add details into manage column table and add show column into invoice table
-            $column = []; // array for show column 
-            $mngcol = $this->tbl_invoice_columnModel::orderBy('column_order')->where('is_deleted', 0)->where('is_hide', 0)->get();
-
-            foreach ($mngcol as $key => $val) {
-                array_push($column, $val->column_name); // push value in show column array
-            }
-
-            // show array modification 
-            $columnwithunderscore = array_map(function ($value) {
-                return str_replace(' ', '_', $value); // replace (space) = (_)
-            }, $column);
-
-            $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for show column
-
-            // fetch last record from invoice tbl for generate dynamic inv no
-            $customer = DB::connection('dynamic_connection')->table('customers')->where('id', $data['customer'])->get();
-            $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->select('company_details.country_id')
-                ->where('company.id', $this->companyId)
-                ->get();
-
-            $customerid = $customer[0]->customer_id;
-            $othersetting = $this->invoice_other_settingModel::find(1);
-            $patterntype = 2; // pattern type 2 = global 
-
-            if (isset($data['inv_number'])) { //user entered manully inv number
-                if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                    $patterntype = 1; // pattern type = 1 -> local
-                }
-                // check inv number already exist.
-                $checkinvnumberrec = $this->invoiceModel::where('inv_no', $data['inv_number'])->where('is_deleted', 0)->first();
-                if ($checkinvnumberrec) {
-                    return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
-                }
-                $inv_no = $data['inv_number'];
-            } else { //generate dynmaic inv number
-                $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
-                $currentMonth = date('m'); // Current month
-                $currentDay = date('d'); // Current day
-                $startMonth = date('m', strtotime($userStartDate));
-                $startDay = date('d', strtotime($userStartDate));
-
-                // Compare the start date's month and day with the current month and day
-                if ($currentMonth < $startMonth || ($currentMonth == $startMonth && $currentDay < $startDay)) {
-                    // If the current date is before the user's starting month, count the previous year
-                    $year = date('y', strtotime('-1 year'));
-                } else {
-                    // If the current date is after or on the user's starting month, count the current year
-                    $year = date('y');
-                }
-
-                $month = date('m');
-                $date = date('d');
-                $ai = '';
-                $cidai = '';
-                $patterntype = '';
-
-                if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                    $patterntype = 1; //  // pattern type = 1 -> local
-                    $increment_number = 1;
-                    do {
-                        $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
-                        $inv_no = $getpattern->invoice_pattern;
-                        if ($getpattern->increment_type == 1) {
-                            // Replace placeholders with actual values
-                            $ai = $getpattern->current_increment_number;
-                            $getpattern->update([
-                                'current_increment_number' => $ai + 1
-                            ]);
-                        } else {
-                            $oldinvoice = $this->invoiceModel::where('customer_id', $customerid)
-                                ->where('is_deleted', 0)
-                                ->where('inv_number_type', 'a') // a means dynamic generated number
-                                ->where('increment_type', 2) // increment type 2 = increment invoice number by customer
-                                ->orderBy('last_increment_number', 'desc')
-                                ->select('last_increment_number')
-                                ->first();
-
-                            if (!empty($oldinvoice)) {
-                                $cidai = $oldinvoice->last_increment_number + $increment_number;
-                            } else {
-                                $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : $increment_number;
-                            }
-                        }
-
-                        $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
-                        $existingInvoice = $this->invoiceModel::where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
-                        $increment_number++;
-
-                        if (!$existingInvoice) {
-                            break;
-                        }
-                    } while ($existingInvoice);
-
-
-                } else {
-                    $patterntype = 2; // pattern type 2 = global 
-                    $increment_number = 1; 
-
-                    do {
-                        $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
-                        $inv_no = $getpattern->invoice_pattern;
-                        if ($getpattern->increment_type == 1) { // increment by invoice
-                            // Replace placeholders with actual values
-                            $ai = $getpattern->current_increment_number;
-                            $getpattern->update([
-                                'current_increment_number' => $ai + 1
-                            ]);
-                        } else { // increment by customer
-                            $oldinvoice = $this->invoiceModel::where('customer_id', $customerid)
-                                ->where('is_deleted', 0)
-                                ->where('increment_type', 2)
-                                ->where('inv_number_type', 'a')
-                                ->orderBy('last_increment_number', 'desc')
-                                ->select('last_increment_number')
-                                ->first();
-
-                            if (!empty($oldinvoice)) {
-                                $cidai = $oldinvoice->last_increment_number + $increment_number;
-                            } else {
-                                $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
-                            }
-                        }
-                        $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
-                        $existingInvoice = $this->invoiceModel::where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
-                        $increment_number++;
-                        if (!$existingInvoice) {
-                            break;
-                        }
-                    } while ($existingInvoice);
-
-                }
-            }
-
-
-            $company_details = company::find($data['company_id']);
-
-            if ($company_details) {
-
-                $company_details_id = $company_details->company_details_id;
-
-                $invoicerec = [
-                    'inv_no' => $inv_no,
-                    'customer_id' => $data['customer'],
-                    'notes' => $data['notes'],
-                    'total' => $data['total_amount'],
-                    'grand_total' => $data['grandtotal'],
-                    'currency_id' => $data['currency'],
-                    'payment_type' => $data['payment_mode'],
-                    'account_id' => $data['bank_account'],
-                    'company_id' => $this->companyId,
-                    'company_details_id' => $company_details_id,
-                    'created_by' => $data['user_id'],
-                    'show_col' => $showcolumnstring,
-                    'gstsettings' => json_encode($data['gstsettings']),
-                    'overdue_date' => $othersetting->overdue_day,
-                    'pattern_type' => $patterntype
-                ];
-
-                if ($data['invoice_date']) { // if user entered manually 
-                    $invoicerec['inv_date'] = $data['invoice_date'];
-                }
-
-                if ($data['inv_number']) { // if user enetered manually 
-                    $invoicerec['inv_number_type'] = 'm';  // set flag "m" if user entered manully inv number - default(a)
-                }
-
-                if (isset($cidai) && $cidai != '') { // incase invoice number increment by customer 
-                    $invoicerec['last_increment_number'] = $cidai;
-                    $invoicerec['increment_type'] = 2;
-                } else {
-                    $invoicerec['increment_type'] = 1; // incase invoice number increment by invoice
-                }
-
-                if ($data['tax_type'] != 2) {  // if combine gst
-                    if (isset($data['gst'])) {
-                        $invoicerec['gst'] = $data['gst'];
-                    } else { // if sepereate gst 
-                        $invoicerec['sgst'] = $data['sgst'];
-                        $invoicerec['cgst'] = $data['cgst'];
-                    }
-                }
-
-                // get terms and conditions id
-                $tclastrec = DB::connection('dynamic_connection')->table('invoice_terms_and_conditions')->select('id')->where('is_deleted', 0)->where('is_active', 1)->orderBy('id', 'desc')->first();
-
-
-                if ($tclastrec) {
-                    $invoicerec['t_and_c_id'] = $tclastrec->id;
-                }
-
-                $invoice = $this->invoiceModel::insertGetId($invoicerec); // insert invoice record 
-
-                if ($invoice) {
-                    $inv_id = $invoice;
-
-                    foreach ($itemdata as $row) {
-                        $dynamicdata = [];
-
-                        // if(isset($row['inventoryproduct'])){
-
-                        // }
-
-                        // Map the values to the corresponding columns
-                        foreach ($columnwithunderscore as $column) {
-                            $dynamicdata[$column] = $row[$column];
-                        }
-
-                        // Add additional columns and their values
-                        $dynamicdata['invoice_id'] = $inv_id;
-                        $dynamicdata['amount'] = $row['amount'];
-                        $dynamicdata['created_by'] = $data['user_id'];
-                        // Add more columns as needed
-
-                        if (isset($row['inventoryproduct'])) {
-                            $dynamicdata['inventory_product_id'] = $row['inventoryproduct'];
-
-                            $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
-
-                            if ($quantitycolumn->count() > 0) {
-                                $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
-
-                                $updateinventory->available -= $row[$quantitycolumn[0]];
-                                $updateinventory->on_hand -= $row[$quantitycolumn[0]];
-
-                                $updateinventory->save();
-                            }
-
-                        }
-
-                        // Insert the record into the database
-                        $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata); // insert product record line by line
-                    }
-
-                    if ($mng_col) {
-                        return $this->successresponse(200, 'message', 'invoice  succesfully created');
-                    } else {
-                        $id = $invoice;
-                        $record = $this->invoiceModel::find($id);
-                        // Check if the record exists
-                        if ($record) {
-                            // Delete the record
-                            $record->delete();
-                        }
-                        return $this->successresponse(500, 'message', 'invoice details not succesfully created');
-                    }
-                } else {
-                    return $this->successresponse(500, 'message', 'invoice not succesfully created');
-                }
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
             } else {
-                return $this->successresponse(500, 'message', 'company Details not found');
+
+                if ($this->rp['invoicemodule']['invoice']['add'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+
+                //fetch all column for add details into manage column table and add show column into invoice table
+                $column = []; // array for show column 
+                $mngcol = $this->tbl_invoice_columnModel::orderBy('column_order')->where('is_deleted', 0)->where('is_hide', 0)->get();
+
+                foreach ($mngcol as $key => $val) {
+                    array_push($column, $val->column_name); // push value in show column array
+                }
+
+                // show array modification 
+                $columnwithunderscore = array_map(function ($value) {
+                    return str_replace(' ', '_', $value); // replace (space) = (_)
+                }, $column);
+
+                $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for show column
+
+                // fetch last record from invoice tbl for generate dynamic inv no
+                $customer = DB::connection('dynamic_connection')->table('customers')->where('id', $data['customer'])->get();
+                $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
+                    ->select('company_details.country_id')
+                    ->where('company.id', $this->companyId)
+                    ->get();
+
+                $customerid = $customer[0]->customer_id;
+                $othersetting = $this->invoice_other_settingModel::find(1);
+                $patterntype = 2; // pattern type 2 = global 
+
+                if (isset($data['inv_number'])) { //user entered manully inv number
+                    if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
+                        $patterntype = 1; // pattern type = 1 -> local
+                    }
+                    // check inv number already exist.
+                    $checkinvnumberrec = $this->invoiceModel::where('inv_no', $data['inv_number'])->where('is_deleted', 0)->first();
+                    if ($checkinvnumberrec) {
+                        return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
+                    }
+                    $inv_no = $data['inv_number'];
+                } else { //generate dynmaic inv number
+                    $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
+                    $currentMonth = date('m'); // Current month
+                    $currentDay = date('d'); // Current day
+                    $startMonth = date('m', strtotime($userStartDate));
+                    $startDay = date('d', strtotime($userStartDate));
+
+                    // Compare the start date's month and day with the current month and day
+                    if ($currentMonth < $startMonth || ($currentMonth == $startMonth && $currentDay < $startDay)) {
+                        // If the current date is before the user's starting month, count the previous year
+                        $year = date('y', strtotime('-1 year'));
+                    } else {
+                        // If the current date is after or on the user's starting month, count the current year
+                        $year = date('y');
+                    }
+
+                    $month = date('m');
+                    $date = date('d');
+                    $ai = '';
+                    $cidai = '';
+                    $patterntype = '';
+
+                    if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
+                        $patterntype = 1; //  // pattern type = 1 -> local
+                        $increment_number = 1;
+                        do {
+                            $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
+                            $inv_no = $getpattern->invoice_pattern;
+                            if ($getpattern->increment_type == 1) {
+                                // Replace placeholders with actual values
+                                $ai = $getpattern->current_increment_number;
+                                $getpattern->update([
+                                    'current_increment_number' => $ai + 1
+                                ]);
+                            } else {
+                                $oldinvoice = $this->invoiceModel::where('customer_id', $customerid)
+                                    ->where('is_deleted', 0)
+                                    ->where('inv_number_type', 'a') // a means dynamic generated number
+                                    ->where('increment_type', 2) // increment type 2 = increment invoice number by customer
+                                    ->orderBy('last_increment_number', 'desc')
+                                    ->select('last_increment_number')
+                                    ->first();
+
+                                if (!empty($oldinvoice)) {
+                                    $cidai = $oldinvoice->last_increment_number + $increment_number;
+                                } else {
+                                    $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : $increment_number;
+                                }
+                            }
+
+                            $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                            $existingInvoice = $this->invoiceModel::where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
+                            $increment_number++;
+
+                            if (!$existingInvoice) {
+                                break;
+                            }
+                        } while ($existingInvoice);
+
+
+                    } else {
+                        $patterntype = 2; // pattern type 2 = global 
+                        $increment_number = 1;
+
+                        do {
+                            $getpattern = $this->invoice_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
+                            $inv_no = $getpattern->invoice_pattern;
+                            if ($getpattern->increment_type == 1) { // increment by invoice
+                                // Replace placeholders with actual values
+                                $ai = $getpattern->current_increment_number;
+                                $getpattern->update([
+                                    'current_increment_number' => $ai + 1
+                                ]);
+                            } else { // increment by customer
+                                $oldinvoice = $this->invoiceModel::where('customer_id', $customerid)
+                                    ->where('is_deleted', 0)
+                                    ->where('increment_type', 2)
+                                    ->where('inv_number_type', 'a')
+                                    ->orderBy('last_increment_number', 'desc')
+                                    ->select('last_increment_number')
+                                    ->first();
+
+                                if (!empty($oldinvoice)) {
+                                    $cidai = $oldinvoice->last_increment_number + $increment_number;
+                                } else {
+                                    $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
+                                }
+                            }
+                            $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                            $existingInvoice = $this->invoiceModel::where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
+                            $increment_number++;
+                            if (!$existingInvoice) {
+                                break;
+                            }
+                        } while ($existingInvoice);
+
+                    }
+                }
+
+
+                $company_details = company::find($data['company_id']);
+
+                if ($company_details) {
+
+                    $company_details_id = $company_details->company_details_id;
+
+                    $invoicerec = [
+                        'inv_no' => $inv_no,
+                        'customer_id' => $data['customer'],
+                        'notes' => $data['notes'],
+                        'total' => $data['total_amount'],
+                        'grand_total' => $data['grandtotal'],
+                        'currency_id' => $data['currency'],
+                        'payment_type' => $data['payment_mode'],
+                        'account_id' => $data['bank_account'],
+                        'company_id' => $this->companyId,
+                        'company_details_id' => $company_details_id,
+                        'created_by' => $data['user_id'],
+                        'show_col' => $showcolumnstring,
+                        'gstsettings' => json_encode($data['gstsettings']),
+                        'overdue_date' => $othersetting->overdue_day,
+                        'pattern_type' => $patterntype
+                    ];
+
+                    if ($data['invoice_date']) { // if user entered manually 
+                        $invoicerec['inv_date'] = $data['invoice_date'];
+                    }
+
+                    if ($data['inv_number']) { // if user enetered manually 
+                        $invoicerec['inv_number_type'] = 'm';  // set flag "m" if user entered manully inv number - default(a)
+                    }
+
+                    if (isset($cidai) && $cidai != '') { // incase invoice number increment by customer 
+                        $invoicerec['last_increment_number'] = $cidai;
+                        $invoicerec['increment_type'] = 2;
+                    } else {
+                        $invoicerec['increment_type'] = 1; // incase invoice number increment by invoice
+                    }
+
+                    if ($data['tax_type'] != 2) {  // if combine gst
+                        if (isset($data['gst'])) {
+                            $invoicerec['gst'] = $data['gst'];
+                        } else { // if sepereate gst 
+                            $invoicerec['sgst'] = $data['sgst'];
+                            $invoicerec['cgst'] = $data['cgst'];
+                        }
+                    }
+
+                    // get terms and conditions id
+                    $tclastrec = DB::connection('dynamic_connection')->table('invoice_terms_and_conditions')->select('id')->where('is_deleted', 0)->where('is_active', 1)->orderBy('id', 'desc')->first();
+
+
+                    if ($tclastrec) {
+                        $invoicerec['t_and_c_id'] = $tclastrec->id;
+                    }
+
+                    $invoice = $this->invoiceModel::insertGetId($invoicerec); // insert invoice record 
+
+                    if ($invoice) {
+                        $inv_id = $invoice;
+
+                        foreach ($itemdata as $row) {
+                            $dynamicdata = [];
+
+                            // if(isset($row['inventoryproduct'])){
+
+                            // }
+
+                            // Map the values to the corresponding columns
+                            foreach ($columnwithunderscore as $column) {
+                                $dynamicdata[$column] = $row[$column];
+                            }
+
+                            // Add additional columns and their values
+                            $dynamicdata['invoice_id'] = $inv_id;
+                            $dynamicdata['amount'] = $row['amount'];
+                            $dynamicdata['created_by'] = $data['user_id'];
+                            // Add more columns as needed
+
+                            if (isset($row['inventoryproduct'])) {
+                                $dynamicdata['inventory_product_id'] = $row['inventoryproduct'];
+
+                                $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
+
+                                if ($quantitycolumn->count() > 0) {
+                                    $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
+
+                                    $updateinventory->available -= $row[$quantitycolumn[0]];
+                                    $updateinventory->on_hand -= $row[$quantitycolumn[0]];
+
+                                    $updateinventory->save();
+                                }
+
+                            }
+
+                            // Insert the record into the database
+                            $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata); // insert product record line by line
+                        }
+
+                        if ($mng_col) {
+                            return $this->successresponse(200, 'message', 'invoice  succesfully created');
+                        } else {
+                            throw new \Exception("Invoice creation failed");
+                        }
+                    } else {
+                        throw new \Exception("Invoice creation failed");
+                    }
+                } else {
+                    return $this->successresponse(500, 'message', 'company Details not found');
+                }
+
             }
 
-        }
+        });
     }
 
     /**
@@ -592,217 +589,220 @@ class invoiceController extends commonController
     public function update(Request $request, string $id)
     {
 
-        $data = $request->data; // invoice data
-
-        // validate incoming request data
-        $validator = Validator::make($data, [
-            "payment_mode" => 'required',
-            "bank_account" => 'required',
-            "customer" => 'required',
-            "total_amount" => 'required|numeric',
-            "sgst" => 'nullable|numeric',
-            "cgst" => 'nullable|numeric',
-            "gst" => 'nullable|numeric',
-            "currency" => 'required|numeric',
-            "tax_type" => 'required|numeric',
-            "country_id",
-            "user_id",
-            'notes',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            if ($this->rp['invoicemodule']['invoice']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-            $oldinvoice = $this->invoiceModel::find($id);
-
-            //get quantity linked column
-            $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
-
-            // update old product data
-            $columanname = [];
-            if ($request->old_iteam_data) {
-                $oldproductdata = $request->old_iteam_data;
-                foreach ($oldproductdata as $val) {
-                    foreach ($val as $productid => $productvalue) {
-                        //get old product record
-                        $fetcholdproduct = DB::connection('dynamic_connection')->table('mng_col')->find($productid);
-
-                        if (isset($fetcholdproduct->inventory_product_id) && $quantitycolumn->count() > 0) {
+        return $this->executeTransaction(function () use ($request, $id) {
 
 
-                            $oldquantity = (int) $fetcholdproduct->{$quantitycolumn[0]};
+            $data = $request->data; // invoice data
 
-                            $newquantity = (int) $productvalue[$quantitycolumn[0]];
+            // validate incoming request data
+            $validator = Validator::make($data, [
+                "payment_mode" => 'required',
+                "bank_account" => 'required',
+                "customer" => 'required',
+                "total_amount" => 'required|numeric',
+                "sgst" => 'nullable|numeric',
+                "cgst" => 'nullable|numeric',
+                "gst" => 'nullable|numeric',
+                "currency" => 'required|numeric',
+                "tax_type" => 'required|numeric',
+                "country_id",
+                "user_id",
+                'notes',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
 
-                            $inventory = $this->inventoryModel::where('product_id', $fetcholdproduct->inventory_product_id)->where('is_deleted', 0)->first();
-
-                            if ($inventory) {
-                                if ($oldquantity > $newquantity) {
-                                    $managequantity = $oldquantity - $newquantity;
-                                    $inventory->available += $managequantity;
-                                    $inventory->on_hand += $managequantity;
-                                } else if ($oldquantity < $newquantity) {
-                                    $managequantity = $newquantity - $oldquantity;
-                                    $inventory->available -= (int) $managequantity;
-                                    $inventory->on_hand -= (int) $managequantity;
-                                }
-                                $inventory->save();
-                            }
-
-                        }
-
-                        unset($productvalue['inventoryproduct']);
-
-                        DB::connection('dynamic_connection')->table('mng_col')
-                            ->where('id', $productid)
-                            ->update(
-                                $productvalue
-                            );
-
-                        foreach ($productvalue as $key => $value) {
-                            if (count($columanname) >= count($productvalue)) {
-                                break;
-                            }
-                            $columanname[] = $key; // collect column for use add new data
-                        }
-                    }
-                }
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
             } else {
-                $columanname = explode(',', $oldinvoice->show_col);
-            }
+
+                if ($this->rp['invoicemodule']['invoice']['edit'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+
+                $oldinvoice = $this->invoiceModel::find($id);
+
+                //get quantity linked column
+                $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
+
+                // update old product data
+                $columanname = [];
+                if ($request->old_iteam_data) {
+                    $oldproductdata = $request->old_iteam_data;
+                    foreach ($oldproductdata as $val) {
+                        foreach ($val as $productid => $productvalue) {
+                            //get old product record
+                            $fetcholdproduct = DB::connection('dynamic_connection')->table('mng_col')->find($productid);
+
+                            if (isset($fetcholdproduct->inventory_product_id) && $quantitycolumn->count() > 0) {
 
 
-            // delete old product if any deleted
-            if ($request->deletedproduct) {
-                $deletedproduct = $request->deletedproduct;
-                $getdeletedproduct = DB::connection('dynamic_connection')->table('mng_col')->whereIn('id', $deletedproduct)->get();
+                                $oldquantity = (int) $fetcholdproduct->{$quantitycolumn[0]};
 
+                                $newquantity = (int) $productvalue[$quantitycolumn[0]];
 
-                if ($getdeletedproduct->count() > 0) {
-                    foreach ($getdeletedproduct as $product) {
-                        // Ensure $quantitycolumn is an array and access its first element properly
-                        $quantity = isset($product->{$quantitycolumn[0]}) ? (int) $product->{$quantitycolumn[0]} : 0;
+                                $inventory = $this->inventoryModel::where('product_id', $fetcholdproduct->inventory_product_id)->where('is_deleted', 0)->first();
 
-                        // Check if inventory_product_id exists
-                        if (isset($product->inventory_product_id)) {
-                            $inventory = $this->inventoryModel::where('product_id', $product->inventory_product_id)
-                                ->where('is_deleted', 0)
-                                ->first();
+                                if ($inventory) {
+                                    if ($oldquantity > $newquantity) {
+                                        $managequantity = $oldquantity - $newquantity;
+                                        $inventory->available += $managequantity;
+                                        $inventory->on_hand += $managequantity;
+                                    } else if ($oldquantity < $newquantity) {
+                                        $managequantity = $newquantity - $oldquantity;
+                                        $inventory->available -= (int) $managequantity;
+                                        $inventory->on_hand -= (int) $managequantity;
+                                    }
+                                    $inventory->save();
+                                }
 
-                            if ($inventory) {
-                                // Update inventory values with the quantity from the deleted product
-                                $inventory->available += $quantity;
-                                $inventory->on_hand += $quantity;
+                            }
 
-                                // Save updated inventory
-                                $inventory->save();
+                            unset($productvalue['inventoryproduct']);
+
+                            DB::connection('dynamic_connection')->table('mng_col')
+                                ->where('id', $productid)
+                                ->update(
+                                    $productvalue
+                                );
+
+                            foreach ($productvalue as $key => $value) {
+                                if (count($columanname) >= count($productvalue)) {
+                                    break;
+                                }
+                                $columanname[] = $key; // collect column for use add new data
                             }
                         }
-
-                        // Manually update the product in the mng_col table to mark it as deleted
-                        DB::connection('dynamic_connection')->table('mng_col')
-                            ->where('id', $product->id)
-                            ->update([
-                                'is_deleted' => 1,
-                                'is_active' => 0
-                            ]);
                     }
-                }
-            }
-
-
-
-            // update in invoice table
-            $invoicerec = [
-                'customer_id' => $data['customer'],
-                'notes' => $data['notes'],
-                'total' => $data['total_amount'],
-                'grand_total' => $data['grandtotal'],
-                'currency_id' => $data['currency'],
-                'payment_type' => $data['payment_mode'],
-                'account_id' => $data['bank_account'],
-                'updated_by' => $data['user_id'],
-            ];
-
-
-            if (isset($data['inv_number'])) { //user entered manully inv number 
-                // check if inv number already exist.
-                $checkinvnumberrec = $this->invoiceModel::where('inv_no', $data['inv_number'])->whereNot('id', $id)->where('is_deleted', 0)->first();
-                if ($checkinvnumberrec) {
-                    return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
-                }
-                $invoicerec['inv_no'] = $data['inv_number'];
-                $invoicerec['inv_number_type'] = 'm';
-            }
-
-            if ($data['invoice_date']) {
-                $invoicerec['inv_date'] = $data['invoice_date'];
-            }
-
-
-            if ($data['tax_type'] != 2) {
-                if (isset($data['gst'])) {
-                    $invoicerec['gst'] = $data['gst'];
                 } else {
-                    $invoicerec['sgst'] = $data['sgst'];
-                    $invoicerec['cgst'] = $data['cgst'];
+                    $columanname = explode(',', $oldinvoice->show_col);
                 }
-            }
 
-            $invoice = $this->invoiceModel::where('id', $id)->update($invoicerec);
 
-            // create new product data
-            if ($request->iteam_data) {
-                $itemdata = $request->iteam_data;
+                // delete old product if any deleted
+                if ($request->deletedproduct) {
+                    $deletedproduct = $request->deletedproduct;
+                    $getdeletedproduct = DB::connection('dynamic_connection')->table('mng_col')->whereIn('id', $deletedproduct)->get();
 
-                foreach ($itemdata as $row) {
-                    $dynamicdata = [];
-                    // Map the values to the corresponding columns
-                    foreach ($columanname as $column) {
-                        $dynamicdata[$column] = $row[$column];
+
+                    if ($getdeletedproduct->count() > 0) {
+                        foreach ($getdeletedproduct as $product) {
+                            // Ensure $quantitycolumn is an array and access its first element properly
+                            $quantity = isset($product->{$quantitycolumn[0]}) ? (int) $product->{$quantitycolumn[0]} : 0;
+
+                            // Check if inventory_product_id exists
+                            if (isset($product->inventory_product_id)) {
+                                $inventory = $this->inventoryModel::where('product_id', $product->inventory_product_id)
+                                    ->where('is_deleted', 0)
+                                    ->first();
+
+                                if ($inventory) {
+                                    // Update inventory values with the quantity from the deleted product
+                                    $inventory->available += $quantity;
+                                    $inventory->on_hand += $quantity;
+
+                                    // Save updated inventory
+                                    $inventory->save();
+                                }
+                            }
+
+                            // Manually update the product in the mng_col table to mark it as deleted
+                            DB::connection('dynamic_connection')->table('mng_col')
+                                ->where('id', $product->id)
+                                ->update([
+                                    'is_deleted' => 1,
+                                    'is_active' => 0
+                                ]);
+                        }
                     }
-                    // Add additional columns and their values
-                    $dynamicdata['invoice_id'] = $id;
-                    $dynamicdata['amount'] = $row['amount'];
-                    $dynamicdata['created_by'] = $data['user_id'];
-                    $dynamicdata['updated_by'] = $data['user_id'];
-                    // Add more columns as needed
+                }
 
 
-                    if (isset($row['inventoryproduct'])) {
-                        $dynamicdata['inventory_product_id'] = $row['inventoryproduct'];
 
-                        if ($quantitycolumn->count() > 0) {
-                            $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
+                // update in invoice table
+                $invoicerec = [
+                    'customer_id' => $data['customer'],
+                    'notes' => $data['notes'],
+                    'total' => $data['total_amount'],
+                    'grand_total' => $data['grandtotal'],
+                    'currency_id' => $data['currency'],
+                    'payment_type' => $data['payment_mode'],
+                    'account_id' => $data['bank_account'],
+                    'updated_by' => $data['user_id'],
+                ];
 
-                            $updateinventory->available = $updateinventory->available - $row[$quantitycolumn[0]];
-                            $updateinventory->on_hand = $updateinventory->on_hand - $row[$quantitycolumn[0]];
 
-                            $updateinventory->save();
+                if (isset($data['inv_number'])) { //user entered manully inv number 
+                    // check if inv number already exist.
+                    $checkinvnumberrec = $this->invoiceModel::where('inv_no', $data['inv_number'])->whereNot('id', $id)->where('is_deleted', 0)->first();
+                    if ($checkinvnumberrec) {
+                        return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
+                    }
+                    $invoicerec['inv_no'] = $data['inv_number'];
+                    $invoicerec['inv_number_type'] = 'm';
+                }
+
+                if ($data['invoice_date']) {
+                    $invoicerec['inv_date'] = $data['invoice_date'];
+                }
+
+
+                if ($data['tax_type'] != 2) {
+                    if (isset($data['gst'])) {
+                        $invoicerec['gst'] = $data['gst'];
+                    } else {
+                        $invoicerec['sgst'] = $data['sgst'];
+                        $invoicerec['cgst'] = $data['cgst'];
+                    }
+                }
+
+                $invoice = $this->invoiceModel::where('id', $id)->update($invoicerec);
+
+                // create new product data
+                if ($request->iteam_data) {
+                    $itemdata = $request->iteam_data;
+
+                    foreach ($itemdata as $row) {
+                        $dynamicdata = [];
+                        // Map the values to the corresponding columns
+                        foreach ($columanname as $column) {
+                            $dynamicdata[$column] = $row[$column];
+                        }
+                        // Add additional columns and their values
+                        $dynamicdata['invoice_id'] = $id;
+                        $dynamicdata['amount'] = $row['amount'];
+                        $dynamicdata['created_by'] = $data['user_id'];
+                        $dynamicdata['updated_by'] = $data['user_id'];
+                        // Add more columns as needed
+
+
+                        if (isset($row['inventoryproduct'])) {
+                            $dynamicdata['inventory_product_id'] = $row['inventoryproduct'];
+
+                            if ($quantitycolumn->count() > 0) {
+                                $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
+
+                                $updateinventory->available -= $row[$quantitycolumn[0]];
+                                $updateinventory->on_hand -= $row[$quantitycolumn[0]];
+
+                                $updateinventory->save();
+                            }
+
                         }
 
+                        // Insert the record into the database
+                        $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata);
                     }
 
-
-                    // Insert the record into the database
-                    $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata);
                 }
 
+                return $this->successresponse(200, 'message', 'Invoice successfully updated');
+
             }
-
-            return $this->successresponse(200, 'message', 'Invoice successfully updated');
-
-        }
+        });
     }
 
     /**
@@ -810,83 +810,85 @@ class invoiceController extends commonController
      */
     public function destroy(string $id)
     {
-        // Check if the user is authorized to delete the invoice
-        if ($this->rp['invoicemodule']['invoice']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        return $this->executeTransaction(function () use ($id) {
+            // Check if the user is authorized to delete the invoice
+            if ($this->rp['invoicemodule']['invoice']['delete'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
 
-        // Find the invoice by ID
-        $inv = $this->invoiceModel::find($id);
-        $lastinv = $this->invoiceModel::orderBy('id', 'desc')->where('is_deleted', 0)->first();
+            // Find the invoice by ID
+            $inv = $this->invoiceModel::find($id);
+            $lastinv = $this->invoiceModel::orderBy('id', 'desc')->where('is_deleted', 0)->first();
 
-        if (!$inv) {
-            return $this->successresponse(404, 'message', 'Invoice not found');
-        }
+            if (!$inv) {
+                return $this->successresponse(404, 'message', 'Invoice not found');
+            }
 
-        // Update increment numbers if applicable
-        if ($inv->increment_type != 2) {
-            $patterntype = $inv->pattern_type == 1 ? 'domestic' : 'global';
-            $pattern = $this->invoice_number_patternModel::where('pattern_type', $patterntype)
-                ->where('is_deleted', 0)
-                ->first();
+            // Update increment numbers if applicable
+            if ($inv->increment_type != 2) {
+                $patterntype = $inv->pattern_type == 1 ? 'domestic' : 'global';
+                $pattern = $this->invoice_number_patternModel::where('pattern_type', $patterntype)
+                    ->where('is_deleted', 0)
+                    ->first();
 
-            if ($pattern) {
-                if ($id == $lastinv->id) {
-                    $pattern->current_increment_number = max(0, $pattern->current_increment_number - 1);
-                    $pattern->save();
+                if ($pattern) {
+                    if ($id == $lastinv->id) {
+                        $pattern->current_increment_number = max(0, $pattern->current_increment_number - 1);
+                        $pattern->save();
+                    }
                 }
             }
-        }
 
-        // Mark the invoice and related entries as deleted
-        $invoices = $this->invoiceModel::where('id', $id)
-            ->update(['is_deleted' => 1]);
+            // Mark the invoice and related entries as deleted
+            $invoices = $this->invoiceModel::where('id', $id)
+                ->update(['is_deleted' => 1]);
 
-        if ($invoices) {
+            if ($invoices) {
 
-            $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
+                $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
 
 
-            if ($quantitycolumn->count() > 0) {
+                if ($quantitycolumn->count() > 0) {
 
-                $inventoryproduct = DB::connection('dynamic_connection')->table('mng_col')
-                    ->where('invoice_id', $id)
-                    ->whereNotNull('inventory_product_id')
-                    ->where('is_deleted', 0)
-                    ->pluck($quantitycolumn[0], 'inventory_product_id');
+                    $inventoryproduct = DB::connection('dynamic_connection')->table('mng_col')
+                        ->where('invoice_id', $id)
+                        ->whereNotNull('inventory_product_id')
+                        ->where('is_deleted', 0)
+                        ->pluck($quantitycolumn[0], 'inventory_product_id');
 
-                if ($inventoryproduct->count() > 0) {
+                    if ($inventoryproduct->count() > 0) {
 
-                    foreach ($inventoryproduct as $productid => $quantity) {
-                        $inventory = $this->inventoryModel::where('product_id', $productid)->where('is_deleted', 0)->first();
+                        foreach ($inventoryproduct as $productid => $quantity) {
+                            $inventory = $this->inventoryModel::where('product_id', $productid)->where('is_deleted', 0)->first();
 
-                        if ($inventory) {
-                            $inventory->available += (int) $quantity;
-                            $inventory->on_hand += (int) $quantity;
+                            if ($inventory) {
+                                $inventory->available += (int) $quantity;
+                                $inventory->on_hand += (int) $quantity;
 
-                            $inventory->save();
+                                $inventory->save();
+                            }
+
                         }
 
                     }
 
                 }
 
+
+
+                $mng_col = DB::connection('dynamic_connection')->table('mng_col')
+                    ->where('invoice_id', $id)
+                    ->update(['is_deleted' => 1]);
+
+                if ($mng_col) {
+                    return $this->successresponse(200, 'message', 'Invoice successfully deleted');
+                }
             }
+            return $this->successresponse(404, 'message', 'Invoice not successfully deleted!');
+        });
 
-
-
-            $mng_col = DB::connection('dynamic_connection')->table('mng_col')
-                ->where('invoice_id', $id)
-                ->update(['is_deleted' => 1]);
-
-            if ($mng_col) {
-                return $this->successresponse(200, 'message', 'Invoice successfully deleted');
-            }
-        }
-
-        return $this->successresponse(404, 'message', 'Invoice not successfully deleted!');
     }
- 
+
     // use for pdf
     public function inv_details(string $id)
     {
@@ -967,7 +969,7 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'message', 'invoice  status not succesfully updated!');
         }
     }
- 
+
     /**
      * Summary of reportlogsdetails
      * report log by user
@@ -992,7 +994,7 @@ class invoiceController extends commonController
 
 
     }
-    
+
     /**
      * Summary of reportlogdestroy
      * delete report log history record
@@ -1031,7 +1033,7 @@ class invoiceController extends commonController
         if (!$existsinvoice) {
             return true;
         }
-        
+
         return $this->errorresponse(422, ["inv_number" => ['This number already exists!']]);
     }
 }
