@@ -1,4 +1,4 @@
-@php
+@php 
     $folder = session('folder_name');
 @endphp
 @extends($folder . '.admin.Layout.masterlayout')
@@ -32,13 +32,13 @@
                         placeholder="token" required />
                     <label class="form-label" for="first_name">First Name:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First Name"
-                        required />
+                       value="{{session('user.firstname')}}" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="last_name">Last Name:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name"
-                        required />
+                    value="{{session('user.lastname')}}" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
             </div>
@@ -48,13 +48,13 @@
                 <div class="col-sm-6">
                     <label class="form-label" for="email">Email:</label><span style="color:red;"> *</span>
                     <input type="email" class="form-control" name="email" id="email"
-                        placeholder="Professional Email" />
+                        value="{{session('user.email')}}"   placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
-                        placeholder="Whatsapp Mobile Number" minlength="10" maxlength="15"
+                    value="{{session('user.contact_no')}}" placeholder="Whatsapp Mobile Number" minlength="10" maxlength="15"
                         onkeypress="return isNumberKey(event);" onkeyup="numberMobile(event);" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
                 </div>

@@ -172,6 +172,7 @@ class AdminLoginController extends Controller
                         }
 
                         $request->session()->put([
+                            'user' => $admin,
                             'admin_role' => $admin->role,
                             'company_id' => $admin->company_id,
                             'user_id' => $admin->id,

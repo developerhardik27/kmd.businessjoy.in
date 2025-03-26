@@ -187,11 +187,11 @@ class techsupportController extends commonController
                 'user_id' => $this->userId,
                 'company_id' => $this->companyId,
                 'created_by' => $this->userId,
+                'status' => 'pending'
             ]);
 
             $techsupport = tech_support::create($techsupports);
-
-
+ 
             if ($techsupport) {
                 $ticket = date('Ymdhis') . $techsupport->id;
                 $ticketupdate = $techsupport->update([

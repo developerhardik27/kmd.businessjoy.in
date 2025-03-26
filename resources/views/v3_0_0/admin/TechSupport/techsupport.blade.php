@@ -415,30 +415,30 @@
                                                     <td>${id}</td>
                                                     <td  class="text-left" >
                                                         <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
+                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name || ''} ${value.last_name || ''}
                                                         </span>
                                                         <span class="d-flex mb-2">
                                                             <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
+                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email || ''}</a>
                                                         </span>
                                                         <span class='d-flex mb-2'>
                                                             <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no || ''}</a>
                                                         </span>  
                                                         @if (session('user_id') == 1)
                                                             <span>
-                                                                <b><i class="fas fa-building pr-2"></i></b> ${value.company_name} 
+                                                                <b><i class="fas fa-building pr-2"></i></b> ${value.company_name || ''} 
                                                             </span>
                                                         @endif
                                                     </td>
                                                     <td>
                                                         <span  class="d-inline-block" style="max-width: 150px;">
-                                                        <div> ${value.ticket} </div>
+                                                        <div> ${value.ticket || ''} </div>
                                                         </span>
                                                     </td>
                                                     <td>
                                                         <span  class="d-inline-block text-truncate" style="max-width: 150px;">
-                                                        <div> ${value.description} </div>
+                                                        <div> ${value.description || ''} </div>
                                                         </span>
                                                     </td>
                                                     <td>
@@ -451,10 +451,10 @@
                                                                 <option value='cancelled'>Cancelled</option>
                                                             </select>
                                                        @else
-                                                        ${value.status}
+                                                        ${value.status || ''}
                                                        @endif
                                                     </td>
-                                                    <td>${value.created_at_formatted}</td>
+                                                    <td>${value.created_at_formatted || ''}</td>
                                                     @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
                                                             session('user_permissions.adminmodule.techsupport.delete') == '1')
                                                         <td>
