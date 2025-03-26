@@ -118,7 +118,7 @@
                                         <td>${value.is_active == 0 ? 'Closed' : `${value.status}` }</td>
                                         <td>${received} of ${value.total_items}</td>
                                         <td>${value.currency_symbol} ${value.total}</td>
-                                        <td>${value.estimated_arrival_formatted}</td>
+                                        <td>${value.estimated_arrival_formatted || ''}</td>
                                     </tr>
                                 `);
 

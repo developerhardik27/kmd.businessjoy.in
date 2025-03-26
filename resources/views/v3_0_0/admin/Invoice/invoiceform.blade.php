@@ -910,7 +910,7 @@
                 $('#add_new_div').append(
                     `<tr class="iteam_row_${addname}" data-inventory="null">
                         ${allColumnData.map(columnData => {
-                            var columnName = columnData.column_name.replace(/\s+/g, '_');
+                                var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
                                 if (columnData.column_type === 'time') {
                                     return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
@@ -1215,6 +1215,7 @@
                             icon: "error",
                             title: response.message
                         });
+                        loaderhide();
                     }
                 }).fail(function(xhr) {
                     loaderhide();

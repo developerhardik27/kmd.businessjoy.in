@@ -81,12 +81,12 @@ class purchaseController extends commonController
 
         $purchase = $purchaseres->get();
 
-        if ($purchase->isEmpty()) { 
+        if ($purchase->isEmpty()) {
             return $this->successresponse(404, 'purchase', 'No Records Found');
         }
-            return $this->successresponse(200, 'purchase', $purchase);
+        return $this->successresponse(200, 'purchase', $purchase);
     }
- 
+
 
     /**
      * Store a newly created resource in storage.
@@ -95,72 +95,76 @@ class purchaseController extends commonController
     {
 
 
-        $validator = Validator::make($request->all(), [
-            'products' => 'required',
-        ]);
+        return $this->executeTransaction(function () use ($request) {
 
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            //condition for check if user has permission to add new record
-            if ($this->rp['inventorymodule']['purchase']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-            $purchase = $this->purchaseModel::create([
-                'supplier_id' => $request->supplier,
-                'payment_terms' => $request->payment,
-                'currency' => $request->currency,
-                'estimated_arrival' => $request->estimated_arrival,
-                'shipping_carrier' => $request->shipping_carrier,
-                'tracking_number' => $request->tracking_number,
-                'tracking_url' => $request->tracking_url,
-                'reference_number' => $request->reference_number,
-                'note_to_supplier' => $request->note_to_supplier,
-                'taxes' => $request->taxes,
-                'sub_total' => $request->sub_total,
-                'shipping' => $request->shipping,
-                'discount' => $request->discount,
-                'total' => $request->total,
-                'total_items' => $request->itemcount,
-                'created_by' => $this->userId,
+            $validator = Validator::make($request->all(), [
+                'products' => 'required',
             ]);
 
-            if ($purchase) {
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
+            } else {
 
-                $products = $request->products;
-
-                foreach ($products as $product) {
-
-                    $purchase_order_details = $this->purchase_order_detailModel::create([
-                        'purchase_id' => $purchase->id,
-                        'product_id' => $product,
-                        'product_name' => $request->{"product_name_$product"},
-                        'supplier_sku' => $request->{"product_supplier_sku_$product"},
-                        'quantity' => $request->{"product_quantity_$product"},
-                        'price' => $request->{"product_price_$product"},
-                        'tax' => $request->{"product_tax_$product"},
-                        'total' => $request->{"product_total_amount_$product"},
-                        'is_active' => 0
-                    ]);
-
+                //condition for check if user has permission to add new record
+                if ($this->rp['inventorymodule']['purchase']['add'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
 
-                $purchase_history = $this->purchase_historyModel::create([
-                    'purchase_id' => $purchase->id,
-                    'action' => "You created this purchase order."
+                $purchase = $this->purchaseModel::create([
+                    'supplier_id' => $request->supplier,
+                    'payment_terms' => $request->payment,
+                    'currency' => $request->currency,
+                    'estimated_arrival' => $request->estimated_arrival,
+                    'shipping_carrier' => $request->shipping_carrier,
+                    'tracking_number' => $request->tracking_number,
+                    'tracking_url' => $request->tracking_url,
+                    'reference_number' => $request->reference_number,
+                    'note_to_supplier' => $request->note_to_supplier,
+                    'taxes' => $request->taxes,
+                    'sub_total' => $request->sub_total,
+                    'shipping' => $request->shipping,
+                    'discount' => $request->discount,
+                    'total' => $request->total,
+                    'total_items' => $request->itemcount,
+                    'created_by' => $this->userId,
                 ]);
 
-                return $this->successresponse(200, 'message', 'purchase order succefully created', 'id', $purchase->id);
+                if ($purchase) {
 
-            } else {
-                return $this->successresponse(500, 'message', 'purchase order not succefully created');
+                    $products = $request->products;
+
+                    foreach ($products as $product) {
+
+                        $purchase_order_details = $this->purchase_order_detailModel::create([
+                            'purchase_id' => $purchase->id,
+                            'product_id' => $product,
+                            'product_name' => $request->{"product_name_$product"},
+                            'supplier_sku' => $request->{"product_supplier_sku_$product"},
+                            'quantity' => $request->{"product_quantity_$product"},
+                            'price' => $request->{"product_price_$product"},
+                            'tax' => $request->{"product_tax_$product"},
+                            'total' => $request->{"product_total_amount_$product"},
+                            'is_active' => 0
+                        ]);
+
+                    }
+
+                    $purchase_history = $this->purchase_historyModel::create([
+                        'purchase_id' => $purchase->id,
+                        'action' => "You created this purchase order."
+                    ]);
+
+                    return $this->successresponse(200, 'message', 'purchase order succefully created', 'id', $purchase->id);
+
+                } else {
+                    throw new \Exception('purchase order creation failed!');
+                }
+
+
+
             }
 
-
-
-        }
+        });
     }
 
     /**
@@ -293,112 +297,113 @@ class purchaseController extends commonController
      */
     public function update(Request $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'products' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-            //condition for check if user has permission to edit record
-            if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-
-            $purchase = $this->purchaseModel::find($id);
-
-            if (!$purchase) {
-                return $this->successresponse(404, 'message', 'No Such purchase Found!');
-            }
-
-            $update = $purchase->update([
-                'supplier_id' => $request->supplier,
-                'payment_terms' => $request->payment,
-                'currency' => $request->currency,
-                'estimated_arrival' => $request->estimated_arrival,
-                'shipping_carrier' => $request->shipping_carrier,
-                'tracking_number' => $request->tracking_number,
-                'tracking_url' => $request->tracking_url,
-                'reference_number' => $request->reference_number,
-                'note_to_supplier' => $request->note_to_supplier,
-                'taxes' => $request->taxes,
-                'sub_total' => $request->sub_total,
-                'shipping' => $request->shipping,
-                'discount' => $request->discount,
-                'total' => $request->total,
-                'total_items' => $request->itemcount,
-                'updated_by' => $this->userId,
+        return $this->executeTransaction(function () use ($request, $id) {
+            $validator = Validator::make($request->all(), [
+                'products' => 'required',
             ]);
 
-            if ($update) {
-
-                $products = $request->products;
-
-
-                // Fetch the product IDs to be deleted
-                $productsToDelete = $this->purchase_order_detailModel::where('purchase_id', $id)
-                    ->whereNotIn('product_id', $products)
-                    ->where(function ($query) {
-                        $query->whereNull('accepted')->orWhere('accepted', 0);  // 'accepted' is either NULL or 0
-                    })
-                    ->where(function ($query) {
-                        $query->whereNull('rejected')->orWhere('rejected', 0);  // 'rejected' is either NULL or 0
-                    })
-                    ->pluck('product_id'); // Get the IDs of the products that will be updated
-
-
-                if ($productsToDelete->count() > 0) {
-                    //delete removed products  
-                    $deleteremovedproduct = $this->purchase_order_detailModel::where('purchase_id', $id)
-                        ->whereIn('product_id', $productsToDelete)
-                        ->update([
-                            'is_deleted' => 1
-                        ]);
-
-                    $updateremovedproducthistory = $this->purchase_order_detail_historyModel::where('purchase_id', $id)
-                        ->whereIn('product_id', $productsToDelete)
-                        ->update([
-                            'product_name' => "A removed item"
-                        ]);
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
+            } else {
+                //condition for check if user has permission to edit record
+                if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
 
 
-                foreach ($products as $product) {
+                $purchase = $this->purchaseModel::find($id);
 
-                    $purchase_order_details = $this->purchase_order_detailModel::updateOrInsert(
-                        [
-                            'purchase_id' => $purchase->id,
-                            'product_id' => $product,
-                            'is_deleted' => 0 // Check if the record has not been deleted
-                        ],
-                        [
-                            'product_name' => $request->{"product_name_$product"},
-                            'supplier_sku' => $request->{"product_supplier_sku_$product"},
-                            'quantity' => $request->{"product_quantity_$product"},
-                            'price' => $request->{"product_price_$product"},
-                            'tax' => $request->{"product_tax_$product"},
-                            'total' => $request->{"product_total_amount_$product"},
-                            'is_active' => $purchase->is_active
-                        ]
-                    );
-
+                if (!$purchase) {
+                    return $this->successresponse(404, 'message', 'No Such purchase Found!');
                 }
 
-                $purchase_history = $this->purchase_historyModel::create([
-                    'purchase_id' => $purchase->id,
-                    'action' => "You edited this purchase order."
+                $update = $purchase->update([
+                    'supplier_id' => $request->supplier,
+                    'payment_terms' => $request->payment,
+                    'currency' => $request->currency,
+                    'estimated_arrival' => $request->estimated_arrival,
+                    'shipping_carrier' => $request->shipping_carrier,
+                    'tracking_number' => $request->tracking_number,
+                    'tracking_url' => $request->tracking_url,
+                    'reference_number' => $request->reference_number,
+                    'note_to_supplier' => $request->note_to_supplier,
+                    'taxes' => $request->taxes,
+                    'sub_total' => $request->sub_total,
+                    'shipping' => $request->shipping,
+                    'discount' => $request->discount,
+                    'total' => $request->total,
+                    'total_items' => $request->itemcount,
+                    'updated_by' => $this->userId,
                 ]);
 
-                return $this->successresponse(200, 'message', 'purchase order succesfully updated');
+                if ($update) {
+                    $products = $request->products;
 
-            } else {
-                return $this->successresponse(500, 'message', 'purchase order not succesfully updated');
+                    // Fetch the product IDs to be deleted
+                    $productsToDelete = $this->purchase_order_detailModel::where('purchase_id', $id)
+                        ->whereNotIn('product_id', $products)
+                        ->where(function ($query) {
+                            $query->whereNull('accepted')->orWhere('accepted', 0);  // 'accepted' is either NULL or 0
+                        })
+                        ->where(function ($query) {
+                            $query->whereNull('rejected')->orWhere('rejected', 0);  // 'rejected' is either NULL or 0
+                        })
+                        ->pluck('product_id'); // Get the IDs of the products that will be updated
+
+
+                    if ($productsToDelete->count() > 0) {
+                        //delete removed products  
+                        $deleteremovedproduct = $this->purchase_order_detailModel::where('purchase_id', $id)
+                            ->whereIn('product_id', $productsToDelete)
+                            ->update([
+                                'is_deleted' => 1
+                            ]);
+
+                        $updateremovedproducthistory = $this->purchase_order_detail_historyModel::where('purchase_id', $id)
+                            ->whereIn('product_id', $productsToDelete)
+                            ->update([
+                                'product_name' => "A removed item"
+                            ]);
+                    }
+
+
+                    foreach ($products as $product) {
+
+                        $purchase_order_details = $this->purchase_order_detailModel::updateOrInsert(
+                            [
+                                'purchase_id' => $purchase->id,
+                                'product_id' => $product,
+                                'is_deleted' => 0 // Check if the record has not been deleted
+                            ],
+                            [
+                                'product_name' => $request->{"product_name_$product"},
+                                'supplier_sku' => $request->{"product_supplier_sku_$product"},
+                                'quantity' => $request->{"product_quantity_$product"},
+                                'price' => $request->{"product_price_$product"},
+                                'tax' => $request->{"product_tax_$product"},
+                                'total' => $request->{"product_total_amount_$product"},
+                                'is_active' => $purchase->is_active
+                            ]
+                        );
+
+                    }
+
+                    $purchase_history = $this->purchase_historyModel::create([
+                        'purchase_id' => $purchase->id,
+                        'action' => "You edited this purchase order."
+                    ]);
+
+                    return $this->successresponse(200, 'message', 'purchase order succesfully updated');
+
+                } else {
+                    throw new \Exception("Purchase order updation failed!");
+                }
+
+
+
             }
-
-
-
-        }
+        });
     }
 
     /**
@@ -406,38 +411,42 @@ class purchaseController extends commonController
      */
     public function destroy(string $id)
     {
-        $purchase = $this->purchaseModel::find($id);
 
-        if (!$purchase) { 
-            return $this->successresponse(404, 'message', 'No such purchase order found!');
-        }
+        return $this->executeTransaction(function () use ($id) {
 
-        if ($this->rp['inventorymodule']['purchase']['alldata'] != 1) {
-            if ($purchase->created_by != $this->userId) {
+            $purchase = $this->purchaseModel::find($id);
+
+            if (!$purchase) {
+                return $this->successresponse(404, 'message', 'No such purchase order found!');
+            }
+
+            if ($this->rp['inventorymodule']['purchase']['alldata'] != 1) {
+                if ($purchase->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+            }
+            //condition for check if user has permission to delete record
+            if ($this->rp['inventorymodule']['purchase']['delete'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        //condition for check if user has permission to delete record
-        if ($this->rp['inventorymodule']['purchase']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
-       
-        $purchase->update([
-            'is_deleted' => 1
-        ]);
 
-        $purchase_history = $this->purchase_historyModel::where('purchase_id', $id)
-            ->update([
+            $purchase->update([
                 'is_deleted' => 1
             ]);
 
-        $purchase_order_details = $this->purchase_order_detailModel::where('purchase_id', $id)
-            ->update([
-                'is_deleted' => 1
-            ]);
+            $purchase_history = $this->purchase_historyModel::where('purchase_id', $id)
+                ->update([
+                    'is_deleted' => 1
+                ]);
 
-        return $this->successresponse(200, 'message', 'purchase order succesfully deleted.');
+            $purchase_order_details = $this->purchase_order_detailModel::where('purchase_id', $id)
+                ->update([
+                    'is_deleted' => 1
+                ]);
+
+            return $this->successresponse(200, 'message', 'purchase order succesfully deleted.');
+        });
     }
 
 
@@ -519,155 +528,154 @@ class purchaseController extends commonController
     public function receiveinventory(Request $request, int $id)
     {
 
-
-
-        //condition for check if user has permission to delete record
-        if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-        $purchase = $this->purchaseModel::find($id);
-
-        if (!$purchase) {
-            return $this->successresponse(404, 'message', "No such purchase order found!");
-        }
-
-        if ($this->rp['inventorymodule']['purchase']['alldata'] != 1) {
-            if ($purchase->created_by != $this->userId) {
+        return $this->executeTransaction(function () use ($request, $id) {
+            //condition for check if user has permission to delete record
+            if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
 
-        $productid = $this->purchase_order_detailModel::where('purchase_id', $id)
-            ->where('is_deleted', 0)
-            ->select('product_name', 'product_id')
-            ->get();
+            $purchase = $this->purchaseModel::find($id);
 
+            if (!$purchase) {
+                return $this->successresponse(404, 'message', "No such purchase order found!");
+            }
 
+            if ($this->rp['inventorymodule']['purchase']['alldata'] != 1) {
+                if ($purchase->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+            }
 
-        if ($productid->isEmpty()) {
-            return $this->successresponse(500, 'message', 'Failed to receive inventory');
-        }
-
-
-        $acceptedcount = 0;
-
-        $rejectedcount = 0;
-
-
-        $purchase_history = $this->purchase_historyModel::create([
-            'purchase_id' => $id,
-            'action' => "yes"
-        ]);
+            $productid = $this->purchase_order_detailModel::where('purchase_id', $id)
+                ->where('is_deleted', 0)
+                ->select('product_name', 'product_id')
+                ->get();
 
 
-        foreach ($productid as $product) {
 
-            if (
-                ((isset($request->{"accepted_" . $product->product_id}) && $request->{"accepted_" . $product->product_id} != '' && $request->{"accepted_" . $product->product_id} != 0))
-                ||
-                ((isset($request->{"rejected_" . $product->product_id}) && $request->{"rejected_" . $product->product_id} != '' && $request->{"rejected_" . $product->product_id} != 0))
-            ) {
+            if ($productid->isEmpty()) {
+                return $this->successresponse(500, 'message', 'Failed to receive inventory');
+            }
 
-                $create_purchase_order_detail_history = $this->purchase_order_detail_historyModel::create([
-                    'purchase_id' => $id,
-                    "purchase_history_id" => $purchase_history->id,
-                    "product_id" => $product->product_id,
-                    "product_name" => $product->product_name,
-                    "accepted" => $request->{"accepted_" . $product->product_id},
-                    "rejected" => $request->{"rejected_" . $product->product_id}
-                ]);
 
-                $fetchproduct = $this->purchase_order_detailModel::where('purchase_id', $id)
-                    ->where('product_id', $product->product_id)
-                    ->where('is_deleted', 0)
-                    ->first();
+            $acceptedcount = 0;
 
-                $updateinventory = $this->inventoryModel::where('product_id', $product->product_id)
-                    ->where('is_deleted', 0)
-                    ->first();
+            $rejectedcount = 0;
+
+
+            $purchase_history = $this->purchase_historyModel::create([
+                'purchase_id' => $id,
+                'action' => "yes"
+            ]);
+
+
+            foreach ($productid as $product) {
 
                 if (
-                    (isset($request->{"accepted_" . $product->product_id}) && $request->{"accepted_" . $product->product_id} != '' && $request->{"accepted_" . $product->product_id} != 0)
-                    && (isset($request->{"rejected_" . $product->product_id}) && $request->{"rejected_" . $product->product_id} != '' && $request->{"rejected_" . $product->product_id} != 0)
+                    ((isset($request->{"accepted_" . $product->product_id}) && $request->{"accepted_" . $product->product_id} != '' && $request->{"accepted_" . $product->product_id} != 0))
+                    ||
+                    ((isset($request->{"rejected_" . $product->product_id}) && $request->{"rejected_" . $product->product_id} != '' && $request->{"rejected_" . $product->product_id} != 0))
                 ) {
 
-                    if ($fetchproduct) {
-                        $fetchproduct->accepted += ($request->{"accepted_" . $product->product_id});
-                        $fetchproduct->rejected += ($request->{"rejected_" . $product->product_id});
+                    $create_purchase_order_detail_history = $this->purchase_order_detail_historyModel::create([
+                        'purchase_id' => $id,
+                        "purchase_history_id" => $purchase_history->id,
+                        "product_id" => $product->product_id,
+                        "product_name" => $product->product_name,
+                        "accepted" => $request->{"accepted_" . $product->product_id},
+                        "rejected" => $request->{"rejected_" . $product->product_id}
+                    ]);
+
+                    $fetchproduct = $this->purchase_order_detailModel::where('purchase_id', $id)
+                        ->where('product_id', $product->product_id)
+                        ->where('is_deleted', 0)
+                        ->first();
+
+                    $updateinventory = $this->inventoryModel::where('product_id', $product->product_id)
+                        ->where('is_deleted', 0)
+                        ->first();
+
+                    if (
+                        (isset($request->{"accepted_" . $product->product_id}) && $request->{"accepted_" . $product->product_id} != '' && $request->{"accepted_" . $product->product_id} != 0)
+                        && (isset($request->{"rejected_" . $product->product_id}) && $request->{"rejected_" . $product->product_id} != '' && $request->{"rejected_" . $product->product_id} != 0)
+                    ) {
+
+                        if ($fetchproduct) {
+                            $fetchproduct->accepted += ($request->{"accepted_" . $product->product_id});
+                            $fetchproduct->rejected += ($request->{"rejected_" . $product->product_id});
+                        }
+
+                        if ($updateinventory) {
+                            $updateinventory->available += ($request->{"accepted_" . $product->product_id});
+                            $updateinventory->on_hand += ($request->{"accepted_" . $product->product_id});
+                        }
+
+                        $acceptedcount += ($request->{"accepted_" . $product->product_id});
+                        $rejectedcount += ($request->{"rejected_" . $product->product_id});
+
+
+                    } elseif (isset($request->{"accepted_" . $product->product_id}) && $request->{"accepted_" . $product->product_id} != '' && $request->{"accepted_" . $product->product_id} != 0) {
+
+                        if ($fetchproduct) {
+                            $fetchproduct->accepted += ($request->{"accepted_" . $product->product_id});
+                        }
+
+                        if ($updateinventory) {
+                            $updateinventory->available += ($request->{"accepted_" . $product->product_id});
+                            $updateinventory->on_hand += ($request->{"accepted_" . $product->product_id});
+                        }
+
+                        $acceptedcount += ($request->{"accepted_" . $product->product_id});
+
+                    } elseif (isset($request->{"rejected_" . $product->product_id}) && $request->{"rejected_" . $product->product_id} != '' && $request->{"rejected_" . $product->product_id} != 0) {
+
+                        if ($fetchproduct) {
+                            $fetchproduct->rejected += ($request->{"rejected_" . $product->product_id});
+                        }
+                        $rejectedcount += ($request->{"rejected_" . $product->product_id});
                     }
 
-                    if ($updateinventory) {
-                        $updateinventory->available += ($request->{"accepted_" . $product->product_id});
-                        $updateinventory->on_hand += ($request->{"accepted_" . $product->product_id});
-                    }
+                    $fetchproduct->save();
+                    $updateinventory->save();
 
-                    $acceptedcount += ($request->{"accepted_" . $product->product_id});
-                    $rejectedcount += ($request->{"rejected_" . $product->product_id});
-
-
-                } elseif (isset($request->{"accepted_" . $product->product_id}) && $request->{"accepted_" . $product->product_id} != '' && $request->{"accepted_" . $product->product_id} != 0) {
-
-                    if ($fetchproduct) {
-                        $fetchproduct->accepted += ($request->{"accepted_" . $product->product_id});
-                    }
-
-                    if ($updateinventory) {
-                        $updateinventory->available += ($request->{"accepted_" . $product->product_id});
-                        $updateinventory->on_hand += ($request->{"accepted_" . $product->product_id});
-                    }
-
-                    $acceptedcount += ($request->{"accepted_" . $product->product_id});
-
-                } elseif (isset($request->{"rejected_" . $product->product_id}) && $request->{"rejected_" . $product->product_id} != '' && $request->{"rejected_" . $product->product_id} != 0) {
-
-                    if ($fetchproduct) {
-                        $fetchproduct->rejected += ($request->{"rejected_" . $product->product_id});
-                    }
-                    $rejectedcount += ($request->{"rejected_" . $product->product_id});
                 }
-
-                $fetchproduct->save();
-                $updateinventory->save();
 
             }
 
-        }
+            if ($acceptedcount != 0 && $rejectedcount != 0) {
 
-        if ($acceptedcount != 0 && $rejectedcount != 0) {
+                $action = "You accepted and rejected products";
 
-            $action = "You accepted and rejected products";
+            } elseif ($acceptedcount != 0) {
 
-        } elseif ($acceptedcount != 0) {
+                $action = "You accepted $acceptedcount products";
 
-            $action = "You accepted $acceptedcount products";
+            } elseif ($rejectedcount != 0) {
 
-        } elseif ($rejectedcount != 0) {
+                $action = "You rejected $rejectedcount  products";
 
-            $action = "You rejected $rejectedcount  products";
-
-        }
+            }
 
 
-        $purchase_history->action = $action;
+            $purchase_history->action = $action;
 
-        $purchase_history->save();
+            $purchase_history->save();
 
-        $purchase->accepted += $acceptedcount;
-        $purchase->rejected += $rejectedcount;
+            $purchase->accepted += $acceptedcount;
+            $purchase->rejected += $rejectedcount;
 
-        $purchase->status = 'partial';
+            $purchase->status = 'partial';
 
-        if ($purchase->accepted + $purchase->rejected == $purchase->total_items) {
-            $purchase->status = 'received';
-        }
+            if ($purchase->accepted + $purchase->rejected == $purchase->total_items) {
+                $purchase->status = 'received';
+            }
 
-        if ($purchase->save()) {
-            return $this->successresponse(200, 'message', 'Inventory received');
-        }
+            if ($purchase->save()) {
+                return $this->successresponse(200, 'message', 'Inventory received');
+            }
 
-        return $this->successresponse(500, 'message', 'Failed to receive inventory');
-
+            return $this->successresponse(500, 'message', 'Failed to receive inventory');
+        });
 
     }
 

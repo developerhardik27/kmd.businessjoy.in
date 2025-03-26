@@ -180,294 +180,289 @@ class companyController extends commonController
      */
     public function store(Request $request)
     {
-        // validate incoming request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:50',
-            'email' => 'nullable|string|max:50',
-            'email_default_user' => 'required|string|max:50',
-            'contact_number' => 'required|numeric|digits:10',
-            'house_no_building_name' => 'required|string|max:255',
-            'road_name_area_colony' => 'required|string|max:255',
-            'gst_number' => 'nullable|string|max:50',
-            'country' => 'required|numeric',
-            'state' => 'required|numeric',
-            'city' => 'required|numeric',
-            'pincode' => 'required|numeric',
-            'maxuser' => 'nullable|numeric',
-            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-            'user_id' => 'required|numeric',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
-
-        if ($validator->fails()) {
-            // return error response
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            if ($this->rp['adminmodule']['company']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-            // check user email is not duplicate
-            $checkuseremail = User::where('email', $request->email_default_user)->where('is_deleted', 0)->exists();
-
-            if ($checkuseremail) {
-                return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
-            }
-
-
-            $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
-
-            // If the cleaned name starts with a digit, prepend an underscore
-            if (ctype_digit(substr($modifiedname, 0, 1))) {
-                $modifiedname = '_' . $modifiedname;
-            }
-
-            // Set the dynamic database name (sanitize and format if necessary) 
-
-            $host = $_SERVER['HTTP_HOST'];
-
-            if ($host === 'localhost:8000') {
-                // If the host is localhost
-                $dbName = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
-            } elseif ($host === 'staging.businessjoy.in') {
-                // If the host is staging.businessjoy.in
-                $dbName = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-            } else {
-                // For any other host, provide a default
-                $dbName = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-            }
-
-            // Create the dynamic database
-
-            DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' . $dbName);
-
-            // Switch to the new database connection
-            config([
-                'database.connections.' . $dbName => [
-                    'driver' => 'mysql',
-                    'host' => env('DB_HOST', '127.0.0.1'),
-                    'port' => env('DB_PORT', '3306'),
-                    'database' => $dbName,
-                    'username' => env('DB_USERNAME', 'forge'),
-                    'password' => env('DB_PASSWORD', ''),
-                    'unix_socket' => env('DB_SOCKET', ''),
-                    'charset' => 'utf8mb4',
-                    'collation' => 'utf8mb4_unicode_ci',
-                    'prefix' => '',
-                    'strict' => true,
-                    'engine' => null,
-                ]
+        return $this->executeTransaction(function () use ($request) {
+            // validate incoming request data
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:50',
+                'email' => 'nullable|string|max:50',
+                'email_default_user' => 'required|string|max:50',
+                'contact_number' => 'required|numeric|digits:10',
+                'house_no_building_name' => 'required|string|max:255',
+                'road_name_area_colony' => 'required|string|max:255',
+                'gst_number' => 'nullable|string|max:50',
+                'country' => 'required|numeric',
+                'state' => 'required|numeric',
+                'city' => 'required|numeric',
+                'pincode' => 'required|numeric',
+                'maxuser' => 'nullable|numeric',
+                'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+                'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+                'user_id' => 'required|numeric',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
             ]);
 
-            // required migrations path
-            $paths = [
-                'database/migrations/individualcompanydb',
-                'database/migrations/v1_1_1',
-                'database/migrations/v1_2_1',
-                'database/migrations/v2_0_0',
-                'database/migrations/v3_0_0',
-            ];
+            if ($validator->fails()) {
+                // return error response
+                return $this->errorresponse(422, $validator->messages());
+            } else {
 
-            // Run migrations only from the specified path
-            foreach ($paths as $path) {
-                Artisan::call('migrate', [
-                    '--path' => $path,
-                    '--database' => $dbName,
-                ]);
-            }
-
-            config(['database.connections.dynamic_connection.database' => $dbName]);
-
-            // Establish connection to the dynamic database
-            DB::purge('dynamic_connection');
-            DB::reconnect('dynamic_connection');
-
-            // --------------------------------- add company code start
-
-            $imageName = null;
-            $sign_imageName = null;
-            if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
-
-                $image = $request->file('img');
-                $sign_image = $request->file('sign_img');
-
-                // Check if image file is uploaded
-                if ($image) {
-                    $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
-                    $image->move('uploads/', $imageName); // upload image
+                if ($this->rp['adminmodule']['company']['add'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
 
-                // Check if signature image file is uploaded
-                if ($sign_image) {
-                    $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
-                    $sign_image->move('uploads/', $sign_imageName); // upload signature image
+                // check user email is not duplicate
+                $checkuseremail = User::where('email', $request->email_default_user)->where('is_deleted', 0)->exists();
+
+                if ($checkuseremail) {
+                    return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
                 }
-            }
 
-            $company_details_data = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'contact_no' => $request->contact_number,
-                'house_no_building_name' => $request->house_no_building_name,
-                'road_name_area_colony' => $request->road_name_area_colony,
-                'country_id' => $request->country,
-                'state_id' => $request->state,
-                'city_id' => $request->city,
-                'pincode' => $request->pincode,
-                'gst_no' => $request->gst_number,
-            ];
 
-            // Check if $imageName is set, if yes, create 'img' field
-            if (isset($imageName)) {
-                $company_details_data['img'] = $imageName;
-            }
+                $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
 
-            // Check if $sign_imageName is set, if yes, create 'pr_sign_img' field
-            if (isset($sign_imageName)) {
-                $company_details_data['pr_sign_img'] = $sign_imageName;
-            }
+                // If the cleaned name starts with a digit, prepend an underscore
+                if (ctype_digit(substr($modifiedname, 0, 1))) {
+                    $modifiedname = '_' . $modifiedname;
+                }
 
-            $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details
+                // Set the dynamic database name (sanitize and format if necessary) 
 
-            if ($company_details) {
-                $company_details_id = $company_details;
-                $company = DB::table('company')->insertGetId([   // insert company record
-                    'company_details_id' => $company_details_id,
-                    'dbname' => $dbName,
-                    'app_version' => $_SESSION['folder_name'],
-                    'max_users' => $request->maxuser,
-                    'created_by' => $this->userId,
+                $host = $_SERVER['HTTP_HOST'];
+
+                if ($host === 'localhost:8000') {
+                    // If the host is localhost
+                    $dbName = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                } elseif ($host === 'staging.businessjoy.in') {
+                    // If the host is staging.businessjoy.in
+                    $dbName = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                } else {
+                    // For any other host, provide a default
+                    $dbName = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                }
+
+                // Create the dynamic database
+
+                DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' . $dbName);
+
+                // Switch to the new database connection
+                config([
+                    'database.connections.' . $dbName => [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST', '127.0.0.1'),
+                        'port' => env('DB_PORT', '3306'),
+                        'database' => $dbName,
+                        'username' => env('DB_USERNAME', 'forge'),
+                        'password' => env('DB_PASSWORD', ''),
+                        'unix_socket' => env('DB_SOCKET', ''),
+                        'charset' => 'utf8mb4',
+                        'collation' => 'utf8mb4_unicode_ci',
+                        'prefix' => '',
+                        'strict' => true,
+                        'engine' => null,
+                    ]
                 ]);
 
-                $this->invoice_other_settingModel::create([  // default other settings insert
-                    'overdue_day' => 45,
-                    'year_start' => date('Y-m-d', strtotime('2024-04-01')),
-                    'sgst' => 9,
-                    'cgst' => 9,
-                    'gst' => 0,
-                    'customer_id' => 1,
-                    'current_customer_id' => 1,
-                    'created_by' => $this->userId,
-                ]);
+                // required migrations path
+                $paths = [
+                    'database/migrations/individualcompanydb',
+                    'database/migrations/v1_1_1',
+                    'database/migrations/v1_2_1',
+                    'database/migrations/v2_0_0',
+                    'database/migrations/v3_0_0',
+                ];
 
-                if ($company) {
+                // Run migrations only from the specified path
+                foreach ($paths as $path) {
+                    Artisan::call('migrate', [
+                        '--path' => $path,
+                        '--database' => $dbName,
+                    ]);
+                }
 
-                    $company_id = $company;
+                config(['database.connections.dynamic_connection.database' => $dbName]);
 
-                    $passwordtoken = str::random(40);
-                    $user = DB::table('users')->insertGetId([  // create new default user
-                        'firstname' => $request->name,
-                        'email' => $request->email_default_user,
-                        'role' => 2,
-                        'contact_no' => $request->contact_number,
-                        'country_id' => $request->country,
-                        'state_id' => $request->state,
-                        'city_id' => $request->city,
-                        'pincode' => $request->pincode,
-                        'pass_token' => $passwordtoken,
-                        'company_id' => $company_id,
+                // Establish connection to the dynamic database
+                DB::purge('dynamic_connection');
+                DB::reconnect('dynamic_connection');
+
+                // --------------------------------- add company code start
+
+                $imageName = null;
+                $sign_imageName = null;
+                if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
+
+                    $image = $request->file('img');
+                    $sign_image = $request->file('sign_img');
+
+                    // Check if image file is uploaded
+                    if ($image) {
+                        $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
+                        $image->move('uploads/', $imageName); // upload image
+                    }
+
+                    // Check if signature image file is uploaded
+                    if ($sign_image) {
+                        $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
+                        $sign_image->move('uploads/', $sign_imageName); // upload signature image
+                    }
+                }
+
+                $company_details_data = [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'contact_no' => $request->contact_number,
+                    'house_no_building_name' => $request->house_no_building_name,
+                    'road_name_area_colony' => $request->road_name_area_colony,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
+                    'pincode' => $request->pincode,
+                    'gst_no' => $request->gst_number,
+                ];
+
+                // Check if $imageName is set, if yes, create 'img' field
+                if (isset($imageName)) {
+                    $company_details_data['img'] = $imageName;
+                }
+
+                // Check if $sign_imageName is set, if yes, create 'pr_sign_img' field
+                if (isset($sign_imageName)) {
+                    $company_details_data['pr_sign_img'] = $sign_imageName;
+                }
+
+                $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details
+
+                if ($company_details) {
+                    $company_details_id = $company_details;
+                    $company = DB::table('company')->insertGetId([   // insert company record
+                        'company_details_id' => $company_details_id,
+                        'dbname' => $dbName,
+                        'app_version' => $_SESSION['folder_name'],
+                        'max_users' => $request->maxuser,
                         'created_by' => $this->userId,
                     ]);
-                    if ($user) {
-                        $userid = $user;
-                        $rp = [
-                            "invoicemodule" => [
-                                "invoice" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "mngcol" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "formula" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "invoicesetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "bank" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "customer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "invoicenumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "invoicetandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "invoicestandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                            ],
-                            "leadmodule" => [
-                                "lead" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
-                            ],
-                            "customersupportmodule" => [
-                                "customersupport" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
-                            ],
-                            "adminmodule" => [
-                                "company" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null, "max" => null],
-                                "user" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "techsupport" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "userpermission" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                            ],
-                            "inventorymodule" => [
-                                "product" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "purchase" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "productcategory" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "productcolumnmapping" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "inventory" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "supplier" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
-                            ],
-                            "accountmodule" => [
-                            ],
-                            "remindermodule" => [
-                                "reminder" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "remindercustomer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                            ],
-                            "reportmodule" => [
-                                "report" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null, "log" => null]
-                            ],
-                            "blogmodule" => [
-                                "blog" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null,]
-                            ],
-                            "quotationmodule" => [
-                                "quotation" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationmngcol" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationformula" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationnumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationtandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationstandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationgstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                "quotationcustomer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                            ],
-                        ];
 
-                        $rpjson = json_encode($rp);
+                    $this->invoice_other_settingModel::create([  // default other settings insert
+                        'overdue_day' => 45,
+                        'year_start' => date('Y-m-d', strtotime('2024-04-01')),
+                        'sgst' => 9,
+                        'cgst' => 9,
+                        'gst' => 0,
+                        'customer_id' => 1,
+                        'current_customer_id' => 1,
+                        'created_by' => $this->userId,
+                    ]);
 
-                        $userrp = $this->user_permissionModel::create([  // create user permission
-                            'user_id' => $userid,
-                            'rp' => $rpjson,
-                            'created_by' => $this->userId
+                    if ($company) {
+
+                        $company_id = $company;
+
+                        $passwordtoken = str::random(40);
+                        $user = DB::table('users')->insertGetId([  // create new default user
+                            'firstname' => $request->name,
+                            'email' => $request->email_default_user,
+                            'role' => 2,
+                            'contact_no' => $request->contact_number,
+                            'country_id' => $request->country,
+                            'state_id' => $request->state,
+                            'city_id' => $request->city,
+                            'pincode' => $request->pincode,
+                            'pass_token' => $passwordtoken,
+                            'company_id' => $company_id,
+                            'created_by' => $this->userId,
                         ]);
+                        if ($user) {
+                            $userid = $user;
+                            $rp = [
+                                "invoicemodule" => [
+                                    "invoice" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "mngcol" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "formula" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicesetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "bank" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "customer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicenumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicetandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicestandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                ],
+                                "leadmodule" => [
+                                    "lead" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                ],
+                                "customersupportmodule" => [
+                                    "customersupport" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                ],
+                                "adminmodule" => [
+                                    "company" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null, "max" => null],
+                                    "user" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "techsupport" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "userpermission" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                ],
+                                "inventorymodule" => [
+                                    "product" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "purchase" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "productcategory" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "productcolumnmapping" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "inventory" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "supplier" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                ],
+                                "accountmodule" => [
+                                ],
+                                "remindermodule" => [
+                                    "reminder" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "remindercustomer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                ],
+                                "reportmodule" => [
+                                    "report" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null, "log" => null]
+                                ],
+                                "blogmodule" => [
+                                    "blog" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null,]
+                                ],
+                                "quotationmodule" => [
+                                    "quotation" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationmngcol" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationformula" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationnumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationtandcsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationstandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationgstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "quotationcustomer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                ],
+                            ];
 
-                        if ($userrp) {
-                            Mail::to($request->email_default_user)->send(new sendmail($passwordtoken, $request->name, $request->email_default_user));
-                            return $this->successresponse(200, 'message', 'Company succesfully added');
+                            $rpjson = json_encode($rp);
+
+                            $userrp = $this->user_permissionModel::create([  // create user permission
+                                'user_id' => $userid,
+                                'rp' => $rpjson,
+                                'created_by' => $this->userId
+                            ]);
+
+                            if ($userrp) {
+                                Mail::to($request->email_default_user)->send(new sendmail($passwordtoken, $request->name, $request->email_default_user));
+                                return $this->successresponse(200, 'message', 'Company succesfully added');
+                            } else {
+                                throw new \Exception("User permission creation failed!");
+                            }
                         } else {
-                            return $this->successresponse(500, 'message', 'User Permission Not succesfully added');
+                            throw new \Exception("User creation failed!");
                         }
                     } else {
-                        return $this->successresponse(500, 'message', 'User Not succesfully added');
+                        throw new \Exception("Company creation failed!");
                     }
                 } else {
-                    $id = $company; // companyid
-                    $record = company::find($id);
-                    $companydetails = company_detail::find($company_details_id);
-                    // Check if the record exists
-                    if ($record && $companydetails) {
-                        // Delete the record
-                        $record->delete();
-                        $companydetails->delete();
-                    }
-                    return $this->successresponse(500, 'message', 'Oops ! Something Went wrong');
+                    throw new \Exception("Company details creation failed!");
                 }
-            } else {
-                return $this->successresponse(500, 'message', 'Oops ! Company details not succesfully create');
             }
-        }
+        });
+
+
     }
 
     /**
@@ -515,104 +510,107 @@ class companyController extends commonController
     public function update(Request $request, string $id)
     {
 
-        // validate incoming request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:50',
-            'email' => 'nullable|string|max:50',
-            'contact_number' => 'required|numeric|digits:10',
-            'house_no_building_name' => 'required|string|max:255',
-            'road_name_area_colony' => 'required|string|max:255',
-            'gst_number' => 'nullable|string|max:50',
-            'country' => 'required|numeric',
-            'state' => 'required|numeric',
-            'city' => 'required|numeric',
-            'pincode' => 'required|numeric',
-            'maxuser' => 'nullable|numeric',
-            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-            'user_id' => 'numeric',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
+        return $this->executeTransaction(function() use ($request,$id){
+            // validate incoming request data
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:50',
+                'email' => 'nullable|string|max:50',
+                'contact_number' => 'required|numeric|digits:10',
+                'house_no_building_name' => 'required|string|max:255',
+                'road_name_area_colony' => 'required|string|max:255',
+                'gst_number' => 'nullable|string|max:50',
+                'country' => 'required|numeric',
+                'state' => 'required|numeric',
+                'city' => 'required|numeric',
+                'pincode' => 'required|numeric',
+                'maxuser' => 'nullable|numeric',
+                'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+                'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+                'user_id' => 'numeric',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
 
-        if ($validator->fails()) {
-            // return error response if validator fails
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-            if ($this->rp['adminmodule']['company']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-            $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->select('company_details.img', 'company_details.pr_sign_img')->where('company.id', $id)
-                ->get();
-
-            $imageName = $company[0]->img;
-            $sign_imageName = $company[0]->pr_sign_img;
-
-            if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
-
-                $image = $request->file('img');
-                $sign_image = $request->file('sign_img');
-
-                if ($image) {
-                    $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
-                    $image->move('uploads/', $imageName);
+            if ($validator->fails()) {
+                // return error response if validator fails
+                return $this->errorresponse(422, $validator->messages());
+            } else {
+                if ($this->rp['adminmodule']['company']['edit'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
 
-                // Check if signature image file is uploaded
-                if ($sign_image) {
-                    $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
-                    $sign_image->move('uploads/', $sign_imageName);
-                }
+                $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
+                    ->select('company_details.img', 'company_details.pr_sign_img')->where('company.id', $id)
+                    ->get();
 
-            }
+                $imageName = $company[0]->img;
+                $sign_imageName = $company[0]->pr_sign_img;
 
-            $company_details_data = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'contact_no' => $request->contact_number,
-                'house_no_building_name' => $request->house_no_building_name,
-                'road_name_area_colony' => $request->road_name_area_colony,
-                'country_id' => $request->country,
-                'state_id' => $request->state,
-                'city_id' => $request->city,
-                'pincode' => $request->pincode,
-                'gst_no' => $request->gst_number,
-                'img' => $imageName,
-                'pr_sign_img' => $sign_imageName
-            ];
+                if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
 
-            $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details (create new company details record  everytime on company update)
-            if ($company_details) {
-                $company_details_id = $company_details;
-                $company = company::find($id);
-                if ($company) {
-                    if (isset($request->maxuser)) {
-                        $company->max_users = $request->maxuser;
-                        $company->save();
+                    $image = $request->file('img');
+                    $sign_image = $request->file('sign_img');
+
+                    if ($image) {
+                        $imageName = $request->name . time() . '.' . $image->getClientOriginalExtension();
+                        $image->move('uploads/', $imageName);
                     }
-                    $companyupdate = $company->update([  // update company details id into company record table
-                        'company_details_id' => $company_details_id,
-                        'updated_by' => $this->userId,
-                    ]);
 
-                    if ($companyupdate) {
-                        return $this->successresponse(200, 'message', 'company succesfully updated');
+                    // Check if signature image file is uploaded
+                    if ($sign_image) {
+                        $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
+                        $sign_image->move('uploads/', $sign_imageName);
+                    }
+
+                }
+
+                $company_details_data = [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'contact_no' => $request->contact_number,
+                    'house_no_building_name' => $request->house_no_building_name,
+                    'road_name_area_colony' => $request->road_name_area_colony,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
+                    'pincode' => $request->pincode,
+                    'gst_no' => $request->gst_number,
+                    'img' => $imageName,
+                    'pr_sign_img' => $sign_imageName
+                ];
+
+                $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details (create new company details record  everytime on company update)
+                if ($company_details) {
+                    $company_details_id = $company_details;
+                    $company = company::find($id);
+                    if ($company) {
+                        if (isset($request->maxuser)) {
+                            $company->max_users = $request->maxuser;
+                            $company->save();
+                        }
+                        $companyupdate = $company->update([  // update company details id into company record table
+                            'company_details_id' => $company_details_id,
+                            'updated_by' => $this->userId,
+                        ]);
+
+                        if ($companyupdate) {
+                            return $this->successresponse(200, 'message', 'company succesfully updated');
+                        } else {
+                            $company_details = company_detail::find($company_details_id);  // delete newly created company details record if it will not created proper
+                            $company_details->delete();
+                            return $this->successresponse(200, 'message', 'company not succesfully updated');
+                        }
                     } else {
-                        $company_details = company_detail::find($company_details_id);  // delete newly created company details record if it will not created proper
-                        $company_details->delete();
-                        return $this->successresponse(200, 'message', 'company not succesfully updated');
+                        return $this->successresponse(404, 'message', 'No Such company Found!');
                     }
                 } else {
-                    return $this->successresponse(404, 'message', 'No Such company Found!');
+                    return $this->successresponse(500, 'message', 'Oops ! Something Went wrong');
                 }
-            } else {
-                return $this->successresponse(500, 'message', 'Oops ! Something Went wrong');
-            }
 
-        }
+            }
+        });
+
     }
 
     /**
@@ -620,51 +618,56 @@ class companyController extends commonController
      */
     public function destroy(string $id)
     {
-        $company = company::find($id);
 
-        if ($this->rp['adminmodule']['company']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-        if ($company) {
-            $company->update([
+        return $this->executeTransaction(function() use ($id){
+
+            $company = company::find($id);
+
+            if ($this->rp['adminmodule']['company']['delete'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+            if ($company) {
+                $company->update([
+                    'is_deleted' => 1
+                ]);
+            } else {
+                return $this->successresponse(404, 'message', 'No Such company Found!');
+            }
+
+            $users = User::where('company_id', $id)->update([
                 'is_deleted' => 1
             ]);
-        } else {
-            return $this->successresponse(404, 'message', 'No Such company Found!');
-        }
-
-        $users = User::where('company_id', $id)->update([
-            'is_deleted' => 1
-        ]);
 
 
-        return $this->successresponse(200, 'message', 'company succesfully deleted');
+            return $this->successresponse(200, 'message', 'company succesfully deleted');
+        });
     }
  
     // company active/deactive function
     public function statusupdate(Request $request, string $id)
     {
 
-        $company = company::find($id);
+        return $this->executeTransaction(function() use ($request,$id){
+            $company = company::find($id);
 
-        if (!$company) {
-            return $this->successresponse(404, 'message', 'No Such Company Found!');
-        }
+            if (!$company) {
+                return $this->successresponse(404, 'message', 'No Such Company Found!');
+            }
 
-        if ($this->rp['adminmodule']['company']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+            if ($this->rp['adminmodule']['company']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
 
-        $company->update([
-            'is_active' => $request->status
-        ]);
+            $company->update([
+                'is_active' => $request->status
+            ]);
 
 
-        $users = User::where('company_id', $id)->update([
-            'is_active' => $request->status
-        ]);
+            $users = User::where('company_id', $id)->update([
+                'is_active' => $request->status
+            ]);
 
-        return $this->successresponse(200, 'message', 'Comapny status succesfully updated');
-
+            return $this->successresponse(200, 'message', 'Comapny status succesfully updated');
+        });
     }
 }

@@ -208,282 +208,278 @@ class quotationController extends commonController
     public function store(Request $request)
     {
 
-        $data = $request->data; // quotation details
-        $itemdata = $request->iteam_data; // product details
+        return $this->executeTransaction(function () use ($request) {
+            $data = $request->data; // quotation details
+            $itemdata = $request->iteam_data; // product details
 
-        // validate incoming request data
-        $validator = Validator::make($data, [
-            "customer" => 'required',
-            "total_amount" => 'required|numeric',
-            "sgst" => 'nullable|numeric',
-            "cgst" => 'nullable|numeric',
-            "gst" => 'nullable|numeric',
-            "currency" => 'required|numeric',
-            "tax_type" => 'required|numeric',
-            "country_id",
-            "user_id",
-            'notes',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
+            // validate incoming request data
+            $validator = Validator::make($data, [
+                "customer" => 'required',
+                "total_amount" => 'required|numeric',
+                "sgst" => 'nullable|numeric',
+                "cgst" => 'nullable|numeric',
+                "gst" => 'nullable|numeric',
+                "currency" => 'required|numeric',
+                "tax_type" => 'required|numeric',
+                "country_id",
+                "user_id",
+                'notes',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
 
-        if ($validator->fails()) {
-            if (isset($data['customer']) && $data['customer'] == 'add_customer') {
-                $validator->errors()->add('customer', 'The customer field is required.');
+            if ($validator->fails()) {
+                if (isset($data['customer']) && $data['customer'] == 'add_customer') {
+                    $validator->errors()->add('customer', 'The customer field is required.');
+                    return $this->errorresponse(422, $validator->messages());
+                }
                 return $this->errorresponse(422, $validator->messages());
-            }
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-            if (isset($data['customer']) && $data['customer'] == 'add_customer') {
-                $validator->errors()->add('customer', 'The customer field is required.');
-                return $this->errorresponse(422, $validator->messages());
-            }
-            if ($this->rp['quotationmodule']['quotation']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are unauthorized');
-            }
-
-            //fetch all column for add details into manage column table and add show column into quotation table
-            $column = []; // array for show column 
-            $mngcol = $this->tbl_quotatoin_columnModel::orderBy('column_order')->where('is_deleted', 0)->where('is_hide', 0)->get();
-
-            foreach ($mngcol as $key => $val) {
-                array_push($column, $val->column_name); // push value in show column array
-            }
-
-            // show array modification 
-            $columnwithunderscore = array_map(function ($value) {
-                return str_replace(' ', '_', $value); // replace (space) = (_)
-            }, $column);
-
-            $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for show column
-
-            // fetch last record from quotation tbl for generate dynamic quotation no
-            $customer = DB::connection('dynamic_connection')->table('customers')->where('id', $data['customer'])->get();
-            $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->select('company_details.country_id')
-                ->where('company.id', $this->companyId)
-                ->get();
-
-            $customerid = $customer[0]->customer_id;
-            $othersetting = $this->quotation_other_settingModel::find(1);
-            $patterntype = 2; // pattern type 2 = global 
-
-            if (isset($data['quotation_number'])) { //user entered manully quotation number
-                if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                    $patterntype = 1;
-                }
-                // check if quotation number already exist.
-                $checkquotationnumberrec = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $data['quotation_number'])->where('is_deleted', 0)->first();
-                if ($checkquotationnumberrec) {
-                    return $this->errorresponse(422, ["quotation_number" => ['This number already exists!']]);
-                }
-                $quotation_no = $data['quotation_number'];
             } else {
-                //generate dynamic quotation number
-                $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
-                $currentMonth = date('m'); // Current month
-                $currentDay = date('d'); // Current day
-                $startMonth = date('m', strtotime($userStartDate));
-                $startDay = date('d', strtotime($userStartDate));
+                if (isset($data['customer']) && $data['customer'] == 'add_customer') {
+                    $validator->errors()->add('customer', 'The customer field is required.');
+                    return $this->errorresponse(422, $validator->messages());
+                }
+                if ($this->rp['quotationmodule']['quotation']['add'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are unauthorized');
+                }
 
-                // Compare the start date's month and day with the current month and day
-                if ($currentMonth < $startMonth || ($currentMonth == $startMonth && $currentDay < $startDay)) {
-                    // If the current date is before the user's starting month, count the previous year
-                    $year = date('y', strtotime('-1 year'));
+                //fetch all column for add details into manage column table and add show column into quotation table
+                $column = []; // array for show column 
+                $mngcol = $this->tbl_quotatoin_columnModel::orderBy('column_order')->where('is_deleted', 0)->where('is_hide', 0)->get();
+
+                foreach ($mngcol as $key => $val) {
+                    array_push($column, $val->column_name); // push value in show column array
+                }
+
+                // show array modification 
+                $columnwithunderscore = array_map(function ($value) {
+                    return str_replace(' ', '_', $value); // replace (space) = (_)
+                }, $column);
+
+                $showcolumnstring = implode(',', $columnwithunderscore); // make coma separate string for show column
+
+                // fetch last record from quotation tbl for generate dynamic quotation no
+                $customer = DB::connection('dynamic_connection')->table('customers')->where('id', $data['customer'])->get();
+                $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
+                    ->select('company_details.country_id')
+                    ->where('company.id', $this->companyId)
+                    ->get();
+
+                $customerid = $customer[0]->customer_id;
+                $othersetting = $this->quotation_other_settingModel::find(1);
+                $patterntype = 2; // pattern type 2 = global 
+
+                if (isset($data['quotation_number'])) { //user entered manully quotation number
+                    if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
+                        $patterntype = 1; // patern type 1 = local/domestic
+                    }
+                    // check if quotation number already exist.
+                    $checkquotationnumberrec = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $data['quotation_number'])->where('is_deleted', 0)->first();
+                    if ($checkquotationnumberrec) {
+                        return $this->errorresponse(422, ["quotation_number" => ['This number already exists!']]);
+                    }
+                    $quotation_no = $data['quotation_number'];
                 } else {
-                    // If the current date is after or on the user's starting month, count the current year
-                    $year = date('y');
-                }
+                    //generate dynamic quotation number
+                    $userStartDate = $othersetting->year_start; // Dynamic start date provided by the user
+                    $currentMonth = date('m'); // Current month
+                    $currentDay = date('d'); // Current day
+                    $startMonth = date('m', strtotime($userStartDate));
+                    $startDay = date('d', strtotime($userStartDate));
 
-                $month = date('m');
-                $date = date('d');
-                $ai = '';
-                $cidai = '';
-                $patterntype = '';
-
-                if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
-                    $patterntype = 1;
-                    $increment_number = 1;
-                    do {
-                        $getpattern = $this->quotation_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
-                        $quotation_no = $getpattern->quotation_pattern;
-                        if ($getpattern->increment_type == 1) {
-                            // Replace placeholders with actual values
-                            $ai = $getpattern->current_increment_number;
-                            $getpattern->update([
-                                'current_increment_number' => $ai + 1
-                            ]);
-                        } else {
-                            $oldquotation = DB::connection('dynamic_connection')
-                                ->table('quotations')
-                                ->where('customer_id', $customerid)
-                                ->where('is_deleted', 0)
-                                ->where('quotation_number_type', 'a')
-                                ->where('increment_type', 2)
-                                ->orderBy('last_increment_number', 'desc')
-                                ->select('last_increment_number')
-                                ->first();
-
-                            if (!empty($oldquotation)) {
-                                $cidai = $oldquotation->last_increment_number + $increment_number;
-                            } else {
-                                $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : $increment_number;
-                            }
-                        }
-
-                        $quotation_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $quotation_no);
-                        $existingQuotation = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $quotation_no)->where('is_deleted', 0)->exists();
-                        $increment_number++;
-
-                        if (!$existingQuotation) {
-                            break;
-                        }
-                    } while ($existingQuotation);
-
-
-                } else {
-                    $patterntype = 2;
-                    $increment_number = 1;
-
-                    do {
-                        $getpattern = $this->quotation_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
-                        $quotation_no = $getpattern->quotation_pattern;
-                        if ($getpattern->increment_type == 1) {
-                            // Replace placeholders with actual values
-                            $ai = $getpattern->current_increment_number;
-                            $getpattern->update([
-                                'current_increment_number' => $ai + 1
-                            ]);
-                        } else {
-                            $oldquotation = DB::connection('dynamic_connection')
-                                ->table('quotations')
-                                ->where('customer_id', $customerid)
-                                ->where('is_deleted', 0)
-                                ->where('increment_type', 2)
-                                ->where('quotation_number_type', 'a')
-                                ->orderBy('last_increment_number', 'desc')
-                                ->select('last_increment_number')
-                                ->first();
-
-                            if (!empty($oldquotation)) {
-                                $cidai = $oldquotation->last_increment_number + $increment_number;
-                            } else {
-                                $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
-                            }
-                        }
-                        $quotation_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $quotation_no);
-                        $existingQuotation = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $quotation_no)->where('is_deleted', 0)->exists();
-                        $increment_number++;
-                        if (!$existingQuotation) {
-                            break;
-                        }
-                    } while ($existingQuotation);
-
-                }
-            }
-
-
-            $company_details = company::find($this->companyId);
-
-            if ($company_details) {
-
-                $company_details_id = $company_details->company_details_id;
-
-                $quotationrec = [
-                    'quotation_number' => $quotation_no,
-                    'customer_id' => $data['customer'],
-                    'notes' => $data['notes'],
-                    'total' => $data['total_amount'],
-                    'grand_total' => $data['grandtotal'],
-                    'currency_id' => $data['currency'],
-                    'company_id' => $this->companyId,
-                    'company_details_id' => $company_details_id,
-                    'created_by' => $this->userId,
-                    'show_col' => $showcolumnstring,
-                    'gstsettings' => json_encode($data['gstsettings']),
-                    'overdue_date' => $othersetting->overdue_day,
-                    'pattern_type' => $patterntype
-                ];
-
-
-                if ($data['quotation_date']) {
-                    $quotationrec['quotation_date'] = $data['quotation_date'];
-                }
-
-                if ($data['quotation_number']) {
-                    $quotationrec['quotation_number_type'] = 'm';  // set flag "m" if user entered manully quotation number - default(a)
-                }
-
-                if (isset($cidai) && $cidai != '') {
-                    $quotationrec['last_increment_number'] = $cidai;
-                    $quotationrec['increment_type'] = 2;
-                } else {
-                    $quotationrec['increment_type'] = 1;
-                }
-
-                if ($data['tax_type'] != 2) {
-                    if (isset($data['gst'])) {
-                        $quotationrec['gst'] = $data['gst'];
+                    // Compare the start date's month and day with the current month and day
+                    if ($currentMonth < $startMonth || ($currentMonth == $startMonth && $currentDay < $startDay)) {
+                        // If the current date is before the user's starting month, count the previous year
+                        $year = date('y', strtotime('-1 year'));
                     } else {
-                        $quotationrec['sgst'] = $data['sgst'];
-                        $quotationrec['cgst'] = $data['cgst'];
-                    }
-                }
-
-                // get terms and conditions id
-                $tclastrec = DB::connection('dynamic_connection')->table('quotation_terms_and_conditions')->select('id')->where('is_deleted', 0)->where('is_active', 1)->orderBy('id', 'desc')->first();
-
-
-                if ($tclastrec) {
-                    $quotationrec['t_and_c_id'] = $tclastrec->id;
-                }
-
-                $quotation = DB::connection('dynamic_connection')->table('quotations')->insertGetId($quotationrec); // insert quotation record 
-
-                if ($quotation) {
-                    $quotation_id = $quotation;
-
-                    foreach ($itemdata as $row) {
-                        $dynamicdata = [];
-
-                        // Map the values to the corresponding columns
-                        foreach ($columnwithunderscore as $column) {
-                            $dynamicdata[$column] = $row[$column];
-                        }
-
-                        // Add additional columns and their values
-                        $dynamicdata['quotation_id'] = $quotation_id;
-                        $dynamicdata['amount'] = $row['amount'];
-                        $dynamicdata['created_by'] = $this->userId;
-                        // Add more columns as needed
-
-                        // Insert the record into the database
-                        $quotation_mng_col = DB::connection('dynamic_connection')->table('quotation_mng_col')->insert($dynamicdata); // insert product record line by line
+                        // If the current date is after or on the user's starting month, count the current year
+                        $year = date('y');
                     }
 
-                    if ($quotation_mng_col) {
-                        return $this->successresponse(200, 'message', 'quotation  succesfully created');
+                    $month = date('m');
+                    $date = date('d');
+                    $ai = '';
+                    $cidai = '';
+                    $patterntype = '';
+
+                    if ($customer[0]->country_id == $company[0]->country_id || !isset($customer[0]->country_id)) {
+                        $patterntype = 1; // pattern type 1 = local/domestic 
+                        $increment_number = 1; // increment type 1 = increment quotation number by quotation 
+                        do {
+                            $getpattern = $this->quotation_number_patternModel::where('pattern_type', 'domestic')->where('is_deleted', 0)->first();
+                            $quotation_no = $getpattern->quotation_pattern;
+                            if ($getpattern->increment_type == 1) {
+                                // Replace placeholders with actual values
+                                $ai = $getpattern->current_increment_number;
+                                $getpattern->update([
+                                    'current_increment_number' => $ai + 1
+                                ]);
+                            } else {
+                                $oldquotation = DB::connection('dynamic_connection')
+                                    ->table('quotations')
+                                    ->where('customer_id', $customerid)
+                                    ->where('is_deleted', 0)
+                                    ->where('quotation_number_type', 'a') // a means automatic generated number
+                                    ->where('increment_type', 2) // increment type 2 = increment quotation number by customer
+                                    ->orderBy('last_increment_number', 'desc')
+                                    ->select('last_increment_number')
+                                    ->first();
+
+                                if (!empty($oldquotation)) {
+                                    $cidai = $oldquotation->last_increment_number + $increment_number;
+                                } else {
+                                    $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : $increment_number;
+                                }
+                            }
+
+                            $quotation_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $quotation_no);
+                            $existingQuotation = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $quotation_no)->where('is_deleted', 0)->exists();
+                            $increment_number++;
+
+                            if (!$existingQuotation) {
+                                break;
+                            }
+                        } while ($existingQuotation);
+
+
                     } else {
-                        $id = $quotation;
-                        $record = $this->quotationModel::find($id);
-                        // Check if the record exists
-                        if ($record) {
-                            // Delete the record
-                            $record->delete();
+                        $patterntype = 2; // pattern type 2 = global 
+                        $increment_number = 1; // increment number 1 = increment by quotation 
+
+                        do {
+                            $getpattern = $this->quotation_number_patternModel::where('pattern_type', 'global')->where('is_deleted', 0)->first();
+                            $quotation_no = $getpattern->quotation_pattern;
+                            if ($getpattern->increment_type == 1) {
+                                // Replace placeholders with actual values
+                                $ai = $getpattern->current_increment_number;
+                                $getpattern->update([
+                                    'current_increment_number' => $ai + 1
+                                ]);
+                            } else {
+                                $oldquotation = DB::connection('dynamic_connection')
+                                    ->table('quotations')
+                                    ->where('customer_id', $customerid)
+                                    ->where('is_deleted', 0)
+                                    ->where('increment_type', 2) // increment type 2 = increment by customer 
+                                    ->where('quotation_number_type', 'a') // automatic generated number
+                                    ->orderBy('last_increment_number', 'desc')
+                                    ->select('last_increment_number')
+                                    ->first();
+
+                                if (!empty($oldquotation)) {
+                                    $cidai = $oldquotation->last_increment_number + $increment_number;
+                                } else {
+                                    $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
+                                }
+                            }
+                            $quotation_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $quotation_no);
+                            $existingQuotation = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $quotation_no)->where('is_deleted', 0)->exists();
+                            $increment_number++;
+                            if (!$existingQuotation) {
+                                break;
+                            }
+                        } while ($existingQuotation);
+
+                    }
+                }
+
+
+                $company_details = company::find($this->companyId);
+
+                if ($company_details) {
+
+                    $company_details_id = $company_details->company_details_id;
+
+                    $quotationrec = [
+                        'quotation_number' => $quotation_no,
+                        'customer_id' => $data['customer'],
+                        'notes' => $data['notes'],
+                        'total' => $data['total_amount'],
+                        'grand_total' => $data['grandtotal'],
+                        'currency_id' => $data['currency'],
+                        'company_id' => $this->companyId,
+                        'company_details_id' => $company_details_id,
+                        'created_by' => $this->userId,
+                        'show_col' => $showcolumnstring,
+                        'gstsettings' => json_encode($data['gstsettings']),
+                        'overdue_date' => $othersetting->overdue_day,
+                        'pattern_type' => $patterntype
+                    ];
+
+
+                    if ($data['quotation_date']) {
+                        $quotationrec['quotation_date'] = $data['quotation_date'];
+                    }
+
+                    if ($data['quotation_number']) {
+                        $quotationrec['quotation_number_type'] = 'm';  // set flag "m" if user entered manully quotation number - default(a)
+                    }
+
+                    if (isset($cidai) && $cidai != '') {
+                        $quotationrec['last_increment_number'] = $cidai;
+                        $quotationrec['increment_type'] = 2; // type 2 = increment by customer 
+                    } else {
+                        $quotationrec['increment_type'] = 1; // type 1 = increment by quotation 
+                    }
+
+                    if ($data['tax_type'] != 2) {
+                        if (isset($data['gst'])) { // combine gst count 
+                            $quotationrec['gst'] = $data['gst'];
+                        } else { // seperate gst count
+                            $quotationrec['sgst'] = $data['sgst'];
+                            $quotationrec['cgst'] = $data['cgst'];
                         }
-                        return $this->successresponse(500, 'message', 'quotation details not succesfully created');
+                    }
+
+                    // get terms and conditions id
+                    $tclastrec = DB::connection('dynamic_connection')->table('quotation_terms_and_conditions')->select('id')->where('is_deleted', 0)->where('is_active', 1)->orderBy('id', 'desc')->first();
+
+
+                    if ($tclastrec) {
+                        $quotationrec['t_and_c_id'] = $tclastrec->id;
+                    }
+
+                    $quotation = DB::connection('dynamic_connection')->table('quotations')->insertGetId($quotationrec); // insert quotation record 
+
+                    if ($quotation) {
+                        $quotation_id = $quotation;
+
+                        foreach ($itemdata as $row) {
+                            $dynamicdata = [];
+
+                            // Map the values to the corresponding columns
+                            foreach ($columnwithunderscore as $column) {
+                                $dynamicdata[$column] = $row[$column];
+                            }
+
+                            // Add additional columns and their values
+                            $dynamicdata['quotation_id'] = $quotation_id;
+                            $dynamicdata['amount'] = $row['amount'];
+                            $dynamicdata['created_by'] = $this->userId;
+                            // Add more columns as needed
+
+                            // Insert the record into the database
+                            $quotation_mng_col = DB::connection('dynamic_connection')->table('quotation_mng_col')->insert($dynamicdata); // insert product record line by line
+                        }
+
+                        if ($quotation_mng_col) {
+                            return $this->successresponse(200, 'message', 'quotation  succesfully created');
+                        } else {
+                            throw new \Exception("Quotation creation failed");
+                        }
+                    } else {
+                        throw new \Exception("Quotation creation failed");
                     }
                 } else {
-                    return $this->successresponse(500, 'message', 'quotation not succesfully created');
+                    return $this->successresponse(500, 'message', 'company Details not found');
                 }
-            } else {
-                return $this->successresponse(500, 'message', 'company Details not found');
-            }
 
-        }
+            }
+        });
+
     }
 
 
@@ -516,138 +512,140 @@ class quotationController extends commonController
     public function update(Request $request, string $id)
     {
 
-        $data = $request->data; // quotation data
+        return $this->executeTransaction(function () use ($request,$id) {
+            $data = $request->data; // quotation data
 
-        // validate incoming request data
-        $validator = Validator::make($data, [
-            "customer" => 'required',
-            "total_amount" => 'required|numeric',
-            "sgst" => 'nullable|numeric',
-            "cgst" => 'nullable|numeric',
-            "gst" => 'nullable|numeric',
-            "currency" => 'required|numeric',
-            "tax_type" => 'required|numeric',
-            "country_id",
-            "user_id",
-            'notes',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
+            // validate incoming request data
+            $validator = Validator::make($data, [
+                "customer" => 'required',
+                "total_amount" => 'required|numeric',
+                "sgst" => 'nullable|numeric',
+                "cgst" => 'nullable|numeric',
+                "gst" => 'nullable|numeric',
+                "currency" => 'required|numeric',
+                "tax_type" => 'required|numeric',
+                "country_id",
+                "user_id",
+                'notes',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
 
-        if ($validator->fails()) {
-            if (isset($data['customer']) && $data['customer'] == 'add_customer') {
-                $validator->errors()->add('customer', 'The customer field is required.');
-            }
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-            if (isset($data['customer']) && $data['customer'] == 'add_customer') {
-                $validator->errors()->add('customer', 'The customer field is required.');
+            if ($validator->fails()) {
+                if (isset($data['customer']) && $data['customer'] == 'add_customer') {
+                    $validator->errors()->add('customer', 'The customer field is required.');
+                }
                 return $this->errorresponse(422, $validator->messages());
-            }
-            if ($this->rp['quotationmodule']['quotation']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are unauthorized');
-            }
+            } else {
+                if (isset($data['customer']) && $data['customer'] == 'add_customer') {
+                    $validator->errors()->add('customer', 'The customer field is required.');
+                    return $this->errorresponse(422, $validator->messages());
+                }
+                if ($this->rp['quotationmodule']['quotation']['edit'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are unauthorized');
+                }
 
 
-            $oldquotation = $this->quotationModel::find($id);
+                $oldquotation = $this->quotationModel::find($id);
 
-            // update old product data
-            $columanname = [];
-            if ($request->old_iteam_data) {
-                $oldproductdata = $request->old_iteam_data;
-                foreach ($oldproductdata as $val) {
-                    foreach ($val as $productid => $productvalue) {
-                        DB::connection('dynamic_connection')->table('quotation_mng_col')->where('id', $productid)->update(
-                            $productvalue
-                        );
-                        foreach ($productvalue as $key => $value) {
-                            if (count($columanname) >= count($productvalue)) {
-                                break;
+                // update old product data
+                $columanname = [];
+                if ($request->old_iteam_data) {
+                    $oldproductdata = $request->old_iteam_data;
+                    foreach ($oldproductdata as $val) {
+                        foreach ($val as $productid => $productvalue) {
+                            DB::connection('dynamic_connection')->table('quotation_mng_col')->where('id', $productid)->update(
+                                $productvalue
+                            );
+                            foreach ($productvalue as $key => $value) {
+                                if (count($columanname) >= count($productvalue)) {
+                                    break;
+                                }
+                                $columanname[] = $key; // collect column for use add new data
                             }
-                            $columanname[] = $key; // collect column for use add new data
                         }
                     }
-                }
-            } else {
-                $columanname = explode(',', $oldquotation->show_col);
-            }
-
-            // delete old product if any deleted 
-            if ($request->deletedproduct) {
-                $deletedproduct = $request->deletedproduct;
-                DB::connection('dynamic_connection')->table('quotation_mng_col')->whereIn('id', $deletedproduct)->update([
-                    'is_deleted' => 1,
-                    'is_active' => 0,
-                ]);
-            }
-
-
-            // update in quotation table
-            $quotationrec = [
-                'customer_id' => $data['customer'],
-                'notes' => $data['notes'],
-                'total' => $data['total_amount'],
-                'grand_total' => $data['grandtotal'],
-                'currency_id' => $data['currency'],
-                'updated_by' => $this->userId,
-            ];
-
-
-            if (isset($data['quotation_number'])) { //user entered manully quotation number 
-                // check if quotation number already exist.
-                $checkquotationnumberrec = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $data['quotation_number'])->whereNot('id', $id)->where('is_deleted', 0)->first();
-                if ($checkquotationnumberrec) {
-                    return $this->errorresponse(422, ["quotation_number" => ['This number already exists!']]);
-                }
-                $quotationrec['quotation_number'] = $data['quotation_number'];
-                $quotationrec['quotation_number_type'] = 'm';
-            }
-
-            if ($data['quotation_date']) {
-                $quotationrec['quotation_date'] = $data['quotation_date'];
-            }
-
-
-            if ($data['tax_type'] != 2) {
-                if (isset($data['gst'])) {
-                    $quotationrec['gst'] = $data['gst'];
                 } else {
-                    $quotationrec['sgst'] = $data['sgst'];
-                    $quotationrec['cgst'] = $data['cgst'];
+                    $columanname = explode(',', $oldquotation->show_col);
                 }
-            }
 
-            $quotation = DB::connection('dynamic_connection')->table('quotations')->where('id', $id)->update($quotationrec);
+                // delete old product if any deleted 
+                if ($request->deletedproduct) {
+                    $deletedproduct = $request->deletedproduct;
+                    DB::connection('dynamic_connection')->table('quotation_mng_col')->whereIn('id', $deletedproduct)->update([
+                        'is_deleted' => 1,
+                        'is_active' => 0,
+                    ]);
+                }
 
-            // create new product data
-            if ($request->iteam_data) {
-                $itemdata = $request->iteam_data;
 
-                foreach ($itemdata as $row) {
-                    $dynamicdata = [];
-                    // Map the values to the corresponding columns
-                    foreach ($columanname as $column) {
-                        $dynamicdata[$column] = $row[$column];
+                // update in quotation table
+                $quotationrec = [
+                    'customer_id' => $data['customer'],
+                    'notes' => $data['notes'],
+                    'total' => $data['total_amount'],
+                    'grand_total' => $data['grandtotal'],
+                    'currency_id' => $data['currency'],
+                    'updated_by' => $this->userId,
+                ];
+
+
+                if (isset($data['quotation_number'])) { //user entered manully quotation number 
+                    // check if quotation number already exist.
+                    $checkquotationnumberrec = DB::connection('dynamic_connection')->table('quotations')->where('quotation_number', $data['quotation_number'])->whereNot('id', $id)->where('is_deleted', 0)->first();
+                    if ($checkquotationnumberrec) {
+                        return $this->errorresponse(422, ["quotation_number" => ['This number already exists!']]);
                     }
-                    // Add additional columns and their values
-                    $dynamicdata['quotation_id'] = $id;
-                    $dynamicdata['amount'] = $row['amount'];
-                    $dynamicdata['created_by'] = $this->userId;
-                    $dynamicdata['updated_by'] = $this->userId;
-                    // Add more columns as needed
-
-                    // Insert the record into the database
-                    $quotation_mng_col = DB::connection('dynamic_connection')->table('quotation_mng_col')->insert($dynamicdata);
+                    $quotationrec['quotation_number'] = $data['quotation_number'];
+                    $quotationrec['quotation_number_type'] = 'm';
                 }
 
+                if ($data['quotation_date']) {
+                    $quotationrec['quotation_date'] = $data['quotation_date'];
+                }
+
+
+                if ($data['tax_type'] != 2) {
+                    if (isset($data['gst'])) {
+                        $quotationrec['gst'] = $data['gst'];
+                    } else {
+                        $quotationrec['sgst'] = $data['sgst'];
+                        $quotationrec['cgst'] = $data['cgst'];
+                    }
+                }
+
+                $quotation = DB::connection('dynamic_connection')->table('quotations')->where('id', $id)->update($quotationrec);
+
+                // create new product data
+                if ($request->iteam_data) {
+                    $itemdata = $request->iteam_data;
+
+                    foreach ($itemdata as $row) {
+                        $dynamicdata = [];
+                        // Map the values to the corresponding columns
+                        foreach ($columanname as $column) {
+                            $dynamicdata[$column] = $row[$column];
+                        }
+                        // Add additional columns and their values
+                        $dynamicdata['quotation_id'] = $id;
+                        $dynamicdata['amount'] = $row['amount'];
+                        $dynamicdata['created_by'] = $this->userId;
+                        $dynamicdata['updated_by'] = $this->userId;
+                        // Add more columns as needed
+
+                        // Insert the record into the database
+                        $quotation_mng_col = DB::connection('dynamic_connection')->table('quotation_mng_col')->insert($dynamicdata);
+                    }
+
+                }
+
+                return $this->successresponse(200, 'message', 'Quotation successfully updated');
+
             }
-
-            return $this->successresponse(200, 'message', 'Quotation successfully updated');
-
-        }
+        });
     }
 
     /**
@@ -655,50 +653,53 @@ class quotationController extends commonController
      */
     public function destroy(string $id)
     {
-        // Check if the user is authorized to delete the quotation
-        if ($this->rp['quotationmodule']['quotation']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
-        }
 
-        // Find the quotation by ID
-        $quotation = $this->quotationModel::find($id);
-        $lastquotation = $this->quotationModel::orderBy('id', 'desc')->where('is_deleted', 0)->first();
+        return $this->executeTransaction(function () use ($id) {
+            // Check if the user is authorized to delete the quotation
+            if ($this->rp['quotationmodule']['quotation']['delete'] != 1) {
+                return $this->successresponse(500, 'message', 'You are unauthorized');
+            }
 
-        if (!$quotation) {
-            return $this->successresponse(404, 'message', 'Quotation not found');
-        }
+            // Find the quotation by ID
+            $quotation = $this->quotationModel::find($id);
+            $lastquotation = $this->quotationModel::orderBy('id', 'desc')->where('is_deleted', 0)->first();
 
-        // Update increment numbers if applicable
-        if ($quotation->increment_type != 2) {
-            $patterntype = $quotation->pattern_type == 1 ? 'domestic' : 'global';
-            $pattern = $this->quotation_number_patternModel::where('pattern_type', $patterntype)
-                ->where('is_deleted', 0)
-                ->first();
+            if (!$quotation) {
+                return $this->successresponse(404, 'message', 'Quotation not found');
+            }
 
-            if ($pattern) {
-                if ($id == $lastquotation->id) {
-                    $pattern->current_increment_number = max(0, $pattern->current_increment_number - 1);
-                    $pattern->save();
+            // Update increment numbers if applicable
+            if ($quotation->increment_type != 2) {
+                $patterntype = $quotation->pattern_type == 1 ? 'domestic' : 'global';
+                $pattern = $this->quotation_number_patternModel::where('pattern_type', $patterntype)
+                    ->where('is_deleted', 0)
+                    ->first();
+
+                if ($pattern) {
+                    if ($id == $lastquotation->id) {
+                        $pattern->current_increment_number = max(0, $pattern->current_increment_number - 1);
+                        $pattern->save();
+                    }
                 }
             }
-        }
 
-        // Mark the quotation and related entries as deleted
-        $quotations = DB::connection('dynamic_connection')->table('quotations')
-            ->where('id', $id)
-            ->update(['is_deleted' => 1]);
-
-        if ($quotations) {
-            $quotation_mng_col = DB::connection('dynamic_connection')->table('quotation_mng_col')
-                ->where('quotation_id', $id)
+            // Mark the quotation and related entries as deleted
+            $quotations = DB::connection('dynamic_connection')->table('quotations')
+                ->where('id', $id)
                 ->update(['is_deleted' => 1]);
 
-            if ($quotation_mng_col) {
-                return $this->successresponse(200, 'message', 'Quotation successfully deleted');
-            }
-        }
+            if ($quotations) {
+                $quotation_mng_col = DB::connection('dynamic_connection')->table('quotation_mng_col')
+                    ->where('quotation_id', $id)
+                    ->update(['is_deleted' => 1]);
 
-        return $this->successresponse(404, 'message', 'Quotation not successfully deleted!');
+                if ($quotation_mng_col) {
+                    return $this->successresponse(200, 'message', 'Quotation successfully deleted');
+                }
+            }
+
+            return $this->successresponse(404, 'message', 'Quotation not successfully deleted!');
+        });
     }
 
     /**

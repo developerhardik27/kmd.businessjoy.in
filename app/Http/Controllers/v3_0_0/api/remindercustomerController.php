@@ -98,81 +98,85 @@ class remindercustomerController extends commonController
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:50',
-            'customer_type' => 'required|string|max:50',
-            'email' => 'required|email|max:50',
-            'contact_number' => 'required|numeric|digits:10',
-            'country' => 'required|numeric',
-            'state' => 'required|numeric',
-            'city' => 'required|numeric',
-            'invocieid' => 'nullable|alpha_num',
-            'area' => 'required|string',
-            'pincode' => 'required|numeric',
-            'address' => 'required|string|max:191',
-            'service_type' => 'nullable|string|max:191',
-            'product_name' => 'nullable|string|max:191',
-            'product_unique_id' => 'nullable|string|max:191',
-            'amount' => 'nullable|numeric',
-            'reminder_status' => 'nullable|string',
-            'service_completed_date',
-            'next_reminder',
-            'before_services_notes' => 'nullable|string|max:191',
-            'after_services_notes' => 'nullable|string|max:191'
-        ]);
 
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-            if ($this->rp['remindermodule']['reminder']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-            $customer = $this->customerModel::insertGetId([
-                'name' => $request->name,
-                'customer_type' => $request->customer_type,
-                'email' => $request->email,
-                'contact_no' => $request->contact_number,
-                'country_id' => $request->country,
-                'state_id' => $request->state,
-                'city_id' => $request->city,
-                'pincode' => $request->pincode,
-                'invoice_id' => $request->invoiceid,
-                'area' => $request->area,
-                'address' => $request->address,
-                'company_id' => $this->companyId,
-                'created_by' => $this->userId,
+        return $this->executeTransaction(function() use ($request){
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:50',
+                'customer_type' => 'required|string|max:50',
+                'email' => 'required|email|max:50',
+                'contact_number' => 'required|numeric|digits:10',
+                'country' => 'required|numeric',
+                'state' => 'required|numeric',
+                'city' => 'required|numeric',
+                'invocieid' => 'nullable|alpha_num',
+                'area' => 'required|string',
+                'pincode' => 'required|numeric',
+                'address' => 'required|string|max:191',
+                'service_type' => 'nullable|string|max:191',
+                'product_name' => 'nullable|string|max:191',
+                'product_unique_id' => 'nullable|string|max:191',
+                'amount' => 'nullable|numeric',
+                'reminder_status' => 'nullable|string',
+                'service_completed_date',
+                'next_reminder',
+                'before_services_notes' => 'nullable|string|max:191',
+                'after_services_notes' => 'nullable|string|max:191'
             ]);
 
-            if ($customer) {
-                if (isset($request->service_type)) {
-                    $reminder = DB::connection('dynamic_connection')->table('reminder')->insert([
-                        'customer_id' => $customer,
-                        'service_type' => $request->service_type,
-                        'product_name' => $request->product_name,
-                        'product_unique_id' => $request->product_unique_id,
-                        'amount' => $request->amount,
-                        'reminder_status' => 'pending',
-                        'next_reminder_date' => $request->next_reminder,
-                        'before_service_note' => $request->before_services_notes,
-                        'after_service_note' => $request->after_services_notes,
-                        'created_by' => $this->userId,
-                    ]);
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
+            } else {
+                if ($this->rp['remindermodule']['reminder']['add'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+                $customer = $this->customerModel::insertGetId([
+                    'name' => $request->name,
+                    'customer_type' => $request->customer_type,
+                    'email' => $request->email,
+                    'contact_no' => $request->contact_number,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
+                    'pincode' => $request->pincode,
+                    'invoice_id' => $request->invoiceid,
+                    'area' => $request->area,
+                    'address' => $request->address,
+                    'company_id' => $this->companyId,
+                    'created_by' => $this->userId,
+                ]);
 
-                    if ($reminder) {
-                        return $this->successresponse(200, 'message', 'customer succesfully added');
+                if ($customer) {
+                    if (isset($request->service_type)) {
+                        $reminder = DB::connection('dynamic_connection')->table('reminder')->insert([
+                            'customer_id' => $customer,
+                            'service_type' => $request->service_type,
+                            'product_name' => $request->product_name,
+                            'product_unique_id' => $request->product_unique_id,
+                            'amount' => $request->amount,
+                            'reminder_status' => 'pending',
+                            'next_reminder_date' => $request->next_reminder,
+                            'before_service_note' => $request->before_services_notes,
+                            'after_service_note' => $request->after_services_notes,
+                            'created_by' => $this->userId,
+                        ]);
+
+                        if ($reminder) {
+                            return $this->successresponse(200, 'message', 'customer succesfully added');
+                        } else {
+                            return $this->successresponse(500, 'message', 'customer not succesfully added !');
+                        }
+
                     } else {
-                        return $this->successresponse(500, 'message', 'customer not succesfully added !');
+                        return $this->successresponse(200, 'message', 'customer succesfully added');
                     }
 
                 } else {
-                    return $this->successresponse(200, 'message', 'customer succesfully added');
+                    return $this->successresponse(500, 'message', 'customer not succesfully added !');
                 }
 
-            } else {
-                return $this->successresponse(500, 'message', 'customer not succesfully added !');
             }
-
-        }
+        });
     }
 
     /**
@@ -298,6 +302,7 @@ class remindercustomerController extends commonController
         ]);
         return $this->successresponse(200, 'message', 'customer status succesfully updated');
     }
+    
     /**
      * Remove the specified resource from storage.
      */

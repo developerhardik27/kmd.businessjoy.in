@@ -70,127 +70,129 @@ class productController extends commonController
     public function store(Request $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:50',
-            'short_description' => 'nullable',
-            'description' => 'nullable',
-            'unit' => 'nullable',
-            'price' => 'required|numeric',
-            'status' => 'required|numeric',
-            'product_type' => 'nullable',
-            'sku' => 'nullable|max:50',
-            'category' => 'required|integer',
-            'images' => 'nullable',
-            'track_quantity' => 'nullable',
-            'continue_selling' => 'nullable',
-            'company_id' => 'required|numeric',
-            'user_id' => 'required|numeric',
-            'updated_by',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            // condition for check if user has permission to add new records
-            if ($this->rp['inventorymodule']['product']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-
-            // Check if images are provided in the request
-            if ($request->has('images')) {
-                // Convert the comma-separated list of image names to an array
-                $images = explode(',', $request->images);
-
-                // Retrieve media names associated with the provided original image names
-                $images = $this->temp_imgModel::whereIn('original_name', $images)->distinct('original_name')->pluck('media_name');
-
-                $newImageNames = []; // Array to store the new image names
-
-                // Loop through each image and rename it
-                foreach ($images as $image) {
-                    // Define the source path and destination directory
-                    $sourcePath = public_path('/uploads/temp/' . $image);
-                    $dirPath = public_path('/uploads/products/');
-
-                    // Ensure the directory exists before moving the file
-                    if (!File::exists($dirPath)) {
-                        File::makeDirectory($dirPath, 0755, true);  // Create the directory with proper permissions
-                    }
-
-                    // Check if the source file exists
-                    if (File::exists($sourcePath)) {
-                        // Generate a new unique name for the image
-                        $extension = File::extension($image); // Get the file extension
-                        $newName = uniqid() . '-' . time() . '.' . $extension; // New file name with extension
-
-                        // Define the destination path
-                        $destinationPath = $dirPath . $newName;
-
-                        // Move the file to the new destination
-                        $moved = File::move($sourcePath, $destinationPath);
-
-                        if ($moved) {
-                            // Add the new image name to the array
-                            $newImageNames[] = $newName;
-
-                            // Delete the original file from the source directory after successful move
-                            File::delete($sourcePath);
-
-                            // Remove the record from the temp image model table
-                            $this->temp_imgModel::where('media_name', $image)->delete();
-                        } else {
-                            // Log error if file move fails
-                            Log::error("Failed to move the file: " . $image);
-                        }
-
-                    } else {
-                        // Log error if the source file doesn't exist
-                        Log::error("Source file not found: " . $sourcePath);
-                    }
-                }
-
-                // Convert the new image names array into a comma-separated string
-                $newImageNamesString = implode(',', $newImageNames);
-
-            } else {
-                // Handle the case where no images are provided (optional)
-                $newImageNamesString = null;
-            }
-
-            $product = $this->productModel::create([
-                'name' => $request->name,
-                'short_description' => $request->short_description,
-                'description' => $request->description,
-                'sku' => $request->sku,
-                'unit' => $request->unit,
-                'price_per_unit' => $request->price,
-                'is_active' => $request->status,
-                'product_type' => $request->product_type,
-                'product_category' => $request->category,
-                'product_media' => $newImageNamesString,
-                'track_quantity' => $request->track_quantity ? 1 : 0,
-                'continue_selling' => $request->continue_selling ? 1 : 0,
-                'company_id' => $this->companyId,
-                'created_by' => $this->userId,
+        return $this->executeTransaction(function() use ($request){
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:50',
+                'short_description' => 'nullable',
+                'description' => 'nullable',
+                'unit' => 'nullable',
+                'price' => 'required|numeric',
+                'status' => 'required|numeric',
+                'product_type' => 'nullable',
+                'sku' => 'nullable|max:50',
+                'category' => 'required|integer',
+                'images' => 'nullable',
+                'track_quantity' => 'nullable',
+                'continue_selling' => 'nullable',
+                'company_id' => 'required|numeric',
+                'user_id' => 'required|numeric',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
             ]);
 
-            if ($product) {
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
+            } else {
 
-                $createProductInventory = $this->inventoryModel::create([
-                    'product_id' => $product->id
+                // condition for check if user has permission to add new records
+                if ($this->rp['inventorymodule']['product']['add'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+
+
+                // Check if images are provided in the request
+                if ($request->has('images')) {
+                    // Convert the comma-separated list of image names to an array
+                    $images = explode(',', $request->images);
+
+                    // Retrieve media names associated with the provided original image names
+                    $images = $this->temp_imgModel::whereIn('original_name', $images)->distinct('original_name')->pluck('media_name');
+
+                    $newImageNames = []; // Array to store the new image names
+
+                    // Loop through each image and rename it
+                    foreach ($images as $image) {
+                        // Define the source path and destination directory
+                        $sourcePath = public_path('/uploads/temp/' . $image);
+                        $dirPath = public_path('/uploads/products/');
+
+                        // Ensure the directory exists before moving the file
+                        if (!File::exists($dirPath)) {
+                            File::makeDirectory($dirPath, 0755, true);  // Create the directory with proper permissions
+                        }
+
+                        // Check if the source file exists
+                        if (File::exists($sourcePath)) {
+                            // Generate a new unique name for the image
+                            $extension = File::extension($image); // Get the file extension
+                            $newName = uniqid() . '-' . time() . '.' . $extension; // New file name with extension
+
+                            // Define the destination path
+                            $destinationPath = $dirPath . $newName;
+
+                            // Move the file to the new destination
+                            $moved = File::move($sourcePath, $destinationPath);
+
+                            if ($moved) {
+                                // Add the new image name to the array
+                                $newImageNames[] = $newName;
+
+                                // Delete the original file from the source directory after successful move
+                                File::delete($sourcePath);
+
+                                // Remove the record from the temp image model table
+                                $this->temp_imgModel::where('media_name', $image)->delete();
+                            } else {
+                                // Log error if file move fails
+                                Log::error("Failed to move the file: " . $image);
+                            }
+
+                        } else {
+                            // Log error if the source file doesn't exist
+                            Log::error("Source file not found: " . $sourcePath);
+                        }
+                    }
+
+                    // Convert the new image names array into a comma-separated string
+                    $newImageNamesString = implode(',', $newImageNames);
+
+                } else {
+                    // Handle the case where no images are provided (optional)
+                    $newImageNamesString = null;
+                }
+
+                $product = $this->productModel::create([
+                    'name' => $request->name,
+                    'short_description' => $request->short_description,
+                    'description' => $request->description,
+                    'sku' => $request->sku,
+                    'unit' => $request->unit,
+                    'price_per_unit' => $request->price,
+                    'is_active' => $request->status,
+                    'product_type' => $request->product_type,
+                    'product_category' => $request->category,
+                    'product_media' => $newImageNamesString,
+                    'track_quantity' => $request->track_quantity ? 1 : 0,
+                    'continue_selling' => $request->continue_selling ? 1 : 0,
+                    'company_id' => $this->companyId,
+                    'created_by' => $this->userId,
                 ]);
 
-                return $this->successresponse(200, 'message', 'product  succesfully created');
-            } else {
-                return $this->successresponse(500, 'message', 'product not succesfully created');
+                if ($product) {
+
+                    $createProductInventory = $this->inventoryModel::create([
+                        'product_id' => $product->id
+                    ]);
+
+                    return $this->successresponse(200, 'message', 'product  succesfully created');
+                } else {
+                    return $this->successresponse(500, 'message', 'product not succesfully created');
+                }
             }
-        }
+        });
     }
 
     /**
@@ -254,31 +256,176 @@ class productController extends commonController
     public function update(Request $request, string $id)
     {
 
+        return $this->executeTransaction(function() use ($request,$id){
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:50',
+                'short_description' => 'nullable',
+                'description' => 'nullable',
+                'unit' => 'nullable',
+                'price' => 'required|numeric',
+                'status' => 'required|numeric',
+                'product_type' => 'nullable',
+                'sku' => 'nullable|max:50',
+                'category' => 'required|integer',
+                'images' => 'nullable',
+                'track_quantity' => 'nullable',
+                'continue_selling' => 'nullable',
+                'company_id' => 'required|numeric',
+                'user_id' => 'required|numeric',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:50',
-            'short_description' => 'nullable',
-            'description' => 'nullable',
-            'unit' => 'nullable',
-            'price' => 'required|numeric',
-            'status' => 'required|numeric',
-            'product_type' => 'nullable',
-            'sku' => 'nullable|max:50',
-            'category' => 'required|integer',
-            'images' => 'nullable',
-            'track_quantity' => 'nullable',
-            'continue_selling' => 'nullable',
-            'company_id' => 'required|numeric',
-            'user_id' => 'required|numeric',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
+            if ($validator->fails()) {
+                return $this->errorresponse(422, $validator->messages());
+            } else {
+                $product = $this->productModel::find($id);
 
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
-        } else {
+                if (!$product) {
+                    return $this->successresponse(404, 'message', 'No such product found!');
+                }
+
+                if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
+                    if ($product->created_by != $this->userId) {
+                        return $this->successresponse(500, 'message', 'You are Unauthorized');
+                    }
+                }
+                //condition for check if user has permission to edit record
+                if ($this->rp['inventorymodule']['product']['edit'] != 1) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+
+                // Check if images are provided in the request
+                if ($request->has('images') && isset($request->images)) {
+                    // Convert the comma-separated list of image names to an array
+                    $images = explode(',', $request->images);
+                    $newImageNames = []; // Array to store the new image names
+
+                    if (!empty($product->product_media)) {
+                        $oldimgs = explode(',', $product->product_media);
+
+                        foreach ($oldimgs as $oldimg) {
+                            if (!in_array($oldimg, $images)) {
+                                // The image is no longer in the new images array, so we remove it from the disk
+                                $sourcepath = public_path() . '/uploads/products/' . $oldimg;
+                                // Ensure the directory exists before delete the file
+                                if (File::exists($sourcepath)) {
+                                    unlink($sourcepath);
+                                }
+                            } else {
+                                // If the old image is in the new images array, remove it from the new images array because its already stored
+                                $images = array_diff($images, [$oldimg]);
+                                $newImageNames[] = $oldimg; // old img name store to the new image names
+                            }
+                        }
+                    }
+
+                    if (!empty($images)) {
+                        // Retrieve media names associated with the provided original image names
+                        $images = $this->temp_imgModel::whereIn('original_name', $images)->distinct('original_name')->pluck('media_name');
+
+
+
+                        // Loop through each image and rename it
+                        foreach ($images as $image) {
+                            // Define the source path and destination directory
+                            $sourcePath = public_path('/uploads/temp/' . $image);
+                            $dirPath = public_path('/uploads/products/');
+
+                            // Ensure the directory exists before moving the file
+                            if (!File::exists($dirPath)) {
+                                File::makeDirectory($dirPath, 0755, true);  // Create the directory with proper permissions
+                            }
+
+                            // Check if the source file exists
+                            if (File::exists($sourcePath)) {
+                                // Generate a new unique name for the image
+                                $extension = File::extension($image); // Get the file extension
+                                $newName = uniqid() . '-' . time() . '.' . $extension; // New file name with extension
+
+                                // Define the destination path
+                                $destinationPath = $dirPath . $newName;
+
+                                // Move the file to the new destination
+                                $moved = File::move($sourcePath, $destinationPath);
+
+                                if ($moved) {
+                                    // Add the new image name to the array
+                                    $newImageNames[] = $newName;
+
+                                    // Delete the original file from the source directory after successful move
+                                    File::delete($sourcePath);
+
+                                    // Remove the record from the temp image model table
+                                    $this->temp_imgModel::where('media_name', $image)->delete();
+                                } else {
+                                    // Log error if file move fails
+                                    Log::error("Failed to move the file: " . $image);
+                                }
+
+                            } else {
+                                // Log error if the source file doesn't exist
+                                Log::error("Source file not found: " . $sourcePath);
+                            }
+                        }
+
+                        // Convert the new image names array into a comma-separated string
+                        $newImageNamesString = implode(',', $newImageNames);
+                    } else {
+                        // Convert the new image names array into a comma-separated string
+                        $newImageNamesString = implode(',', $newImageNames);
+                    }
+
+
+                } else {
+                    if (!empty($product->product_media)) {
+                        $oldimgs = explode(',', $product->product_media);
+
+                        foreach ($oldimgs as $oldimg) {
+                            // The image is no longer in the new images array, so we remove it from the disk
+                            $sourcepath = public_path() . '/uploads/products/' . $oldimg;
+                            // Ensure the directory exists before delete the file
+                            if (File::exists($sourcepath)) {
+                                unlink($sourcepath);
+                            }
+                        }
+                    }
+                    // Handle the case where no images are provided (optional)
+                    $newImageNamesString = null;
+                }
+
+
+                $product->update([
+                    'name' => $request->name,
+                    'short_description' => $request->short_description,
+                    'description' => $request->description,
+                    'sku' => $request->sku,
+                    'unit' => $request->unit,
+                    'price_per_unit' => $request->price,
+                    'is_active' => $request->status,
+                    'product_type' => $request->product_type,
+                    'product_category' => $request->category,
+                    'product_media' => $newImageNamesString,
+                    'track_quantity' => $request->track_quantity ? 1 : 0,
+                    'continue_selling' => $request->continue_selling ? 1 : 0,
+                    'updated_by' => $this->userId,
+                    'updated_at' => date('Y-m-d')
+                ]);
+
+                return $this->successresponse(200, 'message', 'Product succesfully updated');
+            }
+        });
+        
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        return $this->executeTransaction(function() use ($id){
             $product = $this->productModel::find($id);
 
             if (!$product) {
@@ -290,178 +437,37 @@ class productController extends commonController
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
-            //condition for check if user has permission to edit record
-            if ($this->rp['inventorymodule']['product']['edit'] != 1) {
+            //condition for check if user has permission to delete record
+            if ($this->rp['inventorymodule']['product']['delete'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
-            // Check if images are provided in the request
-            if ($request->has('images') && isset($request->images)) {
-                // Convert the comma-separated list of image names to an array
-                $images = explode(',', $request->images);
-                $newImageNames = []; // Array to store the new image names
+            /* remove img */
+            // $images = $product->product_media;
 
-                if (!empty($product->product_media)) {
-                    $oldimgs = explode(',', $product->product_media);
+            // if (!empty($images)) {
+            //     $imagesarray = explode(',', $images);
 
-                    foreach ($oldimgs as $oldimg) {
-                        if (!in_array($oldimg, $images)) {
-                            // The image is no longer in the new images array, so we remove it from the disk
-                            $sourcepath = public_path() . '/uploads/products/' . $oldimg;
-                            // Ensure the directory exists before delete the file
-                            if (File::exists($sourcepath)) {
-                                unlink($sourcepath);
-                            }
-                        } else {
-                            // If the old image is in the new images array, remove it from the new images array because its already stored
-                            $images = array_diff($images, [$oldimg]);
-                            $newImageNames[] = $oldimg; // old img name store to the new image names
-                        }
-                    }
-                }
+            //     foreach ($imagesarray as $image) {
+            //         $sourcepath = public_path() . '/uploads/products/' . $image;
+            //         // Ensure the directory exists before delete the file
+            //         if (File::exists($sourcepath)) {
+            //             unlink($sourcepath);
+            //         }
+            //     }
 
-                if (!empty($images)) {
-                    // Retrieve media names associated with the provided original image names
-                    $images = $this->temp_imgModel::whereIn('original_name', $images)->distinct('original_name')->pluck('media_name');
-
-
-
-                    // Loop through each image and rename it
-                    foreach ($images as $image) {
-                        // Define the source path and destination directory
-                        $sourcePath = public_path('/uploads/temp/' . $image);
-                        $dirPath = public_path('/uploads/products/');
-
-                        // Ensure the directory exists before moving the file
-                        if (!File::exists($dirPath)) {
-                            File::makeDirectory($dirPath, 0755, true);  // Create the directory with proper permissions
-                        }
-
-                        // Check if the source file exists
-                        if (File::exists($sourcePath)) {
-                            // Generate a new unique name for the image
-                            $extension = File::extension($image); // Get the file extension
-                            $newName = uniqid() . '-' . time() . '.' . $extension; // New file name with extension
-
-                            // Define the destination path
-                            $destinationPath = $dirPath . $newName;
-
-                            // Move the file to the new destination
-                            $moved = File::move($sourcePath, $destinationPath);
-
-                            if ($moved) {
-                                // Add the new image name to the array
-                                $newImageNames[] = $newName;
-
-                                // Delete the original file from the source directory after successful move
-                                File::delete($sourcePath);
-
-                                // Remove the record from the temp image model table
-                                $this->temp_imgModel::where('media_name', $image)->delete();
-                            } else {
-                                // Log error if file move fails
-                                Log::error("Failed to move the file: " . $image);
-                            }
-
-                        } else {
-                            // Log error if the source file doesn't exist
-                            Log::error("Source file not found: " . $sourcePath);
-                        }
-                    }
-
-                    // Convert the new image names array into a comma-separated string
-                    $newImageNamesString = implode(',', $newImageNames);
-                } else {
-                    // Convert the new image names array into a comma-separated string
-                    $newImageNamesString = implode(',', $newImageNames);
-                }
-
-
-            } else {
-                if (!empty($product->product_media)) {
-                    $oldimgs = explode(',', $product->product_media);
-
-                    foreach ($oldimgs as $oldimg) {
-                        // The image is no longer in the new images array, so we remove it from the disk
-                        $sourcepath = public_path() . '/uploads/products/' . $oldimg;
-                        // Ensure the directory exists before delete the file
-                        if (File::exists($sourcepath)) {
-                            unlink($sourcepath);
-                        }
-                    }
-                }
-                // Handle the case where no images are provided (optional)
-                $newImageNamesString = null;
-            }
-
+            // }
 
             $product->update([
-                'name' => $request->name,
-                'short_description' => $request->short_description,
-                'description' => $request->description,
-                'sku' => $request->sku,
-                'unit' => $request->unit,
-                'price_per_unit' => $request->price,
-                'is_active' => $request->status,
-                'product_type' => $request->product_type,
-                'product_category' => $request->category,
-                'product_media' => $newImageNamesString,
-                'track_quantity' => $request->track_quantity ? 1 : 0,
-                'continue_selling' => $request->continue_selling ? 1 : 0,
-                'updated_by' => $this->userId,
-                'updated_at' => date('Y-m-d')
+                'is_deleted' => 1
             ]);
 
-            return $this->successresponse(200, 'message', 'Product succesfully updated');
-        }
-    }
+            $productinventory = $this->inventoryModel::where('product_id', $product->id)->update([
+                'is_deleted' => 1
+            ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $product = $this->productModel::find($id);
-
-        if (!$product) {
-            return $this->successresponse(404, 'message', 'No such product found!');
-        }
-
-        if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
-            if ($product->created_by != $this->userId) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-        }
-        //condition for check if user has permission to delete record
-        if ($this->rp['inventorymodule']['product']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-        /* remove img */
-        // $images = $product->product_media;
-
-        // if (!empty($images)) {
-        //     $imagesarray = explode(',', $images);
-
-        //     foreach ($imagesarray as $image) {
-        //         $sourcepath = public_path() . '/uploads/products/' . $image;
-        //         // Ensure the directory exists before delete the file
-        //         if (File::exists($sourcepath)) {
-        //             unlink($sourcepath);
-        //         }
-        //     }
-
-        // }
-
-        $product->update([
-            'is_deleted' => 1
-        ]);
-
-        $productinventory = $this->inventoryModel::where('product_id', $product->id)->update([
-            'is_deleted' => 1
-        ]);
-
-        return $this->successresponse(200, 'message', 'Product succesfully deleted');
+            return $this->successresponse(200, 'message', 'Product succesfully deleted');
+        });
     }
 
 

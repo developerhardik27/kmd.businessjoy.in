@@ -145,17 +145,27 @@
                 return true; // Field is optional, so no validation needed if empty
             }
 
-            // If there is only one keyword (no commas), it's allowed
+            // If there's only one keyword (no commas), it's allowed
             if (!metaKeywords.includes(",")) {
                 return true;
             }
 
-            // Check if the value contains only letters, numbers, commas, and exactly one space before or after commas
-            var regex = /^[a-zA-Z0-9]+( ?\, ?[a-zA-Z0-9]+)*$/;
+            // Regex explanation:
+            // - Allows letters, numbers, hyphens, and underscores
+            // - Allows single spaces between words and after commas
+            // - Prevents multiple consecutive spaces anywhere
+            // - Allows different spacing styles around commas
+            var regex = /^[a-zA-Z0-9-_]+(?:\s[a-zA-Z0-9-_]+)*(?:\s?,\s?[a-zA-Z0-9-_]+(?:\s[a-zA-Z0-9-_]+)*)*$/;
+
+            // Check for multiple consecutive spaces anywhere
+            if (/\s{2,}/.test(metaKeywords)) {
+                errorMsg.text("Multiple consecutive spaces are not allowed.");
+                return false;
+            }
 
             if (!regex.test(metaKeywords)) {
                 errorMsg.text(
-                    "Meta keywords must be comma-separated with exactly one space before or after each comma. No consecutive commas allowed."
+                    "Meta keywords must be comma-separated. A single space is allowed between words, but multiple consecutive spaces are not."
                 );
                 return false;
             }

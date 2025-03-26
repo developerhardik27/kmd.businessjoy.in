@@ -40,14 +40,14 @@ class PaymentController extends commonController
         return $this->successresponse(200, 'paymentdetail', $paymentdetail);
 
     }
-    
+
     // use for pdf
     public function paymentdetail(string $id)
     {
 
         $paymentdetail = $this->payment_detailsModel::where('inv_id', $id)->get();
 
-        if ($paymentdetail->isEmpty()) { 
+        if ($paymentdetail->isEmpty()) {
             return $this->successresponse(404, 'message', 'No Records Found');
         }
         return $this->successresponse(200, 'paymentdetail', $paymentdetail);
@@ -64,7 +64,7 @@ class PaymentController extends commonController
             ->limit(1)
             ->get();
 
-        if ($payment->isEmpty()) { 
+        if ($payment->isEmpty()) {
             return $this->successresponse(404, 'payment', 'No Records Found');
         }
         return $this->successresponse(200, 'payment', $payment);
@@ -78,13 +78,13 @@ class PaymentController extends commonController
         $payment = $this->payment_detailsModel::where('inv_id', $id)
             ->get();
 
-        if ($payment->isEmpty()) { 
+        if ($payment->isEmpty()) {
             return $this->successresponse(404, 'payment', 'No Records Found');
         }
         return $this->successresponse(200, 'payment', $payment);
 
     }
-  
+
     /**
      * Store a newly created resource in storage.
      */
@@ -101,101 +101,52 @@ class PaymentController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            $invoiceammount = $this->invoiceModel::find($request->inv_id);
-            $invoicepaidamount = $this->payment_detailsModel::where('inv_id', $request->inv_id)->where('part_payment', 1)->get();
+            $invoice = $this->invoiceModel::find($request->inv_id);
+            $payments = $this->payment_detailsModel::where('inv_id', $request->inv_id)
+                ->where('part_payment', 1)
+                ->get();
 
-            $receipt_number = date('dHm') . str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT) . date('is'); // generate receipt number
-            if ($invoicepaidamount->isNotEmpty()) {
-                $total_paided_amount = 0;
-                foreach ($invoicepaidamount as $value) {
-                    $total_paided_amount = $total_paided_amount + $value->paid_amount;
-                }
-                if ($invoiceammount->grand_total == $total_paided_amount) {
-                    return $this->successresponse(200, 'message', 'payment Already Paided');
-                }
-                if ($invoiceammount) {
-                    $total = $invoiceammount->grand_total;
-                    $paidamount = $request->paidamount;
-                    $pendingamount = $total - $paidamount - $total_paided_amount;
+            $receipt_number = date('dHm') . str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT) . date('is'); // Generate receipt number
 
-                    $payment_details = $this->payment_detailsModel::insert(
-                        [
-                            'inv_id' => $request->inv_id,
-                            'receipt_number' => $receipt_number,
-                            'transaction_id' => $request->transid,
-                            'amount' => $total,
-                            'paid_amount' => $paidamount,
-                            'pending_amount' => $pendingamount,
-                            'paid_by' => $request->paid_by,
-                            'paid_type' => $request->payment_type,
-                            'part_payment' => 1
-                        ]
-                    );
-
-                    if ($pendingamount == 0) {
-                        $invoiceammount->status = 'paid';
-                        $invoiceammount->save();
-                    }
-                }
-                if ($payment_details) {
-                    return $this->successresponse(200, 'message', 'payment details succesfully created');
-                } else {
-                    return $this->successresponse(500, 'message', 'payment details not succesfully create');
-                }
-            } else {
-                if ($invoiceammount) {
-                    $total = $invoiceammount->grand_total;
-                    $paidamount = $request->paidamount;
-                    $pendingamount = $total - $paidamount;
-                    if ($pendingamount > 0) {
-                        $payment_details = $this->payment_detailsModel::insert(
-                            [
-                                'inv_id' => $request->inv_id,
-                                'receipt_number' => $receipt_number,
-                                'transaction_id' => $request->transid,
-                                'amount' => $total,
-                                'paid_amount' => $paidamount,
-                                'pending_amount' => $pendingamount,
-                                'paid_by' => $request->paid_by,
-                                'paid_type' => $request->payment_type,
-                                'part_payment' => 1
-                            ]
-                        );
-                        $invoiceammount->status = 'part_payment';
-                        $invoiceammount->save();
-                    } else {
-                        $payment_details = $this->payment_detailsModel::insert(
-                            [
-                                'inv_id' => $request->inv_id,
-                                'receipt_number' => $receipt_number,
-                                'transaction_id' => $request->transid,
-                                'amount' => $total,
-                                'paid_amount' => $paidamount,
-                                'pending_amount' => $pendingamount,
-                                'paid_by' => $request->paid_by,
-                                'paid_type' => $request->payment_type
-                            ]
-                        );
-
-                        $invoiceammount->status = 'paid';
-                        $invoiceammount->save();
-                    }
-                    if ($payment_details) {
-                        return $this->successresponse(200, 'message', 'payment details succesfully created');
-                    } else {
-                        return $this->successresponse(500, 'message', 'payment details not succesfully create');
-                    }
-                }
+            if (!$invoice) {
+                return $this->successresponse(404, 'message', 'Invoice not found');
             }
+
+            $total_paid = $payments->sum('paid_amount');
+            $total = $invoice->grand_total;
+            $paid_amount = (int) $request->paidamount;
+            $pending_amount = $total - $total_paid - $paid_amount;
+
+            // Check if full payment is already done
+            if ($total_paid == $total) {
+                return $this->successresponse(200, 'message', 'Payment already made');
+            }
+
+            // Insert payment details
+            $payment_data = [
+                'inv_id' => $request->inv_id,
+                'receipt_number' => $receipt_number,
+                'transaction_id' => $request->transid,
+                'amount' => $total,
+                'paid_amount' => $paid_amount,
+                'pending_amount' => $pending_amount,
+                'paid_by' => $request->paid_by,
+                'paid_type' => $request->payment_type,
+                'part_payment' => 1
+            ];
+
+            $payment_inserted = $this->payment_detailsModel::insert($payment_data);
+
+            // Update invoice status based on payment
+            if ($payment_inserted) {
+                $invoice->status = $pending_amount > 0 ? 'part_payment' : 'paid';
+                $invoice->save();
+                return $this->successresponse(200, 'message', 'Payment details successfully created');
+            } else {
+                return $this->successresponse(500, 'message', 'Failed to create payment details');
+            }
+
         }
     }
-    
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
- 
+  
 }
