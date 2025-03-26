@@ -113,6 +113,13 @@
                                         @if (session('user_permissions.blogmodule.blog.edit') == '1' ||
                                                 session('user_permissions.blogmodule.blog.delete') == '1')
                                             <td> 
+                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Vist Blog">
+                                                   <a href="https://oceanmnc.com/${value.slug}" target="_blank"> 
+                                                        <button type="button"  class="btn btn-info btn-rounded btn-sm my-0 mb-2">
+                                                            <i class="ri-link"></i>
+                                                        </button>
+                                                    </a>
+                                                </span>
                                                 @if (session('user_permissions.blogmodule.blog.view') == '1')
                                                     <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
                                                         <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0 mb-2">
