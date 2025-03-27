@@ -20,6 +20,19 @@ class UserController extends Controller
             $this->version =  $_SESSION['folder_name'];
         }
     }
+
+    public function loginhistory($id){
+
+        $user = User::findOrFail($id); 
+
+        if(session('user.id') != $id && session('user.id') != 1){
+            abort(403);
+        }
+
+        return view($this->version.'.admin.User.loginhistory', ['user_id' => $id]);
+    
+    }
+
     /**
      * Display a listing of the resource.
      */

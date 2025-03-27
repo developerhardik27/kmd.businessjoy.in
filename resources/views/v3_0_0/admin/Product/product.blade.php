@@ -159,8 +159,7 @@
                             });
                         } else {
                              // After appending "No Data Found", re-initialize DataTable so it works properly
-                             $('#data').DataTable({
-                            }); 
+                            $('#data').DataTable({}); 
                         }
                         loaderhide();
                     },
