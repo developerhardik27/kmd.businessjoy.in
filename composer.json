@@ -12,6 +12,7 @@
         "dompdf/dompdf": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^3.6",
+        "jenssegers/agent": "^2.6",
         "laravel/breeze": "^1.23",
         "laravel/framework": "^10.10",
         "laravel/passport": "^11.10",
