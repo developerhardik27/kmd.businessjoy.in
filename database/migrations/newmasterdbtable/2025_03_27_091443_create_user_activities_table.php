@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('status', ['success', 'fail'])->nullable();  // Login status
             $table->enum('via', ['direct', 'superadmin'])->nullable();  // Via - Direct/SuperAdmin
             $table->integer('company_id')->nullable();  // Company ID
+            $table->string('message')->nullable();  // Company ID
             $table->timestamps();
         });
     }

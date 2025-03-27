@@ -109,6 +109,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             // user route 
             $UserController = getadminversion('UserController');
             Route::controller($UserController)->group(function () {
+                Route::get('/MyLoginHistory/{id}', 'loginhistory')->name('admin.myloginhistory');
                 Route::get('/User', 'index')->name('admin.user')->middleware('checkPermission:adminmodule,user,show');
                 Route::get('/AddNewUser', 'create')->name('admin.adduser')->middleware('checkPermission:adminmodule,user,add');
                 Route::get('/EditUser/{id}', 'edit')->name('admin.edituser')->middleware('checkPermission:adminmodule,user,edit');

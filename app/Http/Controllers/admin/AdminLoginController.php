@@ -192,6 +192,7 @@ class AdminLoginController extends Controller
                         $_SESSION['folder_name'] = session('folder_name');
 
                         if (Session::get('menu') == null) {
+                            $this->save_user_login_history($request,'direct','Due to no permissions.');
                             DB::table('users')
                                 ->where('id', $admin->id)
                                 ->update(['api_token' => null]);
@@ -217,11 +218,11 @@ class AdminLoginController extends Controller
                         return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel')->withInput($request->only('email'));
                     }
                 } else {
-                    $this->save_user_login_history($request);
+                    $this->save_user_login_history($request,'direct','Credential invalid.');
                     return redirect()->route('admin.login')->with('error', 'credential invalid')->withInput($request->only('email'));
                 }
             } else {
-                $this->save_user_login_history();
+                $this->save_user_login_history($request,'direct','Email not registered.');
                 return redirect()->route('admin.login')->with('error', 'You are not Registered !')->withInput($request->only('email'));
             }
         } else {
@@ -230,7 +231,7 @@ class AdminLoginController extends Controller
     }
 
 
-    public function save_user_login_history($request = null, $via = 'direct')
+    public function save_user_login_history($request = null, $via = 'direct',$message = null)
     {
         $user = Auth::guard('admin')->user();
 
@@ -282,6 +283,7 @@ class AdminLoginController extends Controller
                     'status' => 'fail',  // Mark the login status as success
                     'via' => $via,
                     'company_id' => $user->company_id,
+                    'message' => $message
                 ]);
             }
 
@@ -471,9 +473,7 @@ class AdminLoginController extends Controller
 
         if ($user) { // check if request email is registered or not
 
-            $admin = Auth::guard('admin')->loginUsingId($user->id); // user
-
-            $this->save_user_login_history($request,'superadmin');
+            $admin = Auth::guard('admin')->loginUsingId($user->id); // user 
 
             $api_token = Str::random(60); // generate api token
 
@@ -619,6 +619,7 @@ class AdminLoginController extends Controller
 
 
                 if (Session::get('menu') == null) {
+                    $this->save_user_login_history($request,'superadmin','Due to no permissions.');
                     DB::table('users')
                         ->where('id', $admin->id)
                         ->update(['super_api_token' => null]);
@@ -631,6 +632,9 @@ class AdminLoginController extends Controller
                     Auth::guard('admin')->logout();
                     return redirect()->route('admin.login')->with('error', 'User has not any permission');
                 }
+
+
+                $this->save_user_login_history($request,'superadmin');
 
                 if (isset($admin->default_module) && isset($admin->default_page)) {
                     session(['menu' => $admin->default_module]);

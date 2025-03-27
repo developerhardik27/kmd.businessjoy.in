@@ -159,6 +159,7 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     // user route
     $userController = getversion('userController');
     Route::controller($userController)->group(function () {
+        Route::get('/userloginhistory', 'loginhistory')->name('user.userloginhistory');
         Route::get('/username', 'username')->name('user.username');
         Route::get('/userprofile', 'userprofile')->name('user.profile');
         Route::get('/customersupportuser', 'customersupportuser')->name('user.customersupportindex');

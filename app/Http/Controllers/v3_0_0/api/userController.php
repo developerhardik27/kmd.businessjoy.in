@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\company;
 use Illuminate\Support\Str;
+use App\Models\user_activity;
 
 class userController extends commonController
 {
@@ -44,6 +45,40 @@ class userController extends commonController
 
         $this->user_permissionModel = $this->getmodel('user_permission');
 
+    }
+
+    /**
+     * Show the login history
+     */
+    public function loginhistory(Request $request)
+    {
+
+        $loginhistory = user_activity::orderBy('created_at','desc');
+           
+        if($this->userId == 1 && isset($request->request_id)){
+            $loginhistory->where('user_id',$request->request_id);
+        }else{
+            $loginhistory->where('user_id',$this->userId);
+        }
+
+        $loginhistory = $loginhistory
+        ->select(
+            'username',
+            'ip',
+            'status',
+            'country',
+            'device',
+            'browser',
+            'via',
+            'message',
+            DB::raw("DATE_FORMAT(created_at, '%d-%M-%Y %h:%i %p')as created_at_formatted")
+        )->get();
+
+        if ($loginhistory->isEmpty()) {
+            return $this->successresponse(404, 'message', "No history found!");
+        }
+        
+        return $this->successresponse(200, 'loginhistory', $loginhistory);
     }
 
     // return username and company name
@@ -248,7 +283,7 @@ class userController extends commonController
         }
 
         return $this->successresponse(200, 'user', $users);
-    } 
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -256,7 +291,7 @@ class userController extends commonController
     public function store(Request $request)
     {
 
-        return $this->executeTransaction(function() use ($request){
+        return $this->executeTransaction(function () use ($request) {
 
             $company = company::find($this->companyId);
             $user = User::where('company_id', '=', $company->id)->where('is_deleted', 0)->get();
@@ -737,7 +772,7 @@ class userController extends commonController
      */
     public function update(Request $request, string $id)
     {
-        return $this->executeTransaction(function() use ($request,$id){
+        return $this->executeTransaction(function () use ($request, $id) {
             $validator = Validator::make($request->all(), [
                 'firstname' => 'required|string|max:50',
                 'lastname' => 'required|string|max:50',
@@ -1176,7 +1211,7 @@ class userController extends commonController
     public function destroy(string $id)
     {
         $users = User::find($id);
-        if (!$users) { 
+        if (!$users) {
             return $this->successresponse(404, 'message', 'No Such user Found!');
         }
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
@@ -1204,7 +1239,7 @@ class userController extends commonController
     public function statusupdate(Request $request, string $id)
     {
         $user = User::find($id);
-        if (!$user) { 
+        if (!$user) {
             return $this->successresponse(404, 'message', 'No Such user Found!');
         }
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {
@@ -1263,7 +1298,7 @@ class userController extends commonController
     {
         $user = User::find($id);
 
-        if (!$user) { 
+        if (!$user) {
             return $this->successresponse(404, 'message', 'No Such user Record Found!');
         }
         if ($this->rp['adminmodule']['user']['alldata'] != 1) {

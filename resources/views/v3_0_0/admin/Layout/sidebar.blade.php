@@ -261,6 +261,12 @@
                                         <span>User</span>
                                     </a>
                                 </li>
+                                <li class="{{ request()->routeIs('admin.myloginhistory') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.myloginhistory',['id' => session('user.id')]) }}" class="iq-waves-effect">
+                                        <i class="ri-user-shared-2-line"></i>
+                                        <span>Login History</span>
+                                    </a>
+                                </li>
                             @endif
                             @if (session('user_permissions.adminmodule.techsupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.techsupport') ? 'active' : '' }}">
