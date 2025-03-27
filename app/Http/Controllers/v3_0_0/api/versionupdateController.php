@@ -98,6 +98,10 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v3_0_0',
                                     ];
+                                }else{
+                                    $paths = [
+                                        'database/migrations/newmasterdbtable',
+                                    ];
                                 }
                                 break;
                             // Add more cases as needed

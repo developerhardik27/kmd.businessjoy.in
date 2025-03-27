@@ -124,7 +124,7 @@ class blogController extends commonController
                 'users.lastname',
                 'blogs.id',
                 'blogs.title',
-                'blogs.img', 
+                'blogs.img',
                 'blogs.slug',
                 'blogs.short_desc',
                 DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'),
@@ -136,7 +136,7 @@ class blogController extends commonController
                 'users.lastname',
                 'blogs.id',
                 'blogs.title',
-                'blogs.img', 
+                'blogs.img',
                 'blogs.slug',
                 'blogs.short_desc',
                 'blogs.created_at'
@@ -169,7 +169,7 @@ class blogController extends commonController
         return $this->successresponse(200, 'blog', $blogs);
 
     }
-  
+
     /**
      * Summary of store
      * store new blog

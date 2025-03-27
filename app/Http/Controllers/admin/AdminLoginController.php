@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
-use App\Mail\ForgotPasswordMail;
-use App\Models\company;
 use App\Models\User;
+use GuzzleHttp\Client;
+use App\Models\company;
+use Illuminate\Support\Str;
+use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\user_activity;
+use Torann\GeoIP\Facades\GeoIP;
+use App\Mail\ForgotPasswordMail;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class AdminLoginController extends Controller
 {
@@ -49,7 +53,7 @@ class AdminLoginController extends Controller
 
                     DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]); // store api token into user table for further activity
 
-                    if ((in_array($admin->role,[1,2,3])) && ($admin->is_active == 1)) {
+                    if ((in_array($admin->role, [1, 2, 3])) && ($admin->is_active == 1)) {
 
                         $dbname = company::find($admin->company_id);
                         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
@@ -96,11 +100,11 @@ class AdminLoginController extends Controller
                                 session(['menu' => 'invoice']);
                                 session(['showinvoicesettings' => "yes"]);
                                 $menus[] = 'invoice';
-                            }  
+                            }
 
                             if (hasPermission($rp, "quotationmodule")) {
                                 session(['quotation' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog', 'lead'])))) {
                                     session(['menu' => 'quotation']);
                                 }
                                 $menus[] = 'quotation';
@@ -200,9 +204,11 @@ class AdminLoginController extends Controller
                             Auth::guard('admin')->logout();
                             return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
                         }
-                        
+
+                        $this->save_user_login_history();//create login history
+
                         if (isset($admin->default_module) && isset($admin->default_page)) {
-                            session(['menu' => $admin->default_module]); 
+                            session(['menu' => $admin->default_module]);
                             return redirect()->route('admin.' . $admin->default_page);
                         }
                         return redirect()->route('admin.welcome');
@@ -211,9 +217,11 @@ class AdminLoginController extends Controller
                         return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel')->withInput($request->only('email'));
                     }
                 } else {
+                    $this->save_user_login_history($request);
                     return redirect()->route('admin.login')->with('error', 'credential invalid')->withInput($request->only('email'));
                 }
             } else {
+                $this->save_user_login_history();
                 return redirect()->route('admin.login')->with('error', 'You are not Registered !')->withInput($request->only('email'));
             }
         } else {
@@ -221,6 +229,75 @@ class AdminLoginController extends Controller
         }
     }
 
+
+    public function save_user_login_history($request = null, $via = 'direct')
+    {
+        $user = Auth::guard('admin')->user();
+
+        // Get the current IP address
+        $ip = request()->header('X-Forwarded-For') ?? request()->server('REMOTE_ADDR');
+
+        // Get the country based on IP using ip-api
+        $client = new Client();
+        $response = $client->get("http://ip-api.com/json/{$ip}");
+
+        // Decode the response JSON
+        $data = json_decode($response->getBody(), true);
+
+        // If the status is 'fail' or any other issue, set 'Unknown'
+        $country = $data['status'] === 'fail' ? 'Unknown' : $data['country'];
+
+        // Get device information (Mobile/Desktop/Tablet/Etc...)
+        $agent = new Agent();
+        $device = $agent->isDesktop() ? 'Desktop' : ($agent->isMobile() ? 'Mobile' : 'Tablet');
+
+        // Get the browser name (e.g., Chrome, Firefox)
+        $browser = $agent->browser();
+
+        if ($user) {
+            // Create user login entry
+            user_activity::create([
+                'user_id' => $user->id,
+                'username' => $user->email,  // Add username if needed
+                'ip' => $ip,  // Capture IP address
+                'country' => $country,
+                'device' => $device,
+                'browser' => $browser,
+                'status' => 'success',  // Mark the login status as success
+                'via' => $via,
+                'company_id' => $user->company_id,
+            ]);
+        } else {
+
+            $user = User::where('email', $request->email)->where('is_deleted',0)->first();
+            if ($user) {
+                // Create user login entry
+                user_activity::create([
+                    'user_id' => $user->id,
+                    'username' => $user->email,  // Add username if needed
+                    'ip' => $ip,  // Capture IP address
+                    'country' => $country,
+                    'device' => $device,
+                    'browser' => $browser,
+                    'status' => 'fail',  // Mark the login status as success
+                    'via' => $via,
+                    'company_id' => $user->company_id,
+                ]);
+            }
+
+        }
+
+        // Get the IDs of the last 30 records
+        $keepLast30 = user_activity::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(30)
+            ->pluck('id'); // Get IDs of the last 30 records
+
+        // Delete records that are older than the last 30
+        user_activity::where('user_id', $user->id)
+            ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
+            ->delete();
+    }
 
     /**
      * Summary of forgot
@@ -232,7 +309,7 @@ class AdminLoginController extends Controller
         return view('admin.forgot');
     }
 
-    
+
     /**
      * Summary of forgot_password
      * varify  and return reset password link on email
@@ -322,7 +399,7 @@ class AdminLoginController extends Controller
 
     /**
      * Summary of post_set_password
-    * set new password 
+     * set new password 
      * @param mixed $token
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -376,7 +453,7 @@ class AdminLoginController extends Controller
      * @return mixed|\Illuminate\Http\RedirectResponse
      */
 
-     public function superAdminLoginFromAnyUser(Request $request, string $userId)
+    public function superAdminLoginFromAnyUser(Request $request, string $userId)
     {
 
         if (session('user_id') != 1) {
@@ -395,6 +472,8 @@ class AdminLoginController extends Controller
         if ($user) { // check if request email is registered or not
 
             $admin = Auth::guard('admin')->loginUsingId($user->id); // user
+
+            $this->save_user_login_history($request,'superadmin');
 
             $api_token = Str::random(60); // generate api token
 
@@ -447,11 +526,11 @@ class AdminLoginController extends Controller
                         session(['menu' => 'invoice']);
                         session(['showinvoicesettings' => "yes"]);
                         $menus[] = 'invoice';
-                    }  
+                    }
 
                     if (hasPermission($rp, "quotationmodule")) {
                         session(['quotation' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog', 'lead'])))) {
                             session(['menu' => 'quotation']);
                         }
                         $menus[] = 'quotation';
@@ -537,7 +616,7 @@ class AdminLoginController extends Controller
                     session_start();
                 $_SESSION['folder_name'] = session('folder_name');
 
-               
+
 
                 if (Session::get('menu') == null) {
                     DB::table('users')
@@ -554,7 +633,7 @@ class AdminLoginController extends Controller
                 }
 
                 if (isset($admin->default_module) && isset($admin->default_page)) {
-                    session(['menu' => $admin->default_module]); 
+                    session(['menu' => $admin->default_module]);
                     return redirect()->route('admin.' . $admin->default_page);
                 }
 
