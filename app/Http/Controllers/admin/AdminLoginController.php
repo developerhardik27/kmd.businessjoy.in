@@ -285,20 +285,36 @@ class AdminLoginController extends Controller
                     'company_id' => $user->company_id,
                     'message' => $message
                 ]);
+            }else{
+                 // Create user login entry
+                 user_activity::create([ 
+                    'username' => $request->email,  // Add username if needed
+                    'ip' => $ip,  // Capture IP address
+                    'country' => $country,
+                    'device' => $device,
+                    'browser' => $browser,
+                    'status' => 'fail',  // Mark the login status as success
+                    'via' => $via, 
+                    'message' => $message
+                ]);
             }
 
         } 
 
-        // Get the IDs of the last 30 records
-        $keepLast30 = user_activity::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->take(30)
-            ->pluck('id'); // Get IDs of the last 30 records
+        if($user){
 
-        // Delete records that are older than the last 30
-        user_activity::where('user_id', $user->id)
-            ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
-            ->delete();
+            // Get the IDs of the last 30 records
+            $keepLast30 = user_activity::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->take(30)
+                ->pluck('id'); // Get IDs of the last 30 records
+    
+            // Delete records that are older than the last 30
+            user_activity::where('user_id', $user->id)
+                ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
+                ->delete();
+        }
+
     }
 
     /**
