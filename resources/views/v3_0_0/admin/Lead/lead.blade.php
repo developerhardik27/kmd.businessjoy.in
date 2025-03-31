@@ -124,11 +124,11 @@
 
 
         /* .multiselect-container {
-                                                width: 300px;
-                                                max-height: 300px;
-                                                overflow: auto;
-                                            }
-                                        */
+                                                    width: 300px;
+                                                    max-height: 300px;
+                                                    overflow: auto;
+                                                }
+                                            */
 
         .sidenav .btn-group {
             width: 100%;
@@ -163,13 +163,11 @@
             <div class="col-md-12" id="assignedtodiv">
                 <label for="assignedto" class="form-label float-left mt-1">Assigned To : </label>
                 <select name="assignedto" class="form-control multiple" id="assignedto" multiple>
-                    <option value="" disabled selected>-- Select User --</option>
                 </select>
             </div>
             <div class="col-md-12 mt-3" id="sourcecolumndiv">
                 <label for="source" class="form-label float-left mt-1">Source : </label>
                 <select name="source" class="form-control multiple" id="source" multiple>
-                    <option value="" disabled selected>-- Select Source --</option>
                 </select>
             </div>
             <div class="col-md-12">
@@ -213,12 +211,10 @@
         </div>
         <div class="m-2 float-right">
             <select class="advancefilter multiple form-control w-100" id="leadstagestatus" multiple="multiple">
-                <option disabled selected>-- Select Lead Stage --</option>
             </select>
         </div>
         <div class="m-2 float-right">
             <select class="advancefilter multiple form-control w-100" id="advancestatus" multiple="multiple">
-                <option disabled selected>-- Select status --</option>
             </select>
         </div>
         <div class="m-2 float-right">
@@ -399,46 +395,6 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
-            $('#source').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Source --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#source').multiselect('rebuild');
-            });
-            $('#advancestatus').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Status --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#advancestatus').multiselect('rebuild');
-            });
-            $('#leadstagestatus').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Lead Stage --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#leadstagestatus').multiselect('rebuild');
-            });
 
             $('#history_notes').summernote({
                 toolbar: [
@@ -652,11 +608,7 @@
                             }
                         });
                         advancefilters();
-                        // Check only the first option
-                        $('#advancestatus option:first').prop('selected', true);
-                        $('#assignedto option:first').prop('selected', true);
-                        $('#source option:first').prop('selected', true);
-                        $('#leadstagestatus option:first').prop('selected', true);
+
 
                         // Trigger change event to ensure multiselect UI updates
                         $('#advancestatus, #assignedto, #source, #leadstagestatus').multiselect('refresh');
@@ -694,8 +646,7 @@
                             $('#assignedto').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#assignedto').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options 
+                        $('#assignedto').multiselect('rebuild'); // Rebuild multiselect after appending options 
                     } else if (userDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
@@ -746,22 +697,30 @@
             initialize();
 
             var global_response = '';
+
             $('#assignedto').multiselect({
+                nonSelectedText: '-- Select User --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#source').multiselect({
+                nonSelectedText: '-- Select Source --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#advancestatus').multiselect({
+                nonSelectedText: '-- Select Status --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#leadstagestatus').multiselect({
+                nonSelectedText: '-- Select Lead Stage --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
@@ -769,42 +728,56 @@
 
 
             // get lead data and set in the table
-            function loaddata() {
+            function loaddata(data = null) {
+
+               
+                if(data == null){  
+                     data = {
+                        user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}"
+                    } 
+                }
+
                 loadershow();
                 $.ajax({
                     type: 'GET',
                     url: "{{ route('lead.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    },
+                    data: data,
                     success: function(response) {
+                        $('#data').DataTable().destroy();
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.lead != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             $.each(response.lead, function(key, value) {
                                 var name = (value.first_name != null ? value.first_name : '') +
                                     ' ' + (value.last_name != null ? value.last_name : '')
-                                $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                         ${value.company != null ? `<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b>${value.company}</span>` : '' }
-                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
-                                                        </span>  
-                                                        <span class='d-flex mb-2'>
-                                                             @if (session('user_permissions.leadmodule.lead.edit') == '1')
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td  class="text-left" >
+                                                ${value.company != null ? 
+                                                `
+                                                    <span class='d-flex mb-2'>
+                                                        <b>
+                                                            <i class='fas fa-building pr-2'></i>
+                                                        </b>${value.company}
+                                                    </span>
+                                                ` : '' }
+                                                <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                    <b><i class="fas fa-user pr-2"></i></b> ${name || '-'}
+                                                </span>
+                                                <span class='d-flex mb-2'>
+                                                    <b><i class="fas fa-envelope pr-2"></i></b>
+                                                    <a href="mailto:${value.email || ''}" style='text-decoration:none;'>${value.email || '-'}</a>
+                                                </span>
+                                                <span class='d-flex mb-2'>
+                                                    <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                                    <a href="tel:${value.contact_no || ''}" style='text-decoration:none;'> ${value.contact_no || '-'}</a>
+                                                </span>  
+                                                <span class='d-flex mb-2'>
+                                                        @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                                             <select class="ml-1 status form-control" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
                                                                 ${ 
                                                                     leadstatusname.map(function(optionValue) {
@@ -812,51 +785,52 @@
                                                                         }).join('')
                                                                 }
                                                             </select>
-                                                       @else
-                                                         -
-                                                       @endif
-                                                        </span>    
-                                                    </td>
-                                                    <td> 
-                                                        <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid="${value.id}" id="lead_stage_${value.id}" name="lead_stage_${value.id}">
-                                                            ${ 
-                                                                leadstagename.map(function(optionValue) {
-                                                                        return `<option value="${optionValue}">${optionValue}</option>`;
-                                                                    }).join('')
-                                                            }
-                                                        </select>
-                                                    </td> 
-                                                    <td>${value.created_at_formatted}</td>
-                                                    <td>${value.number_of_follow_up}</td>
-                                                    <td>${value.source != null ? value.source : '-'}</td>
-                                                    <td>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='Add Call History'>
-                                                            <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}'  class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
-                                                        </span>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='View Call History'>
-                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
-                                                        </span>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatapp Message">
-                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Lead">
-                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                 </button>  
-                                                            </span>
+                                                        @else
+                                                            -
                                                         @endif
-                                                        @if (session('user_permissions.leadmodule.lead.delete') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete lead">
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
-                                                </tr>`)
+                                                </span>    
+                                        </td>
+                                        <td> 
+                                            <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid="${value.id}" id="lead_stage_${value.id}" name="lead_stage_${value.id}">
+                                                ${ 
+                                                    leadstagename.map(function(optionValue) {
+                                                            return `<option value="${optionValue}">${optionValue}</option>`;
+                                                        }).join('')
+                                                }
+                                            </select>
+                                        </td> 
+                                        <td>${value.created_at_formatted}</td>
+                                        <td>${value.number_of_follow_up}</td>
+                                        <td>${value.source != null ? value.source : '-'}</td>
+                                        <td>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title='Add Call History'>
+                                                <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}'  class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
+                                            </span>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title='View Call History'>
+                                                <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
+                                            </span>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatapp Message">
+                                                <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                    <i class="ri-whatsapp-line text-white"></i>
+                                                </a>
+                                            </span>
+                                            @if (session('user_permissions.leadmodule.lead.edit') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Lead">
+                                                        <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                        <i class="ri-edit-fill"></i>
+                                                        </button>  
+                                                </span>
+                                            @endif
+                                            @if (session('user_permissions.leadmodule.lead.delete') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete lead">
+                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            @endif
+                                        </td>    
+                                    </tr>
+                                `);
                                 $('#status_' + value.id).val(value.status);
                                 $('#lead_stage_' + value.id).val(value.lead_stage);
                                 id++;
@@ -865,20 +839,19 @@
                             });
                             var search = {!! json_encode($search) !!}
 
-                            $('#data').DataTable({
-
+                            $('#data').DataTable({ 
                                 "search": {
                                     "search": search
                                 },
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
+                                title: response.message || 'No record found'
                             });
-                        } else {
-                            $('#tabledata').html(`<tr><td colspan='7' >No Data Found</td></tr>`);
+                       
+                            $('#data').DataTable();
                         }
                         loaderhide();
                         // You can update your HTML with the data here if needed
@@ -910,84 +883,84 @@
                 $.each(global_response.lead, function(key, lead) {
                     if (lead.id == data) {
                         $('#details').append(`
-                                                <tr> 
-                                                    <td>Website Url</td>
-                                                    <th style="text-transform: none;">
-                                                       <a href="${lead.web_url}" target="_blank">${(lead.web_url != null) ? lead.web_url : '-'}</a>
-                                                    </th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>First name</td>
-                                                    <th>${(lead.first_name != null) ? lead.first_name : '-'}</th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>Last name</td>
-                                                    <th>${(lead.last_name != null) ? lead.last_name : '-'}</th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>Company name</td>
-                                                    <th>${(lead.company != null) ? lead.company : '-'}</th>
-                                                </tr> 
-                                                <tr>
-                                                    <td>email</td>
-                                                    <th>${(lead.email != null)? lead.email : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>contact Number</td>
-                                                    <th>${(lead.contact_no != null) ? lead.contact_no : '-'}</th>
-                                                    </tr>
-                                                <tr>
-                                                    <td>Title</td>
-                                                    <th>${(lead.title != null) ? lead.title :'-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Budget</td>
-                                                    <th>${(lead.budget != null) ? lead.budget : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Audience Type</td>
-                                                    <th>${(lead.audience_type != null) ? lead.audience_type : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Customer Type</td>
-                                                    <th>${(lead.customer_type != null) ? lead.customer_type : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Status</td>
-                                                    <th>${(lead.status !=null) ? lead.status : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Last Follow Up</td>
-                                                    <th>${(lead.last_follow_up != null) ? lead.last_follow_up : '-' }</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Next Follow Up</td>
-                                                    <th>${(lead.next_follow_up != null) ? lead.next_follow_up : '-' }</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Follow up</td>
-                                                    <th>${(lead.number_of_follow_up != null) ? lead.number_of_follow_up : '-' }</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Attempt</td>
-                                                    <th>${(lead.attempt_lead != null) ? lead.attempt_lead : '-' }</th>
-                                                </tr>
-                                               <tr>
-                                                    <td>Created On</td>
-                                                    <th>${(lead.created_at_formatted != null) ? lead.created_at_formatted : '-' }</th>
-                                                </tr>
-                                                <tr> 
-                                                    <td>Assigned To</td>
-                                                    <th>${(lead.assigned_to != null) ? lead.assigned_to : '-' }</th>
-                                                <tr>
-                                                <tr> 
-                                                    <td>Source</td>
-                                                    <th>${(lead.source != null) ? lead.source : '-' }</th>
-                                                <tr>
-                                                <tr>
-                                                    <td >Notes</td>
-                                                    <th class='text-wrap'>${(lead.notes != null) ? lead.notes : '-' }</th>
-                                                </tr>
+                        <tr> 
+                            <td>Website Url</td>
+                            <th style="text-transform: none;">
+                                <a href="${lead.web_url}" target="_blank">${lead.web_url || '-'}</a>
+                            </th>
+                        </tr> 
+                        <tr> 
+                            <td>First name</td>
+                            <th>${lead.first_name || '-'}</th>
+                        </tr> 
+                        <tr> 
+                            <td>Last name</td>
+                            <th>${lead.last_name || '-'}</th>
+                        </tr> 
+                        <tr> 
+                            <td>Company name</td>
+                            <th>${lead.company || '-'}</th>
+                        </tr> 
+                        <tr>
+                            <td>email</td>
+                            <th>${lead.email || '-'}</th>
+                        </tr>
+                        <tr>
+                            <td>contact Number</td>
+                            <th>${lead.contact_no || '-'}</th>
+                            </tr>
+                        <tr>
+                            <td>Title</td>
+                            <th>${lead.title ||'-'}</th>
+                        </tr>
+                        <tr>
+                            <td>Budget</td>
+                            <th>${lead.budget || '-'}</th>
+                        </tr>
+                        <tr>
+                            <td>Audience Type</td>
+                            <th>${lead.audience_type || '-'}</th>
+                        </tr>
+                        <tr>
+                            <td>Customer Type</td>
+                            <th>${lead.customer_type || '-'}</th>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <th>${lead.status || '-'}</th>
+                        </tr>
+                        <tr>
+                            <td>Last Follow Up</td>
+                            <th>${lead.last_follow_up || '-' }</th>
+                        </tr>
+                        <tr>
+                            <td>Next Follow Up</td>
+                            <th>${lead.next_follow_up || '-' }</th>
+                        </tr>
+                        <tr>
+                            <td>Follow up</td>
+                            <th>${lead.number_of_follow_up || '-' }</th>
+                        </tr>
+                        <tr>
+                            <td>Attempt</td>
+                            <th>${lead.attempt_lead || '-' }</th>
+                        </tr>
+                        <tr>
+                            <td>Created On</td>
+                            <th>${lead.created_at_formatted || '-' }</th>
+                        </tr>
+                        <tr> 
+                            <td>Assigned To</td>
+                            <th>${lead.assigned_to || '-' }</th>
+                        <tr>
+                        <tr> 
+                            <td>Source</td>
+                            <th>${lead.source || '-' }</th>
+                        <tr>
+                        <tr>
+                            <td >Notes</td>
+                            <th class='text-wrap'>${lead.notes || '-' }</th>
+                        </tr>
                      `);
                     }
                 });
@@ -1184,8 +1157,10 @@
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
+                editLeadUrl = "{{route('admin.editlead','__editid__')}}".replace('__editid__',editid);
+
                 // console.log(data);
-                window.location.href = "EditLead/" + editid;
+                window.location.href = editLeadUrl;
             });
 
             // lead delete
@@ -1232,11 +1207,11 @@
                                 loaderhide();
                             },
                             error: function(xhr, status,
-                            error) { // if calling api request error 
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
                                     .responseText
-                                    ); // Log the full error response for debugging
+                                ); // Log the full error response for debugging
                                 var errorMessage = "";
                                 try {
                                     var responseJSON = JSON.parse(xhr.responseText);
@@ -1289,6 +1264,7 @@
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 };
+
                 if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
                     data.fromdate = fromdate;
                     data.todate = todate;
@@ -1318,150 +1294,15 @@
                     data.activestatusvalue = activestatusvalue;
                 }
 
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && source == '' &&
-                    leadstagestatus == '' && LastFollowUpDate == '' &&
-                    NextFollowUpDate == '' && activestatusvalue == '' && followupcount == '') {
-                    loaddata();
-                }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
-                    '' || source != '' || leadstagestatus != '' ||
-                    LastFollowUpDate != '' || NextFollowUpDate != '' || activestatusvalue != '' || followupcount !=
-                    '') {
-                    loadershow();
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('lead.index') }}",
-                        data: data,
-                        success: function(response) {
-                            if (response.status == 200 && response.lead != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.lead, function(key, value) {
-                                    var name = (value.first_name != null ? value.first_name :
-                                        '') + ' ' + (value.last_name != null ? value
-                                        .last_name : '')
-                                    $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                        ${value.company != null ? `<span class='d-flex mb-2'><b><i class='fas fa-building pr-2'></i></b>${value.company}</span>` : '' }
-                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
-                                                        </span>  
-                                                        <span class='d-flex mb-2'>
-                                                             @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <select class="ml-1 status form-control" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                ${ 
-                                                                    leadstatusname.map(function(optionValue) {
-                                                                            return `<option value="${optionValue}">${optionValue}</option>`;
-                                                                        }).join('')
-                                                                }
-                                                            </select>
-                                                       @else
-                                                         -
-                                                       @endif
-                                                        </span>    
-                                                    </td>
-                                                    <td>
-                                                        <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid=${value.id} id="lead_stage_${value.id}" name="lead_stage_${value.id}">
-                                                            ${ 
-                                                                leadstagename.map(function(optionValue) {
-                                                                        return `<option value="${optionValue}">${optionValue}</option>`;
-                                                                    }).join('')
-                                                            }
-                                                        </select>
-                                                    </td>
-                                                    <td>${value.created_at_formatted}</td>
-                                                    <td>${value.number_of_follow_up}</td>
-                                                    <td>${value.source != null ? value.source : '-'}</td>
-                                                    <td>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='Add Call History' >
-                                                            <button data-toggle="modal"  data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
-                                                        </span>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title='view Call History' >
-                                                            <button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewcallhistory' ><i class='ri-eye-fill'></i></button>
-                                                        </span>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatapp Message">
-                                                            <a  class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit lead">
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button> 
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.leadmodule.lead.delete') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete lead">
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
-                                                </tr>`)
-                                    $('#status_' + value.id).val(value.status);
-                                    $('#lead_stage_' + value.id).val(value.lead_stage);
-                                    id++;
-                                    $('[data-toggle="tooltip"]').tooltip('dispose');
-                                    $('[data-toggle="tooltip"]').tooltip();
-                                });
-                                var search = {!! json_encode($search) !!}
+                loaddata(data);
 
-                                $('#data').DataTable({
-
-                                    "search": {
-                                        "search": search
-                                    },
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                            } else if (response.status == 500) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: response.message
-                                });
-                            } else {
-                                $('#tabledata').html(`<tr><td colspan='7' >No Data Found</td></tr>`);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                            reject(errorMessage);
-                        }
-                    });
-                }
             }
 
 
             $('.advancefilter').on('change', function() {
                 advancefilters();
             });
+
             $('.filtersubmit').on('click', function(e) {
                 e.preventDefault();
                 advancefilters();
@@ -1479,16 +1320,6 @@
                 $('#assignedto option').prop('selected', false);
                 $('#source option').prop('selected', false);
 
-                if ($("#assignedto option:not(:disabled)").length > 0) {
-                    $("#assignedto").prepend(
-                        '<option value="" disabled selected>-- Select User --</option>');
-                }
-                if ($("#source option:not(:disabled)").length > 0) {
-                    $("#source").prepend('<option value="" disabled selected>-- Select Source --</option>');
-                }
-
-                $('#assignedto option:first').prop('selected', true);
-                $('#source option:first').prop('selected', true);
                 $('#assignedto').multiselect('refresh');
                 $('#source').multiselect('refresh');
                 advancefilters();
@@ -1509,28 +1340,6 @@
                 $('#source option').prop('selected', false);
                 $('#leadstagestatus option').prop('selected', false);
 
-
-                if ($("#advancestatus option:not(:disabled)").length > 0) {
-                    $("#advancestatus").prepend(
-                        '<option value="" disabled selected>-- Select Status --</option>');
-                }
-                if ($("#assignedto option:not(:disabled)").length > 0) {
-                    $("#assignedto").prepend(
-                        '<option value="" disabled selected>-- Select User --</option>');
-                }
-                if ($("#source option:not(:disabled)").length > 0) {
-                    $("#source").prepend('<option value="" disabled selected>-- Select Source --</option>');
-                }
-                if ($("#leadstagestatus option:not(:disabled)").length > 0) {
-                    $("#leadstagestatus").prepend(
-                        '<option value="" disabled selected>-- Select Lead Stage --</option>');
-                }
-
-                // Check only the first option
-                $('#advancestatus option:first').prop('selected', true);
-                $('#assignedto option:first').prop('selected', true);
-                $('#source option:first').prop('selected', true);
-                $('#leadstagestatus option:first').prop('selected', true);
 
                 // Refresh the multiselect dropdown to reflect changes
                 $('#advancestatus').multiselect('refresh');

@@ -173,7 +173,6 @@
                     <label class="form-label" for="assignedto">Assigned To:</label> <span
                         style="color:red;">*</span><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
-                        <option value="" disabled selected>Select User</option>
                     </select>
                     <span class="error-msg" id="error-assignedto" style="color: red"></span>
                 </div>
@@ -233,18 +232,7 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
-
+ 
             $('#notes').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -371,8 +359,7 @@
                             $('#assignedto').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#assignedto').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options 
+                        $('#assignedto').multiselect('rebuild'); // Rebuild multiselect after appending options 
                     } else if (userDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
@@ -433,6 +420,7 @@
 
             initialize();
             $('#assignedto').multiselect({
+                nonSelectedText: '-- Select User --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
@@ -473,8 +461,8 @@
                             $('#updated_at').val(data.updated_at_formatted);
                             $('#source').val(data.source);
                             $('#company').val(data.company);
-                            $('#web_url').val(data.web_url);
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                            $('#web_url').val(data.web_url); 
+                            
                             assignedto = data.assigned_to;
                             assignedtoarray = assignedto.split(',');
                             assignedtoarray.forEach(function(value) {
