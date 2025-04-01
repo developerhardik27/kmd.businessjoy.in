@@ -15,7 +15,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id">
@@ -25,7 +25,7 @@
                         required>
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="customer_type">Customer Type:</label><span style="color:red;">*</span>
                     <select name="customer_type" class="form-control" id="customer_type">
                         <option disabled selected>Select Customer Type</option>
@@ -34,85 +34,60 @@
                     </select>
                     <span class="error-msg" id="error-customer_type" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="email">Email</label><span style="color:red;">*</span>
                     <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email"
                         required>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="contact_number">Contact Number</label><span style="color:red;">*</span>
                     <input type="tel" class="form-control" name='contact_number' id="contact_number"
                         placeholder="0123456789" required>
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="country">Select Country</label><span style="color:red;">*</span>
                     <select class="form-control" name='country' id="country" required>
                         <option selected="" disabled="">Select your Country</option>
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="state">Select State</label><span style="color:red;">*</span>
                     <select class="form-control" name='state' id="state" required>
                         <option selected="" disabled="">Select your State</option>
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="city">Select City</label><span style="color:red;">*</span>
                     <select class="form-control" name='city' id="city" required>
                         <option selected="" disabled="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="invoiceid">Invoice Id</label>
                     <input type="text" id="invoiceid" name='invoiceid' class="form-control"
                         placeholder="Invoice Id">
                     <span class="error-msg" id="error-invoiceid" style="color: red"></span>
                 </div>
-
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="area">Area</label><span style="color:red;">*</span>
                     <input type="text" id="area" name='area' class="form-control" placeholder="Area">
                     <span class="error-msg" id="error-area" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="pincode">Pincode</label><span style="color:red;">*</span>
                     <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code">
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                <div class="col-sm-12 mb-2">
                     <label class="form-label" for="address">Address</label><span style="color:red;">*</span>
                     <textarea class="form-control" required name='address' id="address" rows="2"></textarea>
                     <span class="error-msg" id="error-address" style="color: red"></span>
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
                 <div class="col-sm-12">
                     <input type="checkbox" name="createreminder" id="createreminder" checked>
                     <label class="form-label" for="createreminder"> Create Reminder</label>
@@ -123,7 +98,7 @@
         <div class="container" id="remindercustomerformcontainer">
             <div class="form-group">
                 <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label class="form-label" for="service_type">Service Type:</label>
                         <select name="service_type" class="form-control" id="service_type">
                             <option disabled selected>Select Service Type</option>
@@ -132,34 +107,26 @@
                         </select>
                         <span class="error-msg" id="error-service_type" style="color: red"></span>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label class="form-label" for="product_name">Product Name:</label><span
                             style="color:red;">*</span>
                         <input type="text" class="form-control" name="product_name" id="product_name"
                             placeholder="Product Name" />
                         <span class="error-msg" id="error-product_name" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label class="form-label" for="product_unique_id">Product Unique Id:</label>
                         <input type="text" class="form-control" name="product_unique_id" id="product_unique_id"
                             placeholder="Product Unique Id" />
                         <span class="error-msg" id="error-product_unique_id" style="color: red"></span>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label class="form-label" for="amount"> Amount :</label><span style="color:red;">*</span>
                         <input type="text" class="form-control" name="amount" id="amount"
                             placeholder="Amount" />
                         <span class="error-msg" id="error-amount" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label class="form-label" for="next_reminder">Next Reminder Date:</label><span
                             style="color:red;">*</span>
                         <input type="datetime-local" class="form-control" name="next_reminder" id="next_reminder" />
@@ -167,39 +134,27 @@
                             id="after_ninemonths_date" class="m-1 text-info btn">After 9 Months</span>
                         <span class="error-msg" id="error-next_reminder" style="color: red"></span>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-12 mb-2">
                         <label class="form-label" for="before_services_notes">Before Services Notes:</label>
                         <textarea name="before_services_notes" placeholder="Before Services Notes" class="form-control"
                             id="before_services_notes" cols="" rows="2"></textarea>
                         <span class="error-msg" id="error-before_services_notes" style="color: red"></span>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-12 mb-2">
                         <label class="form-label" for="after_services_notes">After Services Notes:</label>
                         <textarea name="after_services_notes" placeholder="After Services Notes" class="form-control"
                             id="after_services_notes" cols="" rows="2"></textarea>
                         <span class="error-msg" id="error-after_services_notes" style="color: red"></span>
                     </div>
+                    <div class="col-sm-12">
+                        <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip"
+                            data-placement="bottom" data-original-title="Reset">Reset</button>
+                        <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip"
+                            data-placement="bottom" data-original-title="Save">Save</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
-                    <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip"
-                        data-placement="bottom" data-original-title="Reset">Reset</button>
-                    <button type="submit" class="btn btn-primary float-right my-0" data-toggle="tooltip"
-                        data-placement="bottom" data-original-title="Save">Save</button>
-                </div>
-            </div>
-        </div>
+        </div>    
     </form>
 @endsection
 

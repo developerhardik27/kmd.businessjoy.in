@@ -16,7 +16,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
                         placeholder="user_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
@@ -28,48 +28,36 @@
                         required />
                     <span class="error-msg" id="error-holder_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="account_number">Account Number</label><span style="color:red;">*</span>
                     <input type="text" name="account_number" class="form-control" id="account_number" value=""
                         placeholder="Account Number" required />
                     <span class="error-msg" id="error-account_number" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="swift_code">Swift Code</label>
                     <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
                         placeholder="Swift Code" />
                     <span class="error-msg" id="error-swift_code" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="ifsc_code">IFSC Code</label><span style="color:red;">*</span>
                     <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" placeholder="IFSC Code"
                         required />
                     <span class="error-msg" id="error-ifsc_code" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
                     <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
                         required />
                     <span class="error-msg" id="error-branch_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="branch_name">Branch Name</label>
                     <input type="text" id="branch_name" name="branch_name" class="form-control"
                         placeholder="Branch Name" />
                     <span class="error-msg" id="error-branch_name" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>

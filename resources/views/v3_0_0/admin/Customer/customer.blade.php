@@ -53,7 +53,7 @@
 @endif
 @section('table-content')
     <table id="data"
-        class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
+        class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Customer Id</th>
@@ -95,9 +95,15 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
+                         // Clear and destroy the existing DataTable instance
+                         if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
+
+                        // Clear the existing table body
+                        $('#tabledata').empty();
+
                         if (response.status == 200 && response.customer != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
@@ -105,75 +111,84 @@
                                 let editCustomerUrl =
                                     "{{ route('admin.edit' . session('menu') . 'customer', '__customerid__') }}"
                                     .replace('__customerid__', value.id);
-                                $('#data').append(`<tr>
-                                                    <td>${value.customer_id}</td>
-                                                    <td>${(value.firstname != null) ? value.firstname : '-' }</td>
-                                                    <td>${(value.lastname != null) ? value.lastname : '-' }</td>
-                                                    <td>${(value.company_name != null) ?value.company_name : '-'}</td>
-                                                    <td>${(value.contact_no != null) ?value.contact_no : '-'}</td>
-                                                    <td>
-                                                        @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
-                                                                session('user_permissions.quotationmodule.quotaioncustomer.edit') == '1')
-                                                            ${value.is_active == 1 ? '<span data-toggle="tooltip" data-placement="bottom" data-original-title="InActive" id=status_'+value.id+ '> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></span>'  : '<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></span>'}
-                                                        @else
-                                                          -
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if (session('user_permissions.invoicemodule.customer.view') == '1' ||
-                                                                session('user_permissions.quotationmodule.quotatoincustomer.view') == '1')
-                                                            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
-                                                                <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                                    <i class="ri-indent-decrease"></i>
-                                                                </button>
-                                                            </span>
-                                                        @else
-                                                          -    
-                                                        @endif
-                                                    </td>
-                                                    @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
-                                                            session('user_permissions.quotationmodule.quotationcustomer.edit') == '1' ||
-                                                            session('user_permissions.invoicemodule.customer.delete') == '1' ||
-                                                            session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
-                                                        <td>
-                                                            @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
-                                                                    session('user_permissions.quotationmodule.quotationcustomer.edit') == '1')
-                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Customer">
-                                                                    <a href=${editCustomerUrl}>
-                                                                        <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                            <i class="ri-edit-fill"></i>
-                                                                        </button>
-                                                                    </a>
-                                                                </span>
-                                                            @endif
-                                                            @if (session('user_permissions.invoicemodule.customer.delete') == '1' ||
-                                                                    session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
-                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Customer Details">
-                                                                    <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                                        <i class="ri-delete-bin-fill"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @endif
-                                                        </td>
-                                                    @else
-                                                        <td> - </td>  
-                                                    @endif
-                                                    
-                                                </tr>`);
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${value.customer_id}</td>
+                                        <td>${value.firstname ||  '-' }</td>
+                                        <td>${value.lastname ||  '-' }</td>
+                                        <td>${value.company_name || '-'}</td>
+                                        <td>${value.contact_no || '-'}</td>
+                                        <td>
+                                            @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                    session('user_permissions.quotationmodule.quotaioncustomer.edit') == '1')
+                                                ${value.is_active == 1 ? 
+                                                    `<span data-toggle="tooltip" data-placement="bottom" data-original-title="InActive" id="status_${value.id}">
+                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0">active</button>
+                                                    </span>`
+                                                    : 
+                                                    `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_"${value.id}">
+                                                        <button data-status= "${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>
+                                                    </span>`
+                                                }
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (session('user_permissions.invoicemodule.customer.view') == '1' ||
+                                                    session('user_permissions.quotationmodule.quotatoincustomer.view') == '1')
+                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
+                                                    <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                        <i class="ri-indent-decrease"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -    
+                                            @endif
+                                        </td>
+                                        @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                session('user_permissions.quotationmodule.quotationcustomer.edit') == '1' ||
+                                                session('user_permissions.invoicemodule.customer.delete') == '1' ||
+                                                session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
+                                            <td>
+                                                @if (session('user_permissions.invoicemodule.customer.edit') == '1' ||
+                                                        session('user_permissions.quotationmodule.quotationcustomer.edit') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Customer">
+                                                        <a href=${editCustomerUrl}>
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
+                                                            </button>
+                                                        </a>
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.invoicemodule.customer.delete') == '1' ||
+                                                        session('user_permissions.quotationmodule.quotationcustomer.delete') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Customer Details">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        @else
+                                            <td> - </td>  
+                                        @endif 
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            $('#data').append(`<tr><td colspan='8' >No Data Found</td></tr>`);
+                                title: response.message || 'No record found!'
+                            }); 
+                            $('#data').DataTable({});
                         }
                         loaderhide();
                     },

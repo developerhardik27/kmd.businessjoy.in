@@ -192,8 +192,7 @@
 
 
 @section('table-content')
-    <table id="data"
-        class="table table-bordered w-100  table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
+    <table id="data" class="table display table-bordered w-100  table-striped">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -222,8 +221,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form id="customersupporthistoryform">
+                <form id="customersupporthistoryform">
+                    <div class="modal-body">
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="csid" id="csid">
@@ -244,7 +243,6 @@
                             <div class="col-12 mt-2">
                                 Status:
                                 <select class="form-control" id="call_status" name="call_status">
-                                    <option disabled selected>status</option>
                                     <option value='Open'>Open</option>
                                     <option value='In Progress'>In Progress</option>
                                     <option value='Resolved'>Resolved</option>
@@ -263,10 +261,11 @@
                             <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 
     {{-- modal for view call history module  --}}
@@ -326,7 +325,7 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
- 
+
             $('#history_notes').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -457,8 +456,8 @@
             // get and set customer support history list in the table
             function loaddata(data = null) {
 
-                if(data == null){ 
-                    data =  {
+                if (data == null) {
+                    data = {
                         user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
@@ -471,7 +470,7 @@
                     url: "{{ route('customersupport.index') }}",
                     data: data,
                     success: function(response) {
-                         // Clear and destroy the existing DataTable instance
+                        // Clear and destroy the existing DataTable instance
                         if ($.fn.dataTable.isDataTable('#data')) {
                             $('#data').DataTable().clear().destroy();
                         }
@@ -480,20 +479,28 @@
                             global_response = response;
                             var id = 1;
                             $.each(response.customersupport, function(key, value) {
-                                var name = [value.first_name,value.last_name].join(' ');
+                                var name = [value.first_name, value.last_name].join(' ');
                                 $('#tabledata').append(`
                                     <tr>
                                         <td>${id}</td>
-                                        <td  class="text-left" >
+                                        <td class="text-left" >
                                             <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                <b><i class="fas fa-user pr-2"></i></b> ${name || '-'}
+                                                <b>
+                                                    <i class="fas fa-user pr-2"></i>
+                                                </b> ${name || '-'}
                                             </span>
                                             <span class="d-flex mb-2">
-                                                <b><i class="fas fa-envelope pr-2"></i></b>
-                                                <a href="mailto:${value.email || ''}" style='text-decoration:none;'>${value.email || '-'}</a>
+                                                <b>
+                                                    <i class="fas fa-envelope pr-2"></i>
+                                                </b>
+                                                <a href="mailto:${value.email || ''}" style='text-decoration:none;'>
+                                                    ${value.email || '-'}
+                                                </a>
                                             </span>
                                             <span class='d-flex mb-2'>
-                                                <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                                <b>
+                                                    <i class="fas fa-phone-alt pr-2"></i>
+                                                </b>
                                                 <a href="tel:${value.contact_no || ''}" style='text-decoration:none;'> ${value.contact_no || '-'}</a>
                                             </span>  
                                         </td>
@@ -505,11 +512,10 @@
                                         <td>
                                             @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
                                                 <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                    <option disabled selected>status</option>
-                                                    <option value='Open'>Open</option>
-                                                    <option value='In Progress'>In Progress</option>
-                                                    <option value='Resolved'>Resolved</option>
-                                                    <option value='Cancelled'>Cancelled</option>
+                                                    <option value='Open' ${value.status == 'Open' ? 'selected' : ''}>Open</option>
+                                                    <option value='In Progress' ${value.status == 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                                    <option value='Resolved' ${value.status == 'Resolved' ? 'selected' : ''}>Resolved</option>
+                                                    <option value='Cancelled' ${value.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                                                 </select>
                                             @else
                                                 -
@@ -543,25 +549,25 @@
                                             @endif
                                         </td>    
                                     </tr>
-                                `);
-                                $('#status_' + value.id).val(value.status);
+                                `); 
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 
-                            $('#data').DataTable({ 
+                            $('#data').DataTable({
                                 "search": {
                                     "search": search
                                 },
+                                responsive: true,
                                 "destroy": true, //use for reinitialize jquery datatable
-                            }); 
+                            });
                         } else {
                             Toast.fire({
                                 icon: "error",
                                 title: response.message || 'No record found'
-                            }); 
+                            });
                             $('#data').DataTable();
                         }
                         loaderhide();
@@ -683,18 +689,18 @@
                                         icon: "error",
                                         title: data.message
                                     });
-                                } else if (data.status == 500) { 
+                                } else if (data.status == 500) {
                                     Toast.fire({
                                         icon: "error",
                                         title: data.message
                                     });
-                                    loaderhide(); 
-                                } else { 
+                                    loaderhide();
+                                } else {
                                     Toast.fire({
                                         icon: "success",
                                         title: data.message
                                     });
-                                    advancefilters(); 
+                                    advancefilters();
                                 }
                             }
                         });
@@ -732,7 +738,9 @@
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
-                editCustomerSupportUrl = "{{route('admin.editcustomersupport','__customersupportid__')}}".replace('__customersupportid__',editid);
+                editCustomerSupportUrl =
+                    "{{ route('admin.editcustomersupport', '__customersupportid__') }}"
+                    .replace('__customersupportid__', editid);
 
                 // console.log(data);
                 window.location.href = editCustomerSupportUrl;
@@ -831,10 +839,10 @@
                     data.callcount = callcount;
                 }
 
-                
+
                 loaddata(data);
-                
-                
+
+
             }
 
             $('.advancefilter').on('change', function() {
@@ -866,7 +874,7 @@
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
                 $('#assignedto option').prop('selected', false);
-  
+
                 // Refresh the multiselect dropdown to reflect changes
                 $('#advancestatus').multiselect('refresh');
                 $('#assignedto').multiselect('refresh');

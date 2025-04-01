@@ -59,7 +59,7 @@
             @csrf
             <div class="form-group">
                 <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                             placeholder="token" required />
                         <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
@@ -69,23 +69,19 @@
                             required />
                         <span class="error-msg" id="error-firstname" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label for="lastname">LastName</label><span style="color:red;">*</span>
                         <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Last name"
                             required />
                         <span class="error-msg" id="error-lastname" style="color: red"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
+                    </div> 
+                    <div class="col-sm-6 mb-2">
                         <label for="email">Email</label><span style="color:red;">*</span>
                         <input type="email" name='email' class="form-control" id="email" value=""
                             placeholder="Enter Email" autocomplete="off" required />
                         <span class="error-msg" id="error-email" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label for="password">Password</label>
                         <div class="password-container">
                             <input type="password" name="password" class="form-control" id="password" value=""
@@ -93,63 +89,47 @@
                             <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                         </div>
                         <span class="error-msg" id="error-password" style="color: red"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
+                    </div> 
+                    <div class="col-sm-6 mb-2">
                         <label for="contact_number">Contact Number</label><span style="color:red;">*</span>
                         <input type="tel" name='contact_number' class="form-control" id="contact_number" value=""
                             placeholder="0123456789" required />
                         <span class="error-msg" id="error-contact_number" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label for="country">Select Country</label><span style="color:red;">*</span>
                         <select id="country" class="form-control" name='country' required>
                             <option selected="" disabled="">Select your Country</option>
                         </select>
                         <span class="error-msg" id="error-country" style="color: red"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
+                    </div> 
+                    <div class="col-sm-6 mb-2">
                         <label for="state">Select State</label><span style="color:red;">*</span>
                         <select class="form-control" name='state' id="state" required>
                             <option selected="" disabled="">Select your State</option>
                         </select>
                         <span class="error-msg" id="error-state" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label for="city">Select City</label><span style="color:red;">*</span>
                         <select class="form-control" name='city' id="city" required>
                             <option selected="" disabled="">Select your City</option>
                         </select>
                         <span class="error-msg" id="error-city" style="color: red"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6">
+                    </div> 
+                    <div class="col-sm-6 mb-2">
                         <label for="pincode">Pincode</label><span style="color:red;">*</span>
                         <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
                             required />
                         <span class="error-msg" id="error-pincode" style="color: red"></span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label for="img">Image</label><br>
                         <input type="file" name="img" id="img" width="100%" />
                         <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB.
                         </p>
                         <span class="error-msg" id="error-img" style="color: red"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-row">
+                    </div> 
                     <div class="col-sm-12">
                         <button type="button" data-toggle="tooltip" data-placement="bottom"
                             data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
@@ -429,21 +409,23 @@
                                     </table>
                                     <div class="form-group">
                                         <div class="form-row">
-                                            <div class="col-sm-12">
-                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel"
-                                                    class="btn btn-secondary float-right cancelbtn">
-                                                    Cancel
-                                                </button>
+                                            <div class="col-sm-12 text-right">
+                                                <button type="submit" id="adminmodulesubmit"
+                                                    class="btn btn-primary submitBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Save">Save</button>
                                                 <button type="button" id="adminmodulereset" data-module="admin"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Admin Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
-                                                <button type="submit" id="adminmodulesubmit"
-                                                    class="btn btn-primary float-right my-0 submitBtn"
-                                                    data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Save">Submit</button>
+                                                    class="btn iq-bg-danger resetbtn">
+                                                    Reset
+                                                </button>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel" class="btn btn-secondary cancelbtn">
+                                                    Cancel
+                                                </button>
+                                                
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -1045,17 +1027,19 @@
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Cancel"
                                                     class="btn btn-secondary float-right cancelbtn">
-                                                    <i class='ri-close-line'></i>
+                                                    Cancel
                                                 </button>
                                                 <button type="button" id="quotationmodulereset" data-module="quotation"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Quotation Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="quotationmodulsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
-                                                    class="btn btn-primary float-right my-0 submitBtn"><i
-                                                        class='ri-check-line'></i></button>
+                                                    class="btn btn-primary float-right my-0 submitBtn">
+                                                    Save
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -1773,8 +1757,9 @@
                                                 <button type="button" id="invoicemodulereset" data-module="invoice"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Invoice Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="invoicemodulsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
@@ -1880,8 +1865,9 @@
                                                 <button type="button" id="leadmodulereset" data-module="lead"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Lead Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="leadmodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
@@ -1994,8 +1980,9 @@
                                                     data-module="customersupport" data-toggle="tooltip"
                                                     data-placement="bottom"
                                                     data-original-title="Reset Customer Support Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="customersupportmodulesubmit"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Save"
@@ -2389,8 +2376,9 @@
                                                 <button type="button" id="inventorymodulereset"
                                                     data-module="inventory" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Reset Inventory Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="inventorymodulesubmit"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Save"
@@ -2556,8 +2544,9 @@
                                                 <button type="button" id="remindermodulereset" data-module="reminder"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset Reminder Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="remindermodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
@@ -2639,8 +2628,7 @@
                                                     </td>
                                                     <td>
                                                         <select name="assignedto[]" class="form-control multiple"
-                                                            id="assignedto" multiple>
-                                                            <option value="" disabled selected>Select User</option>
+                                                            id="assignedto" multiple> 
                                                         </select>
                                                     </td>
                                                 </tr>
@@ -2669,8 +2657,9 @@
                                                 <button type="button" id="reportmodulereset" data-module="report"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset report Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="reportmodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
@@ -2774,8 +2763,9 @@
                                                 <button type="button" id="blogmodulereset" data-module="blog"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset blog Module"
-                                                    class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                        class='ri-refresh-line'></i></button>
+                                                    class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                    Reset
+                                                </button>
                                                 <button type="submit" id="blogmodulesubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
@@ -2937,21 +2927,11 @@
             initialize();
 
             $('#assignedto').multiselect({
+                nonSelectedText : 'Select User',
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
-            });
-
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
+            }); 
 
             // show country data in dropdown and set default value according logged in user
             $.ajax({
@@ -3118,12 +3098,7 @@
                     if (!$(`#${module}allcheck`).prop('checked')) {
                         $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', false);
                         if (module == 'report') {
-                            $('#assignedto option').prop('selected', false);
-                            if ($("#assignedto option:disabled").length == 0) {
-                                $("#assignedto").prepend(
-                                    '<option value="" disabled selected>-- Select User --</option>');
-                            }
-                            $('#assignedto option:first').prop('selected', true);
+                            $('#assignedto option').prop('selected', false); 
                         }
                     } else {
                         $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', $(this).prop(
@@ -3131,7 +3106,6 @@
                         if (module == 'report') {
                             $('#reportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
                                 'checked'));
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
                             $('#assignedto option').prop('selected', true);
                         }
                     }
@@ -3152,18 +3126,12 @@
                         $(`#${value} input[type="checkbox"]`).prop('checked', false);
                         if (value == 'report') {
                             $('#assignedto option').prop('selected', false);
-                            if ($("#assignedto option:disabled").length == 0) {
-                                $("#assignedto").prepend(
-                                    '<option value="" disabled selected>-- Select User --</option>');
-                            }
-                            $('#assignedto option:first').prop('selected', true);
                             $('#assignedto').multiselect('refresh');
                             $('#assignedto').multiselect('rebuild');
                         }
                     } else {
                         $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
                         if (value == 'report') {
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
                             $('#assignedto option').prop('selected', true);
                             $('#assignedto').multiselect('refresh');
                             $('#assignedto').multiselect('rebuild');
@@ -3192,11 +3160,6 @@
 
                     if (module == 'report') {
                         $('#assignedto option').prop('selected', false);
-                        if ($("#assignedto option:disabled").length == 0) {
-                            $("#assignedto").prepend(
-                                '<option value="" disabled selected>-- Select User --</option>');
-                        }
-                        $('#assignedto option:first').prop('selected', true);
                         $('#assignedto').multiselect('refresh');
                         $('#assignedto').multiselect('rebuild');
                     }

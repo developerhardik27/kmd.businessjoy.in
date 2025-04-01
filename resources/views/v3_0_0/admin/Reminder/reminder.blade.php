@@ -123,10 +123,10 @@
         }
 
         /* .multiselect-container {
-                            width: 300px;
-                            max-height: 300px;
-                            overflow: auto;
-                    } */
+                                    width: 300px;
+                                    max-height: 300px;
+                                    overflow: auto;
+                            } */
 
         .sidenav .btn-group {
             width: 100%;
@@ -161,19 +161,16 @@
             <div class="col-md-12" id="citydiv">
                 <label for="city" class="form-label float-left mt-1">City : </label>
                 <select name="city" class="form-control multiple" id="city" multiple>
-                    <option value="" disabled selected>-- Select City --</option>
                 </select>
             </div>
             <div class="col-md-12 mt-2" id="customerdiv">
                 <label for="customer" class="form-label float-left mt-1">Customers : </label>
                 <select name="customer" class="form-control multiple" id="customer" multiple>
-                    <option value="" disabled selected>-- Select Customer --</option>
                 </select>
             </div>
             <div class="col-md-12 mt-2" id="reminder_status_div">
                 <label for="reminder_status" class="form-label float-left mt-1">Reminder Status : </label>
                 <select name="reminder_status" class="form-control multiple" id="reminder_status" multiple>
-                    <option value="" disabled selected>-- Select Reminder Status --</option>
                     <option value="pending">Pending</option>
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
@@ -220,7 +217,6 @@
         </div>
         <div class="m-2 float-right">
             <select class="advancefilter multiple form-control w-100" id="area" multiple="multiple">
-                <option disabled selected>-- Select Area --</option>
             </select>
         </div>
         <div class="m-2 float-right">
@@ -250,8 +246,7 @@
 
 
 @section('table-content')
-    <table id="data"
-        class="table table-bordered w-100 table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
+    <table id="data" class="table table-bordered w-100 display table-striped">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -305,46 +300,6 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            $('#city').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select City --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#city').multiselect('rebuild');
-            });
-            $('#customer').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Customer --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#customer').multiselect('rebuild');
-            });
-            $('#area').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Area --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#area').multiselect('rebuild');
-            });
-            $('#reminder_status').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Reminder Status --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#reminder_status').multiselect('rebuild');
-            });
 
             function getAreaNames() {
                 return new Promise((resolve, reject) => {
@@ -572,22 +527,28 @@
             initialize();
 
             var global_response = '';
+
             $('#area').multiselect({
+                nonSelectedText: '-- Select Area --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#customer').multiselect({
+                nonSelectedText: '-- Select Customer --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
             $('#city').multiselect({
+                nonSelectedText: '-- Select City --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
             $('#reminder_status').multiselect({
+                nonSelectedText: '-- Select Reminder Status --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
@@ -595,76 +556,83 @@
 
 
             // get lead data and set in the table
-            function loaddata() {
+            function loaddata(data = null) {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('reminder.index') }}",
-                    data: {
+                if (data == null) {
+                    data = {
                         user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
-                    },
+                    }
+                }
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('reminder.index') }}",
+                    data: data,
                     success: function(response) {
+                        // if response has data then it will be append into list table
+                        if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.reminder != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             $.each(response.reminder, function(key, value) {
-                                $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.name}
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                                        </span>  
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-city pr-2"></i></b>
-                                                             ${value.city_name}
-                                                        </span>  
-                                                    </td>
-                                                    <td>
-                                                        <select class="reminder_status form-control" data-original-value="${value.reminder_status}" data-reminder_status_id=${value.id} id="reminder_status_${value.id}" name="reminder_status_${value.id}">
-                                                           <option value='pending'>Pending</option>
-                                                           <option value='in_progress'>In Progress</option>
-                                                           <option value='completed'>Completed</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>${value.created_at_formatted}</td>
-                                                    <td>${value.next_reminder_date}</td>
-                                                    <td>${value.area}</td>
-                                                    <td>${value.pincode}</td>
-                                                    <td>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
-                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.remindermodule.reminder.edit') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button> 
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.remindermodule.reminder.delete') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
-                                                </tr>`)
-                                $('#reminder_status_' + value.id).val(value.reminder_status);
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td  class="text-left" >
+                                            <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                <b><i class="fas fa-user pr-2"></i></b> ${value.name}
+                                            </span>
+                                            <span class='d-flex mb-2'>
+                                                <b><i class="fas fa-envelope pr-2"></i></b>
+                                                <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
+                                            </span>
+                                            <span class='d-flex mb-2'>
+                                                <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                                <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
+                                            </span>  
+                                            <span class='d-flex mb-2'>
+                                                <b><i class="fas fa-city pr-2"></i></b>
+                                                    ${value.city_name}
+                                            </span>  
+                                        </td>
+                                        <td>
+                                            <select class="reminder_status form-control" data-original-value="${value.reminder_status}" data-reminder_status_id=${value.id} id="reminder_status_${value.id}" name="reminder_status_${value.id}">
+                                                <option value='pending' ${value.reminder_status == 'pending' ? 'selected' : ''}>Pending</option>
+                                                <option value='in_progress' ${value.reminder_status == 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                                <option value='completed' ${value.reminder_status == 'completed' ? 'selected' : ''}>Completed</option>
+                                            </select>
+                                        </td>
+                                        <td>${value.created_at_formatted}</td>
+                                        <td>${value.next_reminder_date}</td>
+                                        <td>${value.area}</td>
+                                        <td>${value.pincode}</td>
+                                        <td>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
+                                                <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${value.contact_no}">
+                                                    <i class="ri-whatsapp-line text-white"></i>
+                                                </a>
+                                            </span>
+                                            @if (session('user_permissions.remindermodule.reminder.edit') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                        <i class="ri-edit-fill"></i>
+                                                    </button> 
+                                                </span>
+                                            @endif
+                                            @if (session('user_permissions.remindermodule.reminder.delete') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            @endif
+                                        </td>    
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
@@ -672,19 +640,18 @@
                             var search = {!! json_encode($search) !!}
 
                             $('#data').DataTable({
-
                                 "search": {
                                     "search": search
                                 },
+                                responsive: true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
+                                title: response.message || 'No record found!'
                             });
-                        } else {
-                            $('#tabledata').html(`<tr><td colspan='8' >No Data Found</td></tr>`);
+                            $('#data').DataTable();
                         }
                         loaderhide();
                         // You can update your HTML with the data here if needed
@@ -719,77 +686,76 @@
                 var data = $(this).data('view');
                 $.each(global_response.reminder, function(key, reminder) {
                     if (reminder.id == data) {
-
                         $('#details').append(`
-                                                <tr> 
-                                                    <td>Customer Name</td>
-                                                    <th>${reminder.name !== null ? reminder.name : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>email</td>
-                                                    <th>${reminder.email !== null ? reminder.email : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>contact Number</td>
-                                                    <th>${reminder.contact_no !== null ? reminder.contact_no : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Address</td>
-                                                    <th>${reminder.address !== null ? reminder.address : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Area</td>
-                                                    <th>${reminder.area !== null ? reminder.area : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>City</td>
-                                                    <th>${reminder.city_name !== null ? reminder.city_name : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Customer Type</td>
-                                                    <th>${reminder.customer_type !== null ? reminder.customer_type : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Invoice id</td>
-                                                    <th>${reminder.invoice_id !== null ? reminder.invoice_id : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Reminder Status</td>
-                                                    <th>${reminder.reminder_status !== null ? reminder.reminder_status : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Service Completed Date</td>
-                                                    <th>${reminder.service_completed_date !== null ? reminder.service_completed_date : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Next Reminder Date</td>
-                                                    <th>${reminder.next_reminder_date !== null ? reminder.next_reminder_date : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Service type</td>
-                                                    <th>${reminder.service_type !== null ? reminder.service_type : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Product Name</td>
-                                                    <th>${reminder.product_name !== null ? reminder.product_name : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Amount</td>
-                                                    <th>${reminder.amount !== null ? reminder.amount : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Created On</td>
-                                                    <th>${reminder.created_at_formatted !== null ? reminder.created_at_formatted : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Before Service Notes</td>
-                                                    <th class='text-wrap'>${reminder.before_service_note !== null ? reminder.before_service_note : ''}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>After Service Notes</td>
-                                                    <th class='text-wrap'>${reminder.after_service_note !== null ? reminder.after_service_note : ''}</th>
-                                                </tr>
-                     `);
+                            <tr> 
+                                <td>Customer Name</td>
+                                <th>${reminder.name !== null ? reminder.name : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>email</td>
+                                <th>${reminder.email !== null ? reminder.email : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>contact Number</td>
+                                <th>${reminder.contact_no !== null ? reminder.contact_no : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Address</td>
+                                <th>${reminder.address !== null ? reminder.address : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Area</td>
+                                <th>${reminder.area !== null ? reminder.area : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>City</td>
+                                <th>${reminder.city_name !== null ? reminder.city_name : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Customer Type</td>
+                                <th>${reminder.customer_type !== null ? reminder.customer_type : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Invoice id</td>
+                                <th>${reminder.invoice_id !== null ? reminder.invoice_id : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Reminder Status</td>
+                                <th>${reminder.reminder_status !== null ? reminder.reminder_status : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Service Completed Date</td>
+                                <th>${reminder.service_completed_date !== null ? reminder.service_completed_date : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Next Reminder Date</td>
+                                <th>${reminder.next_reminder_date !== null ? reminder.next_reminder_date : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Service type</td>
+                                <th>${reminder.service_type !== null ? reminder.service_type : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Product Name</td>
+                                <th>${reminder.product_name !== null ? reminder.product_name : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Amount</td>
+                                <th>${reminder.amount !== null ? reminder.amount : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Created On</td>
+                                <th>${reminder.created_at_formatted !== null ? reminder.created_at_formatted : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>Before Service Notes</td>
+                                <th class='text-wrap'>${reminder.before_service_note !== null ? reminder.before_service_note : ''}</th>
+                            </tr>
+                            <tr>
+                                <td>After Service Notes</td>
+                                <th class='text-wrap'>${reminder.after_service_note !== null ? reminder.after_service_note : ''}</th>
+                            </tr>
+                        `);
                     }
                 });
             });
@@ -855,11 +821,11 @@
                                 }
                             },
                             error: function(xhr, status,
-                            error) { // if calling api request error 
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
                                     .responseText
-                                    ); // Log the full error response for debugging
+                                ); // Log the full error response for debugging
                                 var errorMessage = "";
                                 try {
                                     var responseJSON = JSON.parse(xhr.responseText);
@@ -884,7 +850,10 @@
                                 'question', // Icon type (question icon)
                                 () => {
                                     // Success callback
-                                    window.location.href = "AddNewReminder/" + reminderstatusid;
+                                    var addNewReminderUrl =
+                                        "{{ route('admin.addreminder', '__reminderstatusid__') }}"
+                                        .replace('__reminderstatusid__', reminderstatusid);
+                                    window.location.href = addNewReminderUrl;
                                 }
                             );
                         }
@@ -893,7 +862,7 @@
                         // Error callback
                         loaderhide();
                         var reminderstatusid = element.attr('id');
-                        $('#' + reminderstatusid).val(oldstatus);
+                        $(`#${reminderstatusid}`).val(oldstatus);
                     }
                 );
             })
@@ -929,7 +898,9 @@
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
                 // console.log(data);
-                window.location.href = "EditReminder/" + editid;
+                var editReminderUrl = "{{ route('admin.editreminder', '__editid__') }}".replace(
+                    '__editid__', editid);
+                window.location.href = editReminderUrl;
             });
 
             // lead delete
@@ -1037,6 +1008,7 @@
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 };
+
                 if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
                     data.fromdate = fromdate;
                     data.todate = todate;
@@ -1066,128 +1038,15 @@
                     data.activestatusvalue = activestatusvalue;
                 }
 
-                if (fromdate == '' && todate == '' && pincode == '' && reminder_status == '' && customer == '' &&
-                    city == '' &&
-                    area == '' && last_service == '' &&
-                    next_reminder == '' && activestatusvalue == '') {
-                    loaddata();
-                }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || pincode != '' || reminder_status !=
-                    '' || customer != '' || city != '' || area != '' ||
-                    last_service != '' || next_reminder != '' || activestatusvalue != '') {
-                    loadershow();
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('reminder.index') }}",
-                        data: data,
-                        success: function(response) {
-                            if (response.status == 200 && response.reminder != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.reminder, function(key, value) {
-                                    $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.name}
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                                        </span>  
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-city pr-2"></i></b>
-                                                             ${value.city_name}
-                                                        </span>  
-                                                    </td>
-                                                    <td>
-                                                        <select class="reminder_status form-control" data-original-value="${value.reminder_status}" data-reminder_status_id=${value.id} id="reminder_status_${value.id}" name="reminder_status_${value.id}">
-                                                           <option value='pending'>Pending</option>
-                                                           <option value='in_progress'>In Progress</option>
-                                                           <option value='completed'>Completed</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>${value.created_at_formatted}</td>
-                                                    <td>${value.next_reminder_date}</td>
-                                                    <td>${value.area}</td>
-                                                    <td>${value.pincode}</td>
-                                                    <td>
-                                                        <span>
-                                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.remindermodule.reminder.edit') == '1')
-                                                            <span>
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button> 
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.remindermodule.reminder.delete') == '1')
-                                                            <span>
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
-                                                </tr>`);
-                                    $('#reminder_status_' + value.id).val(value
-                                        .reminder_status);
-                                    id++;
-                                });
-                                var search = {!! json_encode($search) !!}
+                loaddata(data);
 
-                                $('#data').DataTable({
-
-                                    "search": {
-                                        "search": search
-                                    },
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                            } else if (response.status == 500) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: response.message
-                                });
-                            } else {
-                                $('#tabledata').html(`<tr><td colspan='8' >No Data Found</td></tr>`);
-                            }
-                            loaderhide();
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                            reject(errorMessage);
-                        }
-                    });
-                }
             }
 
 
             $('.advancefilter').on('change', function() {
                 advancefilters();
             });
+
             $('.filtersubmit').on('click', function(e) {
                 e.preventDefault();
                 advancefilters();
@@ -1204,26 +1063,12 @@
                 $('#invaliddate').text(' ');
 
                 $('#customer option').prop('selected', false);
-                if ($("#customer option:not(:disabled)").length > 0) {
-                    $("#customer").prepend(
-                        '<option value="" disabled selected>-- Select Customer --</option>');
-                }
-                $('#customer option:first').prop('selected', true);
                 $('#customer').multiselect('refresh');
 
                 $('#city option').prop('selected', false);
-                if ($("#city option:not(:disabled)").length > 0) {
-                    $("#city").prepend('<option value="" disabled selected>-- Select City --</option>');
-                }
-                $('#city option:first').prop('selected', true);
                 $('#city').multiselect('refresh');
 
                 $('#reminder_status option').prop('selected', false);
-                if ($("#reminder_status option:not(:disabled)").length > 0) {
-                    $("#reminder_status").prepend(
-                        '<option value="" disabled selected>-- Select Reminder Status --</option>');
-                }
-                $('#reminder_status option:first').prop('selected', true);
                 $('#reminder_status').multiselect('refresh');
                 advancefilters();
             });
@@ -1242,28 +1087,6 @@
                 $('#customer option').prop('selected', false);
                 $('#city option').prop('selected', false);
                 $('#reminder_status option').prop('selected', false);
-
-                // prepend disabled option if it doesnt exist
-                if ($("#area option:not(:disabled)").length > 0) {
-                    $("#area").prepend('<option value="" disabled selected>-- Select Area --</option>');
-                }
-                if ($("#reminder_status option:not(:disabled)").length > 0) {
-                    $("#reminder_status").prepend(
-                        '<option value="" disabled selected>-- Select Reminder Status --</option>');
-                }
-                if ($("#customer option:not(:disabled)").length > 0) {
-                    $("#customer").prepend(
-                        '<option value="" disabled selected>-- Select Customer --</option>');
-                }
-                if ($("#city option:not(:disabled)").length > 0) {
-                    $("#city").prepend('<option value="" disabled selected>-- Select City --</option>');
-                }
-
-                // Check only the first option
-                $('#area option:first').prop('selected', true);
-                $('#customer option:first').prop('selected', true);
-                $('#city option:first').prop('selected', true);
-                $('#reminder_status option:first').prop('selected', true);
 
                 // Refresh the multiselect dropdown to reflect changes
                 $('#area').multiselect('refresh');

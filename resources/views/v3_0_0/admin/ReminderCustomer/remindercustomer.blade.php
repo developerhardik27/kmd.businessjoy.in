@@ -53,7 +53,7 @@
 @endif
 @section('table-content')
     <table id="data"
-        class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
+        class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Id</th>
@@ -65,7 +65,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tabledata">
 
         </tbody>
     </table>
@@ -117,75 +117,81 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
+                        if($.fn.dataTable.isDataTable('#data')){
+                            $('#data').DataTable().clear().destroy();
+                        }
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.customer != '') {
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
                             $.each(response.customer, function(key, value) {
-                                $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td>${value.name}</td>
-                                                    <td>${value.contact_no}</td>
-                                                    <td>${value.customer_type}</td>
-                                                    <td>${value.area}</td>
-                                                    <td>
-                                                        @if (session('user_permissions.remindermodule.remindercustomer.view') == '1')
-                                                            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
-                                                                <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                                    <i class="ri-indent-decrease"></i>
-                                                                </button>
-                                                            </span>
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Reminder History">
-                                                                <button data-toggle="modal" data-target="#viewreminder" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewreminderhistory' >
-                                                                    <i class='ri-eye-fill'></i>
-                                                                </button>
-                                                            </span>
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Reminders">
-                                                                <button class="btn btn-sm btn-info viewonreminderpage" data-id='${value.id}'><i class="ri-alarm-line"></i></button>
-                                                            </span>
-                                                        @else
-                                                          -    
-                                                        @endif
-                                                    </td>
-                                                    @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1' ||
-                                                            session('user_permissions.remindermodule.remindercustomer.delete') == '1')
-                                                        <td>
-                                                            @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1')
-                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                    <a href='EditReminderCustomer/${value.id}'>
-                                                                        <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                            <i class="ri-edit-fill"></i>
-                                                                        </button>
-                                                                    </a>
-                                                                </span>
-                                                            @endif
-                                                            @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1')
-                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                    <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                                        <i class="ri-delete-bin-fill"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @endif
-                                                        </td>
-                                                    @else
-                                                        <td> - </td>  
-                                                    @endif
-                                                    
-                                                </tr>`);
+                                var editReminderCustomerUrl = "{{route('admin.editremindercustomer','__editid__')}}".replace('__editid__',value.id);
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.name}</td>
+                                        <td>${value.contact_no}</td>
+                                        <td>${value.customer_type}</td>
+                                        <td>${value.area}</td>
+                                        <td>
+                                            @if (session('user_permissions.remindermodule.remindercustomer.view') == '1')
+                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
+                                                    <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                        <i class="ri-indent-decrease"></i>
+                                                    </button>
+                                                </span>
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Reminder History">
+                                                    <button data-toggle="modal" data-target="#viewreminder" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewreminderhistory' >
+                                                        <i class='ri-eye-fill'></i>
+                                                    </button>
+                                                </span>
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Reminders">
+                                                    <button class="btn btn-sm btn-info viewonreminderpage" data-id='${value.id}'><i class="ri-alarm-line"></i></button>
+                                                </span>
+                                            @else
+                                                -    
+                                            @endif
+                                        </td>
+                                        @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1' ||
+                                                session('user_permissions.remindermodule.remindercustomer.delete') == '1')
+                                            <td>
+                                                @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                                        <a href='${editReminderCustomerUrl}'>
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
+                                                            </button>
+                                                        </a>
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        @else
+                                            <td> - </td>  
+                                        @endif         
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
+                                responsive: true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
+                                title: response.message || 'No record found!'
+                            }); 
+                            $('#data').DataTable();
                         }
                         loaderhide();
                     },

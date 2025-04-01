@@ -188,7 +188,7 @@
                                                     placeholder="Enter your Invoice Terms & Conditions..."></textarea>
                                                 <span class="error-msg" id="error-t_and_c" style="color: red"></span>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-6 text-right text-md-left">
                                                 <button type="submit" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Submit Terms & Conditions"
                                                     class="btn btn-primary">Submit</button>
@@ -268,7 +268,7 @@
                                         </div>
                                         <div class="form-group">
                                             <div class="form-row">
-                                                <div class="col-sm-12">
+                                                <div class="col-sm-12 mt-2">
                                                     <button type="button" data-toggle="tooltip"
                                                         id="othersetting-cancelbtn" data-placement="bottom"
                                                         data-original-title="Cancel"
@@ -346,7 +346,7 @@
                                         </div>
                                         <div class="form-group">
                                             <div class="form-row">
-                                                <div class="col-sm-12">
+                                                <div class="col-sm-12 mt-2">
                                                     <button type="button" id="gst-cancelbtn" data-toggle="tooltip"
                                                         data-placement="bottom" data-original-title="Cancel"
                                                         class="btn btn-secondary float-right">Cancel</button>
@@ -409,7 +409,7 @@
                                             </div>
                                         </div>
                                         <div class="form-row">
-                                            <div class="col-sm-12">
+                                            <div class="col-sm-12 mt-2">
                                                 <button type="btn" id="cancelcustomeridBtn" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>

@@ -353,7 +353,7 @@ class customerController extends commonController
     {
         $customer = $this->customerModel::find($id);
         
-        if ($customer) { 
+        if (!$customer) { 
             return $this->successresponse(404, 'message', 'No Such customer Found!');
         }
 
@@ -369,6 +369,7 @@ class customerController extends commonController
         $customer->update([
             'is_active' => $request->status
         ]);
+        
         return $this->successresponse(200, 'message', 'customer status succesfully updated');
     }
     /**

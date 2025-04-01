@@ -75,8 +75,7 @@
         </div>
     </form>
     <hr>
-    <table id="data"
-        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
+    <table id="data" class="table table-bordered display table-striped w-100">
         <thead>
             <tr>
                 <th>Sr</th>
@@ -128,44 +127,49 @@
                         user_id: "{{ session()->get('user_id') }}"
                     },
                     success: function(response) {
+                        // if response has data then it will be append into list table
+                        if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.blogcategory != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             $.each(response.blogcategory, function(key, value) {
-                                $('#tabledata').append(` <tr>
-                                                        <td>${id}</td>
-                                                        <td>${value.cat_name}</td>
-                                                        <td>  
-                                                            <span>
-                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Category" data-id='${value.id}'
-                                                                     class="btn edit-btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                            <span>
-                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Category" data-id= '${value.id}'
-                                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        </td>
-                                                    </tr>`)
+                                $('#tabledata').append(` 
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.cat_name}</td>
+                                        <td>  
+                                            <span>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Category" data-id='${value.id}'
+                                                        class="btn edit-btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </span>
+                                            <span>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Category" data-id= '${value.id}'
+                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
+                                                    <i class="ri-delete-bin-fill"></i>
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `);
                                 id++;
                             });
                             $('#data').DataTable({
+                                responsive: true,
                                 "destroy": true, //use for reinitialize datatable
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
+                                title: response.message || 'No record found!'
                             });
-                        } else {
-                            $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
+                            $('#data').DataTable();
                         }
                         loaderhide();
                         // You can update your HTML with the data here if needed

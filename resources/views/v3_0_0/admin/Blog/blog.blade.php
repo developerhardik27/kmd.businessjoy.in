@@ -53,8 +53,7 @@
 @endsection
 
 @section('table-content')
-    <table id="data"
-        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
+    <table id="data" class="table table-bordered display table-striped w-100">
         <thead>
             <tr>
                 <th>Id</th>
@@ -84,7 +83,7 @@
             // response status == 422 that means api has not got valid or required data
 
             var global_response = '';
-            // load bank details data in table 
+            // load blog in table 
             function loaddata() {
                 loadershow();
                 $.ajax({
@@ -97,13 +96,16 @@
                     },
                     success: function(response) {
                         // if response has data then it will be append into list table
+                        if($.fn.dataTable.isDataTable('#data')){
+                            $('#data').DataTable().clear().destroy(); 
+                        }
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.blog != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             // You can update your HTML with the data here if needed
                             global_response = response;
                             var id = 1;
                             $.each(response.blog, function(key, value) {
+                                var editBlogUrl = "{{route('admin.editblog','__editid__')}}".replace('__editid__',value.id);
                                 $('#tabledata').append(`
                                     <tr>
                                         <td>${id}</td>
@@ -131,7 +133,7 @@
                                                 @endif 
                                                 @if (session('user_permissions.blogmodule.blog.edit') == '1')
                                                     <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                        <a href='EditBlog/${value.id}'>
+                                                        <a href='${editBlogUrl}'>
                                                             <button type="button" class="btn btn-success btn-rounded btn-sm my-0 mb-2">
                                                                 <i class="ri-edit-fill"></i>
                                                             </button>
@@ -160,15 +162,15 @@
                                 "search": {
                                     "search": search
                                 },
+                                responsive:true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) { // if database not found
+                        } else { // if database not found
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else { // if request has not found any bank details record
-                            $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
+                                title: response.message || 'No record found!'
+                            }); 
+                            $('#data').DataTable();
                         }
                         loaderhide();
                     },

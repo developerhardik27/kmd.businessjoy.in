@@ -378,7 +378,7 @@ class tblleadController extends commonController
 
     public function changeleadstage(Request $request)
     {
-        $lead = $this->tblleadModel::find('id', $request->leadstageid);
+        $lead = $this->tblleadModel::find($request->leadstageid);
         if (!$lead) {
             return $this->successresponse(404, 'message', 'No Such Lead Stage Found!');
         }

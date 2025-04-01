@@ -81,7 +81,7 @@ class QuotationController extends Controller
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.Quotation.quotationmanagecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
-        return view($this->version . '.admin.Quotation.Quotation.quotationform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.Quotation.quotationform    ', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
 
 

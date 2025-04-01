@@ -16,7 +16,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}" required />
                     <input type="hidden" name="user_id" class="form-control" value="{{ $user_id }}" required>
@@ -25,67 +25,51 @@
                         required>
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="email">Email (Company Email)</label>
                     <input type="email" name="email" class="form-control" id="email"
                         placeholder="Enter Company Email" autocomplete="off" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="email_default_user">Email (Default User)</label><span style="color:red;">*</span>
                     <input type="email" name="email_default_user" class="form-control" id="email_default_user"
                         placeholder="Enter User Email" autocomplete="off" required />
                     <span class="error-msg" id="error-email_default_user" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
                     <input type="tel" name="contact_number" class="form-control" id="contact_no"
                         placeholder="0123456789" required />
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="gst">GST Number</label>
                     <input type="text" id='gst' name="gst_number" class="form-control" placeholder="GST Number" />
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="country">Select Country</label><span style="color:red;">*</span>
                     <select class="form-control" name="country" id="country" required>
                         <option selected="" disabled="">Select your Country</option>
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="state" required>Select State</label><span style="color:red;">*</span>
                     <select class="form-control" name="state" id="state">
                         <option selected disabled="">Select your State</option>
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="city">Select City</label><span style="color:red;">*</span>
                     <select class="form-control" name="city" id="city" required>
                         <option selected disabled="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="pincode">Pincode</label><span style="color:red;">*</span>
                     <input type="text" name="pincode" id='pincode' class="form-control" placeholder="Pin Code"
                         required />
@@ -93,55 +77,43 @@
                 </div>
                 @if (Session::has('user_permissions.adminmodule.company.max') &&
                         session('user_permissions.adminmodule.company.max') == '1')
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 mb-2">
                         <label for="pincode">Max Users</label><span style="color:red;">*</span>
                         <input type="text" name="maxuser" id='maxuser' class="form-control"
                             placeholder="Max Users" value="5" required />
                         <span class="error-msg" id="error-maxuser" style="color: red"></span>
                     </div>
-                @endif
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                @endif 
+                <div class="col-sm-6 mb-2">
                     <label for="house_no_building_name">House no./ Building Name</label><span class="requiredinputspan"
                         style="color:red;">*</span>
                     <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
                         rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                     <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="road_name_area_colony">Road Name/Area/Colony</label><span class="requiredinputspan"
                         style="color:red;">*</span>
                     <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"
                         placeholder="e.g. sardar patel road, jagatpur"></textarea>
                     <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="img">Company Logo Image</label><br>
                     <input type="file" class="form-control-file" name="img" id="img" width="100%" />
                     <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB</p>
                     <span class="error-msg" id="error-img" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="sign_img">Company Signature Image</label><br>
                     <input type="file" class="form-control-file" name="sign_img" id="sign_img" width="100%" />
                     <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB.</p>
                     <span class="error-msg" id="error-sign_img" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">
-                        <i class='ri-close-line'></i>
+                        Cancel
                     </button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset"
                         class="btn iq-bg-danger float-right mr-2">

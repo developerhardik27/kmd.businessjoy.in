@@ -23,7 +23,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
                         placeholder="company_id" required />
                     <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
@@ -35,34 +35,26 @@
                        value="{{session('user.firstname')}}" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="last_name">Last Name:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name"
                     value="{{session('user.lastname')}}" required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="email">Email:</label><span style="color:red;"> *</span>
                     <input type="email" class="form-control" name="email" id="email"
                         value="{{session('user.email')}}"   placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
                     value="{{session('user.contact_no')}}" placeholder="Whatsapp Mobile Number" minlength="10" maxlength="15"
                         onkeypress="return isNumberKey(event);" onkeyup="numberMobile(event);" required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="issuetype">Issue Type:</label><span style="color:red;"> *</span>
                     <select name="issuetype" class="form-control" id="issuetype">
                         <option value="" disabled>Select Issue Type</option>
@@ -71,7 +63,7 @@
                     </select>
                     <span class="error-msg" id="error-issuetype" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="modulename">Module Name:</label><span style="color:red;"> *</span>
                     <select name="modulename" class="form-control" id="modulename">
                         <option value="" disabled selected>Select Module</option>
@@ -98,12 +90,8 @@
                         @endif
                     </select>
                     <span class="error-msg" id="error-modulename" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="attachment">Attachments</label><br>
                     <input type="file" name="attachment[]" multiple id="attachment" width="100%" />
                     <p class="text-primary">
@@ -111,21 +99,13 @@
                         than 10 MB.
                     </p>
                     <span class="error-msg" id="error-attachment" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                </div> 
+                <div class="col-sm-12 mb-2">
                     <label class="form-label" for="description">Description:</label><span style="color:red;"> *</span>
                     <textarea name="description" placeholder="description" class="form-control" id="description" cols=""
                         rows="2"></textarea>
                     <span class="error-msg" id="error-description" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="button" id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
                     <button type="reset" class="btn iq-bg-danger float-right mr-2">Reset</button>
@@ -176,19 +156,7 @@
                 loadershow();
                 window.location.href = "{{ route('admin.techsupport') }}";
             });
-
-            // add/remove disabled option dynamically
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
-
+ 
             // intialize summernote editor for description
             $('#description').summernote({
                 toolbar: [
@@ -224,6 +192,7 @@
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
                         $('#assignedto').multiselect({
+                                nonSelectedText : '-- Select Assigned To --',
                                 enableFiltering: true,
                                 includeSelectAllOption: true,
                                 enableCaseInsensitiveFiltering: true

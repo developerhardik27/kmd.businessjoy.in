@@ -37,13 +37,12 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
-
-        table tr{
+ 
+        .clickable-row {
             cursor: pointer;
         }
-
-        .clickable-row{
-            cursor: pointer;
+        .clickable-row:hover{
+            text-decoration: underline;
         }
     </style>
 @endsection
@@ -60,7 +59,7 @@
 @endif
 
 @section('table-content')
-    <table id="data" class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-striped text-center">
+    <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Purchase Order</th>
@@ -109,16 +108,18 @@
                             global_response = response;
                             // You can update your HTML with the data here if needed     
                             $.each(response.purchase, function(key, value) {
-                                var viewPurchaseUrl = "{{route('admin.viewpurchase','__id__')}}".replace('__id__', value.id);
-                                var received = value.accepted + value.rejected ;
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', value.id);
+                                var received = value.accepted + value.rejected;
                                 $('#tabledata').append(`
-                                    <tr class="clickable-row" data-target="${viewPurchaseUrl}">
-                                        <td>#PO${value.id}</td>
-                                        <td>${value.suppliername || '-'}</td>
-                                        <td>${value.is_active == 0 ? 'Closed' : `${value.status}` }</td>
-                                        <td>${received} of ${value.total_items}</td>
-                                        <td>${value.currency_symbol} ${value.total}</td>
-                                        <td>${value.estimated_arrival_formatted || ''}</td>
+                                    <tr>
+                                        <td><span class="clickable-row" data-target="${viewPurchaseUrl}">#PO${value.id}</span></td>
+                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.suppliername || '-'}</td>
+                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.is_active == 0 ? 'Closed' : `${value.status}` }</td>
+                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${received} of ${value.total_items}</td>
+                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.currency_symbol} ${value.total}</td>
+                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.estimated_arrival_formatted || ''}</td>
                                     </tr>
                                 `);
 
@@ -132,15 +133,15 @@
                                 "search": {
                                     "search": search
                                 },
+                                responsive: true,
                                 "destroy": true, //use for reinitialize datatable
-                                "order" : [],
-                            });
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
+                                "order": [],
                             });
                         } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message ||'No record found!'
+                            }); 
                             // After appending "No Data Found", re-initialize DataTable so it works properly
                             $('#data').DataTable({});
                         }
@@ -168,7 +169,7 @@
             //call function for load purchase in table
             loaddata();
 
-            $(document).on('click','.clickable-row',function(){
+            $(document).on('click', '.clickable-row', function() {
                 target = $(this).data('target');
 
                 window.location.href = target;

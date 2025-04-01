@@ -42,7 +42,7 @@
                         placeholder="Column Width(%)" required />
                     <span class="error-msg" id="error-column_width" style="color: red"></span>
                 </div>
-                <div class="col-sm-2 mt--2">
+                <div class="col-12 text-right">
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Submit Column Details" class="btn btn-primary">Save</button>
                     <button type="reset" class="btn iq-bg-danger mr-2" data-toggle="tooltip" data-placement="bottom"
@@ -141,7 +141,7 @@
                                                         <td>${value.column_name}</td>
                                                         <td>${value.column_type}</td>
                                                         <td>${value.column_width}</td>
-                                                        <td><input type='number' min=1 oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Sequence' data-id='${value.id}' value="${value.column_order}" class='columnorder'></td>
+                                                        <td><input type='number' min=1 oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Sequence' data-id='${value.id}' value="${value.column_order}" class='columnorder form-control'></td>
                                                         <td>
                                                             <span>
                                                                 <button type="button"data-toggle="tooltip" data-placement="bottom" data-original-title="${(value.is_hide == 0 )? 'Hide Column' : 'Show Column' }" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'

@@ -124,11 +124,11 @@
 
 
         /* .multiselect-container {
-                                                    width: 300px;
-                                                    max-height: 300px;
-                                                    overflow: auto;
-                                                }
-                                            */
+                                                            width: 300px;
+                                                            max-height: 300px;
+                                                            overflow: auto;
+                                                        }
+                                                    */
 
         .sidenav .btn-group {
             width: 100%;
@@ -244,8 +244,7 @@
 
 
 @section('table-content')
-    <table id="data"
-        class="table table-bordered w-100 table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
+    <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -273,8 +272,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form id="leadhistoryform">
+                <form id="leadhistoryform">
+                    <div class="modal-body">
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="leadid" id="leadid">
@@ -330,7 +329,7 @@
                             <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
                             </button>
                         </div>
-                </div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -730,13 +729,13 @@
             // get lead data and set in the table
             function loaddata(data = null) {
 
-               
-                if(data == null){  
-                     data = {
+
+                if (data == null) {
+                    data = {
                         user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                    } 
+                        company_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    }
                 }
 
                 loadershow();
@@ -745,7 +744,10 @@
                     url: "{{ route('lead.index') }}",
                     data: data,
                     success: function(response) {
-                        $('#data').DataTable().destroy();
+                        // if response has data then it will be append into list table
+                        if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
                         $('#tabledata').empty();
                         if (response.status == 200 && response.lead != '') {
                             global_response = response;
@@ -757,51 +759,52 @@
                                     <tr>
                                         <td>${id}</td>
                                         <td  class="text-left" >
-                                                ${value.company != null ? 
+                                            ${value.company != null ? 
                                                 `
                                                     <span class='d-flex mb-2'>
                                                         <b>
                                                             <i class='fas fa-building pr-2'></i>
                                                         </b>${value.company}
                                                     </span>
-                                                ` : '' }
-                                                <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                    <b><i class="fas fa-user pr-2"></i></b> ${name || '-'}
-                                                </span>
-                                                <span class='d-flex mb-2'>
-                                                    <b><i class="fas fa-envelope pr-2"></i></b>
-                                                    <a href="mailto:${value.email || ''}" style='text-decoration:none;'>${value.email || '-'}</a>
-                                                </span>
-                                                <span class='d-flex mb-2'>
-                                                    <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                    <a href="tel:${value.contact_no || ''}" style='text-decoration:none;'> ${value.contact_no || '-'}</a>
-                                                </span>  
-                                                <span class='d-flex mb-2'>
-                                                        @if (session('user_permissions.leadmodule.lead.edit') == '1')
-                                                            <select class="ml-1 status form-control" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                ${ 
-                                                                    leadstatusname.map(function(optionValue) {
-                                                                            return `<option value="${optionValue}">${optionValue}</option>`;
-                                                                        }).join('')
-                                                                }
-                                                            </select>
-                                                        @else
-                                                            -
-                                                        @endif
-                                                </span>    
+                                                ` : '' 
+                                            }
+                                            <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                <b><i class="fas fa-user pr-2"></i></b> ${name || '-'}
+                                            </span>
+                                            <span class='d-flex mb-2'>
+                                                <b><i class="fas fa-envelope pr-2"></i></b>
+                                                <a href="mailto:${value.email || ''}" style='text-decoration:none;'>${value.email || '-'}</a>
+                                            </span>
+                                            <span class='d-flex mb-2'>
+                                                <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                                <a href="tel:${value.contact_no || ''}" style='text-decoration:none;'> ${value.contact_no || '-'}</a>
+                                            </span>  
+                                            <span class='d-flex mb-2'>
+                                                    @if (session('user_permissions.leadmodule.lead.edit') == '1')
+                                                        <select class="ml-1 status form-control" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                            ${ 
+                                                                leadstatusname.map(function(optionValue) {
+                                                                        return `<option value="${optionValue}" ${optionValue == value.status ? 'selected' : ''}>${optionValue}</option>`;
+                                                                    }).join('')
+                                                            }
+                                                        </select>
+                                                    @else
+                                                        -
+                                                    @endif
+                                            </span>    
                                         </td>
                                         <td> 
                                             <select class="leadstage form-control" data-original-value="${value.lead_stage}" data-leadstageid="${value.id}" id="lead_stage_${value.id}" name="lead_stage_${value.id}">
                                                 ${ 
                                                     leadstagename.map(function(optionValue) {
-                                                            return `<option value="${optionValue}">${optionValue}</option>`;
+                                                            return `<option value="${optionValue}" ${optionValue == value.lead_stage ? 'selected' : ''}>${optionValue}</option>`;
                                                         }).join('')
                                                 }
                                             </select>
                                         </td> 
                                         <td>${value.created_at_formatted}</td>
                                         <td>${value.number_of_follow_up}</td>
-                                        <td>${value.source != null ? value.source : '-'}</td>
+                                        <td>${value.source || '-'}</td>
                                         <td>
                                             <span data-toggle="tooltip" data-placement="bottom" data-original-title='Add Call History'>
                                                 <button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}'  class='btn btn-sm btn-primary mx-0 my-1 leadid' ><i class='ri-time-fill'></i></button>
@@ -830,19 +833,18 @@
                                             @endif
                                         </td>    
                                     </tr>
-                                `);
-                                $('#status_' + value.id).val(value.status);
-                                $('#lead_stage_' + value.id).val(value.lead_stage);
+                                `);  
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 
-                            $('#data').DataTable({ 
+                            $('#data').DataTable({
                                 "search": {
                                     "search": search
                                 },
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else {
@@ -850,7 +852,7 @@
                                 icon: "error",
                                 title: response.message || 'No record found'
                             });
-                       
+
                             $('#data').DataTable();
                         }
                         loaderhide();
@@ -1157,7 +1159,7 @@
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
-                editLeadUrl = "{{route('admin.editlead','__editid__')}}".replace('__editid__',editid);
+                editLeadUrl = "{{ route('admin.editlead', '__editid__') }}".replace('__editid__', editid);
 
                 // console.log(data);
                 window.location.href = editLeadUrl;

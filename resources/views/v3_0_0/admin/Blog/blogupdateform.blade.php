@@ -28,7 +28,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="user_id" class="form-control" value="{{ $user_id }}" placeholder="user_id"
                         required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
@@ -40,84 +40,58 @@
                         placeholder="Title" required />
                     <span class="error-msg" id="error-title" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="slug">Slug</label><span style="color:red;">*</span>
                     <input type="text" readonly maxlength="100" name="slug" class="form-control" id="slug"
                         value="" placeholder="Slug" required />
                     <span class="error-msg" id="error-slug" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="meta_dsc">Meta Description</label>
                     <textarea name="meta_dsc" maxlength="200" placeholder="meta description" class="form-control" id="meta_dsc"
                         cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_dsc" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="meta_keywords">Meta Keywords</label>
                     <textarea name="meta_keywords" maxlength="200" placeholder="Enter comma-separated keywords e.g., abc,"
                         class="form-control" id="meta_keywords" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-meta_keywords" style="color: red"></span>
                     <p style="font-size: 0.9em; color: #666;">If provided, please enter keywords separated by commas.</p>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="category">Categories:</label> <span style="color:red;">*</span><br />
                     <select name="category[]" class="form-control multiple" id="category" multiple>
-                        <option value="" disabled selected>-- Select Category --</option>
                     </select>
                     <span class="error-msg" id="error-category" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="tag">Tag:</label> <span style="color:red;">*</span><br />
                     <select name="tag[]" class="form-control multiple" id="tag" multiple>
-                        <option value="" disabled selected>-- Select Tag --</option>
                     </select>
                     <span class="error-msg" id="error-tag" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                </div> 
+                <div class="col-sm-12 mb-2">
                     <label for="short_description">Short Description</label>
                     <textarea name="short_description" maxlength="250" placeholder="Blog Short Description" class="form-control"
                         id="short_description" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-short_description" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                </div> 
+                <div class="col-sm-12 mb-2">
                     <label for="content">Content</label>
                     <textarea name="content" placeholder="Blog Content" class="form-control" id="content" cols=""
                         rows="2"></textarea>
                     <span class="error-msg" id="error-content" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="blog_image">Thumbnail Image</label><br>
-                    <img src="" alt="" id="oldimg" width="100px">
+                    <img src="" alt="" id="oldimg" width="100px" class="mb-2">
                     <input type="file" accept=".jpg,.png,.jpeg" name="blog_image" id="blog_image" width="100%" />
                     <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 10 MB and
                         has dimensions of 600 x 400 px.
                     </p>
                     <span class="error-msg" id="error-blog_image" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="reset" id="resetBtn" data-toggle="tooltip" data-placement="bottom"
                         data-original-title="Reset" class="btn iq-bg-danger float-right">Reset</button>
@@ -299,40 +273,21 @@
             }
 
             initialize();
+
             $('#category').multiselect({
+                nonSelectedText : '-- Select Category --',
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
+
             $('#tag').multiselect({
+                nonSelectedText : '-- Select Tag --',
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
-
-
-            $('#category').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Category --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#category').multiselect('rebuild');
-            });
-
-            $('#tag').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Tag --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#tag').multiselect('rebuild');
-            });
-
+ 
 
             function loaddata() {
                 var edit_id = @json($edit_id);
@@ -466,19 +421,8 @@
                 e.preventDefault();
                 $(this).closest('form')[0].reset();
 
-                if ($('#category').find('option:disabled').length == 0) {
-                    $('#category').prepend(
-                        '<option selected disabled>-- Select Category --</option>'
-                    ); // prepend "Please choose an option"
-                }
-
                 $('#category').multiselect('rebuild');
-
-                if ($('#tag').find('option:disabled').length == 0) {
-                    $('#tag').prepend(
-                        '<option selected disabled>-- Select Tag --</option>'
-                    ); // prepend "Please choose an option"
-                }
+               
                 $('#tag').multiselect('rebuild');
 
                 $('#content').summernote('reset');

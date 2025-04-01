@@ -53,7 +53,7 @@
 
 @section('table-content')
     <table id="data"
-        class="table display table-bordered table-responsive-sm table-responsive-md table-striped text-center">
+        class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Id</th>
@@ -103,43 +103,54 @@
                             var id = 1;
                             // You can update your HTML with the data here if needed
                             $.each(response.product, function(key, value) {
-                                $('#tabledata').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td>${value.name}</td> 
-                                                    <td>${value.is_active == 1 ?  `<span class="badge border border-success text-success">Active</span>`:`<span class="badge border border-error text-error">InActive</span>`}</td>
-                                                    <td>
-                                                        ${value.track_quantity == 1 ? `<span ${value.available_stock < 10 ? `class="text-danger"` : ''} >${value.available_stock} in stock </span>`: 'Inventory not tracked'}
-                                                    </td>
-                                                    <td>
-                                                        ${value.category_name != null ? value.category_name : ''}
-                                                    </td>
-                                                    <td>
-                                                        ${value.product_type != null ? value.product_type : ''}
-                                                    </td>
-                                                    @if (session('user_permissions.inventorymodule.product.edit') == '1' ||
-                                                            session('user_permissions.inventorymodule.product.delete') == '1')
-                                                        <td>
-                                                            @if (session('user_permissions.inventorymodule.product.edit') == '1')
-                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                    <a href='EditProduct/${value.id}'>
-                                                                        <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                            <i class="ri-edit-fill"></i>
-                                                                        </button>
-                                                                    </a>
-                                                                </span>
-                                                            @endif
-                                                            @if (session('user_permissions.inventorymodule.product.delete') == '1')
-                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                    <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                                        <i class="ri-delete-bin-fill"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @endif    
-                                                        </td>
-                                                    @else
-                                                        <td> - </td>
-                                                    @endif   
-                                                </tr>`);
+                                var editProductUrl = "{{route('admin.editproduct','__editid__')}}".replace('__editid__',value.id);
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.name}</td> 
+                                        <td>${value.is_active == 1 ? 
+                                            `<span class="badge border border-success text-success">Active</span>`
+                                            :
+                                            `<span class="badge border border-error text-error">InActive</span>`}
+                                        </td>
+                                        <td>
+                                            ${value.track_quantity == 1 ? 
+                                                `<span ${value.available_stock < 10 ? `class="text-danger"` : ''}>${value.available_stock} in stock </span>`
+                                                : 
+                                                'Inventory not tracked'
+                                            }
+                                        </td>
+                                        <td>
+                                            ${value.category_name || ''}
+                                        </td>
+                                        <td>
+                                            ${value.product_type || ''}
+                                        </td>
+                                        @if (session('user_permissions.inventorymodule.product.edit') == '1' ||
+                                                session('user_permissions.inventorymodule.product.delete') == '1')
+                                            <td>
+                                                @if (session('user_permissions.inventorymodule.product.edit') == '1')
+                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                                        <a href='${editProductUrl}'>
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
+                                                            </button>
+                                                        </a>
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.inventorymodule.product.delete') == '1')
+                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif    
+                                            </td>
+                                        @else
+                                            <td> - </td>
+                                        @endif   
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
@@ -150,14 +161,14 @@
                                 "search": {
                                     "search": search
                                 },
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
+                                title: response.message || 'No record found!'
+                            }); 
                              // After appending "No Data Found", re-initialize DataTable so it works properly
                             $('#data').DataTable({}); 
                         }

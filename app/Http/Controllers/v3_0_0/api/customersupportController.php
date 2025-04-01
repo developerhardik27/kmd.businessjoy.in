@@ -29,7 +29,7 @@ class customersupportController extends commonController
         $this->customer_supportModel = $this->getmodel('customer_support');
 
     }
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -88,7 +88,7 @@ class customersupportController extends commonController
         return $this->successresponse(200, 'customersupport', $customersupport);
 
     }
-  
+
     /**
      * Store a newly created resource in storage.
      */
@@ -293,31 +293,34 @@ class customersupportController extends commonController
     // change status  
     public function changestatus(Request $request)
     {
-        $customersupport = $this->customer_supportModel::where('id', $request->statusid)->get();
+        $customersupport = $this->customer_supportModel::find($request->statusid);
+
+
+        if (!$customersupport) {
+            return $this->successresponse(404, 'message', 'No Such customersupport Found!');
+        }
 
         if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
             if ($customersupport[0]->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
+
         if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        if ($customersupport) {
+ 
+        $this->customer_supportModel::where('id', $request->statusid)
+            ->update(['status' => $request->statusvalue]);
 
-            $this->customer_supportModel::where('id', $request->statusid)
-                ->update(['status' => $request->statusvalue]);
+        return $this->successresponse(200, 'message', 'status Succesfully Updated');
 
-            return $this->successresponse(200, 'message', 'status Succesfully Updated');
-        } else {
-            return $this->successresponse(404, 'message', 'No Such customersupport Found!');
-        }
     }
 
     public function changecustomersupportstage(Request $request)
     {
-        $customersupport = $this->customer_supportModel::where('id', $request->customersupportstageid)->get();
+        $customersupport = $this->customer_supportModel::find($request->customersupportstageid);
 
         if (!$customersupport) {
             return $this->successresponse(404, 'message', 'No Such Lead Stage Found!');
@@ -328,6 +331,7 @@ class customersupportController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
+        
         if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }

@@ -20,13 +20,20 @@
     <!-- Responsive CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/responsive.css') }}">
     <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/r/ju-1.11.4/jqc-1.11.3,dt-1.10.8/datatables.min.css" />
+        href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
+        <link rel="stylesheet" type="text/css" 
+      href="https://cdn.datatables.net/responsive/3.0.0/css/responsive.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <link rel="stylesheet" href="{{ asset('admin/css/summernote-bs4.css') }}">
     <!-- Dropzone CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css" rel="stylesheet">
 
     <style>
+
+        .dt-type-numeric{
+            text-align: left !important;
+        }
+
         .button-container {
             position: relative;
             display: inline-block;
