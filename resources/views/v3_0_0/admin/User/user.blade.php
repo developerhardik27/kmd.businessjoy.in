@@ -53,7 +53,7 @@
 
 @section('table-content')
     <table id="data"
-        class="dataTable display no-footer table table-bordered table-responsive table-responsive-lg table-responsive-md table-responsive-sm table-responsive-xl table-striped text-center">
+        class="dataTable display table table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Id</th>
@@ -71,6 +71,9 @@
                 <th>Action</th>
             </tr>
         </thead>
+        <tbody id="tabledata">
+
+        </tbody>
     </table>
 @endsection
 
@@ -95,6 +98,12 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
+                        if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        } 
+
+                        // Clear the existing table body
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.user != '') {
                             global_response = response;
                             var id = 1;
@@ -103,85 +112,95 @@
                                 var userLogin =
                                     "{{ route('admin.superadminloginfromanyuser', '__userId__') }}"
                                     .replace('__userId__', value.id);
-                                $('#data').append(`<tr>
-                                                        <td>${id}</td>
-                                                        <td>${value.firstname  != null ? value.firstname : '-'}</td>
-                                                        <td> ${value.lastname != null ? value.lastname  : '-'} </td>
-                                                        <td>${value.email != null ? value.email : '-'}</td>
-                                                        <td>${value.contact_no != null ? value.contact_no : '-'}</td>
-                                                        <td>${value.company_name != null ? value.company_name : '-'}</td>
-                                                        <td>${value.user_role != null ? value.user_role : '-'}</td>
-                                                        <td>
-                                                            @if (session('user_permissions.adminmodule.user.edit') == '1') 
-                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
-                                                            @else
-                                                              -
-                                                            @endif
-                                                        </td>
-                                                        @if (session('user_id') == 1)
-                                                            <td>
-                                                                <span>
-                                                                    <a href="${userLogin}" class="view-btn btn btn-outline-primary btn-rounded btn-sm my-0">
-                                                                        Login
-                                                                    </a>
-                                                                </span>
-                                                            </td>    
-                                                        @endif
-                                                        <td>
-                                                            @if (session('user_permissions.adminmodule.user.view') == '1') 
-                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View User Details">
-                                                                    <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                                        <i class="ri-indent-decrease"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @else
-                                                              -    
-                                                            @endif
-                                                        </td>
-                                                        @if (session('user_permissions.adminmodule.user.edit') == '1' ||
-                                                                session('user_permissions.adminmodule.user.delete') == '1')
-                                                            <td>
-                                                                @if (session('user_permissions.adminmodule.user.edit') == '1') 
-                                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                        <a href='EditUser/${value.id}'>
-                                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                                <i class="ri-edit-fill"></i>
-                                                                            </button>
-                                                                        </a>
-                                                                    </span>
-                                                                @endif
-                                                                @if (session('user_permissions.adminmodule.user.delete') == '1') 
-                                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                                            <i class="ri-delete-bin-fill"></i>
-                                                                        </button>
-                                                                    </span>
-                                                                @endif
-                                                            </td>
-                                                        @else
-                                                          <td> - </td>  
-                                                        @endif    
-                                                    </tr>`)
+                                var editUserUrl = "{{route('admin.edituser','__userid__')}}".replace('__userid__',value.id);   
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.firstname || '-'}</td>
+                                        <td> ${value.lastname || '-'} </td>
+                                        <td>${value.email || '-'}</td>
+                                        <td>${value.contact_no || '-'}</td>
+                                        <td>${value.company_name || '-'}</td>
+                                        <td>${value.user_role || '-'}</td>
+                                        <td>
+                                            @if (session('user_permissions.adminmodule.user.edit') == '1') 
+                                                ${value.is_active == 1 ? 
+                                                    `<div id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive"> 
+                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
+                                                    </div>`  
+                                                    : 
+                                                    `<div id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
+                                                        <button data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>
+                                                    </div>`
+                                                }
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        @if (session('user_id') == 1)
+                                            <td>
+                                                <span>
+                                                    <a href="${userLogin}" class="view-btn btn btn-outline-primary btn-rounded btn-sm my-0">
+                                                        Login
+                                                    </a>
+                                                </span>
+                                            </td>    
+                                        @endif
+                                        <td>
+                                            @if (session('user_permissions.adminmodule.user.view') == '1') 
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View User Details">
+                                                    <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                        <i class="ri-indent-decrease"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -    
+                                            @endif
+                                        </td>
+                                        @if (session('user_permissions.adminmodule.user.edit') == '1' ||
+                                                session('user_permissions.adminmodule.user.delete') == '1')
+                                            <td>
+                                                @if (session('user_permissions.adminmodule.user.edit') == '1') 
+                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                                        <a href="${editUserUrl}">
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
+                                                            </button>
+                                                        </a>
+                                                    </span>
+                                                @endif
+                                                @if (session('user_permissions.adminmodule.user.delete') == '1') 
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        @else
+                                            <td> - </td>  
+                                        @endif    
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             var search = {!! json_encode($search) !!}
 
-                            $('#data').DataTable({
-
+                            $('#data').DataTable({ 
                                 "search": {
                                     "search": search
                                 },
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
+                                title: response.message || 'No record found!'
                             });
-                        } else {
-                            $('#data').append(`<tr><td colspan='10' >No Data Found</td></tr>`);
+                            $('#data').DataTable();
                         }
                         loaderhide();
                     },

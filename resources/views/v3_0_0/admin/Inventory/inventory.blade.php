@@ -64,8 +64,7 @@
 
 
 @section('table-content')
-    <table id="data"
-        class="table display table-bordered table-responsive-sm table-responsive-md table-striped text-center">
+    <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Product</th>
@@ -507,15 +506,15 @@
                             });
 
                             $('#data').DataTable({
+                                'responsive' : true,
                                 "destroy": true, //use for reinitialize datatable
                                 "order": [] // Disable column sorting by default
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
+                                title: response.message || 'No record found!'
+                            }); 
                             // After appending "No Data Found", re-initialize DataTable so it works properly
                             $('#data').DataTable({});
                         }

@@ -54,7 +54,7 @@
 @endif
 @section('table-content')
     <table id="data"
-        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
+        class="table table-bordered display table-striped w-100">
         <thead>
             <tr>
                 <th>Id</th>
@@ -122,8 +122,13 @@
                                         <td>
                                             @if (session('user_permissions.inventorymodule.productcategory.edit') == '1')
                                                 ${value.is_active == 1 ? 
-                                                    '<span id=status_'+value.id+' data-toggle="tooltip" data-placement="bottom" data-original-title="InActive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></span>' : 
-                                                    '<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_'+value.id+'><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></span>'
+                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="InActive">
+                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
+                                                    </span>` 
+                                                    : 
+                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
+                                                        <button data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>
+                                                    </span>`
                                                 }
                                             @else
                                                 -
@@ -133,7 +138,7 @@
                                             @if (session('user_permissions.inventorymodule.productcategory.edit') == '1')
                                                 <span>
                                                     <a href="${productcategoryEditUrl}">
-                                                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit" type="button" data-id= '${value.id}' class="btn btn-success btn-rounded btn-sm my-0">
+                                                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit" type="button" data-id='${value.id}' class="btn btn-success btn-rounded btn-sm my-0">
                                                             <i  class="ri-edit-fill"></i>
                                                         </button>
                                                     </a>
@@ -158,22 +163,21 @@
 
                             // Reinitialize DataTable after rows are appended
                             $('#data').DataTable({
+                                responsive:true,
                                 "destroy": true, // Ensures DataTable is reinitialized
                             });
 
                             // Re-initialize tooltips (since new rows have been added)
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                             $('[data-toggle="tooltip"]').tooltip();
-                        } else if (response.status == 500) {
+                        } else {
                             // Show error message if no data found
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            // After appending "No Data Found", re-initialize DataTable so it works properly
-                            $('#data').DataTable({
+                                title: response.message || 'No record found!'
                             }); 
+                            // After appending "No Data Found", re-initialize DataTable so it works properly
+                            $('#data').DataTable({}); 
                         }
                         loaderhide();
                     },

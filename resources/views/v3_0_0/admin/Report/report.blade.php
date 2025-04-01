@@ -40,7 +40,7 @@
                                     @csrf
                                     <div class="form-group">
                                         <div class="form-row">
-                                            <div class="col-sm-3">
+                                            <div class="col-sm-3 mb-2">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
                                                 <input type="hidden" value="{{ $user_id }}" name="user_id"
@@ -52,7 +52,7 @@
                                                     required>
                                                 <span class="error-msg" id="error-fromdate" style="color: red"></span>
                                             </div>
-                                            <div class="col-sm-3">
+                                            <div class="col-sm-3 mb-2">
                                                 <label for="todate">To Date</label>
                                                 <input type="date" name="todate" id="todate" class="form-control"
                                                     required>

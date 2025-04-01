@@ -56,7 +56,7 @@
 @endif
 @section('table-content')
     <table id="data"
-        class="table display table-bordered table-responsive-lg table-responsive-xl table-striped text-center">
+        class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Quotation ID</th>
@@ -140,30 +140,19 @@
                         company_id: " {{ session()->get('company_id') }} "
                     },
                     success: function(response) {
+                        // Clear and destroy the existing DataTable instance
+                        if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
+
+                        // Clear the existing table body
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.quotation != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             global_response = response;
                             // You can update your HTML with the data here if needed
                             $.each(response.quotation, function(key, value) {
-                                var customer = '';
-                                if (value.firstname != null) {
-                                    customer += value.firstname;
-                                }
-
-                                if (value.lastname != null) {
-                                    if (customer.length > 0) {
-                                        customer +=
-                                            ' '; // Add space between firstname and lastname if both are present
-                                    }
-                                    customer += value.lastname;
-                                }
-                                if (value.company_name != null) {
-                                    if (customer.length > 0) {
-                                        customer += ' / '; // 
-                                    }
-                                    customer += value.company_name;
-                                }
+                                
+                                var customer = [value.firstname,value.lastname,value.company_name].join(' ');
 
                                 let quotationEditUrl =
                                     "{{ route('admin.editquotation', '__quotationId__') }}"
@@ -171,64 +160,66 @@
                                 let generateQuotationPdfUrl =
                                     "{{ route('quotation.generatepdf', '__quotationId__') }}"
                                     .replace('__quotationId__', value.id);
-                                $('#data').append(`<tr>
-                                                        <td>${value.quotation_number != null  ? value.quotation_number : '-' }</td>
-                                                        <td>${value.quotation_date_formatted}</td>
-                                                        <td>${customer}</td>
-                                                        <td>${value.currency_symbol} ${value.grand_total}</td>
-                                                        <td> 
-                                                            @if (session('user_permissions.quotationmodule.quotation.edit') == '1')
-                                                                <select data-status='${value.id}' data-original-value="${value.status}" class="status w-100 form-control" id="status_${value.id}" name="" required >
-                                                                    <option value='pending'>Pending Approval</option>
-                                                                    <option value='accepted'>Accepted</option>
-                                                                    <option value='rejected'>Rejected</option>
-                                                                    <option value='expired'>Expired</option>
-                                                                    <option value='revised'>Revised</option>
-                                                                </select>
-                                                            @else
-                                                              -    
-                                                            @endif
-                                                        </td> 
-                                                        <td>
-                                                             @if (session('user_permissions.quotationmodule.quotation.view') == '1')
-                                                                <span data-toggle="tooltip" data-placement="left" data-original-title="Download Quotation Pdf">
-                                                                    <a href=${generateQuotationPdfUrl} target='_blank' id='pdf'>
-                                                                        <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0 mb-2" ><i class="ri-download-line"></i></button>
-                                                                    </a>
-                                                                </span>
-                                                            @endif
-                                                            @if (session('user_permissions.quotationmodule.quotation.edit') == '1') 
-                                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Remarks"> 
-                                                                    <button type="button" data-toggle="modal" data-target="#remarksmodal" data-id='${value.id}'  class="remarks-btn btn btn-warning btn-rounded btn-sm my-0 mb-2">
-                                                                        <i class="ri-chat-smile-3-line"></i>
-                                                                    </button>
-                                                                </span>
-                                                                ${(value.is_editable == 1)?  
-                                                                        `   
-                                                                                                        <span>
-                                                                                                            <a href=${quotationEditUrl}>
-                                                                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                                                                                    <i class="ri-edit-fill"></i>
-                                                                                                                </button>
-                                                                                                            </a>
-                                                                                                        </span>
-                                                                                                    `
-                                                                    : ''
-                                                                }
-                                                            @endif
-                                                            @if (session('user_permissions.quotationmodule.quotation.delete') == '1')
-                                                                <span>
-                                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Quotation" class="del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
-                                                                        <i class="ri-delete-bin-fill"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @else
-                                                              -    
-                                                            @endif
-                                                        </td>
-                                                      
-                                                    </tr>`);
-                                $(`#status_${value.id}`).val(value.status);
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${value.quotation_number != null  ? value.quotation_number : '-' }</td>
+                                        <td>${value.quotation_date_formatted}</td>
+                                        <td>${customer}</td>
+                                        <td>${value.currency_symbol} ${value.grand_total}</td>
+                                        <td> 
+                                            @if (session('user_permissions.quotationmodule.quotation.edit') == '1')
+                                                <select data-status='${value.id}' data-original-value="${value.status}" class="status w-100 form-control" id="status_${value.id}" name="" required >
+                                                    <option value='pending' ${value.status == "pending" : 'selected' : ''}>Pending Approval</option>
+                                                    <option value='accepted' ${value.status == "accepted" : 'selected' : ''}>Accepted</option>
+                                                    <option value='rejected' ${value.status == "rejected" : 'selected' : ''}>Rejected</option>
+                                                    <option value='expired' ${value.status == "expired" : 'selected' : ''}>Expired</option>
+                                                    <option value='revised' ${value.status == "revised" : 'selected' : ''}>Revised</option>
+                                                </select>
+                                            @else
+                                                -    
+                                            @endif
+                                        </td> 
+                                        <td>
+                                            @if (session('user_permissions.quotationmodule.quotation.view') == '1')
+                                                <span data-toggle="tooltip" data-placement="left" data-original-title="Download Quotation Pdf">
+                                                    <a href=${generateQuotationPdfUrl} target='_blank' id='pdf'>
+                                                        <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0 mb-2" >
+                                                            <i class="ri-download-line"></i>
+                                                        </button>
+                                                    </a>
+                                                </span>
+                                            @endif
+                                            @if (session('user_permissions.quotationmodule.quotation.edit') == '1') 
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Remarks"> 
+                                                    <button type="button" data-toggle="modal" data-target="#remarksmodal" data-id='${value.id}'  class="remarks-btn btn btn-warning btn-rounded btn-sm my-0 mb-2">
+                                                        <i class="ri-chat-smile-3-line"></i>
+                                                    </button>
+                                                </span>
+                                                ${(value.is_editable == 1)?  
+                                                    `   
+                                                        <span>
+                                                            <a href=${quotationEditUrl}>
+                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                                                    <i class="ri-edit-fill"></i>
+                                                                </button>
+                                                            </a>
+                                                        </span>
+                                                    `
+                                                    : ''
+                                                }
+                                            @endif
+                                            @if (session('user_permissions.quotationmodule.quotation.delete') == '1')
+                                                <span>
+                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Quotation" class="del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -    
+                                            @endif
+                                        </td> 
+                                    </tr>
+                                `); 
                             });
 
                             var search = {!! json_encode($search) !!}
@@ -239,15 +230,15 @@
                                 "search": {
                                     "search": search
                                 },
+                                responsive: true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else  {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            $('#data').append(`<tr><td colspan='7'>No Data Found</td></tr>`);
+                                title: response.message || 'No record found!'
+                            }); 
+                            $('#data').DataTable({}); 
                         }
                         loaderhide();
                     },

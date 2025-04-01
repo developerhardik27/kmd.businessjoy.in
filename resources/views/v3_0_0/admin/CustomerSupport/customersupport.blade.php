@@ -159,14 +159,12 @@
     </div>
     <div class="col-md-12 text-right pr-5">
         <select class="advancefilter multiple form-control w-100 m-2" id="advancestatus" multiple="multiple">
-            <option disabled selected>-- Select status --</option>
             <option value='Open'>Open</option>
             <option value='In Progress'>In Progress</option>
             <option value='Resolved'>Resolved</option>
             <option value='Cancelled'>Cancelled</option>
         </select>
         <select name="assignedto" class="form-control multiple advancefilter m-2" id="assignedto" multiple>
-            <option value="" disabled selected>-- Select Assigned To --</option>
         </select>
         <!-- Use any element to open the sidenav -->
         <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()"
@@ -194,8 +192,7 @@
 
 
 @section('table-content')
-    <table id="data"
-        class="table table-bordered w-100  table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
+    <table id="data" class="table display table-bordered w-100  table-striped">
         <thead>
             <tr>
                 <th>Sr.</th>
@@ -224,8 +221,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form id="customersupporthistoryform">
+                <form id="customersupporthistoryform">
+                    <div class="modal-body">
                         <div class="row">
                             <input type="hidden" name="company_id" id="company_id">
                             <input type="hidden" name="csid" id="csid">
@@ -246,7 +243,6 @@
                             <div class="col-12 mt-2">
                                 Status:
                                 <select class="form-control" id="call_status" name="call_status">
-                                    <option disabled selected>status</option>
                                     <option value='Open'>Open</option>
                                     <option value='In Progress'>In Progress</option>
                                     <option value='Resolved'>Resolved</option>
@@ -265,10 +261,11 @@
                             <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 
     {{-- modal for view call history module  --}}
@@ -328,28 +325,6 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
-
-            $('#advancestatus').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select Status --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#advancestatus').multiselect('rebuild');
-            });
 
             $('#history_notes').summernote({
                 toolbar: [
@@ -465,100 +440,116 @@
             var global_response = '';
             // make multiple dropdown to designable multiple dropdown
             $('#assignedto').multiselect({
+                nonSelectedText: '-- Select Assigned To User --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
 
             $('#advancestatus').multiselect({
+                nonSelectedText: '-- Select Status --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
 
             // get and set customer support history list in the table
-            function loaddata() {
-                loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('customersupport.index') }}",
-                    data: {
+            function loaddata(data = null) {
+
+                if (data == null) {
+                    data = {
                         user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
-                    },
+                    }
+                }
+                loadershow();
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('customersupport.index') }}",
+                    data: data,
                     success: function(response) {
+                        // Clear and destroy the existing DataTable instance
+                        if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
+                        $('#tabledata').empty();
                         if (response.status == 200 && response.customersupport != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             global_response = response;
                             var id = 1;
                             $.each(response.customersupport, function(key, value) {
-                                var name = (value.first_name != null ? value.first_name :
-                                    '') + ' ' + (value.last_name != null ? value.last_name :
-                                    '')
-                                $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
-                                                        </span>
-                                                        <span class="d-flex mb-2">
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
-                                                        </span>  
-                                                    </td>
-                                                    <td>
-                                                        <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px;">
-                                                        <div> ${value.notes != null ? value.notes : '-'} </div>
-                                                        </span> 
-                                                    </td>
-                                                    <td>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
-                                                            <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                <option disabled selected>status</option>
-                                                                <option value='Open'>Open</option>
-                                                                <option value='In Progress'>In Progress</option>
-                                                                <option value='Resolved'>Resolved</option>
-                                                                <option value='Cancelled'>Cancelled</option>
-                                                            </select>
-                                                       @else
-                                                         -
-                                                       @endif
-                                                    </td>
-                                                    <td>
-                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add Call History"><button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button></span>
-                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Call History"><button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button></span>
-                                                    </td>
-                                                    <td>${value.created_at_formatted != null ? value.created_at_formatted : '-'}</td>
-                                                    <td>${value.number_of_call != null ? value.number_of_call : '-'}</td>
-                                                    <td>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
-                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                 <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                 </button>  
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
-                                                </tr>`)
-                                $('#status_' + value.id).val(value.status);
+                                var name = [value.first_name, value.last_name].join(' ');
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td class="text-left" >
+                                            <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                                <b>
+                                                    <i class="fas fa-user pr-2"></i>
+                                                </b> ${name || '-'}
+                                            </span>
+                                            <span class="d-flex mb-2">
+                                                <b>
+                                                    <i class="fas fa-envelope pr-2"></i>
+                                                </b>
+                                                <a href="mailto:${value.email || ''}" style='text-decoration:none;'>
+                                                    ${value.email || '-'}
+                                                </a>
+                                            </span>
+                                            <span class='d-flex mb-2'>
+                                                <b>
+                                                    <i class="fas fa-phone-alt pr-2"></i>
+                                                </b>
+                                                <a href="tel:${value.contact_no || ''}" style='text-decoration:none;'> ${value.contact_no || '-'}</a>
+                                            </span>  
+                                        </td>
+                                        <td>
+                                            <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px;">
+                                            <div> ${value.notes || '-'} </div>
+                                            </span> 
+                                        </td>
+                                        <td>
+                                            @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
+                                                <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
+                                                    <option value='Open' ${value.status == 'Open' ? 'selected' : ''}>Open</option>
+                                                    <option value='In Progress' ${value.status == 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                                    <option value='Resolved' ${value.status == 'Resolved' ? 'selected' : ''}>Resolved</option>
+                                                    <option value='Cancelled' ${value.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                                </select>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add Call History"><button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button></span>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Call History"><button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button></span>
+                                        </td>
+                                        <td>${value.created_at_formatted || '-'}</td>
+                                        <td>${value.number_of_call || '-'}</td>
+                                        <td>
+                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
+                                                <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
+                                                    <i class="ri-whatsapp-line text-white"></i>
+                                                </a>
+                                            </span>
+                                            @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                                        <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                        <i class="ri-edit-fill"></i>
+                                                        </button>  
+                                                </span>
+                                            @endif
+                                            @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            @endif
+                                        </td>    
+                                    </tr>
+                                `); 
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
@@ -566,29 +557,25 @@
                             var search = {!! json_encode($search) !!}
 
                             $('#data').DataTable({
-
                                 "search": {
                                     "search": search
                                 },
+                                responsive: true,
                                 "destroy": true, //use for reinitialize jquery datatable
                             });
-                            loaderhide();
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
+                                title: response.message || 'No record found'
                             });
-                            loaderhide();
-                        } else {
-                            $('#data').append(`<tr><td colspan='8' >No Data Found</td></tr>`);
-                            loaderhide();
+                            $('#data').DataTable();
                         }
+                        loaderhide();
                         // You can update your HTML with the data here if needed
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                        console.log(xhr.responseText); // Log the full error response for debugging
                         var errorMessage = "";
                         try {
                             var responseJSON = JSON.parse(xhr.responseText);
@@ -611,57 +598,57 @@
                 $.each(global_response.customersupport, function(key, ticket) {
                     if (ticket.id == data) {
                         $('#details').append(`
-                                                <tr> 
-                                                    <td>Ticket Number</td>
-                                                    <th>${ticket.ticket != null ? ticket.ticket : '-'}</th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>Website Url</td>
-                                                    <th style="text-transform: none;">
-                                                       <a href="${ticket.web_url != null ? ticket.web_url : '#'}" target="_blank">${ticket.web_url != null ? ticket.web_url : '-'}</a>
-                                                    </th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>first name</td>
-                                                    <th>${ticket.first_name != null ? ticket.first_name : '-'}</th>
-                                                </tr> 
-                                                <tr> 
-                                                    <td>last name</td>
-                                                    <th>${ticket.last_name != null ? ticket.last_name : '-'}</th>
-                                                </tr> 
-                                                <tr>
-                                                    <td>email</td>
-                                                    <th>${ticket.email != null ? ticket.email : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>contact Number</td>
-                                                    <th>${ticket.contact_no != null ? ticket.contact_no : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Status</td>
-                                                    <th>${ticket.status != null ? ticket.status : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Last Call</td>
-                                                    <th>${ticket.last_call != null ? ticket.last_call : '-'}</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>Follow up</td>
-                                                    <th>${ticket.number_of_call != null ? ticket.number_of_call : '-'}</th>
-                                                </tr>
-                                               <tr>
-                                                    <td>Created On</td>
-                                                    <th>${ticket.created_at_formatted != null ? ticket.created_at_formatted : '-'}</th>
-                                                </tr>
-                                                <tr> 
-                                                    <td>Assigned To</td>
-                                                    <th>${ticket.assigned_to != null ? ticket.assigned_to : '-'}</th>
-                                                <tr>
-                                                <tr>
-                                                    <td >Notes</td>
-                                                    <th class='text-wrap'>${ticket.notes != null ? ticket.notes : '-'}</th>
-                                                </tr>
-                     `);
+                            <tr> 
+                                <td>Ticket Number</td>
+                                <th>${ticket.ticket || '-'}</th>
+                            </tr> 
+                            <tr> 
+                                <td>Website Url</td>
+                                <th style="text-transform: none;">
+                                    <a href="${ticket.web_url || '#'}" target="_blank">${ticket.web_url || '-'}</a>
+                                </th>
+                            </tr> 
+                            <tr> 
+                                <td>first name</td>
+                                <th>${ticket.first_name || '-'}</th>
+                            </tr> 
+                            <tr> 
+                                <td>last name</td>
+                                <th>${ticket.last_name || '-'}</th>
+                            </tr> 
+                            <tr>
+                                <td>email</td>
+                                <th>${ticket.email || '-'}</th>
+                            </tr>
+                            <tr>
+                                <td>contact Number</td>
+                                <th>${ticket.contact_no || '-'}</th>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <th>${ticket.status || '-'}</th>
+                            </tr>
+                            <tr>
+                                <td>Last Call</td>
+                                <th>${ticket.last_call || '-'}</th>
+                            </tr>
+                            <tr>
+                                <td>Follow up</td>
+                                <th>${ticket.number_of_call || '-'}</th>
+                            </tr>
+                            <tr>
+                                <td>Created On</td>
+                                <th>${ticket.created_at_formatted || '-'}</th>
+                            </tr>
+                            <tr> 
+                                <td>Assigned To</td>
+                                <th>${ticket.assigned_to || '-'}</th>
+                            <tr>
+                            <tr>
+                                <td >Notes</td>
+                                <th class='text-wrap'>${ticket.notes || '-'}</th>
+                            </tr>
+                        `);
                     }
                 });
             });
@@ -702,18 +689,18 @@
                                         icon: "error",
                                         title: data.message
                                     });
-                                } else if (data.status == 500) { 
+                                } else if (data.status == 500) {
                                     Toast.fire({
                                         icon: "error",
                                         title: data.message
                                     });
-                                    loaderhide(); 
-                                } else { 
+                                    loaderhide();
+                                } else {
                                     Toast.fire({
                                         icon: "success",
                                         title: data.message
                                     });
-                                    advancefilters(); 
+                                    advancefilters();
                                 }
                             }
                         });
@@ -751,8 +738,12 @@
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
+                editCustomerSupportUrl =
+                    "{{ route('admin.editcustomersupport', '__customersupportid__') }}"
+                    .replace('__customersupportid__', editid);
+
                 // console.log(data);
-                window.location.href = "Editcustomersupport/" + editid;
+                window.location.href = editCustomerSupportUrl;
             });
 
 
@@ -848,146 +839,10 @@
                     data.callcount = callcount;
                 }
 
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '' &&
-                    callcount == '') {
-                    loaddata();
-                }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
-                    '' ||
-                    LastCall != '' || callcount != '') {
-                    loadershow();
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('customersupport.index') }}",
-                        data: data,
-                        success: function(response) {
-                            if (response.status == 200 && response.customersupport != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.customersupport, function(key, value) {
-                                    var name = (value.first_name != null ? value.first_name :
-                                        '') + ' ' + (value.last_name != null ? value
-                                        .last_name :
-                                        '')
-                                    $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${name != '' ? name : '-'}
-                                                        </span>
-                                                        <span class="d-flex mb-2">
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email != null ? value.email : ''}" style='text-decoration:none;'>${value.email != null ? value.email : '-'}</a>
-                                                        </span>
-                                                        <span class='d-flex mb-2'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no != null ? value.contact_no : ''}" style='text-decoration:none;'> ${value.contact_no != null ? value.contact_no : '-'}</a>
-                                                        </span>  
-                                                    </td>
-                                                    <td>
-                                                        <span  class="d-inline-block text-truncate mb-2" style="max-width: 150px;">
-                                                        <div> ${value.notes != null ? value.notes : '-'} </div>
-                                                        </span> 
-                                                    </td>
-                                                    <td>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
-                                                            <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                <option disabled selected>status</option>
-                                                                <option value='Open'>Open</option>
-                                                                <option value='In Progress'>In Progress</option>
-                                                                <option value='Resolved'>Resolved</option>
-                                                                <option value='Cancelled'>Cancelled</option>
-                                                            </select>
-                                                       @else
-                                                         -
-                                                       @endif
-                                                    </td>
-                                                    <td>
-                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add Call History"><button data-toggle="modal" data-target="#addcallhistory" data-id='${value.id}' class='btn btn-sm btn-primary csid' ><i class='ri-time-fill'></i></button></span>
-                                                       <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Call History"><button data-toggle="modal" data-target="#viewcallhistory" data-id='${value.id}' title='view Call History' class='btn btn-sm btn-info viewcallhistory' ><i class='ri-eye-fill'></i></button></span>
-                                                    </td>
-                                                    <td>${value.created_at_formatted != null ? value.created_at_formatted : '-'}</td>
-                                                    <td>${value.number_of_call != null ? value.number_of_call : '-'}</td>
-                                                    <td>
-                                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
-                                                            <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                <i class="ri-whatsapp-line text-white"></i>
-                                                            </a>
-                                                        </span>
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button> 
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1')
-                                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                                <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>    
-                                                </tr>`)
-                                    $('#status_' + value.id).val(value.status);
-                                    id++;
-                                    $('[data-toggle="tooltip"]').tooltip('dispose');
-                                    $('[data-toggle="tooltip"]').tooltip();
-                                });
-                                var search = {!! json_encode($search) !!}
 
-                                $('#data').DataTable({
+                loaddata(data);
 
-                                    "search": {
-                                        "search": search
-                                    },
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                                loaderhide();
-                            } else if (response.status == 500) {
-                                if (data.status == false) {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                    loaderhide();
-                                } else {
-                                    $('#data').DataTable().destroy();
-                                    $('#data').DataTable({
-                                        "destroy": true, //use for reinitialize datatable
-                                    });
-                                    $('#tabledata').html(' ');
-                                    $('#data').append(
-                                        `<tr><td colspan='8' >No Data Found</td></tr>`);
-                                    loaderhide();
-                                }
-                                // You can update your HTML with the data here if needed
-                            }
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            if (data.status == false) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
-                            }
-                        }
-                    });
 
-                }
             }
 
             $('.advancefilter').on('change', function() {
@@ -1019,19 +874,6 @@
                 // Uncheck all options
                 $('#advancestatus option').prop('selected', false);
                 $('#assignedto option').prop('selected', false);
-
-                if ($("#advancestatus option:not(:disabled)").length > 0) {
-                    $("#advancestatus").prepend(
-                        '<option value="" disabled selected>-- Select Status --</option>');
-                }
-                if ($("#assignedto option:not(:disabled)").length > 0) {
-                    $("#assignedto").prepend(
-                        '<option value="" disabled selected>-- Select User --</option>');
-                }
-
-                // Check only the first option
-                $('#advancestatus option:first').prop('selected', true);
-                $('#assignedto option:first').prop('selected', true);
 
                 // Refresh the multiselect dropdown to reflect changes
                 $('#advancestatus').multiselect('refresh');

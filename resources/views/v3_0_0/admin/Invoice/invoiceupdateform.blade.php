@@ -225,7 +225,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <div class="form-row">
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <input type="hidden" name="token" class="form-control"
                                                 value="{{ session('api_token') }}" placeholder="token" required />
                                             <input type="hidden" value="{{ $user_id }}" class="form-control"
@@ -238,19 +238,15 @@
                                             <span class="modal-error-msg" id="modal-error-firstname"
                                                 style="color: red"></span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <label for="lastname">LastName</label>
                                             {{-- <span style="color:red;">*</span> --}}
                                             <input type="text" class="form-control" id="lastname" name='lastname'
                                                 placeholder="Last name">
                                             <span class="modal-error-msg" id="modal-error-lastname"
                                                 style="color: red"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
+                                        </div> 
+                                        <div class="col-sm-6 mb-2">
                                             <label for="company_name">Company Name</label>
                                             <span class="withgstspan" style="color:red;">*</span>
                                             <input type="text" class="form-control withgstiput" id="company_name" name='company_name'
@@ -258,38 +254,30 @@
                                             <span class="modal-error-msg" id="modal-error-company_name"
                                                 style="color: red"></span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <label for="gst_number">GST Number</label>
                                             {{-- <span class="withgstspan" style="color:red;">*</span> --}}
                                             <input type="text" class="form-control" name='gst_number' id="gst_number"
                                                 placeholder="GST Number">
                                             <span class="modal-error-msg" id="modal-error-gst_number"
                                                 style="color: red"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
+                                        </div> 
+                                        <div class="col-sm-6 mb-2">
                                             <label for="modal_email">Email</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <input type="email" class="form-control requiredinput" name="email" id="modal_email"
                                                 placeholder="Enter Email"/>
                                             <span class="modal-error-msg" id="modal-error-email" style="color: red"></span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <label for="modal_exampleInputphone">Contact Number</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <input type="tel" class="form-control requiredinput" name='contact_number'
                                                 id="modal_exampleInputphone" placeholder="0123456789">
                                             <span class="modal-error-msg" id="modal-error-contact_number"
                                                 style="color: red"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
+                                        </div> 
+                                        <div class="col-sm-6 mb-2">
                                             <label for="modal_country">Select Country</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <select class="form-control requiredinput" name='country' id="modal_country">
@@ -298,7 +286,7 @@
                                             <span class="modal-error-msg" id="modal-error-country"
                                                 style="color: red"></span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <label for="modal_state">Select State</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <select class="form-control requiredinput" name='state' id="modal_state">
@@ -306,12 +294,8 @@
                                             </select>
                                             <span class="modal-error-msg" id="modal-error-state"
                                                 style="color: red"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
+                                        </div> 
+                                        <div class="col-sm-6 mb-2">
                                             <label for="modal_city">Select City</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <select class="form-control requiredinput" name='city' id="modal_city">
@@ -320,25 +304,21 @@
                                             <span class="modal-error-msg" id="modal-error-city"
                                                 style="color: red"></span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <label for="modal_pincode">Pincode</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <input type="text" id="modal_pincode" name='pincode' class="form-control requiredinput"
                                                 placeholder="Pin Code">
                                             <span class="modal-error-msg" id="modal-error-pincode"
                                                 style="color: red"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-sm-6">
+                                        </div> 
+                                        <div class="col-sm-6 mb-2">
                                             <label for="house_no_building_name">House no./ Building Name</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                                             <span class="modal-error-msg" id="modal-error-house_no_building_name" style="color: red"></span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 mb-2">
                                             <label for="road_name_area_colony">Road Name/Area/Colony</label>
                                             {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                                             <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2" placeholder="e.g. sardar patel road, jagatpur"></textarea>

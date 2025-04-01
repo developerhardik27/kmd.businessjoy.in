@@ -52,7 +52,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
                         placeholder="company_id" required />
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
@@ -63,23 +63,19 @@
                         required>
                     <span class="error-msg" id="error-firstname" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="lastname">LastName</label><span style="color:red;">*</span>
                     <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Last name"
                         required>
                     <span class="error-msg" id="error-lastname" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="email">Email</label><span style="color:red;">*</span>
                     <input type="email" name='email' class="form-control" id="email" value=""
                         placeholder="Enter Email" autocomplete="off" required>
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="password">Password</label>
                     <div class="password-container">
                         <input type="password" id="password" name='password' class="form-control" value=""
@@ -87,56 +83,40 @@
                         <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
                     </div>
                     <span class="error-msg" id="error-password" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="contact_no">Contact Number</label><span style="color:red;">*</span>
                     <input type="tel" name='contact_number' class="form-control" id="contact_no" value=""
                         placeholder="0123456789" required>
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="country">Select Country</label><span style="color:red;">*</span>
                     <select id="country" class="form-control" name='country' required>
                         <option selected="" disabled="">Select your Country</option>
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="state">Select State</label><span style="color:red;">*</span>
                     <select class="form-control" name='state' id="state" required>
                         <option selected="" disabled="">Select your State</option>
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="city">Select City</label><span style="color:red;">*</span>
                     <select class="form-control" name='city' id="city" required>
                         <option selected="" disabled="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="pincode">Pincode</label><span style="color:red;">*</span>
                     <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
                         required>
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         class="btn btn-secondary float-right cancelbtn">
@@ -1021,17 +1001,17 @@
                                             <button type="button" data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Cancel"
                                                 class="btn btn-secondary float-right cancelbtn">
-                                                <i class='ri-close-line'></i>
+                                                Cancel
                                             </button>
                                             <button type="button" id="quotationmodulereset" data-module="quotation"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Quotation Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="quotationmodulsubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
-                                                class="btn btn-primary float-right my-0 submitBtn"><i
-                                                    class='ri-check-line'></i></button>
+                                                class="btn btn-primary float-right my-0 submitBtn">
+                                                Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1742,8 +1722,8 @@
                                             <button type="button" id="invoicemodulereset" data-module="invoice"
                                                 data-toggle="tooltip" data-placement="bottom"
                                                 data-original-title="Reset Invoice Module"
-                                                class="btn iq-bg-danger float-right resetbtn mr-2"><i
-                                                    class='ri-refresh-line'></i></button>
+                                                class="btn iq-bg-danger float-right resetbtn mr-2">
+                                                Reset</button>
                                             <button type="submit" id="invoicemodulsubmit" data-toggle="tooltip"
                                                 data-placement="bottom" data-original-title="Save"
                                                 class="btn btn-primary float-right my-0 submitBtn">
@@ -2600,8 +2580,7 @@
                                                 </td>
                                                 <td>
                                                     <select name="assignedto[]" class="form-control multiple"
-                                                        id="assignedto" multiple>
-                                                        <option value="" disabled selected>Select User</option>
+                                                        id="assignedto" multiple> 
                                                     </select>
                                                 </td>
                                             </tr>
@@ -2893,23 +2872,12 @@
 
             initialize();
             $('#assignedto').multiselect({
+                nonSelectedText : 'Select User',
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
-
-
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
-
+ 
             var edit_id = @json($edit_id);
             // show old data in fields
             let userSearchUrl = "{{ route('user.search', '__editId__') }}".replace('__editId__', edit_id);
@@ -2931,8 +2899,6 @@
                                 'userpermission']); // user role and permissions
                             if (rp.reportmodule) {
                                 var assignedreportuser = rp.reportmodule.report.alldata;
-                                $('#assignedto').find('option:disabled')
-                                    .remove(); // remove disabled option
                                 if (assignedreportuser != 'null' && assignedreportuser != null) {
                                     assignedreportuser.forEach(function(value) {
                                         $('#assignedto').multiselect('select', value);
@@ -3229,19 +3195,13 @@
                         $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', false);
                         if (module == 'report') {
                             $('#assignedto option').prop('selected', false);
-                            if ($("#assignedto option:disabled").length == 0) {
-                                $("#assignedto").prepend(
-                                    '<option value="" disabled selected>-- Select User --</option>');
-                            }
-                            $('#assignedto option:first').prop('selected', true);
                         }
                     } else {
                         $(`#${module}checkboxes input[type="checkbox"]`).prop('checked', $(this).prop(
                             'checked'));
                         if (module == 'report') {
                             $('#reportcheckboxes input[type="checkbox"]').prop('checked', $(this).prop(
-                                'checked'));
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                                'checked')); 
                             $('#assignedto option').prop('selected', true);
                         }
                     }
@@ -3261,19 +3221,13 @@
                     if (!$(this).prop('checked')) {
                         $(`#${value} input[type="checkbox"]`).prop('checked', false);
                         if (value == 'report') {
-                            $('#assignedto option').prop('selected', false);
-                            if ($("#assignedto option:disabled").length == 0) {
-                                $("#assignedto").prepend(
-                                    '<option value="" disabled selected>-- Select User --</option>');
-                            }
-                            $('#assignedto option:first').prop('selected', true);
+                            $('#assignedto option').prop('selected', false); 
                             $('#assignedto').multiselect('refresh');
                             $('#assignedto').multiselect('rebuild');
                         }
                     } else {
                         $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
-                        if (value == 'report') {
-                            $('#assignedto').find('option:disabled').remove(); // remove disabled option
+                        if (value == 'report') { 
                             $('#assignedto option').prop('selected', true);
                             $('#assignedto').multiselect('refresh');
                             $('#assignedto').multiselect('rebuild');
@@ -3302,12 +3256,6 @@
 
                     if (module == 'report') {
                         $('#assignedto option').prop('selected', false);
-                        console.log($("#assignedto option:disabled").length);
-                        if ($("#assignedto option:disabled").length == 0) {
-                            $("#assignedto").prepend(
-                                '<option value="" disabled selected>-- Select User --</option>');
-                        }
-                        $('#assignedto option:first').prop('selected', true);
                         $('#assignedto').multiselect('refresh');
                         $('#assignedto').multiselect('rebuild');
                     }

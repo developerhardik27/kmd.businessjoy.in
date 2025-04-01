@@ -30,8 +30,7 @@
         </div>
     @endif
 
-    <table id="data"
-        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
+    <table id="data"  class="table table-bordered display table-striped w-100">
         <thead>
             <tr>
                 <th>Username</th>
@@ -70,7 +69,7 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function(response) {
+                    success: function(response) { 
                         if (response.status == 200 && response.user != '') {
                             global_response = response;
                             // You can update your HTML with the data here if needed     
@@ -133,7 +132,7 @@
                         if ($.fn.dataTable.isDataTable('#data')) {
                             $('#data').DataTable().clear().destroy();
                         } 
-
+ 
                         // Clear the existing table body
                         $('#tabledata').empty();
 
@@ -159,15 +158,15 @@
                                 `)
                             });
                             $('#data').DataTable({
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
                         } else { // if database not found
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
+                                title: response.message || 'No record found!'
+                            });  
 
-                             
                             $('#data').DataTable(); 
                         }
                         loaderhide();

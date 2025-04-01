@@ -53,8 +53,7 @@
     @endsection
 @endif
 @section('table-content')
-    <table id="data"
-        class="table  table-bordered display table-responsive-sm table-responsive-md table-striped text-center">
+    <table id="data" class="table  table-bordered display w-100 table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -95,56 +94,79 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
+                         // Clear and destroy the existing DataTable instance
+                         if ($.fn.dataTable.isDataTable('#data')) {
+                            $('#data').DataTable().clear().destroy();
+                        }
+
+                        // Clear the existing table body
+                        $('#tabledata').empty();
                         // if response has data then it will be append into list table
                         if (response.status == 200 && response.bankdetail != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
                             // You can update your HTML with the data here if needed
                             global_response = response;
                             var id = 1;
                             $.each(response.bankdetail, function(key, value) {
-                                $('#data').append(`<tr>
-                                                        <td>${id}</td>
-                                                        <td>${value.holder_name != null ? value.holder_name : '-'}</td>
-                                                        <td>${value.account_no != null ? value.account_no : '-'}</td>
-                                                        <td>${value.branch_name != null ? value.branch_name : '-'}</td>
-                                                        <td>
-                                                            @if (session('user_permissions.invoicemodule.bank.edit') == '1')
-                                                                ${value.is_active == 1 ? '<span id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="InActive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></span>'  : '<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active   " id=status_'+value.id+ '><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></span>'}
-                                                            @else
-                                                              -
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if (session('user_permissions.invoicemodule.bank.view') == '1')
-                                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details"><button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-indent-decrease"></i></button></span>
-                                                            @else
-                                                              -
-                                                            @endif
-                                                        </td>
-                                                        
-                                                        <td> 
-                                                            @if (session('user_permissions.invoicemodule.bank.delete') == '1')
-                                                                <span class=""><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0"><i  class="ri-delete-bin-fill"></i></button></span>
-                                                            @else
-                                                              -
-                                                            @endif
-                                                        </td>
-                                                    </tr>`)
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.holder_name || '-'}</td>
+                                        <td>${value.account_no || '-'}</td>
+                                        <td>${value.branch_name || '-'}</td>
+                                        <td>
+                                            @if (session('user_permissions.invoicemodule.bank.edit') == '1')
+                                                ${value.is_active == 1 ? 
+                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="InActive"> 
+                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
+                                                    </span>`
+                                                    : 
+                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
+                                                        <button  data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>
+                                                    </span>`
+                                                }
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (session('user_permissions.invoicemodule.bank.view') == '1')
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
+                                                    <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                        <i class="ri-indent-decrease"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        
+                                        <td> 
+                                            @if (session('user_permissions.invoicemodule.bank.delete') == '1')
+                                                <span>
+                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                        <i  class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                `);
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) { // if database not found
+                        } else  { // if database not found
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else { // if request has not found any bank details record
-                            $('#data').append(`<tr><td colspan='6' >No Data Found</td></tr>`)
+                                title: response.message || 'No record found!'
+                            });   
+                            $('#data').DataTable({});
                         }
                         loaderhide();
                     },

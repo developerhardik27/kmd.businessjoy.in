@@ -24,8 +24,9 @@
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 
 <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
-<script type="text/javascript" src="https://cdn.datatables.net/r/ju-1.11.4/jqc-1.11.3,dt-1.10.8/datatables.min.js">
+<script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js">
 </script>
+<script src="https://cdn.datatables.net/responsive/3.0.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="{{ asset('admin/js/popper.min.js') }}"></script>
 <script src="{{ asset('admin/js/bootstrap.min.js') }}"></script>
@@ -179,7 +180,8 @@
 
         $(document).on("click", ".changemenu", function(e) {
             e.preventDefault();
-            var value = $(this).data('value');
+            var element = $(this) ;
+            var value = element.data('value');
             $.ajax({
                 url: "{{ route('admin.setmenusession') }}",
                 type: "GET",
@@ -187,7 +189,7 @@
                     value: value
                 },
                 success: function(response) {
-                    $('#menuOption').html($(this).html());
+                    $('#menuOption').html(element.html());
                     Toast.fire({
                         icon: "success",
                         title: `Logged in ${response.status} succesfully`

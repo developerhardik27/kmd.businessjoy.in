@@ -15,7 +15,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <input type="hidden" value="{{ $user_id }}" class="form-control" name="user_id">
@@ -25,54 +25,42 @@
                         placeholder="First Name" required>
                     <span class="error-msg" id="error-firstname" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="lastname">LastName</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <input type="text" id="lastname" class="form-control requiredinput" name='lastname'
                         placeholder="Last Name">
                     <span class="error-msg" id="error-lastname" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="company_name">Company Name</label>
                     <span class="withgstspan" style="color:red;">*</span>
                     <input type="text" id="company_name" class="form-control withgstinput" name='company_name'
                         id="" placeholder="Company Name">
                     <span class="error-msg" id="error-company_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="gst_number">GST Number</label>
                     {{-- <span class="withgstspan" style="color:red;">*</span> --}}
                     <input type="text" id="gst_number" class="form-control" name='gst_number' id=""
                         placeholder="GST Number">
                     <span class="error-msg" id="error-gst_number" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="email">Email</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <input type="email" class="form-control requiredinput" name="email" id="email"
                         placeholder="Enter Email">
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="contact_number">Contact Number</label>
                     {{-- <span class="requiredinputspan"  style="color:red;">*</span> --}}
                     <input type="tel" class="form-control requiredinput" name='contact_number' id="contact_number"
                         placeholder="0123456789">
                     <span class="error-msg" id="error-contact_number" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="country">Select Country</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <select class="form-control requiredinput" name='country' id="country">
@@ -80,19 +68,15 @@
                     </select>
                     <span class="error-msg" id="error-country" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="state">Select State</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <select class="form-control requiredinput" name='state' id="state">
                         <option selected="" disabled="">Select your State</option>
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="city">Select City</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <select class="form-control requiredinput" name='city' id="city">
@@ -100,35 +84,27 @@
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="pincode">Pincode</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <input type="text" id="pincode" name='pincode' class="form-control requiredinput"
                         placeholder="Pin Code">
                     <span class="error-msg" id="error-pincode" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label for="house_no_building_name">House no./ Building Name</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
                         rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
                     <span class="error-msg" id="error-house_no_building_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label for="road_name_area_colony">Road Name/Area/Colony</label>
                     {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
                     <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"
                         placeholder="e.g. sardar patel road, jagatpur"></textarea>
                     <span class="error-msg" id="error-road_name_area_colony" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>

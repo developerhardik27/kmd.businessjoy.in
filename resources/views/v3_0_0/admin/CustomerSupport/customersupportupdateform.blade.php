@@ -15,12 +15,12 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="ticket">Ticket Number:</label>
                     <input type="number" readonly class="form-control" name="ticket" id="ticket">
                     <span class="error-msg" id="error-ticket" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
                         placeholder="user_id" required />
                     <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
@@ -30,45 +30,33 @@
                     <label class="form-label" for="last_call">Website Url:</label>
                     <input type="text" class="form-control" name="web_url" id="web_url" placeholder="Website Url" />
                     <span class="error-msg" id="error-web_url" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="first_name">First Name:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First Name"
                         required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="last_name">Last Name:</label><span style="color:red;"> *</span>
                     <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name"
                         required />
                     <span class="error-msg" id="error-name" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="email">Email:</label>
                     <input type="email" class="form-control" name="email" id="email"
                         placeholder="Professional Email" />
                     <span class="error-msg" id="error-email" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="contact_no">Mobile Number:</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" onkeyup="numberMobile(event);" minlength="10" maxlength="15"
                         required />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="status">Status:</label>
                     <select name="status" class="form-control" id="status">
                         <option value="" disabled selected>Status</option>
@@ -79,60 +67,43 @@
                     </select>
                     <span class="error-status" id="error-description" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="assignedto">Assigned To:</label><span
                         style="color:red;">*</span><br />
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
-                        <option value="" disabled selected>Select User</option>
                     </select>
                     <span class="error-msg" id="error-assignedto" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="last_call">Last Call:</label>
                     <input type="datetime-local" class="form-control" name="last_call" id="last_call"
                         placeholder="last_call" />
                     <span class="error-msg" id="error-last_call" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="number_of_call">Number Of Call:</label>
                     <input type="number" class="form-control" value="0" name="number_of_call" min="0"
                         max="10" id="number_of_call">
                     <span class="error-msg" id="error-number_of_call" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="created_at">Created At:</label>
                     <input type="datetime" readonly class="form-control" name="created_at" id="created_at"
                         placeholder="Created at" />
                     <span class="error-msg" id="error-created_at" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="updated_at">Updated At:</label>
                     <input type="datetime" readonly class="form-control" name="updated_at" id="updated_at"
                         placeholder="null" />
                     <span class="error-msg" id="error-updated_at" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                </div> 
+                <div class="col-sm-12 mb-2">
                     <label class="form-label" for="notes">Notes:</label>
                     <textarea name="notes" style="white-space: pre-line;" placeholder="notes" class="form-control" id="notes"
                         cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-notes" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="reset" id="resetbtn" data-toggle=tooltip data-placement="bottom"
                         data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
@@ -176,17 +147,7 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
-            $('#assignedto').change(function() {
-                if ($(this).val() !== null) {
-                    $(this).find('option:disabled').remove(); // remove disabled option
-                } else {
-                    $(this).prepend(
-                        '<option selected disabled>-- Select User --</option>'
-                    ); // prepend "Please choose an option"
-                }
-                $('#assignedto').multiselect('rebuild');
-            });
+ 
 
             $('#notes').summernote({
                 toolbar: [
@@ -277,6 +238,7 @@
 
             initialize();
             $('#assignedto').multiselect({
+                nonSelectedText: '-- Select User --', // Acts as a placeholder
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
@@ -312,7 +274,7 @@
                             $('#notes').summernote('code', data.notes);
                             $('#created_at').val(data.created_at_formatted);
                             $('#updated_at').val(data.updated_at_formatted);
-                            $('#assignedto').find('option:disabled').remove();
+                            
                             assignedto = data.assigned_to;
                             assignedtoarray = assignedto.split(',');
                             assignedtoarray.forEach(function(value) {

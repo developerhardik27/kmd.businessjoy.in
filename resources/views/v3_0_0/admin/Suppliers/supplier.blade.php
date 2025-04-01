@@ -53,7 +53,7 @@
 @endif
 @section('table-content')
     <table id="data"
-        class="table display table-bordered table-responsive-sm table-responsive-md table-responsive-lg  table-striped text-center">
+        class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Supplier Id</th>
@@ -94,9 +94,11 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 && response.supplier != '') {
-                            $('#data').DataTable().destroy();
-                            $('#tabledata').empty();
+                        if($.fn.dataTable.isDataTable('#data')){
+                            $('#data').DataTable().clear().destroy();
+                        }
+                        $('#tabledata').empty();
+                        if (response.status == 200 && response.supplier != '') { 
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed                              
@@ -104,77 +106,78 @@
                                 let editsupplierUrl =
                                     "{{ route('admin.editsupplier', '__supplierid__') }}"
                                     .replace('__supplierid__', value.id);
-                                $('#data').append(`<tr>
-                                                <td>${value.id}</td>
-                                                <td>${value.suppliername ||'-' }</td> 
-                                                <td>${(value.company_name != null) ?value.company_name : '-'}</td>
-                                                <td>${(value.contact_no != null) ?value.contact_no : '-'}</td>
-                                                <td>
-                                                    @if (session('user_permissions.inventorymodule.supplier.edit') == '1')
-                                                        ${value.is_active == 1 ?
-                                                            `<span data-toggle="tooltip" data-placement="bottom" data-original-title="InActive" id="status_${value.id}">
-                                                                <button data-status='${value.id}' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >
-                                                                    active
-                                                                </button>
-                                                            </span>`  : 
-                                                            `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id="status_${value.id}">
-                                                                <button data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >
-                                                                    Inactive
-                                                                </button>
-                                                            </span>`
-                                                        }
-                                                    @else
-                                                      -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if (session('user_permissions.inventorymodule.supplier.view') == '1')
-                                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View supplier Details">
-                                                            <button type="button" data-view='${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                                <i class="ri-indent-decrease"></i>
+                                $('#tabledata').append(`
+                                    <tr>
+                                        <td>${value.id}</td>
+                                        <td>${value.suppliername ||'-' }</td> 
+                                        <td>${(value.company_name != null) ?value.company_name : '-'}</td>
+                                        <td>${(value.contact_no != null) ?value.contact_no : '-'}</td>
+                                        <td>
+                                            @if (session('user_permissions.inventorymodule.supplier.edit') == '1')
+                                                ${value.is_active == 1 ?
+                                                    `<span data-toggle="tooltip" data-placement="bottom" data-original-title="InActive" id="status_${value.id}">
+                                                        <button data-status='${value.id}' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >
+                                                            active
+                                                        </button>
+                                                    </span>`  : 
+                                                    `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id="status_${value.id}">
+                                                        <button data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >
+                                                            Inactive
+                                                        </button>
+                                                    </span>`
+                                                }
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (session('user_permissions.inventorymodule.supplier.view') == '1')
+                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View supplier Details">
+                                                    <button type="button" data-view='${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                        <i class="ri-indent-decrease"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -    
+                                            @endif
+                                        </td>
+                                        @if (session('user_permissions.inventorymodule.supplier.edit') == '1' || session('user_permissions.inventorymodule.supplier.delete') == '1')
+                                            <td>
+                                                @if (session('user_permissions.inventorymodule.supplier.edit') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit supplier">
+                                                        <a href=${editsupplierUrl}>
+                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                                <i class="ri-edit-fill"></i>
                                                             </button>
-                                                        </span>
-                                                    @else
-                                                      -    
-                                                    @endif
-                                                </td>
-                                                @if (session('user_permissions.inventorymodule.supplier.edit') == '1' || session('user_permissions.inventorymodule.supplier.delete') == '1')
-                                                    <td>
-                                                        @if (session('user_permissions.inventorymodule.supplier.edit') == '1')
-                                                            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit supplier">
-                                                                <a href=${editsupplierUrl}>
-                                                                    <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button>
-                                                                </a>
-                                                            </span>
-                                                        @endif
-                                                        @if (session('user_permissions.inventorymodule.supplier.delete') == '1')
-                                                            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete supplier Details">
-                                                                <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        @endif
-                                                    </td>
-                                                @else
-                                                    <td> - </td>  
+                                                        </a>
+                                                    </span>
                                                 @endif
-                                                
-                                            </tr>`);
+                                                @if (session('user_permissions.inventorymodule.supplier.delete') == '1')
+                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete supplier Details">
+                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                            <i class="ri-delete-bin-fill"></i>
+                                                        </button>
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        @else
+                                            <td> - </td>  
+                                        @endif    
+                                    </tr>`
+                                );
                                 id++;
                                 $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip();
                             });
                             $('#data').DataTable({
+                                responsive : true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else if (response.status == 500) {
+                        } else {
                             Toast.fire({
                                 icon: "error",
-                                title: response.message
-                            });
-                        } else {
+                                title: response.message || 'No record found!'
+                            }); 
                             $('#data').DataTable({
                                 "destroy": true, //use for reinitialize datatable
                             });

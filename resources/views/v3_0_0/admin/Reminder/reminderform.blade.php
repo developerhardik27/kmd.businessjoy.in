@@ -16,7 +16,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
                         placeholder="user_id" required />
                     <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
@@ -29,7 +29,7 @@
                     </select>
                     <span class="error-msg" id="error-customer_id" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="service_type">Service Type:</label><span style="color:red;">*</span>
                     <select name="service_type" class="form-control" id="service_type">
                         <option disabled selected>Select Customer Type</option>
@@ -37,64 +37,44 @@
                         <option value="free">Free</option>
                     </select>
                     <span class="error-msg" id="error-service_type" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="product_name">Product Name:</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name="product_name" id="product_name"
                         placeholder="Product Name" />
                     <span class="error-msg" id="error-product_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="product_unique_id">Product Unique Id:</label>
                     <input type="text" class="form-control" name="product_unique_id" id="product_unique_id"
                         placeholder="Product Unique Id" />
                     <span class="error-msg" id="error-product_unique_id" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-6">
+                </div> 
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="amount"> Amount :</label><span style="color:red;">*</span>
                     <input type="text" class="form-control" name="amount" id="amount" placeholder="Amount" />
                     <span class="error-msg" id="error-amount" style="color: red"></span>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 mb-2">
                     <label class="form-label" for="next_reminder">Next Reminder Date:</label><span
                         style="color:red;">*</span>
                     <input type="datetime-local" class="form-control" name="next_reminder" id="next_reminder" />
                     <span class="m-1 text-info btn dynamic-date" data-months="6">After 6 Months</span>
                     <span class="m-1 text-info btn dynamic-date" data-months="9">After 9 Months</span>
                     <span class="error-msg" id="error-next_reminder" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                </div> 
+                <div class="col-sm-12 mb-2">
                     <label class="form-label" for="before_services_notes">Before Services Notes:</label>
                     <textarea name="before_services_notes" placeholder="Before Services Notes" class="form-control"
                         id="before_services_notes" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-before_services_notes" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
+                </div> 
+                <div class="col-sm-12 mb-2">
                     <label class="form-label" for="after_services_notes">After Services Notes:</label>
                     <textarea name="after_services_notes" placeholder="After Services Notes" class="form-control"
                         id="after_services_notes" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-after_services_notes" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
+                </div> 
                 <div class="col-sm-12">
                     <button type="reset" class="btn iq-bg-danger float-right" data-toggle="tooltip"
                         data-placement="bottom" data-original-title="Reset">Reset</button>
