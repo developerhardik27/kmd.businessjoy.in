@@ -55,8 +55,7 @@
     @endsection
 @endif
 @section('table-content')
-    <table id="data"
-        class="table display table-bordered table-striped w-100">
+    <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Quotation ID</th>
@@ -151,8 +150,10 @@
                             global_response = response;
                             // You can update your HTML with the data here if needed
                             $.each(response.quotation, function(key, value) {
-                                
-                                var customer = [value.firstname,value.lastname,value.company_name].join(' ');
+
+                                var customer = [value.firstname, value.lastname, value
+                                    .company_name
+                                ].join(' ');
 
                                 let quotationEditUrl =
                                     "{{ route('admin.editquotation', '__quotationId__') }}"
@@ -169,11 +170,11 @@
                                         <td> 
                                             @if (session('user_permissions.quotationmodule.quotation.edit') == '1')
                                                 <select data-status='${value.id}' data-original-value="${value.status}" class="status w-100 form-control" id="status_${value.id}" name="" required >
-                                                    <option value='pending' ${value.status == "pending" : 'selected' : ''}>Pending Approval</option>
-                                                    <option value='accepted' ${value.status == "accepted" : 'selected' : ''}>Accepted</option>
-                                                    <option value='rejected' ${value.status == "rejected" : 'selected' : ''}>Rejected</option>
-                                                    <option value='expired' ${value.status == "expired" : 'selected' : ''}>Expired</option>
-                                                    <option value='revised' ${value.status == "revised" : 'selected' : ''}>Revised</option>
+                                                    <option value='pending' ${value.status == "pending" ? 'selected' : ''}>Pending Approval</option>
+                                                    <option value='accepted' ${value.status == "accepted" ? 'selected' : ''}>Accepted</option>
+                                                    <option value='rejected' ${value.status == "rejected" ? 'selected' : ''}>Rejected</option>
+                                                    <option value='expired' ${value.status == "expired" ? 'selected' : ''}>Expired</option>
+                                                    <option value='revised' ${value.status == "revised" ? 'selected' : ''}>Revised</option>
                                                 </select>
                                             @else
                                                 -    
@@ -197,14 +198,14 @@
                                                 </span>
                                                 ${(value.is_editable == 1)?  
                                                     `   
-                                                        <span>
-                                                            <a href=${quotationEditUrl}>
-                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </a>
-                                                        </span>
-                                                    `
+                                                            <span>
+                                                                <a href=${quotationEditUrl}>
+                                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                                                        <i class="ri-edit-fill"></i>
+                                                                    </button>
+                                                                </a>
+                                                            </span>
+                                                        `
                                                     : ''
                                                 }
                                             @endif
@@ -219,7 +220,7 @@
                                             @endif
                                         </td> 
                                     </tr>
-                                `); 
+                                `);
                             });
 
                             var search = {!! json_encode($search) !!}
@@ -233,12 +234,12 @@
                                 responsive: true,
                                 "destroy": true, //use for reinitialize datatable
                             });
-                        } else  {
+                        } else {
                             Toast.fire({
                                 icon: "error",
                                 title: response.message || 'No record found!'
-                            }); 
-                            $('#data').DataTable({}); 
+                            });
+                            $('#data').DataTable({});
                         }
                         loaderhide();
                     },
