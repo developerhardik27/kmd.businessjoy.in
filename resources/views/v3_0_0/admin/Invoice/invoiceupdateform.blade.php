@@ -17,6 +17,10 @@
      /* For select2 dropdown, override the default select2 styles for disabled items */
       .select2-results__option[aria-disabled="true"] {
         color: red !important; 
+    } 
+
+    .select2-container{
+        width: 100% !important;
     }
 </style>
 <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
@@ -1323,6 +1327,11 @@
                             title: "Product column mapping required to use product"
                         });
                     }
+                    $('#product').val('');
+                    $('#product').select2({
+                        placeholder: "Select Product",
+                        search: true,
+                    });  // search bar in product list 
                 });
 
  
