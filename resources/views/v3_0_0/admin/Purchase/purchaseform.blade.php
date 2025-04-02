@@ -19,6 +19,14 @@
         .select2-results__option[aria-disabled="true"] {
             color: red !important; 
         }
+
+        table input.form-control {
+            width: auto;
+        }
+
+        table textarea.form-control{
+            width: auto;
+        }
     </style>
 @endsection
 

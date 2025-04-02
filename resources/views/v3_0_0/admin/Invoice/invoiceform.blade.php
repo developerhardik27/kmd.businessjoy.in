@@ -19,6 +19,18 @@
     .select2-results__option[aria-disabled="true"] {
         color: red !important; 
     }
+
+    table input.form-control {
+        width: auto;
+    }
+
+    table textarea.form-control{
+        width: auto;
+    }
+
+    .select2-container{
+        width: 100% !important;
+    }
  </style>
  <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 @endsection
@@ -1166,6 +1178,11 @@
                         title: "Product column mapping required to use product"
                     });
                 }
+                $('#product').val('');
+                $('#product').select2({
+                    placeholder: "Select Product",
+                    search: true,
+                });  // search bar in product list 
             });
 
             // submit invoice form 

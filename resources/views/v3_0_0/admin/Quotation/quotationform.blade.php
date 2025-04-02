@@ -14,6 +14,13 @@
     .disableinput{
         border: none;
     }
+    table input.form-control {
+        width: auto;
+    }
+
+    table textarea.form-control{
+        width: auto;
+    }
  </style>
  <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 @endsection

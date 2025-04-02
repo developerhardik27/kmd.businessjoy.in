@@ -124,11 +124,11 @@
 
 
         /* .multiselect-container {
-                                                            width: 300px;
-                                                            max-height: 300px;
-                                                            overflow: auto;
-                                                        }
-                                                    */
+                width: 300px;
+                max-height: 300px;
+                overflow: auto;
+            }
+        */
 
         .sidenav .btn-group {
             width: 100%;

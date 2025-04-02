@@ -19,6 +19,14 @@
         .select2-results__option[aria-disabled="true"] {
             color: red !important; 
         }
+
+        table input.form-control {
+            width: auto;
+        }
+
+        table textarea.form-control{
+            width: auto;
+        }
     </style>
 @endsection
 
@@ -633,29 +641,29 @@
                     }
 
                     if (purchase.payment_terms) {
-                        $('#payment').val(purchase.payment_terms);
+                        $('#payment').val(purchase.payment_terms || '');
                     }
 
                     if (purchase.currency) {
-                        $('#currency').val(purchase.currency);
+                        $('#currency').val(purchase.currency || '');
                     }
 
                     if (purchase.estimated_arrival) {
-                        $('#estimated_arrival').val(purchase.estimated_arrival);
+                        $('#estimated_arrival').val(purchase.estimated_arrival || '');
                     }
 
-                    $('#shipping_carrier').val(purchase.shipping_carrier);
-                    $('#tracking_number').val(purchase.tracking_number);
-                    $('#tracking_url').val(purchase.tracking_url);
-                    $('#reference_number').val(purchase.reference_number);
-                    $('#note_to_supplier').val(purchase.note_to_supplier);
-                    $('#taxes').val(purchase.taxes);
-                    $('#sub_total').val(purchase.sub_total);
-                    $('#shipping').val(purchase.shipping);
-                    $('#discount').val(purchase.discount);
-                    $('#total').val(purchase.total);
+                    $('#shipping_carrier').val(purchase.shipping_carrier || '');
+                    $('#tracking_number').val(purchase.tracking_number || '');
+                    $('#tracking_url').val(purchase.tracking_url || '');
+                    $('#reference_number').val(purchase.reference_number || '');
+                    $('#note_to_supplier').val(purchase.note_to_supplier || '');
+                    $('#taxes').val(purchase.taxes) || '';
+                    $('#sub_total').val(purchase.sub_total || '');
+                    $('#shipping').val(purchase.shipping || '');
+                    $('#discount').val(purchase.discount || '');
+                    $('#total').val(purchase.total || '');
 
-                    $('#itemcount').text(purchase.total_items);
+                    $('#itemcount').text(purchase.total_items || '');
                     (purchase.total_items < 2) ? $('#itemcounttext').text(' item'): $('#itemcounttext')
                         .text(' items');
 
@@ -670,30 +678,30 @@
                         $('#data').append(`
                             <tr id="product_${product.product_id}">
                                 <td>
-                                    <input type="text" name="product_name_${product.product_id}" value="${product.product_name}" class="form-control" readonly>
+                                    <input type="text" name="product_name_${product.product_id}" value="${product.product_name || ''}" class="form-control" readonly>
                                     <span class="error-msg" id="error-product_name_${product.product_id}" style="color: red"></span>
                                     ${product.accepted ? `<p class="text-success mb-0">Received quantity: ${product.accepted}</p>` : ''}
                                     ${received > 0 ? `<ul class="text-muted pl-0 mb-0"><li>Received products can't be removed</li></ul>` : ''}
                                     ${product.track_quantity == 0 ? `<span class="text-danger"><i class="ri-information-line text-bold">Inventory not tracked</i></span>` : ''}
                                 </td>
                                 <td>
-                                    <input type="text" name="product_supplier_sku_${product.product_id}" value="${product.supplier_sku}" id="product_supplier_sku_${product.product_id}" class="form-control product_supplier_sku">
+                                    <input type="text" name="product_supplier_sku_${product.product_id}" value="${product.supplier_sku || ''}" id="product_supplier_sku_${product.product_id}" class="form-control product_supplier_sku">
                                     <span class="error-msg" id="error-product_supplier_sku_${product.product_id}" style="color: red"></span>
                                 </td>
                                 <td>
-                                    <input type="number" name="product_quantity_${product.product_id}" value="${product.quantity}"  id="product_quantity_${product.product_id}" class="form-control product_quantity product_price_count numberinput" step="any" value="1">
+                                    <input type="number" name="product_quantity_${product.product_id}" value="${product.quantity || 0}"  id="product_quantity_${product.product_id}" class="form-control product_quantity product_price_count numberinput" step="any" value="1">
                                     <span class="error-msg" id="error-product_quantity_${product.product_id}" style="color: red"></span>
                                 </td>
                                 <td>
-                                    <input type="number" name="product_price_${product.product_id}" value="${product.price}" id="product_price_${product.product_id}" class="form-control product_price product_price_count numberinput"  step="any" value="0" min="0" >
+                                    <input type="number" name="product_price_${product.product_id}" value="${product.price || 0}" id="product_price_${product.product_id}" class="form-control product_price product_price_count numberinput"  step="any" value="0" min="0" >
                                     <span class="error-msg" id="error-product_price_${product.product_id}" style="color: red"></span>
                                 </td>
                                 <td>
-                                    <input type="number" name="product_tax_${product.product_id}" value="${product.tax}" id="product_tax_${product.product_id}" class="form-control product_tax product_price_count numberinput"  step="any" placeholder="0" min="0" >
+                                    <input type="number" name="product_tax_${product.product_id}" value="${product.tax || 0}" id="product_tax_${product.product_id}" class="form-control product_tax product_price_count numberinput"  step="any" placeholder="0" min="0" >
                                     <span class="error-msg" id="error-product_tax_${product.product_id}" style="color: red"></span>
                                 </td>
                                 <td>
-                                    <input type="number" name="product_total_amount_${product.product_id}" value="${product.total}" id="product_total_amount_${product.product_id}" class="form-control product_total_amount product_price_count numberinput" value="0" min="0" step="any" readonly>
+                                    <input type="number" name="product_total_amount_${product.product_id}" value="${product.total || 0}" id="product_total_amount_${product.product_id}" class="form-control product_total_amount product_price_count numberinput" value="0" min="0" step="any" readonly>
                                     <span class="error-msg" id="error-product_total_amount_${product.product_id}" style="color: red"></span>
                                 </td>
                             </tr>

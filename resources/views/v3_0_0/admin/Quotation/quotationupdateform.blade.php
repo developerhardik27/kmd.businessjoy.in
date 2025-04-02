@@ -14,6 +14,12 @@
     .disableinput{
         border: none;
     }
+    table input.form-control {
+        width: auto;
+    }
+    table textarea.form-control{
+        width: auto;
+    }
     </style>
     <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 @endsection
@@ -371,32 +377,32 @@
                 const USER_ID = "{{ session()->get('user_id') }}";
       
                 function ajaxRequest(type, url, data) {
-                return $.ajax({
-                    type,
-                    url,
-                    data
-                }); 
-            }
-
-            function handleAjaxError(xhr) {
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    $.each(errors, function(key, value) {
-                        $('#error-' + key).text(value[0]);
-                    });
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
-                } else {
-                    var errorMessage = "An error occurred";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || errorMessage;
-                    } catch (e) {}
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
+                    return $.ajax({
+                        type,
+                        url,
+                        data
+                    }); 
                 }
-            }
+
+                function handleAjaxError(xhr) {
+                    if (xhr.status === 422) {
+                        var errors = xhr.responseJSON.errors;
+                        $.each(errors, function(key, value) {
+                            $('#error-' + key).text(value[0]);
+                        });
+                        $('html, body').animate({ scrollTop: 0 }, 1000);
+                    } else {
+                        var errorMessage = "An error occurred";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || errorMessage;
+                        } catch (e) {}
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+                    }
+                }
 
 
                 // fetch other settings like gst and quotation number and quotation date 
@@ -536,8 +542,8 @@
                 function customers(customerid = 0) {
                     loadershow();
                     $('#customer').html(`
-                    <option selected="" value=0 disabled=""> Select Customer</option>
-                    <option value="add_customer" > Add New Customer </option>
+                        <option selected="" value=0 disabled=""> Select Customer</option>
+                        <option value="add_customer" > Add New Customer </option>
                     `);
                     ajaxRequest('GET', "{{ route('customer.quotationcustomer') }}", { 
                         token: API_TOKEN,
