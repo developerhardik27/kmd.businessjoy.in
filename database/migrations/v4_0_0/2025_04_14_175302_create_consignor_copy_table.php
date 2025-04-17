@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('consignor_copy', function (Blueprint $table) {
             $table->id();
-            $table->integer('consingment_note_no')->nullable();
+            $table->integer('consignment_note_no')->nullable();
             $table->date('loading_date')->nullable();
             $table->date('stuffing_date')->nullable();
             $table->string('truck_number')->nullable();
