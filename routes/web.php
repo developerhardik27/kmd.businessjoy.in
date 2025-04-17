@@ -282,6 +282,35 @@ Route::group(['middleware' => ['CheckSession']], function () {
             });
 
 
+            /**
+             * logistic module route start
+             */
+
+            // consignee route 
+            $ConsigneeController = getadminversion('ConsigneeController');
+            Route::controller($ConsigneeController)->group(function () {
+                Route::get('/Consignee', 'index')->name('admin.consignee')->middleware('checkPermission:logisticmodule,consignee,show');
+                Route::get('/AddNewConsignee', 'create')->name('admin.addconsignee')->middleware('checkPermission:logisticmodule,consignee,add');
+                Route::get('/EditConsignee/{id}', 'edit')->name('admin.editconsignee')->middleware('checkPermission:logisticmodule,consignee,edit');
+            });
+
+            // consignor route 
+            $ConsignorController = getadminversion('ConsignorController');
+            Route::controller($ConsignorController)->group(function () {
+                Route::get('/Consignor', 'index')->name('admin.consignor')->middleware('checkPermission:logisticmodule,consignor,show');
+                Route::get('/AddNewConsignor', 'create')->name('admin.addconsignor')->middleware('checkPermission:logisticmodule,consignor,add');
+                Route::get('/EditConsignor/{id}', 'edit')->name('admin.editconsignor')->middleware('checkPermission:logisticmodule,consignor,edit');
+            });
+
+            //consinger copy route 
+            $ConsignorCopyController = getadminversion('ConsignorCopyController');
+            Route::controller($ConsignorCopyController)->group(function () {
+                Route::get('/ConsignorCopy', 'index')->name('admin.consignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,show');
+                Route::get('/AddNewConsignorCopy', 'create')->name('admin.addconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,add');
+                Route::get('/EditConsignorCopy/{id}', 'edit')->name('admin.editconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,edit');
+                Route::get('/Logistic/othersettings', 'othersettings')->name('admin.logisticothersettings')->middleware('checkPermission:logisticmodule,logisticsettings,view');
+            });
+
 
             // pdf routes ------------------------------------ 
             $PdfController = getadminversion('PdfController');
@@ -292,6 +321,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::post('/generatepdfzip', 'generatepdfzip')->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', 'generatereciept')->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/generaterecieptall/{id}', 'generaterecieptall')->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
+                
+                // generate consignor copy pdf 
+                Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
             });
         });
     });

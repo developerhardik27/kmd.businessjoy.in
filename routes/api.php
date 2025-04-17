@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\countryController;
-use App\Http\Controllers\api\dbscriptController; 
+use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\otherapiController;
 use App\Http\Controllers\api\stateController;
 use App\Models\api_authorization;
@@ -21,10 +21,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
- 
+
 // middleware route group 
 
-Route::middleware(['dynamic.version','checkToken'])->group(function () {
+Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
 
     function getversion($controller)
     {
@@ -105,13 +105,13 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
 
     // version control route
     $versionupdateController = getversion('versionupdateController');
-    Route::controller($versionupdateController)->group(function() {
+    Route::controller($versionupdateController)->group(function () {
         Route::put('/company/versionupdate', 'updatecompanyversion')->name('company.versionupdate');
     });
 
     // product category route
     $productcategoryController = getversion('productcategoryController');
-    Route::controller($productcategoryController)->group(function () { 
+    Route::controller($productcategoryController)->group(function () {
         Route::get('/fetchproductcategory', 'fetchCategory')->name('productcategory.fetchCategory');
         Route::get('/productcategory', 'index')->name('productcategory.index');
         Route::post('/productcategory/insert', 'store')->name('productcategory.store');
@@ -141,18 +141,18 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     // temp file route
     $tempimageController = getversion('tempimageController');
     Route::controller($tempimageController)->group(function () {
-        Route::post('/docupload',  'store')->name('temp.docupload');
+        Route::post('/docupload', 'store')->name('temp.docupload');
         Route::delete('/docdelete', 'deleteFile')->name('temp.docdelete');
     });
 
     // temp file route
     $inventoryController = getversion('inventoryController');
     Route::controller($inventoryController)->group(function () {
-        Route::get('/inventory',  'index')->name('inventory.index');
-        Route::get('/incominginventory/{id}',  'incominginventory')->name('inventory.incominginventory');
-        Route::put('/inventory/quantityupdate/{id}',  'quantityupdate')->name('inventory.quantityupdate');
-        Route::put('/inventory/onhandquantityupdate/{id}',  'onhandquantityupdate')->name('inventory.onhandquantityupdate');
-        Route::put('/inventory/availablequantityupdate/{id}',  'availablequantityupdate')->name('inventory.availablequantityupdate');
+        Route::get('/inventory', 'index')->name('inventory.index');
+        Route::get('/incominginventory/{id}', 'incominginventory')->name('inventory.incominginventory');
+        Route::put('/inventory/quantityupdate/{id}', 'quantityupdate')->name('inventory.quantityupdate');
+        Route::put('/inventory/onhandquantityupdate/{id}', 'onhandquantityupdate')->name('inventory.onhandquantityupdate');
+        Route::put('/inventory/availablequantityupdate/{id}', 'availablequantityupdate')->name('inventory.availablequantityupdate');
     });
 
 
@@ -225,12 +225,12 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     $bankdetailsController = getversion('bankdetailsController');
     Route::controller($bankdetailsController)->group(function () {
         Route::get('/bank', 'index')->name('bank.index');
-        Route::post('/bank/insert', 'store')->name('bank.store'); 
+        Route::post('/bank/insert', 'store')->name('bank.store');
         Route::put('/bank/update/{id}', 'update')->name('bank.update');
         Route::put('/bank/delete/{id}', 'destroy')->name('bank.delete');
     });
 
-  
+
 
     //payment_details route 
     $PaymentController = getversion('PaymentController');
@@ -240,17 +240,17 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::get('pendingpayment/{id}', 'pendingpayment')->name('paymentdetails.pendingpayment');
     });
 
-     // supplier route
-     $supplierController = getversion('supplierController');
-     Route::controller($supplierController)->group(function () {
-         Route::get('/supplier', 'index')->name('supplier.index');
-         Route::post('/supplier/insert', 'store')->name('supplier.store');
-         Route::get('/supplier/search/{id}', 'show')->name('supplier.search');
-         Route::get('/supplier/edit/{id}', 'edit')->name('supplier.edit');
-         Route::put('/supplier/statusupdate/{id}', 'statusupdate')->name('supplier.statusupdate');
-         Route::put('/supplier/update/{id}', 'update')->name('supplier.update');
-         Route::put('/supplier/delete/{id}', 'destroy')->name('supplier.delete');
-     });
+    // supplier route
+    $supplierController = getversion('supplierController');
+    Route::controller($supplierController)->group(function () {
+        Route::get('/supplier', 'index')->name('supplier.index');
+        Route::post('/supplier/insert', 'store')->name('supplier.store');
+        Route::get('/supplier/search/{id}', 'show')->name('supplier.search');
+        Route::get('/supplier/edit/{id}', 'edit')->name('supplier.edit');
+        Route::put('/supplier/statusupdate/{id}', 'statusupdate')->name('supplier.statusupdate');
+        Route::put('/supplier/update/{id}', 'update')->name('supplier.update');
+        Route::put('/supplier/delete/{id}', 'destroy')->name('supplier.delete');
+    });
 
 
     // purchases route 
@@ -293,28 +293,28 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::put('/invoiceformula/delete/{id}', 'destroy')->name('invoiceformula.delete');
     });
 
-      $invoiceController = getversion('invoiceController');
+    $invoiceController = getversion('invoiceController');
     //invoice route
     Route::controller($invoiceController)->group(function () {
-        Route::get('/totalinvoice','totalInvoice')->name('invoice.totalinvoice');
-        Route::get('/checkinvoicenumber','checkinvoicenumber')->name('invoice.checkinvoicenumber');
-        Route::get('/currency','currency')->name('invoice.currency');
-        Route::get('/bdetails','bdetails')->name('invoice.bankacc');
-        Route::get('/columnname','columnname')->name('invoice.columnname');
-        Route::get('/numbercolumnname','numbercolumnname')->name('invoice.numbercolumnname');
-        Route::get('/inv_list','inv_list')->name('invoice.inv_list');
-        Route::put('/inv_status/{id}','status')->name('invoice.status');
-        Route::get('/invoice/{id}','index')->name('invoice.index');
-        Route::post('/invoice/insert','store')->name('invoice.store');
-        Route::get('/invoice/search/{id}','show')->name('invoice.search');
-        Route::get('/invoice/inv_details/{id}','inv_details')->name('invoice.inv_details');
-        Route::get('/invoice/edit/{id}','edit')->name('invoice.edit');
-        Route::put('/invoice/update/{id}','update')->name('invoice.update');
-        Route::put('/invoice/delete/{id}','destroy')->name('invoice.delete');
-        Route::get('status_list','status_list')->name('invoice.status_list');
-        Route::get('chart','monthlyInvoiceChart')->name('invoice.chart');
-        Route::get('/reportlogs','reportlogsdetails')->name('report.logs');
-        Route::put('/reportlog/delete/{id}','reportlogdestroy')->name('report.delete');
+        Route::get('/totalinvoice', 'totalInvoice')->name('invoice.totalinvoice');
+        Route::get('/checkinvoicenumber', 'checkinvoicenumber')->name('invoice.checkinvoicenumber');
+        Route::get('/currency', 'currency')->name('invoice.currency');
+        Route::get('/bdetails', 'bdetails')->name('invoice.bankacc');
+        Route::get('/columnname', 'columnname')->name('invoice.columnname');
+        Route::get('/numbercolumnname', 'numbercolumnname')->name('invoice.numbercolumnname');
+        Route::get('/inv_list', 'inv_list')->name('invoice.inv_list');
+        Route::put('/inv_status/{id}', 'status')->name('invoice.status');
+        Route::get('/invoice/{id}', 'index')->name('invoice.index');
+        Route::post('/invoice/insert', 'store')->name('invoice.store');
+        Route::get('/invoice/search/{id}', 'show')->name('invoice.search');
+        Route::get('/invoice/inv_details/{id}', 'inv_details')->name('invoice.inv_details');
+        Route::get('/invoice/edit/{id}', 'edit')->name('invoice.edit');
+        Route::put('/invoice/update/{id}', 'update')->name('invoice.update');
+        Route::put('/invoice/delete/{id}', 'destroy')->name('invoice.delete');
+        Route::get('status_list', 'status_list')->name('invoice.status_list');
+        Route::get('chart', 'monthlyInvoiceChart')->name('invoice.chart');
+        Route::get('/reportlogs', 'reportlogsdetails')->name('report.logs');
+        Route::put('/reportlog/delete/{id}', 'reportlogdestroy')->name('report.delete');
     });
 
     // lead route 
@@ -439,15 +439,15 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     });
 
     // blog  route
-    $blogController = getversion('blogController'); 
-        Route::controller($blogController)->group(function () {
-        Route::get('/getslug',  'getSlug')->name('blog.getslug');
-        Route::get('/blog',  'index')->name('blog.index');
-        Route::post('/blog/insert',  'store')->name('blog.store');
-        Route::get('/blog/search/{slug}',  'show')->name('blog.search');
-        Route::get('/blog/edit/{id}',  'edit')->name('blog.edit');
-        Route::post('/blog/update/{id}',  'update')->name('blog.update');
-        Route::put('/blog/delete/{id}',  'destroy')->name('blog.delete');
+    $blogController = getversion('blogController');
+    Route::controller($blogController)->group(function () {
+        Route::get('/getslug', 'getSlug')->name('blog.getslug');
+        Route::get('/blog', 'index')->name('blog.index');
+        Route::post('/blog/insert', 'store')->name('blog.store');
+        Route::get('/blog/search/{slug}', 'show')->name('blog.search');
+        Route::get('/blog/edit/{id}', 'edit')->name('blog.edit');
+        Route::post('/blog/update/{id}', 'update')->name('blog.update');
+        Route::put('/blog/delete/{id}', 'destroy')->name('blog.delete');
     });
 
     // api_authorization  route
@@ -460,22 +460,22 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
         Route::put('/apiauthorization/delete/{id}', 'destroy')->name('apiauthorization.delete');
     });
 
-     // tbl_quotation_column route 
-     $tblquotationcolumnController = getversion('tblquotationcolumnController');
-     Route::controller($tblquotationcolumnController)->group(function () {
-         Route::get('/quotation/formulacolumnlist', 'formula')->name('quotationcolumn.formulacolumnlist');
-         Route::get('/quotationcolumn', 'index')->name('quotationcolumn.index');
-         Route::post('/quotationcolumn/insert', 'store')->name('quotationcolumn.store');
-         Route::post('/quotationcolumn/columnorder', 'columnorder')->name('quotationcolumn.columnorder');
-         Route::get('/quotationcolumn/search/{id}', 'show')->name('quotationcolumn.search');
-         Route::get('/quotationcolumn/edit/{id}', 'edit')->name('quotationcolumn.edit');
-         Route::post('/quotationcolumn/update/{id}', 'update')->name('quotationcolumn.update');
-         Route::put('/quotationcolumn/delete/{id}', 'destroy')->name('quotationcolumn.delete');
-         Route::put('/quotationcolumn/hide/{id}', 'hide')->name('quotationcolumn.hide');
-     });
+    // tbl_quotation_column route 
+    $tblquotationcolumnController = getversion('tblquotationcolumnController');
+    Route::controller($tblquotationcolumnController)->group(function () {
+        Route::get('/quotation/formulacolumnlist', 'formula')->name('quotationcolumn.formulacolumnlist');
+        Route::get('/quotationcolumn', 'index')->name('quotationcolumn.index');
+        Route::post('/quotationcolumn/insert', 'store')->name('quotationcolumn.store');
+        Route::post('/quotationcolumn/columnorder', 'columnorder')->name('quotationcolumn.columnorder');
+        Route::get('/quotationcolumn/search/{id}', 'show')->name('quotationcolumn.search');
+        Route::get('/quotationcolumn/edit/{id}', 'edit')->name('quotationcolumn.edit');
+        Route::post('/quotationcolumn/update/{id}', 'update')->name('quotationcolumn.update');
+        Route::put('/quotationcolumn/delete/{id}', 'destroy')->name('quotationcolumn.delete');
+        Route::put('/quotationcolumn/hide/{id}', 'hide')->name('quotationcolumn.hide');
+    });
 
 
-      // tbl_quotation_formula route 
+    // tbl_quotation_formula route 
     $tblquotationformulaController = getversion('tblquotationformulaController');
     Route::controller($tblquotationformulaController)->group(function () {
         Route::get('/quotationformula', 'index')->name('quotationformula.index');
@@ -507,24 +507,76 @@ Route::middleware(['dynamic.version','checkToken'])->group(function () {
     $quotationController = getversion('quotationController');
     //quotation route
     Route::controller($quotationController)->group(function () {
-        Route::get('/quotation/totalquotation',  'totalQuotation')->name('quotation.totalquotation');
-        Route::get('/quotation/status_list',  'status_list')->name('quotation.status_list');
-        Route::get('/quotation/chart',  'monthlyQuotationChart')->name('quotation.chart');
-        Route::get('/quotation/checkquotationnumber',  'checkquotationnumber')->name('quotation.checkquotationnumber');
-        Route::get('/quotation/currency',  'currency')->name('quotation.currency');
-        Route::get('/quotation/columnname',  'columnname')->name('quotation.columnname');
-        Route::get('/quotation/numbercolumnname',  'numbercolumnname')->name('quotation.numbercolumnname');
-        Route::get('/quotatoin/quotation_list',  'quotation_list')->name('quotation.quotation_list');
-        Route::put('/quotation_status/{id}',  'status')->name('quotation.status');
-        Route::get('/quotation/{id}',  'index')->name('quotation.index');
-        Route::post('/quotation/insert',  'store')->name('quotation.store');
-        Route::get('/quotation/search/{id}',  'show')->name('quotation.search');
-        Route::get('/quotation/quotation_details/{id}',  'quotation_details')->name('quotation.quotation_details');
-        Route::get('/quotation/edit/{id}',  'edit')->name('quotation.edit');
-        Route::put('/quotation/update/{id}',  'update')->name('quotation.update');
-        Route::put('/quotation/delete/{id}',  'destroy')->name('quotation.delete');
-        Route::get('/quotation/remarks/{id}',  'getquotationremarks')->name('quotation.getquotationremarks');
-        Route::post('/quotation/updateremarks',  'updatequotationremarks')->name('quotation.updatequotationremarks');
+        Route::get('/quotation/totalquotation', 'totalQuotation')->name('quotation.totalquotation');
+        Route::get('/quotation/status_list', 'status_list')->name('quotation.status_list');
+        Route::get('/quotation/chart', 'monthlyQuotationChart')->name('quotation.chart');
+        Route::get('/quotation/checkquotationnumber', 'checkquotationnumber')->name('quotation.checkquotationnumber');
+        Route::get('/quotation/currency', 'currency')->name('quotation.currency');
+        Route::get('/quotation/columnname', 'columnname')->name('quotation.columnname');
+        Route::get('/quotation/numbercolumnname', 'numbercolumnname')->name('quotation.numbercolumnname');
+        Route::get('/quotatoin/quotation_list', 'quotation_list')->name('quotation.quotation_list');
+        Route::put('/quotation_status/{id}', 'status')->name('quotation.status');
+        Route::get('/quotation/{id}', 'index')->name('quotation.index');
+        Route::post('/quotation/insert', 'store')->name('quotation.store');
+        Route::get('/quotation/search/{id}', 'show')->name('quotation.search');
+        Route::get('/quotation/quotation_details/{id}', 'quotation_details')->name('quotation.quotation_details');
+        Route::get('/quotation/edit/{id}', 'edit')->name('quotation.edit');
+        Route::put('/quotation/update/{id}', 'update')->name('quotation.update');
+        Route::put('/quotation/delete/{id}', 'destroy')->name('quotation.delete');
+        Route::get('/quotation/remarks/{id}', 'getquotationremarks')->name('quotation.getquotationremarks');
+        Route::post('/quotation/updateremarks', 'updatequotationremarks')->name('quotation.updatequotationremarks');
+    });
+
+
+    // consignee route
+    $consigneeController = getversion('consigneeController');
+    Route::controller($consigneeController)->group(function () {
+        Route::get('/getconsignee', 'consigneelist')->name('consignee.getconsigneelist');
+        Route::get('/consignee', 'index')->name('consignee.index');
+        Route::post('/consignee/insert', 'store')->name('consignee.store');
+        Route::get('/consignee/search/{id}', 'show')->name('consignee.search');
+        Route::get('/consignee/edit/{id}', 'edit')->name('consignee.edit');
+        Route::put('/consignee/statusupdate/{id}', 'statusupdate')->name('consignee.statusupdate');
+        Route::put('/consignee/update/{id}', 'update')->name('consignee.update');
+        Route::put('/consignee/delete/{id}', 'destroy')->name('consignee.delete');
+    });
+
+    // consignor route
+    $consignorController = getversion('consignorController');
+    Route::controller($consignorController)->group(function () {
+        Route::get('/getconsignor', 'consignorlist')->name('consignor.getconsignorlist');
+        Route::get('/consignor', 'index')->name('consignor.index');
+        Route::post('/consignor/insert', 'store')->name('consignor.store');
+        Route::get('/consignor/search/{id}', 'show')->name('consignor.search');
+        Route::get('/consignor/edit/{id}', 'edit')->name('consignor.edit');
+        Route::put('/consignor/statusupdate/{id}', 'statusupdate')->name('consignor.statusupdate');
+        Route::put('/consignor/update/{id}', 'update')->name('consignor.update');
+        Route::put('/consignor/delete/{id}', 'destroy')->name('consignor.delete');
+    });
+
+    // consignor copy route
+    $consignorcopyController = getversion('consignorcopyController');
+    Route::controller($consignorcopyController)->group(function () {
+        Route::get('/consignorcopy', 'index')->name('consignorcopy.index');
+        Route::post('/consignorcopy/insert', 'store')->name('consignorcopy.store');
+        Route::get('/consignorcopy/search/{id}', 'show')->name('consignorcopy.search');
+        Route::get('/consignorcopy/edit/{id}', 'edit')->name('consignorcopy.edit');
+        Route::put('/consignorcopy/updatetandc/{id}', 'updatetandc')->name('consignorcopy.updatetandc');
+        Route::put('/consignorcopy/update/{id}', 'update')->name('consignorcopy.update');
+        Route::put('/consignorcopy/delete/{id}', 'destroy')->name('consignorcopy.delete');
+    });
+
+    // logistic other settings route
+    $logisticothersettingsController = getversion('logisticothersettingsController');
+    Route::controller($logisticothersettingsController)->group(function () {
+        Route::get('/getlogisticothersettings', 'getlogisticothersettings')->name('getlogisticothersettings');
+        Route::get('/consignorcopy/termsandconditions', 'termsandconditionsindex')->name('consignorcopytermsandconditions.index');
+        Route::post('/consignorcopy/termsandconditions/insert', 'consignorcopytcstore')->name('consignorcopytermsandconditions.store');
+        Route::get('/consignorcopy/termsandconditions/edit/{id}', 'tcedit')->name('consignorcopytermsandconditions.edit');
+        Route::post('/consignorcopy/termsandconditions/update/{id}', 'tcupdate')->name('consignorcopytermsandconditions.update');
+        Route::put('/consignorcopy/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('consignorcopytermsandconditions.statusupdate');
+        Route::put('/consignorcopy/termsandconditions/delete/{id}', 'tcdestroy')->name('consignorcopytermsandconditions.delete');
+        Route::post('/consignorcopy/consignmentnotenumber', 'consignmentnotenumberstore')->name('consignmentnotenumber.store');
     });
 
 });

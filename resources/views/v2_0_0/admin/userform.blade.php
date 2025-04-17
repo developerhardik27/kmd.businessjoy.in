@@ -656,7 +656,7 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationformula.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicesettingmenu'
+                                                                data-value='showquotationformulamenu'
                                                                 id="alldataquotationformula"
                                                                 name="alldataquotationformula" value="1">
                                                         @else
@@ -1259,7 +1259,7 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicesettingmenu' id="alldataformula"
+                                                                data-value='showformulamenu' id="alldataformula"
                                                                 name="alldataformula" value="1">
                                                         @else
                                                             -

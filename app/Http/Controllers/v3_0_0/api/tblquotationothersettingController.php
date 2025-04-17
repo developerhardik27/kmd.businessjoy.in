@@ -162,7 +162,7 @@ class tblquotationothersettingController extends commonController
                 return $this->successresponse(500, 'message', 'You are unauthorized');
             }
 
-            $all_old_t_and_c = $this->quotation_terms_and_conditionModel::update([
+            $all_old_t_and_c = $this->quotation_terms_and_conditionModel::query()->update([
                 'is_actove' => 0
             ]);
 

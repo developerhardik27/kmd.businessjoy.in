@@ -98,7 +98,18 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v3_0_0',
                                     ];
-                                }else{
+                                } else {
+                                    $paths = [
+                                        'database/migrations/newmasterdbtable',
+                                    ];
+                                }
+                                break;
+                            case 'v4_0_0':
+                                if ($request->company != 1) {
+                                    $paths = [
+                                        'database/migrations/v4_0_0',
+                                    ];
+                                } else {
                                     $paths = [
                                         'database/migrations/newmasterdbtable',
                                     ];
@@ -254,6 +265,51 @@ class versionupdateController extends commonController
                                                 ->where('user_id', $userrp->user_id)
                                                 ->update(['rp' => $updatedRpJson]);
                                         }
+                                    }
+                                }
+                                break;
+                            case 'v4_0_0':
+                                $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                                if ($rp) {
+                                    foreach ($rp as $userrp) {
+                                        $jsonrp = json_decode($userrp->rp, true);
+                                        $newrp = [
+                                            'logisticmodule' => [
+                                                "consignorcopy" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "logisticsettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "consignmentnotenumbersettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "consignorcopytandcsettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "consignee" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "consignor" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            ]
+                                        ];
+
+                                        if (!isset($jsonrp['logisticmodule'])) {
+
+                                            // add the 'quotation module' section with new permissions
+                                            $jsonrp = array_merge($jsonrp, $newrp);
+
+                                            // Encode updated permissions back to JSON
+                                            $updatedRpJson = json_encode($jsonrp);
+                                            // Update the database
+                                            DB::connection('dynamic_connection')->table('user_permissions')
+                                                ->where('user_id', $userrp->user_id)
+                                                ->update(['rp' => $updatedRpJson]);
+                                        }
+                                    }
+                                }
+                                // add default setting for logistic module
+                                if (Schema::connection('dynamic_connection')->hasTable('logistic_settings')) {
+                                    $existingData = DB::connection('dynamic_connection')
+                                        ->table('logistic_settings')
+                                        ->count();
+
+                                    if ($existingData == 0) {
+                                        $setDefaultSettings = DB::connection('dynamic_connection')
+                                            ->table('logistic_settings')
+                                            ->insert([
+                                                'created_by' => $this->userId,
+                                            ]);
                                     }
                                 }
                                 break;
