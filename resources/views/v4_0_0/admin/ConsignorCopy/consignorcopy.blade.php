@@ -381,7 +381,7 @@
                         if (response.status == 200 && response.consignorcopy != '') {
                             // You can update your HTML with the data here if needed
                             global_response = response;
-                            tancid = response.consignorcopy.latesttcid;
+                            tancid = response.consignorcopy.latesttcid != null ? response.consignorcopy.latesttcid.id : null ;
                             $.each(response.consignorcopy.consignorcopy, function(key, value) {
                                 let generateConsignorCopyPdfUrl =
                                     "{{ route('consignorcopy.generatepdf', '__consignorcopyId__') }}"
@@ -412,13 +412,14 @@
                                         <td> 
                                             @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1')
                                             
-                                                ${tancid != null && (value.t_and_c_id == null || value.t_and_c_id != tancid) ? `
+                                                ${tancid != null && value.t_and_c_id != tancid ? `
                                                             <span> 
                                                                 <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Update Terms & Conditions" class="update-t-and-c-btn btn btn-outline-primary btn-rounded btn-sm my-0">
                                                                     <i class="ri-file-edit-line"></i>
                                                                 </button> 
                                                             </span> 
-                                                        ` : ''} 
+                                                        ` : ''
+                                                        } 
                                                 <span>
                                                     <a href=${consignorCoptEditUrl}>
                                                         <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Consignor Copy" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
