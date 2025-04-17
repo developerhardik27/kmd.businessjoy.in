@@ -99,7 +99,9 @@ class consignorcopyController extends commonController
                 'consignor_copy.t_and_c_id',
                 DB::raw("DATE_FORMAT(consignor_copy.created_at, '%d-%M-%Y %h:%i %p') as created_at_formatted"),
             )
-            ->where('consignor_copy.is_deleted', 0);
+            ->where('consignor_copy.is_deleted', 0)
+            ->where('consignors.is_deleted', 0)
+            ->where('consignees.is_deleted', 0);
 
         if ($this->rp['logisticmodule']['consignorcopy']['alldata'] != 1) {
             $consignorcopy->where('consignor_copy.created_by', $this->userId);
