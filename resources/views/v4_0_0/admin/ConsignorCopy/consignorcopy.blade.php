@@ -338,12 +338,15 @@
                     await loaddata();
 
                 } catch (error) {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: "error",
-                        title: "An error occurred while initializing"
-                    });
+                    console.error('Error:', error); 
                     loaderhide();
+                    $('#filter_consignee').append(`<option disabled '>No Data found </option>`);
+                    $('#filter_consignor').append(`<option disabled '>No Data found </option>`);
+
+                    $('#data').DataTable({
+                        responsive: true,
+                        "destroy": true, //use for reinitialize datatable
+                    });
                 }
             }
 
