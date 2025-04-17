@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Models\User;
 use GuzzleHttp\Client;
 use App\Models\company;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
@@ -92,19 +93,17 @@ class AdminLoginController extends Controller
                             /*
                              * $menus (using in dashboard for showing menus) 
                              */
-
-
+ 
 
                             if (hasPermission($rp, "invoicemodule")) {
                                 session(['invoice' => "yes"]);
-                                session(['menu' => 'invoice']);
-                                session(['showinvoicesettings' => "yes"]);
+                                session(['menu' => 'invoice']); 
                                 $menus[] = 'invoice';
                             }
 
                             if (hasPermission($rp, "quotationmodule")) {
                                 session(['quotation' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog', 'lead'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
                                     session(['menu' => 'quotation']);
                                 }
                                 $menus[] = 'quotation';
@@ -112,7 +111,7 @@ class AdminLoginController extends Controller
 
                             if (hasPermission($rp, "leadmodule")) {
                                 session(['lead' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
                                     session(['menu' => 'lead']);
                                 }
                                 // $menus[] = 'lead';
@@ -120,18 +119,20 @@ class AdminLoginController extends Controller
 
                             if (hasPermission($rp, "customersupportmodule")) {
                                 session(['customersupport' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
-                                    session(['menu' => 'customersupport']);
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
+                                    session(['menu' => 'Customer support']);
                                 }
                                 // $menus[] = 'customersupport';
                             }
+
                             if (hasPermission($rp, "adminmodule")) {
                                 session(['admin' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'lead', 'account', 'inventory', 'reminder', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                                     session(['menu' => 'admin']);
                                 }
                                 // $menus[] = 'admin';
                             }
+
                             // if (hasPermission($rp, "accountmodule")) {
                             //     session(['account' => "yes"]);
                             //     if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
@@ -139,21 +140,24 @@ class AdminLoginController extends Controller
                             //     }
                             //     // $menus[] = 'account';
                             // }
+
                             if (hasPermission($rp, "inventorymodule")) {
                                 session(['inventory' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'reminder', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
                                     session(['menu' => 'inventory']);
                                 }
                                 // $menus[] = 'inventory';
                             }
+
                             if (hasPermission($rp, "remindermodule")) {
                                 session(['reminder' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
                                     session(['menu' => 'reminder']);
                                 }
                                 $menus[] = 'reminder';
                             }
-                            if (hasPermission($rp, "reportmodule")) {
+
+                            if (hasPermission($rp, "reportmodule")) { // its invoice report
                                 session(['invoice' => "yes"]);
                                 session(['menu' => 'invoice']);
                                 session(['report' => "yes"]);
@@ -162,13 +166,23 @@ class AdminLoginController extends Controller
                                 // }
                                 // $menus[] = 'report';
                             }
+
                             if (hasPermission($rp, "blogmodule")) {
                                 session(['blog' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'reminder'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
                                     session(['menu' => 'blog']);
                                 }
                                 // $menus[] = 'blog';
                             }
+
+                            if (hasPermission($rp, "logisticmodule")) {
+                                session(['logistic' => "yes"]);
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
+                                    session(['menu' => 'logistic']);
+                                }
+                                // $menus[] = 'blog';
+                            }
+
                             $request->session()->put([
                                 'allmenu' => $menus
                             ]);
@@ -233,44 +247,31 @@ class AdminLoginController extends Controller
 
     public function save_user_login_history($request = null, $via = 'direct', $message = null)
     {
-        $user = Auth::guard('admin')->user();
 
-        // Get the current IP address
-        $ip = request()->header('X-Forwarded-For') ?? request()->server('REMOTE_ADDR');
+        try {
 
-        // Get the country based on IP using ip-api
-        $client = new Client();
-        $response = $client->get("http://ip-api.com/json/{$ip}");
+            $user = Auth::guard('admin')->user();
 
-        // Decode the response JSON
-        $data = json_decode($response->getBody(), true);
+            // Get the current IP address
+            $ip = request()->header('X-Forwarded-For') ?? request()->server('REMOTE_ADDR');
 
-        // If the status is 'fail' or any other issue, set 'Unknown'
-        $country = $data['status'] === 'fail' ? 'Unknown' : $data['country'];
+            // Get the country based on IP using ip-api
+            $client = new Client();
+            $response = $client->get("http://ip-api.com/json/{$ip}");
 
-        // Get device information (Mobile/Desktop/Tablet/Etc...)
-        $agent = new Agent();
-        $device = $agent->isDesktop() ? 'Desktop' : ($agent->isMobile() ? 'Mobile' : 'Tablet');
+            // Decode the response JSON
+            $data = json_decode($response->getBody(), true);
 
-        // Get the browser name (e.g., Chrome, Firefox)
-        $browser = $agent->browser();
+            // If the status is 'fail' or any other issue, set 'Unknown'
+            $country = $data['status'] === 'fail' ? 'Unknown' : $data['country'];
 
-        if ($user) { 
-            // Create user login entry
-            user_activity::create([
-                'user_id' => $user->id,
-                'username' => $user->email,  // Add username if needed
-                'ip' => $ip,  // Capture IP address
-                'country' => $country,
-                'device' => $device,
-                'browser' => $browser,
-                'status' => 'success',  // Mark the login status as success
-                'via' => $via,
-                'company_id' => $user->company_id,
-            ]);
-        } else {
-            $user = User::where('email', $request->email)->where('is_deleted', 0)->first();
-          
+            // Get device information (Mobile/Desktop/Tablet/Etc...)
+            $agent = new Agent();
+            $device = $agent->isDesktop() ? 'Desktop' : ($agent->isMobile() ? 'Mobile' : 'Tablet');
+
+            // Get the browser name (e.g., Chrome, Firefox)
+            $browser = $agent->browser();
+
             if ($user) {
                 // Create user login entry
                 user_activity::create([
@@ -280,39 +281,59 @@ class AdminLoginController extends Controller
                     'country' => $country,
                     'device' => $device,
                     'browser' => $browser,
-                    'status' => 'fail',  // Mark the login status as success
+                    'status' => 'success',  // Mark the login status as success
                     'via' => $via,
                     'company_id' => $user->company_id,
-                    'message' => $message
                 ]);
-            }else{
-                 // Create user login entry
-                 user_activity::create([ 
-                    'username' => $request->email,  // Add username if needed
-                    'ip' => $ip,  // Capture IP address
-                    'country' => $country,
-                    'device' => $device,
-                    'browser' => $browser,
-                    'status' => 'fail',  // Mark the login status as success
-                    'via' => $via, 
-                    'message' => $message
-                ]);
+            } else {
+                $user = User::where('email', $request->email)->where('is_deleted', 0)->first();
+
+                if ($user) {
+                    // Create user login entry
+                    user_activity::create([
+                        'user_id' => $user->id,
+                        'username' => $user->email,  // Add username if needed
+                        'ip' => $ip,  // Capture IP address
+                        'country' => $country,
+                        'device' => $device,
+                        'browser' => $browser,
+                        'status' => 'fail',  // Mark the login status as success
+                        'via' => $via,
+                        'company_id' => $user->company_id,
+                        'message' => $message
+                    ]);
+                } else {
+                    // Create user login entry
+                    user_activity::create([
+                        'username' => $request->email,  // Add username if needed
+                        'ip' => $ip,  // Capture IP address
+                        'country' => $country,
+                        'device' => $device,
+                        'browser' => $browser,
+                        'status' => 'fail',  // Mark the login status as success
+                        'via' => $via,
+                        'message' => $message
+                    ]);
+                }
+
             }
 
-        } 
+            if ($user) {
 
-        if($user){
+                // Get the IDs of the last 30 records
+                $keepLast30 = user_activity::where('user_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->take(30)
+                    ->pluck('id'); // Get IDs of the last 30 records
 
-            // Get the IDs of the last 30 records
-            $keepLast30 = user_activity::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->take(30)
-                ->pluck('id'); // Get IDs of the last 30 records
-    
-            // Delete records that are older than the last 30
-            user_activity::where('user_id', $user->id)
-                ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
-                ->delete();
+                // Delete records that are older than the last 30
+                user_activity::where('user_id', $user->id)
+                    ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
+                    ->delete();
+            }
+
+        } catch (\Exception $e) { 
+            Log::info($e->getMessage()); 
         }
 
     }
@@ -325,7 +346,7 @@ class AdminLoginController extends Controller
     public function forgot()
     {
         return view('admin.forgot');
-    } 
+    }
 
     /**
      * Summary of forgot_password
@@ -392,7 +413,7 @@ class AdminLoginController extends Controller
         } else {
             abort(404);
         }
-    } 
+    }
 
     /**
      * Summary of set_password
@@ -560,7 +581,7 @@ class AdminLoginController extends Controller
                     if (hasPermission($rp, "customersupportmodule")) {
                         session(['customersupport' => "yes"]);
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
-                            session(['menu' => 'customersupport']);
+                            session(['menu' => 'Customer support']);
                         }
                         // $menus[] = 'customersupport';
                     }

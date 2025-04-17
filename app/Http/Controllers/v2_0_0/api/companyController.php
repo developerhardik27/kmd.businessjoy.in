@@ -16,7 +16,7 @@ use Intervention\Image\Facades\Image;
 
 class companyController extends commonController
 {
-    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $user_permissionModel;
+    public $userId, $companyId, $rp, $user, $invoice_other_settingModel,$quotation_other_settingModel, $user_permissionModel;
     public function __construct(Request $request)
     {
 
@@ -45,6 +45,7 @@ class companyController extends commonController
 
         $this->user_permissionModel = $this->getmodel('user_permission');
         $this->invoice_other_settingModel = $this->getmodel('invoice_other_setting');
+        $this->quotation_other_settingModel = $this->getmodel('quotation_other_setting');
     }
 
 
@@ -353,6 +354,17 @@ class companyController extends commonController
                     'created_by' => $this->userId,
                 ]);
 
+                $this->quotation_other_settingModel::create([  // default quotation other settings insert
+                    'overdue_day' => 30,
+                     'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
+                     'sgst' => 9,
+                     'cgst' => 9,
+                     'gst' => 0,
+                     'customer_id' => 1,
+                     'current_customer_id' => 1,
+                     'created_by' => $this->userId,
+                 ]);
+  
                 if ($company) {
 
                     $company_id = $company;

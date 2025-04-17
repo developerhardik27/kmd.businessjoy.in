@@ -172,7 +172,7 @@ class tblinvoiceothersettingController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
-            $all_old_t_and_c = $this->invoice_terms_and_conditionModel::update([
+            $all_old_t_and_c = $this->invoice_terms_and_conditionModel::query()->update([
                 'is_active' => 0
             ]);
 

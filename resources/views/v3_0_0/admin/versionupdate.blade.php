@@ -47,6 +47,7 @@
                                                 <option value="v1_2_1">V1.2.1</option>
                                                 <option value="v2_0_0">V2.0.0</option>
                                                 <option value="v3_0_0">V3.0.0</option>
+                                                <option value="v4_0_0">V4.0.0</option>
                                             </select>
                                             <span class="error-msg" id="error-version" style="color: red"></span>
                                         </div>
@@ -110,31 +111,13 @@
                         // You can update your HTML with the data here if needed
                         if (response.status == 200 && response.company != '') {
                             global_response = response;
-                            $('#company').html(
-                                `<option selected=""> Select Company</option>`);
+                            $('#company').html(`<option selected=""> Select Company</option>`);
                             $.each(response.company, function(key, company) {
-                                var companydetails = '';
-                                if (company.name != null) {
-                                    companydetails += company.name;
-                                }
-                                if (company.contact_no != null) {
-                                    if (companydetails.length > 0) {
-                                        companydetails += ' - '; // 
-                                    }
-                                    companydetails += company.contact_no;
-                                }
-                                if (company.email != null) {
-                                    if (companydetails.length > 0) {
-                                        companydetails += ' - '; // 
-                                    }
-                                    companydetails += company.email;
-                                }
-                                if (company.app_version != null) {
-                                    if (companydetails.length > 0) {
-                                        companydetails += ' - '; // 
-                                    }
-                                    companydetails += company.app_version.replace(/_/g, '.');
-                                }
+                               
+                                company_version = company.app_version.replace(/_/g, '.');
+                                
+                                var companydetails = [company.name,company.contact_no,company.email,company_version].join('-') ;
+
                                 $('#company').append(`
                                      <option value="${company.id}">${companydetails}</option>
                                 `);

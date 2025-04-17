@@ -58,7 +58,7 @@
                     <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
                     <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
                         required />
-                    <span class="error-msg" id="error-branch_name" style="color: red"></span>
+                    <span class="error-msg" id="error-bank_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6">
                     <label for="branch_name">Branch Name</label>
