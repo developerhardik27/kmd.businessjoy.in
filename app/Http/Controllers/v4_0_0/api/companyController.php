@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\v4_0_0\api;
 
+use App\Models\User;
 use App\Mail\sendmail;
 use App\Models\company;
-use App\Models\User;
-use App\Models\company_detail;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
+use App\Models\company_detail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Artisan;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class companyController extends commonController
 {
@@ -127,7 +128,7 @@ class companyController extends commonController
         return $this->successresponse(200, 'company', $company);
 
     }
- 
+
     /**
      * Display a listing of the resource.
      */
@@ -136,44 +137,48 @@ class companyController extends commonController
     {
 
 
-        if ($this->companyId == 1) {
-            $company = DB::table('company')
-                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->join('country', 'company_details.country_id', '=', 'country.id')
-                ->join('state', 'company_details.state_id', '=', 'state.id')
-                ->join('city', 'company_details.city_id', '=', 'city.id')
-                ->join('users', 'company.created_by', '=', 'users.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.firstname as creator_firstname', 'users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
-                ->where('company.is_deleted', 0)
-                ->get();
-        } else {
-            $company = DB::table('company')
-                ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                ->join('country', 'company_details.country_id', '=', 'country.id')
-                ->join('state', 'company_details.state_id', '=', 'state.id')
-                ->join('city', 'company_details.city_id', '=', 'city.id')
-                ->join('users', 'company.created_by', '=', 'users.id')
-                ->select('company.id', 'company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.firstname as creator_firstname', 'users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
-                ->where('company.is_deleted', 0)->where('company.is_active', 1);
+        $company = DB::table('company')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->join('country', 'company_details.country_id', '=', 'country.id')
+            ->join('state', 'company_details.state_id', '=', 'state.id')
+            ->join('city', 'company_details.city_id', '=', 'city.id')
+            ->join('users', 'company.created_by', '=', 'users.id')
+            ->select('company.id', 'company_details.name', 'company_details.email', DB::raw("CAST(company_details.contact_no AS CHAR) as contact_no"), 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'country.country_name', 'state.state_name', 'city.city_name', 'company.created_by', 'company.updated_by', DB::raw("DATE_FORMAT(company.created_at,'%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.firstname as creator_firstname', 'users.lastname as creator_lastname', 'company.updated_at', 'company.is_active', 'company.is_deleted')
+            ->where('company.is_deleted', 0);
 
+        if ($this->companyId != 1) {
+            $company->where('company.is_active', 1);
             if ($this->rp['adminmodule']['company']['alldata'] != 1) {
                 $company->where('company.id', $this->companyId);
             } else {
                 $company->where('company.created_by', $this->userId)->orWhere('company.id', $this->companyId);
             }
-            $company = $company->get();
         }
 
+        $company = $company->get();
+
         if ($this->rp['adminmodule']['company']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
         }
 
         if ($company->isEmpty()) {
-            return $this->successresponse(404, 'company', 'No Records Found');
+            return DataTables::of($company)
+                ->with([
+                    'status' => 404,
+                ])->make(true);
         }
 
+        return DataTables::of($company)
+            ->with([
+                'status' => 200,
+            ])->make(true);
 
-        return $this->successresponse(200, 'company', $company);
 
     }
 
@@ -362,7 +367,7 @@ class companyController extends commonController
                     ]);
 
                     $this->quotation_other_settingModel::create([  // default quotation other settings insert
-                       'overdue_day' => 30,
+                        'overdue_day' => 30,
                         'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
                         'sgst' => 9,
                         'cgst' => 9,
@@ -537,7 +542,7 @@ class companyController extends commonController
     public function update(Request $request, string $id)
     {
 
-        return $this->executeTransaction(function() use ($request,$id){
+        return $this->executeTransaction(function () use ($request, $id) {
             // validate incoming request data
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:50',
@@ -648,7 +653,7 @@ class companyController extends commonController
     public function destroy(string $id)
     {
 
-        return $this->executeTransaction(function() use ($id){
+        return $this->executeTransaction(function () use ($id) {
 
             $company = company::find($id);
 
@@ -671,12 +676,12 @@ class companyController extends commonController
             return $this->successresponse(200, 'message', 'company succesfully deleted');
         });
     }
- 
+
     // company active/deactive function
     public function statusupdate(Request $request, string $id)
     {
 
-        return $this->executeTransaction(function() use ($request,$id){
+        return $this->executeTransaction(function () use ($request, $id) {
             $company = company::find($id);
 
             if (!$company) {

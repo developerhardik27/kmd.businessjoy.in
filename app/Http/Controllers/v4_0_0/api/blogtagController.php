@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Support\Str;
-use App\Models\api_authorization;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class blogtagController extends commonController
@@ -78,7 +79,43 @@ class blogtagController extends commonController
 
 
     }
- 
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function blogtagdatatable()
+    {
+
+        if ($this->rp['blogmodule']['blog']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $blogtag = $this->blog_tagModel::where('is_deleted', 0)->get();
+
+        if ($blogtag->isEmpty()) {
+
+            return DataTables::of($blogtag)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Records Found!'
+                ])->make(true);
+        }
+
+
+        return DataTables::of($blogtag)
+            ->with([
+                'status' => 200
+            ])->make(true);
+
+
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -120,8 +157,8 @@ class blogtagController extends commonController
             }
 
         }
-    } 
-    
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -244,7 +281,7 @@ class blogtagController extends commonController
         $blogtag->update([
             'is_deleted' => 1
         ]);
-        
+
         return $this->successresponse(200, 'message', 'blog tag succesfully deleted');
 
     }

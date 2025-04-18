@@ -97,6 +97,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            let table = '' ;
 
             $('#newCategoryBtn').on('click', function(e) {
                 e.preventDefault();
@@ -116,69 +117,134 @@
             // fetch column name and append into column list table
             function loaddata() {
                 loadershow();
-                $('#tabledata').empty();
-                $('.error-msg').text('');
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('blogcategory.index') }}",
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        user_id: "{{ session()->get('user_id') }}"
+
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // if response has data then it will be append into list table
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.blogcategory != '') {
-                            global_response = response;
-                            var id = 1;
-                            $.each(response.blogcategory, function(key, value) {
-                                $('#tabledata').append(` 
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td>${value.cat_name}</td>
-                                        <td>  
-                                            <span>
-                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Category" data-id='${value.id}'
-                                                        class="btn edit-btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                    <i class="ri-edit-fill"></i>
-                                                </button>
-                                            </span>
-                                            <span>
-                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Category" data-id= '${value.id}'
-                                                    class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
-                                                    <i class="ri-delete-bin-fill"></i>
-                                                </button>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                `);
-                                id++;
-                            });
-                            $('#data').DataTable({
-                                responsive: true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                            $('[data-toggle="tooltip"]').tooltip('dispose');
-                            $('[data-toggle="tooltip"]').tooltip();
-                        } else {
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('blogcategory.datatable') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
+
+                            global_response = json;
+
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
+                                title: "Error loading data"
                             });
-                            $('#data').DataTable();
                         }
-                        loaderhide();
-                        // You can update your HTML with the data here if needed
                     },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'cat_name',
+                            name: 'cat_name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        }, 
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = `
+                                    <span>
+                                        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Category" data-id='${data}'
+                                                class="btn edit-btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                            <i class="ri-edit-fill"></i>
+                                        </button>
+                                    </span>
+                                    <span>
+                                        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Category" data-id= '${data}'
+                                            class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
+                                            <i class="ri-delete-bin-fill"></i>
+                                        </button>
+                                    </span>
+                                `; 
+                                return actionBtns;
+                            }
+                        }
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+                        $('.error-msg').text('');
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
-                });
+                }); 
             }
 
             //call function for loaddata
@@ -257,7 +323,7 @@
                                         icon: "success",
                                         title: response.message
                                     });
-                                    $(row).closest("tr").fadeOut();
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -310,7 +376,7 @@
                                 title: response.message
                             });
                             $('#category_name').val('');
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",

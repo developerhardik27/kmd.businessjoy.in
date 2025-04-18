@@ -90,114 +90,209 @@
             // function for get company data and load into table
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('company.index') }}",
-                    data: {
-                        user_id: {{ session()->get('user_id') }},
-                        company_id: {{ session()->get('company_id') }},
-                        token: "{{ session()->get('api_token') }}"
+
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // Clear and destroy the existing DataTable instance
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
-                        $('#tabledata').empty();
-                        // You can update your HTML with the data here if needed
-                        if (response.status == 200 && response.company != '') {
-                            global_response = response;
-                            var id = 1;
-                            $.each(response.company, function(key, value) {
-                                var editCompanyUrl = "{{route('admin.editcompany','__companyId__')}}".replace('__companyId__',value.id);
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td>${value.name || '-'}</td>
-                                        <td>${value.email || '-'}</td>
-                                        <td>${value.contact_no || '-'}</td>
-                                        <td>
-                                            @if (session('user_permissions.adminmodule.company.edit') == '1') 
-                                                ${value.is_active == 1 ? 
-                                                    `<div id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive">
-                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
-                                                    </div>`  
-                                                    : 
-                                                    `<div id=status_"${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
-                                                        <button data-status= "${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>
-                                                    </div>`
-                                                }
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (session('user_permissions.adminmodule.company.view') == '1')
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
-                                                    <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                        <i class="ri-indent-decrease"></i>
-                                                    </button>
-                                                </span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        @if (session('user_permissions.adminmodule.company.edit') == '1' ||
-                                                session('user_permissions.adminmodule.company.delete') == '1')
-                                            <td> 
-                                                @if (session('user_permissions.adminmodule.company.edit') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                        <a href="${editCompanyUrl}">
-                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                <i class="ri-edit-fill"></i>
-                                                            </button>
-                                                        </a>
-                                                    </span>
-                                                @endif                                                        
-                                                @if (session('user_permissions.adminmodule.company.delete') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif   
-                                            </td>
-                                        @else
-                                            <td> - </td> 
-                                        @endif
-                                    </tr>
-                                `);
-                                id++;
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                            $('#data').DataTable({
-                                responsive :  true,
-                                "destroy": true, //use for reinitialize jquery datatable
-                            });
-                        } else {
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('company.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
+
+                            global_response = json;
+
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
+                                title: "Error loading data"
                             });
-                            $('#data').DataTable({});
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'name',
+                            name: 'name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'email',
+                            name: 'email',
+                            orderable: false,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'contact_no',
+                            name: 'contact_no',
+                            orderable: false,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'is_active',
+                            name: 'is_active',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+
+                                @if (session('user_permissions.adminmodule.company.edit') == '1')
+                                    if (data == 1) {
+                                        actionBtns += `
+                                            <div id="status_${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive">
+                                                <button data-status="${row.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
+                                            </div>
+                                        `;
+                                    } else {
+                                        actionBtns += `
+                                            <div id=status_"${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
+                                                <button data-status= "${row.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button>
+                                            </div>
+                                        `;
+                                    }
+                                @endif
+
+                                return actionBtns;
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+
+                                @if (session('user_permissions.adminmodule.company.view') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
+                                            <button type="button" data-view = '${data}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                <i class="ri-indent-decrease"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+
+                                @if (session('user_permissions.adminmodule.company.edit') == '1')
+                                    var editCompanyUrl =
+                                        "{{ route('admin.editcompany', '__companyId__') }}"
+                                        .replace(
+                                            '__companyId__', data);
+                                    actionBtns += ` 
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                            <a href="${editCompanyUrl}">
+                                                <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+                                @if (session('user_permissions.adminmodule.company.delete') == '1')
+                                    actionBtns += ` 
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                            <button type="button" data-id= '${data}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                     `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+                 
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
             }
@@ -329,7 +424,7 @@
                             },
                             success: function(response) {
                                 if (response.status == 200) {
-                                    $(row).closest("tr").fadeOut();
+                                    table.draw();
                                     Toast.fire({
                                         icon: "success",
                                         title: response.message
@@ -347,14 +442,17 @@
                                 }
                                 loaderhide();
                             },
-                            error: function(xhr, status, error) { // if calling api request error 
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
-                                    .responseText); // Log the full error response for debugging
+                                    .responseText
+                                ); // Log the full error response for debugging
                                 var errorMessage = "";
                                 try {
                                     var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message || "An error occurred";
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
@@ -364,58 +462,58 @@
                                 });
                             }
                         });
-                    } 
-                );  
+                    }
+                );
             });
 
             // view company data in pop-up
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.company, function(key, company) {
+                $.each(global_response.data, function(key, company) {
                     if (company.id == data) {
                         console.log(company);
                         $('#details').append(`
                                     <tr>
                                         <th>Name</th>
-                                        <td>${company.name != null ? company.name : '-'}</td>
+                                        <td>${company.name || '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Email</th>
-                                        <td>${company.email  != null ? company.email : '-'}</td>
+                                        <td>${company.email  || '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Contact</th>
-                                        <td>${company.contact_no  != null ? company.contact_no : '-'}</td>
+                                        <td>${company.contact_no || '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>GST Number</th>
-                                        <td>${company.gst_no  != null ? company.gst_no : '-'}</td>
+                                        <td>${company.gst_no  || '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Address</th>
-                                        <td>${(company.house_no_building_name != null) ? company.house_no_building_name : '-'} ${company.road_name_area_colony != null ? company.road_name_area_colony : ''}</td>
+                                        <td>${[company.house_no_building_name,company.road_name_area_colony].join(',')}</td>
                                     </tr>
                                     <tr>
                                         <th>City</th>
-                                        <td>${company.city_name  != null ? company.city_name : '-'}</td>
+                                        <td>${company.city_name || '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>State</th>
-                                        <td>${company.state_name  != null ? company.state_name : '-'}</td>
+                                        <td>${company.state_name  || '-'}</td>
                                     </tr>
                                     <tr>
                                         <th>Contry</th>
-                                        <td>${company.country_name  != null ? company.country_name : '-'}</td>
+                                        <td>${company.country_name  || '-'}</td>
                                     </tr> 
                                     <tr>
                                         <th>Created On</th>
-                                        <td>${company.created_at_formatted  != null ? company.created_at_formatted : '-'}</td>
+                                        <td>${company.created_at_formatted  || '-'}</td>
                                     </tr> 
                                     @if (session('admin_role') == 1) 
                                         <tr>
                                             <th>Created By</th>
-                                            <td>${company.creator_firstname} ${company.creator_lastname  != null ? company.creator_lastname : '-'}</td>
+                                            <td>${[company.creator_firstname,company.creator_lastname ].join(' ')}</td>
                                         </tr> 
                                     @endif
                             `);

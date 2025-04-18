@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Support\Str;
-use App\Models\api_authorization;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class blogcategoryController extends commonController
@@ -72,7 +73,39 @@ class blogcategoryController extends commonController
             return $this->successresponse(404, 'blogcategory', 'No Records Found');
         }
     }
- 
+
+    public function blogcategorydatatable()
+    {
+
+        if ($this->rp['blogmodule']['blog']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $blogcategory = $this->blogcategorymodel::where('is_deleted', 0)->get();
+
+        if ($blogcategory->count() > 0) {
+            
+            return DataTables::of($blogcategory)
+                ->with([
+                    'status' => 200,
+                ])->make(true);
+
+        } else {
+
+            return DataTables::of($blogcategory)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No records found!'
+                ])->make(true);
+        }
+    }
+
     /**
      * Summary of store
      * store new blog category
@@ -117,7 +150,7 @@ class blogcategoryController extends commonController
 
         }
     }
- 
+
     /**
      * Summary of edit
      * edit blog category

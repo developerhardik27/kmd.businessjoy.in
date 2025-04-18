@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\api_authorization;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class blogController extends commonController
@@ -169,6 +170,79 @@ class blogController extends commonController
         return $this->successresponse(200, 'blog', $blogs);
 
     }
+    /**
+     * Summary of blogdatatable
+     * return blog list without content because its not necessary
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function blogdatatable(Request $request)
+    {
+       
+        if ($this->rp['blogmodule']['blog']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $blogsquery = $this->blogModel::join('blog_categories', function ($join) {
+            $join->on(DB::raw("FIND_IN_SET(blog_categories.id, blogs.cat_ids)"), '>', DB::raw('0'));
+        })
+            ->join('blog_tags', function ($join) {
+                $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
+            })
+            ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
+            ->select(
+                DB::raw("CONCAT_WS(' ', users.firstname, users.lastname) AS author"),
+                'blogs.id',
+                'blogs.title',
+                'blogs.img',
+                'blogs.slug',
+                'blogs.short_desc',
+                DB::raw('GROUP_CONCAT(DISTINCT blog_categories.cat_name) AS categories'),
+                DB::raw('GROUP_CONCAT(DISTINCT blog_tags.tag_name) AS tags'),
+                DB::raw("DATE_FORMAT(blogs.created_at, '%d-%m-%Y') as created_at_formatted")
+            )
+            ->groupBy(
+                'users.firstname',
+                'users.lastname',
+                'blogs.id',
+                'blogs.title',
+                'blogs.img',
+                'blogs.slug',
+                'blogs.short_desc',
+                'blogs.created_at'
+            )
+            ->where('blogs.is_deleted', 0)->orderBy('blogs.id', 'DESC');
+
+        $totalcount = $blogsquery->get()->count();
+
+        $blogs = $blogsquery->get();
+
+        if ($blogs->isEmpty()) {
+            return DataTables::of($blogs)
+            ->with([
+                'status' => 404,
+                'message' => 'No Data Found',
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
+        }
+
+          return DataTables::of($blogs)
+            ->with([
+                'status' => 200, 
+                'recordsTotal' => $totalcount, // Total records count
+            ])->make(true);
+
+    }
+
+
+    
 
     /**
      * Summary of store
