@@ -93,13 +93,18 @@ class consigneeController extends commonController
             $consignees->where('consignees.created_by', $this->userId);
         }
 
+        
+        $totalcount = $consignees->get()->count(); // count total record
+
         $consignees = $consignees->get();
+        
 
         if ($consignees->isEmpty()) {
             return DataTables::of($consignees)
             ->with([
                 'status' => 404,
-                'message' => 'No Data Found'
+                'message' => 'No Data Found',
+                'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
         }
@@ -108,14 +113,15 @@ class consigneeController extends commonController
             return DataTables::of($consignees)
             ->with([
                 'status' => 500,
-                'message' => 'You are Unauthorized'
+                'message' => 'You are Unauthorized',
             ])
             ->make(true);
         }
 
         return DataTables::of($consignees)
         ->with([
-            'status' => 200, 
+            'status' => 200,
+            'recordsTotal' => $totalcount, // Total records count
         ])
         ->make(true);
 

@@ -95,13 +95,16 @@ class consignorController extends commonController
             $consignors->where('consignors.created_by', $this->userId);
         }
 
+        $totalcount = $consignors->get()->count(); // count total record
+
         $consignors = $consignors->get();
 
         if ($consignors->isEmpty()) {
             return DataTables::of($consignors)
             ->with([
                 'status' => 404,
-                'message' => 'No Data Found'
+                'message' => 'No Data Found',
+                'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
         }
@@ -120,6 +123,7 @@ class consignorController extends commonController
         return DataTables::of($consignors)
             ->with([
                 'status' => 200, 
+                'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
 
