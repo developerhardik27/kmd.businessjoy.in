@@ -49,6 +49,19 @@ class consignorcopyController extends commonController
      */
     public function index(Request $request)
     {
+
+
+
+        if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]); 
+        }
+
         $consignorcopy = $this->consignor_copyModel::leftjoin('consignees', 'consignor_copy.consignee_id', 'consignees.id')
             ->leftjoin('consignors', 'consignor_copy.consignor_id', 'consignors.id')
             ->select(
@@ -173,14 +186,7 @@ class consignorcopyController extends commonController
 
         $latesttcid = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)->first();
 
-        if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
-            return DataTables::of($consignorcopy)
-            ->with([
-                'status' => 500,
-                'message' => 'You are unauthorized'
-            ])
-            ->make(true); 
-        }
+        
 
 
         return DataTables::of($consignorcopy)

@@ -57,6 +57,17 @@ class consigneeController extends commonController
      */
     public function index(Request $request)
     {
+
+        if ($this->rp['logisticmodule']['consignee']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
         $consignees = $this->consigneeModel::leftjoin($this->masterdbname . '.country', 'consignees.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'consignees.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'consignees.city_id', '=', $this->masterdbname . '.city.id')
@@ -108,15 +119,7 @@ class consigneeController extends commonController
             ])
             ->make(true);
         }
-
-        if ($this->rp['logisticmodule']['consignee']['view'] != 1) {
-            return DataTables::of($consignees)
-            ->with([
-                'status' => 500,
-                'message' => 'You are Unauthorized',
-            ])
-            ->make(true);
-        }
+ 
 
         return DataTables::of($consignees)
         ->with([

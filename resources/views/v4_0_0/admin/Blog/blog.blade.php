@@ -85,111 +85,177 @@
             var global_response = '';
             // load blog in table 
             function loaddata() {
-                loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('blog.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}", //user id is neccesary for fetch api data
-                        company_id: "{{ session()->get('company_id') }}", //compnay id is neccesary for fetch api data
-                        token: "{{ session()->get('api_token') }}"
+                loadershow(); 
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // if response has data then it will be append into list table
-                        if($.fn.dataTable.isDataTable('#data')){
-                            $('#data').DataTable().clear().destroy(); 
-                        }
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.blog != '') {
-                            // You can update your HTML with the data here if needed
-                            global_response = response;
-                            var id = 1;
-                            $.each(response.blog, function(key, value) {
-                                var editBlogUrl = "{{route('admin.editblog','__editid__')}}".replace('__editid__',value.id);
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td>${value.title != null ? value.title : '-'}</td> 
-                                        <td>${value.created_at_formatted != null ? value.created_at_formatted : '-'}</td>  
-                                        <td>${value.firstname != null ? value.firstname : '-'} ${value.firstname != null ? value.lastname : ''}</td> 
-                                        @if (session('user_permissions.blogmodule.blog.edit') == '1' ||
-                                                session('user_permissions.blogmodule.blog.delete') == '1')
-                                            <td> 
-                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Vist Blog">
-                                                   <a href="https://oceanmnc.com/${value.slug}" target="_blank"> 
-                                                        <button type="button"  class="btn btn-info btn-rounded btn-sm my-0 mb-2">
-                                                            <i class="ri-link"></i>
-                                                        </button>
-                                                    </a>
-                                                </span>
-                                                @if (session('user_permissions.blogmodule.blog.view') == '1')
-                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
-                                                        <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0 mb-2">
-                                                            <i class="ri-indent-decrease"></i>
-                                                        </button>
-                                                    </span>
-                                                @else
-                                                    -
-                                                @endif 
-                                                @if (session('user_permissions.blogmodule.blog.edit') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                        <a href='${editBlogUrl}'>
-                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                                <i class="ri-edit-fill"></i>
-                                                            </button>
-                                                        </a>
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.blogmodule.blog.delete') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif    
-                                            </td>
-                                        @else
-                                            <td> - </td>
-                                        @endif   
-                                    </tr>
-                                `);
-                                id++;
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                            var search = {!! json_encode($search) !!}
-                            $('#data').DataTable({
-                                "search": {
-                                    "search": search
-                                },
-                                responsive:true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                        } else { // if database not found
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('blog.datatable') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
+
+                            global_response = json;
+
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
-                            }); 
-                            $('#data').DataTable();
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'title',
+                            name: 'title',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'created_at_formatted',
+                            name: 'created_at_formatted',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'author',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name:  'author' 
+                        }, 
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = `
+                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Vist Blog">
+                                        <a href="https://oceanmnc.com/${row.slug}" target="_blank"> 
+                                            <button type="button"  class="btn btn-info btn-rounded btn-sm my-0 mb-2">
+                                                <i class="ri-link"></i>
+                                            </button>
+                                        </a>
+                                    </span>
+                                `;
+                                @if (session('user_permissions.blogmodule.blog.view') == '1')
+                                     actionBtns += `   
+                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
+                                            <button type="button"  data-view = '${data}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0 mb-2">
+                                                <i class="ri-indent-decrease"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+                                @if (session('user_permissions.blogmodule.blog.edit') == '1')
+                                    let editBlogUrl =
+                                        `{{ route('admin.editblog', '__id__') }}`.replace(
+                                            '__id__', data);
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                            <a href='${editBlogUrl}'>
+                                                <button type="button" class="btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if (session('user_permissions.blogmodule.blog.delete') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                            <button type="button" data-id= '${data}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
 
             //call function for loaddata
@@ -225,7 +291,7 @@
                                         icon: "success",
                                         title: response.message
                                     });
-                                    $(row).closest("tr").fadeOut();
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -269,32 +335,32 @@
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.blog, function(key, blog) {
+                $.each(global_response.data, function(key, blog) {
                     if (blog.id == data) {
                         $('#details').append(`
                             <tr>
                                 <th>Categories</th>
-                                <td>${(blog.categories != null)? blog.categories : '-'}</td>
+                                <td>${blog.categories || '-'}</td>
                             </tr>
                             <tr>
                                 <th>Tags</th>
-                                <td>${(blog.tags!= null)? blog.tags : '-'}</td>
+                                <td>${blog.tags || '-'}</td>
                             </tr>
                             <tr>
                                 <th>Title</th>
-                                <td>${(blog.title!= null)? blog.title : '-'}</td>
+                                <td>${blog.title || '-'}</td>
                             </tr>
                             <tr>
                                 <th>Short Description</th>
-                                <td>${(blog.short_desc!= null)? blog.short_desc : '-'}</td>
+                                <td>${blog.short_desc || '-'}</td>
                             </tr>
                             <tr>
                                 <th>Published On</th>
-                                <td>${(blog.created_at_formatted!= null)? blog.created_at_formatted : '-'}</td>
+                                <td>${blog.created_at_formatted || '-'}</td>
                             </tr>
                             <tr>
                                 <th>Published By</th>
-                                <td>${(blog.firstname!= null)? blog.firstname : '-'} ${(blog.lastname!= null)? blog.lastname : ''}</td>
+                                <td>${blog.author || '-'}</td>
                             </tr>
                         `);
                     }

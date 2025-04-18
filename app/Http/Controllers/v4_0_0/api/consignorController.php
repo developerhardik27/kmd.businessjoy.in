@@ -59,6 +59,17 @@ class consignorController extends commonController
      */
     public function index(Request $request)
     {
+
+        if ($this->rp['logisticmodule']['consignor']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
         $consignors = $this->consignorModel::leftjoin($this->masterdbname . '.country', 'consignors.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'consignors.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'consignors.city_id', '=', $this->masterdbname . '.city.id')
@@ -101,28 +112,19 @@ class consignorController extends commonController
 
         if ($consignors->isEmpty()) {
             return DataTables::of($consignors)
-            ->with([
-                'status' => 404,
-                'message' => 'No Data Found',
-                'recordsTotal' => $totalcount, // Total records count
-            ])
-            ->make(true);
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
 
+ 
 
-        if ($this->rp['logisticmodule']['consignor']['view'] != 1) {
-            return DataTables::of($consignors)
-            ->with([
-                'status' => 500,
-                'message' => 'You are Unauthorized'
-            ])
-            ->make(true);
-        }
-       
-       
         return DataTables::of($consignors)
             ->with([
-                'status' => 200, 
+                'status' => 200,
                 'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);

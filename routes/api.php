@@ -422,6 +422,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     $blogcategoryController = getversion('blogcategoryController');
     Route::controller($blogcategoryController)->group(function () {
         Route::get('/blogcategory', 'index')->name('blogcategory.index');
+        Route::get('/getblogcategory', 'blogcategorydatatable')->name('blogcategory.datatable');
         Route::post('/blogcategory/insert', 'store')->name('blogcategory.store');
         Route::get('/blogcategory/edit/{id}', 'edit')->name('blogcategory.edit');
         Route::post('/blogcategory/update/{id}', 'update')->name('blogcategory.update');
@@ -432,6 +433,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     $blogtagController = getversion('blogtagController');
     Route::controller($blogtagController)->group(function () {
         Route::get('/blogtag', 'index')->name('blogtag.index');
+        Route::get('/getblogtag', 'blogtagdatatable')->name('blogtag.datatable');
         Route::post('/blogtag/insert', 'store')->name('blogtag.store');
         Route::get('/blogtag/edit/{id}', 'edit')->name('blogtag.edit');
         Route::post('/blogtag/update/{id}', 'update')->name('blogtag.update');
@@ -443,6 +445,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     Route::controller($blogController)->group(function () {
         Route::get('/getslug', 'getSlug')->name('blog.getslug');
         Route::get('/blog', 'index')->name('blog.index');
+        Route::get('/getblog', 'blogdatatable')->name('blog.datatable');
         Route::post('/blog/insert', 'store')->name('blog.store');
         Route::get('/blog/search/{slug}', 'show')->name('blog.search');
         Route::get('/blog/edit/{id}', 'edit')->name('blog.edit');
