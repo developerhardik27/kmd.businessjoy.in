@@ -109,6 +109,9 @@ class consignorcopyController extends commonController
         }
 
 
+       $totalcount = $consignorcopy->get()->count(); // count total record
+
+
         //applyfilters
 
         $filters = [
@@ -162,7 +165,8 @@ class consignorcopyController extends commonController
             return DataTables::of($consignorcopy)
                 ->with([
                     'status' => 404,
-                    'message' => 'No Data Found'
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
                 ])
                 ->make(true);
         }
@@ -183,6 +187,7 @@ class consignorcopyController extends commonController
             ->with([
                 'status' => 200,
                 'latesttcid' => $latesttcid,
+                'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
 
