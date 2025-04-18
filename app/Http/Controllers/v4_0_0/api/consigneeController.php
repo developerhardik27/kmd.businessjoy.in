@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class consigneeController extends commonController
@@ -95,13 +96,28 @@ class consigneeController extends commonController
         $consignees = $consignees->get();
 
         if ($consignees->isEmpty()) {
-            return $this->successresponse(404, 'consignee', 'No records found');
+            return DataTables::of($consignees)
+            ->with([
+                'status' => 404,
+                'message' => 'No Data Found'
+            ])
+            ->make(true);
         }
 
         if ($this->rp['logisticmodule']['consignee']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
+            return DataTables::of($consignees)
+            ->with([
+                'status' => 500,
+                'message' => 'You are Unauthorized'
+            ])
+            ->make(true);
         }
-        return $this->successresponse(200, 'consignee', $consignees);
+
+        return DataTables::of($consignees)
+        ->with([
+            'status' => 200, 
+        ])
+        ->make(true);
 
     }
 

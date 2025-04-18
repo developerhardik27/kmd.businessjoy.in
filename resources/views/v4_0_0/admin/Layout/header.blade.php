@@ -107,6 +107,9 @@
             background-color: #FF7A29 !important;
         } */
 
+        
+
+        /* right side filter bar (offcanvas)  start*/
         .offcanvas-custom {
             position: fixed;
             top: 0;
@@ -178,7 +181,20 @@
 
         .no-scroll {
             overflow: hidden;
-        } 
+        }
+        /* right side filter bar (offcanvas)  end*/
+
+        @media (max-width: 768px) {
+          /* pagination jump to page button  */
+            #jumpToPageWrapper {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: wrap;
+                margin-top: 15px;
+            }
+        }
     </style>
 
     @yield('style')

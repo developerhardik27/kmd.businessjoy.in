@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class consignorcopyController extends commonController
 {
@@ -133,7 +134,7 @@ class consignorcopyController extends commonController
                 if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
                     // For date filters (loading_date, stuffing_date), we apply range conditions
                     $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
-                    $consignorcopy->where("consignor_copy.$column", $operator, $value);
+                    $consignorcopy->whereDate("consignor_copy.$column", $operator, $value);
                 } else {
                     // For other filters, apply simple equality checks
                     $consignorcopy->where("consignor_copy.$column", $value);
@@ -158,21 +159,32 @@ class consignorcopyController extends commonController
         $consignorcopy = $consignorcopy->get();
 
         if ($consignorcopy->isEmpty()) {
-            return $this->successresponse(404, 'consignorcopy', 'No records found');
+            return DataTables::of($consignorcopy)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found'
+                ])
+                ->make(true);
         }
 
         $latesttcid = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)->first();
 
         if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
+            return DataTables::of($consignorcopy)
+            ->with([
+                'status' => 500,
+                'message' => 'You are unauthorized'
+            ])
+            ->make(true); 
         }
 
-        $data = [
-            'consignorcopy' => $consignorcopy,
-            'latesttcid' => $latesttcid
-        ];
 
-        return $this->successresponse(200, 'consignorcopy', $data);
+        return DataTables::of($consignorcopy)
+            ->with([
+                'status' => 200,
+                'latesttcid' => $latesttcid,
+            ])
+            ->make(true);
 
     }
 

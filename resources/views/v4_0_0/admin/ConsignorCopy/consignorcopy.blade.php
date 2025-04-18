@@ -39,6 +39,8 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
+
+      
     </style>
 @endsection
 @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1')
@@ -220,6 +222,7 @@
 
             var global_response = '';
 
+            var table = '' ;
 
 
             function getConsigneeData() {
@@ -338,7 +341,7 @@
                     await loaddata();
 
                 } catch (error) {
-                    console.error('Error:', error); 
+                    console.error('Error:', error);
                     loaderhide();
                     $('#filter_consignee').append(`<option disabled '>No Data found </option>`);
                     $('#filter_consignor').append(`<option disabled '>No Data found </option>`);
@@ -354,155 +357,343 @@
 
 
             // load consignor copy  data in table 
-            function loaddata(data = null) {
-                loadershow();
+            function loaddata() {
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
+                    },
+                    destroy: true, // allows re-initialization
+                    responsive : true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('consignorcopy.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                            d.filter_consignment_no = $('#filter_consignment_no').val();
+                            d.filter_container_no = $('#filter_container_no').val();
+                            d.filter_loading_date_from = $('#filter_loading_date_from').val();
+                            d.filter_loading_date_to = $('#filter_loading_date_to').val();
+                            d.filter_stuffing_date_from = $('#filter_stuffing_date_from').val();
+                            d.filter_stuffing_date_to = $('#filter_stuffing_date_to').val();
+                            d.filter_truck_no = $('#filter_truck_no').val();
+                            d.filter_location_from = $('#filter_location_from').val();
+                            d.filter_location_to = $('#filter_location_to').val();
+                            d.filter_location_to_2 = $('#filter_location_to_2').val();
+                            d.filter_consignee = $('#filter_consignee').val();
+                            d.filter_consignor = $('#filter_consignor').val();
+                        },
+                        dataSrc: function(json) { 
+                            if (json.status === 200) {
+                                tancid = json.latesttcid != null ? json.latesttcid.id : null;
+                            }
 
-                if (data == null) {
-                    data = {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    }
-                }
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('consignorcopy.index') }}",
-                    data: data,
-                    success: function(response) {
-                        // Clear and destroy the existing DataTable instance
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
-
-                        // Clear the existing table body
-                        $('#tabledata').empty();
-                        // if response has data then it will be append into list table
-                        if (response.status == 200 && response.consignorcopy != '') {
-                            // You can update your HTML with the data here if needed
-                            global_response = response;
-                            tancid = response.consignorcopy.latesttcid != null ? response.consignorcopy.latesttcid.id : null ;
-                            $.each(response.consignorcopy.consignorcopy, function(key, value) {
-                                let generateConsignorCopyPdfUrl =
-                                    "{{ route('consignorcopy.generatepdf', '__consignorcopyId__') }}"
-                                    .replace('__consignorcopyId__', value.id);
-                                let consignorCoptEditUrl =
-                                    "{{ route('admin.editconsignorcopy', '__consignorcopyId__') }}"
-                                    .replace('__consignorcopyId__', value.id);
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${value.consignment_note_no}</td>
-                                        <td>${value.consignor || '-'}</td>
-                                        <td>${value.consignee || '-'}</td>
-                                        <td>${value.container_no || '-'}</td>
-                                        <td>${value.type || '-'}</td>
-                                        <td>${value.to_pay || '-'}</td> 
-                                        <td>
-                                             @if (session('user_permissions.invoicemodule.invoice.view') == '1')
-                                                <span data-toggle="tooltip" data-placement="left" data-original-title="Download Consignor Copy Pdf">
-                                                    <a href=${generateConsignorCopyPdfUrl} target='_blank' id='pdf'>
-                                                        <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
-                                                    </a>
-                                                </span>
-                                            @else
-                                                -    
-                                            @endif
-                                        </td>
-                                        
-                                        <td> 
-                                            @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1')
-                                            
-                                                ${tancid != null && value.t_and_c_id != tancid ? `
-                                                            <span> 
-                                                                <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Update Terms & Conditions" class="update-t-and-c-btn btn btn-outline-primary btn-rounded btn-sm my-0">
-                                                                    <i class="ri-file-edit-line"></i>
-                                                                </button> 
-                                                            </span> 
-                                                        ` : ''
-                                                        } 
-                                                <span>
-                                                    <a href=${consignorCoptEditUrl}>
-                                                        <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Consignor Copy" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                            <i class="ri-edit-fill"></i>
-                                                        </button>
-                                                    </a>
-                                                </span>  
-                                            @endif
-                                            @if (session('user_permissions.logisticmodule.consignorcopy.delete') == '1')
-                                                <span>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                        <i  class="ri-delete-bin-fill"></i>
-                                                    </button>
-                                                </span> 
-                                            @endif
-                                        </td>
-                                    </tr>
-                                `);
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                            $('#data').DataTable({
-                                responsive: true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                        } else { // if database not found
+                            if(json.message){
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
+                            return json.data;
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
+                                title: "Error loading data"
                             });
-                            $('#data').DataTable({});
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [[0,'desc']],
+                    columns: [
+
+                        {
+                            data: 'consignment_note_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'consignment_note_no'
+                        },
+                        {
+                            data: 'consignor',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'consignor'
+                        },
+                        {
+                            data: 'consignee',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'consignee'
+                        },
+                        {
+                            data: 'container_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'container_no'
+                        },
+                        {
+                            data: 'type',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'type'
+                        },
+                        {
+                            data: 'to_pay',
+                            name: 'to_pay',
+                            orderable: true,
+                            searchable: false,
+                             defaultContent: '-',
+                        },
+                        {
+                            data: 'id',
+                            orderable: false,
+                            searchable: false,
+                            name: 'consignor_copy.id',
+                            render: function(data, type, row) {
+                                let generateConsignorCopyPdfUrl =
+                                    "{{ route('consignorcopy.generatepdf', '__consignorcopyId__') }}"
+                                    .replace('__consignorcopyId__', data);
+                                @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                    return `
+                                        <span data-toggle="tooltip" data-placement="left" title="Download Consignor Copy Pdf">
+                                            <a href="${generateConsignorCopyPdfUrl}" target="_blank" id="pdf">
+                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0">
+                                                    <i class="ri-download-line"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @else
+                                    return `-`;
+                                @endif
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'consignor_copy.id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+
+                                // T&C Update Button
+                                if (tancid != null && row.t_and_c_id != tancid) {
+                                    actionBtns += `
+                                        <span>
+                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Update Terms & Conditions"
+                                                class="update-t-and-c-btn btn btn-outline-primary btn-rounded btn-sm my-0">
+                                                <i class="ri-file-edit-line"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                }
+
+                                @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1')
+                                    let consignorCopyEditUrl =
+                                        `{{ route('admin.editconsignorcopy', '__id__') }}`.replace(
+                                            '__id__', row.id);
+                                    actionBtns += `
+                                        <span>
+                                            <a href="${consignorCopyEditUrl}">
+                                                <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Edit Consignor Copy"
+                                                    class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if (session('user_permissions.logisticmodule.consignorcopy.delete') == '1')
+                                    actionBtns += `
+                                        <span>
+                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Delete"
+                                                class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+
+
+                    ],
+                     
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                         // 👇 Jump to Page input injection
+                         if ($('#jumpToPageWrapper').length === 0) {
+                                let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                                $(".dt-paging").after(jumpHtml);
+                            }
+
+
+                            $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                                function() {
+                                    let table = $('#data').DataTable();
+                                    // Check if table is initialized
+                                    if ($.fn.DataTable.isDataTable('#data')) {
+                                        let page = parseInt($('#jumpToPage').val());
+                                        let totalPages = table.page.info().pages;
+
+                                        if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                            table.page(page - 1).draw('page');
+                                        } else {
+                                            Toast.fire({
+                                                icon: "error",
+                                                title: `Please enter a page number between 1 and ${totalPages}`
+                                            });
+                                        }
+                                    } else {
+
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `DataTable not yet initialized.`
+                                        });
+                                    }
+                                }
+                            );
                     }
                 });
+
+
+
+
+                // $.ajax({
+                //     type: 'GET',
+                //     url: "{{ route('consignorcopy.index') }}",
+                //     data: data,
+                //     success: function(response) {
+                //         // Clear and destroy the existing DataTable instance
+                //         if ($.fn.dataTable.isDataTable('#data')) {
+                //             $('#data').DataTable().clear().destroy();
+                //         }
+
+                //         // Clear the existing table body
+                //         $('#tabledata').empty();
+                //         // if response has data then it will be append into list table
+                //         if (response.status == 200 && response.consignorcopy != '') {
+                //             // You can update your HTML with the data here if needed
+                //             global_response = response;
+                //             tancid = response.consignorcopy.latesttcid != null ? response.consignorcopy
+                //                 .latesttcid.id : null;
+                //             $.each(response.consignorcopy.consignorcopy, function(key, value) {
+                //                 let generateConsignorCopyPdfUrl =
+                //                     "{{ route('consignorcopy.generatepdf', '__consignorcopyId__') }}"
+                //                     .replace('__consignorcopyId__', value.id);
+                //                 let consignorCoptEditUrl =
+                //                     "{{ route('admin.editconsignorcopy', '__consignorcopyId__') }}"
+                //                     .replace('__consignorcopyId__', value.id);
+                //                 $('#tabledata').append(`
+            //                     <tr>
+            //                         <td>${value.consignment_note_no}</td>
+            //                         <td>${value.consignor || '-'}</td>
+            //                         <td>${value.consignee || '-'}</td>
+            //                         <td>${value.container_no || '-'}</td>
+            //                         <td>${value.type || '-'}</td>
+            //                         <td>${value.to_pay || '-'}</td> 
+            //                         <td>
+            //                              @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+            //                                 <span data-toggle="tooltip" data-placement="left" data-original-title="Download Consignor Copy Pdf">
+            //                                     <a href=${generateConsignorCopyPdfUrl} target='_blank' id='pdf'>
+            //                                         <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
+            //                                     </a>
+            //                                 </span>
+            //                             @else
+            //                                 -    
+            //                             @endif
+            //                         </td>
+
+            //                         <td> 
+            //                             @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1')
+
+            //                                 ${tancid != null && value.t_and_c_id != tancid ? `
+                //                                                         <span> 
+                //                                                             <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Update Terms & Conditions" class="update-t-and-c-btn btn btn-outline-primary btn-rounded btn-sm my-0">
+                //                                                                 <i class="ri-file-edit-line"></i>
+                //                                                             </button> 
+                //                                                         </span> 
+                //                                                     ` : ''
+            //                                         } 
+            //                                 <span>
+            //                                     <a href=${consignorCoptEditUrl}>
+            //                                         <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Consignor Copy" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+            //                                             <i class="ri-edit-fill"></i>
+            //                                         </button>
+            //                                     </a>
+            //                                 </span>  
+            //                             @endif
+            //                             @if (session('user_permissions.logisticmodule.consignorcopy.delete') == '1')
+            //                                 <span>
+            //                                     <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+            //                                         <i  class="ri-delete-bin-fill"></i>
+            //                                     </button>
+            //                                 </span> 
+            //                             @endif
+            //                         </td>
+            //                     </tr>
+            //                 `);
+                //                 $('[data-toggle="tooltip"]').tooltip('dispose');
+                //                 $('[data-toggle="tooltip"]').tooltip();
+                //             });
+                //             $('#data').DataTable({
+                //                 responsive: true,
+                //                 "destroy": true, //use for reinitialize datatable
+                //             });
+                //         } else { // if database not found
+                //             Toast.fire({
+                //                 icon: "error",
+                //                 title: response.message || 'No record found!'
+                //             });
+                //             $('#data').DataTable({});
+                //         }
+                //         loaderhide();
+                //     },
+                //     error: function(xhr, status, error) { // if calling api request error 
+                //         loaderhide();
+                //         console.log(xhr.responseText); // Log the full error response for debugging
+                //         var errorMessage = "";
+                //         try {
+                //             var responseJSON = JSON.parse(xhr.responseText);
+                //             errorMessage = responseJSON.message || "An error occurred";
+                //         } catch (e) {
+                //             errorMessage = "An error occurred";
+                //         }
+                //         Toast.fire({
+                //             icon: "error",
+                //             title: errorMessage
+                //         });
+                //     }
+                // });
+
             }
-
-           
-
-
 
             // filters 
 
             //apply filters
 
             $('#applyfilters').on('click', function() {
-
-                data = {
-                    user_id: "{{ session()->get('user_id') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}",
-                    filter_consignment_no: $('#filter_consignment_no').val(),
-                    filter_container_no: $('#filter_container_no').val(),
-                    filter_loading_date_from: $('#filter_loading_date_from').val(),
-                    filter_loading_date_to: $('#filter_loading_date_to').val(),
-                    filter_stuffing_date_from: $('#filter_stuffing_date_from').val(),
-                    filter_stuffing_date_to: $('#filter_stuffing_date_to').val(),
-                    filter_truck_no: $('#filter_truck_no').val(),
-                    filter_location_from: $('#filter_location_from').val(),
-                    filter_location_to: $('#filter_location_to').val(),
-                    filter_location_to_2: $('#filter_location_to_2').val(),
-                    filter_consignee: $('#filter_consignee').val(),
-                    filter_consignor: $('#filter_consignor').val()
-                }
-
-                loaddata(data);
-
-
+                table.draw();
                 hideOffCanvass(); // close OffCanvass
 
             });
@@ -519,7 +710,7 @@
 
                 hideOffCanvass(); // close OffCanvass
 
-                loaddata();
+                table.draw();
 
             });
 
@@ -553,7 +744,7 @@
                                         icon: "success",
                                         title: "succesfully deleted"
                                     });
-                                    loaddata();
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
