@@ -59,6 +59,7 @@ return array(
     'App\\Http\\Controllers\\v1_0_0\\api\\productController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/productController.php',
     'App\\Http\\Controllers\\v1_0_0\\api\\purchaseController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/purchaseController.php',
     'App\\Http\\Controllers\\v1_0_0\\api\\reminderController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/reminderController.php',
+    'App\\Http\\Controllers\\v1_0_0\\api\\remindercustomerController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/remindercustomerController.php',
     'App\\Http\\Controllers\\v1_0_0\\api\\tblinvoicecolumnController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/tblinvoicecolumnController.php',
     'App\\Http\\Controllers\\v1_0_0\\api\\tblinvoiceformulaController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/tblinvoiceformulaController.php',
     'App\\Http\\Controllers\\v1_0_0\\api\\tblinvoiceothersettingController' => $baseDir . '/app/Http/Controllers/v1_0_0/api/tblinvoiceothersettingController.php',

@@ -771,6 +771,7 @@ class ComposerStaticInit209a4b2331069bbc9cff0c38ea3cdda6
         'App\\Http\\Controllers\\v1_0_0\\api\\productController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/productController.php',
         'App\\Http\\Controllers\\v1_0_0\\api\\purchaseController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/purchaseController.php',
         'App\\Http\\Controllers\\v1_0_0\\api\\reminderController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/reminderController.php',
+        'App\\Http\\Controllers\\v1_0_0\\api\\remindercustomerController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/remindercustomerController.php',
         'App\\Http\\Controllers\\v1_0_0\\api\\tblinvoicecolumnController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/tblinvoicecolumnController.php',
         'App\\Http\\Controllers\\v1_0_0\\api\\tblinvoiceformulaController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/tblinvoiceformulaController.php',
         'App\\Http\\Controllers\\v1_0_0\\api\\tblinvoiceothersettingController' => __DIR__ . '/../..' . '/app/Http/Controllers/v1_0_0/api/tblinvoiceothersettingController.php',
