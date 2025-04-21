@@ -629,6 +629,14 @@ class AdminLoginController extends Controller
                         }
                         // $menus[] = 'blog';
                     }
+
+                    if (hasPermission($rp, "logisticmodule")) {
+                        session(['logistic' => "yes"]);
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
+                            session(['menu' => 'logistic']);
+                        }
+                        // $menus[] = 'blog';
+                    }
                     $request->session()->put([
                         'allmenu' => $menus
                     ]);
