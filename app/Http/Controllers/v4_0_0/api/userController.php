@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\v4_0_0\api;
 
 
-use App\Mail\sendmail;
 use App\Models\User;
+use App\Mail\sendmail;
+use App\Models\company;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\user_activity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
-use App\Models\company;
-use Illuminate\Support\Str;
-use App\Models\user_activity;
 
 class userController extends commonController
 {
@@ -75,10 +76,19 @@ class userController extends commonController
         )->get();
 
         if ($loginhistory->isEmpty()) {
-            return $this->successresponse(404, 'message', "No history found!");
-        }
-        
-        return $this->successresponse(200, 'loginhistory', $loginhistory);
+            return DataTables::of($loginhistory)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found', 
+                ])
+                ->make(true);
+        } 
+
+        return DataTables::of($loginhistory)
+        ->with([
+            'status' => 200, 
+        ])
+        ->make(true);
     }
 
     // return username and company name
@@ -283,6 +293,54 @@ class userController extends commonController
         }
 
         return $this->successresponse(200, 'user', $users);
+    }
+
+    /**
+     * Display a listing of the DataTable.
+     */
+
+    public function userdatatable(Request $request)
+    {
+
+        if ($this->rp['adminmodule']['user']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $usersres = DB::table('users')
+            ->join('country', 'users.country_id', '=', 'country.id')
+            ->join('state', 'users.state_id', '=', 'state.id')
+            ->join('city', 'users.city_id', '=', 'city.id')
+            ->join('company', 'users.company_id', '=', 'company.id')
+            ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
+            ->join('user_role', 'users.role', '=', 'user_role.id')
+            ->leftJoin('users as creator', 'users.created_by', '=', 'creator.id')
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'creator.firstname as creator_firstname', 'creator.lastname as creator_lastname', DB::raw("DATE_FORMAT(users.created_at, '%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.updated_by', 'users.is_active')
+            ->where('users.is_deleted', 0);
+
+        if ($this->companyId != 1) {
+            $users = $usersres->where('users.company_id', $this->companyId);
+        }
+
+        if ($this->rp['adminmodule']['user']['alldata'] != 1) {
+            $usersres->where('users.created_by', $this->userId)->orWhere('users.id', $this->userId);
+        }
+
+        $users = $usersres->get();
+
+        if ($users->isEmpty()) {
+            return DataTables::of($users)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found', 
+                ])
+                ->make(true);
+        } 
+
+        return DataTables::of($users)
+        ->with([
+            'status' => 200, 
+        ])
+        ->make(true);
     }
 
     /**

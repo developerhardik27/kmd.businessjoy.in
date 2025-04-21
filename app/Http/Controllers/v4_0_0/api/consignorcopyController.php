@@ -185,10 +185,7 @@ class consignorcopyController extends commonController
         }
 
         $latesttcid = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)->first();
-
-        
-
-
+ 
         return DataTables::of($consignorcopy)
             ->with([
                 'status' => 200,
