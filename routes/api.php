@@ -167,6 +167,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::get('/invoiceuser', 'invoiceuser')->name('user.invoiceuserindex');
         Route::get('/techsupportuser', 'techsupportuser')->name('user.techsupportindex');
         Route::get('/user', 'index')->name('user.index');
+        Route::get('/getuser', 'userdatatable')->name('user.datatable');
         Route::post('/user/insert', 'store')->name('user.store');
         Route::get('/user/search/{id}', 'show')->name('user.search');
         Route::get('/user/edit/{id}', 'edit')->name('user.edit');
