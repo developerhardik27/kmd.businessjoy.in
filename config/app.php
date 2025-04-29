@@ -204,4 +204,6 @@ return [
     */
 
     'page_load_threshold_ms' => 5000, // Time in milliseconds
+
+    'main_db' => env('MAIN_DB', 'business_joy_Oceanmnc_pev'),
 ];
