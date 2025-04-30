@@ -33,14 +33,20 @@ class otherapiController extends Controller
 
 
 
-        $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
-            ->where('email', $request->email)->get();
-           
+        if(isset($request->email)){ 
+            $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
+                ->where('email', $request->email)->get();
+               
+        }else{
+            $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
+            ->where('contact_no', $request->contact_no)->get();
+        }
+
         
         if ($checkrecord->count() > 0) {
             return response()->json([
                 'status' => 500,
-                'message' => 'lead already exist'
+                'message' => 'You are already in'
             ], 500);
         }
        
