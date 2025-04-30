@@ -15,6 +15,7 @@ class otherapiController extends Controller
     public function oceanlead(Request $request)
     {
 
+        
         $domainName = $request->getHost();
 
         // if($domainName != 'oceanmnc.com'){
@@ -78,6 +79,8 @@ class otherapiController extends Controller
             'budget' => $request->budget,
             'source' => $request->source,
             'upload' => $request->document,
+            'notes' => $request->notes,
+            'msg_from_lead' => $request->message,
             'audience_type' => 'cool',
             'attempt_lead' => 0
         ]);
