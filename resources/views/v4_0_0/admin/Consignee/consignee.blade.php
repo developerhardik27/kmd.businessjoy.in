@@ -224,7 +224,7 @@
                                 @if (session('user_permissions.logisticmodule.consignee.delete') == '1')
                                     actionBtns += `
                                          <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete consignee Details">
-                                                <button type="button" data-id= '${data}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <button type="button" data-id= '${data}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                     <i class="ri-delete-bin-fill"></i>
                                                 </button>
                                             </span>
