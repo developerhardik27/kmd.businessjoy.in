@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Validator;
 
 class companyController extends commonController
 {
-    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $user_permissionModel;
+    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $user_permissionModel,$newdbname;
     public function __construct(Request $request)
     {
 
@@ -187,113 +187,114 @@ class companyController extends commonController
      */
     public function store(Request $request)
     {
-        return $this->executeTransaction(function () use ($request) {
-            // validate incoming request data
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:50',
-                'email' => 'nullable|string|max:50',
-                'email_default_user' => 'required|string|max:50',
-                'contact_number' => 'required|numeric|digits:10',
-                'house_no_building_name' => 'required|string|max:255',
-                'road_name_area_colony' => 'required|string|max:255',
-                'gst_number' => 'nullable|string|max:50',
-                'pan_number' => 'nullable|string|max:50',
-                'country' => 'required|numeric',
-                'state' => 'required|numeric',
-                'city' => 'required|numeric',
-                'pincode' => 'required|numeric',
-                'maxuser' => 'nullable|numeric',
-                'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-                'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-                'user_id' => 'required|numeric',
-                'updated_by',
-                'created_at',
-                'updated_at',
-                'is_active',
-                'is_deleted'
+
+        // validate incoming request data
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:50',
+            'email' => 'nullable|string|max:50',
+            'email_default_user' => 'required|string|max:50',
+            'contact_number' => 'required|numeric|digits:10',
+            'house_no_building_name' => 'required|string|max:255',
+            'road_name_area_colony' => 'required|string|max:255',
+            'gst_number' => 'nullable|string|max:50',
+            'pan_number' => 'nullable|string|max:50',
+            'country' => 'required|numeric',
+            'state' => 'required|numeric',
+            'city' => 'required|numeric',
+            'pincode' => 'required|numeric',
+            'maxuser' => 'nullable|numeric',
+            'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'user_id' => 'required|numeric',
+            'updated_by',
+            'created_at',
+            'updated_at',
+            'is_active',
+            'is_deleted'
+        ]);
+
+        if ($validator->fails()) {
+            // return error response
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+            if ($this->rp['adminmodule']['company']['add'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
+            // check user email is not duplicate
+            $checkuseremail = User::where('email', $request->email_default_user)->where('is_deleted', 0)->exists();
+
+            if ($checkuseremail) {
+                return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
+            }
+
+
+            $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
+
+            // If the cleaned name starts with a digit, prepend an underscore
+            if (ctype_digit(substr($modifiedname, 0, 1))) {
+                $modifiedname = '_' . $modifiedname;
+            }
+
+            // Set the dynamic database name (sanitize and format if necessary) 
+
+            $host = $_SERVER['HTTP_HOST'];
+
+            if ($host === 'localhost:8000') {
+                // If the host is localhost
+               $this->newdbname = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
+            } elseif ($host === 'staging.businessjoy.in') {
+                // If the host is staging.businessjoy.in
+               $this->newdbname = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+            } else {
+                // For any other host, provide a default
+               $this->newdbname = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+            }
+
+            // Create the dynamic database
+
+            DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' .$this->newdbname);
+
+            // Switch to the new database connection
+            config([
+                'database.connections.' .$this->newdbname => [
+                    'driver' => 'mysql',
+                    'host' => env('DB_HOST', '127.0.0.1'),
+                    'port' => env('DB_PORT', '3306'),
+                    'database' =>$this->newdbname,
+                    'username' => env('DB_USERNAME', 'forge'),
+                    'password' => env('DB_PASSWORD', ''),
+                    'unix_socket' => env('DB_SOCKET', ''),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'strict' => true,
+                    'engine' => null,
+                ]
             ]);
 
-            if ($validator->fails()) {
-                // return error response
-                return $this->errorresponse(422, $validator->messages());
-            } else {
+            // required migrations path
+            $paths = [
+                'database/migrations/individualcompanydb',
+                'database/migrations/v1_1_1',
+                'database/migrations/v1_2_1',
+                'database/migrations/v2_0_0',
+                'database/migrations/v3_0_0',
+                'database/migrations/v4_0_0',
+            ];
 
-                if ($this->rp['adminmodule']['company']['add'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }
-
-                // check user email is not duplicate
-                $checkuseremail = User::where('email', $request->email_default_user)->where('is_deleted', 0)->exists();
-
-                if ($checkuseremail) {
-                    return $this->successresponse(500, 'message', 'This email id already exists , Please enter other email id');
-                }
-
-
-                $modifiedname = preg_replace('/[^a-zA-Z0-9_]+/', '_', $request->name);
-
-                // If the cleaned name starts with a digit, prepend an underscore
-                if (ctype_digit(substr($modifiedname, 0, 1))) {
-                    $modifiedname = '_' . $modifiedname;
-                }
-
-                // Set the dynamic database name (sanitize and format if necessary) 
-
-                $host = $_SERVER['HTTP_HOST'];
-
-                if ($host === 'localhost:8000') {
-                    // If the host is localhost
-                    $dbName = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
-                } elseif ($host === 'staging.businessjoy.in') {
-                    // If the host is staging.businessjoy.in
-                    $dbName = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-                } else {
-                    // For any other host, provide a default
-                    $dbName = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-                }
-
-                // Create the dynamic database
-
-                DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' . $dbName);
-
-                // Switch to the new database connection
-                config([
-                    'database.connections.' . $dbName => [
-                        'driver' => 'mysql',
-                        'host' => env('DB_HOST', '127.0.0.1'),
-                        'port' => env('DB_PORT', '3306'),
-                        'database' => $dbName,
-                        'username' => env('DB_USERNAME', 'forge'),
-                        'password' => env('DB_PASSWORD', ''),
-                        'unix_socket' => env('DB_SOCKET', ''),
-                        'charset' => 'utf8mb4',
-                        'collation' => 'utf8mb4_unicode_ci',
-                        'prefix' => '',
-                        'strict' => true,
-                        'engine' => null,
-                    ]
+            // Run migrations only from the specified path
+            foreach ($paths as $path) {
+                Artisan::call('migrate', [
+                    '--path' => $path,
+                    '--database' => $this->newdbname,
                 ]);
+            }
 
-                // required migrations path
-                $paths = [
-                    'database/migrations/individualcompanydb',
-                    'database/migrations/v1_1_1',
-                    'database/migrations/v1_2_1',
-                    'database/migrations/v2_0_0',
-                    'database/migrations/v3_0_0',
-                    'database/migrations/v4_0_0',
-                ];
+            config(['database.connections.dynamic_connection.database' =>$this->newdbname]);
 
-                // Run migrations only from the specified path
-                foreach ($paths as $path) {
-                    Artisan::call('migrate', [
-                        '--path' => $path,
-                        '--database' => $dbName,
-                    ]);
-                }
-
-                config(['database.connections.dynamic_connection.database' => $dbName]);
-
+            return $this->executeTransaction(function () use ($request) {
                 // Establish connection to the dynamic database
                 DB::purge('dynamic_connection');
                 DB::reconnect('dynamic_connection');
@@ -350,7 +351,7 @@ class companyController extends commonController
                     $company_details_id = $company_details;
                     $company = DB::table('company')->insertGetId([   // insert company record
                         'company_details_id' => $company_details_id,
-                        'dbname' => $dbName,
+                        'dbname' => $this->newdbname,
                         'app_version' => $_SESSION['folder_name'],
                         'max_users' => $request->maxuser,
                         'created_by' => $this->userId,
@@ -492,8 +493,9 @@ class companyController extends commonController
                 } else {
                     throw new \Exception("Company details creation failed!");
                 }
-            }
-        });
+            });
+        }
+
 
 
     }
