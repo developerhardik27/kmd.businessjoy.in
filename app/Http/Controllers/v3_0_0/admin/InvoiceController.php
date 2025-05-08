@@ -112,7 +112,7 @@ class InvoiceController extends Controller
             return view($this->version . '.admin.Invoice.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
         if ($bdetails->status != 200) {
-            return view($this->version . '.admin.Invoice.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+            return view($this->version . '.admin.Bank.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.Invoice.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
