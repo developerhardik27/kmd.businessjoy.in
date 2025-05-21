@@ -44,7 +44,7 @@
                 </div>
                 <div class="col-md-6 mb-2">
                     <input type="string" class="form-control" name="default_value" id="default_value" placeholder="Default Value"
-                        required />
+                        />
                     <span class="error-msg" id="error-default_value" style="color: red"></span>
                 </div>
                 <div class="col-12 text-right">
