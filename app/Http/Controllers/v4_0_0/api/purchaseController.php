@@ -6,6 +6,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class purchaseController extends commonController
@@ -37,6 +38,16 @@ class purchaseController extends commonController
      */
     public function index(Request $request)
     {
+        //condition for check if user has permission to view record
+        if ($this->rp['inventorymodule']['purchase']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
 
         $purchaseres = $this->purchaseModel::leftJoin('suppliers', 'purchases.supplier_id', 'suppliers.id')
             ->leftJoin($this->masterdbname . '.country', 'purchases.currency', '=', $this->masterdbname . '.country.id')
@@ -74,17 +85,26 @@ class purchaseController extends commonController
             $purchaseres->where('purchases.created_by', $this->userId);
         }
 
-        //condition for check if user has permission to view record
-        if ($this->rp['inventorymodule']['purchase']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
+        $totalcount = $purchaseres->get()->count(); // count total record
         $purchase = $purchaseres->get();
 
         if ($purchase->isEmpty()) {
-            return $this->successresponse(404, 'purchase', 'No Records Found');
+            return DataTables::of($purchase)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        return $this->successresponse(200, 'purchase', $purchase);
+
+        return DataTables::of($purchase)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
 

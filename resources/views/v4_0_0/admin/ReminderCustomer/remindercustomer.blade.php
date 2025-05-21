@@ -52,8 +52,7 @@
     @endsection
 @endif
 @section('table-content')
-    <table id="data"
-        class="table display table-bordered table-striped w-100">
+    <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
                 <th>Id</th>
@@ -105,112 +104,200 @@
 
             var global_response = '';
 
+            var table = '';
+
             // function for  get customers data and set it into table
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('remindercustomer.index') }}",
-                    data: {
-                        user_id: {{ session()->get('user_id') }},
-                        company_id: {{ session()->get('company_id') }},
-                        token: "{{ session()->get('api_token') }}"
+
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        if($.fn.dataTable.isDataTable('#data')){
-                            $('#data').DataTable().clear().destroy();
-                        }
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.customer != '') {
-                            global_response = response;
-                            var id = 1;
-                            // You can update your HTML with the data here if needed                              
-                            $.each(response.customer, function(key, value) {
-                                var editReminderCustomerUrl = "{{route('admin.editremindercustomer','__editid__')}}".replace('__editid__',value.id);
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td>${value.name}</td>
-                                        <td>${value.contact_no}</td>
-                                        <td>${value.customer_type}</td>
-                                        <td>${value.area}</td>
-                                        <td>
-                                            @if (session('user_permissions.remindermodule.remindercustomer.view') == '1')
-                                                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
-                                                    <button type="button" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                        <i class="ri-indent-decrease"></i>
-                                                    </button>
-                                                </span>
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Reminder History">
-                                                    <button data-toggle="modal" data-target="#viewreminder" data-id='${value.id}' class='btn btn-sm btn-info mx-0 my-1 viewreminderhistory' >
-                                                        <i class='ri-eye-fill'></i>
-                                                    </button>
-                                                </span>
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Reminders">
-                                                    <button class="btn btn-sm btn-info viewonreminderpage" data-id='${value.id}'><i class="ri-alarm-line"></i></button>
-                                                </span>
-                                            @else
-                                                -    
-                                            @endif
-                                        </td>
-                                        @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1' ||
-                                                session('user_permissions.remindermodule.remindercustomer.delete') == '1')
-                                            <td>
-                                                @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1')
-                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                        <a href='${editReminderCustomerUrl}'>
-                                                            <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                                <i class="ri-edit-fill"></i>
-                                                            </button>
-                                                        </a>
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1')
-                                                    <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                        <button type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif
-                                            </td>
-                                        @else
-                                            <td> - </td>  
-                                        @endif         
-                                    </tr>
-                                `);
-                                id++;
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                            $('#data').DataTable({
-                                responsive: true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                        } else {
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('remindercustomer.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
+
+                            global_response = json;
+
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
-                            }); 
-                            $('#data').DataTable();
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'name',
+                            name: 'name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'contact_no',
+                            name: 'contact_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'customer_type',
+                            name: 'customer_type',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'area',
+                            name: 'area',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                @if (session('user_permissions.remindermodule.remindercustomer.view') == '1')
+                                    actionBtns = `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Details">
+                                            <button type="button" data-view = '${data}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                <i class="ri-indent-decrease"></i>
+                                            </button>
+                                        </span>
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Reminder History">
+                                            <button data-toggle="modal" data-target="#viewreminder" data-id='${data}' class='btn btn-sm btn-info mx-0 my-1 viewreminderhistory' >
+                                                <i class='ri-eye-fill'></i>
+                                            </button>
+                                        </span>
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Customer Reminders">
+                                            <button class="btn btn-sm btn-info viewonreminderpage" data-id='${data}'><i class="ri-alarm-line"></i></button>
+                                        </span>
+                                    `;
+
+                                    return actionBtns;
+                                @endif
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+                                @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1')
+                                    var editReminderCustomerUrl =
+                                        "{{ route('admin.editremindercustomer', '__editid__') }}"
+                                        .replace('__editid__', data);
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                            <a href='${editReminderCustomerUrl}'>
+                                                <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                            <button type="button" data-id= '${data}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
             //call data function for load customer data
             loaddata();
@@ -221,7 +308,7 @@
                 loadershow();
                 var historyid = $(this).data('id');
                 $('#viewonreminderpage').data('id', historyid);
-                $.each(global_response.customer, function(key, customer) {
+                $.each(global_response.data, function(key, customer) {
                     if (customer.id == historyid) {
                         $('#viewreminderTitle').html(
                             `<b>Reminder History</b> - ${customer.name}`);
@@ -289,10 +376,10 @@
 
 
             $(document).on('click', '.viewonreminderpage', function() {
-                var customer = $(this).data('id');
+                var filter_customer = $(this).data('id');
 
                 data = {
-                    customer
+                    filter_customer
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
@@ -342,11 +429,11 @@
                                 }
                             },
                             error: function(xhr, status,
-                            error) { // if calling api request error 
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
                                     .responseText
-                                    ); // Log the full error response for debugging
+                                ); // Log the full error response for debugging
                                 var errorMessage = "";
                                 try {
                                     var responseJSON = JSON.parse(xhr.responseText);
@@ -369,50 +456,50 @@
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.customer, function(key, customer) {
+                $.each(global_response.data, function(key, customer) {
                     if (customer.id == data) {
                         $('#details').append(`
-                                    <tr>
-                                        <th>Name</th>
-                                        <td>${customer.name}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>email</th>
-                                        <td>${customer.email}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Contact</th>
-                                        <td>${customer.contact_no}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Pincode</th>
-                                        <td>${customer.pincode}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Address</th>
-                                        <td>${customer.address}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Area</th>
-                                        <td>${customer.area}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>City</th>
-                                        <td>${customer.city_name}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>State</th>
-                                        <td>${customer.state_name}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Country</th>
-                                        <td>${customer.country_name}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Customer Type</th>
-                                        <td>${customer.customer_type}</td>
-                                    </tr>
-                    `);
+                            <tr>
+                                <th>Name</th>
+                                <td>${customer.name}</td>
+                            </tr>
+                            <tr>
+                                <th>email</th>
+                                <td>${customer.email}</td>
+                            </tr>
+                            <tr>
+                                <th>Contact</th>
+                                <td>${customer.contact_no}</td>
+                            </tr>
+                            <tr>
+                                <th>Pincode</th>
+                                <td>${customer.pincode}</td>
+                            </tr>
+                            <tr>
+                                <th>Address</th>
+                                <td>${customer.address}</td>
+                            </tr>
+                            <tr>
+                                <th>Area</th>
+                                <td>${customer.area}</td>
+                            </tr>
+                            <tr>
+                                <th>City</th>
+                                <td>${customer.city_name}</td>
+                            </tr>
+                            <tr>
+                                <th>State</th>
+                                <td>${customer.state_name}</td>
+                            </tr>
+                            <tr>
+                                <th>Country</th>
+                                <td>${customer.country_name}</td>
+                            </tr>
+                            <tr>
+                                <th>Customer Type</th>
+                                <td>${customer.customer_type}</td>
+                            </tr>
+                        `);
                     }
                 });
 

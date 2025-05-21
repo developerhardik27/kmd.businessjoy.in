@@ -37,11 +37,12 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
- 
+
         .clickable-row {
             cursor: pointer;
         }
-        .clickable-row:hover{
+
+        .clickable-row:hover {
             text-decoration: underline;
         }
     </style>
@@ -85,85 +86,193 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
             var global_response = '';
+
+            var table = '';
             // fetch & show purchase data in table
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('purchase.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
+
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // Clear and destroy the existing DataTable instance
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('purchase.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
 
-                        // Clear the existing table body
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.purchase != '') {
-                            global_response = response;
-                            // You can update your HTML with the data here if needed     
-                            $.each(response.purchase, function(key, value) {
-                                var viewPurchaseUrl =
-                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
-                                        '__id__', value.id);
-                                var received = value.accepted + value.rejected;
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td><span class="clickable-row" data-target="${viewPurchaseUrl}">#PO${value.id}</span></td>
-                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.suppliername || '-'}</td>
-                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.is_active == 0 ? 'Closed' : `${value.status}` }</td>
-                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${received} of ${value.total_items}</td>
-                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.currency_symbol} ${value.total}</td>
-                                        <td class="clickable-row" data-target="${viewPurchaseUrl}">${value.estimated_arrival_formatted || ''}</td>
-                                    </tr>
-                                `);
+                            global_response = json;
 
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-
-                            var search = {!! json_encode($search) !!}
-
-                            $('#data').DataTable({
-                                "search": {
-                                    "search": search
-                                },
-                                responsive: true,
-                                "destroy": true, //use for reinitialize datatable
-                                "order": [],
-                            });
-                        } else {
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message ||'No record found!'
-                            }); 
-                            // After appending "No Data Found", re-initialize DataTable so it works properly
-                            $('#data').DataTable({});
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', data);
+                                return `
+                                    <span class="clickable-row" data-target="${viewPurchaseUrl}">#PO${data}</span>
+                                `;
+                            }
+                        },
+                        {
+                            data: 'suppliername',
+                            name: 'suppliername',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', row.id);
+                                return `
+                                    <span class="clickable-row" data-target="${viewPurchaseUrl}">${data}</span>
+                                `;
+                            }
+                        },
+                        {
+                            data: 'status',
+                            name: 'status',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', row.id);
+                                return `
+                                    <span class="clickable-row" data-target="${viewPurchaseUrl}">${row.is_active == 0 ? 'Closed' : `${data}` }</span>
+                                `;
+                            }
+                        },
+                        {
+                            data: 'total_items',
+                            name: 'total_items',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', row.id);
+                                var received = row.accepted + row.rejected;
+                                return `
+                                    <span class="clickable-row" data-target="${viewPurchaseUrl}">${received} of ${data}</span>
+                                `;
+                            }
+                        },
+                        {
+                            data: 'total',
+                            name: 'total',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', row.id);
+                                return `
+                                    <span class="clickable-row" data-target="${viewPurchaseUrl}">${row.currency_symbol} ${data}</span>
+                                `;
+                            }
+                        },
+                        {
+                            data: 'estimated_arrival_formatted',
+                            name: 'estimated_arrival_formatted',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: ' ',
+                            render: function(data, type, row) {
+                                var viewPurchaseUrl =
+                                    "{{ route('admin.viewpurchase', '__id__') }}".replace(
+                                        '__id__', row.id);
+                                return `
+                                    <span class="clickable-row" data-target="${viewPurchaseUrl}">${row.estimated_arrival_formatted || ''}</span>
+                                `;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
 
             //call function for load purchase in table
@@ -171,7 +280,6 @@
 
             $(document).on('click', '.clickable-row', function() {
                 target = $(this).data('target');
-
                 window.location.href = target;
             })
 

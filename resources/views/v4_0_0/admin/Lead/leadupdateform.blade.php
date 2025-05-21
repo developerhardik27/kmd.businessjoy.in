@@ -249,7 +249,7 @@
                             company_id: "{{ session()->get('company_id') }}",
                             token: "{{ session()->get('api_token') }}"
                         },
-                   1     success: function(response) {
+                        success : function(response) {
                             resolve(response);
                         },
                         error: function(error) {

@@ -56,7 +56,7 @@ class tblquotationothersettingController extends commonController
         $customer_id = $this->quotation_other_settingModel::where('is_deleted', 0)
         ->select('customer_id')
         ->get();
-
+ 
         if ($pattern->isEmpty()) {
             return $this->successresponse(404, 'pattern', 'No records found');
         }

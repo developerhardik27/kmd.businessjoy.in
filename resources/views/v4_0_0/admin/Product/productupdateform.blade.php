@@ -183,7 +183,7 @@
                                 <div class="col-12">
                                     <label for="Unit">Unit</label>
                                     <input type="text" name='unit' class="form-control" id="unit" value=""
-                                        placeholder="enter Unit">
+                                        placeholder="eg., KG,Liter,Pcs">
                                     <span class="error-msg" id="error-unit" style="color: red"></span>
                                 </div>
                             </div>
@@ -296,6 +296,7 @@
 
 @push('ajax')
     <script>
+        Dropzone.autoDiscover = false;
         $('document').ready(function() {
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
@@ -310,6 +311,15 @@
 
             $('.summernote').summernote({
                 height: 200,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['table']],
+                    ['view', ['fullscreen', 'codeview']]
+                ],
             });
 
             $.ajax({
@@ -323,11 +333,11 @@
                 success: function(response) {
                     if (response.status == 200 && response.productcolumnmapping != '') {
                         columnlinks = response.productcolumnmapping;
-                        hasQuantity = true ;
+                        hasQuantity = true;
 
-                        $.each(columnlinks,function(id,columnlink){
-                            if(columnlink.product_column == 'quantity'){
-                                hasQuantity = false;  
+                        $.each(columnlinks, function(id, columnlink) {
+                            if (columnlink.product_column == 'quantity') {
+                                hasQuantity = false;
                             }
                         });
 
@@ -336,8 +346,8 @@
                                 <i class="ri-alert-line"></i>
                                 If you want to handle it with an invoice, the quantity column mapping is required otherwise it will not be managed automatically.
                             `); // Set text to 'Yes' if 'quantity' exists
-                        } 
-                    } 
+                        }
+                    }
                 },
                 error: function(xhr, status, error) { // if calling api request error 
                     console.log(xhr.responseText); // Log the full error response for debugging
@@ -389,8 +399,8 @@
 
                             }
                         });
-                    } else  {
-                         console.log(response);
+                    } else {
+                        console.log(response);
                     }
                     loaderhide();
                 },
@@ -488,7 +498,7 @@
             });
 
             // Initialize Dropzone globally (this automatically applies the configuration to elements with .dropzone class)
-            Dropzone.options.image = {
+            const myDropzone = new Dropzone("#image", {
                 url: "{{ route('temp.docupload') }}", // URL to send the files
                 paramName: "file", // Name for the file input
                 maxFilesize: 5, // Max file size in MB
@@ -499,10 +509,10 @@
                 addRemoveLinks: true, // Optionally show remove link for files
 
                 init: function() {
-                    var myDropzone = this; // Capture Dropzone instance
+                    var dz = this; // Capture Dropzone instance
 
                     // Handle file upload behavior
-                    this.on("sending", function(file, xhr, formData) {
+                    dz.on("sending", function(file, xhr, formData) {
                         document.getElementById('error-image').innerText = '';
                         if (uploadedimgs.indexOf(file.name) !== -1) {
                             myDropzone.removeFile(file);
@@ -513,12 +523,13 @@
                             });
                         } else {
                             formData.append("user_id", "{{ session()->get('user_id') }}");
-                            formData.append("company_id", "{{ session()->get('company_id') }}");
+                            formData.append("company_id",
+                            "{{ session()->get('company_id') }}");
                             formData.append("token", "{{ session()->get('api_token') }}");
                         }
                     });
 
-                    this.on("success", function(file, response) {
+                    dz.on("success", function(file, response) {
                         if (response.status == 200) {
                             uploadedimgs.push(response.filename);
                             // Save the URL of the uploaded file to the file object
@@ -527,7 +538,7 @@
                     });
 
                     // Add a custom event listener for file previews to open in a new tab
-                    this.on("addedfile", function(file) {
+                    dz.on("addedfile", function(file) {
                         // Check if the file has a fileUrl (whether it's old or new)
 
                         // Handle click event for opening file in a new tab
@@ -539,23 +550,23 @@
                         });
                     });
 
-                    this.on("error", function(file, response) {
+                    dz.on("error", function(file, response) {
                         document.getElementById('error-image').innerText =
                             'Error with the file upload. Please try again.';
                     });
 
-                    this.on("removedfile", function(file) {
+                    dz.on("removedfile", function(file) {
                         var index = uploadedimgs.indexOf(file.name);
                         if (index > -1) {
                             uploadedimgs.splice(index, 1);
                         }
                     });
 
-                    this.on("complete", function(file) {
+                    dz.on("complete", function(file) {
                         console.log('File upload complete.');
                     });
                 }
-            };
+            });
 
             // Now make the AJAX call to load the product data and preload the images
             let productEditUrl = "{{ route('product.edit', '__editId__') }}".replace('__editId__', edit_id);
@@ -595,7 +606,7 @@
                         } else if (product.pc_status == 0) {
                             $('#error-category').text(
                                 `please select a category, you did old category '${product.category_name}' inactive.`
-                                );
+                            );
                             $('.selected-category').data('id', null);
                         }
 
@@ -715,7 +726,7 @@
                             if (firstErrorElement) {
                                 $('html, body').animate({
                                     scrollTop: firstErrorElement.offset().top -
-                                        100 // Adjust this value as needed
+                                        200 // Adjust this value as needed
                                 }, 500); // Scroll duration
                             }
                         } else {

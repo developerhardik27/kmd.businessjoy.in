@@ -58,7 +58,7 @@ class tblinvoicecolumnController extends commonController
         }
         return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
     }
- 
+
     public function column_details(string $id)
     {
 
@@ -90,7 +90,7 @@ class tblinvoicecolumnController extends commonController
             return $this->successresponse(404, 'invoicecolumn', 'No Records Found');
         }
         return $this->successresponse(200, 'invoicecolumn', $invoicecolumn);
-    } 
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -102,6 +102,7 @@ class tblinvoicecolumnController extends commonController
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
             'column_width' => 'required|numeric',
+            'default_value' => 'nullable|string|max:200',
             'company_id' => 'required|numeric',
             'user_id' => 'required|numeric',
             'updated_by',
@@ -157,14 +158,26 @@ class tblinvoicecolumnController extends commonController
                     $columnsequence = ++$maxColumnOrder;
                 }
 
+                $defaultSQL = '';
+
+                // Only set default if value is provided (not null or empty)
+                if (!empty($request->default_value)) {
+                    // Sanitize and quote default value if needed
+                    $defaultVal = addslashes($request->default_value);
+                    $defaultSQL = " DEFAULT '{$defaultVal}'";
+                }
+
                 if (!Schema::connection('dynamic_connection')->hasColumn($tablename, $columnname)) {
-                    $addcolumn = DB::connection('dynamic_connection')->statement("ALTER TABLE $tablename ADD COLUMN  $columnname  $columnType");
+                    $addcolumn = DB::connection('dynamic_connection')->statement(
+                        "ALTER TABLE $tablename ADD COLUMN $columnname $columnType$defaultSQL"
+                    );
                 }
 
                 $invoicecolumn = $this->tbl_invoice_columnModel::create([
                     'column_name' => $request->column_name,
                     'column_type' => $request->column_type,
                     'column_width' => $request->column_width,
+                    'default_value' => $request->default_value,
                     'company_id' => $request->company_id,
                     'column_order' => $columnsequence,
                     'created_by' => $this->userId,
@@ -243,6 +256,7 @@ class tblinvoicecolumnController extends commonController
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
             'column_width' => 'required|numeric',
+            'default_value' => 'nullable|string|max:200',
             'user_id' => 'required|numeric',
             'created_by',
             'created_at',
@@ -286,13 +300,23 @@ class tblinvoicecolumnController extends commonController
                 'decimal' => 'decimal(10,2)', // Adjust precision and scale as needed
                 'percentage' => 'float(4,2)' // Adjust precision and scale as needed
             ];
+
             $columnType = $columnTypes[$request->column_type];
             $oldcolumnvaluewithoutchange = $invoicecolumn->column_name; // for formula table change 
             $oldcolumnname = str_replace(' ', '_', $invoicecolumn->column_name);
             $columnname = str_replace(' ', '_', $request->column_name);
 
-            // change column name in mng_col table who storing invoices data
-            DB::connection('dynamic_connection')->statement("ALTER TABLE mng_col CHANGE  $oldcolumnname $columnname $columnType");
+           // Handle default value
+            $defaultSQL = '';
+            if (!empty($request->default_value)) {
+                $defaultVal = addslashes($request->default_value); // Escaping quotes if needed
+                $defaultSQL = " DEFAULT '{$defaultVal}'";
+            }
+
+            // Change column name and type and apply default value (if provided)
+            DB::connection('dynamic_connection')->statement(
+                "ALTER TABLE mng_col CHANGE $oldcolumnname $columnname $columnType$defaultSQL"
+            );
 
             // replace old column name with new columnname in invoice table > show_col column
             DB::connection('dynamic_connection')
@@ -321,6 +345,7 @@ class tblinvoicecolumnController extends commonController
                 'column_name' => $request->column_name,
                 'column_type' => $request->column_type,
                 'column_width' => $request->column_width,
+                'default_value' => $request->default_value,
                 'updated_by' => $this->userId,
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
@@ -396,7 +421,7 @@ class tblinvoicecolumnController extends commonController
 
 
     }
- 
+
     /**
      * Hide the specified Record from Invoice form.
      */

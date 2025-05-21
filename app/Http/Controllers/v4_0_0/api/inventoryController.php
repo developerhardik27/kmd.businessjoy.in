@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class inventoryController extends commonController
@@ -33,6 +34,17 @@ class inventoryController extends commonController
      */
     public function index(Request $request)
     {
+
+        // condition for check if user has permission to view records
+        if ($this->rp['inventorymodule']['inventory']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
 
         $inventoryres = $this->inventoryModel::join('products', 'inventory.product_id', 'products.id')
             ->leftJoin('purchase_order_details as pod', function ($join) {
@@ -71,17 +83,26 @@ class inventoryController extends commonController
             $inventoryres->where('products.created_by', $this->userId);
         }
 
+        $totalcount = $inventoryres->get()->count(); // count total record
+
         $inventory = $inventoryres->get();
 
-        // condition for check if user has permission to view records
-        if ($this->rp['inventorymodule']['inventory']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        if ($inventory->isEmpty()) {
+            return DataTables::of($inventory)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
 
-        if ($inventory->isEmpty()) {
-            return $this->successresponse(404, 'inventory', 'No Records Found');
-        }
-        return $this->successresponse(200, 'inventory', $inventory);
+        return DataTables::of($inventory)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
     public function quantityupdate(Request $request, int $id)
@@ -150,10 +171,10 @@ class inventoryController extends commonController
 
             $inventory = $this->inventoryModel::find($id);
 
-            if (!$inventory) { 
+            if (!$inventory) {
                 return $this->successresponse(404, 'message', 'No such product inventory found!');
             }
-            
+
             $inventory->on_hand = $inventory->on_hand + $request->quantity;
             $inventory->available = $inventory->available + $request->quantity;
 
@@ -186,10 +207,10 @@ class inventoryController extends commonController
 
             $inventory = $this->inventoryModel::find($id);
 
-            if (!$inventory) { 
+            if (!$inventory) {
                 return $this->successresponse(404, 'message', 'No such product inventory found!');
             }
-            
+
             if ($request->available_type == 'adjust') {
                 $inventory->available += $request->quantity;
                 $inventory->on_hand += $request->quantity;

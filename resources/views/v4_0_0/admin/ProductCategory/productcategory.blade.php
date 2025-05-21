@@ -81,120 +81,184 @@
             // response status == 422 that means api has not got valid or required data
 
             var global_response = '';
+            var table = '';
             // load bank details data in table 
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('productcategory.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
+               table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // Clear and destroy the existing DataTable instance
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('productcategory.datatable') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
 
-                        // Clear the existing table body
-                        $('#tabledata').empty();
-                        // Check if response has product category data
-                        if (response.status == 200 && response.productcategory.length > 0) {
-                            // Append the new rows
-                            var id = 1;
-                            $.each(response.productcategory, function(key, value) {
-                                var parentCatName = null;
-                                if (value.parent_id != null) {
-                                    parentCatName = fetchParentCategoryName(value.parent_id,
-                                        response.productcategory);
-                                }
-                                let productcategoryEditUrl =
-                                    "{{ route('admin.editproductcategory', '__productcategoryId__') }}"
-                                    .replace('__productcategoryId__', value.id);
+                            global_response = json;
 
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td>${value.cat_name != null ? value.cat_name : '-'}</td>
-                                        <td>${parentCatName != null ? parentCatName : ' '}</td>
-                                        <td>
-                                            @if (session('user_permissions.inventorymodule.productcategory.edit') == '1')
-                                                ${value.is_active == 1 ? 
-                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="InActive">
-                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
-                                                    </span>` 
-                                                    : 
-                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
-                                                        <button data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>
-                                                    </span>`
-                                                }
-                                            @else
-                                                -
-                                            @endif
-                                        </td> 
-                                        <td>
-                                            @if (session('user_permissions.inventorymodule.productcategory.edit') == '1')
-                                                <span>
-                                                    <a href="${productcategoryEditUrl}">
-                                                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit" type="button" data-id='${value.id}' class="btn btn-success btn-rounded btn-sm my-0">
-                                                            <i  class="ri-edit-fill"></i>
-                                                        </button>
-                                                    </a>
-                                                </span>
-                                            @else
-                                                -
-                                            @endif
-                                            @if (session('user_permissions.inventorymodule.productcategory.delete') == '1')
-                                                <span>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                        <i  class="ri-delete-bin-fill"></i>
-                                                    </button>
-                                                </span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                `);
-                                id++;
-                            });
-
-                            // Reinitialize DataTable after rows are appended
-                            $('#data').DataTable({
-                                responsive:true,
-                                "destroy": true, // Ensures DataTable is reinitialized
-                            });
-
-                            // Re-initialize tooltips (since new rows have been added)
-                            $('[data-toggle="tooltip"]').tooltip('dispose');
-                            $('[data-toggle="tooltip"]').tooltip();
-                        } else {
-                            // Show error message if no data found
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
-                            }); 
-                            // After appending "No Data Found", re-initialize DataTable so it works properly
-                            $('#data').DataTable({}); 
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) {
-                        loaderhide();
-                        console.log(xhr.responseText);
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [
+
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'cat_name',
+                            name: 'cat_name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'parent_id',
+                            name: 'parent_id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: ' ',
+                            render: function(data, type, row) {
+                                if(data != null){
+                                    // return parent category name
+                                    return fetchParentCategoryName(data,global_response.data);
+                                }
+                            }
+                        },
+                        {
+                            data: 'is_active',
+                            name: 'is_active',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                statusBtn = `
+                                    <span id="status_${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
+                                        <button data-status="${row.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>
+                                    </span>
+                                `;
+                                if (data == 1) {
+                                    statusBtn = `
+                                        <span id="status_${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="InActive">
+                                            <button data-status="${row.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
+                                        </span>
+                                    `;
+                                }
+                                return statusBtn;
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                let actionBtns = ``;
+                                 @if (session('user_permissions.inventorymodule.productcategory.edit') == '1')
+                                    let productcategoryEditUrl =
+                                    "{{ route('admin.editproductcategory', '__productcategoryId__') }}"
+                                    .replace('__productcategoryId__', row.id);
+                                    actionBtns += `
+                                        <span>
+                                            <a href="${productcategoryEditUrl}">
+                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit" type="button" data-id='${row.id}' class="btn btn-success btn-rounded btn-sm my-0">
+                                                    <i  class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if (session('user_permissions.inventorymodule.productcategory.delete') == '1')
+                                    actionBtns += `
+                                        <span>
+                                            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${row.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <i  class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
 
@@ -272,7 +336,7 @@
                                 title: response.message
                             });
 
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -335,7 +399,7 @@
                                         icon: "success",
                                         title: response.message
                                     });
-                                    loaddata();
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",

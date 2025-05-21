@@ -226,18 +226,24 @@ class versionupdateController extends commonController
                                 }
 
                                 if (Schema::connection('dynamic_connection')->hasTable('quotation_other_settings')) {
-                                    $setDefaultSettings = DB::connection('dynamic_connection')
+                                    $existingData = DB::connection('dynamic_connection')
                                         ->table('quotation_other_settings')
-                                        ->insert([
-                                            'overdue_day' => 30,
-                                            'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
-                                            'sgst' => 9,
-                                            'cgst' => 9,
-                                            'gst' => 0,
-                                            'customer_id' => 1,
-                                            'current_customer_id' => 1,
-                                            'created_by' => $this->userId,
-                                        ]);
+                                        ->count();
+
+                                    if ($existingData == 0) {
+                                        $setDefaultSettings = DB::connection('dynamic_connection')
+                                            ->table('quotation_other_settings')
+                                            ->insert([
+                                                'overdue_day' => 30,
+                                                'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
+                                                'sgst' => 9,
+                                                'cgst' => 9,
+                                                'gst' => 0,
+                                                'customer_id' => 1,
+                                                'current_customer_id' => 1,
+                                                'created_by' => $this->userId,
+                                            ]);
+                                    }
                                 }
 
                                 break;

@@ -45,6 +45,7 @@
 @section('addnew')
     {{ route('admin.addblog') }}
 @endsection
+
 @section('addnewbutton')
     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Blog"
         class="btn btn-sm btn-primary">

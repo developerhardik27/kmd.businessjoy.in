@@ -79,6 +79,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     Route::controller($customerController)->group(function () {
         Route::get('/invoicecustomer', 'invoicecustomer')->name('customer.invoicecustomer');
         Route::get('/quotationcustomer', 'quotationcustomer')->name('customer.quotationcustomer');
+        Route::get('/customers', 'datatable')->name('customer.datatable');
         Route::get('/customer', 'index')->name('customer.index');
         Route::post('/customer/insert', 'store')->name('customer.store');
         Route::get('/customer/search/{id}', 'show')->name('customer.search');
@@ -113,7 +114,8 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     $productcategoryController = getversion('productcategoryController');
     Route::controller($productcategoryController)->group(function () {
         Route::get('/fetchproductcategory', 'fetchCategory')->name('productcategory.fetchCategory');
-        Route::get('/productcategory', 'index')->name('productcategory.index');
+        Route::get('/productcategory', 'datatable')->name('productcategory.datatable');
+        Route::get('/productcategory/list', 'index')->name('productcategory.index');
         Route::post('/productcategory/insert', 'store')->name('productcategory.store');
         Route::get('/productcategory/edit/{id}', 'edit')->name('productcategory.edit');
         Route::put('/productcategory/update/{id}', 'update')->name('productcategory.update');
@@ -124,7 +126,8 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     // product route
     $productController = getversion('productController');
     Route::controller($productController)->group(function () {
-        Route::get('/product', 'index')->name('product.index');
+        Route::get('/product', 'datatable')->name('product.datatable');
+        Route::get('/product/list', 'index')->name('product.index');
         Route::post('/product/insert', 'store')->name('product.store');
         Route::get('/product/search/{id}', 'show')->name('product.search');
         Route::get('/product/edit/{id}', 'edit')->name('product.edit');
@@ -244,7 +247,8 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     // supplier route
     $supplierController = getversion('supplierController');
     Route::controller($supplierController)->group(function () {
-        Route::get('/supplier', 'index')->name('supplier.index');
+        Route::get('/supplier', 'datatable')->name('supplier.datatable');
+        Route::get('/supplier/list', 'index')->name('supplier.index');
         Route::post('/supplier/insert', 'store')->name('supplier.store');
         Route::get('/supplier/search/{id}', 'show')->name('supplier.search');
         Route::get('/supplier/edit/{id}', 'edit')->name('supplier.edit');
@@ -518,7 +522,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::get('/quotation/currency', 'currency')->name('quotation.currency');
         Route::get('/quotation/columnname', 'columnname')->name('quotation.columnname');
         Route::get('/quotation/numbercolumnname', 'numbercolumnname')->name('quotation.numbercolumnname');
-        Route::get('/quotatoin/quotation_list', 'quotation_list')->name('quotation.quotation_list');
+        Route::get('/quotation/quotation_list', 'quotation_list')->name('quotation.quotation_list');
         Route::put('/quotation_status/{id}', 'status')->name('quotation.status');
         Route::get('/quotation/{id}', 'index')->name('quotation.index');
         Route::post('/quotation/insert', 'store')->name('quotation.store');

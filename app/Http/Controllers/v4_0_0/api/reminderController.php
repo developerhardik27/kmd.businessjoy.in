@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class reminderController extends commonController
@@ -25,7 +26,7 @@ class reminderController extends commonController
 
         $this->reminderModel = $this->getmodel('reminder');
     }
- 
+
     // chart monthly reminder counting
     public function monthlyInvoiceChart(Request $request)
     {
@@ -91,18 +92,14 @@ class reminderController extends commonController
      */
     public function index(Request $request)
     {
-        $fromdate = $request->fromdate;
-        $todate = Carbon::parse($request->todate);
-        $pincode = $request->pincode;
-        $reminder_status = $request->reminder_status;
-        $city = $request->city;
-        $area = $request->area;
-        $last_service = $request->last_service;
-        $next_reminder = $request->next_reminder;
-        $customer = $request->customer;
-        $activestatus = null;
-        if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
-            $activestatus = $request->activestatusvalue;
+        if ($this->rp['remindermodule']['reminder']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
         }
 
         $reminderquery = $this->reminderModel::join('reminder_customer', 'reminder.customer_id', '=', 'reminder_customer.id')
@@ -112,49 +109,83 @@ class reminderController extends commonController
             ->select('reminder.id', 'reminder_customer.name', 'reminder_customer.email', 'reminder_customer.contact_no', 'reminder_customer.address', 'reminder_customer.pincode', 'reminder_customer.invoice_id', 'reminder_customer.customer_type', 'reminder_customer.area', 'reminder.customer_id', DB::raw("DATE_FORMAT(reminder.next_reminder_date, '%d-%m-%Y')as next_reminder_date"), 'reminder.before_service_note', 'reminder.after_service_note', 'reminder.reminder_status', 'reminder.service_type', 'reminder.amount', DB::raw("DATE_FORMAT(reminder.service_completed_date, '%d-%m-%Y %h:%i:%s %p') as service_completed_date"), 'reminder.product_unique_id', 'reminder.product_name', 'reminder.created_by', DB::raw("DATE_FORMAT(reminder.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'reminder.updated_at', 'reminder.is_active', 'reminder.is_deleted', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('reminder.is_deleted', 0);
 
-        if (isset($activestatus)) {
-            $reminderquery->where('reminder.service_type', $activestatus);
-        }
-        if (isset($fromdate) && isset($todate)) {
-            $reminderquery->whereBetween('reminder.created_at', [$fromdate, $todate->addDay()]);
-        }
-        if (isset($area)) {
-            $reminderquery->whereIn('reminder_customer.area', $area);
-        }
-        if (isset($customer)) {
-            $reminderquery->whereIn('reminder.customer_id', $customer);
-        }
-        if (isset($city)) {
-            $reminderquery->whereIn('reminder_customer.city_id', $city);
-        }
-        if (isset($reminder_status)) {
-            $reminderquery->whereIn('reminder.reminder_status', $reminder_status);
-        }
-        if (isset($pincode)) {
-            $reminderquery->where('reminder_customer.pincode', $pincode);
-        }
-        if (isset($next_reminder)) {
-            $reminderquery->whereDate('reminder.next_reminder_date', $next_reminder);
-        }
-        if (isset($last_service)) {
-            $reminderquery->whereDate('reminder.service_completed_date', $last_service);
-        }
-
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             $reminderquery->where('reminder.created_by', $this->userId);
         }
 
+        $totalcount = $reminderquery->get()->count(); // count total record
+
+        //apply filters
+
+        $filter_type = $request->filter_type;
+
+        if (isset($filter_type) && $filter_type != 'all') {
+            $reminderquery->where('reminder.service_type', $filter_type);
+        }
+
+        $filters = [
+            'filter_pincode' => 'reminder_customer.pincode',
+            'filter_last_service' => 'reminder.service_completed_date',
+            'filter_next_reminder' => 'reminder.next_reminder_date',
+            'filter_from_date' => 'reminder.created_at',
+            'filter_to_date' => 'reminder.created_at'
+        ];
+
+        // Loop through the filters and apply them conditionally
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                if (
+                    strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false
+                ) {
+                    // For date filters (loading_date, stuffing_date), we apply range conditions
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $reminderquery->whereDate($column, $operator, $value);
+                } elseif (strpos($requestKey, 'last') !== false || strpos($requestKey, 'next') !== false) {
+                    $reminderquery->whereDate($column, $value);
+                } else {
+                    // For other filters, apply simple equality checks
+                    $reminderquery->where($column, $value);
+                }
+            }
+        }
+
+        $multiplefilters = [
+            'filter_city' => 'reminder_customer.city_id',
+            'filter_area' => 'reminder_customer.area',
+            'filter_customer' => 'reminder.customer_id',
+            'filter_reminder_status' => 'reminder.reminder_status',
+        ];
+
+        // Loop through the filters and apply them conditionally
+        foreach ($multiplefilters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                $reminderquery->whereIn($column, $value);
+            }
+        }
+
         $reminder = $reminderquery->orderBy('reminder.id', 'DESC')->distinct()->get();
 
-        if ($this->rp['remindermodule']['reminder']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        if ($reminder->isEmpty()) {
+            return DataTables::of($reminder)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
 
-        if ($reminder->isEmpty()) {
-            return $this->successresponse(404, 'reminder', 'No Records Found');
-        }
-        return $this->successresponse(200, 'reminder', $reminder);
-    } 
+        return DataTables::of($reminder)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -336,7 +367,7 @@ class reminderController extends commonController
     public function changestatus(Request $request)
     {
 
-        $reminder = $this->reminderModel::where('id', $request->statusid)
+        $reminder = $this->reminderModel::where('id', $request->reminderstatusid)
             ->get();
 
         if ($reminder->isEmpty()) {

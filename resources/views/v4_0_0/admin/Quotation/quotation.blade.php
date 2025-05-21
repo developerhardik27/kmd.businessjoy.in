@@ -127,139 +127,211 @@
             @endif
 
             var global_response = '';
+            let table = '';
             // function for  get customers data and set it table
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('quotation.quotation_list') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }} "
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // Clear and destroy the existing DataTable instance
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('quotation.quotation_list') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
 
-                        // Clear the existing table body
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.quotation != '') {
-                            global_response = response;
-                            // You can update your HTML with the data here if needed
-                            $.each(response.quotation, function(key, value) {
+                            global_response = json;
 
-                                var customer = [value.firstname, value.lastname, value
-                                    .company_name
-                                ].join(' ');
-
-                                let quotationEditUrl =
-                                    "{{ route('admin.editquotation', '__quotationId__') }}"
-                                    .replace('__quotationId__', value.id);
-                                let generateQuotationPdfUrl =
-                                    "{{ route('quotation.generatepdf', '__quotationId__') }}"
-                                    .replace('__quotationId__', value.id);
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${value.quotation_number != null  ? value.quotation_number : '-' }</td>
-                                        <td>${value.quotation_date_formatted}</td>
-                                        <td>${customer}</td>
-                                        <td>${value.currency_symbol} ${value.grand_total}</td>
-                                        <td> 
-                                            @if (session('user_permissions.quotationmodule.quotation.edit') == '1')
-                                                <select data-status='${value.id}' data-original-value="${value.status}" class="status w-100 form-control" id="status_${value.id}" name="" required >
-                                                    <option value='pending' ${value.status == "pending" ? 'selected' : ''}>Pending Approval</option>
-                                                    <option value='accepted' ${value.status == "accepted" ? 'selected' : ''}>Accepted</option>
-                                                    <option value='rejected' ${value.status == "rejected" ? 'selected' : ''}>Rejected</option>
-                                                    <option value='expired' ${value.status == "expired" ? 'selected' : ''}>Expired</option>
-                                                    <option value='revised' ${value.status == "revised" ? 'selected' : ''}>Revised</option>
-                                                </select>
-                                            @else
-                                                -    
-                                            @endif
-                                        </td> 
-                                        <td>
-                                            @if (session('user_permissions.quotationmodule.quotation.view') == '1')
-                                                <span data-toggle="tooltip" data-placement="left" data-original-title="Download Quotation Pdf">
-                                                    <a href=${generateQuotationPdfUrl} target='_blank' id='pdf'>
-                                                        <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0 mb-2" >
-                                                            <i class="ri-download-line"></i>
-                                                        </button>
-                                                    </a>
-                                                </span>
-                                            @endif
-                                            @if (session('user_permissions.quotationmodule.quotation.edit') == '1') 
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Remarks"> 
-                                                    <button type="button" data-toggle="modal" data-target="#remarksmodal" data-id='${value.id}'  class="remarks-btn btn btn-warning btn-rounded btn-sm my-0 mb-2">
-                                                        <i class="ri-chat-smile-3-line"></i>
-                                                    </button>
-                                                </span>
-                                                ${(value.is_editable == 1)?  
-                                                    `   
-                                                            <span>
-                                                                <a href=${quotationEditUrl}>
-                                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button>
-                                                                </a>
-                                                            </span>
-                                                        `
-                                                    : ''
-                                                }
-                                            @endif
-                                            @if (session('user_permissions.quotationmodule.quotation.delete') == '1')
-                                                <span>
-                                                    <button type="button" data-id='${value.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Quotation" class="del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
-                                                        <i class="ri-delete-bin-fill"></i>
-                                                    </button>
-                                                </span>
-                                            @else
-                                                -    
-                                            @endif
-                                        </td> 
-                                    </tr>
-                                `);
-                            });
-
-                            var search = {!! json_encode($search) !!}
-                            $('[data-toggle="tooltip"]').tooltip('dispose');
-                            $('[data-toggle="tooltip"]').tooltip();
-                            $('#data').DataTable({
-                                'order': [],
-                                "search": {
-                                    "search": search
-                                },
-                                responsive: true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                        } else {
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
+                                title: "Error loading data"
                             });
-                            $('#data').DataTable({});
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [
+
+                        {
+                            data: 'quotation_number',
+                            name: 'quotation_number',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'quotation_date_formatted',
+                            name: 'quotation_date_formatted',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'customer',
+                            name: 'customer',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'grand_total',
+                            name: 'grand_total',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                return `${row.currency_symbol} ${row.grand_total}`;
+                            }
+                        },
+                        {
+                            data: 'status',
+                            name: 'status',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function (data, type, row) {
+                                actions = '';
+                                @if (session('user_permissions.quotationmodule.quotation.edit') == '1')
+                                    actions = ` 
+                                        <select data-status='${row.id}' data-original-value="${data}" class="status w-100 form-control" id="status_${row.id}">
+                                            <option value='pending' ${data == "pending" ? 'selected' : ''}>Pending Approval</option>
+                                            <option value='accepted' ${data == "accepted" ? 'selected' : ''}>Accepted</option>
+                                            <option value='rejected' ${data == "rejected" ? 'selected' : ''}>Rejected</option>
+                                            <option value='expired' ${data == "expired" ? 'selected' : ''}>Expired</option>
+                                            <option value='revised' ${data == "revised" ? 'selected' : ''}>Revised</option>
+                                        </select> 
+                                    `;
+                                @endif
+                                return actions || '-';
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+                                 @if (session('user_permissions.quotationmodule.quotation.view') == '1')
+                                    let generateQuotationPdfUrl = "{{ route('quotation.generatepdf', '__quotationId__') }}".replace('__quotationId__', data);
+                                
+                                    actionBtns += `
+                                            <span data-toggle="tooltip" data-placement="left" data-original-title="Download Quotation Pdf">
+                                                <a href=${generateQuotationPdfUrl} target='_blank' id='pdf'>
+                                                    <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0 mb-2" >
+                                                        <i class="ri-download-line"></i>
+                                                    </button>
+                                                </a>
+                                            </span>
+                                        `;
+                                @endif
+
+                                @if (session('user_permissions.quotationmodule.quotation.edit') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Remarks"> 
+                                            <button type="button" data-toggle="modal" data-target="#remarksmodal" data-id='${data}'  class="remarks-btn btn btn-warning btn-rounded btn-sm my-0 mb-2">
+                                                <i class="ri-chat-smile-3-line"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                    let quotationEditUrl =
+                                        "{{ route('admin.editquotation', '__quotationId__') }}".replace('__quotationId__', data);
+                                    if (row.is_editable == 1) {
+                                        actionBtns += `   
+                                            <span>
+                                                <a href=${quotationEditUrl}>
+                                                    <button type="button" data-id='${data}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Quotation" class="edit-btn btn btn-success btn-rounded btn-sm my-0 mb-2">
+                                                        <i class="ri-edit-fill"></i>
+                                                    </button>
+                                                </a>
+                                            </span>
+                                        `;
+                                    }
+                                @endif 
+                                @if (session('user_permissions.quotationmodule.quotation.delete') == '1')
+                                    actionBtns += `
+                                        <span>
+                                            <button type="button" data-id='${data}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Quotation" class="del-btn btn btn-danger btn-rounded btn-sm my-0 mb-2">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
             //call data function for load customer data
             loaddata();
@@ -294,7 +366,7 @@
                                         icon: "success",
                                         title: response.message
                                     });
-                                    loaddata();
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -332,22 +404,7 @@
                     }
                 );
             });
-
-            // view record
-            $(document).on("click", ".view-btn", function() {
-                $('#details').html('');
-                var data = $(this).data('view');
-                $.each(global_response.quotation, function(key, quotation) {
-                    if (quotation.id == data) {
-                        $.each(quotation, function(fields, value) {
-                            $('#details').append(`<tr>
-                                    <th>${fields}</th>
-                                    <td>${value}</td>
-                                    </tr>`)
-                        })
-                    }
-                });
-            });
+ 
 
             //status change function
             function statuschange(id, value) {
@@ -368,7 +425,7 @@
                                 icon: "success",
                                 title: response.message
                             })
-                            loaddata();
+                            table.draw();
                             if (value == 'rejected') {
                                 $('#remarksmodal').modal('show');
                                 showRemarksModal(id);

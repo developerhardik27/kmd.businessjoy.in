@@ -62,10 +62,19 @@
                                         </a>
                                     </li>
                                 @endif
+                            @endif 
+
+                            @if (session('menu') == 'quotation')
+                                @if (session('user_permissions.quotationmodule.quotation.show') == 1)
+                                    <li>
+                                        <a href="{{ route('admin.quotation') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-file-list-line" data-toggle="tooltip" data-placement="bottom" data-original-title="Qoutation List"></i>
+                                        </a>
+                                    </li>
+                                @endif
                             @endif
-                            {{-- @if (session('menu') == 'account')
-                                
-                            @endif --}}
+
                             @if (session('menu') == 'lead')
                                 @if (session('user_permissions.leadmodule.lead.show') == 1)
                                     <li>
@@ -76,6 +85,7 @@
                                     </li>
                                 @endif
                             @endif
+
                             @if (session('menu') == 'Customer support')
                                 @if (session('user_permissions.customersupportmodule.customersupport.show') == 1)
                                     <li>
@@ -86,6 +96,7 @@
                                     </li>
                                 @endif
                             @endif
+
                             @if (session('menu') == 'admin')
                                 @if (session('user_permissions.adminmodule.company.show') == 1)
                                     <li>
@@ -104,6 +115,7 @@
                                     </li>
                                 @endif
                             @endif
+
                             @if (session('menu') == 'reminder')
                                 @if (session('user_permissions.remindermodule.reminder.show') == 1)
                                     <li>

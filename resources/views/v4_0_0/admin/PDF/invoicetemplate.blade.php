@@ -34,6 +34,39 @@
     $othersettings = json_decode($othersettings['gstsettings'], true);
 
     $loopnumber = []; // array for alignment column type text or longtext
+
+    $fixedFirstCols = ['#']; // manual column for serial number with 4% width
+    $fixedWidths = 4; // % width for #
+    $amountColumnWidth = 20; // amount column width (fixed)
+    $totalWidth = $fixedWidths + $amountColumnWidth;
+    $firstRowCols = []; // columns to show in main row
+    $wrappedCols = []; // columns to wrap as separate rows
+
+    // We assume $productscolumn includes all columns except #.
+    // amount is last column, include it separately always.
+    foreach ($productscolumn as $col) {
+        if ($col['column_name'] === 'amount') {
+            // Always include amount at last, skip here
+            continue;
+        }
+
+        // Check if adding this column exceeds 100%
+        if ($totalWidth + intval($col['column_width']) <= 100) {
+            $totalWidth += intval($col['column_width']);
+            $firstRowCols[] = $col;
+        } else {
+            $wrappedCols[] = $col;
+        }
+    }
+
+    // Always push amount column at the end of first row columns
+    $amountCol = collect($productscolumn)->first(fn($c) => $c['column_name'] === 'amount');
+    if ($amountCol) {
+        $firstRowCols[] = $amountCol;
+    }
+
+    $colspan = count($firstRowCols);
+
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +80,8 @@
     <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-    <style>
+    <style> 
+        
         body {
             font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
             font-size: 14px;
@@ -95,12 +129,12 @@
             border-bottom: 1px solid black;
         }
 
-       .data td {
+        .data td {
             border-bottom: 1px solid black;
             border-right: 1px solid black;
         }
 
-       .data td:last-child {
+        .data td:last-child {
             border-right: none;
         }
 
@@ -108,7 +142,7 @@
             border-bottom: none;
         } */
 
-       .data .removeborder {
+        .data .removeborder {
             border-right: none;
         }
 
@@ -143,15 +177,15 @@
             /* Prevent table from breaking across pages */
         }
 
-         
 
-       .data td,
+
+        .data td,
         th {
             white-space: normal;
             word-wrap: break-word;
         }
 
-       .data td {
+        .data td {
             line-break: anywhere !important;
         }
 
@@ -167,7 +201,7 @@
 
         #footer {
             position: fixed;
-            bottom: 0px;
+            bottom: 10px;
             width: 100%;
         }
 
@@ -183,6 +217,9 @@
         <div class=" table-wrapper">
             <table cellspacing=0 cellpadding=0 width="100%" class="border">
                 <tbody>
+                    <tr>
+                        <td colspan="3" class="text-center bgblue">TAX Invoice</td>
+                    </tr>
                     <tr>
                         <td style="width: 50%;padding:0;vertical-align:top">
                             <table width="100%">
@@ -319,7 +356,7 @@
                             </div>
                             <table width="100%">
                                 <tr>
-                                    <td class="font-weight-bold  text-center bgblue">Invoice#</td>
+                                    <td class="font-weight-bold  text-center bgblue">Invoice ID</td>
                                     <td class="font-weight-bold text-center bgblue">date</td>
                                 </tr>
                                 <tr class="font-weight-bold">
@@ -330,11 +367,11 @@
                                 </tr>
                                 <tr>
                                     <td class="font-weight-bold text-center  bgblue">customer id</td>
-                                    <td class="font-weight-bold text-center bgblue">payment type</td>
+                                    <td class="font-weight-bold text-center bgblue">currency</td>
                                 </tr>
                                 <tr class="font-weight-bold">
                                     <td class="text-center">{{ $invdata['cid'] }}</td>
-                                    <td class="text-center">{{ $invdata['payment_type'] }}</td>
+                                    <td class="text-center">{{ $invdata['currency'] }}</td>
                                 </tr>
 
                             </table>
@@ -380,98 +417,92 @@
                 </tbody>
             </table>
 
-            <table style="table-layout:fixed;"  cellspacing=0 cellpadding=0 class="horizontal-border border data" width="100%">
+            <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class="horizontal-border border data"
+                width="100%">
                 <thead>
                     <tr class="bgblue">
-                        <th><span style="padding-left: 5px;width:4%;"> # </span></th>
-                        @forelse ($productscolumn as $column)
-                            @php
-                                $columnname = strtoupper(str_replace('_', ' ', $column['column_name']));
-                            @endphp
-
-                            @if ($column['column_type'] == 'longtext')
-                                @php
-                                    $loopnumber[] = $loop->iteration;
-                                @endphp
-                            @endif
-                            <th
-                                style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">
-                                {{ $columnname }}
+                        <th style="width:4%;text-align:center;">ID</th>
+                        @foreach ($firstRowCols as $col)
+                            <th style="text-align: center; width: {{ $col['column_width'] }}% !important;">
+                                {{ strtoupper(str_replace('_', ' ', $col['column_name'])) }}
                             </th>
-                        @empty
-                            <th>-</th>
-                        @endforelse
+                        @endforeach
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- product data  --}}
-                    @php $srno = 0 ; @endphp
+                    @php $srno = 0; @endphp
                     @foreach ($products as $row)
-                        @php $srno++ ; @endphp
+                        @php $srno++; @endphp
+
+                        {{-- Main first row --}}
                         <tr>
-                            <td style="text-align: center;width:4%">{{ $srno }}</td>
-                            @foreach ($row as $key => $val)
-                                @if ($loop->last)
-                                    <td style="text-align:right;" class="currencysymbol">
+                            <td style="text-align: center; width:4%;">{{ $srno }}</td>
+                            @foreach ($firstRowCols as $col)
+                                @php
+                                    $key = str_replace(' ', '_', $col['column_name']);
+                                    $val = $row[$key] ?? '';
+                                @endphp
+
+                                @if ($key == 'amount')
+                                    <td style="text-align: right;" class="currencysymbol">
                                         {{ Number::currency($val, in: $invdata['currency']) }}
                                     </td>
-                                @elseif (in_array($loop->iteration, $loopnumber))
-                                    @php
-                                        $textAlign =
-                                            strpos($val, "\n") !== false || strpos($val, '<br>') !== false
-                                                ? 'left'
-                                                : 'center';
-                                    @endphp
-
-                                    <td style="text-align:{{ $textAlign }};">
-                                        {!! nl2br(e($val)) !!}
-                                    </td>
                                 @else
-                                    <td style="text-align:center;">
+                                    <td style="text-align: center;">
                                         {!! nl2br(e($val)) !!}
                                     </td>
                                 @endif
                             @endforeach
                         </tr>
+
+                        {{-- Wrapped columns rows --}}
+                        @foreach ($wrappedCols as $col)
+                            @php
+                                $key = str_replace(' ', '_', $col['column_name']);
+                                $val = $row[$key] ?? '';
+                                $label = strtoupper(str_replace('_', ' ', $key));
+                            @endphp
+                            <tr>
+                                <td></td> {{-- empty # column --}}
+                                <td colspan="{{ count($firstRowCols) }}">
+                                    <strong>{{ $label }}:</strong> {!! nl2br(e($val)) !!}
+                                </td>
+                            </tr>
+                        @endforeach
                     @endforeach
-                    @for ($i = 0; $i < 10 - $srno; $i++)
-                        <tr style="text-align: center">
-                            @for ($j = 0; $j < count($products[0]); $j++)
-                                @if ($j == ceil(count($products[0]) / 2))
-                                    <td style="text-align: center">-</td>
-                                @endif
-                                <td></td>
-                            @endfor
-                        </tr>
-                    @endfor
-                    {{-- end product data  --}} 
+
+                    {{-- end product data --}}
+                </tbody>
+            </table>
+
+            <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class="horizontal-border border data"
+                width="100%">
+                <tbody>
                     <tr>
-                        <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                        <td colspan="{{ $colspan }}" class="text-right left removeborder">
                             Subtotal
                         </td>
-                        <td class="right removeborder currencysymbol text-right" id="subtotal">
+                        <td style="width: {{ $amountColumnWidth }}%;" class="right removeborder currencysymbol text-right" id="subtotal">
                             {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
                     @if ($othersettings['gst'] == 0)
                         @if ($invdata['sgst'] >= 1)
                             <tr>
-                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                    class="left removeborder ">
+                                <td colspan="{{ $colspan }}" style="text-align: right" class="left removeborder ">
                                     SGST({{ $othersettings['sgst'] }}%)
                                 </td>
-                                <td style="text-align: right ;" class="currencysymbol" id="sgst">
+                                <td style="text-align: right ;width: {{ $amountColumnWidth }}%;" class="currencysymbol" id="sgst">
                                     {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
                         @endif
                         @if ($invdata['cgst'] >= 1)
                             <tr>
-                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                    class="left removeborder ">
+                                <td colspan="{{ $colspan }}" style="text-align: right" class="left removeborder ">
                                     CGST({{ $othersettings['cgst'] }}%)
                                 </td>
-                                <td style="text-align: right" class=" currencysymbol" id="cgst">
+                                <td style="text-align: right;width: {{ $amountColumnWidth }}%;" class=" currencysymbol" id="cgst">
                                     {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
@@ -479,11 +510,11 @@
                     @else
                         @if ($invdata['gst'] >= 1)
                             <tr>
-                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                <td colspan="{{ $colspan }}" style="text-align: right"
                                     class="left removeborder ">
                                     GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                 </td>
-                                <td style="text-align: right" class="currencysymbol " id="gst">
+                                <td style="text-align: right;width: {{ $amountColumnWidth }}%;" class="currencysymbol " id="gst">
                                     {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
@@ -491,30 +522,30 @@
                     @endif
                     @unless ($roundof == 0)
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                            <td colspan="{{ $colspan }}" class="text-right left removeborder">
                                 Round of
                             </td>
-                            <td class="right currencysymbol text-right">
+                            <td style="width: {{ $amountColumnWidth }}%;" class="right currencysymbol text-right">
                                 {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                             </td>
                         </tr>
                     @endunless
                     <tr style="font-size:15px;text-align: right">
-                        <td colspan="@php echo (count($products[0])); @endphp" class="text-right left removeborder">
+                        <td colspan="{{ $colspan }}" class="text-right left removeborder">
                             <b>Total</b>
                         </td>
-                        <td class="right currencysymbol text-right">
+                        <td  style="width: {{ $amountColumnWidth }}%;" class="right currencysymbol text-right">
                             {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
                     <tr class="removeborder">
-                        <td colspan="@php echo (count($products[0])+1); @endphp" class="text-right"
-                            style="vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
+                        <td colspan="{{ $colspan + 1 }}" class="text-right"
+                            style="width: {{ $amountColumnWidth }}%;vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
                             <strong>{{ $invdata['currency'] }} {{ $words }} Only</strong>
                         </td>
                     </tr>
                 </tbody>
-            </table> 
+            </table>
 
             <table class="horizontal-border border">
                 <tr>

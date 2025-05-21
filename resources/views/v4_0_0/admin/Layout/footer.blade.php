@@ -68,6 +68,7 @@
     // function for loader hide and show 
     function loadershow() {
         $("#loader-container").show();
+        $(".wrapper").addClass("blurred-content").removeClass("remove-blur");
     }
 
     function loaderhide() {

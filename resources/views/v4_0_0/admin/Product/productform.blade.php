@@ -140,11 +140,11 @@
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-12">
-                                    <label for="product_category">Category</label><span style="color:red;">*</span>
+                                    <label for="category">Category</label><span style="color:red;">*</span>
                                     <div class="tree-container" id="category-dropdown">
                                         <div class="selected-category" data-id="null">Select a category</div>
                                     </div>
-                                    <span class="error-msg" id="error-product_category" style="color: red"></span>
+                                    <span class="error-msg" id="error-category" style="color: red"></span>
                                 </div>
                             </div>
                         </div>
@@ -176,7 +176,7 @@
                                 <div class="col-12">
                                     <label for="Unit">Unit</label>
                                     <input type="text" name='unit' class="form-control" id="unit" value=""
-                                        placeholder="enter Unit">
+                                        placeholder="eg., KG,Liter,Pcs">
                                     <span class="error-msg" id="error-unit" style="color: red"></span>
                                 </div>
                             </div>
@@ -289,6 +289,7 @@
 
 @push('ajax')
     <script>
+        Dropzone.autoDiscover = false; 
         $('document').ready(function() {
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
@@ -299,6 +300,15 @@
 
             $('.summernote').summernote({
                 height: 200,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['table']],
+                    ['view', ['fullscreen', 'codeview']]
+                ],  
             });
 
             $.ajax({
@@ -311,14 +321,14 @@
                 },
                 success: function(response) {
                     if (response.status == 200 && response.productcolumnmapping != '') {
-                        columnlinks = response.productcolumnmapping; 
+                        columnlinks = response.productcolumnmapping;
                         // Check if any product_column has the value 'quantity'
-                         
-                        hasQuantity = true ;
 
-                        $.each(columnlinks,function(id,columnlink){
-                            if(columnlink.product_column == 'quantity'){
-                                hasQuantity = false;  
+                        hasQuantity = true;
+
+                        $.each(columnlinks, function(id, columnlink) {
+                            if (columnlink.product_column == 'quantity') {
+                                hasQuantity = false;
                             }
                         });
 
@@ -327,8 +337,8 @@
                                 <i class="ri-alert-line"></i>
                                 If you want to handle it with an invoice, the quantity column mapping is required otherwise it will not be managed automatically.
                             `); // Set text to 'Yes' if 'quantity' exists
-                        } 
-                    } 
+                        }
+                    }
                 },
                 error: function(xhr, status, error) { // if calling api request error 
                     console.log(xhr.responseText); // Log the full error response for debugging
@@ -379,7 +389,7 @@
 
                             }
                         });
-                    }  else { // if request has not found
+                    } else { // if request has not found
                         console.log(response);
                     }
                     loaderhide();
@@ -400,9 +410,10 @@
                     });
                 }
             });
+ 
+            
 
-
-            Dropzone.options.image = {
+            const myDropzone = new Dropzone("#image", {
                 url: "{{ route('temp.docupload') }}", // URL to send the files
                 paramName: "file", // Name for the file input
                 maxFilesize: 5, // Max file size in MB
@@ -413,10 +424,10 @@
                 addRemoveLinks: true, // Optionally show remove link for files
 
                 init: function() {
-                    var myDropzone = this; // Capture Dropzone instance
+                   const dz = this;
 
                     // Add custom data (payload) before sending the file
-                    this.on("sending", function(file, xhr, formData) {
+                    dz.on("sending", function(file, xhr, formData) {
                         document.getElementById('error-image').innerText = '';
                         // Check if the file already exists in the uploadedimgs array
                         if (uploadedimgs.indexOf(file.name) !== -1) {
@@ -438,24 +449,24 @@
                     });
 
                     // Handle success
-                    this.on("success", function(file, response) {
+                    dz.on("success", function(file, response) {
                         if (response.status == 200) {
                             uploadedimgs.push(response.filename);
                             // Save the URL of the uploaded file to the file object
                             file.fileUrl = response.fileUrl; // Add fileUrl to the file object
                         }
-                         
+
                     });
 
                     // Handle error during upload
-                    this.on("error", function(file, response) {
+                    dz.on("error", function(file, response) {
                         document.getElementById('error-image').innerText =
                             'Error with the file upload. Please try again.';
                     });
 
 
                     // Open the file in a new tab when clicked
-                    this.on("addedfile", function(file) {
+                    dz.on("addedfile", function(file) {
                         // Add a click event to the file preview to open it in a new tab
                         file.previewElement.addEventListener("click", function() {
                             if (file.fileUrl) {
@@ -471,7 +482,7 @@
                     });
 
                     // Handle file removal
-                    this.on("removedfile", function(file) {
+                    dz.on("removedfile", function(file) {
                         // Find the index of the filename in the uploadedimgs array
                         var index = uploadedimgs.indexOf(file.name);
 
@@ -483,12 +494,12 @@
 
 
                     // Optional: Add a complete handler if you need something to happen when the upload is done
-                    this.on("complete", function(file) {
+                    dz.on("complete", function(file) {
                         // Perform actions after the upload completes
                         console.log('File upload complete.');
                     });
                 }
-            };
+            });
 
 
             // Handle dropdown click to open/close the list
@@ -614,9 +625,29 @@
                             .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
+                            var firstErrorElement =
+                            null; // Variable to track the first error element
+
                             $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
+                                var errorElement = $('#error-' + key);
+                                errorElement.text(value[
+                                0]); // Display the error message
+
+                                // Track the first error element
+                                if (!firstErrorElement) {
+                                    firstErrorElement = errorElement;
+                                }
                             });
+
+                            loaderhide();
+
+                            // If there's a first error, scroll to it
+                            if (firstErrorElement) {
+                                $('html, body').animate({
+                                    scrollTop: firstErrorElement.offset().top -
+                                        200 // Adjust this value as needed
+                                }, 500); // Scroll duration
+                            }
                         } else {
                             var errorMessage = "";
                             try {

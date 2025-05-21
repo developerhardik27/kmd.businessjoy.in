@@ -182,26 +182,28 @@
                             global_response = response;
                             var id = 1;
                             $.each(response.reports, function(key, value) {
-                                $('#tabledata').append(` <tr>
-                                                        <td>${id}</td>
-                                                        <td class='text-center'">${value.module_name}</td> 
-                                                        <td class='text-center'">${value.from_date_formatted}</td> 
-                                                        <td class='text-center'">${value.to_date_formatted}</td> 
-                                                        <td class='text-center'">${value.firstname} ${value.lastname}</td> 
-                                                        <td class='text-center'">${value.created_at_formatted}</td> 
-                                                        <td>
-                                                            @if (session('user_permissions.reportmodule.report.delete') == '1')
-                                                                <span>
-                                                                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" data-id= '${value.id}'
-                                                                        class="del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
-                                                                        <i class="ri-delete-bin-fill"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @else
-                                                                -
-                                                            @endif
-                                                        </td>
-                                                    </tr>`);
+                                $('#tabledata').append(` 
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td class='text-center'">${value.module_name}</td> 
+                                        <td class='text-center'">${value.from_date_formatted}</td> 
+                                        <td class='text-center'">${value.to_date_formatted}</td> 
+                                        <td class='text-center'">${value.firstname} ${value.lastname}</td> 
+                                        <td class='text-center'">${value.created_at_formatted}</td> 
+                                        <td>
+                                            @if (session('user_permissions.reportmodule.report.delete') == '1')
+                                                <span>
+                                                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" data-id= '${value.id}'
+                                                        class="del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                `);
                                 id++;
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
