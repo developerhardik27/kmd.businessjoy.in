@@ -26,7 +26,7 @@ class inventoryController extends commonController
 
         $this->productModel = $this->getmodel('product');
         $this->inventoryModel = $this->getmodel('inventory');
-        $this->purchaseModel = $this->getmodel('purchase');
+        $this->purchaseModel = $this->getmodel('Purchase');
     }
 
     /**
