@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class supplierController extends commonController
@@ -23,6 +24,74 @@ class supplierController extends commonController
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->supplierModel = $this->getmodel('supplier');
+    }
+
+    public function datatable()
+    {
+        if ($this->rp['inventorymodule']['supplier']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $suppliersres = $this->supplierModel::leftjoin($this->masterdbname . '.country', 'suppliers.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftjoin($this->masterdbname . '.state', 'suppliers.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftjoin($this->masterdbname . '.city', 'suppliers.city_id', '=', $this->masterdbname . '.city.id')
+            ->leftjoin($this->masterdbname . '.users', 'suppliers.created_by', '=', $this->masterdbname . '.users.id')
+            ->select(
+                'suppliers.id',
+                DB::raw("
+                    CONCAT_WS(' ' , suppliers.firstname , suppliers.lastname) as suppliername
+                "),
+                'suppliers.company_name',
+                'suppliers.email',
+                'suppliers.contact_no',
+                'suppliers.house_no_building_name',
+                'suppliers.road_name_area_colony',
+                'country.country_name',
+                'state.state_name',
+                'city.city_name',
+                'suppliers.pincode',
+                'suppliers.gst_no',
+                'suppliers.company_id',
+                'suppliers.created_by',
+                'suppliers.updated_by',
+                DB::raw("DATE_FORMAT(suppliers.created_at, '%d-%M-%Y %h:%i %p') as created_at_formatted"),
+                'suppliers.updated_at',
+                'suppliers.is_active',
+                'users.firstname as createdby_fname',
+                'users.lastname as createdby_lname'
+            )
+            ->where('suppliers.is_deleted', 0);
+
+        if ($this->rp['inventorymodule']['supplier']['alldata'] != 1) {
+            $suppliersres->where('suppliers.created_by', $this->userId);
+        }
+
+        $totalcount = $suppliersres->get()->count(); // count total record
+
+        $suppliers = $suppliersres->get();
+
+        if ($suppliers->isEmpty()) {
+            return DataTables::of($suppliers)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($suppliers)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
     /**

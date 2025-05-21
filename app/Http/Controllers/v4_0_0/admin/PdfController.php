@@ -71,7 +71,7 @@ class PdfController extends Controller
          $companyname = $data['invdata']['company_name'];
       }
 
-      // return view($this->version . '.admin.invoicetemplate', $data);
+      // return view($this->version . '.admin.PDF.invoicetemplate', $data);
       $pdfname = $data['invdata']['inv_no'] . ' ' . $companyname . ' ' . date('d-M-y') . '.pdf';
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.invoicetemplate', $data)->setPaper('a4', 'portrait');

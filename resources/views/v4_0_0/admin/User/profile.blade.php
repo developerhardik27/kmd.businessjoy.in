@@ -552,70 +552,75 @@
             let previousValue; // store default  page 
 
             // get user data for user profile
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('user.profile') }}",
-                data: {
-                    company_id: {{ session()->get('company_id') }},
-                    user_id: {{ session()->get('user_id') }},
-                    token: "{{ session()->get('api_token') }}",
-                    id: {{ $id }}
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.user != '') {
-                        var user = response.user[0];
-                        $('#userfname').text(user.firstname);
-                        $('#userlname').text(user.lastname);
-                        $('#useremail').text(user.email);
-                        $('#usercontact').text(user.contact_no);
-                        $('#usercity').text(user.city_name);
-                        $('#userstate').text(user.state_name);
-                        $('#usercountry').text(user.country_name);
-                        $('#userpincode').text(user.pincode);
-                        if (user.img != null && user.img != '') {
-                            var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
-                                'alt', 'profile-img').attr('class', 'profile-pic rounded');
-                        } else {
-                            var imgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg')
-                                .attr(
+            function loaduserdata(){
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('user.profile') }}",
+                    data: {
+                        company_id: {{ session()->get('company_id') }},
+                        user_id: {{ session()->get('user_id') }},
+                        token: "{{ session()->get('api_token') }}",
+                        id: {{ $id }}
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.user != '') {
+                            var user = response.user[0];
+                            $('#userfname').text(user.firstname);
+                            $('#userlname').text(user.lastname);
+                            $('#useremail').text(user.email);
+                            $('#usercontact').text(user.contact_no);
+                            $('#usercity').text(user.city_name);
+                            $('#userstate').text(user.state_name);
+                            $('#usercountry').text(user.country_name);
+                            $('#userpincode').text(user.pincode);
+                            if (user.img != null && user.img != '') {
+                                var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr(
                                     'alt', 'profile-img').attr('class', 'profile-pic rounded');
+                            } else {
+                                var imgElement = $('<img>').attr('src', '/admin/images/imgnotfound.jpg')
+                                    .attr(
+                                        'alt', 'profile-img').attr('class', 'profile-pic rounded');
+                            }
+                            $('#profile_img').html(imgElement);
+                            $('#homepage').val(user.default_page);
+                            previousValue = user.default_page;
+                        } else if (response.status == 500) {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+    
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
+    
                         }
-                        $('#profile_img').append(imgElement);
-                        $('#homepage').val(user.default_page);
-                        previousValue = user.default_page;
-                    } else if (response.status == 500) {
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
                         Toast.fire({
                             icon: "error",
-                            title: response.message
+                            title: errorMessage
                         });
-
-                    } else {
-                        Toast.fire({
-                            icon: "error",
-                            title: "something went wrong!"
-                        });
-
+    
                     }
-                    loaderhide();
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr
-                        .responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
+                });
 
-                }
-            });
+            }
+
+            loaduserdata();
 
             // get company data for company profile
             $.ajax({
@@ -973,6 +978,7 @@
                                 title: response.message
                             });
 
+                            loaduserdata();
                             $('#personal_information').removeClass('d-none');
                             $('#edit_personal_information').addClass('d-none');
                             $('#userprofile .profile-pic').remove();

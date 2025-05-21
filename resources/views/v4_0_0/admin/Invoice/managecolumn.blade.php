@@ -15,7 +15,7 @@
         @csrf
         <div class="form-group">
             <div id="newColForm" class="form-row d-none">
-                <div class="col-sm-4 mb-2">
+                <div class="col-md-6 mb-2">
                     <input type="hidden" name="token" id="token" value="{{ session('api_token') }}">
                     <input type="hidden" name="company_id" id="company_id" value="{{ $company_id }}">
                     <input type="hidden" name="user_id" id="user_id" value="{{ session('user_id') }}">
@@ -26,7 +26,7 @@
                         id="column_name">
                     <span class="error-msg" id="error-column_name" style="color: red"></span>
                 </div>
-                <div class="col-sm-4 mb-2">
+                <div class="col-md-6 mb-2">
                     <select name="column_type" class="form-control " id="column_type">
                         <option selected disabled>Select Datatype</option>
                         <option value="text">Text</option>
@@ -37,10 +37,15 @@
                     </select>
                     <span class="error-msg" id="error-column_type" style="color: red"></span>
                 </div>
-                <div class="col-sm-2 mb-2">
+                <div class="col-md-6 mb-2">
                     <input type="number" class="form-control" name="column_width" id="column_width" placeholder="Column Width(%)"
                         required />
                     <span class="error-msg" id="error-column_width" style="color: red"></span>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <input type="string" class="form-control" name="default_value" id="default_value" placeholder="Default Value"
+                        required />
+                    <span class="error-msg" id="error-default_value" style="color: red"></span>
                 </div>
                 <div class="col-12 text-right">
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
@@ -60,6 +65,16 @@
         </div>
     </form>
     <hr>
+    <div class="alert alert-info" style="font-size: 14px;">
+    <strong>Note:</strong>
+    <ul style="margin-bottom: 0;">
+        <li><strong>SR. Nmber</strong> column width: <code>4%</code></li>
+        <li><strong>Amount</strong> column width: <code>20%</code></li>
+        <li><strong>Total reserved width:</strong> <code>24%</code></li>
+        <li><strong>Available width for custom columns:</strong> <code>76%</code></li>
+        <li>If your custom column widths exceed 76%, the extra columns will move to the next row in the PDF.</li>
+    </ul>
+</div>
     <table id="data"
         class="table  table-bordered display table-responsive-lg table-striped text-center">
         <thead>
@@ -68,6 +83,7 @@
                 <th>Column Name</th>
                 <th>Column Type</th>
                 <th>Column Width(%)</th>
+                <th>Default Value</th>
                 <th>Sequence</th>
                 <th>Action</th>
             </tr>
@@ -75,7 +91,7 @@
         <tbody id="tabledata">
         </tbody>
         <tr>
-            <td colspan="4" style="border:none;">
+            <td colspan="5" style="border:none;">
             </td>
             <td class="text-center" style="border-left: none">
                 <button data-toggle="tooltip" data-placement="bottom" data-original-title="Save Columns Sequence"
@@ -137,33 +153,36 @@
                             global_response = response;
                             var id = 1;
                             $.each(response.invoicecolumn, function(key, value) {
-                                $('#tabledata').append(` <tr>
-                                                        <td>${id}</td>
-                                                        <td>${value.column_name}</td>
-                                                        <td>${value.column_type}</td>
-                                                        <td>${value.column_width}</td>
-                                                        <td><input type='number' min=1 oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Sequence' data-id='${value.id}' value="${value.column_order}" class='columnorder form-control'></td>
-                                                        <td>
-                                                            <span>
-                                                                <button type="button"data-toggle="tooltip" data-placement="bottom" data-original-title="${(value.is_hide == 0 )? 'Hide Column' : 'Show Column' }" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'
-                                                                     class="btn hide-btn btn-outline-${(value.is_hide == 0 )? "info" : "danger"} btn-rounded btn-sm my-1">
-                                                                    ${(value.is_hide == 0 )? "Show" : "Hide"}
-                                                                </button>
-                                                            </span>
-                                                            <span>
-                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Column" data-id='${value.id}'
-                                                                     class="btn edit-btn iq-bg-success btn-rounded btn-sm my-1">
-                                                                    <i class="ri-edit-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                            <span>
-                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Column" data-id= '${value.id}'
-                                                                    class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-1">
-                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                </button>
-                                                            </span>
-                                                        </td>
-                                                    </tr>`)
+                                $('#tabledata').append(` 
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>${value.column_name}</td>
+                                        <td>${value.column_type}</td>
+                                        <td>${value.column_width}</td>
+                                        <td>${value.default_value || '-'}</td>
+                                        <td><input type='number' min=1 oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder='Set Coumn Sequence' data-id='${value.id}' value="${value.column_order}" class='columnorder form-control'></td>
+                                        <td>
+                                            <span>
+                                                <button type="button"data-toggle="tooltip" data-placement="bottom" data-original-title="${(value.is_hide == 0 )? 'Hide Column' : 'Show Column' }" value=${(value.is_hide == 0 )? 1 : 0} data-id='${value.id}'
+                                                        class="btn hide-btn btn-outline-${(value.is_hide == 0 )? "info" : "danger"} btn-rounded btn-sm my-1">
+                                                    ${(value.is_hide == 0 )? "Show" : "Hide"}
+                                                </button>
+                                            </span>
+                                            <span>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Column" data-id='${value.id}'
+                                                        class="btn edit-btn iq-bg-success btn-rounded btn-sm my-1">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </span>
+                                            <span>
+                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Column" data-id= '${value.id}'
+                                                    class=" del-btn btn iq-bg-danger btn-rounded btn-sm my-1">
+                                                    <i class="ri-delete-bin-fill"></i>
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `);
                                 id++;
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
@@ -174,7 +193,7 @@
                                 title: response.message
                             });
                         } else {
-                            $('#tabledata').append(`<tr><td colspan='5' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='7' >No Data Found</td></tr>`)
                         }
                         loaderhide();
                         // You can update your HTML with the data here if needed
@@ -279,6 +298,7 @@
                                     $('#column_name').val(invoicecolumndata.column_name);
                                     $('#column_type').val(invoicecolumndata.column_type);
                                     $('#column_width').val(invoicecolumndata.column_width);
+                                    $('#default_value').val(invoicecolumndata.default_value);
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -417,7 +437,7 @@
             // add or edit column form submit
             $('#columnform').submit(function(e) {
                 e.preventDefault();
-                var editid = $('#edit_id').val()
+                var editid = $('#edit_id').val();
                 var element = $(this);
                 $('#column_type').prop('disabled', false);
                 var columndata = element.serialize(); 

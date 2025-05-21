@@ -240,7 +240,7 @@ a:hover { text-decoration: none; }
 -----------------------------------------------------------------------*/
 
 /* Form */
-#sidebar-scrollbar { height: 100vh; }
+#sidebar-scrollbar {max-height: calc(100vh - 100px); overflow: hidden;}
 .scroll-content div.p-3 { height: 100px; }
 .iq-sidebar-menu .iq-menu .iq-menu-title { display: block; color: var(--iq-body-text); font-size: 15px; position: relative; padding: 15px 20px; font-weight: 500; line-height: 18px; }
 .iq-sidebar-menu { position: relative; }

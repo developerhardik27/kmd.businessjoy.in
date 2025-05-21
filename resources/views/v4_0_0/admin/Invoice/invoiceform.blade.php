@@ -22,10 +22,12 @@
 
     table input.form-control {
         width: auto;
+        min-width: 100%;
     }
 
     table textarea.form-control{
         width: auto;
+        min-width: 100%;
     }
 
     .select2-container{
@@ -41,8 +43,11 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-4 mb-3">
-                    <span class=" float-right mb-3 mr-2"> 
-                    </span>
+                      <input type="hidden" name="country_id" id="country" class="form-control" value="" />
+                    <input type="hidden" name="user_id" id="created_by" class="form-control"
+                        value="{{ $user_id }}" />
+                    <input type="hidden" name="company_id" id="company_id" class="form-control"
+                        value="{{ $company_id }}" />
                     <label for="customer">Customer</label><span
                     style="color:red;">*</span>
                     <select class="form-control select2" id="customer" name="customer" required>
@@ -52,21 +57,13 @@
                     <span class="error-msg" id="error-customer" style="color: red"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
-                    <input type="hidden" name="country_id" id="country" class="form-control" value="" />
-                    <input type="hidden" name="user_id" id="created_by" class="form-control"
-                        value="{{ $user_id }}" />
-                    <input type="hidden" name="company_id" id="company_id" class="form-control"
-                        value="{{ $company_id }}" />
-                    <label for="payment">Payment Mode</label><span
+                    <label for="currency">Currency</label><span
                     style="color:red;">*</span>
-                    <select class="form-control" id="payment" name="payment" required>
-                        <option selected="" disabled="">Select your Payment Way</option>
-                        <option value="Online Payment">Online Payment</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Check">Check</option>
+                    <select class="form-control" id="currency" name="currency" required>
+                        <option selected="" disabled=""> Select Currency</option>
                     </select>
-                    <span class="error-msg" id="error-payment_mode" style="color: red"></span>
-                </div>
+                    <span class="error-msg" id="error-currency" style="color: red"></span>
+                </div> 
                 <div class="col-sm-4 mb-3">
                     <label for="type">Tax-Type</label><span
                     style="color:red;">*</span>
@@ -76,15 +73,7 @@
                         <option value="2">Without GST</option>
                     </select>
                     <span class="error-msg" id="error-tax_type" style="color: red"></span>
-                </div>
-                <div class="col-sm-4 mb-3">
-                    <label for="currency">Currency</label><span
-                    style="color:red;">*</span>
-                    <select class="form-control" id="currency" name="currency" required>
-                        <option selected="" disabled=""> Select Currency</option>
-                    </select>
-                    <span class="error-msg" id="error-currency" style="color: red"></span>
-                </div>
+                </div> 
                 <div class="col-sm-4 mb-3">
                     <label for="acc_details">Bank Account </label><span
                     style="color:red;">*</span>
@@ -615,8 +604,8 @@
                     <th>Description</th>
                     <th>Quantity</th>`);
                 }
-                $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
-                $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3); // set autocolspan for add new button row
+                $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn - 1); // set autocolspan for title (subtotal,gst,total etc.. )
+                $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for add new button row
             }).fail(function(xhr) {
                 loaderhide();
                 handleAjaxError(xhr);
@@ -683,9 +672,11 @@
                     productdata = response.product;
                     // You can update your HTML with the data here if needed
                     $.each(response.product, function(key, value) { 
-                        $('#product').append(
-                             `<option id="product_option_${value.id}" ${value.track_quantity == 0 ? 'disabled' : ''} value='${value.id}'>${value.name} ${value.track_quantity == 0 ? ' - inventory not tracked' : ''}</option>`
-                        )
+                        if(value.is_active == 1){ 
+                            $('#product').append(
+                                 `<option id="product_option_${value.id}" ${value.track_quantity == 0 ? 'disabled' : ''} value='${value.id}'>${value.name} ${value.track_quantity == 0 ? ' - inventory not tracked' : ''}</option>`
+                            );
+                        }
                     });  
                     $('#product').val('');
                     $('#product').select2({
@@ -713,16 +704,16 @@
                 user_id: USER_ID
             }).done(function(response) {
                 if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.country, function(key, value) {
-                            $('#currency').append(
-                                `<option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>`
-                            );
-                        });
-                    } else {
+                    // You can update your HTML with the data here if needed
+                    $.each(response.country, function(key, value) {
                         $('#currency').append(
-                            `<option disabled '>No Data found </option>`);
-                    }
+                            `<option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>`
+                        );
+                    });
+                } else {
+                    $('#currency').append(
+                        `<option disabled '>No Data found </option>`);
+                }
             }).fail(function(xhr) {
                 loaderhide();
                 handleAjaxError(xhr);
@@ -899,19 +890,21 @@
 
             // function for add new row in table 
             function adddiv() {
+                hiddencolumn = 0;
                 $('#add_new_div').append(
                     `<tr class="iteam_row_${addname}" data-inventory="null">
                         ${allColumnData.map(columnData => {
                                 var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
+                                ( columnData.is_hide === 1 ) ? hiddencolumn++ : '';
                                 if (columnData.column_type === 'time') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
                                 } else if (columnData.column_type === 'longtext') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1"></textarea></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1"> ${columnData.default_value || ''}</textarea></td>`;
                                 } else {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
                                 }
                             }).join('')
                         }
@@ -980,13 +973,13 @@
                             var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
                                 if (columnData.column_type === 'time') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} "></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} "></td>`;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
                                 } else if (columnData.column_type === 'longtext') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || ''}</textarea></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}</textarea></td>`;
                                 } else {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
+                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
                                 }
                             }).join('')
                         }
@@ -1099,7 +1092,7 @@
                                             var inputcontent = null;
     
                                             // Initialize productColumnValue as empty
-                                            let productColumnValue = 1;
+                                            let productColumnValue = '';
     
                                             // Check if the column matches the invoice_column in columnlinks
                                             let matchingLink = columnlinks.find(link => link.invoice_column === columnName);
@@ -1115,26 +1108,26 @@
                                                     }
                                                 }
                                             }
-    
+                                             
                                             // Handle different column types and set the value accordingly
                                             if (columnData.column_type === 'time') {
                                                 inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <input type="time" value="${productColumnValue}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
+                                                                    <input type="time" value="${productColumnValue || `${columnData.default_value || ''}`}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
                                                                     class="form-control iteam_${columnName}">
                                                                 </td>`;
                                             } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
                                                 inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <input type="number" value="${productColumnValue}" step="any" name="${columnName}_${addname}" ${validation} id='${columnName}_${addname}' 
+                                                                    <input type="number" value="${productColumnValue  || `${columnData.default_value || ''}`}" step="any" name="${columnName}_${addname}" ${validation} id='${columnName}_${addname}' 
                                                                     data-id=${addname} class="form-control iteam_${columnName} counttotal calculation" min=0>
-                                                                    ${text}
+                                                                    ${text || ''}
                                                                 </td>`;
                                             } else if (columnData.column_type === 'longtext') {
                                                 inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName}" rows="1">${productColumnValue}</textarea>
+                                                                    <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName}" rows="1">${productColumnValue  || `${columnData.default_value || ''}`}</textarea>
                                                                 </td>`;
                                             } else {
                                                 inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                                    <input type="text" value="${productColumnValue}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
+                                                                    <input type="text" value="${productColumnValue || `${columnData.default_value || ''}`}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
                                                                     class="form-control iteam_${columnName}" placeholder="${columnData.column_name}">
                                                                 </td>`;
                                             }
@@ -1243,8 +1236,7 @@
                 return {
                     country_id: $('#country').val(),
                     user_id: $('#created_by').val(),
-                    company_id: $('#company_id').val(),
-                    payment_mode: $('#payment').val(),
+                    company_id: $('#company_id').val(), 
                     bank_account: $('#acc_details').val(),
                     invoice_date: $('#invoice_date').val(),
                     inv_number: $('#inv_number').val(),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class productcategoryController extends commonController
@@ -37,7 +38,7 @@ class productcategoryController extends commonController
 
         $productcategory = $productcategoryres->get();
 
-        if ($productcategory->isEmpty()) { 
+        if ($productcategory->isEmpty()) {
             return $this->successresponse(404, 'productcategory', 'No Records Found');
         }
         // condition for check if user has permission to view records
@@ -45,6 +46,46 @@ class productcategoryController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         return $this->successresponse(200, 'productcategory', $productcategory);
+    }
+
+    public function datatable()
+    {
+        // condition for check if user has permission to view records
+        if ($this->rp['inventorymodule']['productcategory']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $productcategoryres = $this->productCategoryModel::where('is_deleted', 0);
+
+        if ($this->rp['inventorymodule']['productcategory']['alldata'] != 1) {
+            $productcategoryres->where('products.created_by', $this->userId);
+        }
+
+        $totalcount = $productcategoryres->get()->count(); // count total record
+        $productcategory = $productcategoryres->get();
+
+        if ($productcategory->isEmpty()) {
+            return DataTables::of($productcategory)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($productcategory)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
     /**
@@ -61,7 +102,7 @@ class productcategoryController extends commonController
 
         $productcategory = $productcategoryres->get();
 
-        if ($productcategory->isEmpty()) { 
+        if ($productcategory->isEmpty()) {
             return $this->successresponse(404, 'productcategory', 'No Records Found');
         }
         // condition for check if user has permission to view records
@@ -139,7 +180,7 @@ class productcategoryController extends commonController
     {
         $productcategory = $this->productCategoryModel::find($id);
 
-        if (!$productcategory) { 
+        if (!$productcategory) {
             return $this->successresponse(404, 'message', "No such product category Found!");
         }
 
@@ -153,8 +194,8 @@ class productcategoryController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        
-            return $this->successresponse(200, 'productcategory', $productcategory);
+
+        return $this->successresponse(200, 'productcategory', $productcategory);
     }
 
     /**
@@ -231,7 +272,7 @@ class productcategoryController extends commonController
     public function destroy(string $id)
     {
 
-        return $this->executeTransaction(function() use ($id){
+        return $this->executeTransaction(function () use ($id) {
 
             $productcategory = $this->productCategoryModel::find($id);
 
@@ -248,17 +289,17 @@ class productcategoryController extends commonController
             if ($this->rp['inventorymodule']['productcategory']['delete'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        
+
             $productcategory->update([
                 'is_deleted' => 1
             ]);
 
-            $product = $this->productModel::where('product_category',$id)->update([
+            $product = $this->productModel::where('product_category', $id)->update([
                 'product_category' => null
             ]);
 
             // Function to update child categories based on parent_id
-            $this->updateChildCategoriesStatus($productcategory,'is_deleted', 1);
+            $this->updateChildCategoriesStatus($productcategory, 'is_deleted', 1);
 
 
             return $this->successresponse(200, 'message', 'Product succesfully deleted');
@@ -271,10 +312,10 @@ class productcategoryController extends commonController
     public function statusupdate(Request $request, string $id)
     {
 
-        return $this->executeTransaction(function() use ($request ,$id){
+        return $this->executeTransaction(function () use ($request, $id) {
             $productcategory = $this->productCategoryModel::find($id);
 
-            if (!$productcategory) { 
+            if (!$productcategory) {
                 return $this->successresponse(404, 'message', 'No such product category found!');
             }
 
@@ -283,7 +324,7 @@ class productcategoryController extends commonController
                     return $this->successresponse(500, 'message', "You are Unauthorized!");
                 }
             }
-        
+
             if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
@@ -293,18 +334,18 @@ class productcategoryController extends commonController
             ]);
 
             // Function to update child categories based on parent_id
-            $updateupdateChildCategorie = $this->updateChildCategoriesStatus($productcategory,'is_active', $request->status);
+            $updateupdateChildCategorie = $this->updateChildCategoriesStatus($productcategory, 'is_active', $request->status);
 
             return $this->successresponse(200, 'message', 'status succesfully updated');
         });
     }
- 
-    private function updateChildCategoriesStatus($category, $column , $value)
+
+    private function updateChildCategoriesStatus($category, $column, $value)
     {
         // Find child categories where parent_id is the category's id
         $childCategories = $this->productCategoryModel::where('parent_id', $category->id)->get();
 
-        if(!$childCategories){
+        if (!$childCategories) {
             return true;
         }
 
@@ -315,14 +356,14 @@ class productcategoryController extends commonController
                 $column => $value,
             ]);
 
-            if($column == 'is_deleted'){
-                $product = $this->productModel::where('product_category',$childCategory->id)->update([
+            if ($column == 'is_deleted') {
+                $product = $this->productModel::where('product_category', $childCategory->id)->update([
                     'product_category' => null
                 ]);
             }
 
             // Recursively update the child categories of this child (if any)
-            $this->updateChildCategoriesStatus($childCategory, $column , $value);
+            $this->updateChildCategoriesStatus($childCategory, $column, $value);
         }
 
         return true;

@@ -435,108 +435,189 @@
             // response status == 422 that means api has not got valid or required data
             var global_response = '';
 
+            var table = '';
+
 
             // fetch & show products data in table
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('inventory.index') }}",
-                    data: {
-                        user_id: {{ session()->get('user_id') }},
-                        company_id: {{ session()->get('company_id') }},
-                        token: "{{ session()->get('api_token') }}"
+
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        // Clear and destroy the existing DataTable instance
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('inventory.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
 
-                        // Clear the existing table body
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.inventory != '') {
-                            global_response = response;
-                            var id = 1;
-                            // You can update your HTML with the data here if needed
-                            $.each(response.inventory, function(key, value) {
-                                var UnAvailable = value.damaged + value.quality_control + value
-                                    .safety_stock + value.other;
-                                $('#tabledata').append(`
-                                    <tr> 
-                                        <td>${value.name}</td> 
-                                        <td>${value.sku != null ? value.sku : '-' }</td>
-                                        <td class="modalinventory"> 
-                                            <button class="unavailableinventorybtn inventorybtn" data-id=${value.id} data-toggle="modal" data-target="#unavailable">
-                                                <span class="unavailablecount">${UnAvailable}</span>
-                                                <span class="modalinventoryicon">
-                                                    <i class="ri-arrow-down-s-line"></i>
-                                                </span>
-                                            </button> 
-                                        </td>
-                                        <td>
-                                             <button class="availableinventorybtn inventorybtn" data-id=${value.id} data-toggle="modal" data-target="#available">
-                                                <span class="availablecount">${value.available}</span>
-                                                <span class="modalinventoryicon">
-                                                    <i class="ri-arrow-down-s-line"></i>
-                                                </span>
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button class="onhandinventorybtn inventorybtn" data-id=${value.id} data-toggle="modal" data-target="#onhand">
-                                                <span class="onhandcount">${value.on_hand}</span>
-                                                <span class="modalinventoryicon">
-                                                    <i class="ri-arrow-down-s-line"></i>
-                                                </span>
-                                            </button> 
-                                        </td> 
-                                        <td>
-                                            <button class="incominginventorybtn inventorybtn" data-id=${value.id} data-toggle="modal" data-target="#incoming">
-                                                <span class="incomingcount">${value.incoming_count}</span>
-                                                <span class="modalinventoryicon">
-                                                    <i class="ri-arrow-down-s-line"></i>
-                                                </span>
-                                            </button> 
-                                        </td> 
-                                    </tr>
-                                `);
-                                id++;
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
+                            global_response = json;
 
-                            $('#data').DataTable({
-                                'responsive' : true,
-                                "destroy": true, //use for reinitialize datatable
-                                "order": [] // Disable column sorting by default
-                            });
-                        } else {
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
-                            }); 
-                            // After appending "No Data Found", re-initialize DataTable so it works properly
-                            $('#data').DataTable({});
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'name',
+                            name: 'name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'sku',
+                            name: 'sku',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                var UnAvailable = row.damaged + row.quality_control + row
+                                    .safety_stock + row.other;
+                                return `
+                                    <div>
+                                        <button class="unavailableinventorybtn inventorybtn" data-id=${data} data-toggle="modal" data-target="#unavailable">
+                                            <span class="unavailablecount">${UnAvailable}</span>
+                                            <span class="modalinventoryicon">
+                                                <i class="ri-arrow-down-s-line"></i>
+                                            </span>
+                                        </button> 
+                                    </div>    
+                                `;
+                            }
+                        },
+                        {
+                            data: 'available',
+                            name: 'available',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                return `
+                                    <button class="availableinventorybtn inventorybtn" data-id=${row.id} data-toggle="modal" data-target="#available">
+                                        <span class="availablecount">${data}</span>
+                                        <span class="modalinventoryicon">
+                                            <i class="ri-arrow-down-s-line"></i>
+                                        </span>
+                                    </button>
+                                `;
+                            }
+                        },
+                        {
+                            data: 'on_hand',
+                            name: 'on_hand',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                return `
+                                    <button class="onhandinventorybtn inventorybtn" data-id=${row.id} data-toggle="modal" data-target="#onhand">
+                                        <span class="onhandcount">${data}</span>
+                                        <span class="modalinventoryicon">
+                                            <i class="ri-arrow-down-s-line"></i>
+                                        </span>
+                                    </button> 
+                                `;
+                            }
+                        },
+                        {
+                            data: 'incoming_count',
+                            name: 'incoming_count',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                return `
+                                    <button class="incominginventorybtn inventorybtn" data-id=${row.id} data-toggle="modal" data-target="#incoming">
+                                        <span class="incomingcount">${data}</span>
+                                        <span class="modalinventoryicon">
+                                            <i class="ri-arrow-down-s-line"></i>
+                                        </span>
+                                    </button> 
+                                `;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
             // call function for show data in table
             loaddata();
@@ -544,7 +625,7 @@
             $(document).on('click', '.unavailableinventorybtn', function() {
                 var id = $(this).data('id');
                 $('#unavailable').data('id', id);
-                $.each(global_response.inventory, function(key, value) {
+                $.each(global_response.data, function(key, value) {
                     if (value.id == id) {
                         $('.damagedcount').text(value.damaged);
                         $('.qualitycontrolcount').text(value.quality_control);
@@ -678,7 +759,7 @@
                                 title: response.message
                             });
                             $('#handleunavailable').modal('hide');
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -771,7 +852,7 @@
                                 title: response.message
                             });
                             $('#available').modal('hide');
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -851,7 +932,7 @@
                                 title: response.message
                             });
                             $('#onhand').modal('hide');
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -907,7 +988,7 @@
                         token: "{{ session()->get('api_token') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 && response.incominginventory != '') { 
+                        if (response.status == 200 && response.incominginventory != '') {
                             var content = '';
                             $.each(response.incominginventory, function(id, count) {
                                 var purchaeorderurl =

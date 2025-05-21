@@ -82,110 +82,195 @@
             // response status == 422 that means api has not got valid or required data
 
             var global_response = '';
+            let table = '';
             // load bank details data in table 
             function loaddata() {
                 loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('bank.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                         // Clear and destroy the existing DataTable instance
-                         if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('bank.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
 
-                        // Clear the existing table body
-                        $('#tabledata').empty();
-                        // if response has data then it will be append into list table
-                        if (response.status == 200 && response.bankdetail != '') {
-                            // You can update your HTML with the data here if needed
-                            global_response = response;
-                            var id = 1;
-                            $.each(response.bankdetail, function(key, value) {
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td>${value.holder_name || '-'}</td>
-                                        <td>${value.account_no || '-'}</td>
-                                        <td>${value.branch_name || '-'}</td>
-                                        <td>
-                                            @if (session('user_permissions.invoicemodule.bank.edit') == '1')
-                                                ${value.is_active == 1 ? 
-                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="InActive"> 
-                                                        <button data-status="${value.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
-                                                    </span>`
-                                                    : 
-                                                    `<span id="status_${value.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
-                                                        <button  data-status="${value.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>
-                                                    </span>`
-                                                }
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (session('user_permissions.invoicemodule.bank.view') == '1')
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
-                                                    <button type="button"  data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                                        <i class="ri-indent-decrease"></i>
-                                                    </button>
-                                                </span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        
-                                        <td> 
-                                            @if (session('user_permissions.invoicemodule.bank.delete') == '1')
-                                                <span>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${value.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                        <i  class="ri-delete-bin-fill"></i>
-                                                    </button>
-                                                </span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                `);
-                                id++;
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                            $('#data').DataTable({
-                                responsive : true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                        } else  { // if database not found
+                            global_response = json;
+
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
-                            });   
-                            $('#data').DataTable({});
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'holder_name',
+                            name: 'holder_name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-' 
+                        },
+                        {
+                            data: 'account_no',
+                            name: 'account_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'branch_name',
+                            name: 'branch_name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'is_active',
+                            name: 'is_active',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                @if (session('user_permissions.invoicemodule.bank.edit') == '1')
+                                    if (data == 1) {
+                                        return `
+                                            <span id="status_${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="InActive"> 
+                                                <button data-status="${row.id}" class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button>
+                                            </span>
+                                        `;
+                                    } else {
+                                        return `
+                                            <span id="status_${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Active">
+                                                <button  data-status="${row.id}" class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>
+                                            </span>
+                                        `;
+                                    }
+                                @else
+                                    return '-' ;    
+                                @endif
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                 var actions = '-';
+                                @if (session('user_permissions.invoicemodule.bank.view') == '1')
+                                    actions = ` 
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
+                                            <button type="button"  data-view = '${row.id}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0">
+                                                <i class="ri-indent-decrease"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actions;
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+
+                                @if (session('user_permissions.invoicemodule.bank.delete') == '1')
+                                    actionBtns += `
+                                        <span>
+                                            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" type="button" data-id= '${row.id}' class=" del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <i  class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
 
             //call function for loaddata
@@ -195,39 +280,39 @@
             $(document).on("click", ".status-active", function() {
                 element = $(this);
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to change status to inactive ?', // Text
-                    'Yes, change',  // Confirm button text
+                    'Yes, change', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
                         loadershow();
                         var statusid = element.data('status');
                         changebankstatus(statusid, 0);
-                    } 
-                ); 
+                    }
+                );
             });
 
             //  bank status update  deactive to  active            
             $(document).on("click", ".status-deactive", function() {
                 element = $(this);
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to change status to active ?', // Text
-                    'Yes, change',  // Confirm button text
+                    'Yes, change', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
                         loadershow();
                         var statusid = element.data('status');
                         changebankstatus(statusid, 1);
-                    } 
-                );  
+                    }
+                );
             });
 
             // function for change bank status (active/inactive)
             function changebankstatus(bankid, statusvalue) {
-                let bankDetailsUpdateUrl = "{{route('bank.update','__bankId__')}}".replace('__bankId__',bankid);
+                let bankDetailsUpdateUrl = "{{ route('bank.update', '__bankId__') }}".replace('__bankId__', bankid);
                 $.ajax({
                     type: 'PUT',
                     url: bankDetailsUpdateUrl,
@@ -244,7 +329,7 @@
                                 title: response.message
                             });
 
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -280,12 +365,13 @@
             // delete bank             
             $(document).on("click", ".del-btn", function() {
                 var deleteid = $(this).data('id');
-                let bankDetailsDeleteUrl = "{{route('bank.delete','__deleteId__')}}".replace('__deleteId__',deleteid);
+                let bankDetailsDeleteUrl = "{{ route('bank.delete', '__deleteId__') }}".replace(
+                    '__deleteId__', deleteid);
                 var row = this;
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to delete this record ?', // Text
-                    'Yes, delete',  // Confirm button text
+                    'Yes, delete', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
@@ -304,8 +390,8 @@
                                     Toast.fire({
                                         icon: "success",
                                         title: "succesfully deleted"
-                                    }); 
-                                    $(row).closest("tr").fadeOut();
+                                    });
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -319,14 +405,17 @@
                                 }
                                 loaderhide();
                             },
-                            error: function(xhr, status, error) { // if calling api request error 
+                            error: function(xhr, status,
+                            error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
-                                    .responseText); // Log the full error response for debugging
+                                    .responseText
+                                    ); // Log the full error response for debugging
                                 var errorMessage = "";
                                 try {
                                     var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message || "An error occurred";
+                                    errorMessage = responseJSON.message ||
+                                        "An error occurred";
                                 } catch (e) {
                                     errorMessage = "An error occurred";
                                 }
@@ -336,15 +425,15 @@
                                 });
                             }
                         });
-                    } 
-                ); 
+                    }
+                );
             });
 
             // view bank data in pop-up
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.bankdetail, function(key, bankdetail) {
+                $.each(global_response.data, function(key, bankdetail) {
                     if (bankdetail.id == data) {
                         $('#details').append(`
                                 <tr>

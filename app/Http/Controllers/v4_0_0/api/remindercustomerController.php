@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\v4_0_0\api;
 
-use App\Http\Controllers\Controller;
 use App\Models\city;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class remindercustomerController extends commonController
@@ -24,7 +25,7 @@ class remindercustomerController extends commonController
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->customerModel = $this->getmodel('reminder_customer');
-    } 
+    }
 
     public function customerreminders(Request $request, string $id)
     {
@@ -44,7 +45,7 @@ class remindercustomerController extends commonController
 
     }
 
-     public function counttotalcustomer(Request $request)
+    public function counttotalcustomer(Request $request)
     {
         $totalcustomer = $this->customerModel::where('is_deleted', 0)->count();
         return $this->successresponse(200, 'customer', $totalcustomer);
@@ -71,6 +72,15 @@ class remindercustomerController extends commonController
      */
     public function index(Request $request)
     {
+        if ($this->rp['remindermodule']['reminder']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
 
         $customersres = $this->customerModel::join($this->masterdbname . '.country', 'reminder_customer.country_id', '=', $this->masterdbname . '.country.id')
             ->join($this->masterdbname . '.state', 'reminder_customer.state_id', '=', $this->masterdbname . '.state.id')
@@ -82,16 +92,26 @@ class remindercustomerController extends commonController
             $customersres->where('reminder_customer.created_by', $this->userId);
         }
 
+        $totalcount = $customersres->get()->count(); // count total record
         $customers = $customersres->get();
 
         if ($customers->isEmpty()) {
-            return $this->successresponse(404, 'customer', 'No Records Found!');
+            return DataTables::of($customers)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        if ($this->rp['remindermodule']['reminder']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-        return $this->successresponse(200, 'customer', $customers);
-    } 
+
+        return DataTables::of($customers)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -99,7 +119,7 @@ class remindercustomerController extends commonController
     public function store(Request $request)
     {
 
-        return $this->executeTransaction(function() use ($request){
+        return $this->executeTransaction(function () use ($request) {
 
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:50',
@@ -302,7 +322,7 @@ class remindercustomerController extends commonController
         ]);
         return $this->successresponse(200, 'message', 'customer status succesfully updated');
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */

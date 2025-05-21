@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -27,7 +28,7 @@ class tblleadController extends commonController
 
         $this->tblleadModel = $this->getmodel('tbllead');
     }
- 
+
     public function leadstatusname(Request $request)
     {
         $leadstatus = DB::table('leadstatus_name')
@@ -63,75 +64,128 @@ class tblleadController extends commonController
      */
     public function index(Request $request)
     {
-        $fromdate = $request->fromdate;
-        $todate = Carbon::parse($request->todate);
-        $status = $request->status;
-        $source = $request->source;
-        $leadstagestatus = $request->leadstagestatus;
-        $lastfollowup = $request->lastfollowupdate;
-        $followupcount = $request->followupcount;
-        $nextfollowup = $request->nextfollowupdate;
-        $assignedto = $request->assignedto;
-        $activestatus = null;
-        if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
-            $activestatus = $request->activestatusvalue;
+        if ($this->rp['leadmodule']['lead']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
         }
 
-        $leadquery = $this->tblleadModel::select('id', 'first_name', 'last_name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'attempt_lead', 'notes', 'lead_stage', 'web_url', 'assigned_to', 'created_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
+        $leadquery = $this->tblleadModel::select(
+            'id',
+            DB::raw("CONCAT_WS(' ', first_name, last_name)as name"),
+            'email',
+            'contact_no',
+            'title',
+            'budget',
+            'company',
+            'audience_type',
+            'customer_type',
+            'status',
+            'last_follow_up',
+            'next_follow_up',
+            'number_of_follow_up',
+            'attempt_lead',
+            'notes',
+            'lead_stage',
+            'web_url',
+            'assigned_to',
+            'created_by',
+            DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),
+            'updated_at',
+            'is_active',
+            'is_deleted',
+            'source',
+            'ip'
+        )
             ->where('is_deleted', 0);
-
-        if (isset($activestatus)) {
-            $leadquery->where('is_active', $activestatus);
-        }
-        if (isset($fromdate) && isset($todate)) {
-            $leadquery->whereBetween('created_at', [$fromdate, $todate->addDay()]);
-        }
-        if (isset($leadstagestatus)) {
-            $leadquery->whereIn('lead_stage', $leadstagestatus);
-        }
-        if (isset($status)) {
-            $leadquery->whereIn('status', $status);
-        }
-        if (isset($source)) {
-            $leadquery->whereIn('source', $source);
-        }
-        if (isset($leadstagestatus)) {
-            $leadquery->whereIn('lead_stage', $leadstagestatus);
-        }
-        if (isset($leadstagestatus)) {
-            $leadquery->whereIn('lead_stage', $leadstagestatus);
-        }
-        if (isset($followupcount)) {
-            $leadquery->where('number_of_follow_up', $followupcount);
-        }
-        if (isset($nextfollowup)) {
-            $leadquery->where('next_follow_up', $nextfollowup);
-        }
-        if (isset($lastfollowup)) {
-            $leadquery->where('last_follow_up', $lastfollowup);
-        }
-        if (isset($assignedto)) {
-            $leadquery->where(function ($query) use ($assignedto) {
-                foreach ($assignedto as $value) {
-                    $query->orWhere('assigned_to', 'LIKE', '%' . $value . '%');
-                }
-            });
-        }
 
         if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
             $leadquery->where('created_by', $this->userId);
         }
 
+        $totalcount = $leadquery->get()->count(); // count total record
+
+
+        // assigned to filter
+        $filter_assigned_to = $request->filter_assigned_to;
+        if (isset($filter_assigned_to)) {
+            $leadquery->where(function ($query) use ($filter_assigned_to) {
+                foreach ($filter_assigned_to as $value) {
+                    $query->orWhere('assigned_to', 'LIKE', '%' . $value . '%');
+                }
+            });
+        }
+
+        // applyfilters
+
+        $filters = [
+            'filter_followup_count' => 'number_of_follow_up',
+            'filter_last_followup' => 'last_follow_up',
+            'filter_next_followup' => 'next_follow_up',
+            'filter_from_date' => 'created_at',
+            'filter_to_date' => 'created_at',
+        ];
+
+        // Loop through the filters and apply them conditionally
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                if (
+                    strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false
+                ) {
+                    // For date filters (loading_date, stuffing_date), we apply range conditions
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $leadquery->whereDate($column, $operator, $value);
+                } elseif (strpos($requestKey, 'last') !== false || strpos($requestKey, 'next') !== false) {
+                    $leadquery->whereDate($column, $value);
+                } else {
+                    // For other filters, apply simple equality checks
+                    $leadquery->where($column, $value);
+                }
+            }
+        }
+
+        //mulitple select filters
+
+        $mulitplefilters = [
+            'filter_lead_status' => 'status',
+            'filter_lead_stage_status' => 'lead_stage',
+            'filter_source' => 'source'
+        ];
+
+        // Loop through the filters and apply them conditionally
+        foreach ($mulitplefilters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                $leadquery->whereIn($column, $value);
+            }
+        }
+
         $lead = $leadquery->orderBy('id', 'DESC')->distinct()->get();
 
         if ($lead->isEmpty()) {
-            return $this->successresponse(404, 'lead', 'No Records Found');
+            return DataTables::of($lead)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-        return $this->successresponse(200, 'lead', $lead);
-    } 
+
+        return DataTables::of($lead)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -391,7 +445,7 @@ class tblleadController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        
+
         if ($request->leadstagevalue == 'Disqualified') {
             $lead->update(['lead_stage' => $request->leadstagevalue, 'is_active' => 0]);
         } else {

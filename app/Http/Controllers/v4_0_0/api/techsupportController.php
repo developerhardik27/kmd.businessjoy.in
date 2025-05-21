@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class techsupportController extends commonController
@@ -35,15 +36,16 @@ class techsupportController extends commonController
      */
     public function index(Request $request)
     {
-        $fromdate = $request->fromdate;
-        $todate = Carbon::parse($request->todate);
-        $status = $request->status;
-        $assignedto = $request->assignedto;
-        $user = User::find($this->userId);
 
-        // if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
-        //     $activestatus = $request->activestatusvalue;
-        // }
+        if ($this->rp['adminmodule']['techsupport']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
 
         $techsupportquery = DB::table('tech_supports')
             ->leftJoin('company', 'tech_supports.company_id', 'company.id')
@@ -73,28 +75,10 @@ class techsupportController extends commonController
                 'tech_supports.is_deleted',
                 'company_details.name as company_name'
             )
-            ->where('tech_supports.is_deleted', 0)->orderBy('id', 'DESC');
+            ->where('tech_supports.is_deleted', 0);
 
-        if (isset($fromdate) && isset($todate)) {
-            $techsupportquery->whereBetween('tech_supports.created_at', [$fromdate, $todate->addDay()]);
-        }
-        if (isset($status)) {
-            $techsupportquery->whereIn('tech_supports.status', $status);
-        }
-        if (isset($assignedto)) {
-            $assignedtoValues = is_array($assignedto) ? $assignedto : explode(',', $assignedto);
-            $techsupportquery->where(function ($query) use ($assignedtoValues) {
-                foreach ($assignedtoValues as $value) {
-                    // Exact match for the value surrounded by commas or being at the start/end
-                    $query->orWhere(function ($q) use ($value) {
-                        $q->where('tech_supports.assigned_to', 'LIKE', $value . ',%')
-                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $value . ',%')
-                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $value)
-                            ->orWhere('tech_supports.assigned_to', 'LIKE', $value);
-                    });
-                }
-            });
-        }
+
+        $user = User::find($this->userId);
 
         if ($this->rp['adminmodule']['techsupport']['alldata'] == 1) {
             if ($this->userId != 1) {
@@ -120,14 +104,67 @@ class techsupportController extends commonController
             });
         }
 
+         $totalcount = $techsupportquery->get()->count(); // count total record
+
+        $filters = [
+            'filter_status' => 'tech_supports.status',
+            'filter_from_date' => 'tech_supports.created_at',
+            'filter_to_date' => 'tech_supports.created_at',
+        ];
+
+        // Loop through the filters and apply them conditionally
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+            if (isset($value)) {
+                if (str_contains($requestKey, '_from')) {
+                    // Apply >= condition for "from" dates
+                    $techsupportquery->whereDate($column, '>=', $value);
+                } elseif (str_contains($requestKey, '_to')) {
+                    // Apply <= condition for "to" dates
+                    $techsupportquery->whereDate($column, '<=', $value);
+                } else if ($requestKey == 'filter_status') {
+                    $techsupportquery->whereIn($column, $value);
+                } else {
+                    // Apply exact match for non-date fields like "name"
+                    $techsupportquery->where($column, $value);
+                }
+            }
+        }
+
+        $filter_assigned_to = $request->filter_assigned_to;
+        if (isset($filter_assigned_to)) {
+            $assignedtoValues = is_array($filter_assigned_to) ? $filter_assigned_to : explode(',', $filter_assigned_to);
+            $techsupportquery->where(function ($query) use ($assignedtoValues) {
+                foreach ($assignedtoValues as $value) {
+                    // Exact match for the value surrounded by commas or being at the start/end
+                    $query->orWhere(function ($q) use ($value) {
+                        $q->where('tech_supports.assigned_to', 'LIKE', $value . ',%')
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $value . ',%')
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', '%,' . $value)
+                            ->orWhere('tech_supports.assigned_to', 'LIKE', $value);
+                    });
+                }
+            });
+        }
+ 
         $techsupport = $techsupportquery->get();
 
-
         if ($techsupport->isEmpty()) {
-            return $this->successresponse(404, 'techsupport', 'No Records Found');
+             return DataTables::of($techsupport)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        return $this->successresponse(200, 'techsupport', $techsupport);
-    } 
+         return DataTables::of($techsupport)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true); 
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -191,7 +228,7 @@ class techsupportController extends commonController
             ]);
 
             $techsupport = tech_support::create($techsupports);
- 
+
             if ($techsupport) {
                 $ticket = date('Ymdhis') . $techsupport->id;
                 $ticketupdate = $techsupport->update([
@@ -322,7 +359,7 @@ class techsupportController extends commonController
     {
         $techsupport = tech_support::find($request->id);
 
-        if (!$techsupport) { 
+        if (!$techsupport) {
             return $this->successresponse(404, 'message', 'No Such Ticket Found!');
         }
         if ($this->rp['adminmodule']['techsupport']['alldata'] != 1) {

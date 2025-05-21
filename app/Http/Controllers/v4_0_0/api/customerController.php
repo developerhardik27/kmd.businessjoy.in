@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -83,6 +84,52 @@ class customerController extends commonController
 
     }
 
+    public function datatable()
+    {
+
+        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
+            ->leftjoin($this->masterdbname . '.users', 'customers.created_by', '=', $this->masterdbname . '.users.id')
+            ->select('customers.id', 'customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', DB::raw("DATE_FORMAT(customers.created_at, '%d-%M-%Y %h:%i %p') as created_at_formatted"), 'customers.updated_at', 'customers.is_active', 'users.firstname as createdby_fname', 'users.lastname as createdby_lname')
+            ->where('customers.is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
+            $customersres->where('customers.created_by', $this->userId);
+        }
+
+        $totalcount = $customersres->get()->count(); // count total record
+
+        $customers = $customersres->get();
+
+        if ($customers->isEmpty()) {
+            return DataTables::of($customers)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($customers)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -111,7 +158,7 @@ class customerController extends commonController
         return $this->successresponse(200, 'customer', $customers);
 
     }
- 
+
     /**
      * Store a newly created resource in storage.
      */
@@ -352,12 +399,12 @@ class customerController extends commonController
     public function statusupdate(Request $request, string $id)
     {
         $customer = $this->customerModel::find($id);
-        
-        if (!$customer) { 
+
+        if (!$customer) {
             return $this->successresponse(404, 'message', 'No Such customer Found!');
         }
 
-        if ($this->rp['invoicemodule']['customer']['edit'] != 1) { 
+        if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
@@ -369,7 +416,7 @@ class customerController extends commonController
         $customer->update([
             'is_active' => $request->status
         ]);
-        
+
         return $this->successresponse(200, 'message', 'customer status succesfully updated');
     }
     /**

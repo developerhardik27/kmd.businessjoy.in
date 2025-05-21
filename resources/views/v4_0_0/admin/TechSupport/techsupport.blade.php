@@ -40,164 +40,87 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
-
-        .multiselect-container>li>a>label {
-            padding: 3px 16px 3px 23px !important;
-        }
-
-        .multiselect {
-            border: 0.5px solid #00000073;
-        }
     </style>
-    {{-- right sidebar style      --}}
-    <style>
-        /* The side navigation menu */
-        .sidenav {
-            height: 100%;
-            /* 100% Full-height */
-            width: 0;
-            /* 0 width - change this with JavaScript */
-            position: fixed;
-            /* Stay in place */
-            z-index: 99;
-            /* Stay on top */
-            top: 0%;
-            background-color: #ffffff;
-            /* Black*/
-            overflow-x: hidden;
-            /* Disable horizontal scroll */
-            padding-top: 60px;
-            /* Place content 60px from the top */
-            transition: 0.5s;
-            /* 0.5 second transition effect to slide in the sidenav */
-        }
-
-        /* The navigation menu links */
-        .sidenav a {
-            padding: 8px 8px 8px 32px;
-            text-decoration: none;
-            font-size: 25px;
-            color: #972721 !important;
-            display: block;
-            transition: 0.3s
-        }
-
-        /* When you mouse over the navigation links, change their color */
-        .sidenav a:hover,
-        .offcanvas a:focus {
-            color: #f1f1f1;
-        }
-
-        /* Position and style the close button (top right corner) */
-        .sidenav .closebtn {
-            position: absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
-            margin-left: 50px;
-        }
-
-        /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
-        #main {
-            transition: margin-left .5s;
-            padding: 20px;
-        }
-
-        .sidenav {
-            right: 0;
-        }
-
-        /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-        @media screen and (max-height: 450px) {
-            .sidenav {
-                padding-top: 15px;
-            }
-
-            .sidenav a {
-                font-size: 18px;
-            }
-        }
-
-        .sidenav {
-            right: 0;
-        }
-    </style>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 @endsection
 
+
 @section('advancefilter')
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <div class="row p-3">
-            <div class="col-md-12">
-                <h4>Advanced Filters</h4>
+    <div class="col-sm-12 text-right">
+        <button class="btn btn-sm btn-primary m-0 mr-3" data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Filters" onclick="showOffCannvas()">
+            <i class="ri-filter-line"></i>
+        </button>
+    </div>
+@endsection
+
+@section('sidebar-filters')
+    <div class="col-12 p-0">
+        <div class="card">
+            <div class="card-header">
+                <h6>Status</h6>
             </div>
-            <div class="col-md-12">
-                <label for="last_call" class="form-label float-left  ">Last Call:</label>
-                <input type="date" id="last_call" class="form-input form-control  ">
+            <div class="card-body">
+                <select class="filter form-control w-100 select2" id="filter_status" multiple>
+                    <option value='pending'>Pending</option>
+                    <option value='in_progress'>In Progress</option>
+                    <option value='resolved'>Resolved</option>
+                    <option value='cancelled'>Cancelled</option>
+                </select>
             </div>
-            <div class="col-md-12">
-                <label for="fromdate" class="form-label float-left ">From:</label>
-                <input type="date" id="fromdate" class="form-input form-control  float-left ">
+        </div>
+        @if (session('user_permissions.adminmodule.techsupport.alldata') == '1')
+            <div class="card">
+                <div class="card-header">
+                    <h6>Assigned To</h6>
+                </div>
+                <div class="card-body">
+                    <select name="filter_assigned_to" class="form-control filter" id="filter_assigned_to" multiple>
+                    </select>
+                </div>
             </div>
-            <div class="col-md-12">
-                <label for="todate" class="form-label  float-left ">To:</label>
-                <input type="date" id="todate" class="form-input form-control float-left ">
-                <span id="invaliddate" class="font-weight-bold text-danger" style="float: left;"></span>
+        @endif
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Created On</h6>
             </div>
-            <div class="col-md-12 mt-3">
-                <button class="btn btn-sm btn-rounded btn-primary filtersubmit">Submit</button>
-                <button class="btn btn-sm btn-danger btn-rounded removepopupfilters" onclick="closeNav()">cancel</button>
+            <div class="card-body">
+                <div class="row"> 
+                    <div class="col-6 mb-1">
+                        <label for="filter_from_date" class="form-label">From:</label>
+                        <input type="date" id="filter_from_date" class="form-input form-control">
+                    </div>
+                    <div class="col-6 mb-1">
+                        <label for="filter_to_date" class="form-label">To:</label>
+                        <input type="date" id="filter_to_date" class="form-input form-control">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-12 text-right pr-5">
-        <select class="advancefilter multiple form-control w-100 m-2" id="advancestatus" multiple="multiple">
-            <option value='pending'>Pending</option>
-            <option value='in_progress'>In Progress</option>
-            <option value='resolved'>Resolved</option>
-            <option value='cancelled'>Cancelled</option>
-        </select>
-        @if (session('user_permissions.adminmodule.techsupport.alldata') == '1')
-            <select name="assignedto" class="form-control multiple advancefilter m-2" id="assignedto" multiple>
-            </select>
-        @endif
-        <!-- Use any element to open the sidenav -->
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="AdvanceFilters" onclick="openNav()"
-            class="btn btn-sm btn-rounded btn-info m-2">
-            <i class="ri-filter-line"></i>
-        </button>
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="FilterRefresh"
-            class="btn btn-info btn-sm removefilters m-2">
-            <i class="ri-refresh-line"></i>
-        </button>
-    </div>
-
-    @if (session('user_permissions.adminmodule.techsupport.add') == '1')
-        @section('addnew')
-            {{ route('admin.addtechsupport') }}
-        @endsection
-        @section('addnewbutton')
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticekt"
-                class="btn btn-sm btn-primary">
-                <span class="">+ Ticket</span>
-            </button>
-        @endsection
-    @endif
 @endsection
 
 
+@if (session('user_permissions.adminmodule.techsupport.add') == '1')
+    @section('addnew')
+        {{ route('admin.addtechsupport') }}
+    @endsection
+    @section('addnewbutton')
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticekt"
+            class="btn btn-sm btn-primary">
+            <span class="">+ Ticket</span>
+        </button>
+    @endsection
+@endif
+
 @section('table-content')
-    <table id="data"
-        class="table display table-bordered w-100 table-striped">
+    <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
                 <th>Sr.</th>
                 <th>Details</th>
                 <th>Ticket Number</th>
-                <th>Complain Desc.</th>
                 <th>Status</th>
                 <th>createdon</th>
                 @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
@@ -215,31 +138,6 @@
 
 
 @push('ajax')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
-    <script>
-        // advance filter sidebar
-        /* Simple appearence with animation AN-1*/
-        function openNav() {
-            var screenWidth = window.innerWidth;
-            var width;
-
-            if (screenWidth >= 320 && screenWidth <= 768) {
-                width = "100%";
-            } else if (screenWidth >= 769 && screenWidth <= 1024) {
-                width = "50%";
-            } else if (screenWidth >= 1025 && screenWidth <= 1200) {
-                width = "30%";
-            } else {
-                width = "25%";
-            }
-            document.getElementById("mySidenav").style.width = width;
-        }
-
-        function closeNav() {
-            document.getElementById("mySidenav").style.width = "0";
-        }
-        /* Simple appearence with animation AN-1*/
-    </script>
     <script>
         $(document).ready(function() {
             // companyId and userId both are required in every ajax request for all action *************
@@ -247,13 +145,15 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            let table = '';
+
             // refresh tooltip for dynamic data
             function managetooltip() {
                 $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
                 // Reinitialize tooltips
                 $('body').find('[data-toggle="tooltip"]').tooltip();
             }
-  
+
             // get user data and return new promise
             function getUserData() {
                 return new Promise((resolve, reject) => {
@@ -279,20 +179,22 @@
             function loadFilters() {
                 return new Promise((resolve, reject) => {
                     var filterData = JSON.parse(sessionStorage.getItem('filterData'));
+
                     if (filterData) {
+
                         $.each(filterData, function(key, value) {
                             if (value != ' ') {
                                 $(`#${key}`).val(value);
                             }
-
                         });
-                        advancefilters();
-                        $('#advancestatus option:first').prop('selected', true);
-                        $('#assignedto option:first').prop('selected', true);
+
+                        loaddata();
+                        $('#filter_status').val('');
+                        $('#filter_assigned_to').val('');
                         sessionStorage.removeItem('filterData');
 
                         // Trigger change event to ensure multiselect UI updates
-                        $('#advancestatus, #assignedto').multiselect('refresh');
+                        $('#filter_status, #filter_assigned_to').trigger('change');
 
                         sessionStorage.removeItem('filterData');
                         resolve(); // Resolve the promise here after all actions
@@ -317,12 +219,16 @@
                         // You can update your HTML with the data here if needed     
                         $.each(userDataResponse.user, function(key, value) {
                             var optionValue = value.firstname + ' ' + value.lastname;
-                            $('#assignedto').append(
+                            $('#filter_assigned_to').append(
                                 `<option value="${value.id}">${optionValue}</option>`);
                         });
-                        $('#assignedto').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options
-                        loaderhide();
+                        $('#filter_assigned_to').val('');
+                        $('#filter_assigned_to').select2({
+                            search: true,
+                            placeholder: 'Select  User',
+                            mulitple: true,
+                            allowClear: true // Optional: adds "clear" (x) button
+                        }); // search bar in assinged to user list
                     } else if (userDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
@@ -330,15 +236,12 @@
                         });
                         loaderhide();
                     } else {
-                        $('#assignedto').append(`<option> No User Found </option>`);
+                        $('#filter_assigned_to').append(`<option> No User Found </option>`);
                         loaderhide();
                     }
 
                     // Load filters
-                    await loadFilters();
-
-                    // Further code execution after successful AJAX calls and HTML appending
-                    // Your existing logic here
+                    await loadFilters(); 
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -355,218 +258,292 @@
 
             var global_response = '';
             // make multiple dropdown to designable multiple dropdown
-            $('#assignedto').multiselect({
-                nonSelectedText : '-- Select Assigned To',
-                enableFiltering: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true
-            });
-
-            $('#advancestatus').multiselect({
-                nonSelectedText: '-- Select Status --',
-                enableFiltering: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true
-            });
+            $('#filter_status').val('');
+            $('#filter_status').select2({
+                search: true,
+                placeholder: 'Select Status',
+                mulitple: true,
+                allowClear: true // Optional: adds "clear" (x) button
+            }); // search bar in status
 
             // get and set customer support history list in the table
             function loaddata() {
-                loadershow();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('techsupport.index') }}",
-                    data: {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
+
+                 table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
-                    success: function(response) {
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        } 
-                        $('#tabledata').empty();
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('techsupport.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                            d.filter_status = $('#filter_status').val();
+                            d.filter_assigned_to = $('#filter_assigned_to').val();
+                            d.filter_from_date = $('#filter_from_date').val();
+                            d.filter_to_date = $('#filter_to_date').val();
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
 
-                        if (response.status == 200 && response.techsupport != '') {
-                            global_response = response;
-                            var id = 1;
-                            $.each(response.techsupport, function(key, value) {
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td  class="text-left" >
-                                            <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                <b><i class="fas fa-user pr-2"></i></b> ${value.first_name || ''} ${value.last_name || ''}
-                                            </span>
-                                            <span class="d-flex mb-2">
-                                                <b><i class="fas fa-envelope pr-2"></i></b>
-                                                <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email || ''}</a>
-                                            </span>
-                                            <span class='d-flex mb-2'>
-                                                <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no || ''}</a>
-                                            </span>  
-                                            @if (session('user_id') == 1)
-                                                <span>
-                                                    <b><i class="fas fa-building pr-2"></i></b> ${value.company_name || ''} 
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span  class="d-inline-block" style="max-width: 150px;">
-                                            <div> ${value.ticket || ''} </div>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span  class="d-inline-block text-truncate" style="max-width: 150px;">
-                                            <div> ${value.description || ''} </div>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                    <option value='pending' ${value.status == 'pending' ? 'selected' : ''}>Pending</option>
-                                                    <option value='in_progress' ${value.status == 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                                    <option value='resolved' ${value.status == 'resolved' ? 'selected' : ''}>Resolved</option>
-                                                    <option value='cancelled' ${value.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                                </select>
-                                            @else
-                                            ${value.status || ''}
-                                            @endif
-                                        </td>
-                                        <td>${value.created_at_formatted || ''}</td>
-                                        @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
-                                                session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                            <td>
-                                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Message">
-                                                        <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                            <i class="ri-whatsapp-line text-white"></i>
-                                                        </a>
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Ticket">
-                                                        <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                            <i class="ri-edit-fill"></i>
-                                                        </button>  
-                                                    </span>
-                                                @endif
-                                                @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Ticket">
-                                                        <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                            <i class="ri-delete-bin-fill"></i>
-                                                        </button>
-                                                    </span>
-                                                @endif
-                                            </td>  
-                                        @endif   
-                                    </tr>
-                                `);
-                                id++;
-                            });
+                            global_response = json;
 
-                            managetooltip();
-                            $('#data').DataTable({
-                                responsive :true,
-                                "destroy": true, //use for reinitialize jquery datatable
-                            });
-                        } else {
+                            return json.data;
+                        },
+                        complete:function(){
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
-                            }); 
-                            $('#data').DataTable();
+                                title: "Error loading data"
+                            });
                         }
-                        loaderhide();
-                        // You can update your HTML with the data here if needed
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    columns: [{
+                            data: 'id',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'id'
+                        },
+                        {
+                            data: 'first_name',         // key from JSON (used for searching & sorting)
+                            name: 'first_name',         // server-side field name or alias
+                            orderable: false,          // if you want to disable sorting
+                            searchable: false,
+                            render: function (data, type, row) {
+                                return `
+                                    <span class="view-btn d-flex mb-2" data-view="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable" style="cursor:pointer;">
+                                        <b><i class="fas fa-user pr-2"></i></b> ${row.first_name || ''} ${row.last_name || ''}
+                                    </span>
+                                    <span class="d-flex mb-2">
+                                        <b><i class="fas fa-envelope pr-2"></i></b>
+                                        <a href="mailto:${row.email}" style="text-decoration:none;">${row.email || ''}</a>
+                                    </span>
+                                    <span class="d-flex mb-2">
+                                        <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                        <a href="tel:${row.contact_no}" style="text-decoration:none;">${row.contact_no || ''}</a>
+                                    </span>
+                                    ${row.is_admin ? `<span class="d-flex mb-2"><b><i class="fas fa-building pr-2"></i></b> ${row.company_name || ''}</span>` : ''}
+                                `;
+                            }
+                        },
+                        {
+                            data: 'ticket',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'ticket'
+                        },  
+                        {
+                            data: 'status',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'status',
+                            render : function(data, type, row){
+                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                    return `     
+                                        <select class="status form-control-sm" data-original-value="${row.status}" data-statusid=${row.id} id='status_${row.id}'>
+                                            <option value='pending' ${row.status == 'pending' ? 'selected' : ''}>Pending</option>
+                                            <option value='in_progress' ${row.status == 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                            <option value='resolved' ${row.status == 'resolved' ? 'selected' : ''}>Resolved</option>
+                                            <option value='cancelled' ${row.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                        </select>
+                                    `;
+                                @else
+                                    return ` ${value.status || ''}`;
+                                @endif
+                            }
+                        },
+                        {
+                            data: 'created_at_formatted',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'created_at_formatted'
+                        }, 
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+
+                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Message">
+                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${row.contact_no}">
+                                                <i class="ri-whatsapp-line text-white"></i>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if(session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Ticket">
+                                            <button type="button" data-id='${row.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                <i class="ri-edit-fill"></i>
+                                            </button>  
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Ticket">
+                                            <button type="button" data-uid= '${row.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
-                });
+                }); 
+
             }
 
             // show individual customer support history record into the popupbox
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.techsupport, function(key, ticket) {
+                $.each(global_response.data, function(key, ticket) {
                     if (ticket.id == data) {
                         // Ensure ticket.attachment is an array
                         let attachments = Array.isArray(ticket.attachment) ? ticket.attachment : (
                             ticket.attachment ? JSON.parse(ticket.attachment) : []);
                         $('#details').append(`
                             <tr> 
-                                <td>Ticket Number</td>
-                                <th>${ticket.ticket}</th>
+                                <th>Ticket Number</th>
+                                <td>${ticket.ticket}</td>
                             </tr> 
                             <tr> 
-                                <td>First Name</td>
-                                <th>${ticket.first_name}</th>
+                                <th>First Name</th>
+                                <td>${ticket.first_name}</td>
                             </tr> 
                             <tr> 
-                                <td>Last Name</td>
-                                <th>${ticket.last_name}</th>
+                                <th>Last Name</th>
+                                <td>${ticket.last_name}</td>
                             </tr> 
                             <tr>
-                                <td>Email</td>
-                                <th>${ticket.email}</th>
+                                <th>Email</th>
+                                <td>${ticket.email}</td>
                             </tr>
                             <tr>
-                                <td>Contact Number</td>
-                                <th>${ticket.contact_no}</th>
+                                <th>Contact Number</th>
+                                <td>${ticket.contact_no}</td>
                             </tr>
                             <tr>
-                                <td>Status</td>
-                                <th>${ticket.status}</th>
+                                <th>Status</th>
+                                <td>${ticket.status}</td>
                             </tr>
                             <tr>
-                                <td>Module Name</td>
-                                <th>${ticket.module_name}</th>
+                                <th>Module Name</th>
+                                <td>${ticket.module_name}</td>
                             <tr>
-                                <td>Issue type</td>
-                                <th>${ticket.issue_type}</th>
+                                <th>Issue type</th>
+                                <td>${ticket.issue_type}</td>
                             </tr>
                             <tr>
-                                <td>Created On</td>
-                                <th>${ticket.created_at_formatted}</th>
+                                <th>Created On</th>
+                                <td>${ticket.created_at_formatted}</td>
                             </tr>
                             <tr>
-                                <td >Notes</td>
-                                <th class='text-wrap'>${ticket.description != null ? ticket.description : '-'}</th>
+                                <th >Notes</th>
+                                <td class='text-wrap'><div>${ticket.description ? decodeHTML(ticket.description) : '-'}</div></div></td>
                             </tr>
                             <tr>
-                                <td >Remarks</td>
-                                <th class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</th>
+                                <th >Remarks</th>
+                                <td class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</td>
                             </tr>
                             <tr>
-                                <td >Attachments</td>
-                                    <th>
+                                <th >Attachments</th>
+                                    <td>
                                     ${attachments.length > 0
                                         ? attachments.map(attachment => 
                                             `<a class='text-primary font-weight-bold' href='/uploads/files/${attachment}' target='_blank'>${attachment}</a>`
                                         ).join('<br>') // Display each attachment on a new line
                                         : '-'
                                     }
-                                </th>
+                                </td>
                             </tr>
                         `);
                     }
                 });
             });
+
+            function decodeHTML(html) {
+                let txt = document.createElement("textarea");
+                txt.innerHTML = html;
+                return txt.value;
+            }
 
 
             // change customer support status
@@ -615,7 +592,7 @@
                                         title: data.message
                                     });
 
-                                    advancefilters();
+                                    table.draw();
                                 }
                             }
                         });
@@ -634,25 +611,24 @@
             $(document).on("click", '.editbtn', function() {
                 editid = $(this).data('id');
                 // loadershow();
-                fromdate = $('#fromdate').val();
-                todate = $('#todate').val();
-                advancestatus = $('#advancestatus').val();
-                assignedto = $('#assignedto').val();
-                last_call = $('#last_call').val();
+                filter_from_date = $('#filter_from_date').val();
+                filter_to_date = $('#filter_to_date').val();
+                filter_status = $('#filter_status').val();
+                filter_assigned_to = $('#filter_assigned_to').val(); 
 
 
                 data = {
-                    fromdate,
-                    todate,
-                    advancestatus,
-                    assignedto,
-                    last_call
+                    filter_from_date,
+                    filter_to_date,
+                    filter_status,
+                    filter_assigned_to 
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
 
                 // console.log(data);
-                var editTechSupportUrl = "{{route('admin.edittechsupport','__editid__')}}".replace('__editid__',editid);
+                var editTechSupportUrl = "{{ route('admin.edittechsupport', '__editid__') }}".replace(
+                    '__editid__', editid);
                 window.location.href = editTechSupportUrl;
             });
 
@@ -710,203 +686,24 @@
 
             });
 
-
-            // record filter 
-            function advancefilters() {
-                fromdate = $('#fromdate').val();
-                todate = $('#todate').val();
-                advancestatus = $('#advancestatus').val();
-                assignedto = $('#assignedto').val();
-                LastCall = $('#last_call').val();
-                var fromDate = new Date(fromdate);
-                var toDate = new Date(todate);
-
-                if (fromDate > toDate) {
-                    $('#invaliddate').text('Invalid Date');
-                } else {
-                    $('#invaliddate').text(' ');
-                }
-
-                var data = {
-                    user_id: "{{ session()->get('user_id') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}"
-                };
-                if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
-                    data.fromdate = fromdate;
-                    data.todate = todate;
-                }
-                if (advancestatus != '') {
-                    data.status = advancestatus;
-                }
-                if (assignedto != '') {
-                    data.assignedto = assignedto;
-                }
-                if (LastCall != '') {
-                    data.lastcall = LastCall;
-                }
-
-                if (fromdate == '' && todate == '' && advancestatus == '' && assignedto == '' && LastCall == '') {
-                    loaddata();
-                }
-                if ((fromdate != '' && todate != '' && !(fromDate > toDate)) || advancestatus != '' || assignedto !=
-                    '' ||
-                    LastCall != '') {
-                    loadershow();
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('techsupport.index') }}",
-                        data: data,
-                        success: function(response) {
-                            if (response.status == 200 && response.techsupport != '') {
-                                $('#data').DataTable().destroy();
-                                $('#tabledata').empty();
-                                $('#tabledata').html(' ');
-                                global_response = response;
-                                var id = 1;
-                                $.each(response.techsupport, function(key, value) {
-                                    $('#data').append(`<tr>
-                                                    <td>${id}</td>
-                                                    <td  class="text-left" >
-                                                        <span style="cursor:pointer;" class="view-btn d-flex  mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                            <b><i class="fas fa-user pr-2"></i></b> ${value.first_name} ${value.last_name}
-                                                        </span>
-                                                        <span class="d-flex  mb-2">
-                                                            <b><i class="fas fa-envelope pr-2"></i></b>
-                                                            <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
-                                                        </span>
-                                                        <span class='d-flex'>
-                                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                            <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                                        </span>  
-                                                    </td>
-                                                    <td>
-                                                        <span  class="d-inline-block" style="max-width: 150px;">
-                                                        <div> ${value.ticket} </div>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="d-inline-block text-truncate" style="max-width: 150px;">
-                                                            <div> ${value.description} </div>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                            <select class="status form-control-sm" data-original-value="${value.status}" data-statusid=${value.id} id='status_${value.id}'>
-                                                                <option disabled selected>status</option>
-                                                                <option value='pending'>Pending</option>
-                                                                <option value='in_progress'>In Progress</option>
-                                                                <option value='resolved'>Resolved</option>
-                                                                <option value='cancelled'>Cancelled</option>
-                                                            </select>
-                                                       @else
-                                                            ${value.status}
-                                                       @endif
-                                                    </td>
-                                                    <td>${value.created_at_formatted}</td>
-                                                     @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
-                                                             session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                                        <td>
-                                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                                <span>
-                                                                    <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${value.contact_no}">
-                                                                        <i class="ri-whatsapp-line text-white"></i>
-                                                                    </a>
-                                                                </span>
-                                                            @endif
-                                                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                                                <span>
-                                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                                        <i class="ri-edit-fill"></i>
-                                                                    </button>  
-                                                                </span>
-                                                            @endif
-                                                            @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                                                <span>
-                                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                                        <i class="ri-delete-bin-fill"></i>
-                                                                    </button>
-                                                                </span>
-                                                            @endif
-                                                        </td>   
-                                                    @endif 
-                                                </tr>`)
-                                    $('#status_' + value.id).val(value.status);
-                                    id++;
-                                });
-
-                                $('#data').DataTable({
-                                    "destroy": true, //use for reinitialize datatable
-                                });
-                                loaderhide();
-                            } else if (response.status == 500) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: response.message
-                                });
-                                loaderhide();
-                            } else {
-                                $('#tabledata').html('');
-                                $('#data').append(`<tr><td colspan='7' >No Data Found</td></tr>`);
-                                loaderhide();
-                            }
-                            // You can update your HTML with the data here if needed
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
-                    });
-                }
-            }
-
-            // call advance filter function on change advance filter
-            $('.advancefilter').on('change', function() {
-                advancefilters();
-            });
-
+ 
             // call advance filter function on change sidebar filter
-            $('.filtersubmit').on('click', function(e) {
+            $('.applyfilters').on('click', function(e) {
                 e.preventDefault();
-                advancefilters();
-                closeNav()
+                table.draw();
+                hideOffCanvass(); // close OffCanvass
             });
 
-            // remover all filter who has been in the advance filter sidebar
-            $('.removepopupfilters').on('click', function() {
-                $('#fromdate').val('');
-                $('#todate').val('');
-                $('#last_call').val('');
-                $('#invaliddate').text(' ');
-                advancefilters();
-            });
 
             // remove all filters
             $('.removefilters').on('click', function() {
-                $('#fromdate').val('');
-                $('#todate').val('');
-                $('#last_call').val('');
-                $('#invaliddate').text(' ');
-                // Uncheck all options
-                $('#advancestatus option').prop('selected', false);
-                $('#assignedto option').prop('selected', false);
-  
-                // Refresh the multiselect dropdown to reflect changes
-                $('#advancestatus').multiselect('refresh');
-                $('#assignedto').multiselect('refresh');
-                loaddata();
+                $('#filter_from_date').val('');
+                $('#filter_from_date').val(''); 
+                // clear 
+                $('#filter_status').val(null).trigger('change');
+                $('#filter_assigned_to').val(null).trigger('change');
+                table.draw();
+                hideOffCanvass(); // close OffCanvass
             });
 
         });

@@ -350,7 +350,7 @@
                                         icon: "success",
                                         title: response.message
                                     });
-                                    loaddata();
+                                    table.draw();
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -427,7 +427,7 @@
                                 icon: "success",
                                 title: response.message
                             }); 
-                            loaddata();
+                            table.draw();
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -644,7 +644,7 @@
                                 icon: "success",
                                 title: response.message
                             }); 
-                            loaddata();
+                            table.draw();
                             $('#paymentform')[0].reset();
                             $('#paymentmodal').modal('hide');
                         } else if (response.status == 500) {

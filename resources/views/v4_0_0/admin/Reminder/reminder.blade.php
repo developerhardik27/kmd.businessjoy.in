@@ -40,209 +40,125 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
-
-        .multiselect-container>li>a>label {
-            padding: 3px 16px 3px 23px !important;
-        }
-
-        .multiselect {
-            border: 0.5px solid #00000073;
-        }
     </style>
-    {{-- right sidebar style      --}}
-    <style>
-        /* The side navigation menu */
-        .sidenav {
-            height: 100%;
-            /* 100% Full-height */
-            width: 0;
-            /* 0 width - change this with JavaScript */
-            position: fixed;
-            /* Stay in place */
-            z-index: 99;
-            /* Stay on top */
-            top: 0%;
-            background-color: #ffffff;
-            /* Black*/
-            overflow-x: hidden;
-            /* Disable horizontal scroll */
-            padding-top: 60px;
-            /* Place content 60px from the top */
-            transition: 0.5s;
-            /* 0.5 second transition effect to slide in the sidenav */
-        }
-
-        /* The navigation menu links */
-        .sidenav a {
-            padding: 8px 8px 8px 32px;
-            text-decoration: none;
-            font-size: 25px;
-            color: #972721 !important;
-            display: block;
-            transition: 0.3s
-        }
-
-        /* When you mouse over the navigation links, change their color */
-        .sidenav a:hover,
-        .offcanvas a:focus {
-            color: #f1f1f1;
-        }
-
-        /* Position and style the close button (top right corner) */
-        .sidenav .closebtn {
-            position: absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
-            margin-left: 50px;
-        }
-
-        /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
-        #main {
-            transition: margin-left .5s;
-            padding: 20px;
-        }
-
-        .sidenav {
-            right: 0;
-        }
-
-        /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-        @media screen and (max-height: 450px) {
-            .sidenav {
-                padding-top: 15px;
-            }
-
-            .sidenav a {
-                font-size: 18px;
-            }
-        }
-
-        .sidenav {
-            right: 0;
-        }
-
-        /* .multiselect-container {
-                                    width: 300px;
-                                    max-height: 300px;
-                                    overflow: auto;
-                            } */
-
-        .sidenav .btn-group {
-            width: 100%;
-            text-align: left;
-        }
-
-        .sidenav .btn-group .multiselect {
-            text-align: left;
-        }
-
-        .sidenav .btn-group li label {
-            font-size: 15px;
-        }
-
-        span.multiselect-selected-text {
-            text-wrap: wrap;
-        }
-    </style>
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 @endsection
 
 @section('advancefilter')
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <div class="row p-3">
-            <div class="col-md-12">
-                <h4>Advanced Filters</h4>
-            </div>
-            <div class="col-md-12" id="citydiv">
-                <label for="city" class="form-label float-left mt-1">City : </label>
-                <select name="city" class="form-control multiple" id="city" multiple>
-                </select>
-            </div>
-            <div class="col-md-12 mt-2" id="customerdiv">
-                <label for="customer" class="form-label float-left mt-1">Customers : </label>
-                <select name="customer" class="form-control multiple" id="customer" multiple>
-                </select>
-            </div>
-            <div class="col-md-12 mt-2" id="reminder_status_div">
-                <label for="reminder_status" class="form-label float-left mt-1">Reminder Status : </label>
-                <select name="reminder_status" class="form-control multiple" id="reminder_status" multiple>
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                </select>
-            </div>
-            <div class="col-md-12 mt-2">
-                <label for="pincode" class="form-label float-left">Pincode :</label>
-                <input type="text" id="pincode" placeholder="Pincode" class="form-input form-control">
-            </div>
-            <div class="col-md-12 mt-2">
-                <label for="last_service" class="form-label float-left">Service Completed Date:</label>
-                <input type="date" id="last_service" class="form-input form-control">
-            </div>
-            <div class="col-md-12 mt-2">
-                <label for="next_reminder" class="form-label float-left ">Next Reminder:</label>
-                <input type="date" id="next_reminder" class="form-input form-control">
-            </div>
-            <div class="col-md-12 mt-2">
-                <label for="fromdate" class="form-label float-left ">From:</label>
-                <input type="date" id="fromdate" class="form-input form-control  float-left">
-            </div>
-            <div class="col-md-12 mt-2">
-                <label for="todate" class="form-label  float-left ">To:</label>
-                <input type="date" id="todate" class="form-input form-control float-left">
-                <span id="invaliddate" class="font-weight-bold text-danger" style="float: left;"></span>
-            </div>
-            <div class="col-md-12 mt-3">
-                <button class="btn btn-sm btn-rounded btn-primary filtersubmit">Submit</button>
-                <button class="btn btn-sm btn-danger btn-rounded removepopupfilters" onclick="closeNav()">cancel</button>
-            </div>
-        </div>
+    <div class="col-sm-12 text-right">
+        <button type="button" class="btn btn-sm btn-primary m-0 mr-3" data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Filters" onclick="showOffCannvas()">
+            <i class="ri-filter-line"></i>
+        </button>
     </div>
-    <div class="col-md-12 text-right pr-5">
-        <div class="m-2 float-right">
-            <!-- Use any element to open the sidenav -->
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Advance filters" onclick="openNav()"
-                class="btn btn-sm btn-rounded btn-info">
-                <i class="ri-filter-line"></i>
-            </button>
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Filters"
-                class="btn btn-info btn-rounded btn-sm removefilters">
-                <i class="ri ri-refresh-line"></i>
-            </button>
-        </div>
-        <div class="m-2 float-right">
-            <select class="advancefilter multiple form-control w-100" id="area" multiple="multiple">
-            </select>
-        </div>
-        <div class="m-2 float-right">
-            <input type="radio" class="is_active advancefilter" id="paid" name="service_type" value="paid">
-            <label for="paid">Paid</label>
-            <input type="radio" class="is_active advancefilter" id="free" name="service_type" value="free">
-            <label for="free">Free</label>
-            <input type="radio" class="is_active advancefilter" value="all" checked id="all"
-                name="service_type">
-            <label for="all">All</label>
-        </div>
-    </div>
-
-    @if (session('user_permissions.remindermodule.reminder.add') == '1')
-        @section('addnew')
-            {{ route('admin.addreminder') }}
-        @endsection
-        @section('addnewbutton')
-            <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Reminder"
-                class="btn btn-sm btn-primary">
-                <span class="">+ Reminder</span>
-            </button>
-        @endsection
-    @endif
-
 @endsection
+
+@section('sidebar-filters')
+    <div class="col-12 p-0">
+        <div class="card">
+            <div class="card-header">
+                <h6>Address</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_city">City</label>
+                        <select class="filter form-control w-100 select2" id="filter_city" multiple>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-1">
+                        <label for="filter_area">Area</label>
+                        <select class="filter form-control w-100 select2" id="filter_area" multiple>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-1">
+                        <label for="filter_pincode">Pincode</label>
+                        <input type="text" id="filter_pincode" placeholder="Pincode" class="filter form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Customer</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="filter_customer">Customers</label>
+                        <select class="filter form-control select2" id="filter_customer" multiple>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Reminder</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_type">Type</label>
+                        <select class="filter form-control" id="filter_type">
+                            <option selected value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="free">Free</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="filter_reminder_status">Reminder Status</label>
+                        <select class="filter form-control select2 w-100" id="filter_reminder_status" multiple>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Date</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <label for="filter_last_service">Last Service</label>
+                        <input type="date" id="filter_last_service" class="filter form-control">
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label for="filter_next_reminder">Next Reminder:</label>
+                        <input type="date" id="filter_next_reminder" class="filter form-control">
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label for="filter_from_date">From:</label>
+                        <input type="date" id="filter_from_date" class="filter form-control">
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label for="filter_to_date">To:</label>
+                        <input type="date" id="filter_to_date" class="filter form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@if (session('user_permissions.remindermodule.reminder.add') == '1')
+    @section('addnew')
+        {{ route('admin.addreminder') }}
+    @endsection
+    @section('addnewbutton')
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Reminder"
+            class="btn btn-sm btn-primary">
+            <span class="">+ Reminder</span>
+        </button>
+    @endsection
+@endif
 
 
 @section('table-content')
@@ -267,30 +183,6 @@
 
 
 @push('ajax')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
-    <script>
-        /* Simple appearence with animation AN-1*/
-        function openNav() {
-            var screenWidth = window.innerWidth;
-            var width;
-
-            if (screenWidth >= 320 && screenWidth <= 768) {
-                width = "100%";
-            } else if (screenWidth >= 769 && screenWidth <= 1024) {
-                width = "50%";
-            } else if (screenWidth >= 1025 && screenWidth <= 1200) {
-                width = "30%";
-            } else {
-                width = "25%";
-            }
-            document.getElementById("mySidenav").style.width = width;
-        }
-
-        function closeNav() {
-            document.getElementById("mySidenav").style.width = "0";
-        }
-        /* Simple appearence with animation AN-1*/
-    </script>
     <script>
         $(document).ready(function() {
 
@@ -411,21 +303,11 @@
                             if (value != ' ') {
                                 $('#' + key).val(value); // Removed `, true`
                             }
-                            if (key === 'activestatusvalue') {
-                                $('input[name="service_type"][value="' + value + '"]').prop(
-                                    'checked',
-                                    true);
-                            }
                         });
-                        advancefilters();
-                        // Check only the first option
-                        $('#city option:first').prop('selected', true);
-                        $('#customer option:first').prop('selected', true);
-                        $('#area option:first').prop('selected', true);
-                        $('#reminder_status option:first').prop('selected', true);
+                        loaddata();
 
                         // Trigger change event to ensure multiselect UI updates
-                        $('#city, #area , #reminder_status,#customer').multiselect('refresh');
+                        $('#filter_city, #filter_area , #filter_reminder_status, #filter_customer').trigger('change');
 
                         sessionStorage.removeItem('filterData');
                         loaderhide();
@@ -454,18 +336,27 @@
                         // You can update your HTML with the data here if needed     
                         $.each(areaDataResponse.area, function(key, value) {
                             var optionValue = value;
-                            $('#area').append(
+                            $('#filter_area').append(
                                 `<option value="${optionValue}">${optionValue}</option>`);
                         });
-                        $('#area').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options 
+                        $('#filter_area').val('');
+                        $('#filter_area').select2({
+                            search: true,
+                            placeholder: 'Select Area',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
                     } else if (areaDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
                             title: areaDataResponse.message
                         });
                     } else {
-                        $('#area').append(`<option> No area Found </option>`);
+                        $('#filter_area').val('');
+                        $('#filter_area').select2({
+                            search: true,
+                            placeholder: 'No Area Found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
                     }
 
                     // Check if customer data is successfully fetched
@@ -473,18 +364,27 @@
                         // You can update your HTML with the data here if needed 
                         $.each(customerDataResponse.customer, function(key, value) {
                             var optionValue = value.name;
-                            $('#customer').append(
+                            $('#filter_customer').append(
                                 `<option value="${value.id}">${optionValue}</option>`);
                         });
-                        $('#customer').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options 
+                        $('#filter_customer').val('');
+                        $('#filter_customer').select2({
+                            search: true,
+                            placeholder: 'Select Customer',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
                     } else if (customerDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
                             title: customerDataResponse.message
                         });
                     } else {
-                        $('#customer').append(`<option> No area Found </option>`);
+                        $('#filter_customer').val('');
+                        $('#filter_customer').select2({
+                            search: true,
+                            placeholder: 'No customer found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
                     }
 
                     // Check if city data is successfully fetched
@@ -492,20 +392,27 @@
                         //         if (response.status == 200 && response.sourcecolumn != '') {
                         // You can update your HTML with the data here if needed     
                         $.each(cityDataResponse.city, function(key, value) {
-                            $('#city').append(
+                            $('#filter_city').append(
                                 `<option value="${value.id}">${value.city_name}</option>`);
                         });
-                        $('#city').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options 
+                        $('#filter_city').val('');
+                        $('#filter_city').select2({
+                            search: true,
+                            placeholder: 'Select Customer',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
                     } else if (cityDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
                             title: cityDataResponse.message
                         });
                     } else {
-                        $('#city').append(`<option disabled> No City Found </option>`);
-                        $('#city').multiselect(
-                            'rebuild'); // Rebuild multiselect after appending options
+                        $('#filter_city').val('');
+                        $('#filter_city').select2({
+                            search: true,
+                            placeholder: 'No customer found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
                     }
                     loaderhide();
                     // Load filters
@@ -528,163 +435,251 @@
 
             var global_response = '';
 
-            $('#area').multiselect({
-                nonSelectedText: '-- Select Area --', // Acts as a placeholder
-                enableFiltering: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true
-            });
+            var table = '';
 
-            $('#customer').multiselect({
-                nonSelectedText: '-- Select Customer --', // Acts as a placeholder
-                enableFiltering: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true
-            });
-            $('#city').multiselect({
-                nonSelectedText: '-- Select City --', // Acts as a placeholder
-                enableFiltering: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true
-            });
-            $('#reminder_status').multiselect({
-                nonSelectedText: '-- Select Reminder Status --', // Acts as a placeholder
-                enableFiltering: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true
+            var search = {!! json_encode($search) !!}
+
+            $('#filter_reminder_status').val('');
+            $('#filter_reminder_status').select2({
+                search: true,
+                placeholder: 'Select Reminder Status',
+                allowClear: true // Optional: adds "clear" (x) button
             });
 
 
             // get lead data and set in the table
-            function loaddata(data = null) {
-                loadershow();
-                if (data == null) {
-                    data = {
-                        user_id: "{{ session()->get('user_id') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
-                    }
+            function loaddata() {
+                if ($('#filter_type').val() == null) {
+                    $('#filter_type').val('all');
                 }
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('reminder.index') }}",
-                    data: data,
-                    success: function(response) {
-                        // if response has data then it will be append into list table
-                        if ($.fn.dataTable.isDataTable('#data')) {
-                            $('#data').DataTable().clear().destroy();
-                        }
-                        $('#tabledata').empty();
-                        if (response.status == 200 && response.reminder != '') {
-                            global_response = response;
-                            var id = 1;
-                            $.each(response.reminder, function(key, value) {
-                                $('#tabledata').append(`
-                                    <tr>
-                                        <td>${id}</td>
-                                        <td  class="text-left" >
-                                            <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${value.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
-                                                <b><i class="fas fa-user pr-2"></i></b> ${value.name}
-                                            </span>
-                                            <span class='d-flex mb-2'>
-                                                <b><i class="fas fa-envelope pr-2"></i></b>
-                                                <a href="mailto:${value.email}" style='text-decoration:none;'>${value.email}</a>
-                                            </span>
-                                            <span class='d-flex mb-2'>
-                                                <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                                <a href="tel:${value.contact_no}" style='text-decoration:none;'> ${value.contact_no}</a>
-                                            </span>  
-                                            <span class='d-flex mb-2'>
-                                                <b><i class="fas fa-city pr-2"></i></b>
-                                                    ${value.city_name}
-                                            </span>  
-                                        </td>
-                                        <td>
-                                            <select class="reminder_status form-control" data-original-value="${value.reminder_status}" data-reminder_status_id=${value.id} id="reminder_status_${value.id}" name="reminder_status_${value.id}">
-                                                <option value='pending' ${value.reminder_status == 'pending' ? 'selected' : ''}>Pending</option>
-                                                <option value='in_progress' ${value.reminder_status == 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                                <option value='completed' ${value.reminder_status == 'completed' ? 'selected' : ''}>Completed</option>
-                                            </select>
-                                        </td>
-                                        <td>${value.created_at_formatted}</td>
-                                        <td>${value.next_reminder_date}</td>
-                                        <td>${value.area}</td>
-                                        <td>${value.pincode}</td>
-                                        <td>
-                                            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
-                                                <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${value.contact_no}">
-                                                    <i class="ri-whatsapp-line text-white"></i>
-                                                </a>
-                                            </span>
-                                            @if (session('user_permissions.remindermodule.reminder.edit') == '1')
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
-                                                    <button type="button" data-id='${value.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                        <i class="ri-edit-fill"></i>
-                                                    </button> 
-                                                </span>
-                                            @endif
-                                            @if (session('user_permissions.remindermodule.reminder.delete') == '1')
-                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                                    <button type="button" data-uid= '${value.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                        <i class="ri-delete-bin-fill"></i>
-                                                    </button>
-                                                </span>
-                                            @endif
-                                        </td>    
-                                    </tr>
-                                `);
-                                id++;
-                                $('[data-toggle="tooltip"]').tooltip('dispose');
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                            var search = {!! json_encode($search) !!}
+                loadershow();
 
-                            $('#data').DataTable({
-                                "search": {
-                                    "search": search
-                                },
-                                responsive: true,
-                                "destroy": true, //use for reinitialize datatable
-                            });
-                        } else {
+                table = $('#data').DataTable({
+                    language: {
+                        lengthMenu: '_MENU_ &nbsp;Entries per page'
+                    },
+                    destroy: true, // allows re-initialization
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('reminder.index') }}",
+                        data: function(d) {
+                            d.user_id = "{{ session()->get('user_id') }}";
+                            d.company_id = "{{ session()->get('company_id') }}";
+                            d.token = "{{ session()->get('api_token') }}";
+                            d.filter_from_date = $('#filter_from_date').val();
+                            d.filter_to_date = $('#filter_to_date').val();
+                            d.filter_pincode = $('#filter_pincode').val();
+                            d.filter_reminder_status = $('#filter_reminder_status').val();
+                            d.filter_customer = $('#filter_customer').val();
+                            d.filter_city = $('#filter_city').val();
+                            d.fitler_area = $('#fitler_area').val();
+                            d.filter_last_service = $('#filter_last_service').val();
+                            d.filter_next_reminder = $('#filter_next_reminder').val();
+                            d.filter_type = $('#filter_type').val();
+                        },
+                        dataSrc: function(json) {
+                            if (json.message) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: json.message || 'Somethint went wrong!'
+                                })
+                            }
+
+                            global_response = json;
+
+                            return json.data;
+                        },
+                        complete: function() {
+                            loaderhide();
+                        },
+                        error: function(xhr) {
+                            global_response = '';
+                            console.log(xhr.responseText);
                             Toast.fire({
                                 icon: "error",
-                                title: response.message || 'No record found!'
+                                title: "Error loading data"
                             });
-                            $('#data').DataTable();
                         }
-                        loaderhide();
-                        // You can update your HTML with the data here if needed
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
+                    order: [
+                        [0, 'desc']
+                    ],
+                    search: {
+                        search: search
+                    },
+                    columns: [
+
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'name',
+                            name: 'name',
+                            orderable: false,
+                            searchable: true,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                return `
+                                    <span style="cursor:pointer;" class="view-btn d-flex mb-2" data-view = '${row.id}' data-toggle="modal" data-target="#exampleModalScrollable" >
+                                        <b><i class="fas fa-user pr-2"></i></b> ${row.name}
+                                    </span>
+                                    <span class='d-flex mb-2'>
+                                        <b><i class="fas fa-envelope pr-2"></i></b>
+                                        <a href="mailto:${row.email}" style='text-decoration:none;'>${row.email}</a>
+                                    </span>
+                                    <span class='d-flex mb-2'>
+                                        <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                        <a href="tel:${row.contact_no}" style='text-decoration:none;'> ${row.contact_no}</a>
+                                    </span>  
+                                    <span class='d-flex mb-2'>
+                                        <b><i class="fas fa-city pr-2"></i></b>
+                                            ${row.city_name}
+                                    </span>  
+                                `;
+                            }
+                        },
+                        {
+                            data: 'reminder_status',
+                            name: 'reminder_status',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: ' ',
+                            render: function(data, type, row) {
+                                return `
+                                    <select class="reminder_status form-control" data-original-value="${row.reminder_status}" data-reminder_status_id=${row.id} id="reminder_status_${row.id}" name="reminder_status_${row.id}">
+                                        <option value='pending' ${row.reminder_status == 'pending' ? 'selected' : ''}>Pending</option>
+                                        <option value='in_progress' ${row.reminder_status == 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                        <option value='completed' ${row.reminder_status == 'completed' ? 'selected' : ''}>Completed</option>
+                                    </select>
+                               `;
+                            }
+                        },
+                        {
+                            data: 'created_at_formatted',
+                            name: 'created_at_formatted',
+                            orderable: false,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'next_reminder_date',
+                            name: 'next_reminder_date',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'area',
+                            name: 'area',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'pincode',
+                            name: 'pincode',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-',
+                            render: function(data, type, row) {
+                                let actionBtns = `
+                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Whatsapp Message">
+                                        <a class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/91${row.contact_no}">
+                                            <i class="ri-whatsapp-line text-white"></i>
+                                        </a>
+                                    </span>
+                                `;
+                                @if (session('user_permissions.remindermodule.reminder.edit') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit">
+                                            <button type="button" data-id='${row.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                <i class="ri-edit-fill"></i>
+                                            </button> 
+                                        </span>
+                                    `;
+                                @endif
+
+                                @if (session('user_permissions.remindermodule.reminder.delete') == '1')
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
+                                            <button type="button" data-uid= '${row.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+
+                                return actionBtns;
+                            }
                         }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                    ],
+
+                    pagingType: "full_numbers",
+                    drawCallback: function(settings) {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
+                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                    </div>
+                                `;
+                            $(".dt-paging").after(jumpHtml);
+                        }
+
+
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
+
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
+                                    } else {
+                                        Toast.fire({
+                                            icon: "error",
+                                            title: `Please enter a page number between 1 and ${totalPages}`
+                                        });
+                                    }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
+                                }
+                            }
+                        );
                     }
                 });
+
             }
-
-            // it is commented beacause it is called base on conditions 
-            //call function for loaddata
-            // loaddata();
-
 
             // view individual reminder data
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.reminder, function(key, reminder) {
+                $.each(global_response.data, function(key, reminder) {
                     if (reminder.id == data) {
                         $('#details').append(`
                             <tr> 
@@ -800,29 +795,53 @@
                                 user_id: "{{ session()->get('user_id') }}"
                             },
                             success: function(data) {
-                                loaderhide();
-                                if (data.status == false) {
+                                if (data.status == 200) {
                                     Toast.fire({
-                                        icon: "error",
+                                        icon: "success",
                                         title: data.message
                                     });
+
+                                    if (reminderstatusvalue == 'completed') {
+                                        showConfirmationDialog(
+                                            'Status succesfully Updated.', // Title
+                                            'now you want to create new reminder for this customer?', // Text
+                                            'Yes, create', // Confirm button text
+                                            'No, cancel', // Cancel button text
+                                            'question', // Icon type (question icon)
+                                            () => {
+                                                // Success callback
+                                                var addNewReminderUrl =
+                                                    "{{ route('admin.addreminder', '__reminderstatusid__') }}"
+                                                    .replace('__reminderstatusid__',
+                                                        reminderstatusid);
+                                                window.location.href =
+                                                addNewReminderUrl;
+                                            }
+                                        );
+                                    }
                                 } else if (data.status == 500) {
                                     Toast.fire({
                                         icon: "error",
                                         title: data.message
                                     });
-                                    loaderhide();
+                                    var reminderstatusid = element.attr('id');
+                                    $(`#${reminderstatusid}`).val(oldstatus);
                                 } else {
+                                    var reminderstatusid = element.attr('id');
+                                    $(`#${reminderstatusid}`).val(oldstatus);
                                     Toast.fire({
-                                        icon: "success",
-                                        title: data.message
+                                        icon: "error",
+                                        title: data.message ||
+                                            'Something went wrong'
                                     });
-                                    advancefilters();
                                 }
+                                loaderhide();
                             },
                             error: function(xhr, status,
                                 error) { // if calling api request error 
                                 loaderhide();
+                                var reminderstatusid = element.attr('id');
+                                $(`#${reminderstatusid}`).val(oldstatus);
                                 console.log(xhr
                                     .responseText
                                 ); // Log the full error response for debugging
@@ -841,22 +860,6 @@
                                 reject(errorMessage);
                             }
                         });
-                        if (reminderstatusvalue == 'completed') {
-                            showConfirmationDialog(
-                                'Are you sure?', // Title
-                                'to create new reminder for this customer?', // Text
-                                'Yes, create', // Confirm button text
-                                'No, cancel', // Cancel button text
-                                'question', // Icon type (question icon)
-                                () => {
-                                    // Success callback
-                                    var addNewReminderUrl =
-                                        "{{ route('admin.addreminder', '__reminderstatusid__') }}"
-                                        .replace('__reminderstatusid__', reminderstatusid);
-                                    window.location.href = addNewReminderUrl;
-                                }
-                            );
-                        }
                     },
                     () => {
                         // Error callback
@@ -871,28 +874,28 @@
             $(document).on("click", '.editbtn', function() {
                 editid = $(this).data('id');
                 // loadershow();
-                pincode = $('#pincode').val();
-                fromdate = $('#fromdate').val();
-                todate = $('#todate').val();
-                reminder_status = $('#reminder_status').val();
-                customer = $('#customer').val();
-                city = $('#city').val();
-                area = $('#area').val();
-                last_service = $('#last_service').val();
-                next_reminder = $('#next_reminder').val();
-                activestatusvalue = $('input[name="service_type"]:checked').val();
+                filter_pincode = $('#filter_pincode').val();
+                filter_from_date = $('#filter_from_date').val();
+                filter_to_date = $('#filter_to_date').val();
+                filter_reminder_status = $('#filter_reminder_status').val();
+                filter_customer = $('#filter_customer').val();
+                filter_city = $('#filter_city').val();
+                filter_area = $('#filter_area').val();
+                filter_last_service = $('#filter_last_service').val();
+                filter_next_reminder = $('#filter_next_reminder').val();
+                filter_type = $('#filter_type').val();
 
                 data = {
-                    pincode,
-                    fromdate,
-                    todate,
-                    reminder_status,
-                    customer,
-                    city,
-                    area,
-                    last_service,
-                    next_reminder,
-                    activestatusvalue
+                    filter_pincode,
+                    filter_from_date,
+                    filter_to_date,
+                    filter_reminder_status,
+                    filter_customer,
+                    filter_city,
+                    filter_area,
+                    filter_last_service,
+                    filter_next_reminder,
+                    filter_type
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
@@ -926,11 +929,12 @@
                                 user_id: "{{ session()->get('user_id') }}"
                             },
                             success: function(data) {
-                                if (data.status == false) {
+                                if (data.status == 200) {
                                     Toast.fire({
-                                        icon: "error",
+                                        icon: "success",
                                         title: data.message
                                     });
+                                    table.draw();
                                 } else if (data.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -938,10 +942,10 @@
                                     });
                                 } else {
                                     Toast.fire({
-                                        icon: "success",
-                                        title: data.message
+                                        icon: "error",
+                                        title: data.message ||
+                                            'Something went wrong'
                                     });
-                                    $(row).closest("tr").fadeOut();
                                 }
                                 loaderhide();
                             },
@@ -971,133 +975,30 @@
             })
 
 
-            // advancefilters
-            function advancefilters() {
 
-                fromdate = $('#fromdate').val();
-                todate = $('#todate').val();
-
-                if (fromdate != '' && todate == '') {
-                    todate = fromdate;
-                    $('#todate').val(todate);
-                }
-
-
-
-                pincode = $('#pincode').val();
-                fromdate = $('#fromdate').val();
-                todate = $('#todate').val();
-                reminder_status = $('#reminder_status').val();
-                customer = $('#customer').val();
-                city = $('#city').val();
-                area = $('#area').val();
-                last_service = $('#last_service').val();
-                next_reminder = $('#next_reminder').val();
-                activestatusvalue = $('input[name="service_type"]:checked').val();
-                var fromDate = new Date(fromdate);
-                var toDate = new Date(todate);
-
-                if (fromDate > toDate) {
-                    $('#invaliddate').text('Invalid Date');
-                } else {
-                    $('#invaliddate').text(' ');
-                }
-
-                var data = {
-                    user_id: "{{ session()->get('user_id') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}"
-                };
-
-                if (fromdate != '' && todate != '' && !(fromDate > toDate)) {
-                    data.fromdate = fromdate;
-                    data.todate = todate;
-                }
-                if (pincode != '') {
-                    data.pincode = pincode;
-                }
-                if (reminder_status != '') {
-                    data.reminder_status = reminder_status;
-                }
-                if (customer != '') {
-                    data.customer = customer;
-                }
-                if (city != '') {
-                    data.city = city;
-                }
-                if (area != '') {
-                    data.area = area;
-                }
-                if (last_service != '') {
-                    data.last_service = last_service;
-                }
-                if (next_reminder != '') {
-                    data.next_reminder = next_reminder;
-                }
-                if (activestatusvalue != '') {
-                    data.activestatusvalue = activestatusvalue;
-                }
-
-                loaddata(data);
-
-            }
-
-
-            $('.advancefilter').on('change', function() {
-                advancefilters();
-            });
-
-            $('.filtersubmit').on('click', function(e) {
+            $('.applyfilters').on('click', function(e) {
                 e.preventDefault();
-                advancefilters();
-                closeNav()
-            });
-
-            //remove advnaced filtres only (sidebar filtres) 
-            $('.removepopupfilters').on('click', function() {
-                $('#pincode').val('');
-                $('#fromdate').val('');
-                $('#todate').val('');
-                $('#last_service').val('');
-                $('#next_reminder').val('');
-                $('#invaliddate').text(' ');
-
-                $('#customer option').prop('selected', false);
-                $('#customer').multiselect('refresh');
-
-                $('#city option').prop('selected', false);
-                $('#city').multiselect('refresh');
-
-                $('#reminder_status option').prop('selected', false);
-                $('#reminder_status').multiselect('refresh');
-                advancefilters();
+                table.draw();
+                hideOffCanvass();
             });
 
             // remove all filters
             $('.removefilters').on('click', function() {
-                $('#pincode').val('');
-                $('#fromdate').val('');
-                $('#todate').val('');
-                $('#last_service').val('');
-                $('#next_reminder').val('');
-                $('#invaliddate').text(' ');
-                $("input[name='service_type'][value='all']").prop("checked", true);
-                // Uncheck all options
-                $('#area option').prop('selected', false);
-                $('#customer option').prop('selected', false);
-                $('#city option').prop('selected', false);
-                $('#reminder_status option').prop('selected', false);
+                $('#filter_pincode').val('');
+                $('#filter_from_date').val('');
+                $('#filter_to_date').val('');
+                $('#filter_last_service').val('');
+                $('#filter_next_reminder').val('');
+                $('#filter_type').val('all');
 
                 // Refresh the multiselect dropdown to reflect changes
-                $('#area').multiselect('refresh');
-                $('#customer').multiselect('refresh');
-                $('#city').multiselect('refresh');
-                $('#reminder').multiselect('refresh');
-                loaddata();
+                $('#filter_area').val(null).trigger('change');
+                $('#filter_customer').val(null).trigger('change');
+                $('#filter_city').val(null).trigger('change');
+                $('#filter_reminder_status').val(null).trigger('change');
+                hideOffCanvass();
+                table.draw();
             });
-
-
-
 
         });
     </script>

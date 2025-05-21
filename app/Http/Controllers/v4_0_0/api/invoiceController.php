@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\v4_0_0\api;
 
 
-use App\Models\company;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 
 class invoiceController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp, $invoiceModel, $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel, $inventoryModel, $product_column_mappingModel;
+    public $userId, $companyId, $masterdbname, $rp, $invoiceModel, $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel, $inventoryModel,$product_Model, $product_column_mappingModel;
 
     public function __construct(Request $request)
     {
@@ -40,6 +41,7 @@ class invoiceController extends commonController
         $this->tbl_invoice_columnModel = $this->getmodel('tbl_invoice_column');
         $this->invoice_number_patternModel = $this->getmodel('invoice_number_pattern');
         $this->inventoryModel = $this->getmodel('inventory');
+        $this->product_Model = $this->getmodel('product');
         $this->product_column_mappingModel = $this->getmodel('product_column_mapping');
 
     }
@@ -116,7 +118,13 @@ class invoiceController extends commonController
     {
 
         if ($this->rp['invoicemodule']['invoice']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
         }
 
         $invoiceres = $this->invoiceModel::leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
@@ -128,19 +136,47 @@ class invoiceController extends commonController
                     ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id ORDER BY id DESC LIMIT 1)');
             })
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
-            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"), 'payment_details.part_payment', 'payment_details.pending_amount', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->select(
+                'invoices.*',
+                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"),
+                'payment_details.part_payment',
+                'payment_details.pending_amount',
+                'customers.house_no_building_name',
+                'customers.road_name_area_colony',
+                DB::raw("CONCAT_WS(' ', customers.firstname, customers.lastname, customers.company_name)as customer"),
+                'country.country_name',
+                'country_details.currency',
+                'country_details.currency_symbol',
+                'state.state_name',
+                'city.city_name'
+            )
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
 
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
             $invoiceres->where('invoices.created_by', $this->userId);
         }
+
+        $totalcount = $invoiceres->get()->count(); // count total record
+
         $invoice = $invoiceres->get();
 
         if ($invoice->isEmpty()) {
-            return $this->successresponse(404, 'invoice', 'No Records Found');
+            return DataTables::of($invoice)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        return $this->successresponse(200, 'invoice', $invoice);
+
+        return DataTables::of($invoice)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
     //get dynamic column name
@@ -151,7 +187,7 @@ class invoiceController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $columnname = $this->tbl_invoice_columnModel::select('id', 'column_name', 'column_type', 'column_width', 'is_hide')->where('is_active', 1)->where('is_deleted', 0)->orderBy('column_order')->get();
+        $columnname = $this->tbl_invoice_columnModel::select('id', 'column_name', 'column_type', 'column_width', 'default_value', 'is_hide')->where('is_active', 1)->where('is_deleted', 0)->orderBy('column_order')->get();
 
         if ($columnname->isEmpty()) {
             return $this->successresponse(404, 'columnname', 'No Records Found');
@@ -237,6 +273,8 @@ class invoiceController extends commonController
         return $this->successresponse(200, 'invoice', $invoice);
     }
 
+
+
     /**
      * Store a newly created resource in storage.
      */
@@ -250,7 +288,6 @@ class invoiceController extends commonController
 
             // validate incoming request data
             $validator = Validator::make($data, [
-                "payment_mode" => 'required',
                 "bank_account" => 'required',
                 "customer" => 'required',
                 "total_amount" => 'required|numeric',
@@ -426,7 +463,6 @@ class invoiceController extends commonController
                         'total' => $data['total_amount'],
                         'grand_total' => $data['grandtotal'],
                         'currency_id' => $data['currency'],
-                        'payment_type' => $data['payment_mode'],
                         'account_id' => $data['bank_account'],
                         'company_id' => $this->companyId,
                         'company_details_id' => $company_details_id,
@@ -495,10 +531,23 @@ class invoiceController extends commonController
                             if (isset($row['inventoryproduct'])) {
                                 $dynamicdata['inventory_product_id'] = $row['inventoryproduct'];
 
-                                $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
+                                $product = $this->product_Model::find($row['inventoryproduct']);
 
+                                
+                                $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
+                                
                                 if ($quantitycolumn->count() > 0) {
+
+                                    
                                     $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
+                                    
+                                    if($product){
+                                        if($product->continue_selling != 1){
+                                            if($updateinventory->available < $row[$quantitycolumn[0]]){
+                                                throw new \Exception("Insufficient stock for product '{$product->name}'. Available: {$updateinventory->available}.");
+                                            }
+                                        }
+                                    }
 
                                     $updateinventory->available -= $row[$quantitycolumn[0]];
                                     $updateinventory->on_hand -= $row[$quantitycolumn[0]];
@@ -596,7 +645,6 @@ class invoiceController extends commonController
 
             // validate incoming request data
             $validator = Validator::make($data, [
-                "payment_mode" => 'required',
                 "bank_account" => 'required',
                 "customer" => 'required',
                 "total_amount" => 'required|numeric',
@@ -644,7 +692,7 @@ class invoiceController extends commonController
 
                                 $newquantity = (int) $productvalue[$quantitycolumn[0]];
 
-                                $inventory = $this->inventoryModel::where('product_id', $fetcholdproduct->inventory_product_id)->where('is_deleted', 0)->first();
+                                $inventory = $this->inventoryModel::where('product_id', $fetcholdproduct->inventory_product_id ?? 1)->where('is_deleted', 0)->first();
 
                                 if ($inventory) {
                                     if ($oldquantity > $newquantity) {
@@ -729,7 +777,6 @@ class invoiceController extends commonController
                     'total' => $data['total_amount'],
                     'grand_total' => $data['grandtotal'],
                     'currency_id' => $data['currency'],
-                    'payment_type' => $data['payment_mode'],
                     'account_id' => $data['bank_account'],
                     'updated_by' => $data['user_id'],
                 ];
@@ -782,8 +829,18 @@ class invoiceController extends commonController
                         if (isset($row['inventoryproduct'])) {
                             $dynamicdata['inventory_product_id'] = $row['inventoryproduct'];
 
+                            $product = $this->product_Model::find($row['inventoryproduct']);
+
                             if ($quantitycolumn->count() > 0) {
                                 $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
+
+                                if($product){
+                                    if($product->continue_selling != 1){
+                                        if($updateinventory->available < $row[$quantitycolumn[0]]){
+                                            throw new \Exception("Insufficient stock for product '{$product->name}'. Available: {$updateinventory->available}.");
+                                        }
+                                    }
+                                }
 
                                 $updateinventory->available -= $row[$quantitycolumn[0]];
                                 $updateinventory->on_hand -= $row[$quantitycolumn[0]];
@@ -921,7 +978,7 @@ class invoiceController extends commonController
         $addamounttype = [
             'column_name' => 'amount',
             'column_type' => 'decimal',
-            'column_width' => 'auto'
+            'column_width' => '20'
         ];
 
         // Merge existing column types with the new column type

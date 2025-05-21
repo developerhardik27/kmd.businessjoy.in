@@ -15,19 +15,5 @@ class Purchase extends Model
 
     public $guarded = [];
 
-    // protected $fillable = [
-    //     'name',
-    //     'description',
-    //     'amount',
-    //     'amount_type',
-    //     'date',
-    //     'img',
-    //     'company_id',
-    //     'created_by',
-    //     'updated_by',
-    //     'created_at',
-    //     'updated_at',
-    //     'is_active',
-    //     'is_deleted'
-    // ];
+     
 }

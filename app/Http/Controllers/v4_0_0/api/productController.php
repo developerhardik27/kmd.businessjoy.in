@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -30,6 +31,54 @@ class productController extends commonController
         $this->temp_imgModel = $this->getmodel('temp_image');
         $this->inventoryModel = $this->getmodel('inventory');
         $this->product_column_mappingModel = $this->getmodel('product_column_mapping');
+    }
+
+    public function datatable()
+    {
+        // condition for check if user has permission to view records
+        if ($this->rp['inventorymodule']['product']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $productres = $this->productModel::leftJoin('product_categories as pc', 'products.product_category', 'pc.id')
+            ->join('inventory', 'products.id', 'inventory.product_id')
+            ->select(
+                'products.*',
+                'pc.cat_name as category_name',
+                'inventory.available as available_stock'
+            )
+            ->where('products.is_deleted', 0);
+
+        if ($this->rp['inventorymodule']['product']['alldata'] != 1) {
+            $productres->where('products.created_by', $this->userId);
+        }
+
+        $totalcount = $productres->get()->count(); // count total record
+
+        $product = $productres->get();
+
+        if ($product->isEmpty()) {
+             return DataTables::of($product)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($product)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
     /**
@@ -70,20 +119,20 @@ class productController extends commonController
     public function store(Request $request)
     {
 
-        return $this->executeTransaction(function() use ($request){
+        return $this->executeTransaction(function () use ($request) {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:50',
                 'short_description' => 'nullable',
                 'description' => 'nullable',
+                'category' => 'required|integer',
                 'unit' => 'nullable',
                 'price' => 'required|numeric',
                 'status' => 'required|numeric',
                 'product_type' => 'nullable',
-                'sku' => 'nullable|max:50',
-                'category' => 'required|integer',
-                'images' => 'nullable',
                 'track_quantity' => 'nullable',
                 'continue_selling' => 'nullable',
+                'sku' => 'nullable|max:50',
+                'images' => 'nullable',
                 'company_id' => 'required|numeric',
                 'user_id' => 'required|numeric',
                 'updated_by',
@@ -256,20 +305,20 @@ class productController extends commonController
     public function update(Request $request, string $id)
     {
 
-        return $this->executeTransaction(function() use ($request,$id){
+        return $this->executeTransaction(function () use ($request, $id) {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:50',
                 'short_description' => 'nullable',
                 'description' => 'nullable',
+                'category' => 'required|integer',
                 'unit' => 'nullable',
                 'price' => 'required|numeric',
                 'status' => 'required|numeric',
                 'product_type' => 'nullable',
-                'sku' => 'nullable|max:50',
-                'category' => 'required|integer',
-                'images' => 'nullable',
                 'track_quantity' => 'nullable',
                 'continue_selling' => 'nullable',
+                'sku' => 'nullable|max:50',
+                'images' => 'nullable',
                 'company_id' => 'required|numeric',
                 'user_id' => 'required|numeric',
                 'created_at',
@@ -417,7 +466,7 @@ class productController extends commonController
                 return $this->successresponse(200, 'message', 'Product succesfully updated');
             }
         });
-        
+
     }
 
     /**
@@ -425,7 +474,7 @@ class productController extends commonController
      */
     public function destroy(string $id)
     {
-        return $this->executeTransaction(function() use ($id){
+        return $this->executeTransaction(function () use ($id) {
             $product = $this->productModel::find($id);
 
             if (!$product) {
@@ -593,7 +642,7 @@ class productController extends commonController
 
             $productcolumnmapping = $this->product_column_mappingModel::find($id);
 
-            if (!$productcolumnmapping) { 
+            if (!$productcolumnmapping) {
                 return $this->successresponse(404, 'message', 'No such columns link found!');
             }
             if ($this->rp['inventorymodule']['productcolumnmapping']['alldata'] != 1) {
@@ -605,7 +654,7 @@ class productController extends commonController
             if ($this->rp['inventorymodule']['productcolumnmapping']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-            
+
             $productcolumnmapping->update([
                 'product_column' => $request->product_column,
                 'invoice_column' => $request->invoice_column,
@@ -623,10 +672,10 @@ class productController extends commonController
     {
         $productcolumnmapping = $this->product_column_mappingModel::find($id);
 
-        if (!$productcolumnmapping) { 
+        if (!$productcolumnmapping) {
             return $this->successresponse(404, 'message', 'No such columns link found!');
         }
-        
+
         if ($this->rp['inventorymodule']['productcolumnmapping']['alldata'] != 1) {
             if ($productcolumnmapping->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -636,7 +685,7 @@ class productController extends commonController
         if ($this->rp['inventorymodule']['productcolumnmapping']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-       
+
         $productcolumnmapping->update([
             'is_deleted' => 1
         ]);

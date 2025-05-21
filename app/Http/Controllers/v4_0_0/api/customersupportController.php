@@ -6,6 +6,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -35,57 +36,109 @@ class customersupportController extends commonController
      */
     public function index(Request $request)
     {
-        $fromdate = $request->fromdate;
-        $todate = Carbon::parse($request->todate);
-        $status = $request->status;
-        $lastcall = $request->lastcall;
-        $callcount = $request->callcount;
-        $assignedto = $request->assignedto;
-        // if (isset($request->activestatusvalue) && $request->activestatusvalue != 'all') {
-        //     $activestatus = $request->activestatusvalue;
-        // }
 
-        $customersupportquery = $this->customer_supportModel::select('id', 'first_name', 'last_name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'assigned_to', 'number_of_call', 'notes', 'ticket', 'web_url', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'updated_at', 'is_active', 'is_deleted', 'source', 'ip')
-            ->where('is_deleted', 0)->orderBy('id', 'DESC');
+        if ($this->rp['customersupportmodule']['customersupport']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
 
-        if (isset($fromdate) && isset($todate)) {
-            $customersupportquery->whereBetween('created_at', [$fromdate, $todate->addDay()]);
-        }
-        if (isset($status)) {
-            $customersupportquery->whereIn('status', $status);
-        }
-        if (isset($assignedto)) {
-            $customersupportquery->where(function ($query) use ($assignedto) {
-                foreach ($assignedto as $value) {
-                    $query->orWhere('assigned_to', 'LIKE', '%' . $value . '%');
-                }
-            });
-        }
-        if (isset($lastcall)) {
-            $customersupportquery->where('last_call', $lastcall);
-        }
-        if (isset($callcount)) {
-            $customersupportquery->where('number_of_call', $callcount);
-        }
-        // if (isset($activestatus)) {
-        //     $customersupportquery->where('is_active', $activestatus);
-        // }
+        $customersupportquery = $this->customer_supportModel::select(
+            'id',
+            DB::raw("CONCAT_WS(' ', first_name, last_name) as name"),
+            'email',
+            'contact_no',
+            'title',
+            'budget',
+            'audience_type',
+            'customer_type',
+            'status',
+            'last_call',
+            'assigned_to',
+            'number_of_call',
+            'notes',
+            'ticket',
+            'web_url',
+            'created_by',
+            'updated_by',
+            DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),
+            'updated_at',
+            'is_active',
+            'is_deleted',
+            'source',
+            'ip'
+        )
+            ->where('is_deleted', 0);
 
         if ($this->rp['customersupportmodule']['customersupport']['alldata'] != 1) {
             $customersupportquery->where('created_by', $this->userId);
         }
 
+        $totalcount = $customersupportquery->get()->count(); // count total record   
+
+        // apply filters
+        $filter_assigned_to = $request->filter_assigned_to;
+
+        if (isset($filter_assigned_to)) {
+            $customersupportquery->where(function ($query) use ($filter_assigned_to) {
+                foreach ($filter_assigned_to as $value) {
+                    $query->orWhere('assigned_to', 'LIKE', '%' . $value . '%');
+                }
+            });
+        }
+
+        $filters = [
+            'filter_status' => 'status',
+            'filter_call_count' => 'number_of_call',
+            'filter_last_call' => 'last_call',
+            'filter_from_date' => 'created_at',
+            'filter_to_date' => 'created_at',
+        ];
+
+        // Loop through the filters and apply them conditionally
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                if (
+                    strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false
+                ) {
+                    // For date filters (loading_date, stuffing_date), we apply range conditions
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $customersupportquery->whereDate($column, $operator, $value);
+                }else if( strpos($requestKey, 'last') !== false){
+                    $customersupportquery->whereDate($column, $value);
+                } else if ($requestKey == 'filter_status') {
+                    $customersupportquery->whereIn($column, $value);
+                } else {
+                    // For other filters, apply simple equality checks
+                    $customersupportquery->where($column, $value);
+                }
+            }
+        }
+
         $customersupport = $customersupportquery->get();
 
         if ($customersupport->isEmpty()) {
-            return $this->successresponse(404, 'customersupport', 'No Records Found');
+            return DataTables::of($customersupport)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
 
-        if ($this->rp['customersupportmodule']['customersupport']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-        return $this->successresponse(200, 'customersupport', $customersupport);
+        return DataTables::of($customersupport)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
 
     }
 
@@ -310,7 +363,7 @@ class customersupportController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
- 
+
         $this->customer_supportModel::where('id', $request->statusid)
             ->update(['status' => $request->statusvalue]);
 
@@ -331,7 +384,7 @@ class customersupportController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        
+
         if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v4_0_0\api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class bankdetailsController extends commonController
@@ -48,7 +49,7 @@ class bankdetailsController extends commonController
 
         $bankdetail = $bankdetailres->get();
 
-        if ($bankdetail->isEmpty()) { 
+        if ($bankdetail->isEmpty()) {
             return $this->successresponse(404, 'bankdetail', 'No Records Found');
         }
         if ($this->rp['invoicemodule']['bank']['view'] == 1 || $this->rp['reportmodule']['report']['view'] == 1) {
@@ -72,10 +73,10 @@ class bankdetailsController extends commonController
         $bankdetail = $this->bankdetailmodel::where('is_deleted', 0)
             ->get();
 
-        if ($bankdetail->isEmpty()) { 
+        if ($bankdetail->isEmpty()) {
             return $this->successresponse(404, 'bankdetail', 'No Records Found');
         }
-            return $this->successresponse(200, 'bankdetail', $bankdetail);
+        return $this->successresponse(200, 'bankdetail', $bankdetail);
     }
 
     /**
@@ -86,24 +87,49 @@ class bankdetailsController extends commonController
      */
     public function index(Request $request)
     {
+        if ($this->rp['invoicemodule']['bank']['view'] != 1) {
+           return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
 
         $bankdetailres = $this->bankdetailmodel::where('is_deleted', 0)
-            ->select('bank_details.*', DB::raw('DATE_FORMAT(created_at,"%d-%M-%Y %h:%i %p") as created_at_formatted'));
+            ->select(
+                'bank_details.*',
+                DB::raw('DATE_FORMAT(created_at,"%d-%M-%Y %h:%i %p") as created_at_formatted')
+            );
 
         if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
             $bankdetailres->where('created_by', $this->userId);
         }
+
+        $totalcount = $bankdetailres->get()->count(); // count total record
+
         $bankdetail = $bankdetailres->get();
 
-        if ($bankdetail->isEmpty()) { 
-            return $this->successresponse(404, 'bankdetail', 'No Records Found');
+        if ($bankdetail->isEmpty()) {
+             return DataTables::of($bankdetail)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        if ($this->rp['invoicemodule']['bank']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-            return $this->successresponse(200, 'bankdetail', $bankdetail);
+        
+        return DataTables::of($bankdetail)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
+
     }
- 
+
     /**
      * Summary of store
      * store new bankdetails
@@ -132,9 +158,9 @@ class bankdetailsController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            if ($this->rp['invoicemodule']['bank']['add'] != 1) { 
+            if ($this->rp['invoicemodule']['bank']['add'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
-                
+
             }
             $bankdetail = $this->bankdetailmodel::create([
                 'holder_name' => $request->holder_name,
@@ -142,7 +168,7 @@ class bankdetailsController extends commonController
                 'branch_name' => $request->branch_name,
                 'account_no' => $request->account_number,
                 'swift_code' => $request->swift_code,
-                'ifsc_code' => $request->ifsc_code, 
+                'ifsc_code' => $request->ifsc_code,
                 'created_by' => $this->userId,
             ]);
 
@@ -154,7 +180,7 @@ class bankdetailsController extends commonController
 
         }
     }
- 
+
     /**
      * Summary of update
      * update bank details status

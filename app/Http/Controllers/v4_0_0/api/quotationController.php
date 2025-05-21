@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\v4_0_0\api;
 
-use App\Models\company;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 
 class quotationController extends commonController
 {
@@ -97,12 +98,22 @@ class quotationController extends commonController
     }
 
 
-    //use for pdf
+    /**
+     * Summary of quotation_list
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function quotation_list(Request $request)
     {
-
+        
         if ($this->rp['quotationmodule']['quotation']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
         }
 
         $quotationres = DB::connection('dynamic_connection')
@@ -112,19 +123,44 @@ class quotationController extends commonController
             ->leftJoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftJoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftJoin($this->masterdbname . '.country as country_details', 'quotations.currency_id', '=', 'country_details.id')
-            ->select('quotations.*', DB::raw("DATE_FORMAT(quotations.quotation_date, '%d-%m-%Y %h:%i:%s %p') as quotation_date_formatted"), 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name')
+            ->select(
+                'quotations.*',
+                DB::raw("DATE_FORMAT(quotations.quotation_date, '%d-%m-%Y %h:%i:%s %p') as quotation_date_formatted"),
+                'customers.house_no_building_name',
+                'customers.road_name_area_colony',
+                DB::raw("CONCAT_WS(' ', customers.firstname, customers.lastname, customers.company_name)as customer"),
+                'country.country_name',
+                'country_details.currency',
+                'country_details.currency_symbol',
+                'state.state_name',
+                'city.city_name'
+            )
             ->where('quotations.is_deleted', 0)
             ->orderBy('quotations.quotation_date', 'desc');
 
         if ($this->rp['quotationmodule']['quotation']['alldata'] != 1) {
             $quotationres->where('quotations.created_by', $this->userId);
         }
+
+        $totalcount = $quotationres->get()->count(); // count total record
+
         $quotation = $quotationres->get();
 
         if ($quotation->isEmpty()) {
-            return $this->successresponse(404, 'quotation', 'No records found');
+            return DataTables::of($quotation)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
-        return $this->successresponse(200, 'quotation', $quotation);
+        return DataTables::of($quotation)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount, // Total records count
+            ])
+            ->make(true);
     }
 
     //get dynamic column name
@@ -142,10 +178,10 @@ class quotationController extends commonController
             ->orderBy('column_order')
             ->get();
 
-        if ($columnname->isEmpty()) { 
+        if ($columnname->isEmpty()) {
             return $this->successresponse(404, 'columnname', 'No records found');
         }
-            return $this->successresponse(200, 'columnname', $columnname);
+        return $this->successresponse(200, 'columnname', $columnname);
     }
 
 
@@ -164,14 +200,15 @@ class quotationController extends commonController
             ->where('is_deleted', 0)
             ->get();
 
-        if ($columnname->isEmpty()) { 
+        if ($columnname->isEmpty()) {
             return $this->successresponse(404, 'columnname', 'No records found');
         }
-            return $this->successresponse(200, 'columnname', $columnname);
+        return $this->successresponse(200, 'columnname', $columnname);
     }
 
     /**
      * Display a listing of the resource.
+     * using for pdf
      */
     public function index(string $id)
     {
@@ -196,12 +233,12 @@ class quotationController extends commonController
         }
 
         $quotation = $quotationres->get();
-        if ($quotation->isEmpty()) { 
+        if ($quotation->isEmpty()) {
             return $this->successresponse(404, 'quotation', 'No records found');
         }
-            return $this->successresponse(200, 'quotation', $quotation);
+        return $this->successresponse(200, 'quotation', $quotation);
     }
- 
+
     /**
      * Store a newly created resource in storage.
      */
@@ -512,7 +549,7 @@ class quotationController extends commonController
     public function update(Request $request, string $id)
     {
 
-        return $this->executeTransaction(function () use ($request,$id) {
+        return $this->executeTransaction(function () use ($request, $id) {
             $data = $request->data; // quotation data
 
             // validate incoming request data
@@ -729,7 +766,7 @@ class quotationController extends commonController
      * update the specified resource from storage.
      */
     public function updatequotationremarks(Request $request)
-    { 
+    {
         $validator = validator::make($request->all(), [
             'remarks' => 'required',
             'quotatoin_id' => 'required'
@@ -758,7 +795,7 @@ class quotationController extends commonController
 
     // use for pdf
     public function quotation_details(string $id)
-    { 
+    {
         $columnname = $this->quotationModel::find($id);
 
         if (!$columnname) {
@@ -831,7 +868,7 @@ class quotationController extends commonController
             return $this->successresponse(404, 'message', 'Quotation status not succesfully updated!');
         }
     }
-  
+
     // check quotation number exist or not
     public function checkquotationnumber(Request $request)
     {
