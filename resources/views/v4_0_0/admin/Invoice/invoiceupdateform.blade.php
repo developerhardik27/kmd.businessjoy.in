@@ -1291,7 +1291,7 @@
                                                 let productColumnValue = null;
 
                                                 // Check if the column matches the invoice_column in columnlinks
-                                                let matchingLink = columnlinks.find(link => link.invoice_column === columnName);
+                                                let matchingLink = columnlinks.find(link => link.invoice_column === columnData.column_name);
                                                 if (matchingLink) {
                                                     // Get the product data column value from the matching link
                                                     productColumnValue = value[matchingLink.product_column] || '';  // Fallback to empty string if no value
