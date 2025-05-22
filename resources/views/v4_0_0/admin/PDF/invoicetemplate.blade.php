@@ -34,7 +34,7 @@
     $othersettings = json_decode($othersettings['gstsettings'], true);
 
     $blankrows = $invoiceothersettings['no_of_blank_row'];
-    
+
     $loopnumber = 0; // array for alignment column type text or longtext
 
     $fixedFirstCols = ['#']; // manual column for serial number with 4% width
@@ -82,8 +82,7 @@
     <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-    <style> 
-        
+    <style>
         body {
             font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
             font-size: 14px;
@@ -197,8 +196,7 @@
         }
 
         .currencysymbol {
-            font-family: DejaVu Sans;
-            sans-serif;
+            font-family: DejaVu Sans, sans-serif;
         }
 
         #footer {
@@ -479,17 +477,21 @@
 
                     @if ($loopnumber < $blankrows)
                         @php
-                            $blankrows -= $loopnumber 
+                            $blankrows -= $loopnumber;
                         @endphp
-                            
-                         @for ($blankrow = 1 ; $blankrow <= $blankrows ; $blankrow++)
+
+                        @for ($blankrow = 1; $blankrow <= $blankrows; $blankrow++)
                             <tr>
-                                <td></td> {{-- empty # column --}}
-                                <td class="text-center" colspan="{{ count($firstRowCols) }}">
-                                    -
-                                </td>
+                                <td></td>
+                                @for ($j = 0; $j < count($firstRowCols); $j++)
+                                    @if ($j == ceil(count($firstRowCols) / 2) - 1)
+                                        <td style="text-align: center">-</td>
+                                    @else
+                                    <td></td>
+                                    @endif
+                                @endfor
                             </tr>
-                         @endfor
+                        @endfor
                     @endif
 
                     {{-- end product data --}}
@@ -499,43 +501,47 @@
             <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class="horizontal-border border data"
                 width="100%">
                 <tbody>
-                    <tr>
+                    <tr style="font-size:15px;text-align: right">
                         <td colspan="{{ $colspan }}" class="text-right left removeborder">
                             Subtotal
                         </td>
-                        <td style="width: {{ $amountColumnWidth }}%;" class="right removeborder currencysymbol text-right" id="subtotal">
+                        <td style="width: {{ $amountColumnWidth }}%;"
+                            class="right removeborder currencysymbol text-right" id="subtotal">
                             {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
                     @if ($othersettings['gst'] == 0)
                         @if ($invdata['sgst'] >= 1)
-                            <tr>
+                            <tr style="font-size:15px;text-align: right">
                                 <td colspan="{{ $colspan }}" style="text-align: right" class="left removeborder ">
                                     SGST({{ $othersettings['sgst'] }}%)
                                 </td>
-                                <td style="text-align: right ;width: {{ $amountColumnWidth }}%;" class="currencysymbol" id="sgst">
+                                <td style="text-align: right ;width: {{ $amountColumnWidth }}%;" class="currencysymbol"
+                                    id="sgst">
                                     {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
                         @endif
                         @if ($invdata['cgst'] >= 1)
-                            <tr>
+                            <tr style="font-size:15px;text-align: right">
                                 <td colspan="{{ $colspan }}" style="text-align: right" class="left removeborder ">
                                     CGST({{ $othersettings['cgst'] }}%)
                                 </td>
-                                <td style="text-align: right;width: {{ $amountColumnWidth }}%;" class=" currencysymbol" id="cgst">
+                                <td style="text-align: right;width: {{ $amountColumnWidth }}%;"
+                                    class=" currencysymbol" id="cgst">
                                     {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
                         @endif
                     @else
                         @if ($invdata['gst'] >= 1)
-                            <tr>
+                            <tr style="font-size:15px;text-align: right">
                                 <td colspan="{{ $colspan }}" style="text-align: right"
                                     class="left removeborder ">
                                     GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                 </td>
-                                <td style="text-align: right;width: {{ $amountColumnWidth }}%;" class="currencysymbol " id="gst">
+                                <td style="text-align: right;width: {{ $amountColumnWidth }}%;"
+                                    class="currencysymbol " id="gst">
                                     {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
@@ -555,7 +561,7 @@
                         <td colspan="{{ $colspan }}" class="text-right left removeborder">
                             <b>Total</b>
                         </td>
-                        <td  style="width: {{ $amountColumnWidth }}%;" class="right currencysymbol text-right">
+                        <td style="width: {{ $amountColumnWidth }}%;" class="right currencysymbol text-right">
                             {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
