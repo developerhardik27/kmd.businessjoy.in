@@ -33,7 +33,9 @@
 
     $othersettings = json_decode($othersettings['gstsettings'], true);
 
-    $loopnumber = []; // array for alignment column type text or longtext
+    $blankrows = $invoiceothersettings['no_of_blank_row'];
+    
+    $loopnumber = 0; // array for alignment column type text or longtext
 
     $fixedFirstCols = ['#']; // manual column for serial number with 4% width
     $fixedWidths = 4; // % width for #
@@ -436,6 +438,9 @@
 
                         {{-- Main first row --}}
                         <tr>
+                            @php
+                                $loopnumber++;
+                            @endphp
                             <td style="text-align: center; width:4%;">{{ $srno }}</td>
                             @foreach ($firstRowCols as $col)
                                 @php
@@ -458,6 +463,7 @@
                         {{-- Wrapped columns rows --}}
                         @foreach ($wrappedCols as $col)
                             @php
+                                $loopnumber++;
                                 $key = str_replace(' ', '_', $col['column_name']);
                                 $val = $row[$key] ?? '';
                                 $label = strtoupper(str_replace('_', ' ', $key));
@@ -470,6 +476,21 @@
                             </tr>
                         @endforeach
                     @endforeach
+
+                    @if ($loopnumber < $blankrows)
+                        @php
+                            $blankrows -= $loopnumber 
+                        @endphp
+                            
+                         @for ($blankrow = 1 ; $blankrow <= $blankrows ; $blankrow++)
+                            <tr>
+                                <td></td> {{-- empty # column --}}
+                                <td class="text-center" colspan="{{ count($firstRowCols) }}">
+                                    -
+                                </td>
+                            </tr>
+                         @endfor
+                    @endif
 
                     {{-- end product data --}}
                 </tbody>

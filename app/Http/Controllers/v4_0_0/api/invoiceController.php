@@ -995,6 +995,8 @@ class invoiceController extends commonController
         $gstsettingsdetails = $this->invoiceModel::select('gstsettings')->where('id', $id)
             ->get();
 
+        $invoiceothersettings = $this->invoice_other_settingModel::first();   
+
         if ($invoice->isEmpty()) {
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
@@ -1003,7 +1005,9 @@ class invoiceController extends commonController
             'invoice' => $invoice,
             'columns' => $columnarray,
             'othersettings' => $gstsettingsdetails,
-            'columnswithtype' => $columnwithtypeArray
+            'columnswithtype' => $columnwithtypeArray,
+            'invoiceothersettings' => $invoiceothersettings
+
         ]);
     }
 

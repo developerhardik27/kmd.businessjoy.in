@@ -144,6 +144,12 @@ class PdfController extends Controller
       return $pdf->stream($name);
 
    }
+
+   /**
+    * Summary of generaterecieptall - generate full payment history
+    * @param string $id
+    * @return \Illuminate\Http\Response
+    */
    public function generaterecieptall(string $id)
    {
 
@@ -295,6 +301,7 @@ class PdfController extends Controller
          'productscolumn' => $productdata['columnswithtype'],
          'products' => $productdata['invoice'],
          'othersettings' => $productdata['othersettings'][0],
+         'invoiceothersettings' => $productdata['invoiceothersettings'],
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
          'bankdetails' => $bankdetailsdata['bankdetail'][0]
