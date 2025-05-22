@@ -77,6 +77,7 @@ class tblinvoiceothersettingController extends commonController
         $validator = Validator::make($request->all(), [
             'overdue_day' => 'required|string',
             'year_start_date' => 'required|date',
+            'no_of_blank_rows' => 'required|numeric',
             'user_id' => 'required|numeric',
         ]);
 
@@ -104,11 +105,12 @@ class tblinvoiceothersettingController extends commonController
             $overdueday->update([
                 'overdue_day' => $request->overdue_day,
                 'year_start' => $request->year_start_date,
+                'no_of_blank_row' => $request->no_of_blank_rows,
                 'updated_by' => $this->userId,
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
 
-            return $this->successresponse(200, 'message', 'Overdue days succesfully updated');
+            return $this->successresponse(200, 'message', 'Settings succesfully updated');
         }
     }
 

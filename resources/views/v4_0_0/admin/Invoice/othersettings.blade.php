@@ -245,7 +245,7 @@
                                     @csrf
                                     <div class="form-group">
                                         <div class="form-row">
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-6 mb-2">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" placeholder="token" required />
                                                 <input type="hidden" value="{{ $user_id }}" name="user_id"
@@ -258,11 +258,18 @@
                                                 <span class="error-msg" id="error-overdue_day"
                                                     style="color: red"></span><br>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-6 mb-2">
                                                 Year Starting Date : <input type="date" id="year_start_date"
                                                     name='year_start_date' class="form-control"
                                                     placeholder="Year starting date" required />
                                                 <span class="error-msg" id="error-year_start_date"
+                                                    style="color: red"></span>
+                                            </div>
+                                            <div class="col-sm-6 mb-2">
+                                                No. Of Blank Rows : <input type="number" min="0" id="no_of_blank_rows"
+                                                    name='no_of_blank_rows' class="form-control"
+                                                    placeholder="Year starting date" required />
+                                                <span class="error-msg" id="error-no_of_blank_rows"
                                                     style="color: red"></span>
                                             </div>
                                         </div>
@@ -287,6 +294,7 @@
                                 </form>
                                 Current Invoice Overdue Days : <span id="overduedays"></span> <br>
                                 Year Starting Date : <span id="yearstartdate"></span> <br>
+                                Blank Rows(Invoice PDF) : <span id="noofblankrows"></span> <br>
                             </div>
                         </div>
                     </div>
@@ -500,6 +508,7 @@
                             var data = response.overdueday[0];
                             overdueday = data['overdue_day'];
                             year_start = data['year_start'];
+                            no_of_blank_rows = data['no_of_blank_row'];
                             sgst = data['sgst'];
                             cgst = data['cgst'];
                             gst = data['gst'];
@@ -507,8 +516,10 @@
                             invoice_date = data['invoice_date'];
                             $('#overduedays').html(`<b>${overdueday}</b> `);
                             $('#yearstartdate').html(`<b>${year_start}</b> `);
+                            $('#noofblankrows').html(`<b>${no_of_blank_rows}</b> `);
                             $('#overdue_day').val(overdueday);
                             $('#year_start_date').val(year_start);
+                            $('#no_of_blank_rows').val(no_of_blank_rows);
                             $('#overdue_day').attr('data-id', data['id']);
 
                             $('#viewsgst').html(`<b>${sgst}</b> `);
