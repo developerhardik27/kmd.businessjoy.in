@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\v4_0_0\api;
 
-use App\Models\company;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\api_authorization;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB; 
+use Intervention\Image\ImageManager;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class blogController extends commonController
 {
@@ -112,14 +112,15 @@ class blogController extends commonController
         $category = $request->category;
         $tag = $request->tag;
         $catids = $request->catids;
-
-        $blogsquery = $this->blogModel::join('blog_categories', function ($join) {
+        
+        
+        $blogsquery = $this->blogModel::leftJoin('blog_categories', function ($join) {
             $join->on(DB::raw("FIND_IN_SET(blog_categories.id, blogs.cat_ids)"), '>', DB::raw('0'));
         })
-            ->join('blog_tags', function ($join) {
+            ->leftJoin('blog_tags', function ($join) {
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
-            ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
+            ->leftJoin($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
             ->select(
                 'users.firstname',
                 'users.lastname',
@@ -146,7 +147,7 @@ class blogController extends commonController
 
         if (isset($catids)) {
             foreach ($catids as $value) {
-                $blogsquery = $blogsquery->orWhere('blog_categories.id', $value);
+                $blogsquery = $blogsquery->orWhere('blog_categories.id', $value)->where('blogs.is_deleted', 0);
             }
         }
 
@@ -170,6 +171,7 @@ class blogController extends commonController
         return $this->successresponse(200, 'blog', $blogs);
 
     }
+
     /**
      * Summary of blogdatatable
      * return blog list without content because its not necessary
@@ -178,7 +180,7 @@ class blogController extends commonController
      */
     public function blogdatatable(Request $request)
     {
-       
+
         if ($this->rp['blogmodule']['blog']['view'] != 1) {
             return response()->json([
                 'status' => 500,
@@ -189,13 +191,13 @@ class blogController extends commonController
             ]);
         }
 
-        $blogsquery = $this->blogModel::join('blog_categories', function ($join) {
+        $blogsquery = $this->blogModel::leftJoin('blog_categories', function ($join) {
             $join->on(DB::raw("FIND_IN_SET(blog_categories.id, blogs.cat_ids)"), '>', DB::raw('0'));
         })
-            ->join('blog_tags', function ($join) {
+            ->leftJoin('blog_tags', function ($join) {
                 $join->on(DB::raw("FIND_IN_SET(blog_tags.id, blogs.tag_ids)"), '>', DB::raw('0'));
             })
-            ->Join($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
+            ->leftJoin($this->masterdbname . '.users', 'blogs.created_by', '=', $this->masterdbname . '.users.id')
             ->select(
                 DB::raw("CONCAT_WS(' ', users.firstname, users.lastname) AS author"),
                 'blogs.id',
@@ -225,24 +227,24 @@ class blogController extends commonController
 
         if ($blogs->isEmpty()) {
             return DataTables::of($blogs)
-            ->with([
-                'status' => 404,
-                'message' => 'No Data Found',
-                'recordsTotal' => $totalcount, // Total records count
-            ])
-            ->make(true);
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
         }
 
-          return DataTables::of($blogs)
+        return DataTables::of($blogs)
             ->with([
-                'status' => 200, 
+                'status' => 200,
                 'recordsTotal' => $totalcount, // Total records count
             ])->make(true);
 
     }
 
 
-    
+
 
     /**
      * Summary of store
@@ -284,14 +286,31 @@ class blogController extends commonController
                     $image = $request->file('blog_image');
                     $imageName = Str::random('5') . time() . '.' . $image->getClientOriginalExtension();
 
-                    if (!file_exists('blog/')) {
-                        mkdir('blog/', 0755, true);
+                    $destinationPath = public_path('blog/');
+
+                    //check directories exist
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
                     }
+
                     // Save the image to the uploads directory
-                    if ($image->move('blog/', $imageName)) {
+                    if ($image->move($destinationPath, $imageName)) {
                         $blogdata['img'] = $imageName;
                     }
 
+                    //save thumbnail img
+                    $destinationPathThumbnail = public_path('blog/thumbnail/');
+
+                    //check directories exist
+                    if (!file_exists($destinationPathThumbnail)) {
+                        mkdir($destinationPathThumbnail, 0755, true);
+                    }
+
+
+                    $manager = new ImageManager(new Driver());
+                    $thumnailimage = $manager->read($destinationPath . $imageName);
+                    $thumnailimage->resize(300, 200);
+                    $thumnailimage->save($destinationPathThumbnail . $imageName);
                 }
 
                 $tags = implode(',', $request->tag);
@@ -430,14 +449,38 @@ class blogController extends commonController
                 $image = $request->file('blog_image');
                 $imageName = $request->firstname . time() . '.' . $image->getClientOriginalExtension();
 
+
+                $destinationPath = public_path('blog/');
+
                 // Save the image to the uploads directory
-                if ($image->move('blog/', $imageName)) {
+                if ($image->move($destinationPath, $imageName)) {
                     $blogdata['img'] = $imageName;
                 }
 
+                //save thumbnail img
+                $destinationPathThumbnail = public_path('blog/thumbnail/');
+
+                //check directories exist
+                if (!file_exists($destinationPathThumbnail)) {
+                    mkdir($destinationPathThumbnail, 0755, true);
+                }
+
+                // save thumnaile
+                $manager = new ImageManager(new Driver());
+                $thumnailimage = $manager->read($destinationPath . $imageName);
+                $thumnailimage->resize(300, 200);
+                $thumnailimage->save($destinationPathThumbnail . $imageName);
+
+                //remove old img and thumbnail
                 $oldImagePath = public_path('blog') . '/' . $blog->img;
+                $oldThumnailImagePath = public_path('blog/thumbnail') . '/' . $blog->img;
+
                 if (file_exists($oldImagePath)) {
                     unlink($oldImagePath);
+                }
+
+                if (file_exists($oldThumnailImagePath)) {
+                    unlink($oldThumnailImagePath);
                 }
 
             }
@@ -456,9 +499,6 @@ class blogController extends commonController
                 'updated_by' => $this->userId,
                 'updated_at' => now(),
             ]);
-
-
-
 
             $update = $this->blogModel::where('id', $id)->update($blog);
 
