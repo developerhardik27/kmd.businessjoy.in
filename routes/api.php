@@ -179,6 +179,15 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::put('/user/delete/{id}', 'destroy')->name('user.delete');
         Route::post('/user/changepassword/{id}', 'changepassword')->name('user.changepassword');
         Route::post('/user/setdefaultpage/{id}', 'setdefaultpage')->name('user.setdefaultpage');
+        
+        Route::get('/userrolepermission', 'userrolepermissionindex')->name('userrolepermission.index');
+        Route::post('/userrolepermission/insert', 'storeuserrolepermission')->name('userrolepermission.store'); 
+        Route::get('/getuserrolepermission', 'userrolepermissiondattable')->name('userrolepermission.datatable');       
+        Route::get('/userrolepermission/edit/{id}', 'edituserrolepermission')->name('userrolepermission.edit');
+        Route::post('/userrolepermission/update/{id}', 'updateuserrolepermission')->name('userrolepermission.update');
+        Route::put('/userrolepermission/statusupdate/{id}', 'userrolepermissionstatusupdate')->name('userrolepermission.statusupdate');
+        Route::put('/userrolepermission/delete/{id}', 'userrolepermissiondestroy')->name('userrolepermission.delete');
+        
     });
 
 

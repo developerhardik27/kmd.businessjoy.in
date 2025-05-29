@@ -197,7 +197,7 @@
                                         </a>
                                         <ul id="quotationsettinginfo" class="iq-submenu collapse"
                                             data-parent="#quotationinfo">
-                                            @if (session('user_permissions.quotationmodule.quotationmngcol.view') == '1')
+                                            @if (session('user_permissions.quotationmodule.quotationmngcol.show') == '1')
                                                 <li
                                                     class="{{ request()->routeIs('admin.quotationmanagecolumn') ? 'active' : '' }}">
                                                     <a href="{{ route('admin.quotationmanagecolumn') }}">
@@ -206,7 +206,7 @@
                                                     </a>
                                                 </li>
                                             @endif
-                                            @if (session('user_permissions.quotationmodule.quotationformula.view') == '1')
+                                            @if (session('user_permissions.quotationmodule.quotationformula.show') == '1')
                                                 <li
                                                     class="{{ request()->routeIs('admin.quotationformula') ? 'active' : '' }}">
                                                     <a href="{{ route('admin.quotationformula') }}">
@@ -215,7 +215,7 @@
                                                     </a>
                                                 </li>
                                             @endif
-                                            @if (session('user_permissions.quotationmodule.quotationsetting.view') == '1')
+                                            @if (session('user_permissions.quotationmodule.quotationsetting.show') == '1')
                                                 <li
                                                     class="{{ request()->routeIs('admin.quotationothersettings') ? 'active' : '' }}">
                                                     <a href="{{ route('admin.quotationothersettings') }}">
@@ -269,6 +269,14 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (session('user_permissions.adminmodule.userpermission.show') == '1')
+                                <li class="{{ request()->routeIs('admin.userrolepermission') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.userrolepermission') }}" class="iq-waves-effect">
+                                        <i class="ri-user-settings-line"></i>
+                                        <span>User Role Permission</span>
+                                    </a>
+                                </li> 
+                            @endif
                             @if (session('user_permissions.adminmodule.techsupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.techsupport') ? 'active' : '' }}">
                                     <a href="{{ route('admin.techsupport') }}" class="iq-waves-effect">
@@ -303,7 +311,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.inventorymodule.productcolumnmapping.add') == '1')
+                            @if (session('user_permissions.inventorymodule.productcolumnmapping.show') == '1')
                                 <li class="{{ request()->routeIs('admin.productcolumnmapping') ? 'active' : '' }}">
                                     <a href="{{ route('admin.productcolumnmapping') }}" class="iq-waves-effect">
                                         <i class="ri-links-line"></i>
@@ -401,7 +409,7 @@
                                     </a>
                                     <ul id="logisticsettinginfo" class="iq-submenu collapse"
                                         data-parent="#iq-sidebar-toggle">
-                                        @if (session('user_permissions.logisticmodule.logisticsettings.view') == '1')
+                                        @if (session('user_permissions.logisticmodule.logisticsettings.show') == '1')
                                             <li
                                                 class="{{ request()->routeIs('admin.logisticothersettings') ? 'active' : '' }}">
                                                 <a href="{{ route('admin.logisticothersettings') }}">

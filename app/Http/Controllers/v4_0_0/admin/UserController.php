@@ -94,4 +94,25 @@ class UserController extends Controller
         return view($this->version.'.admin.User.profile', ['user_id' => Session::get('user_id'),'company_id' => Session::get('company_id'), 'id' => $id ]);
     }
 
+
+    public function userrolepermission(){
+         return view($this->version.'.admin.User.userrolepermission');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function createuserrolepermission()
+    {
+        return view($this->version.'.admin.User.userrolepermissionform');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edituserrolepermission($id)
+    {
+        return view($this->version.'.admin.User.userrolepermissionupdateform',['edit_id' => $id]);
+    }
+
 }
