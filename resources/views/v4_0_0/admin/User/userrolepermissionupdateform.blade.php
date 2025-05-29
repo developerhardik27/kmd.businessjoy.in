@@ -9,32 +9,20 @@
         $rowspan = 1;
     }
 
+    $user_id = session('user_id');
+
 @endphp
 @extends($folder . '.admin.Layout.masterlayout')
+
 @section('page_title')
-    Add New User
+    {{ config('app.name') }} - Edit User Role Permission
 @endsection
 @section('title')
-    New User
+    Edit User Role Permission
 @endsection
 
 @section('style')
     <style>
-        .password-container {
-            position: relative;
-        }
-
-        /* Style for the eye icon */
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #888;
-            /* Adjust color as needed */
-        }
-
         .special-color {
             color: #6546d2;
         }
@@ -48,120 +36,37 @@
     </style>
 @endsection
 
-
-
 @section('form-content')
-
-    @if ($allow == 'no')
-        <p class="text-primary">You are reached your max user limit</p>
-    @else
-        <form id="userform" enctype="multipart/form-data">
-            @csrf
-            <div class="form-group">
-                <div class="form-row">
-                    <div class="col-sm-6 mb-2">
-                        <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                            placeholder="token" required />
-                        <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
-                        <input type="hidden" value="{{ $company_id }}" name="company_id" class="form-control">
-                        <label for="firstname">FirstName</label><span style="color:red;">*</span>
-                        <input type="text" id="firstname" name='firstname' class="form-control" placeholder="First name"
-                            required />
-                        <span class="error-msg" id="error-firstname" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="lastname">LastName</label><span style="color:red;">*</span>
-                        <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Last name"
-                            required />
-                        <span class="error-msg" id="error-lastname" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="email">Email</label><span style="color:red;">*</span>
-                        <input type="email" name='email' class="form-control" id="email" value=""
-                            placeholder="Enter Email" autocomplete="off" required />
-                        <span class="error-msg" id="error-email" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="password">Password</label>
-                        <div class="password-container">
-                            <input type="password" name="password" class="form-control" id="password" value=""
-                                placeholder="Enter Password" autocomplete="new-password" />
-                            <i class="toggle-password fa fa-eye-slash" onclick="togglePasswordVisibility()"></i>
-                        </div>
-                        <span class="error-msg" id="error-password" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="contact_number">Contact Number</label><span style="color:red;">*</span>
-                        <input type="tel" name='contact_number' class="form-control" id="contact_number" value=""
-                            placeholder="0123456789" required />
-                        <span class="error-msg" id="error-contact_number" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="country">Select Country</label><span style="color:red;">*</span>
-                        <select id="country" class="form-control" name='country' required>
-                            <option selected="" disabled="">Select your Country</option>
-                        </select>
-                        <span class="error-msg" id="error-country" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="state">Select State</label><span style="color:red;">*</span>
-                        <select class="form-control" name='state' id="state" required>
-                            <option selected="" disabled="">Select your State</option>
-                        </select>
-                        <span class="error-msg" id="error-state" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="city">Select City</label><span style="color:red;">*</span>
-                        <select class="form-control" name='city' id="city" required>
-                            <option selected="" disabled="">Select your City</option>
-                        </select>
-                        <span class="error-msg" id="error-city" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="pincode">Pincode</label><span style="color:red;">*</span>
-                        <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
-                            required />
-                        <span class="error-msg" id="error-pincode" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-6 mb-2">
-                        <label for="img">Image</label><br>
-                        <input type="file" name="img" id="img" width="100%" />
-                        <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that is smaller than 1 MB.
-                        </p>
-                        <span class="error-msg" id="error-img" style="color: red"></span>
-                    </div>
-                    <div class="col-sm-12">
-                        <button type="button" data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
-                            Cancel
-                        </button>
-                        <button type="reset" id="formreset" data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Reset" class="btn iq-bg-danger float-right resetbtn mr-2">
-                            Reset
-                        </button>
-                        <button type="submit" id="formsubmit" data-toggle="tooltip" data-placement="bottom"
-                            data-original-title="Save" class="btn btn-primary float-right my-0 submitBtn">
-                            Save
-                        </button>
-                    </div>
+    <form id="userrolepermissionupdateform" name="userrolepermissionupdateform">
+        @csrf
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-sm-6 mb-2">
+                    <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                        placeholder="user_id" required />
+                    <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                        placeholder="token" required />
+                    <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                        placeholder="company_id" required />
+                    <label for="role_name">Role Name</label><span style="color:red;">*</span>
+                    <input id="role_name" type="text" name="role_name" class="form-control" placeholder="Role Name"
+                        required />
+                    <span class="error-msg" id="error-role_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-12">
+                    <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
+                         class="btn btn-secondary float-right cancelbtn">Cancel</button>
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                        data-original-title="Save Details" class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
-            
-            @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
+        </div>
+
+        @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
                     session('user_permissions.adminmodule.userpermission.add') == '1' ||
                     $user_id == 1)
-                <div class="form-group">
-                    <div class="form-row">
-                        <div class="col-sm-6 mb-2">
-                            <label for="user_role_permission">User Role Permissions</label>
-                            <select type="text" id="user_role_permission" name='user_role_permission' class="form-control">
-                                <option value="" selected>Select User Role</option>
-                            </select>    
-                            <span class="error-msg" id="error-user_role_permission" style="color: red"></span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="row permission-row">
                     <div class="col-sm-12">
                         @if ((Session::has('admin') && Session::get('admin') == 'yes') || $user_id == 1)
@@ -1050,13 +955,13 @@
                                                     class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="quotationmodulereset" data-module="quotation"
+                                                <button type="button" id="logisticmodulereset" data-module="logistic"
                                                     data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Reset Quotation Module"
+                                                    data-original-title="Reset Logistic Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
-                                                <button type="submit" id="quotationmodulsubmit" data-toggle="tooltip"
+                                                <button type="submit" id="logisticmodulsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
                                                     Save
@@ -3223,13 +3128,13 @@
                                                     class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="logisticmodulereset" data-module="logistic"
+                                                <button type="button" id="quotationmodulereset" data-module="quotation"
                                                     data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Reset Logistic Module"
+                                                    data-original-title="Reset Quotation Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
-                                                <button type="submit" id="logisticmodulsubmit" data-toggle="tooltip"
+                                                <button type="submit" id="quotationmodulsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
                                                     Save
@@ -3244,39 +3149,24 @@
                     </div>
                 </div>
             @endif
-        </form>
-    @endif
-
+    </form>
 @endsection
 
-@push('ajax')
+
+@push('ajax') 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script>
-        function togglePasswordVisibility() {
-            var passwordField = document.getElementById("password");
-            var toggleIcon = document.querySelector(".toggle-password");
-
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-                toggleIcon.classList.remove("fa-eye-slash");
-                toggleIcon.classList.add("fa-eye");
-            } else {
-                passwordField.type = "password";
-                toggleIcon.classList.remove("fa-eye");
-                toggleIcon.classList.add("fa-eye-slash");
-            }
-        }
-    </script>
-    <script>
         $('document').ready(function() {
-            // companyId and userId both are required in every ajax request for all action */*/*/
+
+            // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+            loaderhide();
 
+
+            
             var userrp = "{{ session('user_permissions.adminmodule.userpermission.add') }}";
-
-            let userrolepermission = '' ;
 
             if (userrp != 1) {
                 $('.permission-row input[type="checkbox"]').attr('disabled',
@@ -3382,7 +3272,6 @@
                         if (userrp != 1) {
                             $('.permission-row input[type="checkbox"]').attr('disabled', true);
                         }
-                        
                     } else if (userDataResponse.status == 500) {
                         Toast.fire({
                             icon: "error",
@@ -3409,37 +3298,6 @@
 
             initialize();
 
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('userrolepermission.index') }}",
-                data: {
-                    user_id: "{{ session()->get('user_id') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.userrolepermission != '') {
-                        userrolepermission = response.userrolepermission ;
-                        // You can update your HTML with the data here if needed
-                        $.each(userrolepermission, function(key, value) {
-                            $('#user_role_permission').append(
-                                `<option value='${value.id}'> ${value.role_name}</option>`
-                            )
-                        }); 
-                    } else {
-                        userrolepermission = '';
-                        $('#user_role_permission').append(`<option> No Data Found</option>`);
-                    }
-                    loaderhide();
-                },
-                error: function(error) {
-                    loaderhide();
-                    userrolepermission = '';
-                    console.log(error);
-                    $('#user_role_permission').append(`<option> No Data Found</option>`);
-                }
-            });
-
             $('#assignedto').multiselect({
                 nonSelectedText: 'Select User',
                 enableFiltering: true,
@@ -3447,167 +3305,9 @@
                 enableCaseInsensitiveFiltering: true
             });
 
-            // show country data in dropdown and set default value according logged in user
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('country.index') }}",
-                data: {
-                    token: "{{ session()->get('api_token') }}"
-                },
-                success: function(response) {
 
-                    if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.country, function(key, value) {
-                            $('#country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
-                        });
-                        country_id = "{{ Auth::guard('admin')->user()->country_id }}";
-                        $('#country').val(country_id);
-                        loadstate();
-                    } else {
-                        $('#country').append(`<option> No Data Found</option>`);
-                    }
-                    loaderhide();
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr
-                        .responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
-                }
-            });
-
-
-            // load state in dropdown and select state according to user
-            function loadstate(id = 0) {
-                $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__', id);
-                var url = stateSearchUrl;
-                if (id == 0) {
-                    url = "{{ route('state.search', Auth::guard('admin')->user()->country_id) }}";
-                }
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.state != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#state').append(
-                                    `<option value='${value.id}'> ${value.state_name}</option>`
-                                )
-                            });
-                            if (id == 0) {
-                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
-                                $('#state').val(state_id);
-                                loadcity();
-                            }
-                        } else {
-                            $('#state').append(`<option> No Data Found</option>`);
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
-                    }
-                });
-            }
-
-            // load city in dropdown and select state according to user
-            function loadcity(id = 0) {
-                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
-                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', id);
-                url = citySearchUrl;
-                if (id == 0) {
-                    url = "{{ route('city.search', Auth::guard('admin')->user()->state_id) }}";
-                }
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.city, function(key, value) {
-                                $('#city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                            if (id == 0) {
-                                $('#city').val("{{ Auth::guard('admin')->user()->city_id }}");
-                            }
-                        } else {
-                            $('#city').append(`<option> No Data Found</option>`);
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
-                    }
-                });
-            }
-
-            // load state in dropdown when country change
-            $('#country').on('change', function() {
-                loadershow();
-                $('#city').html(`<option selected="" disabled="">Select your city</option>`);
-                var country_id = $(this).val();
-                loadstate(country_id);
-            });
-
-            // load city in dropdown when state select/change
-            $('#state').on('change', function() {
-                loadershow();
-                var state_id = $(this).val();
-                loadcity(state_id);
-            });
-
-            // check/uncheck all checkboxes module wise
+             // check/uncheck all checkboxes module wise
             $(document).on('click', '.allcheck', function() {
-                $('#user_role_permission').val(''); //remove role if user modify manually
                 if (userrp == 1) {
                     var module = $(this).data('module');
                     if (!$(`#${module}allcheck`).prop('checked')) {
@@ -3632,72 +3332,24 @@
                 }
             })
 
+            var edit_id = @json($edit_id);
+            // show old data in fields
+            let userSearchUrl = "{{ route('userrolepermission.edit', '__editId__') }}".replace('__editId__', edit_id);
+            $.ajax({
+                type: 'GET',
+                url: userSearchUrl,
+                data: {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: "{{ session()->get('user_id') }}"
+                },
+                success: function(response) {
 
-            // check all checkboxes in the row if click on any menu
-            $(document).on('change', '.clickmenu', function() {
-                $('#user_role_permission').val(''); //remove role if user modify manually
-                // if (userrp == 1) {
-                //     value = $(this).data('value');
-                //     if (!$(this).prop('checked')) {
-                //         $(`#${value} input[type="checkbox"]`).prop('checked', false);
-                //         if (value == 'report') {
-                //             $('#assignedto option').prop('selected', false);
-                //             $('#assignedto').multiselect('refresh');
-                //             $('#assignedto').multiselect('rebuild');
-                //         }
-                //     } else {
-                //         $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
-                //         if (value == 'report') {
-                //             $('#assignedto option').prop('selected', true);
-                //             $('#assignedto').multiselect('refresh');
-                //             $('#assignedto').multiselect('rebuild');
-                //         }
-                //     }
-                // }
-            })
+                    if (response.status == 200 && response.userrolepermission != '') {
+                        var userrolepermission = response.userrolepermission;
 
-            // check  mian menu if check any submenu(edit,delete,add...)
-            $(document).on('change', '.clicksubmenu', function() {
-                $('#user_role_permission').val(''); //remove role if user modify manually
-                // if (userrp == 1) {
-                //     value = $(this).data('value');
-                //     if (!$(`#${value}`).prop('checked')) {
-                //         $(`#${value}`).prop('checked', true);
-                //     }
-                // }
-            })
-
-
-            //for checkboxes reset 
-            $(document).on('click', '.resetbtn', function() {
-                if (userrp == 1) {
-                    var module = $(this).data('module');
-                    $(`#${module}checkboxes input[type="checkbox"] , #${module}allcheck`).prop(
-                        'checked', false);
-
-                    if (module == 'report') {
-                        $('#assignedto option').prop('selected', false);
-                        $('#assignedto').multiselect('refresh');
-                        $('#assignedto').multiselect('rebuild');
-                    }
-                }
-
-            })
-
-            // redirect to user list page if click any cancel btn
-            $(document).on('click', '.cancelbtn', function() {
-                loadershow();
-                window.location.href = "{{ route('admin.user') }}"
-            });
-
-
-            $('#user_role_permission').on('change',function(){
-                $('.permission-row input[type="checkbox"]').prop('checked', false);
-                let user_role = $(this).val();
-                if(user_role){
-                    $.each(userrolepermission,function(key,value){
-                        if(value.id == user_role){
-                            rp = JSON.parse(value.role_permissions);
+                        if (userrolepermission.role_permissions) {
+                            rp = JSON.parse(response.userrolepermission.role_permissions); // user role and permissions
                             if (rp.reportmodule) {
                                 var assignedreportuser = rp.reportmodule.report.alldata;
                                 if (assignedreportuser != 'null' && assignedreportuser != null) {
@@ -3715,10 +3367,10 @@
                                     $.each(value2, function(key3, value3) {
                                         if (value3 == 1) {
                                             if (key3 == "show") {
-                                                $(`#show${key2}menu`).prop(
+                                                $(`#show${key2}menu`).attr(
                                                     'checked', true)
                                             } else {
-                                                $(`#${key3}${key2}`).prop(
+                                                $(`#${key3}${key2}`).attr(
                                                     'checked',
                                                     true)
                                             }
@@ -3727,43 +3379,81 @@
                                 });
                             });
                         }
+                        if (userrp != 1) {
+                            $('.permission-row input[type="checkbox"]').attr('disabled', true);
+                        }
+
+                        // You can update your HTML with the data here if needed
+                        $('#role_name').val(userrolepermission.role_name);
+                    } else if (response.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
+                        });
+                    }
+                    loaderhide();
+                },
+                error: function(xhr, status, error) { // if calling api request error 
+                    loaderhide();
+                    console.log(xhr
+                        .responseText); // Log the full error response for debugging
+                    var errorMessage = "";
+                    try {
+                        var responseJSON = JSON.parse(xhr.responseText);
+                        errorMessage = responseJSON.message || "An error occurred";
+                    } catch (e) {
+                        errorMessage = "An error occurred";
+                    }
+                    Toast.fire({
+                        icon: "error",
+                        title: errorMessage
                     });
-                }else{
-                     $('.permission-row input[type="checkbox"]').prop('checked', false);
                 }
             });
 
-            //submit form
-            $('#userform').submit(function(event) {
-                event.preventDefault();
+
+
+            // redirect to user list page if click any cancel btn
+            $(document).on('click', '.cancelbtn', function() {
+                loadershow();
+                window.location.href = "{{ route('admin.userrolepermission') }}"
+            });
+
+
+            // submit bank form data
+            $('#userrolepermissionupdateform').submit(function(event) {
+                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
-                var formdata = new FormData($(this)[0]);
+                const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
-                    url: "{{ route('user.store') }}",
+                    url: "{{ route('userrolepermission.update', $edit_id) }}",
                     data: formdata,
-                    processData: false,
-                    contentType: false,
                     success: function(response) {
                         // Handle the response from the server
+                        // You can perform additional actions, such as showing a success message or redirecting the user
                         if (response.status == 200) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
                             Toast.fire({
                                 icon: "success",
                                 title: response.message
-                            })
-                            window.location = "{{ route('admin.user') }}";
+                            });
+                            window.location = "{{ route('admin.userrolepermission') }}";
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
                                 title: response.message
-                            })
+                            });
                         } else {
                             Toast.fire({
                                 icon: "error",
                                 title: response.message
-                            })
+                            });
                         }
                         loaderhide();
                     },
@@ -3791,8 +3481,7 @@
                         }
                     }
                 });
-            })
-
+            });
         });
     </script>
 @endpush

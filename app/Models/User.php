@@ -15,30 +15,6 @@ class User extends Authenticatable
 
     protected $table = 'users';
 
-    protected $fillable = [
-        'firstname',
-        'lastname',
-        'email',
-        'password',
-        'contact_no',
-        'country_id',
-        'state_id',
-        'city_id',
-        'pincode',
-        'role',
-        'img',
-        'default_module',
-        'default_page',
-        'api_token',
-        'super_api_token',
-        'pass_token',
-        'company_id',
-        'created_by',
-        'updated_by',
-        'created_at',
-        'updated_at',
-        'is_active',
-        'is_deleted'
-    ];
+    protected $guarded = [];
 
 }

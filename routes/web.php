@@ -115,6 +115,10 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/EditUser/{id}', 'edit')->name('admin.edituser')->middleware('checkPermission:adminmodule,user,edit');
                 Route::get('/EditUserdetail/{id}', 'edituser')->name('admin.edituserdetail')->middleware('checkPermission:adminmodule,user,edit');
                 Route::get('/userprofile/{id}', 'profile')->name('admin.userprofile');
+
+                Route::get('/UserRolePermissions', 'userrolepermission')->name('admin.userrolepermission')->middleware('checkPermission:adminmodule,userpermission,show');
+                Route::get('/AddNewUserRolePermissions', 'createuserrolepermission')->name('admin.adduserrolepermission')->middleware('checkPermission:adminmodule,userpermission,add');
+                Route::get('/EditUserRolePermissions/{id}', 'edituserrolepermission')->name('admin.edituserrolepermission')->middleware('checkPermission:adminmodule,userpermission,edit');
             });
 
             $VersionUpdateController = getadminversion('VersionUpdateController');

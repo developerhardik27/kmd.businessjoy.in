@@ -48,7 +48,7 @@
 @endsection
 
 @section('form-content')
-    <form id="userupdateform">
+    <form id="userupdateform" enctype="multipart/form-data">
         @csrf
         <div class="form-group">
             <div class="form-row">
@@ -136,6 +136,19 @@
         @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
                 session('user_permissions.adminmodule.userpermission.edit') == '1' ||
                 $user_id == 1)
+
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-sm-6 mb-2">
+                        <label for="user_role_permission">User Role Permissions</label>
+                        <select type="text" id="user_role_permission" name='user_role_permission' class="form-control">
+                            <option value="" selected>Select User Role</option>
+                        </select>    
+                        <span class="error-msg" id="error-user_role_permission" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="row permission-row">
                 <div class="col-sm-12">
                     @if ((Session::has('admin') && Session::get('admin') == 'yes') || $user_id == 1)
@@ -2765,7 +2778,7 @@
                                                             value="1">
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.consignorcopymodule.consignorcopy.add') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopymenu' id="addconsignorcopy"
                                                                 name="addconsignorcopy" value="1">
@@ -2774,7 +2787,7 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.consignorcopymodule.consignorcopy.view') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignorcopy.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopymenu' id="viewconsignorcopy"
                                                                 name="viewconsignorcopy" value="1">
@@ -2783,7 +2796,7 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.consignorcopymodule.consignorcopy.edit') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopymenu' id="editconsignorcopy"
                                                                 name="editconsignorcopy" value="1">
@@ -2792,7 +2805,7 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.consignorcopymodule.consignorcopy.delete') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignorcopy.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopymenu' id="deleteconsignorcopy"
                                                                 name="deleteconsignorcopy" value="1">
@@ -2801,7 +2814,7 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.consignorcopymodule.consignorcopy.alldata') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignorcopy.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopymenu' id="alldataconsignorcopy"
                                                                 name="alldataconsignorcopy" value="1">
@@ -3135,13 +3148,13 @@
                                                     class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="quotationmodulereset" data-module="quotation"
+                                                <button type="button" id="logisticmodulereset" data-module="logistic"
                                                     data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Reset Quotation Module"
+                                                    data-original-title="Reset Logistic Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
-                                                <button type="submit" id="quotationmodulsubmit" data-toggle="tooltip"
+                                                <button type="submit" id="logisticmodulsubmit" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
                                                     Save
@@ -3191,6 +3204,8 @@
             $('#userupdateform input').attr('autocomplete', 'off');
 
             var userrp = "{{ session('user_permissions.adminmodule.userpermission.edit') }}";
+
+            let userrolepermission = '' ;
 
             $('.subsettingrows').slideUp();
 
@@ -3312,6 +3327,39 @@
             }
 
             initialize();
+
+
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('userrolepermission.index') }}",
+                data: {
+                    user_id: "{{ session()->get('user_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}"
+                },
+                success: function(response) {
+                    if (response.status == 200 && response.userrolepermission != '') {
+                        userrolepermission = response.userrolepermission ;
+                        // You can update your HTML with the data here if needed
+                        $.each(userrolepermission, function(key, value) {
+                            $('#user_role_permission').append(
+                                `<option value='${value.id}'> ${value.role_name}</option>`
+                            )
+                        }); 
+                    } else {
+                        userrolepermission = '';
+                        $('#user_role_permission').append(`<option> No Data Found</option>`);
+                    }
+                    loaderhide();
+                },
+                error: function(error) {
+                    loaderhide();
+                    userrolepermission = '';
+                    console.log(error);
+                    $('#user_role_permission').append(`<option> No Data Found</option>`);
+                }
+            });
+
             $('#assignedto').multiselect({
                 nonSelectedText : 'Select User',
                 enableFiltering: true,
@@ -3377,6 +3425,7 @@
                         $('#email').val(user.email);
                         $('#contact_no').val(user.contact_no);
                         $('#pincode').val(user.pincode);
+                        $('#user_role_permission').val(user.role_permissions);
                         country = user.country_id;
                         state = user.state_id;
                         city = user.city_id;
@@ -3630,6 +3679,7 @@
 
             // check/uncheck all checkboxes module wise
             $(document).on('click', '.allcheck', function() {
+                $('#user_role_permission').val(''); //remove role if user modify manually
                 if (userrp == 1) {
                     var module = $(this).data('module');
                     if (!$(`#${module}allcheck`).prop('checked')) {
@@ -3657,34 +3707,36 @@
 
             // check all checkboxes in the row if click on any menu
             $(document).on('change', '.clickmenu', function() {
-                if (userrp == 1) {
-                    value = $(this).data('value');
-                    if (!$(this).prop('checked')) {
-                        $(`#${value} input[type="checkbox"]`).prop('checked', false);
-                        if (value == 'report') {
-                            $('#assignedto option').prop('selected', false); 
-                            $('#assignedto').multiselect('refresh');
-                            $('#assignedto').multiselect('rebuild');
-                        }
-                    } else {
-                        $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
-                        if (value == 'report') { 
-                            $('#assignedto option').prop('selected', true);
-                            $('#assignedto').multiselect('refresh');
-                            $('#assignedto').multiselect('rebuild');
-                        }
-                    }
-                }
+                $('#user_role_permission').val(''); //remove role if user modify manually
+                // if (userrp == 1) {
+                //     value = $(this).data('value');
+                //     if (!$(this).prop('checked')) {
+                //         $(`#${value} input[type="checkbox"]`).prop('checked', false);
+                //         if (value == 'report') {
+                //             $('#assignedto option').prop('selected', false); 
+                //             $('#assignedto').multiselect('refresh');
+                //             $('#assignedto').multiselect('rebuild');
+                //         }
+                //     } else {
+                //         $(`#${value} input[type="checkbox"]`).prop('checked', $(this).prop('checked'));
+                //         if (value == 'report') { 
+                //             $('#assignedto option').prop('selected', true);
+                //             $('#assignedto').multiselect('refresh');
+                //             $('#assignedto').multiselect('rebuild');
+                //         }
+                //     }
+                // }
             })
 
             // check main menu if check any submenu(edit,delete,add...)
             $(document).on('change', '.clicksubmenu', function() {
-                if (userrp == 1) {
-                    value = $(this).data('value');
-                    if (!$(`#${value}`).prop('checked')) {
-                        $(`#${value}`).prop('checked', true);
-                    }
-                }
+                $('#user_role_permission').val(''); //remove role if user modify manually
+                // if (userrp == 1) {
+                //     value = $(this).data('value');
+                //     if (!$(`#${value}`).prop('checked')) {
+                //         $(`#${value}`).prop('checked', true);
+                //     }
+                // }
             })
 
 
@@ -3709,16 +3761,62 @@
                 window.location.href = "{{ route('admin.user') }}"
             });
 
+
+             $('#user_role_permission').on('change',function(){
+                $('.permission-row input[type="checkbox"]').prop('checked', false);
+                let user_role = $(this).val();
+                if(user_role){
+                    $.each(userrolepermission,function(key,value){
+                        if(value.id == user_role){
+                            rp = JSON.parse(value.role_permissions);
+                            if (rp.reportmodule) {
+                                var assignedreportuser = rp.reportmodule.report.alldata;
+                                if (assignedreportuser != 'null' && assignedreportuser != null) {
+                                    assignedreportuser.forEach(function(value) {
+                                        $('#assignedto').multiselect('select', value);
+                                    });
+                                    $('#assignedto').multiselect('rebuild');
+                                    if (userrp != 1) {
+                                        $('#assignedto option').prop('disabled', true);
+                                    }
+                                }
+                            }
+                            $.each(rp, function(key, value) {
+                                $.each(value, function(key2, value2) {
+                                    $.each(value2, function(key3, value3) {
+                                        if (value3 == 1) {
+                                            if (key3 == "show") {
+                                                $(`#show${key2}menu`).prop(
+                                                    'checked', true)
+                                            } else {
+                                                $(`#${key3}${key2}`).prop(
+                                                    'checked',
+                                                    true)
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+                        }
+                    });
+                }else{
+                     $('.permission-row input[type="checkbox"]').prop('checked', false);
+                }
+            });
+
+
             //submit form
             $('#userupdateform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
-                const formdata = $(this).serialize();
+                var formdata = new FormData($(this)[0]);
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('user.update', $edit_id) }}",
                     data: formdata,
+                    processData: false,
+                    contentType: false,
                     success: function(response) {
                         // Handle the response from the server
                         // You can perform additional actions, such as showing a success message or redirecting the user
