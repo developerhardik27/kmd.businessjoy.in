@@ -3428,7 +3428,7 @@
                         }); 
                     } else {
                         userrolepermission = '';
-                        $('#user_role_permission').append(`<option> No Data Found</option>`);
+                        $('#user_role_permission').append(`<option value=""> No Data Found</option>`);
                     }
                     loaderhide();
                 },
@@ -3436,7 +3436,7 @@
                     loaderhide();
                     userrolepermission = '';
                     console.log(error);
-                    $('#user_role_permission').append(`<option> No Data Found</option>`);
+                    $('#user_role_permission').append(`<option value=""> No Data Found</option>`);
                 }
             });
 
