@@ -15,7 +15,7 @@ class otherapiController extends Controller
     public function oceanlead(Request $request)
     {
 
-        
+
         $domainName = $request->getHost();
 
         // if($domainName != 'oceanmnc.com'){
@@ -33,41 +33,41 @@ class otherapiController extends Controller
         DB::reconnect('dynamic_connection');
 
 
+        $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
+            ->where(function ($query) use ($request) {
+                if (!empty($request->email)) {
+                    $query->orWhere('email', $request->email);
+                }
+                if (!empty($request->contact_no)) {
+                    $query->orWhere('contact_no', $request->contact_no);
+                }
+            })->exists();
 
-        if(isset($request->email)){ 
-            $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
-                ->where('email', $request->email)->get();
-               
-        }else{
-            $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
-            ->where('contact_no', $request->contact_no)->get();
-        }
-
-        
-        if ($checkrecord->count() > 0) {
+        if ($checkrecord) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are already in'
             ], 500);
         }
-       
-        function splitName($fullName) {
+
+        function splitName($fullName)
+        {
             // Find the position of the first space
             $spacePosition = strpos($fullName, ' ');
-        
+
             // If there's no space, the whole name is considered the first name
             if ($spacePosition === false) {
                 return array('first_name' => $fullName, 'last_name' => '');
             }
-        
+
             // Split the name into first name and last name
             $first_name = substr($fullName, 0, $spacePosition);
             $last_name = substr($fullName, $spacePosition + 1);
-        
+
             return array('first_name' => $first_name, 'last_name' => $last_name);
         }
-        
-     
+
+
         $name = splitName($request->name);
 
         $lead = DB::connection('dynamic_connection')->table('tbllead')->insert([
@@ -100,7 +100,6 @@ class otherapiController extends Controller
 
     public function store(Request $request)
     {
-
         $data = $request->validate([
             'activity_name' => 'nullable|string',
             'activity_text' => 'nullable|string',
@@ -151,7 +150,8 @@ class otherapiController extends Controller
     public function fblead(Request $request)
     {
 
-        $dbname = config('app.main_db');;
+        $dbname = config('app.main_db');
+        ;
 
         config(['database.connections.dynamic_connection.database' => $dbname]);
 
