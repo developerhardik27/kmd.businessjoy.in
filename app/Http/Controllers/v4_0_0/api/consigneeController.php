@@ -104,29 +104,29 @@ class consigneeController extends commonController
             $consignees->where('consignees.created_by', $this->userId);
         }
 
-        
+
         $totalcount = $consignees->get()->count(); // count total record
 
         $consignees = $consignees->get();
-        
+
 
         if ($consignees->isEmpty()) {
             return DataTables::of($consignees)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount, // Total records count
+                ])
+                ->make(true);
+        }
+
+
+        return DataTables::of($consignees)
             ->with([
-                'status' => 404,
-                'message' => 'No Data Found',
+                'status' => 200,
                 'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
-        }
- 
-
-        return DataTables::of($consignees)
-        ->with([
-            'status' => 200,
-            'recordsTotal' => $totalcount, // Total records count
-        ])
-        ->make(true);
 
     }
 
@@ -137,26 +137,50 @@ class consigneeController extends commonController
     {
         // dynamically validate incoming request data (company name/first name required)
 
-        $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:50',
-            'lastname' => 'nullable|string|max:50',
-            'company_name' => 'nullable|string|max:50',
-            'gst_number' => 'nullable|alpha_num|max:50',
-            'pan_number' => 'nullable|alpha_num|max:10',
-            'email' => 'nullable|email|max:50',
-            'pincode' => 'nullable|numeric',
-            'contact_number' => 'nullable|numeric|digits:10',
-            'house_no_building_name' => 'nullable|string|max:191',
-            'road_name_area_colony' => 'nullable|string|max:191',
-            'country' => 'nullable|numeric',
-            'state' => 'nullable|numeric',
-            'city' => 'nullable|numeric',
-            'user_id' => 'nullable|numeric',
-            'created_by',
-            'created_at',
-            'is_active',
-            'is_deleted'
-        ]);
+        if (isset($request->company_name)) {
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'nullable|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'required|string|max:50',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'email' => 'nullable|email|max:50',
+                'pincode' => 'nullable|numeric',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'user_id' => 'nullable|numeric',
+                'created_by',
+                'created_at',
+                'is_active',
+                'is_deleted'
+            ]);
+        } else {
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'required|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'nullable|string|max:50',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'email' => 'nullable|email|max:50',
+                'pincode' => 'nullable|numeric',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'user_id' => 'nullable|numeric',
+                'created_by',
+                'created_at',
+                'is_active',
+                'is_deleted'
+            ]);
+        }
+
 
 
         if ($validator->fails()) {
@@ -254,27 +278,53 @@ class consigneeController extends commonController
     {
 
         // validate incoming request data 
-        $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:50',
-            'lastname' => 'nullable|string|max:50',
-            'company_name' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:50',
-            'contact_number' => 'nullable|numeric|digits:10',
-            'house_no_building_name' => 'nullable|string|max:191',
-            'road_name_area_colony' => 'nullable|string|max:191',
-            'country' => 'nullable|numeric',
-            'state' => 'nullable|numeric',
-            'city' => 'nullable|numeric',
-            'pincode' => 'nullable|numeric',
-            'gst_number' => 'nullable|alpha_num|max:50',
-            'pan_number' => 'nullable|alpha_num|max:10',
-            'created_by',
-            'user_id' => 'required|numeric',
-            'created_at',
-            'updated_at',
-            'is_active',
-            'is_deleted'
-        ]);
+
+        if (isset($request->company_name)) 
+        {
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'nullable|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'required|string|max:50',
+                'email' => 'nullable|email|max:50',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'pincode' => 'nullable|numeric',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'created_by',
+                'user_id' => 'required|numeric',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
+        } else {
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'required|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'nullable|string|max:50',
+                'email' => 'nullable|email|max:50',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'pincode' => 'nullable|numeric',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'created_by',
+                'user_id' => 'required|numeric',
+                'created_at',
+                'updated_at',
+                'is_active',
+                'is_deleted'
+            ]);
+        }
 
 
 

@@ -116,7 +116,7 @@
                 <div class="col-sm-12 mb-2 table-responsive">
                     <table class="table table-bordered">
                         <tr>
-                            <td rowspan="2">
+                            <td rowspan="2" style="width: 50%">
                                 <label for="consignor">Consignor</label><span style="color:red;">*</span>
                                 <select type="text" id="consignor" name="consignor" class="form-control"
                                     placeholder="GST Tax Payable By">
@@ -400,9 +400,9 @@
                                     <input type="hidden" value="{{ $company_id }}" class="form-control"
                                         name="company_id">
 
-                                    <label for="modal_firstname">FirstName</label><span class="withoutgstspan"
+                                    <label for="modal_firstname">FirstName</label><span class="consigneewithoutgstspan"
                                         style="color:red;">*</span>
-                                    <input type="text" id="modal_firstname" class="form-control withoutgstinput"
+                                    <input type="text" id="modal_firstname" class="form-control consigneewithoutgstinput"
                                         name='firstname' placeholder="First Name" required>
                                     <span class="modal_error-msg" id="modal_error-firstname" style="color: red"></span>
                                 </div>
@@ -416,8 +416,8 @@
 
                                 <div class="col-sm-6 mb-2">
                                     <label for="modal_company_name">Company Name</label>
-                                    {{-- <span class="withgstspan" style="color:red;">*</span> --}}
-                                    <input type="text" id="modal_company_name" class="form-control withgstinput"
+                                    <span class="consigneewithgstspan" style="color:red;">*</span>
+                                    <input type="text" id="modal_company_name" class="form-control consigneewithgstinput"
                                         name='company_name' id="" placeholder="Company Name">
                                     <span class="modal_error-msg" id="modal_error-company_name"
                                         style="color: red"></span>
@@ -542,9 +542,9 @@
                                     <input type="hidden" value="{{ $company_id }}" class="form-control"
                                         name="company_id">
 
-                                    <label for="modal_firstname">FirstName</label><span class="withoutgstspan"
+                                    <label for="modal_firstname">FirstName</label><span class="consignorwithoutgstspan"
                                         style="color:red;">*</span>
-                                    <input type="text" id="modal_firstname" class="form-control withoutgstinput"
+                                    <input type="text" id="modal_firstname" class="form-control consignorwithoutgstinput"
                                         name='firstname' placeholder="First Name" required>
                                     <span class="modal_error-msg" id="modal_error-firstname" style="color: red"></span>
                                 </div>
@@ -558,8 +558,8 @@
 
                                 <div class="col-sm-6 mb-2">
                                     <label for="modal_company_name">Company Name</label>
-                                    {{-- <span class="withgstspan" style="color:red;">*</span> --}}
-                                    <input type="text" id="modal_company_name" class="form-control withgstinput"
+                                    <span class="consignorwithgstspan" style="color:red;">*</span>
+                                    <input type="text" id="modal_company_name" class="form-control consignorwithgstinput"
                                         name='company_name' id="" placeholder="Company Name">
                                     <span class="modal_error-msg" id="modal_error-company_name"
                                         style="color: red"></span>
@@ -676,6 +676,37 @@
             const COMPANY_ID = "{{ session()->get('company_id') }}";
             const USER_ID = "{{ session()->get('user_id') }}";
 
+            $('.consigneewithgstspan, .consignorwithgstspan').hide();
+            $('.consigneewithgstinput').on('change keyup', function() {
+                console.info('yes');
+                var val = $(this).val();
+                if (val != '') {
+                    $('.consigneewithgstspan').show();
+                    $('.consigneewithoutgstspan').hide();
+                    $('.consigneewithgstinput').attr('required', true);
+                    $('.consigneewithoutgstinput').removeAttr('required');
+                } else {
+                    $('.consigneewithgstspan').hide();
+                    $('.consigneewithoutgstspan').show();
+                    $('.consigneewithoutgstinput').attr('required', true);
+                    $('.consigneewithgstinput').removeAttr('required');
+                }
+            });
+
+            $('.consignorwithgstinput').on('change keyup', function() {
+                var val = $(this).val();
+                if (val != '') {
+                    $('.consignorwithgstspan').show();
+                    $('.consignorwithoutgstspan').hide();
+                    $('.consignorwithgstinput').attr('required', true);
+                    $('.consignorwithoutgstinput').removeAttr('required');
+                } else {
+                    $('.consignorwithgstspan').hide();
+                    $('.consignorwithoutgstspan').show();
+                    $('.consignorwithoutgstinput').attr('required', true);
+                    $('.consignorwithgstinput').removeAttr('required');
+                }
+            });
 
             function ajaxRequest(type, url, data) {
                 return $.ajax({
@@ -708,10 +739,9 @@
             }
 
             // consignee data fetch and set consignee dropdown
-            function consignees(consigneeid = 0) {
+            function consignees(consigneeid = '') {
                 loadershow();
                 $('#consignee').html(`
-                   <option selected="" value=0 disabled=""> Select Consignee</option>
                    <option value="add_consignee" > Add New Consignee </option>
                 `);
 
@@ -769,10 +799,9 @@
             });
 
             // consignor data fetch and set consignor dropdown
-            function consignors(consignorid = 0) {
+            function consignors(consignorid = '') {
                 loadershow();
                 $('#consignor').html(`
-                   <option selected="" value=0 disabled=""> Select Consignor</option>
                    <option value="add_consignor" > Add New Consignor </option>
                 `);
 
@@ -834,14 +863,14 @@
             $('#consignee_cancelBtn').on('click', function() {
                 $('#consigneeform')[0].reset();
                 $('#consigneeFormModal').modal('hide');
-                $('#consignee option:first').prop('selected', true);
+                $('#consignee').val('').trigger('change');
             })
 
             // close pop up modal and reset new consignor form
             $('#consignor_cancelBtn').on('click', function() {
                 $('#consignorform')[0].reset();
                 $('#consignorFormModal').modal('hide');
-                $('#consignor option:first').prop('selected', true);
+                $('#consignor').val('').trigger('change');
             })
 
             $('#paid , #value').on('keyup change', function() {
@@ -944,9 +973,21 @@
                 loadcity(0, 'consignorform');
             });
 
+            $('#consignorFormModal').on('hidden.bs.modal', function() {
+                if($('#consignor').val() == 'add_consignor'){
+                    $('#consignor').val('').trigger('change');
+                }
+            });
+
             $('#consigneeFormModal').on('show.bs.modal', function() {
                 loadstate(0, 'consigneeform');
                 loadcity(0, 'consigneeform');
+            });
+
+            $('#consigneeFormModal').on('hidden.bs.modal', function() {
+                if($('#consignee').val() == 'add_consignee'){
+                    $('#consignee').val('').trigger('change');
+                }
             });
 
             // for add new customer 

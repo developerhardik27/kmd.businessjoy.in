@@ -137,22 +137,43 @@ class consignorController extends commonController
     public function store(Request $request)
     {
         // dynamically validate incoming request data (company name/first name required)
-        $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:50',
-            'lastname' => 'nullable|string|max:50',
-            'company_name' => 'nullable|string|max:50',
-            'gst_number' => 'nullable|alpha_num|max:50',
-            'pan_number' => 'nullable|alpha_num|max:10',
-            'email' => 'nullable|email|max:50',
-            'pincode' => 'nullable|numeric',
-            'contact_number' => 'nullable|numeric|digits:10',
-            'house_no_building_name' => 'nullable|string|max:191',
-            'road_name_area_colony' => 'nullable|string|max:191',
-            'country' => 'nullable|numeric',
-            'state' => 'nullable|numeric',
-            'city' => 'nullable|numeric',
-            'user_id' => 'nullable|numeric',
-        ]);
+
+        if(isset($requeset->company_name)){
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'nullable|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'required|string|max:50',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'email' => 'nullable|email|max:50',
+                'pincode' => 'nullable|numeric',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'user_id' => 'nullable|numeric',
+            ]);
+        }else{
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'required|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'nullable|string|max:50',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'email' => 'nullable|email|max:50',
+                'pincode' => 'nullable|numeric',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'user_id' => 'nullable|numeric',
+            ]);
+        }
+
 
 
         if ($validator->fails()) {
@@ -250,22 +271,41 @@ class consignorController extends commonController
     {
 
         // validate incoming request data
-        $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:50',
-            'lastname' => 'nullable|string|max:50',
-            'company_name' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:50',
-            'contact_number' => 'nullable|numeric|digits:10',
-            'house_no_building_name' => 'nullable|string|max:191',
-            'road_name_area_colony' => 'nullable|string|max:191',
-            'country' => 'nullable|numeric',
-            'state' => 'nullable|numeric',
-            'city' => 'nullable|numeric',
-            'pincode' => 'nullable|numeric',
-            'gst_number' => 'nullable|alpha_num|max:50',
-            'pan_number' => 'nullable|alpha_num|max:10',
-            'user_id' => 'required|numeric',
-        ]);
+        if(isset($request->company_name)){
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'nullable|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'required|string|max:50',
+                'email' => 'nullable|email|max:50',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'pincode' => 'nullable|numeric',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'user_id' => 'required|numeric',
+            ]);
+        }else{
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'required|string|max:50',
+                'lastname' => 'nullable|string|max:50',
+                'company_name' => 'nullable|string|max:50',
+                'email' => 'nullable|email|max:50',
+                'contact_number' => 'nullable|numeric|digits:10',
+                'house_no_building_name' => 'nullable|string|max:191',
+                'road_name_area_colony' => 'nullable|string|max:191',
+                'country' => 'nullable|numeric',
+                'state' => 'nullable|numeric',
+                'city' => 'nullable|numeric',
+                'pincode' => 'nullable|numeric',
+                'gst_number' => 'nullable|alpha_num|max:50',
+                'pan_number' => 'nullable|alpha_num|max:10',
+                'user_id' => 'required|numeric',
+            ]);
+        }
 
 
 
