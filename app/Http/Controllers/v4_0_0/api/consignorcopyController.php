@@ -50,8 +50,6 @@ class consignorcopyController extends commonController
     public function index(Request $request)
     {
 
-
-
         if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
             return response()->json([
                 'status' => 500,
@@ -134,10 +132,7 @@ class consignorcopyController extends commonController
             'filter_loading_date_to' => 'loading_date',
             'filter_stuffing_date_from' => 'stuffing_date',
             'filter_stuffing_date_to' => 'stuffing_date',
-            'filter_truck_no' => 'truck_number',
-            'filter_location_from' => 'from',
-            'filter_location_to' => 'to',
-            'filter_location_to_2' => 'to_2',
+            'filter_truck_no' => 'truck_number', 
             'filter_consignee' => 'consignee_id',
             'filter_consignor' => 'consignor_id',
         ];
@@ -384,7 +379,7 @@ class consignorcopyController extends commonController
             $consignorcopy->where('consignor_copy.created_by', $this->userId);
         }
 
-        $consignorcopy = $consignorcopy->first();
+        $consignorcopy = $consignorcopy->find($id);
 
         if (!$consignorcopy) {
             return $this->successresponse(404, 'message', "No Such consignor Found!");
@@ -416,8 +411,6 @@ class consignorcopyController extends commonController
             )
             ->first();
 
-
-
         if (!$companydetails) {
             return $this->successresponse(404, 'message', "Company details not found!");
         }
@@ -435,7 +428,14 @@ class consignorcopyController extends commonController
             ->where('consignors.id', $consignorcopy->consignor_id)
             ->select(
                 'consignors.*',
-                'city.city_name'
+                'city.city_name',
+                DB::raw("
+                    CONCAT_WS(', ', 
+                        consignors.house_no_building_name, 
+                        consignors.road_name_area_colony,
+                        city.city_name 
+                    ) as consignor_address
+                "),
             )
             ->first();
 
@@ -443,7 +443,14 @@ class consignorcopyController extends commonController
         $consignee = $this->consigneeModel::join($this->masterdbname . '.city', 'consignees.city_id', $this->masterdbname . '.city.id')
             ->where('consignees.id', $consignorcopy->consignee_id)->select(
                 'consignees.*',
-                'city.city_name'
+                'city.city_name',
+                 DB::raw("
+                    CONCAT_WS(', ', 
+                        consignees.house_no_building_name, 
+                        consignees.road_name_area_colony,
+                        city.city_name 
+                    ) as consignee_address
+                "),
             )
             ->first();
 

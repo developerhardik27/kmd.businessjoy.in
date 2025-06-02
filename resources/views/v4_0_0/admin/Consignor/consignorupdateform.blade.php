@@ -132,21 +132,21 @@
             // get selected consignor data and show it into fields
 
             // consignor form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
-            // $('#company_name').on('change keyup', function() {
-            //     var val = $(this).val();
+            $('#company_name').on('change keyup', function() {
+                var val = $(this).val();
                 
-            //     if (val != '') {
-            //         $('.withgstspan').show();
-            //         $('.withoutgstspan').hide();
-            //         $('.withgstinput').attr('required', true);
-            //         $('.withoutgstinput').removeAttr('required');
-            //     } else {
-            //         $('.withgstspan').hide();
-            //         $('.withoutgstspan').show();
-            //         $('.withoutgstinput').attr('required', true);
-            //         $('.withgstinput').removeAttr('required');
-            //     }
-            // });
+                if (val != '') {
+                    $('.withgstspan').show();
+                    $('.withoutgstspan').hide();
+                    $('.withgstinput').attr('required', true);
+                    $('.withoutgstinput').removeAttr('required');
+                } else {
+                    $('.withgstspan').hide();
+                    $('.withoutgstspan').show();
+                    $('.withoutgstinput').attr('required', true);
+                    $('.withgstinput').removeAttr('required');
+                }
+            });
 
             // show country data in dropdown
             $.ajax({
@@ -187,17 +187,17 @@
                     if (response.status == 200) {
                         data = response.consignor;
 
-                        // if (data.company_name) {
-                        //     $('.withgstspan').show();
-                        //     $('.withoutgstspan').hide();
-                        //     $('.withgstinput').attr('required', true);
-                        //     $('.withoutgstinput').removeAttr('required');
-                        // } else {
-                        //     $('.withgstspan').hide();
-                        //     $('.withoutgstspan').show();
-                        //     $('.withoutgstinput').attr('required', true);
-                        //     $('.withgstinput').removeAttr('required');
-                        // }
+                        if (data.company_name) {
+                            $('.withgstspan').show();
+                            $('.withoutgstspan').hide();
+                            $('.withgstinput').attr('required', true);
+                            $('.withoutgstinput').removeAttr('required');
+                        } else {
+                            $('.withgstspan').hide();
+                            $('.withoutgstspan').show();
+                            $('.withoutgstinput').attr('required', true);
+                            $('.withgstinput').removeAttr('required');
+                        }
 
                         // You can update your HTML with the data here if needed
                         $('#firstname').val(data.firstname);

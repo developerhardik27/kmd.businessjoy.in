@@ -123,11 +123,7 @@
                 <th>Ticket Number</th>
                 <th>Status</th>
                 <th>createdon</th>
-                @if (session('user_permissions.adminmodule.techsupport.edit') == '1' ||
-                        session('user_permissions.adminmodule.techsupport.delete') == '1')
-                    <th>Action</th>
-                @endif
-
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="tabledata">
@@ -341,7 +337,9 @@
                                         <b><i class="fas fa-phone-alt pr-2"></i></b>
                                         <a href="tel:${row.contact_no}" style="text-decoration:none;">${row.contact_no || ''}</a>
                                     </span>
-                                    ${row.is_admin ? `<span class="d-flex mb-2"><b><i class="fas fa-building pr-2"></i></b> ${row.company_name || ''}</span>` : ''}
+                                    @if (session('user_id') == 1)
+                                        <span class="d-flex mb-2"><b><i class="fas fa-building pr-2"></i></b> ${row.company_name || ''}</span>
+                                    @endif
                                 `;
                             }
                         },
@@ -369,7 +367,7 @@
                                         </select>
                                     `;
                                 @else
-                                    return ` ${value.status || ''}`;
+                                    return ` ${row.status.replace('_',' ') || ''}`;
                                 @endif
                             }
                         },
@@ -385,9 +383,9 @@
                             name: 'id',
                             orderable: false,
                             searchable: false,
+                            defaultContent: '-',
                             render: function(data, type, row) {
                                 let actionBtns = '';
-
                                 @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
                                     actionBtns += `
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Message">
@@ -524,8 +522,8 @@
                                 <td class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</td>
                             </tr>
                             <tr>
-                                <th >Attachments</th>
-                                    <td>
+                                <th>Attachments</th>
+                                <td>
                                     ${attachments.length > 0
                                         ? attachments.map(attachment => 
                                             `<a class='text-primary font-weight-bold' href='/uploads/files/${attachment}' target='_blank'>${attachment}</a>`

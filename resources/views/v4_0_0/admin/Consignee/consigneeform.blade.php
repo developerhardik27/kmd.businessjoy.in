@@ -36,7 +36,7 @@
 
                 <div class="col-sm-6 mb-2">
                     <label for="company_name">Company Name</label>
-                    {{-- <span class="withgstspan" style="color:red;">*</span> --}}
+                    <span class="withgstspan" style="color:red;">*</span>
                     <input type="text" id="company_name" class="form-control withgstinput" name='company_name'
                         id="" placeholder="Company Name">
                     <span class="error-msg" id="error-company_name" style="color: red"></span>
@@ -138,21 +138,21 @@
             // response status == 422 that means api has not got valid or required data
 
             // consignee form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
-            // $('.withgstspan').hide();
-            // $('#company_name').on('change keyup', function() {
-            //     var val = $(this).val();
-            //     if (val != '') {
-            //         $('.withgstspan').show();
-            //         $('.withoutgstspan').hide();
-            //         $('.withgstinput').attr('required', true);
-            //         $('.withoutgstinput').removeAttr('required');
-            //     } else {
-            //         $('.withgstspan').hide();
-            //         $('.withoutgstspan').show();
-            //         $('.withoutgstinput').attr('required', true);
-            //         $('.withgstinput').removeAttr('required');
-            //     }
-            // });
+            $('.withgstspan').hide();
+            $('#company_name').on('change keyup', function() {
+                var val = $(this).val();
+                if (val != '') {
+                    $('.withgstspan').show();
+                    $('.withoutgstspan').hide();
+                    $('.withgstinput').attr('required', true);
+                    $('.withoutgstinput').removeAttr('required');
+                } else {
+                    $('.withgstspan').hide();
+                    $('.withoutgstspan').show();
+                    $('.withoutgstinput').attr('required', true);
+                    $('.withgstinput').removeAttr('required');
+                }
+            });
 
             // show country data in dropdown and set defautl value according to logged in user
             $.ajax({

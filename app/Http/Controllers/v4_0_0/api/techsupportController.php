@@ -37,16 +37,6 @@ class techsupportController extends commonController
     public function index(Request $request)
     {
 
-        if ($this->rp['adminmodule']['techsupport']['view'] != 1) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are Unauthorized',
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0
-            ]);
-        }
-
         $techsupportquery = DB::table('tech_supports')
             ->leftJoin('company', 'tech_supports.company_id', 'company.id')
             ->LeftJoin('company_details', 'company.company_details_id', 'company_details.id')

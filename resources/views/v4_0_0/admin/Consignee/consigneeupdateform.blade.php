@@ -36,7 +36,7 @@
                 </div> 
                 <div class="col-sm-6 mb-2">
                     <label for="company_name">Company Name</label>
-                    {{-- <span class="withgstspan" style="color:red;">*</span> --}}
+                    <span class="withgstspan" style="color:red;">*</span>
                     <input type="text" id="company_name" class="form-control withgstinput" name='company_name'
                         id="" placeholder="Company Name">
                     <span class="error-msg" id="error-company_name" style="color: red"></span>
@@ -132,20 +132,20 @@
             // get selected consignee data and show it into fields
 
             // consignee form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
-            // $('#company_name').on('change keyup', function() {
-            //     var val = $(this).val();
-            //     if (val != '') {
-            //         $('.withgstspan').show();
-            //         $('.withoutgstspan').hide();
-            //         $('.withgstinput').attr('required', true);
-            //         $('.withoutgstinput').removeAttr('required');
-            //     } else {
-            //         $('.withgstspan').hide();
-            //         $('.withoutgstspan').show();
-            //         $('.withoutgstinput').attr('required', true);
-            //         $('.withgstinput').removeAttr('required');
-            //     }
-            // });
+            $('#company_name').on('change keyup', function() {
+                var val = $(this).val();
+                if (val != '') {
+                    $('.withgstspan').show();
+                    $('.withoutgstspan').hide();
+                    $('.withgstinput').attr('required', true);
+                    $('.withoutgstinput').removeAttr('required');
+                } else {
+                    $('.withgstspan').hide();
+                    $('.withoutgstspan').show();
+                    $('.withoutgstinput').attr('required', true);
+                    $('.withgstinput').removeAttr('required');
+                }
+            });
 
             // show country data in dropdown
             $.ajax({
@@ -186,17 +186,17 @@
                     if (response.status == 200) {
                         data = response.consignee;
 
-                        // if (data.company_name) {
-                        //     $('.withgstspan').show();
-                        //     $('.withoutgstspan').hide();
-                        //     $('.withgstinput').attr('required', true);
-                        //     $('.withoutgstinput').removeAttr('required');
-                        // } else {
-                        //     $('.withgstspan').hide();
-                        //     $('.withoutgstspan').show();
-                        //     $('.withoutgstinput').attr('required', true);
-                        //     $('.withgstinput').removeAttr('required');
-                        // }
+                        if (data.company_name) {
+                            $('.withgstspan').show();
+                            $('.withoutgstspan').hide();
+                            $('.withgstinput').attr('required', true);
+                            $('.withoutgstinput').removeAttr('required');
+                        } else {
+                            $('.withgstspan').hide();
+                            $('.withoutgstspan').show();
+                            $('.withoutgstinput').attr('required', true);
+                            $('.withgstinput').removeAttr('required');
+                        }
 
                         // You can update your HTML with the data here if needed
                         $('#firstname').val(data.firstname);
