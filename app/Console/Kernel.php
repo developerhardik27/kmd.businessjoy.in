@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('invoices:update-status')->dailyAt('10:00')
+        $schedule->command('invoices:update-status')->dailyAt('06:00')
             ->sendOutputTo(storage_path('logs/scheduled_task_output.txt'))
             ->after(function () {
                 // Path to the output file
@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
                 }
             });
 
-        $schedule->command('delete:temp-records')->dailyAt('10:00')
+        $schedule->command('delete:temp-records')->dailyAt('06:00')
             ->sendOutputTo(storage_path('logs/scheduled_task_output.txt'))
             ->after(function () {
                 // Path to the output file
