@@ -254,14 +254,14 @@
                                             </a>
                                         @endif --}}
                                         <div class="d-inline-block w-100 text-center p-3">
-                                            <a style="color: white !important"
-                                                class="btn btn-primary dark-btn-primary"
-                                                href=" {{ route('admin.techsupport') }}" role="button">My Ticket<i
-                                                    class="ri-question-line ml-1"></i></a>
-                                            <a style="color: white !important"
-                                                class="btn btn-primary dark-btn-primary"
-                                                href=" {{ route('admin.logout') }}" role="button">Sign out<i
-                                                    class="ri-login-box-line ml-2"></i></a>
+                                            @if (session('user_permissions.adminmodule.techsupport.show') == '1')
+                                                <a style="color: white !important" class="btn btn-primary dark-btn-primary" href=" {{ route('admin.techsupport') }}" role="button">
+                                                    My Ticket<i class="ri-question-line ml-1"></i>
+                                                </a>
+                                            @endif
+                                            <a style="color: white !important" class="btn btn-primary dark-btn-primary" href=" {{ route('admin.logout') }}" role="button">
+                                                Sign out<i class="ri-login-box-line ml-2"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

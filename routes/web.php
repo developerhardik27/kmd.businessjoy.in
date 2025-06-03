@@ -267,9 +267,9 @@ Route::group(['middleware' => ['CheckSession']], function () {
             // technical support route 
             $TechSupportController = getadminversion('TechSupportController');
             Route::controller($TechSupportController)->group(function () {
-                Route::get('/Techsupport', 'index')->name('admin.techsupport');
-                Route::get('/AddNewTechsupport', 'create')->name('admin.addtechsupport');
-                Route::get('/EditTechsupport/{id}', 'edit')->name('admin.edittechsupport');
+                Route::get('/Techsupport', 'index')->name('admin.techsupport')->middleware('checkPermission:adminmodule,techsupport,show');
+                Route::get('/AddNewTechsupport', 'create')->name('admin.addtechsupport')->middleware('checkPermission:adminmodule,techsupport,add');
+                Route::get('/EditTechsupport/{id}', 'edit')->name('admin.edittechsupport')->middleware('checkPermission:adminmodule,techsupport,edit');
             });
 
 

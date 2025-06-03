@@ -37,6 +37,16 @@ class techsupportController extends commonController
     public function index(Request $request)
     {
 
+         if ($this->rp['adminmodule']['techsupport']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
         $techsupportquery = DB::table('tech_supports')
             ->leftJoin('company', 'tech_supports.company_id', 'company.id')
             ->LeftJoin('company_details', 'company.company_details_id', 'company_details.id')
@@ -161,6 +171,9 @@ class techsupportController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['adminmodule']['techsupport']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
@@ -253,6 +266,9 @@ class techsupportController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['adminmodule']['techsupport']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $techsupport = DB::table('tech_supports')
             ->select('id', 'first_name', 'last_name', 'email', 'contact_no', 'module_name', 'description', 'attachment', 'issue_type', 'status', 'remarks', 'assigned_to', 'assigned_by', 'ticket', 'user_id', 'company_id', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
             ->where('id', $id)
@@ -269,14 +285,14 @@ class techsupportController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $techsupport = tech_support::find($id);
 
         if (!$techsupport) {
             return $this->successresponse(404, 'message', "No Such Ticket Found!");
-        }
-        if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        } 
         return $this->successresponse(200, 'techsupport', $techsupport);
     }
 
@@ -347,6 +363,11 @@ class techsupportController extends commonController
      */
     public function destroy(Request $request)
     {
+
+        if ($this->rp['adminmodule']['techsupport']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $techsupport = tech_support::find($request->id);
 
         if (!$techsupport) {
@@ -356,10 +377,7 @@ class techsupportController extends commonController
             if ($techsupport->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['adminmodule']['techsupport']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        } 
 
         $techsupport->update([
             'is_deleted' => 1
