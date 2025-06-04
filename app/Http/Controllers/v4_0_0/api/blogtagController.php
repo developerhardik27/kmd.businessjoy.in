@@ -26,6 +26,9 @@ class blogtagController extends commonController
             // **** for checking user has permission to action on all data 
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
+            if(empty($permissions)){
+                $this->customerrorresponse();
+            }
             $this->rp = json_decode($permissions[0]['rp'], true);
         } elseif (isset($request->site_key) && isset($request->server_key)) {
             if ($request->ajax()) {

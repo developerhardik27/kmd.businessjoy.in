@@ -22,6 +22,9 @@ class inventoryController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->productModel = $this->getmodel('product');
@@ -107,6 +110,10 @@ class inventoryController extends commonController
 
     public function quantityupdate(Request $request, int $id)
     {
+        //condition for check if user has permission to edit record
+        if ($this->rp['inventorymodule']['inventory']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|numeric',
@@ -116,16 +123,13 @@ class inventoryController extends commonController
             'company_id' => 'required|numeric',
             'user_id' => 'required|numeric',
         ]);
+
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
 
             $targetcolumn = $request->targetcolumn;
-            //condition for check if user has permission to edit record
-            if ($this->rp['inventorymodule']['inventory']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
+           
             $inventory = $this->inventoryModel::find($id);
 
             if (!$inventory) {
@@ -153,6 +157,11 @@ class inventoryController extends commonController
 
     public function onhandquantityupdate(Request $request, int $id)
     {
+        //condition for check if user has permission to edit record
+        if ($this->rp['inventorymodule']['inventory']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'quantity' => 'required|numeric',
             'company_id' => 'required|numeric',
@@ -161,14 +170,7 @@ class inventoryController extends commonController
         ]);
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else {
-
-
-            //condition for check if user has permission to edit record
-            if ($this->rp['inventorymodule']['inventory']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
+        } else { 
             $inventory = $this->inventoryModel::find($id);
 
             if (!$inventory) {
@@ -180,31 +182,27 @@ class inventoryController extends commonController
 
             $inventory->save();
 
-
             return $this->successresponse(200, 'message', 'Quantity updated.');
-
         }
     }
 
     public function availablequantityupdate(Request $request, int $id)
     {
+        //condition for check if user has permission to edit record
+        if ($this->rp['inventorymodule']['inventory']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'available_type' => 'required|string',
             'quantity' => 'required|numeric',
             'company_id' => 'required|numeric',
             'user_id' => 'required|numeric',
-
         ]);
+
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else {
-
-
-            //condition for check if user has permission to edit record
-            if ($this->rp['inventorymodule']['inventory']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
+        } else { 
             $inventory = $this->inventoryModel::find($id);
 
             if (!$inventory) {
@@ -230,7 +228,6 @@ class inventoryController extends commonController
 
     public function incominginventory(int $id)
     {
-
         // condition for check if user has permission to view records
         if ($this->rp['inventorymodule']['inventory']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized.');

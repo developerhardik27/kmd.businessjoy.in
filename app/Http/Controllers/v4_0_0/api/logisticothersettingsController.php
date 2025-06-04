@@ -29,6 +29,9 @@ class logisticothersettingsController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->logistic_settingModel = $this->getmodel('logistic_setting');
@@ -60,6 +63,10 @@ class logisticothersettingsController extends commonController
 
     public function consignorcopytcstore(Request $request)
     {
+        if ($this->rp['logisticmodule']['consignorcopytandcsettings']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             't_and_c' => 'required|string',
             'company_id' => 'required|numeric',
@@ -69,12 +76,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            if ($this->rp['logisticmodule']['consignorcopytandcsettings']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-  
-
+ 
             $all_old_t_and_c = $this->consignor_copy_terms_and_conditionModel::query()->update([
                 'is_active' => 0
             ]);
@@ -118,6 +120,10 @@ class logisticothersettingsController extends commonController
 
     public function tcupdate(Request $request, string $id)
     {
+        //condition for check if user has permission to search  record
+        if ($this->rp['logisticmodule']['consignorcopytandcsettings']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             't_and_c' => 'required|string',
@@ -127,12 +133,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            //condition for check if user has permission to search  record
-            if ($this->rp['logisticmodule']['consignorcopytandcsettings']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
+ 
             $termsandcondition = $this->consignor_copy_terms_and_conditionModel::find($id);
 
             if (!$termsandcondition) {
@@ -155,6 +156,10 @@ class logisticothersettingsController extends commonController
 
     public function tcstatusupdate(Request $request, string $id)
     {
+        if ($this->rp['logisticmodule']['consignorcopytandcsettings']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $termsandcondition = $this->consignor_copy_terms_and_conditionModel::find($id);
 
         if (!$termsandcondition) {
@@ -169,10 +174,6 @@ class logisticothersettingsController extends commonController
 
         $this->consignor_copy_terms_and_conditionModel::where('id', '!=', $id)->update(['is_active' => 0]);
 
-        if ($this->rp['logisticmodule']['consignorcopytandcsettings']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
         $termsandcondition->update([
             'is_active' => $request->status
         ]);
@@ -183,6 +184,10 @@ class logisticothersettingsController extends commonController
 
     public function tcdestroy(Request $request, string $id)
     {
+
+        if ($this->rp['logisticmodule']['consignorcopytandcsettings']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $termsandcondition = $this->consignor_copy_terms_and_conditionModel::find($id);
 
@@ -195,11 +200,7 @@ class logisticothersettingsController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-
-        if ($this->rp['logisticmodule']['consignorcopytandcsettings']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+ 
         $termsandcondition->update([
             'is_deleted' => 1
         ]);
@@ -211,6 +212,11 @@ class logisticothersettingsController extends commonController
     public function consignmentnotenumberstore(Request $request)
     {
 
+        //condition for check if user has permission to edit  record
+        if ($this->rp['logisticmodule']['consignmentnotenumbersettings']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'consignment_note_number' => 'required|numeric',
             'user_id' => 'required|numeric',
@@ -219,10 +225,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-            //condition for check if user has permission to edit  record
-            if ($this->rp['logisticmodule']['consignmentnotenumbersettings']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
+           
 
             $logisticsetting = $this->logistic_settingModel::find(1);
 

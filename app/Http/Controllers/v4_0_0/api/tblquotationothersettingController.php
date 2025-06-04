@@ -29,6 +29,9 @@ class tblquotationothersettingController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->quotation_other_settingModel = $this->getmodel('quotation_other_setting');
@@ -38,9 +41,7 @@ class tblquotationothersettingController extends commonController
 
     public function getoverduedays(Request $request)
     {
-
         $overdueday = $this->quotation_other_settingModel::where('is_deleted', 0)->get();
-
 
         if ($overdueday->isEmpty()) {
             return $this->successresponse(404, 'overdueday', 'No records found');

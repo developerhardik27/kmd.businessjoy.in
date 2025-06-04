@@ -28,6 +28,9 @@ class blogController extends commonController
             // **** for checking user has permission to action on all data 
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
+            if(empty($permissions)){
+                $this->customerrorresponse();
+            }
             $this->rp = json_decode($permissions[0]['rp'], true);
         } elseif (isset($request->site_key) && isset($request->server_key)) {
             if ($request->ajax()) {
@@ -223,6 +226,10 @@ class blogController extends commonController
 
         $totalcount = $blogsquery->get()->count();
 
+        if ($this->rp['blogmodule']['blog']['alldata'] != 1) {
+            $blogsquery->where('blogs.created_by', $this->userId);
+        }
+
         $blogs = $blogsquery->get();
 
         if ($blogs->isEmpty()) {
@@ -384,9 +391,17 @@ class blogController extends commonController
             return $this->successresponse(404, 'blog', 'No Records Found');
         }
 
-        if ($this->rp['blogmodule']['blog']['view'] != 1) {
+        if ($this->rp['blogmodule']['blog']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
+        if ($this->rp['blogmodule']['blog']['alldata'] != 1) {
+             if ($blog->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', "You are Unauthorized!");
+            }
+        }
+
+        
 
         return $this->successresponse(200, 'blog', $blog);
 
@@ -441,6 +456,12 @@ class blogController extends commonController
 
             if ($this->rp['blogmodule']['blog']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
+            if ($this->rp['blogmodule']['blog']['alldata'] != 1) {
+                if ($blog->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', "You are Unauthorized!");
+                }
             }
 
             $blogdata = [];
@@ -520,10 +541,16 @@ class blogController extends commonController
         if (!$blog) {
             return $this->successresponse(404, 'message', 'No Such blog category Found!');
 
-        }
-
+        } 
+        
         if ($this->rp['blogmodule']['blog']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+         if ($this->rp['blogmodule']['blog']['alldata'] != 1) {
+             if ($blog->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', "You are Unauthorized!");
+            }
         }
 
         $blog->update([

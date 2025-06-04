@@ -25,6 +25,9 @@ class customersupportController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->customer_supportModel = $this->getmodel('customer_support');
@@ -147,6 +150,9 @@ class customersupportController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
@@ -168,13 +174,7 @@ class customersupportController extends commonController
 
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            if ($this->rp['customersupportmodule']['customersupport']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
-
+        } else { 
             $assignedto = implode(',', $request->assignedto);
             $customersupport = $this->customer_supportModel::create([
                 'first_name' => $request->first_name,
@@ -214,6 +214,10 @@ class customersupportController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customersupport = $this->customer_supportModel::select('id', 'first_name', 'last_name', 'email', 'contact_no', 'title', 'budget', 'audience_type', 'customer_type', 'status', 'last_call', 'number_of_call', 'assigned_to', 'notes', 'ticket', 'web_url', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
             ->where('id', $id)
             ->get();
@@ -226,12 +230,7 @@ class customersupportController extends commonController
             if ($customersupport[0]->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['customersupportmodule']['customersupport']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-
+        } 
         return $this->successresponse(200, 'customersupport', $customersupport);
     }
 
@@ -240,6 +239,10 @@ class customersupportController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customersupport = $this->customer_supportModel::find($id);
 
         if (!$customersupport) {
@@ -251,10 +254,7 @@ class customersupportController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+         
         return $this->successresponse(200, 'customersupport', $customersupport);
     }
 
@@ -263,6 +263,10 @@ class customersupportController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
             'last_name' => 'required|string',
@@ -283,12 +287,7 @@ class customersupportController extends commonController
 
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
+        } else { 
             $ticket = $this->customer_supportModel::find($id);
             if ($ticket) {
                 $assignedto = implode(',', $request->assignedto);
@@ -321,6 +320,10 @@ class customersupportController extends commonController
      */
     public function destroy(Request $request)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customersupport = $this->customer_supportModel::find($request->id);
 
         if (!$customersupport) {
@@ -331,11 +334,7 @@ class customersupportController extends commonController
             if ($customersupport->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['customersupportmodule']['customersupport']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+        } 
         $customersupport->update([
             'is_deleted' => 1
 
@@ -346,6 +345,10 @@ class customersupportController extends commonController
     // change status  
     public function changestatus(Request $request)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customersupport = $this->customer_supportModel::find($request->statusid);
 
 
@@ -357,12 +360,7 @@ class customersupportController extends commonController
             if ($customersupport[0]->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-
-        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+        } 
 
         $this->customer_supportModel::where('id', $request->statusid)
             ->update(['status' => $request->statusvalue]);
@@ -373,6 +371,10 @@ class customersupportController extends commonController
 
     public function changecustomersupportstage(Request $request)
     {
+        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customersupport = $this->customer_supportModel::find($request->customersupportstageid);
 
         if (!$customersupport) {
@@ -384,12 +386,7 @@ class customersupportController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-
-        if ($this->rp['customersupportmodule']['customersupport']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-
+ 
         $this->customer_supportModel::where('id', $request->customersupportstageid)
             ->update(['customersupport_stage' => $request->customersupportstagevalue]);
 

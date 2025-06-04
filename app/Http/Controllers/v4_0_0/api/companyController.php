@@ -42,6 +42,9 @@ class companyController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->user_permissionModel = $this->getmodel('user_permission');
@@ -135,8 +138,6 @@ class companyController extends commonController
 
     public function index(Request $request)
     {
-
-
         $company = DB::table('company')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->join('country', 'company_details.country_id', '=', 'country.id')
@@ -533,6 +534,12 @@ class companyController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
+        if ($this->rp['adminmodule']['company']['alldata'] != 1) {
+             if ($company->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', "You are Unauthorized!");
+            }
+        }
+
         if ($company->isEmpty()) {
             return $this->successresponse(404, 'message', "No Such company Found!");
         }
@@ -572,6 +579,7 @@ class companyController extends commonController
                 // return error response if validator fails
                 return $this->errorresponse(422, $validator->messages());
             } else {
+
                 if ($this->rp['adminmodule']['company']['edit'] != 1) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
@@ -579,6 +587,16 @@ class companyController extends commonController
                 $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
                     ->select('company_details.img', 'company_details.pr_sign_img')->where('company.id', $id)
                     ->get();
+   
+                if(empty($company)){
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }    
+
+                if ($this->rp['adminmodule']['company']['alldata'] != 1) {
+                    if ($company[0]->created_by != $this->userId) {
+                        return $this->successresponse(500, 'message', "You are Unauthorized!");
+                    }
+                } 
 
                 $imageName = $company[0]->img;
                 $sign_imageName = $company[0]->pr_sign_img;
@@ -664,6 +682,14 @@ class companyController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
             if ($company) {
+
+                
+                if ($this->rp['adminmodule']['company']['alldata'] != 1) {
+                    if ($company->created_by != $this->userId) {
+                        return $this->successresponse(500, 'message', "You are Unauthorized!");
+                    }
+                } 
+
                 $company->update([
                     'is_deleted' => 1
                 ]);
@@ -694,6 +720,12 @@ class companyController extends commonController
             if ($this->rp['adminmodule']['company']['edit'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
+
+            if ($this->rp['adminmodule']['company']['alldata'] != 1) {
+                if ($company->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', "You are Unauthorized!");
+                }
+            } 
 
             $company->update([
                 'is_active' => $request->status

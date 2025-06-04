@@ -22,6 +22,9 @@ class tblinvoiceformulaController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->tbl_invoice_formulaModel = $this->getmodel('tbl_invoice_formula');
@@ -147,6 +150,11 @@ class tblinvoiceformulaController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        
+        //condition for check if user has permission to search  record
+        if ($this->rp['invoicemodule']['formula']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'first_column' => 'required|string|max:50',
@@ -164,11 +172,6 @@ class tblinvoiceformulaController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            //condition for check if user has permission to search  record
-            if ($this->rp['invoicemodule']['formula']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $invoiceformula = $this->tbl_invoice_formulaModel::find($id);
 

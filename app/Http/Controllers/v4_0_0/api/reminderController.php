@@ -22,6 +22,9 @@ class reminderController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->reminderModel = $this->getmodel('reminder');
@@ -192,6 +195,9 @@ class reminderController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['remindermodule']['reminder']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required|numeric',
@@ -209,10 +215,6 @@ class reminderController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            if ($this->rp['remindermodule']['reminder']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $reminder = $this->reminderModel::create([
                 'customer_id' => $request->customer_id,
@@ -240,6 +242,10 @@ class reminderController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['remindermodule']['reminder']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $reminder = $this->reminderModel::select('id', 'customer_id', 'next_reminder_date', 'before_service_note', 'after_service_note', 'reminder_status', 'service_type', 'amount', 'service_completed_date', 'product_unique_id', 'product_name', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted')
             ->where('id', $id)
             ->get();
@@ -252,10 +258,6 @@ class reminderController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['remindermodule']['reminder']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
 
         return $this->successresponse(200, 'reminder', $reminder);
     }
@@ -265,18 +267,20 @@ class reminderController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $reminder = $this->reminderModel::find($id);
 
         if (!$reminder) {
             return $this->successresponse(404, 'message', "No Such Reminder Found!");
         }
+
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             if ($reminder->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         return $this->successresponse(200, 'reminder', $reminder);
@@ -287,6 +291,10 @@ class reminderController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required|numeric',
             'service_type' => 'required|string',
@@ -314,9 +322,6 @@ class reminderController extends commonController
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
-            if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $reminder->update([
                 'customer_id' => $request->customer_id,
@@ -342,6 +347,10 @@ class reminderController extends commonController
      */
     public function destroy(Request $request)
     {
+        if ($this->rp['remindermodule']['reminder']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $reminder = $this->reminderModel::find($request->id);
 
         if (!$reminder) {
@@ -353,9 +362,6 @@ class reminderController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['remindermodule']['reminder']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
 
         $reminder->update([
@@ -366,6 +372,9 @@ class reminderController extends commonController
 
     public function changestatus(Request $request)
     {
+        if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $reminder = $this->reminderModel::where('id', $request->reminderstatusid)
             ->get();
@@ -373,15 +382,12 @@ class reminderController extends commonController
         if ($reminder->isEmpty()) {
             return $this->successresponse(404, 'message', 'No Such Reminder Found!');
         }
+        
         if ($this->rp['remindermodule']['reminder']['alldata'] != 1) {
             if ($reminder[0]->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['remindermodule']['reminder']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
 
         $this->reminderModel::where('id', $request->reminderstatusid)
             ->update([

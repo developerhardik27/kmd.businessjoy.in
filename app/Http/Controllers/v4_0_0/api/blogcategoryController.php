@@ -27,6 +27,9 @@ class blogcategoryController extends commonController
             // **** for checking user has permission to action on all data 
             $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
             $permissions = json_decode($user_rp, true);
+            if(empty($permissions)){
+                $this->customerrorresponse();
+            }
             $this->rp = json_decode($permissions[0]['rp'], true);
         } elseif (isset($request->site_key) && isset($request->server_key)) {
             if ($request->ajax()) {
@@ -129,6 +132,7 @@ class blogcategoryController extends commonController
             }
 
             return $this->errorresponse(422, $validator->messages());
+
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -164,6 +168,10 @@ class blogcategoryController extends commonController
 
         if (!$blogcategory) {
             return $this->successresponse(404, 'message', "No Such blog category Found!");
+        }
+
+        if ($this->rp['blogmodule']['blog']['edit'] != 1) {
+            return $this->successresponse(500, 'message', "You are Unauthorized!");
         }
 
         if ($this->rp['blogmodule']['blog']['alldata'] != 1) {

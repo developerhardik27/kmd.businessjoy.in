@@ -32,6 +32,9 @@ class quotationController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->quotationModel = $this->getmodel('quotation');
@@ -246,6 +249,11 @@ class quotationController extends commonController
     {
 
         return $this->executeTransaction(function () use ($request) {
+            
+            if ($this->rp['quotationmodule']['quotation']['add'] != 1) {
+                return $this->successresponse(500, 'message', 'You are unauthorized');
+            }
+
             $data = $request->data; // quotation details
             $itemdata = $request->iteam_data; // product details
 
@@ -279,10 +287,7 @@ class quotationController extends commonController
                     $validator->errors()->add('customer', 'The customer field is required.');
                     return $this->errorresponse(422, $validator->messages());
                 }
-                if ($this->rp['quotationmodule']['quotation']['add'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are unauthorized');
-                }
-
+              
                 //fetch all column for add details into manage column table and add show column into quotation table
                 $column = []; // array for show column 
                 $mngcol = $this->tbl_quotatoin_columnModel::orderBy('column_order')->where('is_deleted', 0)->where('is_hide', 0)->get();
@@ -550,6 +555,11 @@ class quotationController extends commonController
     {
 
         return $this->executeTransaction(function () use ($request, $id) {
+            
+            if ($this->rp['quotationmodule']['quotation']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are unauthorized');
+            }
+
             $data = $request->data; // quotation data
 
             // validate incoming request data
@@ -580,11 +590,7 @@ class quotationController extends commonController
                 if (isset($data['customer']) && $data['customer'] == 'add_customer') {
                     $validator->errors()->add('customer', 'The customer field is required.');
                     return $this->errorresponse(422, $validator->messages());
-                }
-                if ($this->rp['quotationmodule']['quotation']['edit'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are unauthorized');
-                }
-
+                } 
 
                 $oldquotation = $this->quotationModel::find($id);
 
@@ -767,15 +773,16 @@ class quotationController extends commonController
      */
     public function updatequotationremarks(Request $request)
     {
+        // Check if the user is authorized to delete the quotation
+        if ($this->rp['quotationmodule']['quotation']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are unauthorized');
+        }
+        
         $validator = validator::make($request->all(), [
             'remarks' => 'required',
             'quotatoin_id' => 'required'
         ]);
 
-        // Check if the user is authorized to delete the quotation
-        if ($this->rp['quotationmodule']['quotation']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
-        }
 
 
         // Find the quotation by ID

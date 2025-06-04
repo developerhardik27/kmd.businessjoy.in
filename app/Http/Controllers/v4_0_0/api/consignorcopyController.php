@@ -34,6 +34,9 @@ class consignorcopyController extends commonController
             ->where('user_id', $this->userId)
             ->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->consignorModel = $this->getmodel('consignor');
@@ -197,6 +200,9 @@ class consignorcopyController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['logisticmodule']['consignorcopy']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'loading_date' => 'required|date',
@@ -238,11 +244,6 @@ class consignorcopyController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            if ($this->rp['logisticmodule']['consignorcopy']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
 
             $consigment_note_number = 1;
             $t_and_c = null;
@@ -318,6 +319,11 @@ class consignorcopyController extends commonController
      */
     public function show(string $id)
     {
+
+        if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consignorcopy = $this->consignor_copyModel::leftjoin('consignees', 'consignor_copy.consignee_id', 'consignees.id')
             ->leftjoin('consignors', 'consignor_copy.consignor_id', 'consignors.id')
             ->select(
@@ -383,16 +389,6 @@ class consignorcopyController extends commonController
 
         if (!$consignorcopy) {
             return $this->successresponse(404, 'message', "No Such consignor Found!");
-        }
-
-        if ($this->rp['logisticmodule']['consignorcopy']['alldata'] != 1) {
-            if ($consignorcopy->created_by != $this->userId) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-        }
-
-        if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         // get company details
@@ -473,6 +469,10 @@ class consignorcopyController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['logisticmodule']['consignorcopy']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consignorcopy = $this->consignor_copyModel::find($id);
 
         if (!$consignorcopy) {
@@ -484,14 +484,8 @@ class consignorcopyController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-
-        if ($this->rp['logisticmodule']['consignorcopy']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-
+ 
         return $this->successresponse(200, 'consignorcopy', $consignorcopy);
-
 
     }
 
@@ -501,6 +495,9 @@ class consignorcopyController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        if ($this->rp['logisticmodule']['consignor']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'loading_date' => 'required|date',
@@ -552,14 +549,7 @@ class consignorcopyController extends commonController
                 if ($consignorcopy->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are unauthorized');
                 }
-            }
-
-            if ($this->rp['logisticmodule']['consignor']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are unauthorized');
-
-            }
-
-
+            } 
 
             $consignorcopy->update([  // update consignor data
                 'loading_date' => $request->loading_date,
@@ -609,6 +599,10 @@ class consignorcopyController extends commonController
      */
     public function destroy(string $id)
     {
+        if ($this->rp['logisticmodule']['consignorcopy']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consginorcopy = $this->consignor_copyModel::find($id);
 
         $getconsigment_note_number = $this->logistic_settingModel::first();
@@ -621,10 +615,7 @@ class consignorcopyController extends commonController
             if ($consginorcopy->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['logisticmodule']['consignorcopy']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        } 
 
         // Check if it's the latest record (by consignment number)
         $latestCopy = $this->consignor_copyModel::where('is_deleted', 0)->orderBy('consignment_note_no', 'desc')->first();
@@ -641,7 +632,6 @@ class consignorcopyController extends commonController
             'is_deleted' => 1
         ]);
 
-
         return $this->successresponse(200, 'message', 'Consignor copy succesfully deleted');
     }
 
@@ -651,6 +641,10 @@ class consignorcopyController extends commonController
      */
     public function updatetandc(string $id)
     {
+        if ($this->rp['logisticmodule']['consignorcopy']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        
         $consginorcopy = $this->consignor_copyModel::find($id);
 
         $t_and_c = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)
@@ -664,11 +658,7 @@ class consignorcopyController extends commonController
             if ($consginorcopy->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['logisticmodule']['consignorcopy']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+        } 
 
         if (!$t_and_c) {
             return $this->successresponse(500, 'message', 'No terms and conditions found');

@@ -26,6 +26,9 @@ class consigneeController extends commonController
             ->where('user_id', $this->userId)
             ->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->consigneeModel = $this->getmodel('consignee');
@@ -223,6 +226,10 @@ class consigneeController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['logisticmodule']['consignee']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consignee = $this->consigneeModel::find($id);
 
         if (!$consignee) {
@@ -235,13 +242,7 @@ class consigneeController extends commonController
             }
         }
 
-        if ($this->rp['logisticmodule']['consignee']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
         return $this->successresponse(200, 'consignee', $consignee);
-
-
     }
 
     /**
@@ -249,6 +250,10 @@ class consigneeController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['logisticmodule']['consignee']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consignee = $this->consigneeModel::find($id);
 
         if (!$consignee) {
@@ -261,14 +266,7 @@ class consigneeController extends commonController
             }
         }
 
-        if ($this->rp['logisticmodule']['consignee']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-
         return $this->successresponse(200, 'consignee', $consignee);
-
-
     }
 
     /**
@@ -276,9 +274,13 @@ class consigneeController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        
+        if ($this->rp['logisticmodule']['consignee']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+
+        }
 
         // validate incoming request data 
-
         if (isset($request->company_name)) 
         {
             $validator = Validator::make($request->all(), [
@@ -326,8 +328,6 @@ class consigneeController extends commonController
             ]);
         }
 
-
-
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
@@ -342,13 +342,6 @@ class consigneeController extends commonController
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
-
-            if ($this->rp['logisticmodule']['consignee']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-
-            }
-
-
 
             $consignee->update([  // update consignee data
                 'firstname' => $request->firstname,
@@ -377,14 +370,14 @@ class consigneeController extends commonController
     // consignee status update (active/deactive)
     public function statusupdate(Request $request, string $id)
     {
+        if ($this->rp['logisticmodule']['consignee']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consignee = $this->consigneeModel::find($id);
 
         if (!$consignee) {
             return $this->successresponse(404, 'message', 'No Such consignee Found!');
-        }
-
-        if ($this->rp['logisticmodule']['consignee']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($this->rp['logisticmodule']['consignee']['alldata'] != 1) {
@@ -392,6 +385,7 @@ class consigneeController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
+
         $consignee->update([
             'is_active' => $request->status
         ]);
@@ -403,21 +397,26 @@ class consigneeController extends commonController
      */
     public function destroy(string $id)
     {
+        if ($this->rp['logisticmodule']['consignee']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $consignee = $this->consigneeModel::find($id);
+
         if (!$consignee) {
             return $this->successresponse(404, 'message', 'No Such consignee Found!');
         }
+
         if ($this->rp['logisticmodule']['consignee']['alldata'] != 1) {
             if ($consignee->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['logisticmodule']['consignee']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+      
         $consignee->update([
             'is_deleted' => 1
         ]);
+
         return $this->successresponse(200, 'message', 'consignee succesfully deleted');
     }
 }
