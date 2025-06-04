@@ -407,9 +407,9 @@ class tblinvoicecolumnController extends commonController
         $checkrec = DB::connection('dynamic_connection')
             ->table('tbl_invoice_formulas')
             ->where(function ($query) use ($columname) {
-                $query->where('first_column', 'LIKE', "%$columname%")
-                    ->orWhere('second_column', 'LIKE', "%$columname%")
-                    ->orWhere('output_column', 'LIKE', "%$columname%");
+                $query->where('first_column', $columname)
+                    ->orWhere('second_column', $columname)
+                    ->orWhere('output_column', $columname);
             })->where('is_deleted', 0)
             ->get();
 

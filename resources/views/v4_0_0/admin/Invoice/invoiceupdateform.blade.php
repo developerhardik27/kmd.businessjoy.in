@@ -541,7 +541,7 @@
                         <th>Description</th>
                         <th>Quantity</th>`);
                     }
-                    $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn - 1);
+                    $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
                     $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
                 }).fail(function(xhr) {
                     loaderhide();
