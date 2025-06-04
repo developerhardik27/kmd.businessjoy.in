@@ -604,7 +604,7 @@
                     <th>Description</th>
                     <th>Quantity</th>`);
                 }
-                $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn - 1); // set autocolspan for title (subtotal,gst,total etc.. )
+                $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
                 $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for add new button row
             }).fail(function(xhr) {
                 loaderhide();
