@@ -43,8 +43,8 @@
                     <span class="error-msg" id="error-column_width" style="color: red"></span>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <input type="string" class="form-control" name="default_value" id="default_value" placeholder="Default Value"
-                        />
+                    <input type="text" class="form-control" name="default_value" id="default_value" placeholder="Default Value"/>
+                    <p class="text-primary">Default value is not allowed for longtext columns.</p>
                     <span class="error-msg" id="error-default_value" style="color: red"></span>
                 </div>
                 <div class="col-12 text-right">
@@ -312,8 +312,7 @@
                                 }
                                 loaderhide();
                             },
-                            error: function(error) {
-                                $('#column_type').prop('disabled', false);
+                            error: function(error) { 
                                 loaderhide();
                                 console.error('Error:', error);
                             }
@@ -431,6 +430,7 @@
             $('#cancelbtn').on('click', function() {
                 $('#newColForm').addClass('d-none');
                 $('#newColBtnDiv').removeClass('d-none');
+                $('#column_type').prop('disabled', false); 
                 $('#columnform')[0].reset();
             });
 
@@ -442,8 +442,7 @@
                 $('#column_type').prop('disabled', false);
                 var columndata = element.serialize(); 
                 $('#column_type').prop('disabled', true); // Disable again after serialization
-                if (editid != '') {
-
+                if (editid != '') { 
                     showConfirmationDialog(
                         'Are you sure?',  // Title
                         'Edited column name will reflect in relevant invoices and receipts. still you want to apply this?', // Text
@@ -459,8 +458,8 @@
                                 url: invoiceColumnUpdateUrl,
                                 data: columndata,
                                 success: function(response) {
-                                    $('#column_type').prop('disabled', false);
                                     if (response.status == 200) {
+                                        $('#column_type').prop('disabled', false);
                                         $('#edit_id').val('');
                                         $('#newColForm').addClass('d-none');
                                         $('#newColBtnDiv').removeClass('d-none');
