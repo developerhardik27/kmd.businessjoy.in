@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class tblinvoicecolumnController extends commonController
 {
@@ -152,6 +153,16 @@ class tblinvoicecolumnController extends commonController
 
                 // Validate the request
                 $request->validate($rules);
+
+                // Step 2: Manually check for invalid default on longtext
+                if (
+                    $request->column_type === 'longtext' &&
+                    $request->has('default_value') &&
+                    !empty($request->default_value)
+                ) {
+                    return $this->successresponse('500','message','Default value is not allowed for longtext columns.');
+                }
+
                 $columnType = $columnTypes[$request->column_type];
                 $tablename = 'mng_col';
                 $columnname = str_replace(' ', '_', $request->column_name);
@@ -301,6 +312,15 @@ class tblinvoicecolumnController extends commonController
                 'decimal' => 'decimal(10,2)', // Adjust precision and scale as needed
                 'percentage' => 'float(4,2)' // Adjust precision and scale as needed
             ];
+
+            // Step 2: Manually check for invalid default on longtext
+            if (
+                $request->column_type === 'longtext' &&
+                $request->has('default_value') &&
+                !empty($request->default_value)
+            ) {
+                return $this->successresponse('500','message','Default value is not allowed for longtext columns.');
+            }
 
             $columnType = $columnTypes[$request->column_type];
             $oldcolumnvaluewithoutchange = $invoicecolumn->column_name; // for formula table change 
