@@ -973,13 +973,29 @@
                             var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
                                 if (columnData.column_type === 'time') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} "></td>`;
+                                    return `
+                                        <td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} ">
+                                            <input type="time" name="${columnName}_${addname}" value="${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ">
+                                        </td>
+                                    `;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="number" step="any" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
+                                    return `
+                                        <td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} ">
+                                            <input type="number" step="any" name="${columnName}_${addname}" value="${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0>
+                                        </td>
+                                    `;
                                 } else if (columnData.column_type === 'longtext') {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}</textarea></td>`;
+                                    return `
+                                        <td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} ">
+                                            <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}</textarea>
+                                        </td>
+                                    `;
                                 } else {
-                                    return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="text" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' value="${$('#' + columnName + '_' + id).val() || ''}" class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
+                                    return `
+                                        <td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} ">
+                                            <input type="text" name="${columnName}_${addname}" value="${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " placeholder="${columnData.column_name}">
+                                        </td>
+                                    `;
                                 }
                             }).join('')
                         }
