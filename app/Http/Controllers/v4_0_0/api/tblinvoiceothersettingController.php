@@ -28,6 +28,9 @@ class tblinvoiceothersettingController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->invoice_other_settingModel = $this->getmodel('invoice_other_setting');
@@ -74,6 +77,10 @@ class tblinvoiceothersettingController extends commonController
     }
     public function overduedayupdate(Request $request, string $id)
     {
+        //condition for check if user has permission to search  record
+        if ($this->rp['invoicemodule']['invoicestandardsetting']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $validator = Validator::make($request->all(), [
             'overdue_day' => 'required|string',
             'year_start_date' => 'required|date',
@@ -85,10 +92,6 @@ class tblinvoiceothersettingController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            //condition for check if user has permission to search  record
-            if ($this->rp['invoicemodule']['invoicestandardsetting']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $overdueday = $this->invoice_other_settingModel::find($id);
 

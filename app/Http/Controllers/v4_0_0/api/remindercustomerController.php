@@ -22,6 +22,9 @@ class remindercustomerController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->customerModel = $this->getmodel('reminder_customer');
@@ -121,6 +124,10 @@ class remindercustomerController extends commonController
 
         return $this->executeTransaction(function () use ($request) {
 
+            if ($this->rp['remindermodule']['reminder']['add'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:50',
                 'customer_type' => 'required|string|max:50',
@@ -146,10 +153,7 @@ class remindercustomerController extends commonController
 
             if ($validator->fails()) {
                 return $this->errorresponse(422, $validator->messages());
-            } else {
-                if ($this->rp['remindermodule']['reminder']['add'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }
+            } else { 
                 $customer = $this->customerModel::insertGetId([
                     'name' => $request->name,
                     'customer_type' => $request->customer_type,
@@ -204,6 +208,10 @@ class remindercustomerController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['remindermodule']['remindercustomer']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customer = $this->customerModel::find($id);
 
         if (!$customer) {
@@ -215,9 +223,6 @@ class remindercustomerController extends commonController
             }
         }
 
-        if ($this->rp['remindermodule']['remindercustomer']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
         return $this->successresponse(200, 'customer', $customer);
     }
 
@@ -226,6 +231,9 @@ class remindercustomerController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['remindermodule']['remindercustomer']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $customer = $this->customerModel::find($id);
         if (!$customer) {
             return $this->successresponse(404, 'message', "No Such Customer Found!");
@@ -234,9 +242,6 @@ class remindercustomerController extends commonController
             if ($customer->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['remindermodule']['remindercustomer']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         return $this->successresponse(200, 'customer', $customer);
 
@@ -247,6 +252,9 @@ class remindercustomerController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        if ($this->rp['remindermodule']['remindercustomer']['edit'] == 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
             'customer_type' => 'required|string|max:50',
@@ -277,9 +285,6 @@ class remindercustomerController extends commonController
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
-            if ($this->rp['remindermodule']['remindercustomer']['edit'] == 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
             $customer->update([
                 'name' => $request->name,
                 'customer_type' => $request->customer_type,
@@ -305,6 +310,9 @@ class remindercustomerController extends commonController
     // customer status update 
     public function statusupdate(Request $request, string $id)
     {
+        if ($this->rp['remindermodule']['remindercustomer']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $customer = $this->customerModel::find($id);
         if (!$customer) {
             return $this->successresponse(404, 'message', 'No Such customer Found!');
@@ -313,9 +321,6 @@ class remindercustomerController extends commonController
             if ($customer->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['remindermodule']['remindercustomer']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $customer->update([
             'is_active' => $request->status
@@ -328,6 +333,9 @@ class remindercustomerController extends commonController
      */
     public function destroy(string $id)
     {
+        if ($this->rp['remindermodule']['remindercustomer']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $customer = $this->customerModel::find($id);
         if (!$customer) {
             return $this->successresponse(404, 'message', 'No Such Customer Found!');
@@ -336,9 +344,6 @@ class remindercustomerController extends commonController
             if ($customer->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['remindermodule']['remindercustomer']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $customer->update([
             'is_deleted' => 1
@@ -360,7 +365,6 @@ class remindercustomerController extends commonController
     public function cities()
     {
         $citiesid = $this->customerModel::distinct()->pluck('city_id');
-
 
         if ($citiesid->isEmpty()) {
             return $this->successresponse(404, 'message', 'No any city Found!');

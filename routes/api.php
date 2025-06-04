@@ -202,38 +202,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::put('/techsupport/delete', 'destroy')->name('techsupport.delete');
         Route::put('/techsupport/changestatus', 'changestatus')->name('techsupport.changestatus');
     });
-
-
-    //country route
-    Route::controller(countryController::class)->group(function () {
-        Route::get('/country', 'index')->name('country.index');
-        Route::post('/country/insert', 'store')->name('country.store');
-        Route::get('/country/search/{id}', 'show')->name('country.search');
-        Route::get('/country/edit/{id}', 'edit')->name('country.edit');
-        Route::put('/country/update/{id}', 'update')->name('country.update');
-        Route::put('/country/delete/{id}', 'destroy')->name('country.delete');
-    });
-
-    //state route
-    Route::controller(stateController::class)->group(function () {
-        Route::get('/state', 'index')->name('state.index');
-        Route::post('/state/insert', 'store')->name('state.store');
-        Route::get('/state/search/{id}', 'show')->name('state.search');
-        Route::get('/state/edit/{id}', 'edit')->name('state.edit');
-        Route::put('/state/update/{id}', 'update')->name('state.update');
-        Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
-    });
-
-    //city route
-    Route::controller(cityController::class)->group(function () {
-        Route::get('/city', 'index')->name('city.index');
-        Route::post('/city/insert', 'store')->name('city.store');
-        Route::get('/city/search/{id}', 'show')->name('city.search');
-        Route::get('/city/edit/{id}', 'edit')->name('city.edit');
-        Route::put('/city/update/{id}', 'update')->name('city.update');
-        Route::put('/city/delete/{id}', 'destroy')->name('city.delete');
-    });
-
+ 
     //bank details route
     $bankdetailsController = getversion('bankdetailsController');
     Route::controller($bankdetailsController)->group(function () {
@@ -597,6 +566,37 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     });
 
 });
+
+ //country route
+    Route::controller(countryController::class)->group(function () {
+        Route::get('/country', 'index')->name('country.index');
+        Route::post('/country/insert', 'store')->name('country.store');
+        Route::get('/country/search/{id}', 'show')->name('country.search');
+        Route::get('/country/edit/{id}', 'edit')->name('country.edit');
+        Route::put('/country/update/{id}', 'update')->name('country.update');
+        Route::put('/country/delete/{id}', 'destroy')->name('country.delete');
+    });
+
+    //state route
+    Route::controller(stateController::class)->group(function () {
+        Route::get('/state', 'index')->name('state.index');
+        Route::post('/state/insert', 'store')->name('state.store');
+        Route::get('/state/search/{id}', 'show')->name('state.search');
+        Route::get('/state/edit/{id}', 'edit')->name('state.edit');
+        Route::put('/state/update/{id}', 'update')->name('state.update');
+        Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
+    });
+
+    //city route
+    Route::controller(cityController::class)->group(function () {
+        Route::get('/city', 'index')->name('city.index');
+        Route::post('/city/insert', 'store')->name('city.store');
+        Route::get('/city/search/{id}', 'show')->name('city.search');
+        Route::get('/city/edit/{id}', 'edit')->name('city.edit');
+        Route::put('/city/update/{id}', 'update')->name('city.update');
+        Route::put('/city/delete/{id}', 'destroy')->name('city.delete');
+    });
+
 
 Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
 

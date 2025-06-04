@@ -2,10 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\api_authorization;
-use App\Models\User;
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckToken
@@ -27,11 +28,12 @@ class CheckToken
         
         if($sessionToken){
             // Check if the token is present in the database
-            $dbToken = User::where('api_token', $sessionToken)->orWhere('super_api_token',$sessionToken)->first();
+            $dbToken = User::where('id',$request->user_id)->where('api_token', $sessionToken)->orWhere('super_api_token',$sessionToken)->first();
 
             if (!$dbToken) {
                 return response()->json(['error' => 'Invalid token'], 401);
             }
+
         }elseif(isset($request->site_key) && isset($request->server_key)){
             $domainName = basename($request->header('Origin'));
             $authorize = api_authorization::where('site_key', $request->site_key)

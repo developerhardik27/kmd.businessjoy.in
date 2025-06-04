@@ -42,6 +42,9 @@ class userController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->user_permissionModel = $this->getmodel('user_permission');
@@ -54,7 +57,6 @@ class userController extends commonController
      */
     public function loginhistory(Request $request)
     {
-
         $loginhistory = user_activity::orderBy('created_at', 'desc');
 
         if ($this->userId == 1 && isset($request->request_id)) {
@@ -111,7 +113,6 @@ class userController extends commonController
     // user details for profile
     public function userprofile(Request $request)
     {
-
         $users = DB::table('users')
             ->join('country', 'users.country_id', '=', 'country.id')
             ->join('state', 'users.state_id', '=', 'state.id')
@@ -226,7 +227,6 @@ class userController extends commonController
     // user list who has techsupport module permission
     public function techsupportuser()
     {
-
         $usersres = DB::table('users')
             ->join('country', 'users.country_id', '=', 'country.id')
             ->join('state', 'users.state_id', '=', 'state.id')
@@ -263,6 +263,9 @@ class userController extends commonController
      */
     public function index(Request $request)
     {
+        if ($this->rp['adminmodule']['user']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $usersres = DB::table('users')
             ->join('country', 'users.country_id', '=', 'country.id')
@@ -287,11 +290,7 @@ class userController extends commonController
 
         if ($users->isEmpty()) {
             return $this->successresponse(404, 'user', 'No Records Found');
-        }
-
-        if ($this->rp['adminmodule']['user']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        } 
 
         return $this->successresponse(200, 'user', $users);
     }
@@ -301,7 +300,6 @@ class userController extends commonController
      */
     public function userdatatable(Request $request)
     {
-
         if ($this->rp['adminmodule']['user']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
@@ -314,7 +312,7 @@ class userController extends commonController
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
             ->join('user_role', 'users.role', '=', 'user_role.id')
             ->leftJoin('users as creator', 'users.created_by', '=', 'creator.id')
-            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.password', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'creator.firstname as creator_firstname', 'creator.lastname as creator_lastname', DB::raw("DATE_FORMAT(users.created_at, '%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.updated_by', 'users.is_active')
+            ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.contact_no', 'country.country_name', 'state.state_name', 'city.city_name', 'users.pincode', 'company_details.name as company_name', 'user_role.role as user_role', 'users.img', 'users.created_by', 'creator.firstname as creator_firstname', 'creator.lastname as creator_lastname', DB::raw("DATE_FORMAT(users.created_at, '%d-%M-%Y %h:%i %p')as created_at_formatted"), 'users.updated_by', 'users.is_active')
             ->where('users.is_deleted', 0);
 
         if ($this->companyId != 1) {
@@ -350,6 +348,10 @@ class userController extends commonController
     {
         return $this->executeTransaction(function () use ($request) {
 
+            if ($this->rp['adminmodule']['user']['add'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
             $company = company::find($this->companyId);
             $user = User::where('company_id', '=', $company->id)->where('is_deleted', 0)->get();
 
@@ -384,12 +386,7 @@ class userController extends commonController
 
             if ($validator->fails()) {
                 return $this->errorresponse(422, $validator->messages());
-            } else {
-
-                if ($this->rp['adminmodule']['user']['add'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }
-
+            } else { 
                 // check email already exist or not
                 $checkuseremail = User::where('email', $request->email)->where('is_deleted', 0)->get();
 
@@ -833,7 +830,6 @@ class userController extends commonController
             return $this->successresponse(500, 'message', "No Such user Found!");
         }
 
-
         if (($this->rp['adminmodule']['user']['alldata'] != 1) || ($user->company_id != $this->companyId)) {
             if ($user->created_by != $this->userId && $user->id != $this->userId && $this->userId != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -851,9 +847,7 @@ class userController extends commonController
             $userdata['userpermission'] = $userpermission[0]->rp;
         }
 
-
         return $this->successresponse(200, 'user', $userdata);
-
     }
 
     /**
@@ -861,6 +855,9 @@ class userController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['adminmodule']['user']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $users = User::find($id);
         if (!$users) {
             return $this->successresponse(404, 'message', "No Such user Found!");
@@ -869,9 +866,6 @@ class userController extends commonController
             if ($users->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['adminmodule']['user']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         return $this->successresponse(200, 'user', $users);
     }
@@ -1368,6 +1362,9 @@ class userController extends commonController
      */
     public function destroy(string $id)
     {
+        if ($this->rp['adminmodule']['user']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $users = User::find($id);
         if (!$users) {
             return $this->successresponse(404, 'message', 'No Such user Found!');
@@ -1376,9 +1373,6 @@ class userController extends commonController
             if ($users->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['adminmodule']['user']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $users->update([
             'is_deleted' => 1
@@ -1396,6 +1390,9 @@ class userController extends commonController
      */
     public function statusupdate(Request $request, string $id)
     {
+        if ($this->rp['adminmodule']['user']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $user = User::find($id);
         if (!$user) {
             return $this->successresponse(404, 'message', 'No Such user Found!');
@@ -1404,9 +1401,6 @@ class userController extends commonController
             if ($user->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['adminmodule']['user']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $user->update([
             'is_active' => $request->status
@@ -1523,6 +1517,9 @@ class userController extends commonController
 
     public function storeuserrolepermission(Request $request)
     {
+        if ($this->rp['adminmodule']['userpermission']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         // validate incoming data request
         $validator = Validator::make($request->all(), [
             'role_name' => 'required|string|max:50'
@@ -1537,9 +1534,6 @@ class userController extends commonController
                 return $this->successresponse(500, 'message', 'User role already exists');
             }
 
-            if ($this->rp['adminmodule']['userpermission']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $invoice_show = (($this->rp['invoicemodule']['invoice']['show'] == 1 && $this->rp['invoicemodule']['invoice']['add'] == 1) || $this->userId == 1) ? $request->showinvoicemenu : "0";
             $invoice_add = (($this->rp['invoicemodule']['invoice']['add'] == 1) || $this->userId == 1) ? $request->addinvoice : "0";
@@ -1940,6 +1934,10 @@ class userController extends commonController
      */
     public function updateuserrolepermission(Request $request, string $id)
     {
+        if ($this->rp['adminmodule']['userpermission']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'role_name' => 'required|string|max:50',
             'user_id' => 'required|numeric'
@@ -1948,10 +1946,6 @@ class userController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            if ($this->rp['adminmodule']['userpermission']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $checkuserrole = $this->role_permissionModel::where('role_name', $request->role_name)
                     ->where('is_deleted', 0)

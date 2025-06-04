@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 class invoiceController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp, $invoiceModel, $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel, $inventoryModel,$product_Model, $product_column_mappingModel;
+    public $userId, $companyId, $masterdbname, $rp, $invoiceModel, $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel, $inventoryModel, $product_Model, $product_column_mappingModel;
 
     public function __construct(Request $request)
     {
@@ -34,6 +34,9 @@ class invoiceController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if (empty($permissions)) {
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->invoiceModel = $this->getmodel('invoice');
@@ -533,17 +536,17 @@ class invoiceController extends commonController
 
                                 $product = $this->product_Model::find($row['inventoryproduct']);
 
-                                
+
                                 $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
-                                
+
                                 if ($quantitycolumn->count() > 0) {
 
-                                    
+
                                     $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
-                                    
-                                    if($product){
-                                        if($product->continue_selling != 1){
-                                            if($updateinventory->available < $row[$quantitycolumn[0]]){
+
+                                    if ($product) {
+                                        if ($product->continue_selling != 1) {
+                                            if ($updateinventory->available < $row[$quantitycolumn[0]]) {
                                                 throw new \Exception("Insufficient stock for product '{$product->name}'. Available: {$updateinventory->available}.");
                                             }
                                         }
@@ -640,6 +643,9 @@ class invoiceController extends commonController
 
         return $this->executeTransaction(function () use ($request, $id) {
 
+            if ($this->rp['invoicemodule']['invoice']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
 
             $data = $request->data; // invoice data
 
@@ -666,10 +672,6 @@ class invoiceController extends commonController
             if ($validator->fails()) {
                 return $this->errorresponse(422, $validator->messages());
             } else {
-
-                if ($this->rp['invoicemodule']['invoice']['edit'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }
 
                 $oldinvoice = $this->invoiceModel::find($id);
 
@@ -834,9 +836,9 @@ class invoiceController extends commonController
                             if ($quantitycolumn->count() > 0) {
                                 $updateinventory = $this->inventoryModel::where('product_id', $row['inventoryproduct'])->where('is_deleted', 0)->first();
 
-                                if($product){
-                                    if($product->continue_selling != 1){
-                                        if($updateinventory->available < $row[$quantitycolumn[0]]){
+                                if ($product) {
+                                    if ($product->continue_selling != 1) {
+                                        if ($updateinventory->available < $row[$quantitycolumn[0]]) {
                                             throw new \Exception("Insufficient stock for product '{$product->name}'. Available: {$updateinventory->available}.");
                                         }
                                     }
@@ -995,7 +997,7 @@ class invoiceController extends commonController
         $gstsettingsdetails = $this->invoiceModel::select('gstsettings')->where('id', $id)
             ->get();
 
-        $invoiceothersettings = $this->invoice_other_settingModel::first();   
+        $invoiceothersettings = $this->invoice_other_settingModel::first();
 
         if ($invoice->isEmpty()) {
             return $this->successresponse(404, 'invoice', 'No Records Found');

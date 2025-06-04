@@ -27,6 +27,9 @@ class techsupportController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
     }
@@ -301,6 +304,10 @@ class techsupportController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        
+        if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
@@ -324,10 +331,6 @@ class techsupportController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $ticket = tech_support::find($id);
             if ($ticket) {
@@ -363,7 +366,6 @@ class techsupportController extends commonController
      */
     public function destroy(Request $request)
     {
-
         if ($this->rp['adminmodule']['techsupport']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
@@ -391,11 +393,11 @@ class techsupportController extends commonController
     public function changestatus(Request $request)
     {
 
-        $techsupport = DB::table('tech_supports')->where('id', $request->statusid)->get();
-
         if ($this->rp['adminmodule']['techsupport']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
+        $techsupport = DB::table('tech_supports')->where('id', $request->statusid)->get();
 
         if ($techsupport) {
 

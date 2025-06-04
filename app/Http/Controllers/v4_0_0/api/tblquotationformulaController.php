@@ -21,6 +21,9 @@ class tblquotationformulaController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->tbl_quotation_formulaModel = $this->getmodel('tbl_quotation_formula');
@@ -147,7 +150,11 @@ class tblquotationformulaController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
+        //condition for check if user has permission to search  record
+        if ($this->rp['quotationmodule']['quotationformula']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are unauthorized');
+        }
+        
         $validator = Validator::make($request->all(), [
             'first_column' => 'required|string|max:50',
             'operation' => 'required|string|max:50',
@@ -165,13 +172,7 @@ class tblquotationformulaController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            //condition for check if user has permission to search  record
-            if ($this->rp['quotationmodule']['quotationformula']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are unauthorized');
-            }
-
             $quotationformula = $this->tbl_quotation_formulaModel::find($id);
-
 
             if (!$quotationformula) {
                 return $this->successresponse(404, 'message', 'No such quotation formula found!');
@@ -194,8 +195,6 @@ class tblquotationformulaController extends commonController
                 'is_editable' => 0
             ]);
             return $this->successresponse(200, 'message', 'Quotation formula succesfully updated');
-
-
         }
     }
 

@@ -21,6 +21,9 @@ class supplierController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->supplierModel = $this->getmodel('supplier');
@@ -99,6 +102,10 @@ class supplierController extends commonController
      */
     public function index(Request $request)
     {
+        if ($this->rp['inventorymodule']['supplier']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $suppliersres = $this->supplierModel::leftjoin($this->masterdbname . '.country', 'suppliers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'suppliers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'suppliers.city_id', '=', $this->masterdbname . '.city.id')
@@ -138,9 +145,7 @@ class supplierController extends commonController
         if ($suppliers->isEmpty()) {
             return $this->successresponse(404, 'supplier', 'No Records Found!');
         }
-        if ($this->rp['inventorymodule']['supplier']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        
         return $this->successresponse(200, 'supplier', $suppliers);
     }
 
@@ -149,6 +154,11 @@ class supplierController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['inventorymodule']['supplier']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+
+        }
+
         // dynamically validate incoming request data (company name/first name required)
         if ($request->company_name) {
             $validator = Validator::make($request->all(), [
@@ -191,12 +201,7 @@ class supplierController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            if ($this->rp['inventorymodule']['supplier']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-
-            }
-
+ 
             $supplier = $this->supplierModel::create([ //insert supplier record and return supplier id
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
@@ -229,6 +234,9 @@ class supplierController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['inventorymodule']['supplier']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $supplier = $this->supplierModel::find($id);
         if (!$supplier) {
             return $this->successresponse(404, 'message', "No Such supplier Found!");
@@ -237,9 +245,6 @@ class supplierController extends commonController
             if ($supplier->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['inventorymodule']['supplier']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         return $this->successresponse(200, 'supplier', $supplier);
     }
@@ -249,6 +254,9 @@ class supplierController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['inventorymodule']['supplier']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $supplier = $this->supplierModel::find($id);
         if (!$supplier) {
             return $this->successresponse(404, 'message', "No Such supplier Found!");
@@ -258,9 +266,6 @@ class supplierController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['inventorymodule']['supplier']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
         return $this->successresponse(200, 'supplier', $supplier);
     }
 
@@ -269,7 +274,9 @@ class supplierController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
+        if ($this->rp['inventorymodule']['supplier']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         // validate incoming request data
         if ($request->company_name) {
             $validator = Validator::make($request->all(), [
@@ -322,10 +329,7 @@ class supplierController extends commonController
                 if ($supplier->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
-            }
-            if ($this->rp['inventorymodule']['supplier']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
+            }  
             $supplier->update([  // update supplier data
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
@@ -350,6 +354,9 @@ class supplierController extends commonController
     // supplier status update (active/deactive)
     public function statusupdate(Request $request, string $id)
     {
+        if ($this->rp['inventorymodule']['supplier']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $supplier = $this->supplierModel::find($id);
         if (!$supplier) {
             return $this->successresponse(404, 'message', 'No Such supplier Found!');
@@ -358,9 +365,6 @@ class supplierController extends commonController
             if ($supplier->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['inventorymodule']['supplier']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $supplier->update([
             'is_active' => $request->status
@@ -372,6 +376,9 @@ class supplierController extends commonController
      */
     public function destroy(string $id)
     {
+        if ($this->rp['inventorymodule']['supplier']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $supplier = $this->supplierModel::find($id);
         if (!$supplier) {
             return $this->successresponse(404, 'message', 'No Such supplier Found!');
@@ -380,9 +387,6 @@ class supplierController extends commonController
             if ($supplier->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['inventorymodule']['supplier']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $supplier->update([
             'is_deleted' => 1

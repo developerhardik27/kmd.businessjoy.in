@@ -22,6 +22,9 @@ class productcategoryController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->productModel = $this->getmodel('product');
@@ -30,6 +33,11 @@ class productcategoryController extends commonController
 
     public function fetchCategory(Request $request)
     {
+        // condition for check if user has permission to view records
+        if ($this->rp['inventorymodule']['productcategory']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $productcategoryres = $this->productCategoryModel::where('is_deleted', 0)->where('is_active', 1);
 
         if ($this->rp['inventorymodule']['productcategory']['alldata'] != 1) {
@@ -41,10 +49,7 @@ class productcategoryController extends commonController
         if ($productcategory->isEmpty()) {
             return $this->successresponse(404, 'productcategory', 'No Records Found');
         }
-        // condition for check if user has permission to view records
-        if ($this->rp['inventorymodule']['productcategory']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+       
         return $this->successresponse(200, 'productcategory', $productcategory);
     }
 
@@ -93,6 +98,10 @@ class productcategoryController extends commonController
      */
     public function index(Request $request)
     {
+        // condition for check if user has permission to view records
+        if ($this->rp['inventorymodule']['productcategory']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $productcategoryres = $this->productCategoryModel::where('is_deleted', 0);
 
@@ -105,10 +114,7 @@ class productcategoryController extends commonController
         if ($productcategory->isEmpty()) {
             return $this->successresponse(404, 'productcategory', 'No Records Found');
         }
-        // condition for check if user has permission to view records
-        if ($this->rp['inventorymodule']['productcategory']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+        
         return $this->successresponse(200, 'productcategory', $productcategory);
     }
 
@@ -118,6 +124,11 @@ class productcategoryController extends commonController
      */
     public function store(Request $request)
     {
+        // condition for check if user has permission to add new records
+        if ($this->rp['inventorymodule']['productcategory']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'category_name' => 'required|string|max:100',
             'parent_category' => 'required',
@@ -138,12 +149,7 @@ class productcategoryController extends commonController
             if (isset($request->parent_category) && $request->parent_category == null) {
                 $validator->errors()->add('parent_category', 'The parent category field is required.');
                 return $this->errorresponse(422, $validator->messages());
-            }
-
-            // condition for check if user has permission to add new records
-            if ($this->rp['inventorymodule']['productcategory']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
+            } 
 
             $parentcategory = $request->parent_category == 'main' ? null : $request->parent_category;
 
@@ -178,6 +184,10 @@ class productcategoryController extends commonController
      */
     public function edit(string $id)
     {
+        //condition for check if user has permission to edit record
+        if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $productcategory = $this->productCategoryModel::find($id);
 
         if (!$productcategory) {
@@ -189,11 +199,6 @@ class productcategoryController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        //condition for check if user has permission to edit record
-        if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
 
         return $this->successresponse(200, 'productcategory', $productcategory);
     }
@@ -203,6 +208,11 @@ class productcategoryController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        //condition for check if user has permission to edit record
+        if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $validator = Validator::make($request->all(), [
             'category_name' => 'required|string|max:100',
             'parent_category' => 'required',
@@ -229,10 +239,6 @@ class productcategoryController extends commonController
                 if ($productcategory->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
-            }
-            //condition for check if user has permission to edit record
-            if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
 
@@ -274,6 +280,11 @@ class productcategoryController extends commonController
 
         return $this->executeTransaction(function () use ($id) {
 
+            //condition for check if user has permission to delete record
+            if ($this->rp['inventorymodule']['productcategory']['delete'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
             $productcategory = $this->productCategoryModel::find($id);
 
             if (!$productcategory) {
@@ -284,10 +295,6 @@ class productcategoryController extends commonController
                 if ($productcategory->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
-            }
-            //condition for check if user has permission to delete record
-            if ($this->rp['inventorymodule']['productcategory']['delete'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $productcategory->update([
@@ -313,6 +320,11 @@ class productcategoryController extends commonController
     {
 
         return $this->executeTransaction(function () use ($request, $id) {
+           
+            if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
             $productcategory = $this->productCategoryModel::find($id);
 
             if (!$productcategory) {
@@ -323,10 +335,6 @@ class productcategoryController extends commonController
                 if ($productcategory->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', "You are Unauthorized!");
                 }
-            }
-
-            if ($this->rp['inventorymodule']['productcategory']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
 
             $productcategory->update([

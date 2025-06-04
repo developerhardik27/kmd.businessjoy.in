@@ -24,6 +24,9 @@ class tblleadController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->tblleadModel = $this->getmodel('tbllead');
@@ -31,12 +34,12 @@ class tblleadController extends commonController
 
     public function leadstatusname(Request $request)
     {
-        $leadstatus = DB::table('leadstatus_name')
-            ->get();
-
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
+        $leadstatus = DB::table('leadstatus_name')
+            ->get();
 
         if ($leadstatus->isEmpty()) {
             return $this->successresponse(404, 'leadstatus', $leadstatus);
@@ -46,12 +49,12 @@ class tblleadController extends commonController
 
     public function leadstagename(Request $request)
     {
-        $lead = DB::table('leadstage')
-            ->get();
-
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
+        $lead = DB::table('leadstage')
+            ->get();
 
         if ($lead->isEmpty()) {
             return $this->successresponse(404, 'lead', $lead);
@@ -192,6 +195,9 @@ class tblleadController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['leadmodule']['lead']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
@@ -217,12 +223,7 @@ class tblleadController extends commonController
 
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else {
-
-            if ($this->rp['leadmodule']['lead']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
+        } else { 
             $assignedto = implode(',', $request->assignedto);
             $lead = $this->tblleadModel::create([
                 'first_name' => $request->first_name,
@@ -261,6 +262,10 @@ class tblleadController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['leadmodule']['lead']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $lead = $this->tblleadModel::select('id', 'first_name', 'last_name', 'email', 'contact_no', 'title', 'budget', 'company', 'audience_type', 'assigned_to', 'customer_type', 'status', 'last_follow_up', 'next_follow_up', 'number_of_follow_up', 'attempt_lead', 'notes', 'lead_stage', 'web_url', 'created_by', 'updated_by', DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y %h:%i:%s %p') as updated_at_formatted"), 'is_active', 'is_deleted', 'source', 'ip')
             ->where('id', $id)
             ->get();
@@ -273,9 +278,6 @@ class tblleadController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['leadmodule']['lead']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
         return $this->successresponse(200, 'lead', $lead);
     }
@@ -285,6 +287,9 @@ class tblleadController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $lead = $this->tblleadModel::find($id);
 
         if (!$lead) {
@@ -295,9 +300,6 @@ class tblleadController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
         return $this->successresponse(200, 'lead', $lead);
     }
 
@@ -306,6 +308,9 @@ class tblleadController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
             'last_name' => 'required|string',
@@ -346,9 +351,6 @@ class tblleadController extends commonController
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
-            if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
             $assignedto = implode(',', $request->assignedto);
             $lead->update([
                 'first_name' => $request->first_name,
@@ -383,6 +385,10 @@ class tblleadController extends commonController
      */
     public function destroy(Request $request)
     {
+        if ($this->rp['leadmodule']['lead']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $lead = $this->tblleadModel::find($request->id);
 
         if (!$lead) {
@@ -392,9 +398,6 @@ class tblleadController extends commonController
             if ($lead->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        if ($this->rp['leadmodule']['lead']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $lead->update([
@@ -407,6 +410,10 @@ class tblleadController extends commonController
     public function changestatus(Request $request)
     {
 
+        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $lead = $this->tblleadModel::find($request->statusid);
 
         if (!$lead) {
@@ -417,21 +424,20 @@ class tblleadController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
         $lead->update([
             'status' => $request->statusvalue
         ]);
-
-
 
         return $this->successresponse(200, 'message', 'status Succesfully Updated');
     }
 
     public function changeleadstage(Request $request)
     {
+        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $lead = $this->tblleadModel::find($request->leadstageid);
         if (!$lead) {
             return $this->successresponse(404, 'message', 'No Such Lead Stage Found!');
@@ -441,10 +447,6 @@ class tblleadController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['leadmodule']['lead']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
 
         if ($request->leadstagevalue == 'Disqualified') {
             $lead->update(['lead_stage' => $request->leadstagevalue, 'is_active' => 0]);

@@ -31,6 +31,9 @@ class tblquotationcolumnController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->tbl_quotation_columnModel = $this->getmodel('tbl_quotation_column');
@@ -94,6 +97,10 @@ class tblquotationcolumnController extends commonController
      */
     public function store(Request $request)
     {
+        //condition for check if user has permission to add record
+        if ($this->rp['quotationmodule']['quotationmngcol']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
@@ -111,10 +118,6 @@ class tblquotationcolumnController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-            //condition for check if user has permission to add record
-            if ($this->rp['quotationmodule']['quotationmngcol']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
 
             $modifiedcolumnname = strtolower(str_replace(' ', '_', $request->column_name));
             $defaultcolumns = ['quotation_id', 'id', 'amount', 'created_by', 'updated_by', 'created_at', 'updated_at', 'is_active', 'is_deleted'];
@@ -234,7 +237,11 @@ class tblquotationcolumnController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
+        
+        //condition for check if user has permission to search record
+        if ($this->rp['quotationmodule']['quotationmngcol']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are unauthorized');
+        }
         $validator = Validator::make($request->all(), [
             'column_name' => 'required|string|max:50',
             'column_type' => 'required|string|max:50',
@@ -250,11 +257,6 @@ class tblquotationcolumnController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-
-            //condition for check if user has permission to search record
-            if ($this->rp['quotationmodule']['quotationmngcol']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are unauthorized');
-            }
 
             $modifiedcolumnname = strtolower(str_replace(' ', '_', $request->column_name));
             $defaultcolumns = ['quotation_id', 'id', 'amount', 'created_by', 'updated_by', 'created_at', 'updated_at', 'is_active', 'is_deleted'];
@@ -389,10 +391,6 @@ class tblquotationcolumnController extends commonController
         ]);
 
         return $this->successresponse(200, 'message', 'Quotation Column succesfully deleted');
-
-
-
-
     }
 
 
@@ -408,22 +406,25 @@ class tblquotationcolumnController extends commonController
         }
 
         $quotationcolumn = $this->tbl_quotation_columnModel::find($id);
-
         
-                if (!$quotationcolumn) { 
-                    return $this->successresponse(404, 'message', 'No Such quotation Column Found!');
-                }
+        if (!$quotationcolumn) { 
+            return $this->successresponse(404, 'message', 'No Such quotation Column Found!');
+        }
+
         if ($this->rp['quotationmodule']['quotationmngcol']['alldata'] != 1) {
             if ($quotationcolumn->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are unauthorized');
             }
         }
+
         $quotationcolumn->update([
             'is_hide' => $request->hidevalue
         ]);
+
         DB::connection('dynamic_connection')->table('quotations')->update([
             'is_editable' => 0
         ]);
+
         return $this->successresponse(200, 'message', 'Quotation column succesfully updated');
     }
 
@@ -432,7 +433,6 @@ class tblquotationcolumnController extends commonController
      */
     public function columnorder(Request $request)
     {
-
         if ($this->rp['quotationmodule']['quotationmngcol']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are unauthorized');
         }

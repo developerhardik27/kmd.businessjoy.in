@@ -22,6 +22,9 @@ class customerController extends commonController
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if (empty($permissions)) {
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->customerModel = $this->getmodel('customer');
@@ -32,6 +35,10 @@ class customerController extends commonController
     //customer list who has invoice module permission
     public function invoicecustomer(Request $request)
     {
+        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
@@ -41,16 +48,13 @@ class customerController extends commonController
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
             $customersres->where('customers.created_by', $this->userId);
         }
+
         $customers = $customersres->get();
 
 
         if ($customers->isEmpty()) {
             return $this->successresponse(404, 'customer', 'No Records Found');
 
-        }
-
-        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         return $this->successresponse(200, 'customer', $customers);
@@ -60,6 +64,10 @@ class customerController extends commonController
     //customer list who has quotation module permission
     public function quotationcustomer(Request $request)
     {
+        if ($this->rp['quotationmodule']['quotationcustomer']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are unauthorized');
+        }
+
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
@@ -76,9 +84,6 @@ class customerController extends commonController
             return $this->successresponse(404, 'customer', 'No records found');
         }
 
-        if ($this->rp['quotationmodule']['quotationcustomer']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
-        }
         return $this->successresponse(200, 'customer', $customers);
 
 
@@ -135,6 +140,10 @@ class customerController extends commonController
      */
     public function index(Request $request)
     {
+        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are unauthorized');
+        }
+
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
@@ -152,9 +161,6 @@ class customerController extends commonController
             return $this->successresponse(404, 'customer', 'No records found');
         }
 
-        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are unauthorized');
-        }
         return $this->successresponse(200, 'customer', $customers);
 
     }
@@ -164,6 +170,10 @@ class customerController extends commonController
      */
     public function store(Request $request)
     {
+        if ($this->rp['invoicemodule']['customer']['add'] != 1 && $this->rp['quotationmodule']['quotationcustomer']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         // dynamically validate incoming request data (company name/first name required)
         if ($request->company_name) {
             $validator = Validator::make($request->all(), [
@@ -207,9 +217,6 @@ class customerController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            if ($this->rp['invoicemodule']['customer']['add'] != 1 && $this->rp['quotationmodule']['quotationcustomer']['add'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
             $customerid = $this->invoice_other_settingModel::find(1);
 
             $customerType = 'invoice';
@@ -254,6 +261,10 @@ class customerController extends commonController
      */
     public function show(string $id)
     {
+        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customer = $this->customerModel::find($id);
 
         if (!$customer) {
@@ -264,10 +275,6 @@ class customerController extends commonController
             if ($customer->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-
-        if ($this->rp['invoicemodule']['customer']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         return $this->successresponse(200, 'customer', $customer);
@@ -280,6 +287,10 @@ class customerController extends commonController
      */
     public function edit(string $id)
     {
+        if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customer = $this->customerModel::find($id);
 
         if (!$customer) {
@@ -290,12 +301,7 @@ class customerController extends commonController
             if ($customer->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-
-        if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+        } 
 
         return $this->successresponse(200, 'customer', $customer);
 
@@ -307,6 +313,9 @@ class customerController extends commonController
      */
     public function update(Request $request, string $id)
     {
+        if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
         // validate incoming request data
         if ($request->company_name) {
@@ -362,14 +371,7 @@ class customerController extends commonController
                 if ($customer->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
-            }
-
-            if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-
-            }
-
-
+            } 
 
             $customer->update([  // update customer data
                 'firstname' => $request->firstname,
@@ -398,14 +400,14 @@ class customerController extends commonController
     // customer status update (active/deactive)
     public function statusupdate(Request $request, string $id)
     {
+        if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customer = $this->customerModel::find($id);
 
         if (!$customer) {
             return $this->successresponse(404, 'message', 'No Such customer Found!');
-        }
-
-        if ($this->rp['invoicemodule']['customer']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
@@ -424,21 +426,26 @@ class customerController extends commonController
      */
     public function destroy(string $id)
     {
+        if ($this->rp['invoicemodule']['customer']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $customer = $this->customerModel::find($id);
+
         if (!$customer) {
             return $this->successresponse(404, 'message', 'No Such Customer Found!');
         }
+
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
             if ($customer->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if ($this->rp['invoicemodule']['customer']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
+
         $customer->update([
             'is_deleted' => 1
         ]);
+        
         return $this->successresponse(200, 'message', 'customer succesfully deleted');
     }
 }

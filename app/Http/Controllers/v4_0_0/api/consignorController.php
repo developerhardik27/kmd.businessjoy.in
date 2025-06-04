@@ -26,6 +26,9 @@ class consignorController extends commonController
             ->where('user_id', $this->userId)
             ->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->consignorModel = $this->getmodel('consignor');

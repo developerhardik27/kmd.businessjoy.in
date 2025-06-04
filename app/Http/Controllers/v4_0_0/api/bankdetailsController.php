@@ -32,6 +32,11 @@ class bankdetailsController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
+
         $this->rp = json_decode($permissions[0]['rp'], true);
         $this->bankdetailmodel = $this->getmodel('bank_detail');
     }
@@ -70,6 +75,7 @@ class bankdetailsController extends commonController
         if ($this->rp['invoicemodule']['bank']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
         $bankdetail = $this->bankdetailmodel::where('is_deleted', 0)
             ->get();
 
@@ -191,6 +197,10 @@ class bankdetailsController extends commonController
     public function update(Request $request, string $id)
     {
 
+        if ($this->rp['invoicemodule']['bank']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
         $bankdetail = $this->bankdetailmodel::find($id);
 
 
@@ -203,11 +213,7 @@ class bankdetailsController extends commonController
                 return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
-
-        if ($this->rp['invoicemodule']['bank']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+ 
         $bankdetail->update([
             'is_active' => $request->status
         ]);
@@ -227,8 +233,11 @@ class bankdetailsController extends commonController
     public function destroy(Request $request, string $id)
     {
 
-        $bankdetail = $this->bankdetailmodel::find($id);
+        if ($this->rp['invoicemodule']['bank']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
+        $bankdetail = $this->bankdetailmodel::find($id);
 
         if (!$bankdetail) {
             return $this->successresponse(404, 'message', 'No Such bank Found!');
@@ -239,15 +248,11 @@ class bankdetailsController extends commonController
                 return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
-
-
-        if ($this->rp['invoicemodule']['bank']['delete'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+  
         $bankdetail->update([
             'is_deleted' => 1
         ]);
+        
         return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
 
     }

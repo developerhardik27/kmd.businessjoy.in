@@ -24,6 +24,9 @@ class purchaseController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
+        if(empty($permissions)){
+            $this->customerrorresponse();
+        }
         $this->rp = json_decode($permissions[0]['rp'], true);
 
         $this->purchaseModel = $this->getmodel('Purchase');
@@ -117,6 +120,11 @@ class purchaseController extends commonController
 
         return $this->executeTransaction(function () use ($request) {
 
+            //condition for check if user has permission to add new record
+            if ($this->rp['inventorymodule']['purchase']['add'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
             $validator = Validator::make($request->all(), [
                 'products' => 'required',
             ]);
@@ -124,11 +132,6 @@ class purchaseController extends commonController
             if ($validator->fails()) {
                 return $this->errorresponse(422, $validator->messages());
             } else {
-
-                //condition for check if user has permission to add new record
-                if ($this->rp['inventorymodule']['purchase']['add'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }
 
                 $purchase = $this->purchaseModel::create([
                     'supplier_id' => $request->supplier,
@@ -180,8 +183,6 @@ class purchaseController extends commonController
                     throw new \Exception('purchase order creation failed!');
                 }
 
-
-
             }
 
         });
@@ -192,7 +193,12 @@ class purchaseController extends commonController
      */
     public function show(string $id)
     {
-        $purchase = $purchaseres = $this->purchaseModel::leftJoin('suppliers', 'purchases.supplier_id', 'suppliers.id')
+        //condition for check if user has permission to search record
+        if ($this->rp['inventorymodule']['purchase']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $purchase =  $this->purchaseModel::leftJoin('suppliers', 'purchases.supplier_id', 'suppliers.id')
             ->leftJoin($this->masterdbname . '.country', 'purchases.currency', '=', $this->masterdbname . '.country.id')
             ->select(
                 'purchases.id',
@@ -233,17 +239,12 @@ class purchaseController extends commonController
             return $this->successresponse(404, 'message', "No such purchase order found!");
         }
 
-
         if ($this->rp['inventorymodule']['purchase']['alldata'] != 1) {
             if ($purchase->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        //condition for check if user has permission to search record
-        if ($this->rp['inventorymodule']['purchase']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
+      
         $purchase_order_details = $this->purchase_order_detailModel::join('products', 'products.id', 'purchase_order_details.product_id')
             ->where('purchase_order_details.purchase_id', $id)
             ->where('purchase_order_details.is_deleted', 0)
@@ -271,7 +272,12 @@ class purchaseController extends commonController
      */
     public function edit(string $id)
     {
-        $purchase = $purchaseres = $this->purchaseModel::where('purchases.id', $id)
+        //condition for check if user has permission to edit record
+        if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $purchase = $this->purchaseModel::where('purchases.id', $id)
             ->where('purchases.is_deleted', 0)
             ->first();
 
@@ -279,15 +285,10 @@ class purchaseController extends commonController
             return $this->successresponse(404, 'message', "No such purchase order found!");
         }
 
-
         if ($this->rp['inventorymodule']['purchase']['alldata'] != 1) {
             if ($purchase->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-        //condition for check if user has permission to edit record
-        if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $purchase_order_details = $this->purchase_order_detailModel::join('products', 'products.id', 'purchase_order_details.product_id')
@@ -319,6 +320,11 @@ class purchaseController extends commonController
     {
 
         return $this->executeTransaction(function () use ($request, $id) {
+            //condition for check if user has permission to edit record
+            if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            } 
+
             $validator = Validator::make($request->all(), [
                 'products' => 'required',
             ]);
@@ -326,12 +332,6 @@ class purchaseController extends commonController
             if ($validator->fails()) {
                 return $this->errorresponse(422, $validator->messages());
             } else {
-                //condition for check if user has permission to edit record
-                if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
-                    return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }
-
-
                 $purchase = $this->purchaseModel::find($id);
 
                 if (!$purchase) {
@@ -419,9 +419,6 @@ class purchaseController extends commonController
                 } else {
                     throw new \Exception("Purchase order updation failed!");
                 }
-
-
-
             }
         });
     }
@@ -434,6 +431,11 @@ class purchaseController extends commonController
 
         return $this->executeTransaction(function () use ($id) {
 
+            //condition for check if user has permission to delete record
+            if ($this->rp['inventorymodule']['purchase']['delete'] != 1) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+
             $purchase = $this->purchaseModel::find($id);
 
             if (!$purchase) {
@@ -445,11 +447,6 @@ class purchaseController extends commonController
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
-            //condition for check if user has permission to delete record
-            if ($this->rp['inventorymodule']['purchase']['delete'] != 1) {
-                return $this->successresponse(500, 'message', 'You are Unauthorized');
-            }
-
 
             $purchase->update([
                 'is_deleted' => 1
@@ -472,8 +469,12 @@ class purchaseController extends commonController
 
     public function changestatus(Request $request, int $id)
     {
-        $purchase = $this->purchaseModel::find($id);
+        //condition for check if user has permission to delete record
+        if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
 
+        $purchase = $this->purchaseModel::find($id);
 
         if (!$purchase) {
             return $this->successresponse(404, 'message', "No such purchase order found!");
@@ -483,11 +484,6 @@ class purchaseController extends commonController
             if ($purchase->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        }
-
-        //condition for check if user has permission to delete record
-        if ($this->rp['inventorymodule']['purchase']['edit'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $message = '';
