@@ -412,6 +412,7 @@
             $('#cancelbtn').on('click', function() {
                 $('#newColForm').addClass('d-none');
                 $('#newColBtnDiv').removeClass('d-none');
+                $('#column_type').prop('disabled', false);
                 $('#columnform')[0].reset();
             });
 
@@ -441,8 +442,8 @@
                                 url: quotationColumnUpdateUrl,
                                 data: columndata,
                                 success: function(response) {
-                                    $('#column_type').prop('disabled', false);
                                     if (response.status == 200) {
+                                        $('#column_type').prop('disabled', false);
                                         $('#edit_id').val('');
                                         $('#newColForm').addClass('d-none');
                                         $('#newColBtnDiv').removeClass('d-none');
@@ -508,8 +509,8 @@
                                 url: "{{ route('quotationcolumn.store') }}",
                                 data: columndata,
                                 success: function(response) {
-                                    $('#column_type').prop('disabled', false);
                                     if (response.status == 200) {
+                                        $('#column_type').prop('disabled', false);
                                         $('#newColForm').addClass('d-none');
                                         $('#newColBtnDiv').removeClass('d-none');
                                         // You can perform additional actions, such as showing a success message or redirecting the user
