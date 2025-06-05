@@ -79,17 +79,17 @@ class consignorcopyController extends commonController
                 'consignor_copy.to_2',
                 'consignor_copy.gst_tax_payable_by',
                 DB::raw("
-                    CONCAT_WS(' ', 
-                        consignees.firstname, 
-                        consignees.lastname 
-                    ) as consignee
+                    CASE 
+                        WHEN consignees.firstname IS NULL AND consignees.lastname IS NULL THEN consignees.company_name
+                        ELSE CONCAT_WS(' ', consignees.firstname, consignees.lastname)
+                    END as consignee
                 "),
                 DB::raw("
-                    CONCAT_WS(' ', 
-                        consignors.firstname, 
-                        consignors.lastname 
-                    ) as consignor
-                "),
+                    CASE 
+                        WHEN consignors.firstname IS NULL AND consignors.lastname IS NULL THEN consignors.company_name
+                        ELSE CONCAT_WS(' ', consignors.firstname, consignors.lastname)
+                    END as consignor
+                "),  
                 'consignor_copy.cha',
                 'consignor_copy.type',
                 'consignor_copy.container_no',
@@ -342,18 +342,17 @@ class consignorcopyController extends commonController
                 'consignor_copy.consignee_id',
                 'consignor_copy.consignor_id',
                 DB::raw("
-                    CONCAT_WS(' ', 
-                        consignees.firstname, 
-                        consignees.lastname 
-                    ) as consignee
+                    CASE 
+                        WHEN consignees.firstname IS NULL AND consignees.lastname IS NULL THEN consignees.company_name
+                        ELSE CONCAT_WS(' ', consignees.firstname, consignees.lastname)
+                    END as consignee
                 "),
-
                 DB::raw("
-                    CONCAT_WS(' ', 
-                        consignors.firstname, 
-                        consignors.lastname 
-                    ) as consignor
-                "),
+                    CASE 
+                        WHEN consignors.firstname IS NULL AND consignors.lastname IS NULL THEN consignors.company_name
+                        ELSE CONCAT_WS(' ', consignors.firstname, consignors.lastname)
+                    END as consignor
+                "), 
                 'consignor_copy.cha',
                 'consignor_copy.type',
                 'consignor_copy.container_no',

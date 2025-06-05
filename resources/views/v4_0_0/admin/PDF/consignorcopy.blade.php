@@ -179,14 +179,14 @@
                 <tr>
                     <td rowspan="2">
                         <b>Consignor : </b> 
-                        <span>{{ $consignor['firstname'] }} {{ $consignor['lastname'] }}</span>
+                        <span>{{ $consignorcopy['consignor'] }}</span>
                         <p class="ml-5">{{ $consignor['consignor_address'] }}</p>
                         <b>GSTIN : </b> <span>{{ $consignor['gst_no'] }}</span><br>
                         <b>PANNO. : </b> <span>{{ $consignor['pan_number'] }}</span>
                     </td>
                     <td>
                         <b>Consignee : </b> 
-                        <span>{{ $consignee['firstname'] }} {{ $consignee['lastname'] }}</span>
+                        <span>{{ $consignorcopy['consignee'] }}</span>
                         <p class="ml-5">{{ $consignee['consignee_address'] }}</p>
                         <b>GSTIN : </b> <span>{{ $consignee['gst_no'] }}</span><br>
                         <b>PANNO. : </b> <span>{{ $consignee['pan_number'] }}</span>
