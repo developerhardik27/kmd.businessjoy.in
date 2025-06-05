@@ -516,10 +516,6 @@ class invoiceController extends commonController
                         foreach ($itemdata as $row) {
                             $dynamicdata = [];
 
-                            // if(isset($row['inventoryproduct'])){
-
-                            // }
-
                             // Map the values to the corresponding columns
                             foreach ($columnwithunderscore as $column) {
                                 $dynamicdata[$column] = $row[$column];
