@@ -405,6 +405,23 @@
             // response status == 422 that means api has not got valid or required data
             loaderhide();
 
+            // supplier form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
+            $('.withgstspan').hide();
+            $('#company_name').on('change keyup', function() {
+                var val = $(this).val();
+                if (val != '') {
+                    $('.withgstspan').show();
+                    $('.withoutgstspan').hide();
+                    $('.withgstinput').attr('required', true);
+                    $('.withoutgstinput').removeAttr('required');
+                } else {
+                    $('.withgstspan').hide();
+                    $('.withoutgstspan').show();
+                    $('.withoutgstinput').attr('required', true);
+                    $('.withgstinput').removeAttr('required');
+                }
+            });
+
             const API_TOKEN = "{{ session()->get('api_token') }}";
             const COMPANY_ID = "{{ session()->get('company_id') }}";
             const USER_ID = "{{ session()->get('user_id') }}";
@@ -725,6 +742,9 @@
             });
 
 
+            $('#exampleModalScrollable').on('hidden.bs.modal', function() {
+                $('#supplier').val('');
+            });
 
 
             // on change product remove and add product details row
