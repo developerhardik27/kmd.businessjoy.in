@@ -741,7 +741,7 @@ class invoiceController extends commonController
                     if ($getdeletedproduct->count() > 0) {
                         foreach ($getdeletedproduct as $product) {
 
-                            if(!empty($quantitycolumn)){ 
+                            if(count($quantitycolumn) > 0){ 
                                 // Ensure $quantitycolumn is an array and access its first element properly
                                 $quantity = isset($product->{$quantitycolumn[0]}) ? (int) $product->{$quantitycolumn[0]} : 0;
     
