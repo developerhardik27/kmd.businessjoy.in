@@ -141,7 +141,7 @@ class consignorController extends commonController
     {
         // dynamically validate incoming request data (company name/first name required)
 
-        if(isset($requeset->company_name)){
+        if(isset($request->company_name)){
             $validator = Validator::make($request->all(), [
                 'firstname' => 'nullable|string|max:50',
                 'lastname' => 'nullable|string|max:50',
