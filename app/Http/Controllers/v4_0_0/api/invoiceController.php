@@ -740,22 +740,25 @@ class invoiceController extends commonController
 
                     if ($getdeletedproduct->count() > 0) {
                         foreach ($getdeletedproduct as $product) {
-                            // Ensure $quantitycolumn is an array and access its first element properly
-                            $quantity = isset($product->{$quantitycolumn[0]}) ? (int) $product->{$quantitycolumn[0]} : 0;
 
-                            // Check if inventory_product_id exists
-                            if (isset($product->inventory_product_id)) {
-                                $inventory = $this->inventoryModel::where('product_id', $product->inventory_product_id)
-                                    ->where('is_deleted', 0)
-                                    ->first();
-
-                                if ($inventory) {
-                                    // Update inventory values with the quantity from the deleted product
-                                    $inventory->available += $quantity;
-                                    $inventory->on_hand += $quantity;
-
-                                    // Save updated inventory
-                                    $inventory->save();
+                            if(!empty($quantitycolumn)){ 
+                                // Ensure $quantitycolumn is an array and access its first element properly
+                                $quantity = isset($product->{$quantitycolumn[0]}) ? (int) $product->{$quantitycolumn[0]} : 0;
+    
+                                // Check if inventory_product_id exists
+                                if (isset($product->inventory_product_id)) {
+                                    $inventory = $this->inventoryModel::where('product_id', $product->inventory_product_id)
+                                        ->where('is_deleted', 0)
+                                        ->first();
+    
+                                    if ($inventory) {
+                                        // Update inventory values with the quantity from the deleted product
+                                        $inventory->available += $quantity;
+                                        $inventory->on_hand += $quantity;
+    
+                                        // Save updated inventory
+                                        $inventory->save();
+                                    }
                                 }
                             }
 
