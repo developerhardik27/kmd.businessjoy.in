@@ -124,7 +124,8 @@ class commonController extends Controller
             DB::rollBack(); // Rollback default connection
             DB::connection('dynamic_connection')->rollBack(); // Rollback dynamic connection
 
-            Log::error("Transaction Rolled Back: " . $e->getMessage());
+            Log::error("Transaction Rolled Back: " . $e->getMessage() .
+                " in " . $e->getFile() . " on line " . $e->getLine());
             return $this->errorResponse(500, $e->getMessage());
         }
     }
