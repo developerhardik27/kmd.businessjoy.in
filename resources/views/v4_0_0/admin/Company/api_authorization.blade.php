@@ -111,7 +111,7 @@
                 loadershow();
                 $.ajax({
                     type: 'GET',
-                    url: "{{ route('company.index') }}",
+                    url: "{{ route('company.companylist') }}",
                     data: {
                         user_id: {{ session()->get('user_id') }},
                         company_id: {{ session()->get('company_id') }},
