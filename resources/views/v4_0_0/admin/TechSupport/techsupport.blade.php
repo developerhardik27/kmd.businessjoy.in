@@ -86,7 +86,7 @@
                 <h6>Created On</h6>
             </div>
             <div class="card-body">
-                <div class="row"> 
+                <div class="row">
                     <div class="col-6 mb-1">
                         <label for="filter_from_date" class="form-label">From:</label>
                         <input type="date" id="filter_from_date" class="form-input form-control">
@@ -237,7 +237,7 @@
                     }
 
                     // Load filters
-                    await loadFilters(); 
+                    await loadFilters();
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -265,7 +265,7 @@
             // get and set customer support history list in the table
             function loaddata() {
 
-                 table = $('#data').DataTable({
+                table = $('#data').DataTable({
                     language: {
                         lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
@@ -297,7 +297,7 @@
 
                             return json.data;
                         },
-                        complete:function(){
+                        complete: function() {
                             loaderhide();
                         },
                         error: function(xhr) {
@@ -320,11 +320,11 @@
                             name: 'id'
                         },
                         {
-                            data: 'first_name',         // key from JSON (used for searching & sorting)
-                            name: 'first_name',         // server-side field name or alias
-                            orderable: false,          // if you want to disable sorting
+                            data: 'first_name', // key from JSON (used for searching & sorting)
+                            name: 'first_name', // server-side field name or alias
+                            orderable: false, // if you want to disable sorting
                             searchable: false,
-                            render: function (data, type, row) {
+                            render: function(data, type, row) {
                                 return `
                                     <span class="view-btn d-flex mb-2" data-view="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable" style="cursor:pointer;">
                                         <b><i class="fas fa-user pr-2"></i></b> ${row.first_name || ''} ${row.last_name || ''}
@@ -349,14 +349,14 @@
                             searchable: true,
                             defaultContent: '-',
                             name: 'ticket'
-                        },  
+                        },
                         {
                             data: 'status',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
                             name: 'status',
-                            render : function(data, type, row){
+                            render: function(data, type, row) {
                                 @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
                                     return `     
                                         <select class="status form-control-sm" data-original-value="${row.status}" data-statusid=${row.id} id='status_${row.id}'>
@@ -377,7 +377,7 @@
                             searchable: true,
                             defaultContent: '-',
                             name: 'created_at_formatted'
-                        }, 
+                        },
                         {
                             data: 'id',
                             name: 'id',
@@ -396,7 +396,7 @@
                                     `;
                                 @endif
 
-                                @if(session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
                                     actionBtns += `
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Ticket">
                                             <button type="button" data-id='${row.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
@@ -464,8 +464,14 @@
                             }
                         );
                     }
-                }); 
+                });
 
+            }
+
+            function decodeHtmlEntities(str) {
+                let txt = document.createElement('textarea');
+                txt.innerHTML = str;
+                return txt.value;
             }
 
             // show individual customer support history record into the popupbox
@@ -475,8 +481,23 @@
                 $.each(global_response.data, function(key, ticket) {
                     if (ticket.id == data) {
                         // Ensure ticket.attachment is an array
-                        let attachments = Array.isArray(ticket.attachment) ? ticket.attachment : (
-                            ticket.attachment ? JSON.parse(ticket.attachment) : []);
+                        let attachments = [];
+
+                        if (ticket.attachment) {
+                            let rawAttachment = Array.isArray(ticket.attachment) ?
+                                ticket.attachment :
+                                decodeHtmlEntities(ticket.attachment);
+
+                            try {
+                                attachments = Array.isArray(rawAttachment) ?
+                                    rawAttachment :
+                                    JSON.parse(rawAttachment);
+                            } catch (e) {
+                                console.error("Invalid JSON in attachment:", rawAttachment);
+                                attachments = [];
+                            }
+                        }
+
                         $('#details').append(`
                             <tr> 
                                 <th>Ticket Number</th>
@@ -612,14 +633,14 @@
                 filter_from_date = $('#filter_from_date').val();
                 filter_to_date = $('#filter_to_date').val();
                 filter_status = $('#filter_status').val();
-                filter_assigned_to = $('#filter_assigned_to').val(); 
+                filter_assigned_to = $('#filter_assigned_to').val();
 
 
                 data = {
                     filter_from_date,
                     filter_to_date,
                     filter_status,
-                    filter_assigned_to 
+                    filter_assigned_to
                 }
 
                 sessionStorage.setItem('filterData', JSON.stringify(data));
@@ -684,7 +705,7 @@
 
             });
 
- 
+
             // call advance filter function on change sidebar filter
             $('.applyfilters').on('click', function(e) {
                 e.preventDefault();
@@ -696,7 +717,7 @@
             // remove all filters
             $('.removefilters').on('click', function() {
                 $('#filter_from_date').val('');
-                $('#filter_from_date').val(''); 
+                $('#filter_from_date').val('');
                 // clear 
                 $('#filter_status').val(null).trigger('change');
                 $('#filter_assigned_to').val(null).trigger('change');
