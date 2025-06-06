@@ -107,6 +107,7 @@
                     console.error('Error:', error);
                 }
             });
+            
             //submit form
             $('#productupdateform').submit(function(event) {
                 event.preventDefault();

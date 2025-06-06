@@ -306,7 +306,7 @@
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
                             window.location =
-                                "{{ route('admin.customer') }}"; // redirect on customer list page
+                                "{{ route('admin.invoicecustomer') }}"; // redirect on customer list page
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);

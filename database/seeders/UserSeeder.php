@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
             ]
         ];
         $rpjson = json_encode($rp);
-         user_permission::create([
+         \App\Models\v1_0_0\user_permission::create([
             'user_id' => 1,
             'rp' => $rpjson
         ]); 

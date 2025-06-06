@@ -79,12 +79,15 @@
     <script>
         $('document').ready(function() {
 
-            // companyId and userId both are required in every ajax request for all action *************
-            // response status == 200 that means response succesfully recieved
-            // response status == 500 that means database not found
-            // response status == 422 that means api has not got valid or required data
+            /**
+             * api token , companyId and userId  are required in every ajax request for all action *************
+             * response status == 200 that means response succesfully recieved
+             *  response status == 500 that means database not found
+             *  response status == 422 that means api has not got valid or required data
+             */
 
-            var global_response = ''; // declare global variable for using company detail globally
+
+            var global_response = ''; // declare global variable for use company detail globally
             // function for get company data and load into table
             function loaddata() {
                 loadershow();
@@ -109,7 +112,7 @@
                                                     <td>${value.contact_no != null ? value.contact_no : '-'}</td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.edit') == '1') 
-                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Deactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                            ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                         @else
                                                             -
                                                         @endif
@@ -185,43 +188,7 @@
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/company/statusupdate/' + statusid,
-                        data: {
-                            status: '0',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
-                                );
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    chanecompanystatus(statusid, 0);
                 }
             });
 
@@ -230,45 +197,56 @@
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/company/statusupdate/' + statusid,
-                        data: {
-                            status: '1',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
-                                );
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    chanecompanystatus(statusid, 1);
                 }
             });
+
+            function chanecompanystatus(companyid, statusvalue) {
+                $.ajax({
+                    type: 'put',
+                    url: '/api/company/statusupdate/' + companyid,
+                    data: {
+                        status: statusvalue,
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        user_id: "{{ session()->get('user_id') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                            if(statusvalue == 1){
+                                $('#status_' + companyid).html('<button data-status= ' +
+                                    companyid +
+                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
+                                ); 
+                            }else{
+                                $('#status_' + companyid).html('<button data-status= ' +
+                                    companyid +
+                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
+                                );
+                            }
+                        } else if (response.status == 500) {
+                            toastr.error(response.message);
+                        } else {
+                            toastr.error('something went wrong !');
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
 
 
             // delete company             

@@ -2,10 +2,11 @@
 
 namespace App\Http\Middleware\v1_0_0;
 
-use App\Models\api_authorization;
-use App\Models\User;
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\api_authorization;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckToken
@@ -17,6 +18,7 @@ class CheckToken
      */
     public function handle(Request $request, Closure $next): Response
     {
+         
         // Check if the token is present in the session
         $sessionToken = $request->token;
         
@@ -25,8 +27,16 @@ class CheckToken
         }
         if($sessionToken){
             // Check if the token is present in the database
-            $dbToken = User::where('api_token', $sessionToken)->first();
-
+            // Check if the token is present in the database
+            if (Schema::hasColumn('users', 'super_api_token')) {
+                // If the column exists, include it in the query
+                $dbToken = User::where('api_token', $sessionToken)
+                    ->orWhere('super_api_token', $sessionToken)
+                    ->first();
+            } else {
+                // If the column does not exist, only check api_token
+                $dbToken = User::where('api_token', $sessionToken)->first();
+            }
             if (!$dbToken) {
                 return response()->json(['error' => 'Invalid token'], 401);
             }

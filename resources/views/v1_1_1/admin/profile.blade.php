@@ -662,9 +662,7 @@
                             $('#email').val(user.email);
                             $('#contact_no').val(user.contact_no);
                             $('#pincode').val(user.pincode);
-                            var imgElement = $('<img>').attr('src', '/uploads/' + user.img)
-                                .attr(
-                                    'alt', 'profile-pic').attr('class', 'profile-pic rounded');
+                            var imgElement = $('<img>').attr('src', '/uploads/' + user.img).attr('alt', 'profile-pic').attr('class', 'profile-pic rounded');
                             $('#userprofile').prepend(imgElement);
                             country = user.country_id;
                             state = user.state_id;

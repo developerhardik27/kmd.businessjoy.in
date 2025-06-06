@@ -26,7 +26,7 @@ class PaymentController extends commonController
         $this->payment_detailsModel = $this->getmodel('payment_details');
     }
 
-
+    // use for pdf
     public function paymentdetailsforpdf(string $id)
     {
 
@@ -38,6 +38,7 @@ class PaymentController extends commonController
             return $this->successresponse(404, 'message', 'No Records Found');
         }
     }
+    // use for pdf
     public function paymentdetail(string $id)
     {
 
@@ -50,8 +51,9 @@ class PaymentController extends commonController
         }
     }
 
+    
     /**
-     * Display a listing of the resource.
+     * pending payment.
      */
     public function pendingpayment(string $id)
     {
@@ -69,6 +71,8 @@ class PaymentController extends commonController
         }
 
     }
+
+
     public function index(string $id)
     {
 
@@ -98,7 +102,7 @@ class PaymentController extends commonController
     public function store(Request $request)
     {
 
-
+        // validate incoming request data
         $validator = Validator::make($request->all(), [
             'inv_id' => 'required',
             'paidamount' => 'required|numeric',
@@ -111,7 +115,7 @@ class PaymentController extends commonController
             $invoiceammount = $this->invoiceModel::find($request->inv_id);
             $invoicepaidamount = $this->payment_detailsModel::where('inv_id', $request->inv_id)->where('part_payment', 1)->get();
 
-            $receipt_number = date('dHm') . str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT) . date('is');
+            $receipt_number = date('dHm') . str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT) . date('is'); // generate receipt number
             if ($invoicepaidamount->count() > 0) {
                 $total_paided_amount = 0;
                 foreach ($invoicepaidamount as $value) {

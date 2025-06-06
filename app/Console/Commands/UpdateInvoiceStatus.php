@@ -34,50 +34,52 @@ class UpdateInvoiceStatus extends Command
 
     public function handle()
     {
-        
-        // $fifteenDaysAgo = Carbon::now()->subDays(15);
-        // $companies = company::select('dbname')->where('is_deleted', 0)->get();
-        // foreach ($companies as $company) {
-        //     $dbname = $company->dbname;
-
-        //     config(['database.connections.dynamic_connection.database' => $dbname]);
-
-        //     // Establish connection to the dynamic database
-        //     DB::purge('dynamic_connection');
-        //     DB::reconnect('dynamic_connection');
-
-        //     // Execute the SQL statement
-        //     DB::connection('dynamic_connection')->table('invoices')
-        //         ->where('status', 'pending')
-        //         ->where('created_at', '<=', $fifteenDaysAgo)
-        //         ->update(['status' => 'due']);
-
-        // }
-        // $this->info('Invoice status updated successfully.');
-        // // Revert back to the default database connection
-        // DB::setDefaultConnection('mysql');
-
         $companies = Company::select('dbname')->where('is_deleted', 0)->get();
+
         foreach ($companies as $company) {
             $dbname = $company->dbname;
-        
-            config(['database.connections.dynamic_connection.database' => $dbname]);
-        
-            // Establish connection to the dynamic database
-            DB::purge('dynamic_connection');
-            DB::reconnect('dynamic_connection');
-        
-            // Execute the SQL statement
-            DB::connection('dynamic_connection')->table('invoices')
-                ->where('status', 'pending')
-                ->whereRaw('DATE_ADD(created_at, INTERVAL overdue_date DAY) <= CURDATE()')
-                ->update(['status' => 'due']);
+
+            try {
+                config(['database.connections.dynamic_connection.database' => $dbname]);
+
+                // Reconnect to the dynamic database
+                DB::purge('dynamic_connection');
+                DB::reconnect('dynamic_connection');
+
+                if (DB::connection('dynamic_connection')->getSchemaBuilder()->hasTable('invoices')) {
+                    // Get today's date
+                    $today = now()->toDateString();
+
+                    // Update invoices that are overdue
+                    $updated = DB::connection('dynamic_connection')->table('invoices')
+                        ->where('status', 'pending')
+                        ->whereRaw("DATE(created_at) + INTERVAL COALESCE(overdue_date, 0) DAY <= ?", [$today])
+                        ->update(['status' => 'due']);
+
+                    // Log the result
+                    \Log::info("Updated invoices for database: $dbname. Rows affected: $updated.");
+                    $this->info("Updated invoices for database: $dbname. Rows affected: $updated.");
+                } else {
+                    // Log if the table does not exist
+                    \Log::warning("Table 'invoices' does not exist in database: $dbname.");
+                    $this->info("Table 'invoices' does not exist in database: $dbname.");
+                }
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error("Error updating invoices for database: $dbname. Error: " . $e->getMessage());
+                $this->error("Error updating invoices for database: $dbname. Error: " . $e->getMessage());
+            }
         }
-        
-        $this->info('Invoice status updated successfully.');
+
+        // Display a single success message after all databases are processed
+        $this->info('Invoice status updated successfully for all databases.');
+
+
+
+
         // Revert back to the default database connection
         DB::setDefaultConnection('mysql');
 
-        
+
     }
 }

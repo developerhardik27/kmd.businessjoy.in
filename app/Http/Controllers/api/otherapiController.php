@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LandingPageActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB; 
 
 class otherapiController extends Controller
 {
@@ -98,6 +97,12 @@ class otherapiController extends Controller
         }
     }
 
+    /**
+     * Summary of store
+     * oceanmnc visitor activity store
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -121,7 +126,8 @@ class otherapiController extends Controller
 
         // Calculate and format duration as h:i:s if not provided
         if (isset($data['duration'])) {
-            $duration = gmdate('H:i:s', $data['duration']); // Format duration as h:i:s
+            $duration = intval($data['duration']);
+            $duration = gmdate('H:i:s', $duration); // Format duration as h:i:s
         } else {
             $durationSeconds = $endTime->diffInSeconds($startTime);
             $duration = gmdate('H:i:s', $durationSeconds); // Format duration as h:i:s

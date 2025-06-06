@@ -13,7 +13,7 @@ return new class extends Migration {
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->integer('customer_id')->nullable();
+            $table->integer('customer_id')->nullable()->comment('user can set where to start');
             $table->string('firstname', 50)->nullable();
             $table->string('lastname', 50)->nullable();
             $table->string('company_name', 50)->nullable();

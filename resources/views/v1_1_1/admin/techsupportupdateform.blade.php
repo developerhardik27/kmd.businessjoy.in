@@ -78,25 +78,25 @@
                     <label class="form-label" for="modulename">Module Name:</label><span style="color:red;"> *</span>
                     <select name="modulename" class="form-control" id="modulename">
                         <option value="" disabled selected>Select Module</option>
-                        @if (Session::has('invoice') && Session::get('invoice') == 'yes')
+                        @if ((Session::has('invoice') && Session::get('invoice') == 'yes') || Session::get('admin_role') == 1)
                             <option value='invoice'>Invoice</option>
                         @endif
-                        @if (Session::has('lead') && Session::get('lead') == 'yes')
+                        @if ((Session::has('lead') && Session::get('lead') == 'yes') || Session::get('admin_role') == 1)
                             <option value='lead'>Lead</option>
                         @endif
-                        @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
+                        @if ((Session::has('customersupport') && Session::get('customersupport') == 'yes') || Session::get('admin_role') == 1)
                             <option value='customersupport'>Customer Support</option>
                         @endif
-                        @if (Session::has('admin') && Session::get('admin') == 'yes')
+                        @if ((Session::has('admin') && Session::get('admin') == 'yes') || Session::get('admin_role') == 1)
                             <option value='admin'>Admin</option>
                         @endif
-                        @if (Session::has('account') && Session::get('account') == 'yes')
+                        @if ((Session::has('account') && Session::get('account') == 'yes') || Session::get('admin_role') == 1)
                             <option value='account'>Account</option>
                         @endif
-                        @if (Session::has('inventory') && Session::get('inventory') == 'yes')
+                        @if ((Session::has('inventory') && Session::get('inventory') == 'yes') || Session::get('admin_role') == 1)
                             <option value='inventory'>Inventory</option>
                         @endif
-                        @if (Session::has('reminder') && Session::get('reminder') == 'yes')
+                        @if ((Session::has('reminder') && Session::get('reminder') == 'yes') || Session::get('admin_role') == 1)
                             <option value='reminder'>Reminder</option>
                         @endif
                     </select>
@@ -190,11 +190,14 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+
+            // redirect to techsupport list page on click cancel btn
             $('#cancelbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.techsupport') }}";
             });
 
+            // add/remove disabled option dynamically on change assigned to 
             $('#assignedto').change(function() {
                 if ($(this).val() !== null) {
                     $(this).find('option:disabled').remove(); // remove disabled option
@@ -206,6 +209,7 @@
                 $('#assignedto').multiselect('rebuild');
             });
 
+            // intialize summernote editor for description
             $('#description , #remarks').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -220,14 +224,7 @@
                 tabsize: 2,
                 height: 100
             });
-
-
-            // redirect on customersupport page
-            $('#resetbtn').on('click', function() {
-                loadershow();
-                window.location.href = "{{ route('admin.techsupport') }}";
-            })
-
+  
             // get & set user data into form input for assing to ticket 
             function getUserData() {
                 return new Promise((resolve, reject) => {
@@ -262,7 +259,7 @@
                         $.each(userDataResponse.user, function(key, value) {
                             var optionValue = value.firstname + ' ' + value.lastname;
                             $('#assignedto').append(
-                                `<option value="${optionValue}">${optionValue}</option>`);
+                                `<option value="${value.id}">${optionValue}</option>`);
                         });
                         $('#assignedto').multiselect(
                             'rebuild'); // Rebuild multiselect after appending options
@@ -289,12 +286,14 @@
             }
 
             initialize();
+
             $('#assignedto').multiselect({
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
 
+            // function for get old techsupport data
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old customer support data in fields
@@ -342,9 +341,7 @@
                     }
                 });
             }
-
-
-
+ 
             //submit form
             $('#ticketupdateform').submit(function(event) {
                 event.preventDefault();

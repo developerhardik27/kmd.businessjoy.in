@@ -171,6 +171,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         ConsoleTVs\Charts\ChartsServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
+         
     ])->toArray(),
 
     /*
@@ -186,8 +188,9 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
-        'Charts' => ConsoleTVs\Charts\Facades\Charts::class,
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'PDF' =>  Barryvdh\DomPDF\ServiceProvider::class,
+        'Charts' => ConsoleTVs\Charts\ChartsServiceProvider::class,
     ])->toArray(),
 
 

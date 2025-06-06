@@ -44,8 +44,9 @@
         {{ route('admin.addpurchase') }}
     @endsection
     @section('addnewbutton')
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Purchase" class="btn btn-sm btn-primary">
-            <span  class="">+ Add New</span>
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Purchase"
+            class="btn btn-sm btn-primary">
+            <span class="">+ Add New</span>
         </button>
     @endsection
 @endif
@@ -172,6 +173,7 @@
                     }
                 });
             }
+            
             //call function for load purchase in table
             loaddata();
 
@@ -220,7 +222,7 @@
                 var data = $(this).data('view');
                 $.each(global_response.purchase, function(key, purchase) {
                     if (purchase.id == data) {
-                            $('#details').append(`
+                        $('#details').append(`
                                 <tr>
                                     <th>Name</th>                         
                                     <td>${purchase.name}</td>

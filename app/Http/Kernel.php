@@ -23,6 +23,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class, 
+        \App\Http\Middleware\LogPageLoadTime::class,
     ];
 
     /**
@@ -76,5 +77,6 @@ class Kernel extends HttpKernel
         'checkToken' => \App\Http\Middleware\CheckToken::class,
         'checkPermission' => \App\Http\Middleware\CheckPermission::class,
         'CheckSession' => \App\Http\Middleware\CheckSession::class,
+        'dynamic.version' => \App\Http\Middleware\DynamicVersionMiddleware::class,
     ];
 }

@@ -96,15 +96,15 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-
+            // on click add new formula btn show formula form (intially its hide)
             $('#newFormulaBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#newFormulaForm').removeClass('d-none');
                 $('#newFormulaBtnDiv').addClass('d-none');
             })
 
-            let allColumnNames = [];
-            // get column list for make formula 
+            let allColumnNames = []; // store column name(column type = number)
+            // get column list for make formula  (column type = number) and set in into all drop down
             $.ajax({
                 type: "GET",
                 url: "{{ route('invoicecolumn.formulacolumnlist') }}",
@@ -240,6 +240,7 @@
                 addname++;
                 adddiv();
             });
+            
             // function for add new row in table 
             function adddiv() {
                 if (allColumnNames.length > 0) {

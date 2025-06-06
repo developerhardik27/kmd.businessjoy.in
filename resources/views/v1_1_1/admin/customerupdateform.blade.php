@@ -156,7 +156,7 @@
             // response status == 422 that means api has not got valid or required data
             // get selected customer data and show it into fields
 
-            
+            // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
             $('#company_name').on('change keyup', function() {
                 var val = $(this).val();
                 if (val != '') {
@@ -370,9 +370,10 @@
                 });
             });
 
+            // redirect on customer list page on click cancel btn
             $('#cancelbtn').on('click',function(){
                 loadershow();
-                window.location.href = "{{route('admin.customer')}}" ;
+                window.location.href = "{{route('admin.invoicecustomer')}}" ;
             });
 
             // subimt form
@@ -390,7 +391,7 @@
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.customer') }}";
+                            window.location = "{{ route('admin.invoicecustomer') }}";
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);

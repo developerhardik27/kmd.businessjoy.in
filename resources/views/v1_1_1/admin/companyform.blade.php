@@ -167,7 +167,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            // fetch country data and show in dropdown
+            // fetch country data and show in dropdown and set default value accroding logged in user
             $.ajax({
                 type: 'GET',
                 url: '{{ route('country.index') }}',
@@ -212,7 +212,7 @@
                 loadstate(country_id);
             });
 
-            // load state in dropdown and select state according to user
+            // load state in dropdown and set default value accroding logged in user if user not select manual
             function loadstate(id = 0) {
                 $('#state').html(`<option selected="" disabled="">Select your State</option>`);
                 var url = "/api/state/search/" + id;
@@ -266,7 +266,7 @@
                 loadcity(state_id);
             });
 
-
+            // load city in dropdown and set default value accroding logged in user if user not select manual
             function loadcity(id = 0) {
                 $('#city').html(`<option selected="" disabled="">Select your City</option>`);
                 url = "/api/city/search/" + id;
@@ -312,13 +312,13 @@
             }
 
 
-
+            // redirect on company list page on click cancel btn
             $('#cancelbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.company') }}";
             });
 
-            // submit form data
+            // submit company form data
             $('#companyform').submit(function(event) {
                 event.preventDefault();
                 loadershow();

@@ -372,7 +372,7 @@
 
             $('#cancelbtn').on('click',function(){
                 loadershow();
-                window.location.href = "{{route('admin.customer')}}" ;
+                window.location.href = "{{route('admin.invoicecustomer')}}" ;
             });
 
             // subimt form
@@ -390,7 +390,7 @@
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             toastr.success(response.message);
-                            window.location = "{{ route('admin.customer') }}";
+                            window.location = "{{ route('admin.invoicecustomer') }}";
 
                         } else if (response.status == 500) {
                             toastr.error(response.message);

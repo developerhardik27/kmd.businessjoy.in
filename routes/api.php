@@ -3,9 +3,9 @@
 use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\countryController;
 use App\Http\Controllers\api\dbscriptController;
-use App\Http\Controllers\api\mailcontroller;
 use App\Http\Controllers\api\otherapiController;
 use App\Http\Controllers\api\stateController;
+use App\Models\api_authorization;
 use App\Models\company;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,13 +22,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// mail route
-Route::get('/sendmail', [mailcontroller::class, 'sendmail']);
+// middleware route group 
 
-// middleware route group   
-$middlewareClass = 'App\\Http\\Middleware\\v1_0_0\\CheckToken';
-
-Route::middleware($middlewareClass)->group(function () {
+Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
 
     function getversion($controller)
     {
@@ -40,23 +36,41 @@ Route::middleware($middlewareClass)->group(function () {
             if ($request->has('user_id')) {
                 // Retrieve the user if the user_id exists in the request
                 $user = User::find($request->user_id);
+
+                // If the user exists, retrieve the company's version
+                if ($user) {
+                    $version = Company::find($user->company_id);
+                }
+            } elseif ($request->has('site_key') && $request->has('server_key')) {
+                $company_id = api_authorization::where('site_key', $request->site_key)
+                    ->where('server_key', $request->server_key)
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->select('company_id')
+                    ->first();
+
+                // If the user exists, retrieve the company's version
+                if ($company_id) {
+                    $version = Company::find($company_id->company_id);
+                }
+
             }
 
-            // If the user exists, retrieve the company's version
-            if ($user) {
-                $version = Company::find($user->company_id);
-            }
+
 
             // Determine the version based on whether the user and version exist
             $versionexplode = $version ? $version->app_version : "v1_0_0";
+
+
+
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
             $versionexplode = "v1_0_0"; // Set a default version
         }
-        $controller = 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
 
-        return $controller;
+
+        return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
     // Default version is 1 if company not found
 
@@ -64,6 +78,8 @@ Route::middleware($middlewareClass)->group(function () {
     $customerController = getversion('customerController');
     Route::controller($customerController)->group(function () {
         Route::get('/invoicecustomer', 'invoicecustomer')->name('customer.invoicecustomer');
+        Route::get('/quotationcustomer', 'quotationcustomer')->name('customer.quotationcustomer');
+        Route::get('/customers', 'datatable')->name('customer.datatable');
         Route::get('/customer', 'index')->name('customer.index');
         Route::post('/customer/insert', 'store')->name('customer.store');
         Route::get('/customer/search/{id}', 'show')->name('customer.search');
@@ -94,21 +110,59 @@ Route::middleware($middlewareClass)->group(function () {
         Route::put('/company/versionupdate', 'updatecompanyversion')->name('company.versionupdate');
     });
 
+    // product category route
+    $productcategoryController = getversion('productcategoryController');
+    Route::controller($productcategoryController)->group(function () {
+        Route::get('/fetchproductcategory', 'fetchCategory')->name('productcategory.fetchCategory');
+        Route::get('/productcategory', 'datatable')->name('productcategory.datatable');
+        Route::get('/productcategory/list', 'index')->name('productcategory.index');
+        Route::post('/productcategory/insert', 'store')->name('productcategory.store');
+        Route::get('/productcategory/edit/{id}', 'edit')->name('productcategory.edit');
+        Route::put('/productcategory/update/{id}', 'update')->name('productcategory.update');
+        Route::put('/productcategory/statusupdate/{id}', 'statusupdate')->name('productcategory.statusupdate');
+        Route::put('/productcategory/delete/{id}', 'destroy')->name('productcategory.delete');
+    });
+
     // product route
     $productController = getversion('productController');
     Route::controller($productController)->group(function () {
-        Route::get('/product', 'index')->name('product.index');
+        Route::get('/product', 'datatable')->name('product.datatable');
+        Route::get('/product/list', 'index')->name('product.index');
         Route::post('/product/insert', 'store')->name('product.store');
         Route::get('/product/search/{id}', 'show')->name('product.search');
         Route::get('/product/edit/{id}', 'edit')->name('product.edit');
         Route::put('/product/update/{id}', 'update')->name('product.update');
         Route::put('/product/delete/{id}', 'destroy')->name('product.delete');
+
+        Route::get('/productcolumnmapping', 'columnmappingindex')->name('productcolumnmapping.index');
+        Route::post('/productcolumnmapping/insert', 'storecolumnmapping')->name('productcolumnmapping.store');
+        Route::get('/productcolumnmapping/edit/{id}', 'editcolumnmapping')->name('productcolumnmapping.edit');
+        Route::put('/productcolumnmapping/update/{id}', 'updatecolumnmapping')->name('productcolumnmapping.update');
+        Route::put('/productcolumnmapping/delete/{id}', 'destroycolumnmapping')->name('productcolumnmapping.delete');
+    });
+
+    // temp file route
+    $tempimageController = getversion('tempimageController');
+    Route::controller($tempimageController)->group(function () {
+        Route::post('/docupload', 'store')->name('temp.docupload');
+        Route::delete('/docdelete', 'deleteFile')->name('temp.docdelete');
+    });
+
+    // temp file route
+    $inventoryController = getversion('inventoryController');
+    Route::controller($inventoryController)->group(function () {
+        Route::get('/inventory', 'index')->name('inventory.index');
+        Route::get('/incominginventory/{id}', 'incominginventory')->name('inventory.incominginventory');
+        Route::put('/inventory/quantityupdate/{id}', 'quantityupdate')->name('inventory.quantityupdate');
+        Route::put('/inventory/onhandquantityupdate/{id}', 'onhandquantityupdate')->name('inventory.onhandquantityupdate');
+        Route::put('/inventory/availablequantityupdate/{id}', 'availablequantityupdate')->name('inventory.availablequantityupdate');
     });
 
 
     // user route
     $userController = getversion('userController');
     Route::controller($userController)->group(function () {
+        Route::get('/userloginhistory', 'loginhistory')->name('user.userloginhistory');
         Route::get('/username', 'username')->name('user.username');
         Route::get('/userprofile', 'userprofile')->name('user.profile');
         Route::get('/customersupportuser', 'customersupportuser')->name('user.customersupportindex');
@@ -116,6 +170,7 @@ Route::middleware($middlewareClass)->group(function () {
         Route::get('/invoiceuser', 'invoiceuser')->name('user.invoiceuserindex');
         Route::get('/techsupportuser', 'techsupportuser')->name('user.techsupportindex');
         Route::get('/user', 'index')->name('user.index');
+        Route::get('/getuser', 'userdatatable')->name('user.datatable');
         Route::post('/user/insert', 'store')->name('user.store');
         Route::get('/user/search/{id}', 'show')->name('user.search');
         Route::get('/user/edit/{id}', 'edit')->name('user.edit');
@@ -124,6 +179,15 @@ Route::middleware($middlewareClass)->group(function () {
         Route::put('/user/delete/{id}', 'destroy')->name('user.delete');
         Route::post('/user/changepassword/{id}', 'changepassword')->name('user.changepassword');
         Route::post('/user/setdefaultpage/{id}', 'setdefaultpage')->name('user.setdefaultpage');
+        
+        Route::get('/userrolepermission', 'userrolepermissionindex')->name('userrolepermission.index');
+        Route::post('/userrolepermission/insert', 'storeuserrolepermission')->name('userrolepermission.store'); 
+        Route::get('/getuserrolepermission', 'userrolepermissiondattable')->name('userrolepermission.datatable');       
+        Route::get('/userrolepermission/edit/{id}', 'edituserrolepermission')->name('userrolepermission.edit');
+        Route::post('/userrolepermission/update/{id}', 'updateuserrolepermission')->name('userrolepermission.update');
+        Route::put('/userrolepermission/statusupdate/{id}', 'userrolepermissionstatusupdate')->name('userrolepermission.statusupdate');
+        Route::put('/userrolepermission/delete/{id}', 'userrolepermissiondestroy')->name('userrolepermission.delete');
+        
     });
 
 
@@ -137,49 +201,79 @@ Route::middleware($middlewareClass)->group(function () {
         Route::post('/techsupport/update/{id}', 'update')->name('techsupport.update');
         Route::put('/techsupport/delete', 'destroy')->name('techsupport.delete');
         Route::put('/techsupport/changestatus', 'changestatus')->name('techsupport.changestatus');
-        Route::put('/techsupport/changeleadstage', 'changeleadstage')->name('techsupport.changeleadstage');
     });
-
-
-    //country route
-    Route::controller(countryController::class)->group(function () {
-        Route::get('/country', 'index')->name('country.index');
-        Route::post('/country/insert', 'store')->name('country.store');
-        Route::get('/country/search/{id}', 'show')->name('country.search');
-        Route::get('/country/edit/{id}', 'edit')->name('country.edit');
-        Route::put('/country/update/{id}', 'update')->name('country.update');
-        Route::put('/country/delete/{id}', 'destroy')->name('country.delete');
-    });
-
-    //state route
-    Route::controller(stateController::class)->group(function () {
-        Route::get('/state', 'index')->name('state.index');
-        Route::post('/state/insert', 'store')->name('state.store');
-        Route::get('/state/search/{id}', 'show')->name('state.search');
-        Route::get('/state/edit/{id}', 'edit')->name('state.edit');
-        Route::put('/state/update/{id}', 'update')->name('state.update');
-        Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
-    });
-
-    //city route
-    Route::controller(cityController::class)->group(function () {
-        Route::get('/city', 'index')->name('city.index');
-        Route::post('/city/insert', 'store')->name('city.store');
-        Route::get('/city/search/{id}', 'show')->name('city.search');
-        Route::get('/city/edit/{id}', 'edit')->name('city.edit');
-        Route::put('/city/update/{id}', 'update')->name('city.update');
-        Route::put('/city/delete/{id}', 'destroy')->name('city.delete');
-    });
-
+ 
     //bank details route
     $bankdetailsController = getversion('bankdetailsController');
     Route::controller($bankdetailsController)->group(function () {
         Route::get('/bank', 'index')->name('bank.index');
         Route::post('/bank/insert', 'store')->name('bank.store');
-        Route::get('/bank/search/{id}', 'show')->name('bank.search');
-        Route::get('/bank/edit/{id}', 'edit')->name('bank.edit');
         Route::put('/bank/update/{id}', 'update')->name('bank.update');
         Route::put('/bank/delete/{id}', 'destroy')->name('bank.delete');
+    });
+
+
+
+    //payment_details route 
+    $PaymentController = getversion('PaymentController');
+    Route::controller($PaymentController)->group(function () {
+        Route::post('payment_details', 'store')->name('paymentdetails.store');
+        Route::get('paymentdetail/{id}', 'paymentdetail')->name('paymentdetails.search');
+        Route::get('pendingpayment/{id}', 'pendingpayment')->name('paymentdetails.pendingpayment');
+    });
+
+    // supplier route
+    $supplierController = getversion('supplierController');
+    Route::controller($supplierController)->group(function () {
+        Route::get('/supplier', 'datatable')->name('supplier.datatable');
+        Route::get('/supplier/list', 'index')->name('supplier.index');
+        Route::post('/supplier/insert', 'store')->name('supplier.store');
+        Route::get('/supplier/search/{id}', 'show')->name('supplier.search');
+        Route::get('/supplier/edit/{id}', 'edit')->name('supplier.edit');
+        Route::put('/supplier/statusupdate/{id}', 'statusupdate')->name('supplier.statusupdate');
+        Route::put('/supplier/update/{id}', 'update')->name('supplier.update');
+        Route::put('/supplier/delete/{id}', 'destroy')->name('supplier.delete');
+    });
+
+
+    // purchases route 
+    $purchaseController = getversion('purchaseController');
+    Route::controller($purchaseController)->group(function () {
+        Route::get('/purchase', 'index')->name('purchase.index');
+        Route::post('/purchase/insert', 'store')->name('purchase.store');
+        Route::get('/purchase/search/{id}', 'show')->name('purchase.search');
+        Route::get('/purchase/timeline/{id}', 'timeline')->name('purchase.timeline');
+        Route::get('/purchase/edit/{id}', 'edit')->name('purchase.edit');
+        Route::post('/purchase/update/{id}', 'update')->name('purchase.update');
+        Route::post('/purchase/receiveinventory/{id}', 'receiveinventory')->name('purchase.receiveinventory');
+        Route::put('/purchase/delete/{id}', 'destroy')->name('purchase.delete');
+        Route::put('/purchase/statusupdate/{id}', 'changestatus')->name('purchase.changestatus');
+    });
+
+    // tbl_invoice_column route 
+    $tblinvoicecolumnController = getversion('tblinvoicecolumnController');
+    Route::controller($tblinvoicecolumnController)->group(function () {
+        Route::get('/invoice/formulacolumnlist', 'formula')->name('invoicecolumn.formulacolumnlist');
+        Route::get('/invoicecolumn', 'index')->name('invoicecolumn.index');
+        Route::post('/invoicecolumn/insert', 'store')->name('invoicecolumn.store');
+        Route::post('/invoicecolumn/columnorder', 'columnorder')->name('invoicecolumn.columnorder');
+        Route::get('/invoicecolumn/search/{id}', 'show')->name('invoicecolumn.search');
+        Route::get('/invoicecolumn/edit/{id}', 'edit')->name('invoicecolumn.edit');
+        Route::post('/invoicecolumn/update/{id}', 'update')->name('invoicecolumn.update');
+        Route::put('/invoicecolumn/delete/{id}', 'destroy')->name('invoicecolumn.delete');
+        Route::put('/invoicecolumn/hide/{id}', 'hide')->name('invoicecolumn.hide');
+    });
+
+    // tbl_invoice_formula route 
+    $tblinvoiceformulaController = getversion('tblinvoiceformulaController');
+    Route::controller($tblinvoiceformulaController)->group(function () {
+        Route::get('/invoiceformula', 'index')->name('invoiceformula.index');
+        Route::post('/invoiceformula/insert', 'store')->name('invoiceformula.store');
+        Route::post('/invoiceformula/formulaorder', 'formulaorder')->name('invoiceformula.formulaorder');
+        Route::get('/invoiceformula/search/{id}', 'show')->name('invoiceformula.search');
+        Route::get('/invoiceformula/edit/{id}', 'edit')->name('invoiceformula.edit');
+        Route::post('/invoiceformula/update/{id}', 'update')->name('invoiceformula.update');
+        Route::put('/invoiceformula/delete/{id}', 'destroy')->name('invoiceformula.delete');
     });
 
     $invoiceController = getversion('invoiceController');
@@ -206,52 +300,6 @@ Route::middleware($middlewareClass)->group(function () {
         Route::put('/reportlog/delete/{id}', 'reportlogdestroy')->name('report.delete');
     });
 
-    //payment_details route 
-    $PaymentController = getversion('PaymentController');
-    Route::controller($PaymentController)->group(function () {
-        Route::post('payment_details', 'store')->name('paymentdetails.store');
-        Route::get('paymentdetail/{id}', 'paymentdetail')->name('paymentdetails.search');
-        Route::get('pendingpayment/{id}', 'pendingpayment')->name('paymentdetails.pendingpayment');
-    });
-
-
-    // purchases route 
-    $purchaseController = getversion('purchaseController');
-    Route::controller($purchaseController)->group(function () {
-        Route::get('/purchase', 'index')->name('purchase.index');
-        Route::post('/purchase/insert', 'store')->name('purchase.store');
-        Route::get('/purchase/search/{id}', 'show')->name('purchase.search');
-        Route::get('/purchase/edit/{id}', 'edit')->name('purchase.edit');
-        Route::post('/purchase/update/{id}', 'update')->name('purchase.update');
-        Route::put('/purchase/delete/{id}', 'destroy')->name('purchase.delete');
-    });
-
-    // tbl_invoice_column route 
-    $tblinvoicecolumnController = getversion('tblinvoicecolumnController');
-    Route::controller($tblinvoicecolumnController)->group(function () {
-        Route::get('/formulacolumnlist', 'formula')->name('invoicecolumn.formulacolumnlist');
-        Route::get('/invoicecolumn', 'index')->name('invoicecolumn.index');
-        Route::post('/invoicecolumn/insert', 'store')->name('invoicecolumn.store');
-        Route::post('/invoicecolumn/columnorder', 'columnorder')->name('invoicecolumn.columnorder');
-        Route::get('/invoicecolumn/search/{id}', 'show')->name('invoicecolumn.search');
-        Route::get('/invoicecolumn/edit/{id}', 'edit')->name('invoicecolumn.edit');
-        Route::post('/invoicecolumn/update/{id}', 'update')->name('invoicecolumn.update');
-        Route::put('/invoicecolumn/delete/{id}', 'destroy')->name('invoicecolumn.delete');
-        Route::put('/invoicecolumn/hide/{id}', 'hide')->name('invoicecolumn.hide');
-    });
-
-    // tbl_invoice_formula route 
-    $tblinvoiceformulaController = getversion('tblinvoiceformulaController');
-    Route::controller($tblinvoiceformulaController)->group(function () {
-        Route::get('/invoiceformula', 'index')->name('invoiceformula.index');
-        Route::post('/invoiceformula/insert', 'store')->name('invoiceformula.store');
-        Route::post('/invoiceformula/formulaorder', 'formulaorder')->name('invoiceformula.formulaorder');
-        Route::get('/invoiceformula/search/{id}', 'show')->name('invoiceformula.search');
-        Route::get('/invoiceformula/edit/{id}', 'edit')->name('invoiceformula.edit');
-        Route::post('/invoiceformula/update/{id}', 'update')->name('invoiceformula.update');
-        Route::put('/invoiceformula/delete/{id}', 'destroy')->name('invoiceformula.delete');
-    });
-
     // lead route 
     $tblleadController = getversion('tblleadController');
     Route::controller($tblleadController)->group(function () {
@@ -271,12 +319,8 @@ Route::middleware($middlewareClass)->group(function () {
     // lead call history route
     $tblleadhistoryController = getversion('tblleadhistoryController');
     Route::controller($tblleadhistoryController)->group(function () {
-        Route::get('/leadhistory', 'index')->name('leadhistory.index');
         Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
         Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
-        Route::get('/leadhistory/edit/{id}', 'edit')->name('leadhistory.edit');
-        Route::post('/leadhistory/update/{id}', 'update')->name('leadhistory.update');
-        Route::put('/leadhistory/delete', 'destroy')->name('leadhistory.delete');
     });
 
     // customer suppport route 
@@ -295,12 +339,8 @@ Route::middleware($middlewareClass)->group(function () {
     // customer support call history route
     $customersupporthistoryController = getversion('customersupporthistoryController');
     Route::controller($customersupporthistoryController)->group(function () {
-        Route::get('/customersupporthistory', 'index')->name('customersupporthistory.index');
         Route::post('/customersupporthistory/insert', 'store')->name('customersupporthistory.store');
         Route::get('/customersupporthistory/search/{id}', 'show')->name('customersupporthistory.search');
-        Route::get('/customersupporthistory/edit/{id}', 'edit')->name('customersupporthistory.edit');
-        Route::post('/customersupporthistory/update/{id}', 'update')->name('customersupporthistory.update');
-        Route::put('/customersupporthistory/delete', 'destroy')->name('customersupporthistory.delete');
     });
 
     //common controller route
@@ -365,8 +405,8 @@ Route::middleware($middlewareClass)->group(function () {
     $blogcategoryController = getversion('blogcategoryController');
     Route::controller($blogcategoryController)->group(function () {
         Route::get('/blogcategory', 'index')->name('blogcategory.index');
+        Route::get('/getblogcategory', 'blogcategorydatatable')->name('blogcategory.datatable');
         Route::post('/blogcategory/insert', 'store')->name('blogcategory.store');
-        Route::get('/blogcategory/search/{id}', 'show')->name('blogcategory.search');
         Route::get('/blogcategory/edit/{id}', 'edit')->name('blogcategory.edit');
         Route::post('/blogcategory/update/{id}', 'update')->name('blogcategory.update');
         Route::put('/blogcategory/delete/{id}', 'destroy')->name('blogcategory.delete');
@@ -376,8 +416,8 @@ Route::middleware($middlewareClass)->group(function () {
     $blogtagController = getversion('blogtagController');
     Route::controller($blogtagController)->group(function () {
         Route::get('/blogtag', 'index')->name('blogtag.index');
+        Route::get('/getblogtag', 'blogtagdatatable')->name('blogtag.datatable');
         Route::post('/blogtag/insert', 'store')->name('blogtag.store');
-        Route::get('/blogtag/search/{id}', 'show')->name('blogtag.search');
         Route::get('/blogtag/edit/{id}', 'edit')->name('blogtag.edit');
         Route::post('/blogtag/update/{id}', 'update')->name('blogtag.update');
         Route::put('/blogtag/delete/{id}', 'destroy')->name('blogtag.delete');
@@ -386,9 +426,11 @@ Route::middleware($middlewareClass)->group(function () {
     // blog  route
     $blogController = getversion('blogController');
     Route::controller($blogController)->group(function () {
+        Route::get('/getslug', 'getSlug')->name('blog.getslug');
         Route::get('/blog', 'index')->name('blog.index');
+        Route::get('/getblog', 'blogdatatable')->name('blog.datatable');
         Route::post('/blog/insert', 'store')->name('blog.store');
-        Route::get('/blog/search/{id}', 'show')->name('blog.search');
+        Route::get('/blog/search/{slug}', 'show')->name('blog.search');
         Route::get('/blog/edit/{id}', 'edit')->name('blog.edit');
         Route::post('/blog/update/{id}', 'update')->name('blog.update');
         Route::put('/blog/delete/{id}', 'destroy')->name('blog.delete');
@@ -399,13 +441,162 @@ Route::middleware($middlewareClass)->group(function () {
     Route::controller($apiauthorizationController)->group(function () {
         Route::get('/apiauthorization', 'index')->name('apiauthorization.index');
         Route::post('/apiauthorization/insert', 'store')->name('apiauthorization.store');
-        Route::get('/apiauthorization/search/{id}', 'show')->name('apiauthorization.search');
         Route::get('/apiauthorization/edit/{id}', 'edit')->name('apiauthorization.edit');
         Route::post('/apiauthorization/update/{id}', 'update')->name('apiauthorization.update');
         Route::put('/apiauthorization/delete/{id}', 'destroy')->name('apiauthorization.delete');
     });
 
+    // tbl_quotation_column route 
+    $tblquotationcolumnController = getversion('tblquotationcolumnController');
+    Route::controller($tblquotationcolumnController)->group(function () {
+        Route::get('/quotation/formulacolumnlist', 'formula')->name('quotationcolumn.formulacolumnlist');
+        Route::get('/quotationcolumn', 'index')->name('quotationcolumn.index');
+        Route::post('/quotationcolumn/insert', 'store')->name('quotationcolumn.store');
+        Route::post('/quotationcolumn/columnorder', 'columnorder')->name('quotationcolumn.columnorder');
+        Route::get('/quotationcolumn/search/{id}', 'show')->name('quotationcolumn.search');
+        Route::get('/quotationcolumn/edit/{id}', 'edit')->name('quotationcolumn.edit');
+        Route::post('/quotationcolumn/update/{id}', 'update')->name('quotationcolumn.update');
+        Route::put('/quotationcolumn/delete/{id}', 'destroy')->name('quotationcolumn.delete');
+        Route::put('/quotationcolumn/hide/{id}', 'hide')->name('quotationcolumn.hide');
+    });
+
+
+    // tbl_quotation_formula route 
+    $tblquotationformulaController = getversion('tblquotationformulaController');
+    Route::controller($tblquotationformulaController)->group(function () {
+        Route::get('/quotationformula', 'index')->name('quotationformula.index');
+        Route::post('/quotationformula/insert', 'store')->name('quotationformula.store');
+        Route::post('/quotationformula/formulaorder', 'formulaorder')->name('quotationformula.formulaorder');
+        Route::get('/quotationformula/search/{id}', 'show')->name('quotationformula.search');
+        Route::get('/quotationformula/edit/{id}', 'edit')->name('quotationformula.edit');
+        Route::post('/quotationformula/update/{id}', 'update')->name('quotationformula.update');
+        Route::put('/quotationformula/delete/{id}', 'destroy')->name('quotationformula.delete');
+    });
+
+    $tblquotationothersettingController = getversion('tblquotationothersettingController');
+    Route::controller($tblquotationothersettingController)->group(function () {
+        Route::get('/quotation/getoverduedays', 'getoverduedays')->name('getquotationoverduedays.index');
+        Route::get('/quotationnumberpatterns', 'quotationnumberpatternindex')->name('quotationnumberpatterns.index');
+        Route::post('/quotation/getoverduedays/update/{id}', 'overduedayupdate')->name('getquotationoverduedays.update');
+        Route::post('/quotationpattern/update', 'quotationpatternstore')->name('quotationpattern.store');
+        Route::post('/quotation/gstsettings/update/{id}', 'gstsettingsupdate')->name('quotationgstsettingsupdate.update');
+        Route::get('/quotation/termsandconditions', 'termsandconditionsindex')->name('quotationtermsandconditions.index');
+        Route::post('/quotation/termsandconditions/insert', 'quotationtcstore')->name('quotationtermsandconditions.store');
+        Route::get('/quotation/termsandconditions/edit/{id}', 'tcedit')->name('quotationtermsandconditions.edit');
+        Route::post('/quotation/termsandconditions/update/{id}', 'tcupdate')->name('quotationtermsandconditions.update');
+        Route::put('/quotation/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('quotationtermsandconditions.statusupdate');
+        Route::put('/quotation/termsandconditions/delete/{id}', 'tcdestroy')->name('quotationtermsandconditions.delete');
+        Route::post('/manualquotationnumber', 'manual_quotation_number')->name('othersettings.updatequotationnumberstatus');
+        Route::post('/manualquotationdate', 'manual_quotation_date')->name('othersettings.updatequotationdatestatus');
+    });
+
+    $quotationController = getversion('quotationController');
+    //quotation route
+    Route::controller($quotationController)->group(function () {
+        Route::get('/quotation/totalquotation', 'totalQuotation')->name('quotation.totalquotation');
+        Route::get('/quotation/status_list', 'status_list')->name('quotation.status_list');
+        Route::get('/quotation/chart', 'monthlyQuotationChart')->name('quotation.chart');
+        Route::get('/quotation/checkquotationnumber', 'checkquotationnumber')->name('quotation.checkquotationnumber');
+        Route::get('/quotation/currency', 'currency')->name('quotation.currency');
+        Route::get('/quotation/columnname', 'columnname')->name('quotation.columnname');
+        Route::get('/quotation/numbercolumnname', 'numbercolumnname')->name('quotation.numbercolumnname');
+        Route::get('/quotation/quotation_list', 'quotation_list')->name('quotation.quotation_list');
+        Route::put('/quotation_status/{id}', 'status')->name('quotation.status');
+        Route::get('/quotation/{id}', 'index')->name('quotation.index');
+        Route::post('/quotation/insert', 'store')->name('quotation.store');
+        Route::get('/quotation/search/{id}', 'show')->name('quotation.search');
+        Route::get('/quotation/quotation_details/{id}', 'quotation_details')->name('quotation.quotation_details');
+        Route::get('/quotation/edit/{id}', 'edit')->name('quotation.edit');
+        Route::put('/quotation/update/{id}', 'update')->name('quotation.update');
+        Route::put('/quotation/delete/{id}', 'destroy')->name('quotation.delete');
+        Route::get('/quotation/remarks/{id}', 'getquotationremarks')->name('quotation.getquotationremarks');
+        Route::post('/quotation/updateremarks', 'updatequotationremarks')->name('quotation.updatequotationremarks');
+    });
+
+
+    // consignee route
+    $consigneeController = getversion('consigneeController');
+    Route::controller($consigneeController)->group(function () {
+        Route::get('/getconsignee', 'consigneelist')->name('consignee.getconsigneelist');
+        Route::get('/consignee', 'index')->name('consignee.index');
+        Route::post('/consignee/insert', 'store')->name('consignee.store');
+        Route::get('/consignee/search/{id}', 'show')->name('consignee.search');
+        Route::get('/consignee/edit/{id}', 'edit')->name('consignee.edit');
+        Route::put('/consignee/statusupdate/{id}', 'statusupdate')->name('consignee.statusupdate');
+        Route::put('/consignee/update/{id}', 'update')->name('consignee.update');
+        Route::put('/consignee/delete/{id}', 'destroy')->name('consignee.delete');
+    });
+
+    // consignor route
+    $consignorController = getversion('consignorController');
+    Route::controller($consignorController)->group(function () {
+        Route::get('/getconsignor', 'consignorlist')->name('consignor.getconsignorlist');
+        Route::get('/consignor', 'index')->name('consignor.index');
+        Route::post('/consignor/insert', 'store')->name('consignor.store');
+        Route::get('/consignor/search/{id}', 'show')->name('consignor.search');
+        Route::get('/consignor/edit/{id}', 'edit')->name('consignor.edit');
+        Route::put('/consignor/statusupdate/{id}', 'statusupdate')->name('consignor.statusupdate');
+        Route::put('/consignor/update/{id}', 'update')->name('consignor.update');
+        Route::put('/consignor/delete/{id}', 'destroy')->name('consignor.delete');
+    });
+
+    // consignor copy route
+    $consignorcopyController = getversion('consignorcopyController');
+    Route::controller($consignorcopyController)->group(function () {
+        Route::get('/consignorcopy', 'index')->name('consignorcopy.index');
+        Route::post('/consignorcopy/insert', 'store')->name('consignorcopy.store');
+        Route::get('/consignorcopy/search/{id}', 'show')->name('consignorcopy.search');
+        Route::get('/consignorcopy/edit/{id}', 'edit')->name('consignorcopy.edit');
+        Route::put('/consignorcopy/updatetandc/{id}', 'updatetandc')->name('consignorcopy.updatetandc');
+        Route::put('/consignorcopy/update/{id}', 'update')->name('consignorcopy.update');
+        Route::put('/consignorcopy/delete/{id}', 'destroy')->name('consignorcopy.delete');
+    });
+
+    // logistic other settings route
+    $logisticothersettingsController = getversion('logisticothersettingsController');
+    Route::controller($logisticothersettingsController)->group(function () {
+        Route::get('/getlogisticothersettings', 'getlogisticothersettings')->name('getlogisticothersettings');
+        Route::get('/consignorcopy/termsandconditions', 'termsandconditionsindex')->name('consignorcopytermsandconditions.index');
+        Route::post('/consignorcopy/termsandconditions/insert', 'consignorcopytcstore')->name('consignorcopytermsandconditions.store');
+        Route::get('/consignorcopy/termsandconditions/edit/{id}', 'tcedit')->name('consignorcopytermsandconditions.edit');
+        Route::post('/consignorcopy/termsandconditions/update/{id}', 'tcupdate')->name('consignorcopytermsandconditions.update');
+        Route::put('/consignorcopy/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('consignorcopytermsandconditions.statusupdate');
+        Route::put('/consignorcopy/termsandconditions/delete/{id}', 'tcdestroy')->name('consignorcopytermsandconditions.delete');
+        Route::post('/consignorcopy/consignmentnotenumber', 'consignmentnotenumberstore')->name('consignmentnotenumber.store');
+    });
+
 });
+
+ //country route
+    Route::controller(countryController::class)->group(function () {
+        Route::get('/country', 'index')->name('country.index');
+        Route::post('/country/insert', 'store')->name('country.store');
+        Route::get('/country/search/{id}', 'show')->name('country.search');
+        Route::get('/country/edit/{id}', 'edit')->name('country.edit');
+        Route::put('/country/update/{id}', 'update')->name('country.update');
+        Route::put('/country/delete/{id}', 'destroy')->name('country.delete');
+    });
+
+    //state route
+    Route::controller(stateController::class)->group(function () {
+        Route::get('/state', 'index')->name('state.index');
+        Route::post('/state/insert', 'store')->name('state.store');
+        Route::get('/state/search/{id}', 'show')->name('state.search');
+        Route::get('/state/edit/{id}', 'edit')->name('state.edit');
+        Route::put('/state/update/{id}', 'update')->name('state.update');
+        Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
+    });
+
+    //city route
+    Route::controller(cityController::class)->group(function () {
+        Route::get('/city', 'index')->name('city.index');
+        Route::post('/city/insert', 'store')->name('city.store');
+        Route::get('/city/search/{id}', 'show')->name('city.search');
+        Route::get('/city/edit/{id}', 'edit')->name('city.edit');
+        Route::put('/city/update/{id}', 'update')->name('city.update');
+        Route::put('/city/delete/{id}', 'destroy')->name('city.delete');
+    });
+
 
 Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
 

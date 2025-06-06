@@ -73,8 +73,8 @@
                             <hr>
                             @if (session('user_permissions.reportmodule.report.log') == '1')
                                 <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                                    <table
-                                        id="data"class="table  table-bordered display table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
+                                    <table id="data"
+                                        class="table table-bordered display table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped text-center">
                                         <thead>
                                             <tr>
                                                 <th>Sr</th>
@@ -110,19 +110,34 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            $('#invoicezipform').on('submit', function() {
-                toastr.info('Please wait  file is downloading', '', {
-                    timeOut: 10000
+            $('#invoicezipform').on('submit', function(e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                loadershow(); // Show the loader
+
+                // Serialize form data
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '/admin/generatepdfzip', // Your API endpoint
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#invoicezipform')[0].reset();
+                            // Redirect to the URL to start the file download
+                            window.location.href = response.zipFileName;
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('An error occurred while generating the ZIP file.');
+                    },
+                    complete: function() {
+                        loaderhide(); // Hide the loader
+                    }
                 });
-                loadershow();
-                setTimeout(function() {
-                    loaderhide();
-                }, 40000);
-                setTimeout(() => {
-                    $('#fromdate').val('');
-                    $('#todate').val('');
-                }, 10000);
-                
             });
 
 
@@ -138,7 +153,7 @@
             loaderhide();
 
 
-            // get terms and conditions
+            // get report log
             function loaddata() {
                 loadershow();
                 $('#tabledata').empty();
@@ -203,14 +218,12 @@
                 });
             }
 
-           
-
             @if (session('user_permissions.reportmodule.report.log') == '1')
-              //call function for loaddata if  user has permission
+                //call function for loaddata if  user has permission
                 loaddata();
             @endif
 
-            // delete terms and conditions              
+            // delete report log             
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
                     loadershow();

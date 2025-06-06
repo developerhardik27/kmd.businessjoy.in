@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
-use App\Mail\ForgotPasswordMail;
-use App\Models\company;
 use App\Models\User;
+use GuzzleHttp\Client;
+use App\Models\company;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\user_activity;
+use Torann\GeoIP\Facades\GeoIP;
+use App\Mail\ForgotPasswordMail;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class AdminLoginController extends Controller
 {
@@ -25,6 +30,12 @@ class AdminLoginController extends Controller
         return view('admin.login');
     }
 
+    /**
+     * Summary of authenticate
+     * - check user credential and check permissions
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\RedirectResponse
+     */
     public function authenticate(Request $request)
     {
 
@@ -36,14 +47,14 @@ class AdminLoginController extends Controller
 
         if ($validator->passes()) {
 
-            if (User::where('email', '=', $request->email)->first()) {
-                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0])) {
-                    $admin = Auth::guard('admin')->user();
-                    $api_token = Str::random(60);
+            if (User::where('email', $request->email)->first()) { // check if request email is registered or not
+                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0])) { //verify credentials
+                    $admin = Auth::guard('admin')->user(); // user
+                    $api_token = Str::random(60); // generate api token
 
-                    DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]);
+                    DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]); // store api token into user table for further activity
 
-                    if ((in_array($admin->role,[1,2,3])) && ($admin->is_active == 1)) {
+                    if ((in_array($admin->role, [1, 2, 3])) && ($admin->is_active == 1)) {
 
                         $dbname = company::find($admin->company_id);
                         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
@@ -52,6 +63,7 @@ class AdminLoginController extends Controller
                         DB::purge('dynamic_connection');
                         DB::reconnect('dynamic_connection');
 
+                        // fetch user permissions
                         $rpdetailsjson = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $admin->id)->get();
 
                         if ($rpdetailsjson->count() > 0) {
@@ -63,15 +75,14 @@ class AdminLoginController extends Controller
 
                             $menus = [];
 
+                            // check user permission function
                             function hasPermission($json, $module)
                             {
                                 if (isset($json[$module]) && !empty($module)) {
                                     foreach ($json[$module] as $key => $value) {
                                         foreach ($value as $key2 => $value2) {
-                                            if ($key2 === "show") {
-                                                if ($value2 == "1") {
-                                                    return true;
-                                                }
+                                            if ($key2 === "show" && $value2 == 1) {
+                                                return true;
                                             }
                                         }
                                     }
@@ -79,28 +90,28 @@ class AdminLoginController extends Controller
                             }
 
 
-
-
-
+                            /*
+                             * $menus (using in dashboard for showing menus) 
+                             */
+ 
 
                             if (hasPermission($rp, "invoicemodule")) {
                                 session(['invoice' => "yes"]);
-                                session(['menu' => 'invoice']);
-                                session(['showinvoicesettings' => "yes"]);
+                                session(['menu' => 'invoice']); 
                                 $menus[] = 'invoice';
                             }
 
                             if (hasPermission($rp, "quotationmodule")) {
                                 session(['quotation' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
                                     session(['menu' => 'quotation']);
                                 }
-                                // $menus[] = 'quotation';
+                                $menus[] = 'quotation';
                             }
 
                             if (hasPermission($rp, "leadmodule")) {
                                 session(['lead' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
                                     session(['menu' => 'lead']);
                                 }
                                 // $menus[] = 'lead';
@@ -108,40 +119,45 @@ class AdminLoginController extends Controller
 
                             if (hasPermission($rp, "customersupportmodule")) {
                                 session(['customersupport' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
-                                    session(['menu' => 'customersupport']);
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
+                                    session(['menu' => 'Customer support']);
                                 }
                                 // $menus[] = 'customersupport';
                             }
+
                             if (hasPermission($rp, "adminmodule")) {
                                 session(['admin' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'lead', 'account', 'inventory', 'reminder', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                                     session(['menu' => 'admin']);
                                 }
                                 // $menus[] = 'admin';
                             }
-                            if (hasPermission($rp, "accountmodule")) {
-                                session(['account' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
-                                    session(['menu' => 'account']);
-                                }
-                                // $menus[] = 'account';
-                            }
+
+                            // if (hasPermission($rp, "accountmodule")) {
+                            //     session(['account' => "yes"]);
+                            //     if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
+                            //         session(['menu' => 'account']);
+                            //     }
+                            //     // $menus[] = 'account';
+                            // }
+
                             if (hasPermission($rp, "inventorymodule")) {
                                 session(['inventory' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'reminder', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
                                     session(['menu' => 'inventory']);
                                 }
                                 // $menus[] = 'inventory';
                             }
+
                             if (hasPermission($rp, "remindermodule")) {
                                 session(['reminder' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'blog'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
                                     session(['menu' => 'reminder']);
                                 }
                                 $menus[] = 'reminder';
                             }
-                            if (hasPermission($rp, "reportmodule")) {
+
+                            if (hasPermission($rp, "reportmodule")) { // its invoice report
                                 session(['invoice' => "yes"]);
                                 session(['menu' => 'invoice']);
                                 session(['report' => "yes"]);
@@ -150,28 +166,38 @@ class AdminLoginController extends Controller
                                 // }
                                 // $menus[] = 'report';
                             }
+
                             if (hasPermission($rp, "blogmodule")) {
                                 session(['blog' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'reminder'])))) {
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
                                     session(['menu' => 'blog']);
                                 }
                                 // $menus[] = 'blog';
-                            } 
-                                $request->session()->put([
-                                    'allmenu' => $menus
-                                ]); 
+                            }
+
+                            if (hasPermission($rp, "logisticmodule")) {
+                                session(['logistic' => "yes"]);
+                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
+                                    session(['menu' => 'logistic']);
+                                }
+                                // $menus[] = 'blog';
+                            }
+
+                            $request->session()->put([
+                                'allmenu' => $menus
+                            ]);
 
                         }
 
-
-
                         $request->session()->put([
+                            'user' => $admin,
                             'admin_role' => $admin->role,
                             'company_id' => $admin->company_id,
                             'user_id' => $admin->id,
                             'name' => $admin->firstname . ' ' . $admin->lastname,
                             'api_token' => $api_token,
                             'folder_name' => $dbname->app_version,
+                            'loggedby' => 'user'
                         ]);
 
 
@@ -179,32 +205,38 @@ class AdminLoginController extends Controller
                             session_start();
                         $_SESSION['folder_name'] = session('folder_name');
 
-                        if (isset($admin->default_module) && isset($admin->default_page)) {
-                            session(['menu' => $admin->default_module]);
-                            return redirect()->route('admin.' . $admin->default_page);
-                        }
                         if (Session::get('menu') == null) {
                             DB::table('users')
-                                ->where('id', session('user_id'))
+                                ->where('id', $admin->id)
                                 ->update(['api_token' => null]);
 
                             $request->session()->flush();
 
                             if (session_status() !== PHP_SESSION_ACTIVE)
                                 session_start();
-                                session_destroy();
+                            session_destroy();
                             Auth::guard('admin')->logout();
+                            $this->save_user_login_history($request, 'direct', 'Due to no permissions.');
                             return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
-                        }  
+                        }
+
+                        $this->save_user_login_history();//create login history
+
+                        if (isset($admin->default_module) && isset($admin->default_page)) {
+                            session(['menu' => $admin->default_module]);
+                            return redirect()->route('admin.' . $admin->default_page);
+                        }
                         return redirect()->route('admin.welcome');
                     } else {
                         Auth::guard('admin')->logout();
                         return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel')->withInput($request->only('email'));
                     }
                 } else {
+                    $this->save_user_login_history($request, 'direct', 'Credential invalid.');
                     return redirect()->route('admin.login')->with('error', 'credential invalid')->withInput($request->only('email'));
                 }
             } else {
+                $this->save_user_login_history($request, 'direct', 'Email not registered.');
                 return redirect()->route('admin.login')->with('error', 'You are not Registered !')->withInput($request->only('email'));
             }
         } else {
@@ -213,10 +245,138 @@ class AdminLoginController extends Controller
     }
 
 
+    public function save_user_login_history($request = null, $via = 'direct', $message = null)
+    {
+
+        try {
+
+            $user = Auth::guard('admin')->user();
+
+            // Get the current IP address
+            $ip = request()->header('X-Forwarded-For') ?? request()->server('REMOTE_ADDR');
+
+            // Get the country based on IP using ip-api
+            $client = new Client();
+            $response = $client->get("http://ip-api.com/json/{$ip}");
+
+            // Decode the response JSON
+            $data = json_decode($response->getBody(), true);
+
+            // If the status is 'fail' or any other issue, set 'Unknown'
+            $country = $data['status'] === 'fail' ? 'Unknown' : $data['country'];
+
+            // Get device information (Mobile/Desktop/Tablet/Etc...)
+            $agent = new Agent();
+            $device = $agent->isDesktop() ? 'Desktop' : ($agent->isMobile() ? 'Mobile' : 'Tablet');
+
+            // Get the browser name (e.g., Chrome, Firefox)
+            $browser = $agent->browser();
+
+            if ($user) {
+                // Create user login entry
+                user_activity::create([
+                    'user_id' => $user->id,
+                    'username' => $user->email,  // Add username if needed
+                    'ip' => $ip,  // Capture IP address
+                    'country' => $country,
+                    'device' => $device,
+                    'browser' => $browser,
+                    'status' => 'success',  // Mark the login status as success
+                    'via' => $via,
+                    'company_id' => $user->company_id,
+                ]);
+            } else {
+                $user = User::where('email', $request->email)->where('is_deleted', 0)->first();
+
+                if ($user) {
+                    // Create user login entry
+                    user_activity::create([
+                        'user_id' => $user->id,
+                        'username' => $user->email,  // Add username if needed
+                        'ip' => $ip,  // Capture IP address
+                        'country' => $country,
+                        'device' => $device,
+                        'browser' => $browser,
+                        'status' => 'fail',  // Mark the login status as success
+                        'via' => $via,
+                        'company_id' => $user->company_id,
+                        'message' => $message
+                    ]);
+                } else {
+                    // Create user login entry
+                    user_activity::create([
+                        'username' => $request->email,  // Add username if needed
+                        'ip' => $ip,  // Capture IP address
+                        'country' => $country,
+                        'device' => $device,
+                        'browser' => $browser,
+                        'status' => 'fail',  // Mark the login status as success
+                        'via' => $via,
+                        'message' => $message
+                    ]);
+                }
+
+            }
+
+            if ($user) {
+
+                // Get the IDs of the last 30 records
+                $keepLast30 = user_activity::where('user_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->take(30)
+                    ->pluck('id'); // Get IDs of the last 30 records
+
+                // Delete records that are older than the last 30
+                user_activity::where('user_id', $user->id)
+                    ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
+                    ->delete();
+            }
+
+        } catch (\Exception $e) { 
+            Log::info($e->getMessage()); 
+        }
+
+    }
+
+    /**
+     * Summary of forgot
+     * forgot page view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function forgot()
     {
         return view('admin.forgot');
     }
+
+    /**
+     * Summary of forgot_password
+     * varify  and return reset password link on email
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function forgot_password(Request $request)
+    {
+
+        $user = User::where('email', '=', $request->email)->first();
+
+        if (!empty($user)) {
+            $user->pass_token = str::random(40);
+            $user->save();
+
+            Mail::to($user->email)->bcc('parthdeveloper9@gmail.com')->send(new ForgotPasswordMail($user));
+
+            return redirect()->back()->with('success', 'plz check your mailbox and reset your password');
+        } else {
+            return redirect()->back()->with('error', 'sorry ! you are not registered ');
+        }
+    }
+
+    /**
+     * Summary of reset_password
+     * reset password page view
+     * @param mixed $token
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function reset_password($token)
     {
 
@@ -228,6 +388,11 @@ class AdminLoginController extends Controller
             abort(404);
         }
     }
+
+    /**
+     * reset password
+     */
+
     public function post_reset_password($token, Request $request)
     {
 
@@ -250,26 +415,12 @@ class AdminLoginController extends Controller
         }
     }
 
-
-    public function forgot_password(Request $request)
-    {
-
-        $user = User::where('email', '=', $request->email)->first();
-
-        if (!empty($user)) {
-            $user->pass_token = str::random(40);
-            $user->save();
-
-            Mail::to($user->email)->bcc('parthdeveloper9@gmail.com')->send(new ForgotPasswordMail($user));
-
-            return redirect()->back()->with('success', 'plz check your mailbox and reset your password');
-        } else {
-            return redirect()->back()->with('error', 'sorry ! you are not registered ');
-        }
-    }
-
-
-
+    /**
+     * Summary of set_password
+     * set new password view page
+     * @param mixed $token
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function set_password($token)
     {
 
@@ -281,6 +432,14 @@ class AdminLoginController extends Controller
             abort(404);
         }
     }
+
+    /**
+     * Summary of post_set_password
+     * set new password 
+     * @param mixed $token
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function post_set_password($token, Request $request)
     {
         $user = User::where('pass_token', '=', $token)->first();
@@ -305,6 +464,12 @@ class AdminLoginController extends Controller
         }
     }
 
+    /**
+     * Summary of setmenusession
+     * store menu in session base on user permission
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function setmenusession(Request $request)
     {
 
@@ -315,6 +480,14 @@ class AdminLoginController extends Controller
         $request->session()->save();
         return response()->json(['status' => $value]);
     }
+
+    /**
+     * Summary of superAdminLoginFromAnyUser
+     * super admin login from any user 
+     * @param \Illuminate\Http\Request $request
+     * @param string $userId
+     * @return mixed|\Illuminate\Http\RedirectResponse
+     */
 
     public function superAdminLoginFromAnyUser(Request $request, string $userId)
     {
@@ -334,7 +507,7 @@ class AdminLoginController extends Controller
 
         if ($user) { // check if request email is registered or not
 
-            $admin = Auth::guard('admin')->loginUsingId($user->id); // user
+            $admin = Auth::guard('admin')->loginUsingId($user->id); // user 
 
             $api_token = Str::random(60); // generate api token
 
@@ -391,10 +564,10 @@ class AdminLoginController extends Controller
 
                     if (hasPermission($rp, "quotationmodule")) {
                         session(['quotation' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog','lead'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog', 'lead'])))) {
                             session(['menu' => 'quotation']);
                         }
-                        // $menus[] = 'quotation';
+                        $menus[] = 'quotation';
                     }
 
                     if (hasPermission($rp, "leadmodule")) {
@@ -408,7 +581,7 @@ class AdminLoginController extends Controller
                     if (hasPermission($rp, "customersupportmodule")) {
                         session(['customersupport' => "yes"]);
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
-                            session(['menu' => 'customersupport']);
+                            session(['menu' => 'Customer support']);
                         }
                         // $menus[] = 'customersupport';
                     }
@@ -419,13 +592,13 @@ class AdminLoginController extends Controller
                         }
                         // $menus[] = 'admin';
                     }
-                    if (hasPermission($rp, "accountmodule")) {
-                        session(['account' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
-                            session(['menu' => 'account']);
-                        }
-                        // $menus[] = 'account';
-                    }
+                    // if (hasPermission($rp, "accountmodule")) {
+                    //     session(['account' => "yes"]);
+                    //     if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
+                    //         session(['menu' => 'account']);
+                    //     }
+                    //     // $menus[] = 'account';
+                    // }
                     if (hasPermission($rp, "inventorymodule")) {
                         session(['inventory' => "yes"]);
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'reminder', 'blog'])))) {
@@ -456,6 +629,14 @@ class AdminLoginController extends Controller
                         }
                         // $menus[] = 'blog';
                     }
+
+                    if (hasPermission($rp, "logisticmodule")) {
+                        session(['logistic' => "yes"]);
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
+                            session(['menu' => 'logistic']);
+                        }
+                        // $menus[] = 'blog';
+                    }
                     $request->session()->put([
                         'allmenu' => $menus
                     ]);
@@ -463,6 +644,7 @@ class AdminLoginController extends Controller
                 }
 
                 $request->session()->put([
+                    'user' => $admin,
                     'admin_role' => $admin->role,
                     'company_id' => $admin->company_id,
                     'user_id' => $admin->id,
@@ -477,10 +659,8 @@ class AdminLoginController extends Controller
                     session_start();
                 $_SESSION['folder_name'] = session('folder_name');
 
-                if (isset($admin->default_module) && isset($admin->default_page)) {
-                    session(['menu' => $admin->default_module]); 
-                    return redirect()->route('admin.' . $admin->default_page);
-                }
+
+
                 if (Session::get('menu') == null) {
                     DB::table('users')
                         ->where('id', $admin->id)
@@ -492,16 +672,26 @@ class AdminLoginController extends Controller
                         session_start();
                     session_destroy();
                     Auth::guard('admin')->logout();
-                    return redirect()->back()->with('error', 'You have not any permission');
+                    $this->save_user_login_history($user, 'superadmin', 'Due to no permissions.');
+                    return redirect()->route('admin.login')->with('error', 'User has not any permission');
                 }
+
+
+                $this->save_user_login_history($request, 'superadmin');
+
+                if (isset($admin->default_module) && isset($admin->default_page)) {
+                    session(['menu' => $admin->default_module]);
+                    return redirect()->route('admin.' . $admin->default_page);
+                }
+
                 return redirect()->route('admin.welcome');
             } else {
                 Auth::guard('admin')->logout();
-                return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel');
+                return redirect()->route('admin.login')->with('error', 'User is unauthorized to access admin panel');
             }
 
         } else {
-            return redirect()->route('admin.login')->with('error', 'You are not Registered !');
+            return redirect()->route('admin.login')->with('error', 'User is not Registered !');
         }
 
     }

@@ -45,8 +45,8 @@
     @endsection
     @section('addnewbutton')
         <button class="btn btn-sm btn-primary">
-            <span data-toggle="tooltip" data-placement="bottom"
-            data-original-title="Add New User" class="">+ Add New</span>
+            <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add New User" class="">+ Add
+                New</span>
         </button>
     @endsection
 @endif
@@ -96,8 +96,7 @@
                             global_response = response;
                             var id = 1;
                             // You can update your HTML with the data here if needed     
-                            $.each(response.user, function(key, value) {
-                                console.log(value.lastname);
+                            $.each(response.user, function(key, value) { 
                                 $('#data').append(`<tr>
                                                         <td>${id}</td>
                                                         <td>${value.firstname  != null ? value.firstname : '-'}</td>
@@ -108,7 +107,7 @@
                                                         <td>${value.user_role != null ? value.user_role : '-'}</td>
                                                         <td>
                                                             @if (session('user_permissions.adminmodule.user.edit') == '1') 
-                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Deactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
+                                                                ${value.is_active == 1 ? '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive"> <button data-status='+value.id+' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >active</button></div>'  : '<div id=status_'+value.id+ ' data-toggle="tooltip" data-placement="bottom" data-original-title="Active"><button data-status= '+value.id+' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >Inactive</button></div>'}
                                                             @else
                                                               -
                                                             @endif
@@ -184,6 +183,7 @@
                     }
                 });
             }
+
             //call function for load user in table
             loaddata();
 
@@ -192,43 +192,7 @@
                 if (confirm('Are you really want to change status to inactive ?')) {
                     loadershow();
                     var statusid = $(this).data('status');
-                    $.ajax({
-                        type: 'put',
-                        url: '/api/user/statusupdate/' + statusid,
-                        data: {
-                            status: '0',
-                            token: "{{ session()->get('api_token') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            user_id: "{{ session()->get('user_id') }}"
-                        },
-                        success: function(response) {
-                            if (response.status == 200) {
-                                toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
-                                );
-                            } else if (response.status == 500) {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.error('something went wrong !');
-                            }
-                            loaderhide();
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            toastr.error(errorMessage);
-                        }
-                    });
+                    changeuserstatus(statusid, 0);
                 }
             });
 
@@ -236,12 +200,17 @@
             $(document).on("click", ".status-deactive", function() {
                 if (confirm('Are you really want to change status to active ?')) {
                     loadershow();
-                    var statusid = $(this).data('status');
-                    $.ajax({
+                    var statusid = $(this).data('status'); 
+                    changeuserstatus(statusid, 1);
+                }
+            });
+
+            function changeuserstatus(userid, statusvalue) {
+                $.ajax({
                         type: 'put',
-                        url: '/api/user/statusupdate/' + statusid,
+                        url: '/api/user/statusupdate/' + userid,
                         data: {
-                            status: '1',
+                            status: statusvalue,
                             token: "{{ session()->get('api_token') }}",
                             company_id: "{{ session()->get('company_id') }}",
                             user_id: "{{ session()->get('user_id') }}"
@@ -249,10 +218,17 @@
                         success: function(response) {
                             if (response.status == 200) {
                                 toastr.success(response.message);
-                                $('#status_' + statusid).html('<button data-status= ' +
-                                    statusid +
-                                    ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
+                                if(statusvalue == 1){
+                                    $('#status_' + userid).html('<button data-status= ' +
+                                        userid +
+                                        ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0" >Active</button>'
+                                    ); 
+                                }else{
+                                    $('#status_' + userid).html('<button data-status= ' +
+                                    userid +
+                                    ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button>'
                                 );
+                                }
                             } else if (response.status == 500) {
                                 toastr.error(response.message);
                             } else {
@@ -274,9 +250,8 @@
                             toastr.error(errorMessage);
                         }
                     });
-                }
-            });
-
+            }
+ 
             // record delete 
             $(document).on("click", ".del-btn", function() {
                 if (confirm('Are you really want to delete this record ?')) {
@@ -321,9 +296,9 @@
             // view record
             $(document).on("click", ".view-btn", function() {
                 $('#details').html('');
-                var data = $(this).data('view');
+                var data = $(this).data('view');// get userid
                 $.each(global_response.user, function(key, user) {
-                    if (user.id == data) {
+                    if (user.id == data) {  // get user record
                         $('#details').append(`
                                 <tr>
                                     <th>Name</th>                         

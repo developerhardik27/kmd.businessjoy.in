@@ -28,6 +28,7 @@ class customerController extends commonController
     }
 
 
+    //customer list who has invoice module permission
     public function invoicecustomer(Request $request)
     {
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
@@ -57,13 +58,11 @@ class customerController extends commonController
      */
     public function index(Request $request)
     {
-
-
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftjoin($this->masterdbname . '.users', 'customers.created_by', '=', $this->masterdbname . '.users.id')
-            ->select('customers.id','customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', DB::raw("DATE_FORMAT(customers.created_at, '%d-%M-%Y %h:%i %p') as created_at_formatted"), 'customers.updated_at', 'customers.is_active','users.firstname as createdby_fname','users.lastname as createdby_lname')
+            ->select('customers.id', 'customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', DB::raw("DATE_FORMAT(customers.created_at, '%d-%M-%Y %h:%i %p') as created_at_formatted"), 'customers.updated_at', 'customers.is_active', 'users.firstname as createdby_fname', 'users.lastname as createdby_lname')
             ->where('customers.is_deleted', 0);
 
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
@@ -96,7 +95,7 @@ class customerController extends commonController
      */
     public function store(Request $request)
     {
-
+        // dynamically validate incoming request data (company name/first name required)
         if ($request->company_name) {
             $validator = Validator::make($request->all(), [
                 'firstname' => 'nullable|string|max:50',
@@ -113,7 +112,7 @@ class customerController extends commonController
                 'city' => 'nullable|numeric',
                 'user_id' => 'nullable|numeric',
                 'created_by',
-                'created_at', 
+                'created_at',
                 'is_active',
                 'is_deleted'
             ]);
@@ -135,44 +134,42 @@ class customerController extends commonController
             ]);
         }
 
-
-
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            if ($this->rp['invoicemodule']['customer']['add'] == 1) {
-
-                $customerid = $this->invoice_other_settingModel::find(1);
-
-                $customer = DB::connection('dynamic_connection')->table('customers')->insertGetId([
-                    'customer_id' => $customerid->current_customer_id,
-                    'firstname' => $request->firstname,
-                    'lastname' => $request->lastname,
-                    'company_name' => $request->company_name,
-                    'email' => $request->email,
-                    'contact_no' => $request->contact_number,
-                    'house_no_building_name' => $request->house_no_building_name,
-                    'road_name_area_colony' => $request->road_name_area_colony,
-                    'country_id' => $request->country,
-                    'state_id' => $request->state,
-                    'city_id' => $request->city,
-                    'pincode' => $request->pincode,
-                    'gst_no' => $request->gst_number,
-                    'company_id' => $this->companyId,
-                    'created_by' => $this->userId,
-                ]);
-
-                if ($customer) {
-                    $customerid->current_customer_id += 1;
-                    $customerid->save();
-                    return $this->successresponse(200, 'message', 'customer succesfully added','customer_id',$customer);
-                } else {
-                    return $this->successresponse(500, 'message', 'customer not succesfully added !');
-                }
-            } else {
+            if ($this->rp['invoicemodule']['customer']['add'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
+
             }
+            $customerid = $this->invoice_other_settingModel::find(1);
+
+            $customer = DB::connection('dynamic_connection')->table('customers')->insertGetId([ //insert customer record and return customer id
+                'customer_id' => $customerid->current_customer_id,
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'company_name' => $request->company_name,
+                'email' => $request->email,
+                'contact_no' => $request->contact_number,
+                'house_no_building_name' => $request->house_no_building_name,
+                'road_name_area_colony' => $request->road_name_area_colony,
+                'country_id' => $request->country,
+                'state_id' => $request->state,
+                'city_id' => $request->city,
+                'pincode' => $request->pincode,
+                'gst_no' => $request->gst_number,
+                'company_id' => $this->companyId,
+                'created_by' => $this->userId,
+            ]);
+
+            if ($customer) {
+                $customerid->current_customer_id += 1; // update customer id in other setting table
+                $customerid->save();
+                return $this->successresponse(200, 'message', 'customer succesfully added', 'customer_id', $customer);
+            } else {
+                return $this->successresponse(500, 'message', 'customer not succesfully added !');
+            }
+
 
         }
     }
@@ -189,11 +186,11 @@ class customerController extends commonController
             }
         }
         if ($customer) {
-            if ($this->rp['invoicemodule']['customer']['view'] == 1) {
-                return $this->successresponse(200, 'customer', $customer);
-            } else {
+            if ($this->rp['invoicemodule']['customer']['view'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
+            return $this->successresponse(200, 'customer', $customer);
+
         } else {
             return $this->successresponse(404, 'message', "No Such Customer Found!");
         }
@@ -227,6 +224,7 @@ class customerController extends commonController
     public function update(Request $request, string $id)
     {
 
+        // validate incoming request data
         if ($request->company_name) {
             $validator = Validator::make($request->all(), [
                 'firstname' => 'nullable|string|max:50',
@@ -270,7 +268,7 @@ class customerController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-            $customer = $this->customerModel::find($id);
+            $customer = $this->customerModel::find($id); // find customer record
             if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {
                 if ($customer->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -278,7 +276,7 @@ class customerController extends commonController
             }
             if ($customer) {
                 if ($this->rp['invoicemodule']['customer']['edit'] == 1) {
-                    $customer->update([
+                    $customer->update([  // update customer data
                         'firstname' => $request->firstname,
                         'lastname' => $request->lastname,
                         'company_name' => $request->company_name,
@@ -306,7 +304,7 @@ class customerController extends commonController
         }
     }
 
-    // customer status update 
+    // customer status update (active/deactive)
     public function statusupdate(Request $request, string $id)
     {
         $customer = $this->customerModel::find($id);

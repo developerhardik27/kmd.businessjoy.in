@@ -50,38 +50,7 @@ class PdfController extends Controller
       $invoice = $this->invoiceModel::findOrFail($id);
       $this->authorize('view', $invoice);
 
-      $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($id);
-      $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($id);
-      $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
-      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
-
-
-      $jsonproductContent = $jsonproductdata->getContent();
-      $jsoninvContent = $jsoninvdata->getContent();
-      $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
-      $jsonbankContent = $jsonbankdetailsdata->getContent();
-
-      // Decode the JSON data
-      $productdata = json_decode($jsonproductContent, true);
-      $invdata = json_decode($jsoninvContent, true);
-      $companydetailsdata = json_decode($jsoncompanyContent, true);
-      $bankdetailsdata = json_decode($jsonbankContent, true);
- 
-
-      if ($productdata['status'] == 404) {
-         return redirect()->back()->with('message', 'yes');
-      }
-
-
-      $data = [
-         'productscolumn' => $productdata['columnswithtype'],
-         'products' => $productdata['invoice'],
-         'othersettings' => $productdata['othersettings'][0],
-         'invdata' => $invdata['invoice'][0],
-         'companydetails' => $companydetailsdata['companydetails'][0],
-         'bankdetails' => $bankdetailsdata['bankdetail'][0]
-      ];
-
+      $data = $this->prepareDataForPDF($invoice);
 
 
       $options = [
@@ -110,6 +79,8 @@ class PdfController extends Controller
       return $pdf->stream($pdfname);
 
    }
+
+   // generate part partpayment single receipt (id is considering payment details id)
    public function generatereciept(string $id)
    {
 
@@ -143,7 +114,7 @@ class PdfController extends Controller
       $invdata = json_decode($jsoninvContent, true);
       $companydetailsdata = json_decode($jsoncompanyContent, true);
 
-     
+
       if ($productdata['status'] == 404) {
          return redirect()->back()->with('message', 'yes');
       }
@@ -192,37 +163,9 @@ class PdfController extends Controller
       $invoice = $this->invoiceModel::findOrFail($id);
       $this->authorize('view', $invoice);
 
-      $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($id);
-      $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($id);
-      $jsonpaymentdata = app('App\Http\Controllers\\' . $this->version . '\api\PaymentController')->index($id);
-      $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
-
-      $jsonproductContent = $jsonproductdata->getContent();
-      $jsonpaymentContent = $jsonpaymentdata->getContent();
-      $jsoninvContent = $jsoninvdata->getContent();
-      $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
 
 
-
-      // Decode the JSON data
-      $productdata = json_decode($jsonproductContent, true);
-      $paymentdata = json_decode($jsonpaymentContent, true);
-      $invdata = json_decode($jsoninvContent, true);
-      $companydetailsdata = json_decode($jsoncompanyContent, true);
-
-      if ($productdata['status'] == 404) {
-         return redirect()->back()->with('message', 'yes');
-      }
-
-      $data = [
-         'productscolumn' => $productdata['columnswithtype'],
-         'products' => $productdata['invoice'],
-         'othersettings' => $productdata['othersettings'][0],
-         'payment' => $paymentdata['payment'],
-         'invdata' => $invdata['invoice'][0],
-         'companydetails' => $companydetailsdata['companydetails'][0],
-      ];
-
+      $data = $this->prepareDataForPDF($invoice, 'paymentdetails');
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
@@ -234,11 +177,11 @@ class PdfController extends Controller
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.paymentpaidreciept', $data)->setPaper('a4', 'portrait');
 
-      $name = 'Receipt ' . $paymentdata['payment'][0]['receipt_number'] . '.pdf';
+      $name = 'Receipt ' . $data['payment'][0]['receipt_number'] . '.pdf';
 
-      if (count($paymentdata['payment']) > 1) {
-         $name = 'PaymentHistory ' . $invdata['invoice'][0]['inv_no'] . '.pdf';
-      } 
+      if (count($data['payment']) > 1) {
+         $name = 'PaymentHistory ' . $data['invdata']['inv_no'] . '.pdf';
+      }
 
       // return view($this->version . '.admin.paymentpaidreciept', $data);
       return $pdf->stream($name);
@@ -279,9 +222,12 @@ class PdfController extends Controller
             ->whereIn('created_by', $reportuserlist)
             ->get();
 
-         if (count($invoices) == 0) {
-            return back()->with('success', 'Not any invoice exists between this  date');
-         }
+         if (count($invoices) == 0) { 
+            return response()->json([
+               'status' => 'error',
+               'message' =>  'Not any invoice exists between this  date'
+            ]);
+         } 
 
          $tempDir = storage_path('app/temp_pdf');
          if (!file_exists($tempDir)) {
@@ -295,7 +241,8 @@ class PdfController extends Controller
             $pdf->save($tempDir . '/' . $pdfFileName);
          }
 
-         $zipFileName = 'invoices_' . date('Ymd') . '.zip';
+         $withoutextensionzipFileName = 'invoices_' . date('Ymdhis');
+         $zipFileName = $withoutextensionzipFileName . '.zip';
          $zip = new ZipArchive;
          if ($zip->open(storage_path('app/' . $zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
             $files = Storage::files('temp_pdf');
@@ -314,18 +261,25 @@ class PdfController extends Controller
             'to_date' => $request->todate,
             'created_by' => $request->user_id,
          ]);
-         return response()->download(storage_path('app/' . $zipFileName))->deleteFileAfterSend(true);
+
+         return response()->json([
+            'status' => 'success',
+            'zipFileName' => route('file.download', $withoutextensionzipFileName)// Return the URL for downloading
+         ]);
+
       } catch (Exception $e) {
          // Log the error
          Log::error($e->getMessage());
 
-         // Return back with an error message
-         return back()->with('error', 'Something went wrong while creating the zip file');
+         return response()->json([
+            'status' => 'error',
+            'message' =>  'Something went wrong while creating the zip file'
+         ]);
       }
    }
 
    // Helper function to prepare data for PDF generation
-   private function prepareDataForPDF($invoice)
+   private function prepareDataForPDF($invoice, $paymentdetails = null)
    {
       $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($invoice->id);
       $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
@@ -355,6 +309,27 @@ class PdfController extends Controller
          'companydetails' => $companydetailsdata['companydetails'][0],
          'bankdetails' => $bankdetailsdata['bankdetail'][0]
       ];
+
+      if (isset($paymentdetails)) {
+         $jsonpaymentdata = app('App\Http\Controllers\\' . $this->version . '\api\PaymentController')->index($invoice->id);
+         $jsonpaymentContent = $jsonpaymentdata->getContent();
+         $paymentdata = json_decode($jsonpaymentContent, true);
+         $data['payment'] = $paymentdata['payment'];
+      }
+
       return $data;
+   }
+
+   public function downloadZip(string $fileName)
+   {
+      $filePath = storage_path('app/'); 
+      if (file_exists($filePath)) { 
+         return response()->download($filePath.$fileName.'.zip')->deleteFileAfterSend(true);
+      }
+
+      return response()->json([
+         'status' => 'error',
+         'message' => 'File not found'
+      ], 404);
    }
 }

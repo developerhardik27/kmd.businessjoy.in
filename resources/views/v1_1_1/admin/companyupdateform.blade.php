@@ -151,10 +151,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-
-
-
-
+ 
             //get country data and set into dropdown
             $.ajax({
                 type: 'GET',
@@ -403,12 +400,13 @@
                 });
             });
 
+            // redirect on company list page on click cancel btn
             $('#cancelbtn').on('click',function(){
                 loadershow();
                window.location.href = "{{route('admin.company')}}" ;
             });
 
-            //submit form
+            //submit company update form
             $('#companyupdateform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
