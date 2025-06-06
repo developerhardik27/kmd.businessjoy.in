@@ -316,7 +316,7 @@ class blogController extends commonController
 
                     $manager = new ImageManager(new Driver());
                     $thumnailimage = $manager->read($destinationPath . $imageName);
-                    $thumnailimage->resize(300, 200);
+                    $thumnailimage->resize(400, 266);
                     $thumnailimage->save($destinationPathThumbnail . $imageName);
                 }
 
@@ -489,7 +489,7 @@ class blogController extends commonController
                 // save thumnaile
                 $manager = new ImageManager(new Driver());
                 $thumnailimage = $manager->read($destinationPath . $imageName);
-                $thumnailimage->resize(300, 200);
+                $thumnailimage->resize(400, 266);
                 $thumnailimage->save($destinationPathThumbnail . $imageName);
 
                 //remove old img and thumbnail
