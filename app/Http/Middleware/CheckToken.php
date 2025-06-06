@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\api_authorization;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckToken
@@ -28,8 +29,14 @@ class CheckToken
         
         if($sessionToken){
             // Check if the token is present in the database
-            $dbToken = User::where('id',$request->user_id)->where('api_token', $sessionToken)->orWhere('super_api_token',$sessionToken)->first();
+           $query = User::where('id', $request->user_id)
+             ->where('api_token', $sessionToken);
 
+            if (Schema::hasColumn('users', 'super_api_token')) {
+                $query->orWhere('super_api_token', $sessionToken);
+            }
+
+            $dbToken = $query->first();
             if (!$dbToken) {
                 return response()->json(['error' => 'Invalid token'], 401);
             }
