@@ -976,29 +976,19 @@
                             $('#history_notes').summernote('code', '');
                             loaderhide();
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            if (data.status == false) {
-                                Toast.fire({
-                                    icon: "success",
-                                    title: response.message
-                                });
-                                $('#customersupporthistoryform')[0].reset();
-                                $('#addcallhistory').modal('hide');
-                                table.draw();
-                            } else if (response.status == 500) {
-                                if (data.status == false) {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                } else {
-                                    if (data.status == false) {
-                                        Toast.fire({
-                                            icon: "error",
-                                            title: response.message
-                                        });
-                                    }
-                                }
-                            }
+                             Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+                            $('#customersupporthistoryform')[0].reset();
+                            $('#addcallhistory').modal('hide');
+                            table.draw();
+                            
+                        }else{ 
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });  
                         }
                     },
                     error: function(xhr, status, error) { // if calling api request error 
