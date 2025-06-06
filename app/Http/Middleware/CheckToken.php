@@ -20,17 +20,18 @@ class CheckToken
     public function handle(Request $request, Closure $next): Response
     {
 
-       
+
         // Check if the token is present in the session
         $sessionToken = $request->token;
-        if ((!$sessionToken) && !isset($request->site_key) && !isset($request->server_key) ) {
+        if ((!$sessionToken) && !isset($request->site_key) && !isset($request->server_key)) {
             return response()->json(['error' => 'Unauthorized'], 401);
-        } 
-        
-        if($sessionToken){
+        }
+
+        if ($sessionToken) {
             // Check if the token is present in the database
-           $query = User::where('id', $request->user_id)
-             ->where('api_token', $sessionToken);
+            $query = User::where('id', $request->user_id)
+                ->where('company_id', $request->company_id)
+                ->where('api_token', $sessionToken);
 
             if (Schema::hasColumn('users', 'super_api_token')) {
                 $query->orWhere('super_api_token', $sessionToken);
@@ -38,21 +39,21 @@ class CheckToken
 
             $dbToken = $query->first();
             if (!$dbToken) {
-                return response()->json(['error' => 'Invalid token'], 401);
+                return response()->json(['error' => 'You are Unauthorized'], 401);
             }
 
-        }elseif(isset($request->site_key) && isset($request->server_key)){
+        } elseif (isset($request->site_key) && isset($request->server_key)) {
             $domainName = basename($request->header('Origin'));
             $authorize = api_authorization::where('site_key', $request->site_key)
-                       ->where('server_key', $request->server_key)
-                       ->whereRaw('FIND_IN_SET(?, domain_name)', [$domainName])
-                       ->first();
+                ->where('server_key', $request->server_key)
+                ->whereRaw('FIND_IN_SET(?, domain_name)', [$domainName])
+                ->first();
 
             if (!$authorize) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
         }
-       
+
         return $next($request);
     }
 }
