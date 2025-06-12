@@ -24,7 +24,7 @@ class tblleadController extends commonController
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
-        if(empty($permissions)){
+        if (empty($permissions)) {
             $this->customerrorresponse();
         }
         $this->rp = json_decode($permissions[0]['rp'], true);
@@ -54,6 +54,27 @@ class tblleadController extends commonController
         }
 
         $lead = DB::table('leadstage')
+            ->get();
+
+        if ($lead->isEmpty()) {
+            return $this->successresponse(404, 'lead', $lead);
+        }
+        return $this->successresponse(200, 'lead', $lead);
+    }
+
+
+    public function piechart()
+    {
+        if ($this->rp['leadmodule']['lead']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $lead = $this->tblleadModel::where('is_deleted', 0)
+            ->select(
+                'status as name',
+                \DB::raw('count(*) as value')
+            )
+            ->groupBy('status')
             ->get();
 
         if ($lead->isEmpty()) {
@@ -223,7 +244,7 @@ class tblleadController extends commonController
 
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else { 
+        } else {
             $assignedto = implode(',', $request->assignedto);
             $lead = $this->tblleadModel::create([
                 'first_name' => $request->first_name,

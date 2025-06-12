@@ -188,9 +188,10 @@
                                             <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
                                                 <div class="iq-card-header d-flex justify-content-between">
                                                     <div class="iq-header-title">
-                                                        <h4 class="card-title"><span id="invoice_status_title"></span> Invoices
+                                                        <h4 class="card-title"><span id="invoice_status_title"></span>
+                                                            Invoices
                                                         </h4>
-                                                    </div> 
+                                                    </div>
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="table-responsive scrollable-table" style="width: 100%">
@@ -361,9 +362,10 @@
                                             <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
                                                 <div class="iq-card-header d-flex justify-content-between">
                                                     <div class="iq-header-title">
-                                                        <h4 class="card-title"><span id="quotation_status_title"></span> Quotations
+                                                        <h4 class="card-title"><span id="quotation_status_title"></span>
+                                                            Quotations
                                                         </h4>
-                                                    </div> 
+                                                    </div>
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="table-responsive scrollable-table" style="width: 100%">
@@ -380,6 +382,39 @@
 
                                                             </tbody>
                                                         </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade @if (session('menu') == 'lead') active show @endif"
+                                id="leaddashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>lead Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-7">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Status Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div id="lead-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-5">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height"
+                                                style="background: transparent;">
+                                                <div class="iq-card-body rounded p-0"
+                                                    style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
+                                                    <div class="iq-caption">
+                                                        <h1 id="total_lead">0</h1>
+                                                        <p>Total Lead</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -452,7 +487,8 @@
                                                         <li class="d-flex mb-4 align-items-center">
                                                             <div class="media-support-info ml-3">
                                                                 <h6>
-                                                                    <button class="btn btn-danger btn-sm" id="reminderinprogressdata">
+                                                                    <button class="btn btn-danger btn-sm"
+                                                                        id="reminderinprogressdata">
                                                                         <span>
                                                                             <i class="ri-list-check"></i>
                                                                         </span>In Progress
@@ -481,10 +517,11 @@
                                             <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
                                                 <div class="iq-card-header d-flex justify-content-between">
                                                     <div class="iq-header-title">
-                                                        <h4 class="card-title"><span id="reminder_status_title"></span>Upcoming
+                                                        <h4 class="card-title"><span
+                                                                id="reminder_status_title"></span>Upcoming
                                                             Reminders
                                                         </h4>
-                                                    </div> 
+                                                    </div>
                                                 </div>
                                                 <div class="iq-card-body">
 
@@ -1196,7 +1233,7 @@
                         </tr>
                     `);
                 }
-            }   
+            }
 
             // Function to fetch data using jQuery Ajax
             function fetchDataAndDrawQuotationChart() {
@@ -1557,16 +1594,79 @@
             // reminder dashboard end  
 
 
+            // lead dashboard
+            function leaddashboard() {
+                const chartContainer = document.querySelector("#lead-chart");
+                if (jQuery("#lead-chart").length) {
+                    const params = new URLSearchParams({
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}"
+                    });
+
+                    fetch("{{ route('lead.piechart') }}?" + params.toString())
+                        .then(res => res.json())
+                        .then(response => {
+                            const apiData = response.lead;
+
+                            if (!Array.isArray(apiData) || apiData.length === 0) {
+                                chartContainer.innerHTML = `<div style="text-align: center; padding: 2rem; font-weight: bold; color: #888;">No lead data found</div>`;
+                                return;
+                            }
+ 
+                            const colorPalette = [
+                                "#827af3", "#b47af3", "#6ce6f4", "#27b345", "#c8c8c8",
+                                "#ff9800", "#4caf50", "#f44336", "#9c27b0", "#00bcd4",
+                                "#ffc107", "#8bc34a"
+                            ];
+
+                            apiData.forEach((item, index) => {
+                                item.color = colorPalette[index % colorPalette.length];
+                            });
+
+                            const options = {
+                                chart: {
+                                    width: 380,
+                                    type: "pie"
+                                },
+                                labels: apiData.map(d => d.name),
+                                series: apiData.map(d => d.value),
+                                colors: apiData.map(d => d.color),
+                                responsive: [{
+                                    breakpoint: 480,
+                                    options: {
+                                        chart: {
+                                            width: 200
+                                        },
+                                        legend: {
+                                            position: "bottom"
+                                        }
+                                    }
+                                }]
+                            };
+
+                            const chart = new ApexCharts(document.querySelector("#lead-chart"), options);
+                            chart.render();
+                        })
+                        .catch(error => console.error("Chart data fetch error:", error));
+                }
+            }
+
+            //lead dashboard end
+
             @if (session('menu') == 'invoice')
                 invoicedashboard();
             @endif
             @if (session('menu') == 'quotation')
                 quotationdashboard();
             @endif
+            @if (session('menu') == 'lead')
+                leaddashboard();
+            @endif
             @if (session('menu') == 'reminder')
                 reminderdashboard();
             @endif
-            
+
             loaderhide();
 
             $(document).on('click', '.dynamicdashboard', function() {

@@ -53,6 +53,8 @@
 <script src="{{ asset('admin/js/lottie.js') }}"></script>
 <!-- highcharts JavaScript -->
 <script src="{{ asset('admin/js/highcharts.js') }}"></script>
+<!-- Apexcharts JavaScript -->
+<script src="{{ asset('admin/js/apexcharts.js') }}"></script>
 <!-- Chart Custom JavaScript -->
 <script async src="{{ asset('admin/js/chart-custom.js') }}"></script>
 <!-- Custom JavaScript -->
@@ -79,7 +81,7 @@
 
     function showOffCannvas() {
         $('#offcanvasMenu').addClass('active');
-        $('#offcanvasOverlay').addClass('active');
+        $('#offcanvas-Overlay').addClass('active');
         $('body').addClass('no-scroll'); // Prevent background scroll 
     }
 
