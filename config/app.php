@@ -200,10 +200,18 @@ return [
     |--------------------------------------------------------------------------
     |
     | page load time
+    | main db name
+    | retention log activity days
     |
     */
 
     'page_load_threshold_ms' => 5000, // Time in milliseconds
 
     'main_db' => env('MAIN_DB', 'business_joy_Oceanmnc_pev'),
+
+
+    'recent_activity_retention_days' => [
+        'lead_activity'   => env('RECENT_ACTIVITY_DAYS', 90),
+        'login_activity'   => env('RECENT_ACTIVITY_DAYS', 90), 
+    ],
 ];

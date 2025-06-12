@@ -313,7 +313,6 @@ class blogController extends commonController
                         mkdir($destinationPathThumbnail, 0755, true);
                     }
 
-
                     $manager = new ImageManager(new Driver());
                     $thumnailimage = $manager->read($destinationPath . $imageName);
                     $thumnailimage->resize(400, 266);

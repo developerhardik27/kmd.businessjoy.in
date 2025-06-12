@@ -93,6 +93,18 @@
         .grecaptcha-badge {
             visibility: hidden !important;
         }
+
+        @media (min-width: 1500px) {
+            .navbar>div:first-child {
+                justify-content: center;
+                width: auto !important;
+                margin: 0 auto !important;
+            }
+
+            .navbar-brand{
+                margin-left: -10% !important;
+            }
+        }
     </style>
     <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 </head>
@@ -112,30 +124,32 @@
         <!-- Navbar & Hero Start -->
         <div class="position-relative p-0" id="home">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
-                    <!-- <h1 class="m-0">FitApp</h1> -->
-                    <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto py-0">
-                        <a href="#home" id="hometab" class="nav-item nav-link active">Home</a>
-                        <a href="#customsoftwaebuilder" class="nav-item nav-link">Custom Software Builder</a>
-                        <a href="#solution" class="nav-item nav-link">Solution</a>
-                        <a href="#modules" class="nav-item nav-link">Modules</a>
-                        <!-- <a href="#pricing" class="nav-item nav-link">Pricing</a>
-                        <a href="#review" class="nav-item nav-link">Review</a> -->
-                        {{-- <a href="#joinus" class="nav-item nav-link">Join Us</a> --}}
-                        <a href="#contact" class="nav-item nav-link">Contact</a>
+                <div class="align-items-center d-flex w-100">
+                    <a href="" class="navbar-brand p-0">
+                        <!-- <h1 class="m-0">FitApp</h1> -->
+                        <img src="{{ asset('landing/img/logo.png') }}" alt="Logo">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarCollapse">
+                        <span class="fa fa-bars"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarCollapse">
+                        <div class="navbar-nav mx-auto py-0">
+                            <a href="#home" id="hometab" class="nav-item nav-link active">Home</a>
+                            <a href="#customsoftwaebuilder" class="nav-item nav-link">Custom Software Builder</a>
+                            <a href="#solution" class="nav-item nav-link">Solution</a>
+                            <a href="#modules" class="nav-item nav-link">Modules</a>
+                            <!-- <a href="#pricing" class="nav-item nav-link">Pricing</a>
+                            <a href="#review" class="nav-item nav-link">Review</a> -->
+                            {{-- <a href="#joinus" class="nav-item nav-link">Join Us</a> --}}
+                            <a href="#contact" class="nav-item nav-link">Contact</a>
+                        </div>
+                        <a class="btn btn-primary-gradient d-lg-block ms-0 mx-2 rounded-pill text-white"
+                            data-bs-toggle="modal" data-bs-target="#modal">Get a Free Quote</a>
+                        <a href="{{ route('admin.login') }}" id="navbarLoginBtn"
+                            class="btn btn-primary-gradient d-lg-block m-sm-0 ms-3 px-4 px-lg-4 px-sm-3 py-2 py-md-1 py-sm-1 rounded-pill">
+                            Login</a>
                     </div>
-                    <a class="btn btn-primary-gradient d-lg-block ms-0 mx-2 rounded-pill text-white"
-                        data-bs-toggle="modal" data-bs-target="#modal">Get a Free Quote</a>
-                    <a href="{{ route('admin.login') }}" id="navbarLoginBtn"
-                        class="btn btn-primary-gradient d-lg-block m-sm-0 ms-3 px-4 px-lg-4 px-sm-3 py-2 py-md-1 py-sm-1 rounded-pill">
-                        Login</a>
                 </div>
             </nav>
 

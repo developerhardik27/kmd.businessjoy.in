@@ -305,6 +305,18 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     Route::controller($tblleadController)->group(function () {
         Route::get('/leadstatusname', 'leadstatusname')->name('lead.leadstatusname');
         Route::get('/leadstagename', 'leadstagename')->name('lead.leadstagename');
+        Route::get('lead/monthlychart', 'monthlyLeadChart')->name('lead.chart');
+        Route::get('/lead/piechart', 'piechart')->name('lead.piechart');
+        Route::get('lead/stagechart', 'leadStageChart')->name('lead.stagechart');
+        Route::get('/lead/sourcepiechart', 'sourcepiechart')->name('lead.sourcepiechart');
+        Route::get('/leaddashboardhelper', 'leaddashboardhelper')->name('lead.leaddashboardhelper');
+        Route::get('/lead/newleadcount', 'newleadcount')->name('lead.newleadcount');
+        Route::get('/lead/userwiseleadcount', 'userwiseleadcount')->name('lead.userwiseleadcount');
+        Route::get('/lead/userleadsummary', 'userLeadSummary')->name('lead.userleadsummary');
+        Route::get('/lead/followupdueleads', 'followupDueLeads')->name('lead.followupdueleads');
+        Route::get('/lead/recentactivity', 'leadrecentactivityindex')->name('lead.recentactivityindex');
+        Route::put('/lead/recentactivity/delete', 'leadrecentactivitydestroy')->name('lead.recentactivitydelete');
+
         Route::get('/lead', 'index')->name('lead.index');
         Route::post('/lead/insert', 'store')->name('lead.store');
         Route::get('/lead/sourcecolumn', 'sourcevalue')->name('lead.sourcecolumn');
@@ -321,6 +333,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
     Route::controller($tblleadhistoryController)->group(function () {
         Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
         Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
+        Route::get('/lead/calendar', 'getcalendardata')->name('lead.getcalendardata');
     });
 
     // customer suppport route 
