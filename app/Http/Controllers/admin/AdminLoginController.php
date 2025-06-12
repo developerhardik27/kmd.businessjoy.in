@@ -93,11 +93,11 @@ class AdminLoginController extends Controller
                             /*
                              * $menus (using in dashboard for showing menus) 
                              */
- 
+
 
                             if (hasPermission($rp, "invoicemodule")) {
                                 session(['invoice' => "yes"]);
-                                session(['menu' => 'invoice']); 
+                                session(['menu' => 'invoice']);
                                 $menus[] = 'invoice';
                             }
 
@@ -114,7 +114,7 @@ class AdminLoginController extends Controller
                                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
                                     session(['menu' => 'lead']);
                                 }
-                                // $menus[] = 'lead';
+                                $menus[] = 'lead';
                             }
 
                             if (hasPermission($rp, "customersupportmodule")) {
@@ -320,20 +320,14 @@ class AdminLoginController extends Controller
 
             if ($user) {
 
-                // Get the IDs of the last 30 records
-                $keepLast30 = user_activity::where('user_id', $user->id)
-                    ->orderBy('created_at', 'desc')
-                    ->take(30)
-                    ->pluck('id'); // Get IDs of the last 30 records
-
-                // Delete records that are older than the last 30
+                // Delete all user activity records older than 90 days
                 user_activity::where('user_id', $user->id)
-                    ->whereNotIn('id', $keepLast30)  // Delete all records except the last 30
+                    ->where('created_at', '<', now()->subDays(config('app.recent_activity_retention_days.login_activity') ?? 90))
                     ->delete();
             }
 
-        } catch (\Exception $e) { 
-            Log::info($e->getMessage()); 
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
         }
 
     }
@@ -575,7 +569,7 @@ class AdminLoginController extends Controller
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
                             session(['menu' => 'lead']);
                         }
-                        // $menus[] = 'lead';
+                        $menus[] = 'lead';
                     }
 
                     if (hasPermission($rp, "customersupportmodule")) {

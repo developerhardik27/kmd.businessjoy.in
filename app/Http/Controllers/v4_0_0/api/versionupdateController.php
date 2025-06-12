@@ -115,6 +115,13 @@ class versionupdateController extends commonController
                                     ];
                                 }
                                 break;
+                            case 'v4_1_0':
+                                if ($request->company != 1) {
+                                    $paths = [
+                                        'database/migrations/v4_1_0',
+                                    ];
+                                }
+                                break;
                             // Add more cases as needed
                         }
 
@@ -317,6 +324,58 @@ class versionupdateController extends commonController
                                             ->insert([
                                                 'created_by' => $this->userId,
                                             ]);
+                                    }
+                                }
+
+                                break;
+                            case 'v4_1_0':
+                                $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                                if ($rp) {
+                                    foreach ($rp as $userrp) {
+                                        $jsonrp = json_decode($userrp->rp, true);
+
+                                        if (!isset($jsonrp['invoicemodule']['invoicedashboard'])) {
+                                            $jsonrp['invoicemodule']['invoicedashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['leadmodule']['leaddashboard'])) {
+                                            $jsonrp['leadmodule']['leaddashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['upcomingfollowup'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['analysis'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['leadownerperformance'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['recentactivity'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['calendar'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['customersupportmodule']['customersupportdashboard'])) {
+                                            $jsonrp['customersupportmodule']['customersupportdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['adminmodule']['admindashboard'])) {
+                                            $jsonrp['adminmodule']['admindashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['inventorymodule']['inventorydashboard'])) {
+                                            $jsonrp['inventorymodule']['inventorydashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['remindermodule']['reminderdashboard'])) {
+                                            $jsonrp['remindermodule']['reminderdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['reportmodule']['reportdashboard'])) {
+                                            $jsonrp['reportmodule']['reportdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['blogmodule']['blogdashboard'])) {
+                                            $jsonrp['blogmodule']['blogdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['quotationmodule']['quotationdashboard'])) {
+                                            $jsonrp['quotationmodule']['quotationdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['logisticmodule']['logisticdashboard'])) {
+                                            $jsonrp['logisticmodule']['logisticdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        // Encode updated permissions back to JSON
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
                                     }
                                 }
 

@@ -229,6 +229,11 @@ Route::group(['middleware' => ['CheckSession']], function () {
             $TblLeadController = getadminversion('TblLeadController');
             Route::controller($TblLeadController)->group(function () {
                 Route::get('/Lead', 'index')->name('admin.lead')->middleware('checkPermission:leadmodule,lead,show');
+                Route::get('/UpcomingFollowUp', 'upcomingfollowup')->name('admin.upcomingfollowup')->middleware('checkPermission:leadmodule,upcomingfollowup,show');
+                Route::get('/Lead/Analysis', 'analysis')->name('admin.analysis')->middleware('checkPermission:leadmodule,analysis,show');
+                Route::get('/Lead/OwnerPerformance', 'leadownerperformance')->name('admin.leadownerperformance')->middleware('checkPermission:leadmodule,leadownerperformance,show');
+                Route::get('/Lead/RecentActivity', 'recentactivity')->name('admin.recentactivity')->middleware('checkPermission:leadmodule,recentactivity,show');
+                Route::get('/Lead/Calendar', 'calendar')->name('admin.calendar')->middleware('checkPermission:leadmodule,calendar,show');
                 Route::get('/AddNewLead', 'create')->name('admin.addlead')->middleware('checkPermission:leadmodule,lead,add');
                 Route::get('/EditLead/{id}', 'edit')->name('admin.editlead')->middleware('checkPermission:leadmodule,lead,edit');
             });
