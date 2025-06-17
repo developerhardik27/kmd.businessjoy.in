@@ -20,7 +20,6 @@ class CheckToken
     public function handle(Request $request, Closure $next): Response
     {
 
-
         // Check if the token is present in the session
         $sessionToken = $request->token;
         if ((!$sessionToken) && !isset($request->site_key) && !isset($request->server_key)) {
@@ -43,7 +42,16 @@ class CheckToken
             }
 
         } elseif (isset($request->site_key) && isset($request->server_key)) {
-            $domainName = basename($request->header('Origin'));
+            // $domainName = basename($request->header('Origin'));
+            $origin = $request->header('Origin');
+            $domainName = $origin ? parse_url($origin, PHP_URL_HOST) : null;
+
+            if ($domainName) {
+                // Normalize by removing "www."
+                $domainName = preg_replace('/^www\./i', '', $domainName);
+            }
+            
+            \Log::info('Domain name' . $domainName);
             $authorize = api_authorization::where('site_key', $request->site_key)
                 ->where('server_key', $request->server_key)
                 ->whereRaw('FIND_IN_SET(?, domain_name)', [$domainName])
