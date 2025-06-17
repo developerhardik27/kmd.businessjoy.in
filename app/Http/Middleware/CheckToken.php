@@ -44,8 +44,11 @@ class CheckToken
         } elseif (isset($request->site_key) && isset($request->server_key)) {
             // $domainName = basename($request->header('Origin'));
             $origin = $request->header('Origin');
+             \Log::info('origin' . $origin);
             $domainName = $origin ? parse_url($origin, PHP_URL_HOST) : null;
 
+            \Log::info('domainName' . $domainName);
+            
             if ($domainName) {
                 // Normalize by removing "www."
                 $domainName = preg_replace('/^www\./i', '', $domainName);
