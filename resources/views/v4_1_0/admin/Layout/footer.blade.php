@@ -163,7 +163,7 @@
                 }
             },
             error: function(xhr) {
-                if (xhr.responseJSON.error == 'Invalid token') {
+                if (xhr.status == 401) {
                     window.location.href = "{{ route('admin.singlelogout') }}";
                 }
             }
