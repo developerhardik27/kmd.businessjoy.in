@@ -59,7 +59,7 @@
 @endsection
 
 @section('sidebar-filters')
-    <div class="col-12 p-0">
+<div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h6>Customer Support</h6>

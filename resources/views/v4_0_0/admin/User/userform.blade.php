@@ -2965,61 +2965,61 @@
                                                 </tr>
                                             @endif
 
-                                            @if (session('user_permissions.logisticmodule.consignmentnotenumbersettingssettings.add') == '1' || $user_id == 1)
-                                                <tr id="consignmentnotenumbersettingssettings"
+                                            @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.add') == '1' || $user_id == 1)
+                                                <tr id="consignmentnotenumbersettings"
                                                     class="logistic_other_settings_rows subsettingrows">
                                                     <td>Consignment Note Number Settings</td>
                                                     <td> <input type="checkbox" class="clickmenu"
-                                                            data-value='consignmentnotenumbersettingssettings'
-                                                            id="showconsignmentnotenumbersettingssettingsmenu"
-                                                            name="showconsignmentnotenumbersettingssettingsmenu" value="1">
+                                                            data-value='consignmentnotenumbersettings'
+                                                            id="showconsignmentnotenumbersettingsmenu"
+                                                            name="showconsignmentnotenumbersettingsmenu" value="1">
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettingssettings.add') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showconsignmentnotenumbersettingssettingsmenu'
-                                                                id="addconsignmentnotenumbersettingssettings"
-                                                                name="addconsignmentnotenumbersettingssettings" value="1">
+                                                                data-value='showconsignmentnotenumbersettingsmenu'
+                                                                id="addconsignmentnotenumbersettings"
+                                                                name="addconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettingssettings.view') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showconsignmentnotenumbersettingssettingsmenu'
-                                                                id="viewconsignmentnotenumbersettingssettings"
-                                                                name="viewconsignmentnotenumbersettingssettings" value="1">
+                                                                data-value='showconsignmentnotenumbersettingsmenu'
+                                                                id="viewconsignmentnotenumbersettings"
+                                                                name="viewconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettingssettings.edit') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showconsignmentnotenumbersettingssettingsmenu'
-                                                                id="editconsignmentnotenumbersettingssettings"
-                                                                name="editconsignmentnotenumbersettingssettings" value="1">
+                                                                data-value='showconsignmentnotenumbersettingsmenu'
+                                                                id="editconsignmentnotenumbersettings"
+                                                                name="editconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettingssettings.delete') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showconsignmentnotenumbersettingssettingsmenu'
-                                                                id="deleteconsignmentnotenumbersettingssettings"
-                                                                name="deleteconsignmentnotenumbersettingssettings" value="1">
+                                                                data-value='showconsignmentnotenumbersettingsmenu'
+                                                                id="deleteconsignmentnotenumbersettings"
+                                                                name="deleteconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettingssettings.alldata') == '1' || $user_id == 1)
+                                                        @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showconsignmentnotenumbersettingssettingsmenu'
-                                                                id="alldataconsignmentnotenumbersettingssettings"
-                                                                name="alldataconsignmentnotenumbersettingssettings" value="1">
+                                                                data-value='showconsignmentnotenumbersettingsmenu'
+                                                                id="alldataconsignmentnotenumbersettings"
+                                                                name="alldataconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif

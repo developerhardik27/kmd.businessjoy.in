@@ -107,44 +107,47 @@
             background-color: #FF7A29 !important;
         } */
 
-        
 
-        /* right side filter bar (offcanvas)  start*/
+
         .offcanvas-custom {
             position: fixed;
             top: 0;
+            right: 0;
             height: 100%;
-            width: 100%;
             background-color: #fff;
             box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
             z-index: 1050;
             padding: 0;
-            transition: right 0.3s ease-in-out;
             display: flex;
             flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
-        /* Tablet */
+        /* Responsive width */
+        @media (max-width: 768px) {
+            .offcanvas-custom {
+                width: 100%;
+            }
+        }
+
         @media (min-width: 769px) and (max-width: 1024px) {
             .offcanvas-custom {
                 width: 50%;
             }
         }
 
-        /* large screen */
         @media (min-width: 1025px) {
             .offcanvas-custom {
                 width: 30%;
             }
         }
 
-
-        .offcanvas-right {
-            right: -1000px;
-        }
-
-        .offcanvas-custom.active.offcanvas-right {
-            right: 0;
+        /* Show panel */
+        .offcanvas-custom.active {
+            transform: translateX(0);
         }
 
         .offcanvas-header {
@@ -159,7 +162,10 @@
             padding: 1rem;
         }
 
-        /* Overlay */
+        .offcanvas-footer {
+            border-top: 1px solid #ddd;
+        }
+
         .offcanvas-overlay {
             position: fixed;
             top: 0;
@@ -175,17 +181,14 @@
             display: block;
         }
 
-        .offcanvas-footer {
-            border-top: 1px solid #ddd;
-        }
-
         .no-scroll {
             overflow: hidden;
         }
-        /* right side filter bar (offcanvas)  end*/
+ 
 
         @media (max-width: 768px) {
-          /* pagination jump to page button  */
+
+            /* pagination jump to page button  */
             #jumpToPageWrapper {
                 width: 100%;
                 display: flex;

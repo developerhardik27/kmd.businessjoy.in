@@ -59,7 +59,7 @@
 @endsection
 
 @section('sidebar-filters')
-    <div class="col-12 p-0">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h6>Lead</h6>
@@ -187,65 +187,66 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="leadhistoryform">
-                    <div class="modal-body">
-                        <div class="row">
-                            <input type="hidden" name="company_id" id="company_id">
-                            <input type="hidden" name="leadid" id="leadid">
-                            <input type="hidden" name="user_id" id="created_by">
-                            <input type="hidden" name="token" id="token">
-                            <div class="col-12">
-                                Datetime:
-                                <input type="datetime-local" name="call_date" id="call_date"class="form-control">
-                                <span class="error-msg" id="error-call_date" style="color: red"></span>
-                            </div>
-                            <br />
-                            <div class="col-12">
-                                Next FollowUp:
-                                <input type="datetime-local" name="next_call_date"
-                                    id="next_call_date"class="form-control">
-                                <span class="error-msg" id="error-next_call_date" style="color: red"></span>
-                            </div>
-                            <br />
-                            <div class="col-12">
-                                Notes:
-                                <textarea name="history_notes" id="history_notes" cols="10" rows="1" class="form-control"></textarea>
+                <div class="modal-body">
+                    <table id="details" width='100%' class="table table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped">
+                        <form id="leadhistoryform">
+                            <div class="row">
+                                <input type="hidden" name="company_id" id="company_id">
+                                <input type="hidden" name="leadid" id="leadid">
+                                <input type="hidden" name="user_id" id="created_by">
+                                <input type="hidden" name="token" id="token">
+                                <div class="col-12 mb-2">
+                                    Datetime:
+                                    <input type="datetime-local" name="call_date" id="call_date"class="form-control">
+                                    <span class="error-msg" id="error-call_date" style="color: red"></span>
+                                </div>
+                                <br />
+                                <div class="col-12 mb-2">
+                                    Next FollowUp:
+                                    <input type="datetime-local" name="next_call_date"
+                                        id="next_call_date"class="form-control">
+                                    <span class="error-msg" id="error-next_call_date" style="color: red"></span>
+                                </div>
+                                <br />
+                                <div class="col-12 mb-2">
+                                    Notes:
+                                    <textarea name="history_notes" id="history_notes" cols="10" rows="1" class="form-control"></textarea>
 
-                                <span class="error-msg" id="error-history_notes" style="color: red"></span>
+                                    <span class="error-msg" id="error-history_notes" style="color: red"></span>
+                                </div>
+                                <br/>
+                                <div class="col-12 mb-2">
+                                    Status:
+                                    <select class="form-control" id="call_status" name="call_status">
+                                        <option value='Not Interested'>Not Interested</option>
+                                        <option value='Not Receiving'>Not Receiving</option>
+                                        <option value='New Lead'>New Lead</option>
+                                        <option value='Interested'>Interested</option>
+                                        <option value='Switch Off'>Switch Off</option>
+                                        <option value='Does Not Exist'>Does Not Exist</option>
+                                        <option value='Email Sent'>Email Sent</option>
+                                        <option value='Wrong Number'>Wrong Number</option>
+                                        <option value='By Mistake'>By Mistake</option>
+                                        <option value='Positive'>Positive</option>
+                                        <option value='Busy'>Busy</option>
+                                        <option value='Call Back'>Call Back</option>
+                                    </select>
+                                    <span class="error-msg" id="error-call_status" style="color: red"></span>
+                                </div>
+                                <br>
+                                <div class="col-12 mb-2">
+                                    <input type="checkbox" name="followup" id="followup" value="1"> <label
+                                        for="followup">Include in Follow-Up Count</label>
+                                </div>
+                            </div> 
+                            <div class="modal-footer">
+                                <input type="submit" value="submit" class="btn btn-sm btn-primary">
+                                <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
+                                </button>
                             </div>
-                            <br />
-                            <div class="col-12">
-                                Status:
-                                <select class="form-control" id="call_status" name="call_status">
-                                    <option value='Not Interested'>Not Interested</option>
-                                    <option value='Not Receiving'>Not Receiving</option>
-                                    <option value='New Lead'>New Lead</option>
-                                    <option value='Interested'>Interested</option>
-                                    <option value='Switch Off'>Switch Off</option>
-                                    <option value='Does Not Exist'>Does Not Exist</option>
-                                    <option value='Email Sent'>Email Sent</option>
-                                    <option value='Wrong Number'>Wrong Number</option>
-                                    <option value='By Mistake'>By Mistake</option>
-                                    <option value='Positive'>Positive</option>
-                                    <option value='Busy'>Busy</option>
-                                    <option value='Call Back'>Call Back</option>
-                                </select>
-                                <span class="error-msg" id="error-call_status" style="color: red"></span>
-                            </div>
-                            <br>
-                            <div class="col-12 mt-2">
-                                <input type="checkbox" name="followup" id="followup" value="1"> <label
-                                    for="followup">FollowUp</label>
-                            </div>
-                        </div>
-
-                        <div class="modal-footer">
-                            <input type="submit" value="submit" class="btn btn-sm btn-primary">
-                            <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                        </form>
+                    </table>    
+                </div>
             </div>
         </div>
     </div>
@@ -728,7 +729,7 @@
                                 `;
                                 @if (session('user_permissions.leadmodule.lead.edit') == '1')
                                     options += `
-                                        <select class="ml-1 status form-control" data-original-value="${row.status}" data-statusid=${row.id} id='status_${row.id}'>
+                                        <select class="ml-1 status form-control" data-toggle="tooltip" data-placement="bottom" data-original-title='Updates with next call history' data-original-value="${row.status}" data-statusid=${row.id} id='status_${row.id}'>
                                             ${ 
                                                 leadstatusname.map(function(optionValue) {
                                                         return `<option value="${optionValue}" ${optionValue == row.status ? 'selected' : ''}>${optionValue}</option>`;
