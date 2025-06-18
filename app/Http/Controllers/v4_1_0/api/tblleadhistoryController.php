@@ -80,7 +80,7 @@ class tblleadhistoryController extends commonController
             ->distinct()->where('is_deleted', 0); // ensures no duplicates even if queried multiple times
 
         if ($this->rp['leadmodule']['calendar']['alldata'] != 1) {
-            $nextFollowUps->where('tblleadhistory.created_by', $this->userId);
+            $nextFollowUps->where('tbllead.created_by', $this->userId);
         }
 
         $nextFollowUps = $nextFollowUps->get();
