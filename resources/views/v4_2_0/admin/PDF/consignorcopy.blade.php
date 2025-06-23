@@ -349,12 +349,12 @@
                     </td>
                 </tr>
                 @isset($tandc)
-                <tr>
-                    <td class="p-0">
-                        <p class="text-center bg-light m-0" ><b>Terms & Conditions</b></p>
-                        <div class="m-2"> {!! $tandc[0] !!}</div>
-                    </td>
-                </tr>
+                    <tr>
+                        <td class="p-0">
+                            <p class="text-center bg-light m-0" ><b>Terms & Conditions</b></p>
+                            <div class="m-2"> {!! $tandc[0] !!}</div>
+                        </td>
+                    </tr>
                 @endisset
             </table>
         </div>
