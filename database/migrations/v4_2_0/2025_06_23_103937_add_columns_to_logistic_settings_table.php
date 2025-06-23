@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->dropColumn([
                 'gst_tax_payable_by',
                 'weight',
-                'authorizd_signatory'
+                'authorized_signatory'
             ]);
         });
     }
