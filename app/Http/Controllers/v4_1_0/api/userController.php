@@ -529,7 +529,7 @@ class userController extends commonController
                         'created_by' => $this->userId
                     ]);
                     $name = $request->firstname . ' ' . $request->lastname;
-                    Mail::to($request->email)->bcc('parthdeveloper9@gmail.com')->send(new sendmail($passwordtoken, $name, $request->email));
+                    Mail::to($request->email)->send(new sendmail($passwordtoken, $name, $request->email));
                     return $this->successresponse(200, 'message', 'user succesfully created');
                 } else {
                     return $this->successresponse(500, 'message', 'user not succesfully create');

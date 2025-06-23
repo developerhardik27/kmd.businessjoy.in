@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use App\Models\user_activity;
-use Torann\GeoIP\Facades\GeoIP;
 use App\Mail\ForgotPasswordMail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -30,6 +29,36 @@ class AdminLoginController extends Controller
         return view('admin.login');
     }
 
+    // check user permission function
+    public function hasPermission($json, $module)
+    {
+        if (isset($json[$module]) && !empty($module)) {
+            foreach ($json[$module] as $key => $value) {
+                foreach ($value as $key2 => $value2) {
+                    if ($key2 === "show" && $value2 == 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    // check dashboard permission function
+    public function hasDashboardPermission($json, $module)
+    {
+        if (isset($json[$module]) && !empty($module)) {
+            foreach ($json[$module] as $key => $value) {
+                if (is_string($key) && stripos($key, 'dashboard') !== false) {
+                    foreach ($value as $key2 => $value2) {
+                       if ($key2 === "show" && $value2 == 1) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Summary of authenticate
      * - check user credential and check permissions
@@ -45,203 +74,212 @@ class AdminLoginController extends Controller
         ]);
 
 
-        if ($validator->passes()) {
-
-            if (User::where('email', $request->email)->first()) { // check if request email is registered or not
-                if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0])) { //verify credentials
-                    $admin = Auth::guard('admin')->user(); // user
-                    $api_token = Str::random(60); // generate api token
-
-                    DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]); // store api token into user table for further activity
-
-                    if ((in_array($admin->role, [1, 2, 3])) && ($admin->is_active == 1)) {
-
-                        $dbname = company::find($admin->company_id);
-                        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
-
-                        // Establish connection to the dynamic database
-                        DB::purge('dynamic_connection');
-                        DB::reconnect('dynamic_connection');
-
-                        // fetch user permissions
-                        $rpdetailsjson = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $admin->id)->get();
-
-                        if ($rpdetailsjson->count() > 0) {
-                            // Decode the JSON data
-                            $rp = json_decode($rpdetailsjson[0]->rp, true);
-
-                            // Store the decoded data in the session
-                            session(['user_permissions' => $rp]);
-
-                            $menus = [];
-
-                            // check user permission function
-                            function hasPermission($json, $module)
-                            {
-                                if (isset($json[$module]) && !empty($module)) {
-                                    foreach ($json[$module] as $key => $value) {
-                                        foreach ($value as $key2 => $value2) {
-                                            if ($key2 === "show" && $value2 == 1) {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-
-                            /*
-                             * $menus (using in dashboard for showing menus) 
-                             */
-
-
-                            if (hasPermission($rp, "invoicemodule")) {
-                                session(['invoice' => "yes"]);
-                                session(['menu' => 'invoice']);
-                                $menus[] = 'invoice';
-                            }
-
-                            if (hasPermission($rp, "quotationmodule")) {
-                                session(['quotation' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
-                                    session(['menu' => 'quotation']);
-                                }
-                                $menus[] = 'quotation';
-                            }
-
-                            if (hasPermission($rp, "leadmodule")) {
-                                session(['lead' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
-                                    session(['menu' => 'lead']);
-                                }
-                                $menus[] = 'lead';
-                            }
-
-                            if (hasPermission($rp, "customersupportmodule")) {
-                                session(['customersupport' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
-                                    session(['menu' => 'Customer support']);
-                                }
-                                // $menus[] = 'customersupport';
-                            }
-
-                            if (hasPermission($rp, "adminmodule")) {
-                                session(['admin' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
-                                    session(['menu' => 'admin']);
-                                }
-                                // $menus[] = 'admin';
-                            }
-
-                            // if (hasPermission($rp, "accountmodule")) {
-                            //     session(['account' => "yes"]);
-                            //     if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
-                            //         session(['menu' => 'account']);
-                            //     }
-                            //     // $menus[] = 'account';
-                            // }
-
-                            if (hasPermission($rp, "inventorymodule")) {
-                                session(['inventory' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
-                                    session(['menu' => 'inventory']);
-                                }
-                                // $menus[] = 'inventory';
-                            }
-
-                            if (hasPermission($rp, "remindermodule")) {
-                                session(['reminder' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
-                                    session(['menu' => 'reminder']);
-                                }
-                                $menus[] = 'reminder';
-                            }
-
-                            if (hasPermission($rp, "reportmodule")) { // its invoice report
-                                session(['invoice' => "yes"]);
-                                session(['menu' => 'invoice']);
-                                session(['report' => "yes"]);
-                                // if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory'])))) {
-                                // session(['menu' => 'invoice']);
-                                // }
-                                // $menus[] = 'report';
-                            }
-
-                            if (hasPermission($rp, "blogmodule")) {
-                                session(['blog' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
-                                    session(['menu' => 'blog']);
-                                }
-                                // $menus[] = 'blog';
-                            }
-
-                            if (hasPermission($rp, "logisticmodule")) {
-                                session(['logistic' => "yes"]);
-                                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
-                                    session(['menu' => 'logistic']);
-                                }
-                                // $menus[] = 'blog';
-                            }
-
-                            $request->session()->put([
-                                'allmenu' => $menus
-                            ]);
-
-                        }
-
-                        $request->session()->put([
-                            'user' => $admin,
-                            'admin_role' => $admin->role,
-                            'company_id' => $admin->company_id,
-                            'user_id' => $admin->id,
-                            'name' => $admin->firstname . ' ' . $admin->lastname,
-                            'api_token' => $api_token,
-                            'folder_name' => $dbname->app_version,
-                            'loggedby' => 'user'
-                        ]);
-
-
-                        if (session_status() !== PHP_SESSION_ACTIVE)
-                            session_start();
-                        $_SESSION['folder_name'] = session('folder_name');
-
-                        if (Session::get('menu') == null) {
-                            DB::table('users')
-                                ->where('id', $admin->id)
-                                ->update(['api_token' => null]);
-
-                            $request->session()->flush();
-
-                            if (session_status() !== PHP_SESSION_ACTIVE)
-                                session_start();
-                            session_destroy();
-                            Auth::guard('admin')->logout();
-                            $this->save_user_login_history($request, 'direct', 'Due to no permissions.');
-                            return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
-                        }
-
-                        $this->save_user_login_history();//create login history
-
-                        if (isset($admin->default_module) && isset($admin->default_page)) {
-                            session(['menu' => $admin->default_module]);
-                            return redirect()->route('admin.' . $admin->default_page);
-                        }
-                        return redirect()->route('admin.welcome');
-                    } else {
-                        Auth::guard('admin')->logout();
-                        return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel')->withInput($request->only('email'));
-                    }
-                } else {
-                    $this->save_user_login_history($request, 'direct', 'Credential invalid.');
-                    return redirect()->route('admin.login')->with('error', 'credential invalid')->withInput($request->only('email'));
-                }
-            } else {
-                $this->save_user_login_history($request, 'direct', 'Email not registered.');
-                return redirect()->route('admin.login')->with('error', 'You are not Registered !')->withInput($request->only('email'));
-            }
-        } else {
+        if ($validator->fails()) {
             return redirect()->route('admin.login')->withErrors($validator)->withInput($request->only('email'));
         }
+
+        $checkEmail = User::where('email', $request->email)->exists();
+
+        if (!$checkEmail) {
+            $this->save_user_login_history($request, 'direct', 'Email not registered.');
+            return redirect()->route('admin.login')->with('error', 'You are not Registered !')->withInput($request->only('email'));
+        }
+
+        $verifyCredentials = Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password, 'is_deleted' => 0]);
+
+        if (!$verifyCredentials) {
+            $this->save_user_login_history($request, 'direct', 'Credential invalid.');
+            return redirect()->route('admin.login')->with('error', 'credential invalid')->withInput($request->only('email'));
+        }
+
+        $admin = Auth::guard('admin')->user(); // user
+
+        do {
+            $api_token = Str::random(60);
+            $exists = DB::table('users')->where('api_token', $api_token)->exists();
+        } while ($exists);
+
+        DB::table('users')->where('id', $admin->id)->update(['api_token' => $api_token]); // store api token into user table for further activity
+
+        if (!(in_array($admin->role, [1, 2, 3])) || ($admin->is_active != 1)) {
+            Auth::guard('admin')->logout();
+            return redirect()->route('admin.login')->with('error', 'You are unauthorized to access admin panel')->withInput($request->only('email'));
+        }
+
+        $dbname = company::find($admin->company_id);
+        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+        // Establish connection to the dynamic database
+        DB::purge('dynamic_connection');
+        DB::reconnect('dynamic_connection');
+
+        // fetch user permissions
+        $rpdetailsjson = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $admin->id)->get();
+
+        if ($rpdetailsjson->count() > 0) {
+            // Decode the JSON data
+            $rp = json_decode($rpdetailsjson[0]->rp, true);
+
+            // Store the decoded data in the session
+            session(['user_permissions' => $rp]);
+
+            $menus = [];
+
+            /*
+             * $menus (using in dashboard for showing menus) 
+             */
+
+
+            if ($this->hasPermission($rp, "invoicemodule")) {
+                session(['invoice' => "yes"]);
+                session(['menu' => 'invoice']);
+                if ($this->hasDashboardPermission($rp, 'invoicemodule')) {
+                    $menus[] = 'invoice';
+                }
+            }
+
+            if ($this->hasPermission($rp, "quotationmodule")) {
+                session(['quotation' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
+                    session(['menu' => 'quotation']);
+                }
+                if ($this->hasDashboardPermission($rp, 'quotationmodule')) {
+                    $menus[] = 'quotation';
+                }
+            }
+
+            if ($this->hasPermission($rp, "leadmodule")) {
+                session(['lead' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
+                    session(['menu' => 'lead']);
+                }
+                if ($this->hasDashboardPermission($rp, 'leadmodule')) {
+                    $menus[] = 'lead';
+                }
+            }
+
+            if ($this->hasPermission($rp, "customersupportmodule")) {
+                session(['customersupport' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
+                    session(['menu' => 'Customer support']);
+                }
+                // $menus[] = 'customersupport';
+            }
+
+            if ($this->hasPermission($rp, "adminmodule")) {
+                session(['admin' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
+                    session(['menu' => 'admin']);
+                }
+                // $menus[] = 'admin';
+            }
+
+            // if ($this->hasPermission($rp, "accountmodule")) {
+            //     session(['account' => "yes"]);
+            //     if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
+            //         session(['menu' => 'account']);
+            //     }
+            //     // $menus[] = 'account';
+            // }
+
+            if ($this->hasPermission($rp, "inventorymodule")) {
+                session(['inventory' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
+                    session(['menu' => 'inventory']);
+                }
+                // $menus[] = 'inventory';
+            }
+
+            if ($this->hasPermission($rp, "remindermodule")) {
+                session(['reminder' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
+                    session(['menu' => 'reminder']);
+                }
+                if ($this->hasDashboardPermission($rp, 'remindermodule')) {
+                    $menus[] = 'reminder';
+                }
+            }
+
+            if ($this->hasPermission($rp, "reportmodule")) { // its invoice report
+                session(['invoice' => "yes"]);
+                session(['menu' => 'invoice']);
+                session(['report' => "yes"]);
+                // if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory'])))) {
+                // session(['menu' => 'invoice']);
+                // }
+                // $menus[] = 'invoice';
+            }
+
+            if ($this->hasPermission($rp, "blogmodule")) {
+                session(['blog' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
+                    session(['menu' => 'blog']);
+                }
+                // $menus[] = 'blog';
+            }
+
+            if ($this->hasPermission($rp, "logisticmodule")) {
+                session(['logistic' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
+                    session(['menu' => 'logistic']);
+                }
+                // $menus[] = 'logistic';
+            }
+
+            if ($this->hasPermission($rp, "developermodule")) {
+                session(['developer' => "yes"]);
+                if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
+                    session(['menu' => 'developer']);
+                }
+                // $menus[] = 'developer';
+            }
+
+            $request->session()->put([
+                'allmenu' => $menus
+            ]);
+
+        }
+
+        $request->session()->put([
+            'user' => $admin,
+            'admin_role' => $admin->role,
+            'company_id' => $admin->company_id,
+            'user_id' => $admin->id,
+            'name' => $admin->firstname . ' ' . $admin->lastname,
+            'api_token' => $api_token,
+            'folder_name' => $dbname->app_version,
+            'loggedby' => 'user'
+        ]);
+
+
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+        $_SESSION['folder_name'] = session('folder_name');
+
+        if (Session::get('menu') == null) {
+            DB::table('users')
+                ->where('id', $admin->id)
+                ->update(['api_token' => null]);
+
+            $request->session()->flush();
+
+            if (session_status() !== PHP_SESSION_ACTIVE)
+                session_start();
+            session_destroy();
+            Auth::guard('admin')->logout();
+            $this->save_user_login_history($request, 'direct', 'Due to no permissions.');
+            return redirect()->back()->with('error', 'You have not any permission')->withInput($request->only('email'));
+        }
+
+        $this->save_user_login_history();//create login history
+
+        if (isset($admin->default_module) && isset($admin->default_page)) {
+            session(['menu' => $admin->default_module]);
+            return redirect()->route('admin.' . $admin->default_page);
+        }
+
+        return redirect()->route('admin.welcome');
+
     }
 
 
@@ -357,7 +395,7 @@ class AdminLoginController extends Controller
             $user->pass_token = str::random(40);
             $user->save();
 
-            Mail::to($user->email)->bcc('parthdeveloper9@gmail.com')->send(new ForgotPasswordMail($user));
+            Mail::to($user->email)->send(new ForgotPasswordMail($user));
 
             return redirect()->back()->with('success', 'plz check your mailbox and reset your password');
         } else {
@@ -528,109 +566,116 @@ class AdminLoginController extends Controller
 
                     $menus = [];
 
-                    // check user permission function
-                    function hasPermission($json, $module)
-                    {
-                        if (isset($json[$module]) && !empty($module)) {
-                            foreach ($json[$module] as $key => $value) {
-                                foreach ($value as $key2 => $value2) {
-                                    if ($key2 === "show" && $value2 == 1) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-
                     /*
                      * $menus (using in dashboard for showing menus) 
                      */
 
 
 
-                    if (hasPermission($rp, "invoicemodule")) {
+                    if ($this->hasPermission($rp, "invoicemodule")) {
                         session(['invoice' => "yes"]);
                         session(['menu' => 'invoice']);
-                        session(['showinvoicesettings' => "yes"]);
-                        $menus[] = 'invoice';
+                        if ($this->hasDashboardPermission($rp, 'invoicemodule')) {
+                            $menus[] = 'invoice';
+                        }
                     }
 
-                    if (hasPermission($rp, "quotationmodule")) {
+                    if ($this->hasPermission($rp, "quotationmodule")) {
                         session(['quotation' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog', 'lead'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
                             session(['menu' => 'quotation']);
                         }
-                        $menus[] = 'quotation';
+                        if ($this->hasDashboardPermission($rp, 'quotationmodule')) {
+                            $menus[] = 'quotation';
+                        }
                     }
 
-                    if (hasPermission($rp, "leadmodule")) {
+                    if ($this->hasPermission($rp, "leadmodule")) {
                         session(['lead' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
                             session(['menu' => 'lead']);
                         }
-                        $menus[] = 'lead';
+                        if ($this->hasDashboardPermission($rp, 'leadmodule')) {
+                            $menus[] = 'lead';
+                        }
                     }
 
-                    if (hasPermission($rp, "customersupportmodule")) {
+                    if ($this->hasPermission($rp, "customersupportmodule")) {
                         session(['customersupport' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'admin', 'account', 'inventory', 'reminder', 'blog'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
                             session(['menu' => 'Customer support']);
                         }
                         // $menus[] = 'customersupport';
                     }
-                    if (hasPermission($rp, "adminmodule")) {
+
+                    if ($this->hasPermission($rp, "adminmodule")) {
                         session(['admin' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'lead', 'account', 'inventory', 'reminder', 'blog'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                             session(['menu' => 'admin']);
                         }
                         // $menus[] = 'admin';
                     }
-                    // if (hasPermission($rp, "accountmodule")) {
+
+                    // if ($this->hasPermission($rp, "accountmodule")) {
                     //     session(['account' => "yes"]);
                     //     if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'lead', 'inventory', 'reminder', 'blog'])))) {
                     //         session(['menu' => 'account']);
                     //     }
                     //     // $menus[] = 'account';
                     // }
-                    if (hasPermission($rp, "inventorymodule")) {
+
+                    if ($this->hasPermission($rp, "inventorymodule")) {
                         session(['inventory' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'reminder', 'blog'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
                             session(['menu' => 'inventory']);
                         }
                         // $menus[] = 'inventory';
                     }
-                    if (hasPermission($rp, "remindermodule")) {
+
+                    if ($this->hasPermission($rp, "remindermodule")) {
                         session(['reminder' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'blog'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
                             session(['menu' => 'reminder']);
                         }
-                        $menus[] = 'reminder';
+                        if ($this->hasDashboardPermission($rp, 'remindermodule')) {
+                            $menus[] = 'reminder';
+                        }
                     }
-                    if (hasPermission($rp, "reportmodule")) {
+
+                    if ($this->hasPermission($rp, "reportmodule")) { // its invoice report
                         session(['invoice' => "yes"]);
                         session(['menu' => 'invoice']);
                         session(['report' => "yes"]);
                         // if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory'])))) {
                         // session(['menu' => 'invoice']);
                         // }
-                        // $menus[] = 'report';
+                        // $menus[] = 'invoice';
                     }
-                    if (hasPermission($rp, "blogmodule")) {
+
+                    if ($this->hasPermission($rp, "blogmodule")) {
                         session(['blog' => "yes"]);
-                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory', 'reminder'])))) {
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
                             session(['menu' => 'blog']);
                         }
                         // $menus[] = 'blog';
                     }
 
-                    if (hasPermission($rp, "logisticmodule")) {
+                    if ($this->hasPermission($rp, "logisticmodule")) {
                         session(['logistic' => "yes"]);
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
                             session(['menu' => 'logistic']);
                         }
-                        // $menus[] = 'blog';
+                        // $menus[] = 'logistic';
                     }
+
+                    if ($this->hasPermission($rp, "developermodule")) {
+                        session(['developer' => "yes"]);
+                        if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
+                            session(['menu' => 'developer']);
+                        }
+                        // $menus[] = 'developer';
+                    }
+
                     $request->session()->put([
                         'allmenu' => $menus
                     ]);
