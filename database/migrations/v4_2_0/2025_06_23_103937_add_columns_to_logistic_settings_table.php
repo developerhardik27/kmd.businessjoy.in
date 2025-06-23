@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::table('logistic_settings', function (Blueprint $table) {
             $table->string('gst_tax_payable_by')->nullable()->after('current_consignment_note_no');
             $table->string('weight')->nullable()->after('gst_tax_payable_by');
-            $table->string('authorizd_signatory')->nullable()->after('weight');
+            $table->string('authorized_signatory')->nullable()->after('weight');
         });
     }
 
