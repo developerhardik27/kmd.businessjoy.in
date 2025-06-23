@@ -95,19 +95,16 @@ class PdfController extends Controller
       $jsonpaymentdata = app('App\Http\Controllers\\' . $this->version . '\api\PaymentController')->paymentdetailsforpdf($id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
 
-
       $jsonproductContent = $jsonproductdata->getContent();
       $jsonpaymentContent = $jsonpaymentdata->getContent();
       $jsoninvContent = $jsoninvdata->getContent();
       $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
-
 
       // Decode the JSON data
       $productdata = json_decode($jsonproductContent, true);
       $paymentdata = json_decode($jsonpaymentContent, true);
       $invdata = json_decode($jsoninvContent, true);
       $companydetailsdata = json_decode($jsoncompanyContent, true);
-
 
       if ($productdata['status'] == 404) {
          return redirect()->back()->with('message', 'yes');
@@ -182,7 +179,6 @@ class PdfController extends Controller
       return $pdf->stream($name);
 
    }
-
 
    public function generatepdfzip(Request $request)
    {
