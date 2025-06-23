@@ -5,8 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\api_authorization;
-use Illuminate\Support\Facades\Auth;
+use App\Models\api_authorization; 
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,7 +21,7 @@ class CheckToken
 
         // Check if the token is present in the session
         $sessionToken = $request->token;
-        if ((!$sessionToken) && !isset($request->site_key) && !isset($request->server_key)) {
+        if (!isset($sessionToken) && !isset($request->site_key) && !isset($request->server_key)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -42,8 +41,8 @@ class CheckToken
             }
 
         } elseif (isset($request->site_key) && isset($request->server_key)) {
-            // $domainName = basename($request->header('Origin'));
-            $domainName = $request->header('Origin');
+
+            $domainName = basename($request->header('Origin'));
         
             if ($domainName) {
                 // Normalize by removing "www."

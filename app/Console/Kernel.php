@@ -19,12 +19,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
         $schedule->command('invoices:update-status')->dailyAt('06:00')
             ->sendOutputTo(storage_path('logs/scheduled_task_output.txt'))
+            ->sendOutputTo(storage_path('logs/invoices_update_error.txt'))
             ->after(function () {
                 // Path to the output file
                 $outputFile = storage_path('logs/scheduled_task_output.txt');
+                $catchErrorFile = storage_path('logs/invoices_update_catch_error.log');
 
                 try {
                     // Send the email
@@ -37,15 +38,18 @@ class Kernel extends ConsoleKernel
                         }
                     }
                 } catch (\Exception $e) {
-                    \Log::error("Error sending email or deleting file: " . $e->getMessage());
+                    // Log catch block error to custom file
+                    File::append($catchErrorFile, '[' . now() . '] ' . $e->getMessage() . PHP_EOL);
                 }
             });
 
         $schedule->command('delete:temp-records')->dailyAt('06:00')
             ->sendOutputTo(storage_path('logs/scheduled_task_output.txt'))
+            ->sendOutputTo(storage_path('logs/delete_temp_error.txt'))
             ->after(function () {
                 // Path to the output file
                 $outputFile = storage_path('logs/scheduled_task_output.txt');
+                $catchErrorFile = storage_path('logs/delete_temp_catch_error.log');
 
                 try {
                     // Send the email
@@ -58,9 +62,12 @@ class Kernel extends ConsoleKernel
                         }
                     }
                 } catch (\Exception $e) {
-                    \Log::error("Error sending email or deleting file: " . $e->getMessage());
+                    File::append($catchErrorFile, '[' . now() . '] ' . $e->getMessage() . PHP_EOL);
                 }
             });
+
+        $schedule->command('sync:scheduled-tasks')->dailyAt('06:00') 
+            ->sendOutputTo(storage_path('logs/sync_scheduled_tasks.txt'));
     }
 
     /**
