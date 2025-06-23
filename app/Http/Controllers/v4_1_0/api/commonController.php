@@ -15,8 +15,6 @@ class commonController extends Controller
     {
 
         $dbname = company::find($id);
-
-        // dd($id);
         if ($dbname == null) {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode([

@@ -120,7 +120,14 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v4_1_0',
                                     ];
-                                } 
+                                }
+                                break;
+                            case 'v4_2_0':
+                                if ($request->company == 1) {
+                                    $paths = [
+                                        'database/migrations/newmasterdbtable',
+                                    ];
+                                }
                                 break;
                             // Add more cases as needed
                         }
@@ -333,41 +340,107 @@ class versionupdateController extends commonController
                                 if ($rp) {
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
-                                       
+
                                         if (!isset($jsonrp['invoicemodule']['invoicedashboard'])) {
-                                            $jsonrp['invoicemodule']['invoicedashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['invoicemodule']['invoicedashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['leadmodule']['leaddashboard'])) {
-                                            $jsonrp['leadmodule']['leaddashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
-                                            $jsonrp['leadmodule']['upcomingfollowup'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
-                                            $jsonrp['leadmodule']['analysis'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
-                                            $jsonrp['leadmodule']['leadownerperformance'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
-                                            $jsonrp['leadmodule']['recentactivity'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
-                                            $jsonrp['leadmodule']['calendar'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
-                                        } 
+                                            $jsonrp['leadmodule']['leaddashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['upcomingfollowup'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['analysis'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['leadownerperformance'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['recentactivity'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['leadmodule']['calendar'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
                                         if (!isset($jsonrp['customersupportmodule']['customersupportdashboard'])) {
-                                            $jsonrp['customersupportmodule']['customersupportdashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['customersupportmodule']['customersupportdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['adminmodule']['admindashboard'])) {
-                                            $jsonrp['adminmodule']['admindashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['adminmodule']['admindashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['inventorymodule']['inventorydashboard'])) {
-                                            $jsonrp['inventorymodule']['inventorydashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['inventorymodule']['inventorydashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['remindermodule']['reminderdashboard'])) {
-                                            $jsonrp['remindermodule']['reminderdashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['remindermodule']['reminderdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['reportmodule']['reportdashboard'])) {
-                                            $jsonrp['reportmodule']['reportdashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['reportmodule']['reportdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['blogmodule']['blogdashboard'])) {
-                                            $jsonrp['blogmodule']['blogdashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['blogmodule']['blogdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['quotationmodule']['quotationdashboard'])) {
-                                            $jsonrp['quotationmodule']['quotationdashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['quotationmodule']['quotationdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['logisticmodule']['logisticdashboard'])) {
-                                            $jsonrp['logisticmodule']['logisticdashboard'] =  ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0] ;
+                                            $jsonrp['logisticmodule']['logisticdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        // Encode updated permissions back to JSON
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+                                    }
+                                }
+
+                                break;
+
+                            case 'v4_2_0':
+                                $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                                if ($rp) {
+                                    foreach ($rp as $userrp) {
+                                        $jsonrp = json_decode($userrp->rp, true);
+                                        $newrp = [
+                                            'developermodule' => [
+                                                "slowpage" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "errorlog" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "cronjob" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "techdoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                                "versiondoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                            ]
+                                        ];
+
+                                        if (!isset($jsonrp['developermodule'])) {
+                                            // add the 'developer module' section with new permissions
+                                            $jsonrp = array_merge($jsonrp, $newrp);
+                                        }
+
+                                        if (!isset($jsonrp['logisticmodule']['logisticothersettings'])) {
+                                            $jsonrp['logisticmodule']['logisticothersettings'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        if (!isset($jsonrp['invoicemodule']['invoiceapi'])) {
+                                            $jsonrp['invoicemodule']['invoiceapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['leadmodule']['leadapi'])) {
+                                            $jsonrp['leadmodule']['leadapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['customersupportmodule']['customersupportapi'])) {
+                                            $jsonrp['customersupportmodule']['customersupportapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['adminmodule']['adminapi'])) {
+                                            $jsonrp['adminmodule']['adminapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['inventorymodule']['inventoryapi'])) {
+                                            $jsonrp['inventorymodule']['inventoryapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['remindermodule']['reminderapi'])) {
+                                            $jsonrp['remindermodule']['reminderapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['reportmodule']['reportapi'])) {
+                                            $jsonrp['reportmodule']['reportapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['blogmodule']['blogapi'])) {
+                                            $jsonrp['blogmodule']['blogapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['quotationmodule']['quotationapi'])) {
+                                            $jsonrp['quotationmodule']['quotationapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['logisticmodule']['logisticapi'])) {
+                                            $jsonrp['logisticmodule']['logisticapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
 
                                         // Encode updated permissions back to JSON

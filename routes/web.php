@@ -236,6 +236,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Lead/Calendar', 'calendar')->name('admin.calendar')->middleware('checkPermission:leadmodule,calendar,show');
                 Route::get('/AddNewLead', 'create')->name('admin.addlead')->middleware('checkPermission:leadmodule,lead,add');
                 Route::get('/EditLead/{id}', 'edit')->name('admin.editlead')->middleware('checkPermission:leadmodule,lead,edit');
+                Route::get('/Lead/Api', 'leadapi')->name('admin.leadapi')->middleware('checkPermission:leadmodule,leadapi,show');
             });
 
             // lead module routes end----- 
@@ -288,6 +289,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/BlogTag', 'blogtag')->name('admin.blogtag')->middleware('checkPermission:blogmodule,blog,add');
                 Route::get('/BlogCategory', 'blogcategory')->name('admin.blogcategory')->middleware('checkPermission:blogmodule,blog,add');
                 Route::get('/EditBlog/{id}', 'edit')->name('admin.editblog')->middleware('checkPermission:blogmodule,blog,edit');
+                Route::get('/blog/Api', 'blogapi')->name('admin.blogapi')->middleware('checkPermission:blogmodule,blogapi,show');
             });
 
 
@@ -320,6 +322,23 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Logistic/othersettings', 'othersettings')->name('admin.logisticothersettings')->middleware('checkPermission:logisticmodule,logisticsettings,view');
             });
 
+            /**
+             * logistic module route end
+             */
+            
+
+            /**
+             * developer module route start
+             */
+            $SystemMonitorController = getadminversion('SystemMonitorController');
+            Route::controller($SystemMonitorController)->group(function () {
+                Route::get('/Developer/SlowPages', 'slowpages')->name('admin.slowpages')->middleware('checkPermission:developermodule,slowpage,show');
+                Route::get('/Developer/ErrorLogs', 'errorlogs')->name('admin.errorlogs')->middleware('checkPermission:developermodule,errorlog,show');
+                Route::get('/Developer/CronJobs', 'cronjobs')->name('admin.cronjobs')->middleware('checkPermission:developermodule,cronjob,show');
+                Route::get('/Developer/TechnicalDocs', 'techdocs')->name('admin.techdocs')->middleware('checkPermission:developermodule,techdoc,show');
+                Route::get('/Developer/VersionDocs', 'versiondocs')->name('admin.versiondocs')->middleware('checkPermission:developermodule,versiondoc,show');
+            });
+
 
             // pdf routes ------------------------------------ 
             $PdfController = getadminversion('PdfController');
@@ -330,7 +349,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::post('/generatepdfzip', 'generatepdfzip')->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', 'generatereciept')->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/generaterecieptall/{id}', 'generaterecieptall')->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
-                
+
                 // generate consignor copy pdf 
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
             });

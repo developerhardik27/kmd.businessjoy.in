@@ -1,15 +1,15 @@
 <?php
 
+use App\Models\User;
+use App\Models\company;
+use App\Models\api_authorization;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckServerKey;
 use App\Http\Controllers\api\cityController;
+use App\Http\Controllers\api\stateController;
 use App\Http\Controllers\api\countryController;
 use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\otherapiController;
-use App\Http\Controllers\api\stateController;
-use App\Models\api_authorization;
-use App\Models\company;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,14 +59,14 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
 
 
             // Determine the version based on whether the user and version exist
-            $versionexplode = $version ? $version->app_version : "v1_0_0";
+            $versionexplode = $version ? $version->app_version : "v4_1_0";
 
 
 
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
-            $versionexplode = "v1_0_0"; // Set a default version
+            $versionexplode = "v4_1_0"; // Set a default version
         }
 
 
@@ -179,15 +179,15 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::put('/user/delete/{id}', 'destroy')->name('user.delete');
         Route::post('/user/changepassword/{id}', 'changepassword')->name('user.changepassword');
         Route::post('/user/setdefaultpage/{id}', 'setdefaultpage')->name('user.setdefaultpage');
-        
+
         Route::get('/userrolepermission', 'userrolepermissionindex')->name('userrolepermission.index');
-        Route::post('/userrolepermission/insert', 'storeuserrolepermission')->name('userrolepermission.store'); 
-        Route::get('/getuserrolepermission', 'userrolepermissiondattable')->name('userrolepermission.datatable');       
+        Route::post('/userrolepermission/insert', 'storeuserrolepermission')->name('userrolepermission.store');
+        Route::get('/getuserrolepermission', 'userrolepermissiondattable')->name('userrolepermission.datatable');
         Route::get('/userrolepermission/edit/{id}', 'edituserrolepermission')->name('userrolepermission.edit');
         Route::post('/userrolepermission/update/{id}', 'updateuserrolepermission')->name('userrolepermission.update');
         Route::put('/userrolepermission/statusupdate/{id}', 'userrolepermissionstatusupdate')->name('userrolepermission.statusupdate');
         Route::put('/userrolepermission/delete/{id}', 'userrolepermissiondestroy')->name('userrolepermission.delete');
-        
+
     });
 
 
@@ -202,7 +202,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::put('/techsupport/delete', 'destroy')->name('techsupport.delete');
         Route::put('/techsupport/changestatus', 'changestatus')->name('techsupport.changestatus');
     });
- 
+
     //bank details route
     $bankdetailsController = getversion('bankdetailsController');
     Route::controller($bankdetailsController)->group(function () {
@@ -324,6 +324,7 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::get('/lead/edit/{id}', 'edit')->name('lead.edit');
         Route::post('/lead/update/{id}', 'update')->name('lead.update');
         Route::put('/lead/delete', 'destroy')->name('lead.delete');
+        Route::put('/lead/buldelete', 'bulkdestroy')->name('lead.bulkdelete');
         Route::put('/lead/changestatus', 'changestatus')->name('lead.changestatus');
         Route::put('/lead/changeleadstage', 'changeleadstage')->name('lead.changeleadstage');
     });
@@ -334,6 +335,15 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
         Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
         Route::get('/lead/calendar', 'getcalendardata')->name('lead.getcalendardata');
+    });
+
+    // lead api server key route
+    $apiserverkeyController = getversion('apiserverkeyController');
+    Route::controller($apiserverkeyController)->group(function () {
+        Route::get('/other/api/serverkey', 'index')->name('other.getapiserverkey');
+        Route::post('/other/api/serverkey/generate', 'store')->name('other.generateserverkey');
+        Route::post('/other/api/serverkey/update/{id}', 'update')->name('other.updateserverkey');
+        Route::put('/other/api/serverkey/delete/{id}', 'destroy')->name('other.deleteserverkey');
     });
 
     // customer suppport route 
@@ -503,8 +513,8 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::post('/manualquotationdate', 'manual_quotation_date')->name('othersettings.updatequotationdatestatus');
     });
 
-    $quotationController = getversion('quotationController');
     //quotation route
+    $quotationController = getversion('quotationController');
     Route::controller($quotationController)->group(function () {
         Route::get('/quotation/totalquotation', 'totalQuotation')->name('quotation.totalquotation');
         Route::get('/quotation/status_list', 'status_list')->name('quotation.status_list');
@@ -576,45 +586,65 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::put('/consignorcopy/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('consignorcopytermsandconditions.statusupdate');
         Route::put('/consignorcopy/termsandconditions/delete/{id}', 'tcdestroy')->name('consignorcopytermsandconditions.delete');
         Route::post('/consignorcopy/consignmentnotenumber', 'consignmentnotenumberstore')->name('consignmentnotenumber.store');
+        Route::post('/logistic/othersettings', 'logisticothersettingsstore')->name('logisticothersettings.store');
+    });
+
+    // system monitor settings route (Developer tools)
+    $systemmonitorController = getversion('systemmonitorController');
+    Route::controller($systemmonitorController)->group(function () {
+        Route::get('/developer/slowpages', 'slowpages')->name('getslowpages');
+        Route::put('/developer/slowpages/delete/{id}', 'slowpagedestroy')->name('slowpage.delete');
+        Route::get('/developer/errorlogs', 'geterrorlogfiles')->name('geterrorlogs');
+        Route::get('/developer/errorlogs/download/{filename}', 'downloaderrorlog')->name('downloaderrorlog');
+        ;
+        Route::get('/developer/cronjobs', 'cronjobs')->name('getcronjobs');
     });
 
 });
 
- //country route
-    Route::controller(countryController::class)->group(function () {
-        Route::get('/country', 'index')->name('country.index');
-        Route::post('/country/insert', 'store')->name('country.store');
-        Route::get('/country/search/{id}', 'show')->name('country.search');
-        Route::get('/country/edit/{id}', 'edit')->name('country.edit');
-        Route::put('/country/update/{id}', 'update')->name('country.update');
-        Route::put('/country/delete/{id}', 'destroy')->name('country.delete');
-    });
+//country route
+Route::controller(countryController::class)->group(function () {
+    Route::get('/country', 'index')->name('country.index');
+    Route::post('/country/insert', 'store')->name('country.store');
+    Route::get('/country/search/{id}', 'show')->name('country.search');
+    Route::get('/country/edit/{id}', 'edit')->name('country.edit');
+    Route::put('/country/update/{id}', 'update')->name('country.update');
+    Route::put('/country/delete/{id}', 'destroy')->name('country.delete');
+});
 
-    //state route
-    Route::controller(stateController::class)->group(function () {
-        Route::get('/state', 'index')->name('state.index');
-        Route::post('/state/insert', 'store')->name('state.store');
-        Route::get('/state/search/{id}', 'show')->name('state.search');
-        Route::get('/state/edit/{id}', 'edit')->name('state.edit');
-        Route::put('/state/update/{id}', 'update')->name('state.update');
-        Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
-    });
+//state route
+Route::controller(stateController::class)->group(function () {
+    Route::get('/state', 'index')->name('state.index');
+    Route::post('/state/insert', 'store')->name('state.store');
+    Route::get('/state/search/{id}', 'show')->name('state.search');
+    Route::get('/state/edit/{id}', 'edit')->name('state.edit');
+    Route::put('/state/update/{id}', 'update')->name('state.update');
+    Route::put('/state/delete/{id}', 'destroy')->name('state.delete');
+});
 
-    //city route
-    Route::controller(cityController::class)->group(function () {
-        Route::get('/city', 'index')->name('city.index');
-        Route::post('/city/insert', 'store')->name('city.store');
-        Route::get('/city/search/{id}', 'show')->name('city.search');
-        Route::get('/city/edit/{id}', 'edit')->name('city.edit');
-        Route::put('/city/update/{id}', 'update')->name('city.update');
-        Route::put('/city/delete/{id}', 'destroy')->name('city.delete');
-    });
+//city route
+Route::controller(cityController::class)->group(function () {
+    Route::get('/city', 'index')->name('city.index');
+    Route::post('/city/insert', 'store')->name('city.store');
+    Route::get('/city/search/{id}', 'show')->name('city.search');
+    Route::get('/city/edit/{id}', 'edit')->name('city.edit');
+    Route::put('/city/update/{id}', 'update')->name('city.update');
+    Route::put('/city/delete/{id}', 'destroy')->name('city.delete');
+});
 
 
 Route::get('/dbscript', [dbscriptController::class, 'dbscript'])->name('dbscript');
 
-Route::controller(otherapiController::class)->group(function () {
-    Route::post('/Addlead', 'oceanlead')->name('ocean.lead');
-    Route::post('/Addfblead', 'fblead')->name('ocean.fblead');
-    Route::post('/track-activity', 'store');
+
+Route::middleware([CheckServerKey::class])->group(function () {
+    Route::controller(otherapiController::class)->group(function () {
+        Route::post('/OtherApi/AddNewlead', 'newlead')->name('otherapi.addnewlead');
+        Route::post('/OtherApi/Addlead', 'oceanlead')->name('ocean.lead');
+        Route::get('/OtherApi/Blog', 'blog')->name('otherapi.blog');
+        Route::get('/OtherApi/Blog/Search/{slug}', 'blogdetails')->name('otherapi.blogdetails');
+    });
 });
+
+// Route that does NOT use CheckServerKey
+Route::post('/track-activity', [otherapiController::class, 'store'])->name('track.activity');
+

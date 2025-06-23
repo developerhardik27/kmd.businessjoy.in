@@ -124,10 +124,9 @@ class LandingPageController extends Controller
 
                 if ($lead) {
 
-
-                    $user = 'oceanmnc1512@gmail.com';
-                    Mail::to($request->email)->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new ThankYouMail($request));
-                    Mail::to($user)->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new LandingPageMail($request));
+                
+                    Mail::to($request->email)->send(new ThankYouMail($request));
+                    Mail::to(config('app.bcc_mail_id'))->send(new LandingPageMail($request));
 
                     return response()->json([
                         'status' => 200,
@@ -218,7 +217,7 @@ class LandingPageController extends Controller
             }
 
             if (count($errors) > 0) {
-                Mail::to(env('MAIL_FROM_ADDRESS', 'businessjoy.in@gmail.com'))->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new becomePartnerMail($request));
+                Mail::to(config('app.bcc_mail_id'))->send(new becomePartnerMail($request));
                 return response()->json([
                     'status' => 422,
                     'errors' => $errors
@@ -241,7 +240,7 @@ class LandingPageController extends Controller
             ]);
 
             if ($partner) {
-                Mail::to($request->contact_person_email)->bcc(['parthdeveloper9@gmail.com','mayur@oceanmnc.com','jay@oceanmnc.com'])->send(new becomePartnerMail($request));
+                Mail::to($request->contact_person_email)->send(new becomePartnerMail($request));
                 return response()->json([
                     'status' => 200,
                     'message' => 'Thank You! Your request succesfully submitted',

@@ -22,7 +22,7 @@ class UpdateInvoiceStatus extends Command
      *
      * @var string
      */
-    protected $description = 'Update invoice statuses after 15 days if still pending';
+    protected $description = 'Update invoice statuses after due days if still pending';
 
     /**
      * Execute the console command.
