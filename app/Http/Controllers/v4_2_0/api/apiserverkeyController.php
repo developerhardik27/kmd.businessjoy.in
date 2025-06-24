@@ -119,7 +119,7 @@ class apiserverkeyController extends commonController
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'remarks' => 'nullable',
-            'module' => 'module',
+            'module' => 'nullable',
             'company_id' => 'required|numeric',
         ]);
 
