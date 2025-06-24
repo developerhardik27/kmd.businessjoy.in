@@ -25,13 +25,20 @@ class CheckServerKey
         $serverKey = $request->header('server_key');
 
         if (!isset($companyuuid) && !isset($serverKey)) {
+            dd([
+                'companyuuid' => $companyuuid,
+                'serverkey' => $serverKey,
+            ]);  
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $authorize = uuid_company::where('uuid', $companyuuid)
             ->first();
 
+          
+
         if (!$authorize) {
+            dd($authorize);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -55,6 +62,7 @@ class CheckServerKey
         ->value('created_by');
 
         if(!$userid){ // server key not match
+            dd($userid);
              return response()->json(['error' => 'Unauthorized'], 401);
         }
 
