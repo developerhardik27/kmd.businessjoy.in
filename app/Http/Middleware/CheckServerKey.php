@@ -20,25 +20,17 @@ class CheckServerKey
     {
 
         // Check if the site key and server key is present in the session
-
         $companyuuid = $request->company_id;
         $serverKey = $request->header('X-Server-Key');
 
         if (!isset($companyuuid) && !isset($serverKey)) {
-            dd([
-                'companyuuid' => $companyuuid,
-                'serverkey' => $serverKey,
-            ]);  
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $authorize = uuid_company::where('uuid', $companyuuid)
             ->first();
 
-          
-
         if (!$authorize) {
-            dd($authorize);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -49,7 +41,6 @@ class CheckServerKey
             return response()->json(['error' => 'No Record found'], 404);
         }
 
-    
         config(['database.connections.dynamic_connection.database' => $company->dbname]);
         DB::purge('dynamic_connection');
         DB::reconnect('dynamic_connection');
@@ -61,16 +52,8 @@ class CheckServerKey
         ->where('is_deleted',0)
         ->get();
 
-        dd([
-            'userid' => $userid,
-            'company_id' => $companyuuid,
-            'serverKey' => $serverKey,
-            'dyanamicdbname' => DB::connection('dynamic_connection')->getDatabaseName()
-        ]);
-
         if(!$userid){ // server key not match
-            dd($userid);
-             return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         // Store info for later
