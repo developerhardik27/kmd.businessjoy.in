@@ -59,7 +59,14 @@ class CheckServerKey
         ->table('api_server_keys')
         ->where('server_key',$serverKey)
         ->where('is_deleted',0)
-        ->value('created_by');
+        ->get();
+
+        dd([
+            'userid' => $userid,
+            'company_id' => $companyuuid,
+            'serverKey' => $serverKey,
+            'dyanamicdbname' => DB::connection('dynamic_connection')->getDatabaseName()
+        ]);
 
         if(!$userid){ // server key not match
             dd($userid);
