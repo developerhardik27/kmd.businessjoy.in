@@ -130,7 +130,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>server_key</code></td>
+                            <td><code>X-Server-Key</code></td>
                             <td>string</td>
                             <td>API authentication key (generated via app)</td>
                         </tr>
@@ -202,7 +202,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>server_key</code></td>
+                            <td><code>X-Server-Key</code></td>
                             <td>string</td>
                             <td>API authentication key (generated via app)</td>
                         </tr>
@@ -244,7 +244,7 @@
     "blog": "No Records Found"
 }</code></pre>
 
-                <h6>❌ <strong>server_key/company_id Not Match</strong></h6>
+                <h6>❌ <strong>X-Server-Key/company_id Not Match</strong></h6>
                 <pre><code>{
     "error": "Unauthorized"
 }</code></pre>
@@ -267,7 +267,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>server_key</code></td>
+                            <td><code>X-Server-Key</code></td>
                             <td>string</td>
                             <td>API authentication key (generated via app)</td>
                         </tr>
@@ -309,7 +309,7 @@
     "blog": "No Records Found"
 }</code></pre>
 
-                <h6>❌ <strong>server_key/company_id Not Match</strong></h6>
+                <h6>❌ <strong>X-Server-Key/company_id Not Match</strong></h6>
                 <pre><code>{
     "error": "Unauthorized"
 }</code></pre>
@@ -320,7 +320,7 @@
             Log in To {{ config('app.name') }} → Go to <strong>{{ ucfirst($module) }} &gt; API</strong> → Click
             <strong>Create Server
                 Key</strong>.
-            <br>Use that key in the <code>server_key</code> header.
+            <br>Use that key in the <code>X-Server-Key</code> header.
         </p>
     </div>
 @endsection
