@@ -50,7 +50,7 @@ class CheckServerKey
         ->table('api_server_keys')
         ->where('server_key',$serverKey)
         ->where('is_deleted',0)
-        ->get();
+        ->value('created_by');
 
         if(!$userid){ // server key not match
             return response()->json(['error' => 'Unauthorized'], 401);
