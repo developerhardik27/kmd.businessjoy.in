@@ -22,7 +22,7 @@ class CheckServerKey
         // Check if the site key and server key is present in the session
 
         $companyuuid = $request->company_id;
-        $serverKey = $request->header('server_key');
+        $serverKey = $request->header('X-Server-Key');
 
         if (!isset($companyuuid) && !isset($serverKey)) {
             dd([
