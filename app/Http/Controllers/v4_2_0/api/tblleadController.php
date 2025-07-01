@@ -585,7 +585,7 @@ class tblleadController extends commonController
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email',
-            'contact_no' => 'nulllable|regex:/^\+?[0-9]{1,15}$/|max:15',
+            'contact_no' => 'nullable|regex:/^\+?[0-9]{1,15}$/|max:15',
             'budget',
             'lead_title' => 'nullable|max:255',
             'title',
