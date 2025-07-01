@@ -3,8 +3,8 @@
     $companydetails = $data['companydetails'];
     $tandc = $data['t_and_c'];
     $consignor = $data['consignor'];
-    $consignee = $data['consignee']; 
-    $othersettings = $data['othersettings']; 
+    $consignee = $data['consignee'];
+    $othersettings = $data['othersettings'];
 @endphp
 
 
@@ -31,8 +31,8 @@
             margin: 0;
             padding: 0;
         }
- 
-        .text-center{
+
+        .text-center {
             text-align: center !important;
         }
 
@@ -40,56 +40,57 @@
             text-align: center;
         }
 
-        .vertical-align-center{
-            vertical-align: center !important;
-        }
- 
-
-         /* Make tables scrollable on small screens */
-    @media only screen and (max-width: 768px) {
- 
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            font-size: 14px;
-        }
-
-        h2 {
-            font-size: 18px;
-        }
-
-        img {
-            max-width: 100px !important;
-        }
-
-        td, th {
-            padding: 4px !important;
-        }
-
-         
-        .d-flex {
-            display: block !important;
-        }
-
-        .justify-content-between{
-            justify-content: space-between !important;
-        }
-
-        .vertical-align-center{
+        .vertical-align-center {
             vertical-align: center !important;
         }
 
-        .ml-5 {
-            margin-left: 1rem !important;
-        }
 
-        .mb-2, .mt-5 {
-            margin: 0.5rem 0 !important;
-        }
-    }
+        /* Make tables scrollable on small screens */
+        @media only screen and (max-width: 768px) {
 
+            .table-wrapper {
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            img {
+                max-width: 100px !important;
+            }
+
+            td,
+            th {
+                padding: 4px !important;
+            }
+
+
+            .d-flex {
+                display: block !important;
+            }
+
+            .justify-content-between {
+                justify-content: space-between !important;
+            }
+
+            .vertical-align-center {
+                vertical-align: center !important;
+            }
+
+            .ml-5 {
+                margin-left: 1rem !important;
+            }
+
+            .mb-2,
+            .mt-5 {
+                margin: 0.5rem 0 !important;
+            }
+        }
     </style>
 </head>
 
@@ -125,7 +126,7 @@
                             <p>
                                 <b>Email :</b> {{ $companydetails['email'] }}
                             </p>
-                        @endif 
+                        @endif
                     </td>
                 </tr>
             </table>
@@ -179,14 +180,14 @@
             <table class="table table-bordered">
                 <tr>
                     <td rowspan="2">
-                        <b>Consignor : </b> 
+                        <b>Consignor : </b>
                         <span>{{ $consignorcopy['consignor'] }}</span>
                         <p class="ml-5">{{ $consignor['consignor_address'] }}</p>
                         <b>GSTIN : </b> <span>{{ $consignor['gst_no'] }}</span><br>
                         <b>PANNO. : </b> <span>{{ $consignor['pan_number'] }}</span>
                     </td>
                     <td>
-                        <b>Consignee : </b> 
+                        <b>Consignee : </b>
                         <span>{{ $consignorcopy['consignee'] }}</span>
                         <p class="ml-5">{{ $consignee['consignee_address'] }}</p>
                         <b>GSTIN : </b> <span>{{ $consignee['gst_no'] }}</span><br>
@@ -232,7 +233,7 @@
                             <div>
                                 <b>Container No. : </b>
                                 <span>{{ $consignorcopy['container_no'] }}</span>
-                                 
+
                                 <b>Size : </b>
                                 <span>{{ $consignorcopy['size'] }}</span>
 
@@ -268,14 +269,14 @@
                             </div>
                         </td>
                         <td>
-                            <span>{{$consignorcopy['actual']}}</span>
+                            <span>{{ $consignorcopy['actual'] }}</span>
                         </td>
                         <td>
-                            <span>{{$consignorcopy['charged']}}</span>
+                            <span>{{ $consignorcopy['charged'] }}</span>
                         </td>
                         <td rowspan="2" class="text-center">
                             <div>
-                                <span>{{$consignorcopy['paid']}}</span>
+                                <span>{{ $consignorcopy['paid'] }}</span>
                             </div>
                             <div class="mt-5">
                                 <span>To</span><br>
@@ -287,14 +288,14 @@
                         </td>
                         <td rowspan="2">
                             <div>
-                                <span>{{$consignorcopy['to_pay']}}</span>
+                                <span>{{ $consignorcopy['to_pay'] }}</span>
                             </div>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2">
                             <b>Value (RS).</b>
-                            <span>{{$consignorcopy['value']}}</span>
+                            <span>{{ $consignorcopy['value'] }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -302,12 +303,15 @@
                             <p>GOODS BOOKED AS OWNER'S RISK.</p>
                             <span>Not responsible for Breakage, Leakage, Damage Goods or Fires.</span>
                         </td>
-                        <td colspan="2" class="text-center" style="border-bottom: transparent;">
-                             <p><b>For,{{ ucfirst($companydetails['name'])}}</b> </p>
-                            @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img'])) 
-                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
-                                    alt="Company logo" style="max-width: 150px">
-                            @endif 
+                        <td colspan="2" rowspan="2" class="text-center">
+                                <p><b>For,{{ ucfirst($companydetails['name']) }}</b> </p>
+                                @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img'])) 
+                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
+                                        alt="Company logo" style="max-width: 150px">
+                                @else
+                                    <br><br><br>        
+                                @endif
+                                <p>Authorized Signatory</p>
                         </td>
                     </tr>
                     <tr class="text-left">
@@ -315,43 +319,41 @@
                             <div class="align-items-baseline d-flex justify-content-between mb-2">
                                 <span>Reached At Factory :</span>
                                 <b>Date : </b>
-                                <span>{{$consignorcopy['reached_at_factory_date_formatted']}}</span>
+                                <span>{{ $consignorcopy['reached_at_factory_date_formatted'] }}</span>
 
                                 <b>Time : </b>
-                                <span>{{$consignorcopy['reached_at_factory_time_formatted']}}</span>
+                                <span>{{ $consignorcopy['reached_at_factory_time_formatted'] }}</span>
                             </div>
                             <div class="align-items-baseline d-flex justify-content-between mb-2">
                                 <span>Left From Factory :</span>
                                 <b>Date : </b>
-                                <span>{{$consignorcopy['left_from_factory_date_formatted']}}</span>
+                                <span>{{ $consignorcopy['left_from_factory_date_formatted'] }}</span>
 
                                 <b>Time : </b>
-                                <span>{{$consignorcopy['left_from_factory_time_formatted']}}</span>
+                                <span>{{ $consignorcopy['left_from_factory_time_formatted'] }}</span>
 
                             </div>
-                        </td>
-                        <td colspan="2" class="text-center" style="vertical-align: bottom;border-top: transparent">
-                            <p>Authorized Signatory</p>
-                        </td>
-                    </tr> 
+                        </td> 
+                    </tr>
                 </thead>
             </table>
             <table class="w-100 table table-bordered">
                 <tr>
                     <td>
-                        <b>OUR COMPANY'S PAN NO :  <span>{{$companydetails['pan_number']}}<span> </b>
+                        <b>OUR COMPANY'S PAN NO : <span>{{ $companydetails['pan_number'] }}<span> </b>
                         <br>
                         @if ($companydetails['gst_no'])
-                            <b>OUR COMPANY'S GST NO :  <span>{{$companydetails['gst_no']}}<span> </b>
+                            <b>OUR COMPANY'S GST NO : <span>{{ $companydetails['gst_no'] }}<span> </b>
                             <br>
                         @endif
-                        <b>STATE : <span>{{$companydetails['state_name']}}<span>, STATE CODE : <span>{{$companydetails['state_code']}}<span> </b>
+                        <b>STATE : <span>{{ $companydetails['state_name'] }}<span>, STATE CODE :
+                                    <span>{{ $companydetails['state_code'] }}<span> </b>
                     </td>
                 </tr>
                 @isset($tandc)
                     <tr>
                         <td class="p-0">
-                            <p class="text-center bg-light m-0" ><b>Terms & Conditions</b></p>
+                            <p class="text-center bg-light m-0"><b>Terms & Conditions</b></p>
                             <div class="m-2"> {!! $tandc[0] !!}</div>
                         </td>
                     </tr>

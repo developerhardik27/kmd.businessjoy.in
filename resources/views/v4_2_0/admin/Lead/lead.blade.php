@@ -50,14 +50,14 @@
 @endsection
 
 @section('advancefilter')
-    <div class="col-sm-12 text-right pr-4">
+    <div class="col-sm-12 text-right px-4">
+        <button id="delete-selected" class="btn btn-sm btn-danger m-0 float-left" data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Delete Selected Records" style="display: none">
+           <i class="ri-delete-bin-line"></i> Delete Selected
+        </button>
         <button class="btn btn-sm btn-primary m-0" data-toggle="tooltip" data-placement="bottom"
             data-original-title="Filters" onclick="showOffCannvas()">
             <i class="ri-filter-line"></i>
-        </button>
-        <button id="delete-selected" class="btn btn-sm btn-danger m-0" data-toggle="tooltip" data-placement="bottom"
-            data-original-title="Delete Selected Records" disabled>
-           <i class="ri-delete-bin-line"> Delete Selected</i>
         </button>
     </div>
 @endsection
@@ -354,7 +354,7 @@
 
         function toggleDeleteButton() {
             const anyChecked = $('.lead-checkbox:checked').length > 0;
-            $('#delete-selected').prop('disabled', !anyChecked);
+            $('#delete-selected').toggle(anyChecked);
         }
 
 
