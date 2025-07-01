@@ -267,6 +267,8 @@
              * consignment note number settings
              */
 
+            let othersettings = null; //declare default setting variable
+
             // intialize summernote editor for terms and conditions
             $('#t_and_c').summernote({
                 toolbar: [
@@ -308,6 +310,7 @@
                             $('#authorized_signatory_span').html(
                                 `${othersettings.authorized_signatory ?  `${othersettings.authorized_signatory}`.replace('_',' ')  : 'Not Set Yet'}`);
                         } else {
+                            othersettings = null;
                             Toast.fire({
                                 icon: "error",
                                 title: response.message || 'something went wrong'
@@ -317,6 +320,7 @@
                         // You can update your HTML with the data here if needed
                     },
                     error: function(xhr, status, error) { // if calling api request error 
+                        othersettings = null;
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -751,6 +755,9 @@
             // show other settings form
             $('#editOtherSettingsBtn').on('click', function(e) {
                 e.preventDefault();
+                $('#gst_tax_payable_by').val(othersettings.gst_tax_payable_by);
+                $('#weight').val(othersettings.weight);
+                $('#authorized_signatory').val(othersettings.authorized_signatory);
                 $('#othersettingsform').removeClass('d-none');
                 $(this).addClass('d-none');
             })
