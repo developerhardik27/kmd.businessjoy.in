@@ -331,7 +331,7 @@ NOTE: This file contains the styling for responsive Template.
 	/* .iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 145px; } */
 	.navbar-collapse { top:95px; border-radius: 8px; }
 	.content-page, body.sidebar-main .content-page { padding: 140px 0 0; }
-	.iq-top-navbar .iq-sub-dropdown { width: 225px; left: auto; right: 0; margin: 0 auto; }
+	.iq-top-navbar .iq-sub-dropdown { width: 225px; left: auto; right: 0; margin: 0 auto; height: 250px; overflow-x: auto;}
 	/* .navbar-left { margin-bottom: 20px; } */
 	.topbar-menu-icon li a { margin: 0 0 0 10px; }
 	/* .iq-page-menu-horizontal .iq-top-navbar .navbar-toggler, .iq-top-navbar .iq-navbar-custom .iq-menu-bt { top: 18px; } */

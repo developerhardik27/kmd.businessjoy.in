@@ -6,32 +6,57 @@ use App\Http\Controllers\Controller;
 use App\Models\LandingPageActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 
 class otherapiController extends Controller
 {
 
+
+    /**
+     * Summary of splitName
+     * helper function
+     * @param mixed $fullName
+     * @return array{first_name: mixed, last_name: string|array{first_name: string, last_name: string}}
+     */
+    function splitName($fullName)
+    {
+        // Find the position of the first space
+        $spacePosition = strpos($fullName, ' ');
+
+        // If there's no space, the whole name is considered the first name
+        if ($spacePosition === false) {
+            return array('first_name' => $fullName, 'last_name' => '');
+        }
+
+        // Split the name into first name and last name
+        $first_name = substr($fullName, 0, $spacePosition);
+        $last_name = substr($fullName, $spacePosition + 1);
+
+        return array('first_name' => $first_name, 'last_name' => $last_name);
+    }
+
+    /**
+     * Summary of newlead
+     * add new lead
+     * @param \Illuminate\Http\Request $request
+     */
+    public function newlead(Request $request)
+    {
+        $leaddata = app('App\Http\Controllers\\' . $request->app_version . '\api\tblleadController')->store($request);
+        $leaddata = $leaddata->getContent();
+
+        $leaddata = json_decode($leaddata);
+        return $leaddata;
+    }
+
+    /**
+     * Summary of oceanlead
+     * ocean newsletter
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function oceanlead(Request $request)
     {
-
-
-        $domainName = $request->getHost();
-
-        // if($domainName != 'oceanmnc.com'){
-        //     return response()->json([
-        //         'status' => 403,
-        //         'message' => 'Unauthorized'
-        //     ]);
-        // }
-        $dbname = config('app.main_db');
-
-        config(['database.connections.dynamic_connection.database' => $dbname]);
-
-        // Establish connection to the dynamic database
-        DB::purge('dynamic_connection');
-        DB::reconnect('dynamic_connection');
-
-
         $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
             ->where(function ($query) use ($request) {
                 if (!empty($request->email)) {
@@ -40,34 +65,18 @@ class otherapiController extends Controller
                 if (!empty($request->contact_no)) {
                     $query->orWhere('contact_no', $request->contact_no);
                 }
-            })->exists();
+            })->where('is_deleted', 0)->exists();
+
 
         if ($checkrecord) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are already in'
-            ], 500);
-        }
-
-        function splitName($fullName)
-        {
-            // Find the position of the first space
-            $spacePosition = strpos($fullName, ' ');
-
-            // If there's no space, the whole name is considered the first name
-            if ($spacePosition === false) {
-                return array('first_name' => $fullName, 'last_name' => '');
-            }
-
-            // Split the name into first name and last name
-            $first_name = substr($fullName, 0, $spacePosition);
-            $last_name = substr($fullName, $spacePosition + 1);
-
-            return array('first_name' => $first_name, 'last_name' => $last_name);
+            ], 200);
         }
 
 
-        $name = splitName($request->name);
+        $name = $this->splitName($request->name);
 
         $lead = DB::connection('dynamic_connection')->table('tbllead')->insert([
             'first_name' => $name['first_name'],
@@ -77,11 +86,11 @@ class otherapiController extends Controller
             'title' => $request->title,
             'budget' => $request->budget,
             'source' => $request->source,
-            'upload' => $request->document,
             'notes' => $request->notes,
             'msg_from_lead' => $request->message,
             'audience_type' => 'cool',
-            'attempt_lead' => 0
+            'attempt_lead' => 0,
+            'created_by' => $request->user_id
         ]);
 
         if ($lead) {
@@ -93,13 +102,39 @@ class otherapiController extends Controller
             return response()->json([
                 'status' => 500,
                 'message' => 'lead not succesfully create'
-            ], 500);
+            ], 200);
         }
+    }
+
+    /**
+     * Summary of blog
+     * @param \Illuminate\Http\Request $request
+     */
+    public function blog(Request $request){
+
+        $blogdata = app('App\Http\Controllers\\' . $request->app_version . '\api\blogController')->index($request);
+        
+        $blogdata = $blogdata->getContent();
+
+        $blogdata = json_decode($blogdata);
+
+        return $blogdata;
+    }
+
+    public function blogdetails(Request $request, string $slug = null){
+        $blogdetails = app('App\Http\Controllers\\' . $request->app_version . '\api\blogController')->show($request,$slug);
+        
+        $blogdetails = $blogdetails->getContent();
+
+        $blogdetails = json_decode($blogdetails);
+
+        return $blogdetails;
     }
 
     /**
      * Summary of store
      * oceanmnc visitor activity store
+     * its not require server key and company uuid
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -149,40 +184,7 @@ class otherapiController extends Controller
 
         LandingPageActivity::create($activityData);
 
-        return response()->json(['message' => 'New record created successfully'], 201);
-    }
-
-
-    public function fblead(Request $request)
-    {
-
-        $dbname = config('app.main_db');
-        ;
-
-        config(['database.connections.dynamic_connection.database' => $dbname]);
-
-        // Establish connection to the dynamic database
-        DB::purge('dynamic_connection');
-        DB::reconnect('dynamic_connection');
-
-
-        $lead = DB::connection('dynamic_connection')->table('fblead')->insert([
-            'name' => $request->name,
-            'email' => $request->email,
-            'contact_no' => $request->contact_no
-        ]);
-
-        if ($lead) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'lead succesfully created'
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => 500,
-                'message' => 'lead not succesfully created'
-            ], 500);
-        }
+        return response()->json(['message' => 'New record created successfully'], 200);
     }
 
 }

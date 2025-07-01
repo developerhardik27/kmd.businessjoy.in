@@ -43,7 +43,8 @@ class LogPageLoadTime
                 'start_time' => date('Y-m-d H:i:s', $startTime),
                 'end_time' => date('Y-m-d H:i:s', $endTime),
                 'load_time' => $duration,
-                'date_time' => now()
+                'date_time' => now(),
+                'created_at' => now()
             ];
 
             if(Auth::guard('admin')->user()){ 

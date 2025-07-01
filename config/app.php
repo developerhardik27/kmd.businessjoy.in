@@ -172,7 +172,7 @@ return [
         Barryvdh\DomPDF\ServiceProvider::class,
         ConsoleTVs\Charts\ChartsServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
-         
+
     ])->toArray(),
 
     /*
@@ -189,21 +189,24 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
-        'PDF' =>  Barryvdh\DomPDF\ServiceProvider::class,
+        'PDF' => Barryvdh\DomPDF\ServiceProvider::class,
         'Charts' => ConsoleTVs\Charts\ChartsServiceProvider::class,
     ])->toArray(),
 
 
-     /*
-    |--------------------------------------------------------------------------
-    | global variable
-    |--------------------------------------------------------------------------
-    |
-    | page load time
-    | main db name
-    | retention log activity days
-    |
-    */
+    /*
+   |--------------------------------------------------------------------------
+   | global variable
+   |--------------------------------------------------------------------------
+   |
+   | page load time
+   | main db name
+   | retention log activity days
+   | Version changes files
+   |
+   */
+
+    'bcc_mail_id' => 'jaypatel4396.jp6@gmail.com',
 
     'page_load_threshold_ms' => 5000, // Time in milliseconds
 
@@ -211,7 +214,26 @@ return [
 
 
     'recent_activity_retention_days' => [
-        'lead_activity'   => env('RECENT_ACTIVITY_DAYS', 90),
-        'login_activity'   => env('RECENT_ACTIVITY_DAYS', 90), 
+        'lead_activity' => env('noVariable', 90),
+        'login_activity' => env('noVariable', 90),
+    ],
+
+    'version_files' => [
+        'V1' => [
+            'V1.1.1' => 'versionchange/v1_1_1.rtf',
+            'V1.2.1' => 'versionchange/v1_2_1.docx',
+        ],
+        'V2' => [
+            'V2.0.0' => 'versionchange/v2_0_0.docx',
+        ],
+        'V3' => [
+            'V3.0.0' => 'versionchange/v3_0_0.docx',
+        ],
+        'V4' => [
+            'V4.0.0' => 'versionchange/v4_0_0.docx',
+            'V4.1.0' => 'versionchange/v4_1_0.docx',
+            'V4.2.0' => 'versionchange/v4_2_0.docx',
+        ],
+        // Add more as needed
     ],
 ];
