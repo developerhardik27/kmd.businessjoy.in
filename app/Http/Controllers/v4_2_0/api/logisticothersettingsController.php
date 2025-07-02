@@ -40,7 +40,6 @@ class logisticothersettingsController extends commonController
 
     public function getlogisticothersettings(Request $request)
     {
-
         $logisticsettings = $this->logistic_settingModel::where('is_deleted', 0)->first();
 
         if (!$logisticsettings) {
@@ -265,9 +264,9 @@ class logisticothersettingsController extends commonController
         }
 
         $validator = Validator::make($request->all(), [
-            'gst_tax_payable_by' => 'required|string',
-            'weight' => 'required|string',
-            'authorized_signatory' => 'required|string'
+            'gst_tax_payable_by' => 'nullable|string',
+            'weight' => 'nullable|string',
+            'authorized_signatory' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
