@@ -775,7 +775,11 @@
                             title: response.message
                         });
                     } else {
-                        $('#consignee').append(`<option disabled '>No Data found </option>`);
+                        $('#consignee').val(consigneeid);
+                        $('#consignee').select2({
+                            search: true,
+                            placeholder: 'Select a Consignee'
+                        }); // search bar in consignee list
                     }
                     loaderhide();
                 }).fail(function(xhr) {
@@ -836,7 +840,11 @@
                             title: response.message
                         });
                     } else {
-                        $('#consignor').append(`<option disabled '>No Data found </option>`);
+                        $('#consignor').val(consignorid);
+                        $('#consignor').select2({
+                            search: true,
+                            placeholder: 'Select a Consignor'
+                        }); // search bar in consignor list
                     }
                     loaderhide();
                 }).fail(function(xhr) {
