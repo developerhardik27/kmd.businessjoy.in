@@ -132,8 +132,8 @@
                             @if (session('menu') == 'logistic')
                                 @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1')
                                     <li>
-                                        <a href="{{ route('admin.addconsignorcopy') }}" class="nav-link router-link-exact-active router-link-active">
-                                            <i class="ri-clipboard-line"  data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Consignor Copy"></i>
+                                        <a href="{{ route('admin.consignorcopy') }}" class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-clipboard-line"  data-toggle="tooltip" data-placement="bottom" data-original-title="Consignor Copy List"></i>
                                         </a>
                                     </li>
                                 @endif
