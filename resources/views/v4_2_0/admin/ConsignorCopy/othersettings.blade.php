@@ -639,7 +639,7 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
+                                $('#error-' + key).text(value[0].replace('t and c','T&C'));
                             });
                         } else {
                             var errorMessage = "";

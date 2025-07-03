@@ -337,8 +337,14 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Developer/CronJobs', 'cronjobs')->name('admin.cronjobs')->middleware('checkPermission:developermodule,cronjob,show');
                 Route::get('/Developer/TechnicalDocs', 'techdocs')->name('admin.techdocs')->middleware('checkPermission:developermodule,techdoc,show');
                 Route::get('/Developer/VersionDocs', 'versiondocs')->name('admin.versiondocs')->middleware('checkPermission:developermodule,versiondoc,show');
+                Route::get('/Developer/RecentActivityData', 'recentactivitydata')->name('admin.recentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,show');
+                Route::get('/Developer/RecentActivityData/Add', 'createrecentactivitydata')->name('admin.addrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,add');
+                Route::get('/Developer/RecentActivityData/Edit/{id}', 'editrecentactivitydata')->name('admin.editrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,edit');
             });
 
+            /**
+             * developer module route end
+             */
 
             // pdf routes ------------------------------------ 
             $PdfController = getadminversion('PdfController');

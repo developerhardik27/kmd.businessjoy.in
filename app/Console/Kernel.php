@@ -14,60 +14,62 @@ class Kernel extends ConsoleKernel
         // ...
         \App\Console\Commands\UpdateInvoiceStatus::class,
     ];
+
+    protected function getDailyCronLogPath()
+    {
+        return storage_path('logs/' . 'cron_logs_'.now()->format('Y-m-d') . '.log');
+    }
+
+    protected function ensureCronLogDirectoryExists()
+    {
+        $directory = storage_path('logs/');
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+    }
+
     /**
      * Define the application's command schedule.
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('invoices:update-status')->dailyAt('06:00')
-            ->sendOutputTo(storage_path('logs/scheduled_task_output.txt'))
-            ->sendOutputTo(storage_path('logs/invoices_update_error.txt'))
-            ->after(function () {
-                // Path to the output file
-                $outputFile = storage_path('logs/scheduled_task_output.txt');
-                $catchErrorFile = storage_path('logs/invoices_update_catch_error.log');
+        $logPath = $this->getDailyCronLogPath();
 
-                try {
-                    // Send the email
-                    $sendoutput = Mail::to('parthdeveloper9@gmail.com')->send(new ScheduledTaskOutputMail($outputFile));
+        // Ensure log directory exists
+        $this->ensureCronLogDirectoryExists();
 
-                    if ($sendoutput) {
-                        // Delete the file after sending email
-                        if (File::exists($outputFile)) {
-                            File::delete($outputFile);
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Log catch block error to custom file
-                    File::append($catchErrorFile, '[' . now() . '] ' . $e->getMessage() . PHP_EOL);
-                }
+        // 1. invoices:update-status
+        $schedule->command('invoices:update-status')
+            ->dailyAt('06:00')
+            ->before(function () use ($logPath) {
+                File::append($logPath, "===== [invoices:update-status] Started at " . now() . " =====\n");
+            })
+            ->appendOutputTo($logPath)
+            ->after(function () use ($logPath) {
+                File::append($logPath, "===== [invoices:update-status] Ended at " . now() . " =====\n\n");
             });
 
-        $schedule->command('delete:temp-records')->dailyAt('06:00')
-            ->sendOutputTo(storage_path('logs/scheduled_task_output.txt'))
-            ->sendOutputTo(storage_path('logs/delete_temp_error.txt'))
-            ->after(function () {
-                // Path to the output file
-                $outputFile = storage_path('logs/scheduled_task_output.txt');
-                $catchErrorFile = storage_path('logs/delete_temp_catch_error.log');
-
-                try {
-                    // Send the email
-                    $sendoutput = Mail::to('parthdeveloper9@gmail.com')->send(new ScheduledTaskOutputMail($outputFile));
-
-                    if ($sendoutput) {
-                        // Delete the file after sending email
-                        if (File::exists($outputFile)) {
-                            File::delete($outputFile);
-                        }
-                    }
-                } catch (\Exception $e) {
-                    File::append($catchErrorFile, '[' . now() . '] ' . $e->getMessage() . PHP_EOL);
-                }
+        // 2. delete:temp-records
+        $schedule->command('delete:temp-records')
+            ->dailyAt('06:00')
+            ->before(function () use ($logPath) {
+                File::append($logPath, "===== [delete:temp-records] Started at " . now() . " =====\n");
+            })
+            ->appendOutputTo($logPath)
+            ->after(function () use ($logPath) {
+                File::append($logPath, "===== [delete:temp-records] Ended at " . now() . " =====\n\n");
             });
 
-        $schedule->command('sync:scheduled-tasks')->dailyAt('06:00') 
-            ->sendOutputTo(storage_path('logs/sync_scheduled_tasks.txt'));
+        // 3. sync:scheduled-tasks
+        $schedule->command('sync:scheduled-tasks')
+            ->dailyAt('06:00')
+            ->before(function () use ($logPath) {
+                File::append($logPath, "===== [sync:scheduled-tasks] Started at " . now() . " =====\n");
+            })
+            ->appendOutputTo($logPath)
+            ->after(function () use ($logPath) {
+                File::append($logPath, "===== [sync:scheduled-tasks] Ended at " . now() . " =====\n\n");
+            });
     }
 
     /**
