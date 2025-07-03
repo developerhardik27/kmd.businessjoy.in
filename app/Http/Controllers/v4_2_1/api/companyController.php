@@ -490,7 +490,8 @@ class companyController extends commonController
                                     "errorlog" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "cronjob" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "techdoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "versiondoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                    "versiondoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "recentactivitydata" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
                                 ]
                             ];
 
