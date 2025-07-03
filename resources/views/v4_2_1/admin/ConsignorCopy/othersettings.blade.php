@@ -192,7 +192,7 @@
                                                 <label for="gst_tax_payable_by">GST Tax Payable By</label>
                                                 <select class="form-control" name="gst_tax_payable_by"
                                                     id="gst_tax_payable_by">
-                                                    <option disabled selected value="">Select</option>
+                                                    <option selected value="">Select</option>
                                                     <option value="consignee/consignor">Consignee/Consignor</option>
                                                     <option value="consignee">Consignee</option>
                                                     <option value="consignor">Consignor</option>
@@ -203,7 +203,7 @@
                                             <div class="col-12 mb-2">
                                                 <label for="weight">Weight</label>
                                                 <select class="form-control" name="weight" id="weight">
-                                                    <option disabled selected value="">Select</option>
+                                                    <option selected value="">Select</option>
                                                     <option value="kg">KG</option>
                                                     <option value="ton">TON</option>
                                                 </select>
@@ -213,8 +213,8 @@
                                                 <label for="authorized_signatory">Authorized Signatory</label>
                                                 <select class="form-control" name="authorized_signatory"
                                                     id="authorized_signatory">
-                                                    <option disabled selected value="">Select</option>
-                                                    <option value="blank">Blank</option>
+                                                    <option value="">Select</option>
+                                                    <option value="blank" selected>Blank</option>
                                                     <option value="company_signature">Company Signature</option>
                                                 </select>
                                                 <span class="error-msg" id="error-authorized_signatory"
@@ -267,6 +267,8 @@
              * consignment note number settings
              */
 
+            let othersettings = null; //declare default setting variable
+
             // intialize summernote editor for terms and conditions
             $('#t_and_c').summernote({
                 toolbar: [
@@ -308,6 +310,7 @@
                             $('#authorized_signatory_span').html(
                                 `${othersettings.authorized_signatory ?  `${othersettings.authorized_signatory}`.replace('_',' ')  : 'Not Set Yet'}`);
                         } else {
+                            othersettings = null;
                             Toast.fire({
                                 icon: "error",
                                 title: response.message || 'something went wrong'
@@ -317,6 +320,7 @@
                         // You can update your HTML with the data here if needed
                     },
                     error: function(xhr, status, error) { // if calling api request error 
+                        othersettings = null;
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -389,7 +393,7 @@
                                 title: response.message
                             });
                         } else {
-                            $('#tabledata').append(`<tr><td colspan='3' >No Data Found</td></tr>`)
+                            $('#tabledata').append(`<tr><td colspan='4' >No Data Found</td></tr>`)
                         }
                         loaderhide();
                         // You can update your HTML with the data here if needed
@@ -635,7 +639,7 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
+                               $('#error-' + key).text(value[0].replace('t and c','T&C'));
                             });
                         } else {
                             var errorMessage = "";
@@ -666,6 +670,7 @@
             // show edit customer id form
             $('#editconsignmentnotenumberBtn').on('click', function(e) {
                 e.preventDefault();
+                $('#consignment_note_number').val(othersettings.start_consignment_note_no);
                 $('#cidform').removeClass('d-none');
                 $('#editconsignmentnotenumberBtn').addClass('d-none');
             })
@@ -751,6 +756,10 @@
             // show other settings form
             $('#editOtherSettingsBtn').on('click', function(e) {
                 e.preventDefault();
+                $('.error-msg').text('');
+                $('#gst_tax_payable_by').val(othersettings.gst_tax_payable_by);
+                $('#weight').val(othersettings.weight);
+                $('#authorized_signatory').val(othersettings.authorized_signatory);
                 $('#othersettingsform').removeClass('d-none');
                 $(this).addClass('d-none');
             })
@@ -767,6 +776,7 @@
             $('#othersettingsform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
+                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',

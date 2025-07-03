@@ -40,7 +40,7 @@
                     <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name"
                         required />
                     <span class="error-msg" id="error-last_name" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="email">Email:</label>
                     <input type="email" class="form-control" name="email" id="email"
@@ -51,14 +51,14 @@
                     <label class="form-label" for="contact_no">Mobile Number:</label>
                     <input type="text" class="form-control" name="contact_no" id="contact_no"
                         placeholder="Whatsapp Mobile Number" minlength="10" maxlength="15"
-                        onkeypress="return isNumberKey(event);" onkeyup="numberMobile(event);"/>
+                        onkeypress="return isNumberKey(event);" onkeyup="numberMobile(event);" />
                     <span class="error-msg" id="error-contact_no" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
-                    <label class="form-label" for="lead_title">Lead Title:</label>  
-                    <input type="text" class="form-control" name="lead_title" id="lead_title" placeholder="Lead Title"/>
+                    <label class="form-label" for="lead_title">Lead Title:</label>
+                    <input type="text" class="form-control" name="lead_title" id="lead_title" placeholder="Lead Title" />
                     <span class="error-msg" id="error-lead_title" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="title">Job Title:</label>
                     <select name="title" class="form-control" id="title">
@@ -85,7 +85,7 @@
                         <option value="More than $10,000">More than $10,000</option>
                     </select>
                     <span class="error-msg" id="error-budget" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="status">Status:</label>
                     <select name="status" class="form-control" id="status">
@@ -99,7 +99,7 @@
                     <input type="text" class="form-control" name="company" id="company"
                         placeholder="Company Name" />
                     <span class="error-msg" id="error-company" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="last_follow_up">Last Follow Up:</label>
                     <input type="datetime-local" class="form-control" name="last_follow_up" id="last_follow_up"
@@ -111,7 +111,7 @@
                     <input type="datetime-local" class="form-control" name="next_follow_up" id="next_follow_up"
                         placeholder="Next_follow_up" />
                     <span class="error-msg" id="error-next_follow_up" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="no_of_follow_up">Number Of Follow Up:</label>
                     <input type="number" class="form-control" value="0" name="number_of_follow_up" min="0"
@@ -120,13 +120,14 @@
                 </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="source">Source:</label>
-                    <input type="text" class="form-control" name="source" id="source" placeholder="source"
-                        value='Manual' />
+                    <input list="source_list" class="form-control" name="source" id="source" placeholder="source"/>
+                    <datalist id="source_list"> 
+                    </datalist>    
                     <span class="error-msg" id="error-source" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="leadstage">Lead Stage:</label>
-                    <select name="leadstage" class="form-control" id="leadstage"> 
+                    <select name="leadstage" class="form-control" id="leadstage">
                     </select>
                     <span class="error-msg" id="error-leadstage" style="color: red"></span>
                 </div>
@@ -138,7 +139,7 @@
                         <option value="Global">Global</option>
                     </select>
                     <span class="error-msg" id="error-customer_type" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label class="form-label" for="last_call">Website Url:</label>
                     <input type="text" class="form-control" name="web_url" id="web_url"
@@ -150,14 +151,15 @@
                     <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
                     </select>
                     <span class="error-msg" id="error-assignedto" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-12 mb-2">
                     <label class="form-label" for="notes">Notes:</label>
                     <textarea name="notes" placeholder="notes" class="form-control" id="notes" cols="" rows="2"></textarea>
                     <span class="error-msg" id="error-notes" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-12">
-                    <button type="reset" id="resetbtn" data-toggle=tooltip data-placement="bottom" data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
+                    <button type="reset" id="resetbtn" data-toggle=tooltip data-placement="bottom"
+                        data-original-title="Cancel" class="btn iq-bg-danger float-right">Cancel</button>
                     <button type="submit" data-toggle=tooltip data-placement="bottom" data-original-title="Submit"
                         class="btn btn-primary float-right my-0">Save</button>
                 </div>
@@ -199,7 +201,7 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-   
+
             $('#notes').summernote({
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -277,15 +279,50 @@
             }
 
 
+            function getAllSources() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('lead.sourcecolumn') }}",
+                        data: {
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }} ",
+                            user_id: "{{ session()->get('user_id') }} "
+                        },
+                        success: function(response) {
+                            resolve(response);
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
+                            reject(errorMessage);
+                        }
+                    });
+                });
+            }
+
 
             async function initialize() {
                 try {
                     // Perform AJAX calls concurrently
-                    const [userDataResponse, leadStageDataResponse, leadStatusDataResponse] = await Promise.all(
+                    const [userDataResponse, leadStageDataResponse, leadStatusDataResponse, sourceDataResponse] = await Promise.all(
                         [
                             getUserData(),
                             getLeadStageData(),
-                            getLeadStatusData()
+                            getLeadStatusData(),
+                            getAllSources(),
                         ]);
 
                     // Check if user data is successfully fetched
@@ -305,6 +342,7 @@
                     } else {
                         $('#assignedto').append(`<option> No User Found </option>`);
                     }
+
                     // Check if lead stage data is successfully fetched
                     if (leadStageDataResponse.status == 200 && leadStageDataResponse.lead != '') {
                         // You can update your HTML with the data here if needed     
@@ -337,6 +375,21 @@
                         });
                     } else {
                         $('#status').append(`<option> No Lead Stage Found </option>`);
+                    }
+
+                    // Check if lead source data is successfully fetched
+                    if (sourceDataResponse.status == 200 && sourceDataResponse.leadstatus != '') {
+                        // You can update your HTML with the data here if needed     
+                        $.each(sourceDataResponse.sourcecolumn, function(key, value) {
+                            var optionValue = value;
+                            $('#source_list').append(
+                                `<option value="${optionValue}">`);
+                        });
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: sourceDataResponse.message || 'something went wrong!'
+                        });
                     }
                     loaderhide();
 
@@ -411,9 +464,9 @@
                             var errors = xhr.responseJSON.errors;
                             var firstErrorElement = null;
 
-                            $.each(errors, function (key, value) {
+                            $.each(errors, function(key, value) {
                                 var errorElement = $('#error-' + key);
-                                
+
                                 // Set the error text
                                 errorElement.text(value[0]);
 
@@ -426,9 +479,10 @@
                             // Scroll to the first error if exists
                             if (firstErrorElement) {
                                 $('html, body').animate({
-                                    scrollTop: firstErrorElement.offset().top - 100 // Offset for better visibility
+                                    scrollTop: firstErrorElement.offset().top -
+                                        100 // Offset for better visibility
                                 }, 1000);
-                            } 
+                            }
                         } else {
                             var errorMessage = "";
                             try {

@@ -77,6 +77,5 @@ class Kernel extends HttpKernel
         'checkToken' => \App\Http\Middleware\CheckToken::class,
         'checkPermission' => \App\Http\Middleware\CheckPermission::class,
         'CheckSession' => \App\Http\Middleware\CheckSession::class,
-        'dynamic.version' => \App\Http\Middleware\DynamicVersionMiddleware::class,
     ];
 }

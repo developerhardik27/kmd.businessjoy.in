@@ -18,44 +18,19 @@ class blogcategoryController extends commonController
 
     public function __construct(Request $request)
     {
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        
+        $this->dbname($request->company_id);
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
 
-        if (isset($request->company_id) && isset($request->user_id)) {
-            $this->dbname($request->company_id);
-            $this->companyId = $request->company_id;
-            $this->userId = $request->user_id;
-            // **** for checking user has permission to action on all data 
-            $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-            $permissions = json_decode($user_rp, true);
-            if(empty($permissions)){
-                $this->customerrorresponse();
-            }
-            $this->rp = json_decode($permissions[0]['rp'], true);
-        } elseif (isset($request->site_key) && isset($request->server_key)) {
-            if ($request->ajax()) {
-                // Request was made via Ajax
-                $domainName = $_SERVER['HTTP_ORIGIN'];
-            } else {
-                $domainName = $request->header('X-Custom-Origin');
-            }
-            $parsed_origin = parse_url($domainName);
-            $hostname = isset($parsed_origin['host']) ? $parsed_origin['host'] : null;
-
-            $company_id = api_authorization::where('site_key', $request->site_key)
-                ->where('server_key', $request->server_key)
-                ->where('domain_name', 'LIKE', '%' . $hostname . '%')
-                ->select('company_id')
-                ->get();
-
-            if ($company_id->isEmpty()) {
-                // Handle case where no record is found
-                $this->returnresponse();
-            } else {
-                $this->dbname($company_id[0]->company_id);
-                $this->companyId = $company_id[0]->company_id;
-            }
-        } else {
-            $this->returnresponse();
+        if (empty($user_rp)) {
+            $this->customerrorresponse();
         }
+
+        $this->rp = json_decode($user_rp, true);
+
         $this->masterdbname = DB::connection()->getDatabaseName();
         $this->blogcategorymodel = $this->getmodel('blog_category');
     }
@@ -92,7 +67,7 @@ class blogcategoryController extends commonController
         $blogcategory = $this->blogcategorymodel::where('is_deleted', 0)->get();
 
         if ($blogcategory->count() > 0) {
-            
+
             return DataTables::of($blogcategory)
                 ->with([
                     'status' => 200,

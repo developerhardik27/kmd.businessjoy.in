@@ -88,5 +88,31 @@ class SystemMonitorController extends Controller
         return view($this->version . '.admin.Developer.versiondocs', compact('versionFiles'));
     }
 
+    /**
+     * Summary of recentactivitydata
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function recentactivitydata()
+    {
+        return view($this->version . '.admin.Developer.recentactivitydata');
+    }
+
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function createrecentactivitydata()
+    {
+        return view($this->version . '.admin.Developer.addrecentactivitydata');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function editrecentactivitydata(string $id)
+    {
+        return view($this->version . '.admin.Developer.updaterecentactivitydata', ['edit_id' => $id]);
+    }
+
 
 }

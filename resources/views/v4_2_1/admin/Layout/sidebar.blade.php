@@ -543,6 +543,14 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (session('user_permissions.developermodule.recentactivitydata.show') == '1')      
+                                <li class="{{ request()->routeIs('admin.recentactivitydata') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.recentactivitydata') }}" class="iq-waves-effect">
+                                        <i class="ri-flashlight-line"></i>
+                                        <span>Activity/Recent Data</span>
+                                    </a>
+                                </li>
+                            @endif
                         @endif
                         <li>
                             <a href="{{ route('admin.logout') }}" class="iq-waves-effect">

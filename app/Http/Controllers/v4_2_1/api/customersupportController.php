@@ -17,18 +17,20 @@ class customersupportController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname = DB::connection()->getDatabaseName();
 
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
-        if(empty($permissions)){
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
-        $this->rp = json_decode($permissions[0]['rp'], true);
+
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->customer_supportModel = $this->getmodel('customer_support');
 
@@ -113,7 +115,7 @@ class customersupportController extends commonController
                     // For date filters (loading_date, stuffing_date), we apply range conditions
                     $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                     $customersupportquery->whereDate($column, $operator, $value);
-                }else if( strpos($requestKey, 'last') !== false){
+                } else if (strpos($requestKey, 'last') !== false) {
                     $customersupportquery->whereDate($column, $value);
                 } else if ($requestKey == 'filter_status') {
                     $customersupportquery->whereIn($column, $value);
@@ -174,7 +176,7 @@ class customersupportController extends commonController
 
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else { 
+        } else {
             $assignedto = implode(',', $request->assignedto);
             $customersupport = $this->customer_supportModel::create([
                 'first_name' => $request->first_name,
@@ -230,7 +232,7 @@ class customersupportController extends commonController
             if ($customersupport[0]->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        } 
+        }
         return $this->successresponse(200, 'customersupport', $customersupport);
     }
 
@@ -254,7 +256,7 @@ class customersupportController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-         
+
         return $this->successresponse(200, 'customersupport', $customersupport);
     }
 
@@ -287,7 +289,7 @@ class customersupportController extends commonController
 
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
-        } else { 
+        } else {
             $ticket = $this->customer_supportModel::find($id);
             if ($ticket) {
                 $assignedto = implode(',', $request->assignedto);
@@ -334,7 +336,7 @@ class customersupportController extends commonController
             if ($customersupport->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        } 
+        }
         $customersupport->update([
             'is_deleted' => 1
 
@@ -360,7 +362,7 @@ class customersupportController extends commonController
             if ($customersupport[0]->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        } 
+        }
 
         $this->customer_supportModel::where('id', $request->statusid)
             ->update(['status' => $request->statusvalue]);
@@ -386,7 +388,7 @@ class customersupportController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
- 
+
         $this->customer_supportModel::where('id', $request->customersupportstageid)
             ->update(['customersupport_stage' => $request->customersupportstagevalue]);
 

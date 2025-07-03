@@ -16,9 +16,9 @@ class apiauthorizationController extends commonController
 
     public function __construct(Request $request)
     {
-
         $this->userId = $request->user_id;
         $this->companyId = $request->company_id;
+
         $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->checkuser();

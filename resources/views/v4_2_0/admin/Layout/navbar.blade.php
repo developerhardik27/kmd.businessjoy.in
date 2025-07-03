@@ -130,7 +130,7 @@
                                 @endif
                             @endif
                             @if (session('menu') == 'logistic')
-                                @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1')
+                                @if (session('user_permissions.logisticmodule.consignorcopy.show') == '1')
                                     <li>
                                         <a href="{{ route('admin.consignorcopy') }}" class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-clipboard-line"  data-toggle="tooltip" data-placement="bottom" data-original-title="Consignor Copy List"></i>

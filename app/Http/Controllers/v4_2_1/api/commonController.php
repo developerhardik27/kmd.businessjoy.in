@@ -13,9 +13,7 @@ class commonController extends Controller
 
     public function dbname(string $id = null)
     {
-
         $dbname = company::find($id);
-
         if ($dbname == null) {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode([
@@ -23,17 +21,14 @@ class commonController extends Controller
                 'message' => 'Database Not Found'
             ]);
             die();
-        } else {
-
-            config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
-
-            // Establish connection to the dynamic database
-            DB::purge('dynamic_connection');
-            DB::reconnect('dynamic_connection');
-
-            return true;
         }
+        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
+        // Establish connection to the dynamic database
+        DB::purge('dynamic_connection');
+        DB::reconnect('dynamic_connection');
+
+        return true;
     }
 
     public function customerrorresponse()
@@ -65,8 +60,6 @@ class commonController extends Controller
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-
-
     public function successresponse($status, $statuskey, $message, $extrakey = null, $extrakeyvalue = null, $code = 200)
     {
 
@@ -81,11 +74,8 @@ class commonController extends Controller
         return response()->json($response, $code);
     }
 
-
     public function errorresponse($status, $errorsdata, $code = 422)
     {
-
-
         if ($status == 422) {
             $response = [
                 'status' => $status,
@@ -100,8 +90,6 @@ class commonController extends Controller
         ];
 
         return response()->json($response, 200);
-
-
 
     }
 
@@ -124,7 +112,7 @@ class commonController extends Controller
             DB::connection('dynamic_connection')->rollBack(); // Rollback dynamic connection
 
             Log::error("Transaction Rolled Back: " . $e->__toString());
-            
+
             return $this->errorResponse(500, $e->getMessage());
         }
     }

@@ -57,16 +57,13 @@ class UpdateInvoiceStatus extends Command
                         ->update(['status' => 'due']);
 
                     // Log the result
-                    \Log::info("Updated invoices for database: $dbname. Rows affected: $updated.");
                     $this->info("Updated invoices for database: $dbname. Rows affected: $updated.");
                 } else {
                     // Log if the table does not exist
-                    \Log::warning("Table 'invoices' does not exist in database: $dbname.");
                     $this->info("Table 'invoices' does not exist in database: $dbname.");
                 }
             } catch (\Exception $e) {
                 // Log the error
-                \Log::error("Error updating invoices for database: $dbname. Error: " . $e->getMessage());
                 $this->error("Error updating invoices for database: $dbname. Error: " . $e->getMessage());
             }
         }

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\v4_2_1\api;
 
-use App\Models\task_schedule_list;
 use Illuminate\Http\Request;
 use App\Models\page_load_log;
+use App\Models\task_schedule_list;
 use Illuminate\Support\Facades\DB;
+use App\Models\activity_recent_data;
 use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class systemmonitorController extends commonController
 {
@@ -15,17 +17,20 @@ class systemmonitorController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname = DB::connection()->getDatabaseName();
 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
-        if (empty($permissions)) {
+        $this->dbname($request->company_id);
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
-        $this->rp = json_decode($permissions[0]['rp'], true);
+
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->supplierModel = $this->getmodel('supplier');
     }
@@ -90,6 +95,7 @@ class systemmonitorController extends commonController
         if ($this->rp['developermodule']['slowpage']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+        
         $pageRecord = page_load_log::find($id);
 
         if (!$pageRecord) {
@@ -218,6 +224,187 @@ class systemmonitorController extends commonController
             ->make(true);
 
     }
- 
+
+
+    /**
+     * Summary of recentactivitydata
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function recentactivitydata(Request $request)
+    {
+        if ($this->rp['developermodule']['recentactivitydata']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $recentActivityData = activity_recent_data::select(
+            'id',
+            'module',
+            'page',
+            'limit'
+        )->where('is_deleted',0);
+
+        if ($this->rp['developermodule']['recentactivitydata']['alldata'] != 1) {
+            $recentActivityData->where('created_by', $this->userId);
+        }
+
+        $recentActivityData = $recentActivityData->get();
+
+        if ($recentActivityData->isEmpty()) {
+            return DataTables::of($recentActivityData)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found'
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($recentActivityData)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+
+    }
+
+
+    /**
+     * Summary of storerecentactivitydata
+     * store new activity/recent data
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function storerecentactivitydata(Request $request)
+    {
+        if ($this->rp['developermodule']['recentactivitydata']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'module' => 'required|string|max:255',
+            'page' => 'required|string|max:255',
+            'limit' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+            $recentActivityData = activity_recent_data::create([
+                'module' => $request->module,
+                'page' => $request->page,
+                'limit' => $request->limit, 
+                'created_by' => $this->userId,
+            ]);
+
+            if ($recentActivityData) {
+                return $this->successresponse(200, 'message', 'Record succesfully added');
+            } else {
+                return $this->successresponse(500, 'message', 'Record not succesfully added');
+            }
+
+        }
+    }
+
+
+     /**
+     * Show the form for editing the specified resource.
+     */
+    public function editrecentactivitydata(string $id)
+    {
+        if ($this->rp['developermodule']['recentactivitydata']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $recentActivityData = activity_recent_data::find($id);
+
+        if (!$recentActivityData) {
+            return $this->successresponse(404, 'message', "No such record found!");
+        }
+
+        if ($this->rp['developermodule']['recentactivitydata']['alldata'] != 1) {
+            if ($recentActivityData->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+        }
+
+        return $this->successresponse(200, 'recentactivitydata', $recentActivityData);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updaterecentactivitydata(Request $request, string $id)
+    {
+        if ($this->rp['developermodule']['recentactivitydata']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'module' => 'required|string|max:255',
+            'page' => 'required|string|max:255',
+            'limit' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+            $recentActivityData = activity_recent_data::find($id);
+
+            if (!$recentActivityData) {
+                return $this->successresponse(404, 'message', 'No such record found!');
+            }
+
+            if ($this->rp['developermodule']['recentactivitydata']['alldata'] != 1) {
+                if ($recentActivityData->created_by != $this->userId) {
+                    return $this->successresponse(500, 'message', 'You are Unauthorized');
+                }
+            }
+
+            $recentActivityData->update([
+                'module' => $request->module,
+                'page' => $request->page,
+                'limit' => $request->limit,
+                'updated_by' => $this->userId
+            ]);
+
+            return $this->successresponse(200, 'message', 'Record succesfully updated');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroyrecentactivitydata(Request $request)
+    {
+        if ($this->rp['developermodule']['recentactivitydata']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $recentActivityData = activity_recent_data::find($request->id);
+
+        if (!$recentActivityData) {
+            return $this->successresponse(404, 'message', 'No such record found!');
+        }
+
+        if ($this->rp['developermodule']['recentactivitydata']['alldata'] != 1) {
+            if ($recentActivityData->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', 'You are Unauthorized');
+            }
+        }
+
+        $recentActivityData->update([
+            'is_deleted' => 1
+        ]);
+
+        return $this->successresponse(200, 'message', 'Record succesfully deleted');
+    }
 
 }

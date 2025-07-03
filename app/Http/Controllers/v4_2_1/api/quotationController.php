@@ -16,17 +16,18 @@ class quotationController extends commonController
 
     public function __construct(Request $request)
     {
-        if ($request->company_id) {
-            $this->dbname($request->company_id);
-            $this->companyId = $request->company_id;
-        } else {
-            $this->dbname(session()->get('company_id'));
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+
+        $this->dbname($request->company_id);
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
+            $this->customerrorresponse();
         }
-        if ($request->user_id) {
-            $this->userId = $request->user_id;
-        } else {
-            $this->userId = session()->get('user_id');
-        }
+
+        $this->rp = json_decode($user_rp, true);
 
         $this->masterdbname = DB::connection()->getDatabaseName();
 

@@ -13,26 +13,20 @@ class logisticothersettingsController extends commonController
 
     public function __construct(Request $request)
     {
-        if (session()->get('company_id')) {
-            $this->dbname(session()->get('company_id'));
-        } else {
-            $this->dbname($request->company_id);
-        }
-        if (session()->get('user_id')) {
-            $this->userId = session()->get('user_id');
-        } else {
-            $this->userId = $request->user_id;
-        }
         $this->companyId = $request->company_id;
-        $this->masterdbname = DB::connection()->getDatabaseName();
+        $this->userId = $request->user_id;
 
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
-        if(empty($permissions)){
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
-        $this->rp = json_decode($permissions[0]['rp'], true);
+
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->logistic_settingModel = $this->getmodel('logistic_setting');
         $this->consignor_copy_terms_and_conditionModel = $this->getmodel('consignor_copy_terms_and_condition');
@@ -40,7 +34,6 @@ class logisticothersettingsController extends commonController
 
     public function getlogisticothersettings(Request $request)
     {
-
         $logisticsettings = $this->logistic_settingModel::where('is_deleted', 0)->first();
 
         if (!$logisticsettings) {
@@ -265,9 +258,9 @@ class logisticothersettingsController extends commonController
         }
 
         $validator = Validator::make($request->all(), [
-            'gst_tax_payable_by' => 'required|string',
-            'weight' => 'required|string',
-            'authorized_signatory' => 'required|string'
+            'gst_tax_payable_by' => 'nullable|string',
+            'weight' => 'nullable|string',
+            'authorized_signatory' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {

@@ -24,7 +24,7 @@ use App\Http\Controllers\api\otherapiController;
 
 // middleware route group 
 
-Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
+Route::middleware(['checkToken'])->group(function () {
 
     function getversion($controller)
     {
@@ -41,32 +41,13 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
                 if ($user) {
                     $version = Company::find($user->company_id);
                 }
-            } elseif ($request->has('site_key') && $request->has('server_key')) {
-                $company_id = api_authorization::where('site_key', $request->site_key)
-                    ->where('server_key', $request->server_key)
-                    ->where('is_active', 1)
-                    ->where('is_deleted', 0)
-                    ->select('company_id')
-                    ->first();
-
-                // If the user exists, retrieve the company's version
-                if ($company_id) {
-                    $version = Company::find($company_id->company_id);
-                }
-
             }
-
-
-
             // Determine the version based on whether the user and version exist
-            $versionexplode = $version ? $version->app_version : "v4_1_0";
-
-
-
+            $versionexplode = $version ? $version->app_version : "v4_2_0";
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
-            $versionexplode = "v4_1_0"; // Set a default version
+            $versionexplode = "v4_2_0"; // Set a default version
         }
 
 
@@ -596,8 +577,12 @@ Route::middleware(['dynamic.version', 'checkToken'])->group(function () {
         Route::put('/developer/slowpages/delete/{id}', 'slowpagedestroy')->name('slowpage.delete');
         Route::get('/developer/errorlogs', 'geterrorlogfiles')->name('geterrorlogs');
         Route::get('/developer/errorlogs/download/{filename}', 'downloaderrorlog')->name('downloaderrorlog');
-        ;
         Route::get('/developer/cronjobs', 'cronjobs')->name('getcronjobs');
+        Route::get('/developer/recentactivitydata', 'recentactivitydata')->name('getrecentactivitydata');
+        Route::post('/developer/recentactivitydata/insert', 'storerecentactivitydata')->name('recentactivitydata.store');
+        Route::get('/developer/recentactivitydata/edit/{id}', 'editrecentactivitydata')->name('recentactivitydata.edit');
+        Route::put('/developer/recentactivitydata/update/{id}', 'updaterecentactivitydata')->name('recentactivitydata.update');
+        Route::put('/developer/recentactivitydata/delete/{id}', 'destroyrecentactivitydata')->name('recentactivitydata.delete');
     });
 
 });

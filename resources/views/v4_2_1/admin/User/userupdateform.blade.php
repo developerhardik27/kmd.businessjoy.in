@@ -4985,7 +4985,7 @@
 
                                         @if (session('user_permissions.developermodule.versiondoc.edit') == '1' || $user_id == 1)
                                             <tr id="versiondoc">
-                                                <td>Slow Page</td>
+                                                <td>Version Documents</td>
                                                 <td>
                                                     <input type="checkbox" class="clickmenu" data-value='versiondoc'
                                                         id="showversiondocmenu" name="showversiondocmenu"
@@ -5038,6 +5038,62 @@
                                                 </td>
                                             </tr>
                                         @endif
+
+                                        @if (session('user_permissions.developermodule.recentactivitydata.edit') == '1' || $user_id == 1)
+                                            <tr id="recentactivitydata">
+                                                <td>Activity/Recent Data</td>
+                                                <td>
+                                                    <input type="checkbox" class="clickmenu" data-value='recentactivitydata'
+                                                        id="showrecentactivitydatamenu" name="showrecentactivitydatamenu"
+                                                        value="1">
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.recentactivitydata.add') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showrecentactivitydatamenu' id="addrecentactivitydata"
+                                                            name="addrecentactivitydata" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.recentactivitydata.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showrecentactivitydatamenu' id="viewrecentactivitydata"
+                                                            name="viewrecentactivitydata" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.recentactivitydata.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showrecentactivitydatamenu' id="editrecentactivitydata"
+                                                            name="editrecentactivitydata" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.recentactivitydata.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showrecentactivitydatamenu' id="deleterecentactivitydata"
+                                                            name="deleterecentactivitydata" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.recentactivitydata.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showrecentactivitydatamenu' id="alldatarecentactivitydata"
+                                                            name="alldatarecentactivitydata" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif 
                                     </tbody>
                                 </table>
                                 <div class="form-group">

@@ -57,10 +57,8 @@ class deleteTempRecords extends Command
                         if (File::exists($filePath)) {
                             // If the file exists, delete it
                             File::delete($filePath);
-                            \Log::info("Deleted file: $filePath from temp folder.");
                             $this->info("Deleted file: $filePath from temp folder.");
                         } else {
-                            \Log::warning("File not found: $filePath in temp folder.");
                             $this->info("File not found: $filePath in temp folder.");
                         }
                     }
@@ -70,10 +68,8 @@ class deleteTempRecords extends Command
                         ->where('created_at', '<', Carbon::today())  // Optional filter
                         ->delete();
 
-                    \Log::info("Deleted temp records for database: $dbname. Rows affected: $updated.");
                     $this->info("Deleted temp records for database: $dbname. Rows affected: $updated.");
                 } else {
-                    \Log::warning("Table 'temp_images' does not exist in database: $dbname.");
                     $this->info("Table 'temp_images' does not exist in database: $dbname.");
                 }
             }
@@ -81,7 +77,6 @@ class deleteTempRecords extends Command
 
         } catch (\Exception $e) {
             // Catch any general errors and log them
-            \Log::error("An error occurred during the cleanup process: " . $e->getMessage());
             $this->info("An error occurred during the delete temp records: " . $e->getMessage());
         } finally {
             // Always revert back to the default database connection

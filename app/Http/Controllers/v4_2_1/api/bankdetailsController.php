@@ -14,30 +14,23 @@ class bankdetailsController extends commonController
 
     public function __construct(Request $request)
     {
-        if ($request->company_id) {
-            $this->dbname($request->company_id);
-            $this->companyId = $request->company_id;
-        } else {
-            $this->dbname(session()->get('company_id'));
-        }
 
-        if ($request->user_id) {
-            $this->userId = $request->user_id;
-        } else {
-            $this->userId = session()->get('user_id');
-        }
-
-        $this->masterdbname = DB::connection()->getDatabaseName();
-
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
 
-        if(empty($permissions)){
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
 
-        $this->rp = json_decode($permissions[0]['rp'], true);
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
+
+        $this->rp = json_decode($user_rp, true);
         $this->bankdetailmodel = $this->getmodel('bank_detail');
     }
 
@@ -94,7 +87,7 @@ class bankdetailsController extends commonController
     public function index(Request $request)
     {
         if ($this->rp['invoicemodule']['bank']['view'] != 1) {
-           return response()->json([
+            return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized',
                 'data' => [],
@@ -118,7 +111,7 @@ class bankdetailsController extends commonController
         $bankdetail = $bankdetailres->get();
 
         if ($bankdetail->isEmpty()) {
-             return DataTables::of($bankdetail)
+            return DataTables::of($bankdetail)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
@@ -126,7 +119,7 @@ class bankdetailsController extends commonController
                 ])
                 ->make(true);
         }
-        
+
         return DataTables::of($bankdetail)
             ->with([
                 'status' => 200,
@@ -213,7 +206,7 @@ class bankdetailsController extends commonController
                 return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
- 
+
         $bankdetail->update([
             'is_active' => $request->status
         ]);
@@ -248,11 +241,11 @@ class bankdetailsController extends commonController
                 return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
-  
+
         $bankdetail->update([
             'is_deleted' => 1
         ]);
-        
+
         return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
 
     }

@@ -15,30 +15,21 @@ class apiserverkeyController extends commonController
 
     public function __construct(Request $request)
     {
-        if ($request->company_id) {
-            $this->companyId = $request->company_id;
-        } else {
-            $this->companyId = session()->get('company_id');
-        }
 
-        $this->dbname($this->companyId);
-
-        if ($request->user_id) {
-            $this->userId = $request->user_id;
-        } else {
-            $this->userId = session()->get('user_id');
-        }
-
-        $this->masterdbname = DB::connection()->getDatabaseName();
-
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
         }
+
         $this->rp = json_decode($user_rp, true);
 
+        $this->masterdbname = DB::connection()->getDatabaseName(); 
         $this->api_server_keyModel = $this->getmodel('api_server_key');
 
     }
@@ -51,7 +42,7 @@ class apiserverkeyController extends commonController
      */
     public function index(Request $request)
     {
-        if ($this->rp[$request->module.'module'][$request->module.'api']['view'] != 1) {
+        if ($this->rp[$request->module . 'module'][$request->module . 'api']['view'] != 1) {
             return response()->json([
                 'status' => 500,
                 'message' => 'You are Unauthorized',
@@ -71,7 +62,7 @@ class apiserverkeyController extends commonController
                 DB::raw('DATE_FORMAT(created_at,"%d-%M-%Y %h:%i %p") as created_at_formatted')
             );
 
-        if ($this->rp[$request->module.'module'][$request->module.'api']['alldata'] != 1) {
+        if ($this->rp[$request->module . 'module'][$request->module . 'api']['alldata'] != 1) {
             $apiserverkeys->where('created_by', $this->userId);
         }
 
@@ -79,7 +70,7 @@ class apiserverkeyController extends commonController
 
         $apiserverkeys = $apiserverkeys->get();
 
-        $companyuuid = uuid_company::where('company_id',$this->companyId)->value('uuid');
+        $companyuuid = uuid_company::where('company_id', $this->companyId)->value('uuid');
 
         if ($apiserverkeys->isEmpty()) {
             return DataTables::of($apiserverkeys)
@@ -112,7 +103,7 @@ class apiserverkeyController extends commonController
      */
     public function store(Request $request)
     {
-        if ($this->rp[$request->module.'module'][$request->module.'api']['add'] != 1) {
+        if ($this->rp[$request->module . 'module'][$request->module . 'api']['add'] != 1) {
             return $this->successresponse('500', 'message', 'You are unauthorized');
         }
 
@@ -127,7 +118,7 @@ class apiserverkeyController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-            if ($this->rp[$request->module.'module'][$request->module.'api']['add'] != 1) {
+            if ($this->rp[$request->module . 'module'][$request->module . 'api']['add'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
 
             }
@@ -178,7 +169,7 @@ class apiserverkeyController extends commonController
      */
     public function update(Request $request, int $id)
     {
-        if ($this->rp[$request->module.'module'][$request->module.'api']['edit'] != 1) {
+        if ($this->rp[$request->module . 'module'][$request->module . 'api']['edit'] != 1) {
             return $this->successresponse('500', 'message', 'You are unauthorized');
         }
 
@@ -198,7 +189,7 @@ class apiserverkeyController extends commonController
                 return $this->successresponse(404, 'message', 'No such record found!');
             }
 
-            if ($this->rp[$request->module.'module'][$request->module.'api']['alldata'] != 1) {
+            if ($this->rp[$request->module . 'module'][$request->module . 'api']['alldata'] != 1) {
                 if ($serverKey->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', "You are unauthorized!");
                 }
@@ -229,7 +220,7 @@ class apiserverkeyController extends commonController
     public function destroy(Request $request, int $id)
     {
 
-        if ($this->rp[$request->module.'module'][$request->module.'api']['delete'] != 1) {
+        if ($this->rp[$request->module . 'module'][$request->module . 'api']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
@@ -239,7 +230,7 @@ class apiserverkeyController extends commonController
             return $this->successresponse(404, 'message', 'No such record found!');
         }
 
-        if ($this->rp[$request->module.'module'][$request->module.'api']['alldata'] != 1) {
+        if ($this->rp[$request->module . 'module'][$request->module . 'api']['alldata'] != 1) {
             if ($serverKey->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', "You are unauthorized!");
             }

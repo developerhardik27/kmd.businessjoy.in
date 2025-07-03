@@ -19,34 +19,19 @@ class blogController extends commonController
 
     public function __construct(Request $request)
     {
-        if ($request->company_id) {
-            $this->companyId = $request->company_id;
-        } else {
-            $this->companyId = session()->get('company_id');
-        }
 
-        if (!($this->companyId)) {
-            $this->customerrorresponse();
-        }
-
-        $this->dbname($this->companyId);
-
-        if ($request->user_id) {
-            $this->userId = $request->user_id;
-        } else {
-            $this->userId = session()->get('user_id');
-        }
-
-        $this->masterdbname = DB::connection()->getDatabaseName();
-
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
-        
-        $this->rp = json_decode($user_rp, true);
 
-        if (empty($this->rp)) {
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
+
+        $this->rp = json_decode($user_rp, true);
 
         $this->masterdbname = DB::connection()->getDatabaseName();
         $this->blogModel = $this->getmodel('blog');

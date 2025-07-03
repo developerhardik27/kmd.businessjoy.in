@@ -302,12 +302,15 @@
                             <p>GOODS BOOKED AS OWNER'S RISK.</p>
                             <span>Not responsible for Breakage, Leakage, Damage Goods or Fires.</span>
                         </td>
-                        <td colspan="2" class="text-center" style="border-bottom: transparent;">
-                             <p><b>For,{{ ucfirst($companydetails['name'])}}</b> </p>
-                            @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img'])) 
-                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
-                                    alt="Company logo" style="max-width: 150px">
-                            @endif 
+                        <td colspan="2" rowspan="2" class="text-center">
+                                <p><b>For,{{ ucfirst($companydetails['name']) }}</b> </p>
+                                @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img'])) 
+                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
+                                        alt="Company logo" style="max-width: 150px">
+                                @else
+                                    <br><br><br>        
+                                @endif
+                                <p>Authorized Signatory</p>
                         </td>
                     </tr>
                     <tr class="text-left">
@@ -329,10 +332,7 @@
                                 <span>{{$consignorcopy['left_from_factory_time_formatted']}}</span>
 
                             </div>
-                        </td>
-                        <td colspan="2" class="text-center" style="vertical-align: bottom;border-top: transparent">
-                            <p>Authorized Signatory</p>
-                        </td>
+                        </td> 
                     </tr> 
                 </thead>
             </table>

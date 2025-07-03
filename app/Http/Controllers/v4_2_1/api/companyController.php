@@ -17,35 +17,23 @@ use Illuminate\Support\Facades\Validator;
 
 class companyController extends commonController
 {
-    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $user_permissionModel,$newdbname;
+    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $user_permissionModel, $newdbname,$masterdbname;
     public function __construct(Request $request)
     {
-
-        if ($request->company_id) {
-            $this->companyId = $request->company_id;
-        } else {
-            $this->companyId = session()->get('company_id');
-        }
-        if ($request->user_id) {
-            $this->userId = $request->user_id;
-        } else {
-            $this->userId = session()->get('user_id');
-        }
-
-        $this->user = User::find($this->userId);
-        $dbname = company::find($this->user->company_id);
-        config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
-
-        // Establish connection to the dynamic database
-        DB::purge('dynamic_connection');
-        DB::reconnect('dynamic_connection');
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
+        
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
-        if(empty($permissions)){
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
-        $this->rp = json_decode($permissions[0]['rp'], true);
+
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->user_permissionModel = $this->getmodel('user_permission');
         $this->invoice_other_settingModel = $this->getmodel('invoice_other_setting');
@@ -244,26 +232,26 @@ class companyController extends commonController
 
             if ($host === 'localhost:8000') {
                 // If the host is localhost
-               $this->newdbname = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
             } elseif ($host === 'staging.businessjoy.in') {
                 // If the host is staging.businessjoy.in
-               $this->newdbname = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
             } else {
                 // For any other host, provide a default
-               $this->newdbname = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
             }
 
             // Create the dynamic database
 
-            DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' .$this->newdbname);
+            DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' . $this->newdbname);
 
             // Switch to the new database connection
             config([
-                'database.connections.' .$this->newdbname => [
+                'database.connections.' . $this->newdbname => [
                     'driver' => 'mysql',
                     'host' => env('DB_HOST', '127.0.0.1'),
                     'port' => env('DB_PORT', '3306'),
-                    'database' =>$this->newdbname,
+                    'database' => $this->newdbname,
                     'username' => env('DB_USERNAME', 'forge'),
                     'password' => env('DB_PASSWORD', ''),
                     'unix_socket' => env('DB_SOCKET', ''),
@@ -295,7 +283,7 @@ class companyController extends commonController
                 ]);
             }
 
-            config(['database.connections.dynamic_connection.database' =>$this->newdbname]);
+            config(['database.connections.dynamic_connection.database' => $this->newdbname]);
 
             return $this->executeTransaction(function () use ($request) {
                 // Establish connection to the dynamic database
@@ -570,7 +558,7 @@ class companyController extends commonController
         }
 
         if ($this->rp['adminmodule']['company']['alldata'] != 1) {
-             if ($company->created_by != $this->userId) {
+            if ($company->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', "You are Unauthorized!");
             }
         }
@@ -622,16 +610,16 @@ class companyController extends commonController
                 $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
                     ->select('company_details.img', 'company_details.pr_sign_img')->where('company.id', $id)
                     ->get();
-   
-                if(empty($company)){
+
+                if (empty($company)) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
-                }    
+                }
 
                 if ($this->rp['adminmodule']['company']['alldata'] != 1) {
                     if ($company[0]->created_by != $this->userId) {
                         return $this->successresponse(500, 'message', "You are Unauthorized!");
                     }
-                } 
+                }
 
                 $imageName = $company[0]->img;
                 $sign_imageName = $company[0]->pr_sign_img;
@@ -718,12 +706,12 @@ class companyController extends commonController
             }
             if ($company) {
 
-                
+
                 if ($this->rp['adminmodule']['company']['alldata'] != 1) {
                     if ($company->created_by != $this->userId) {
                         return $this->successresponse(500, 'message', "You are Unauthorized!");
                     }
-                } 
+                }
 
                 $company->update([
                     'is_deleted' => 1
@@ -760,7 +748,7 @@ class companyController extends commonController
                 if ($company->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', "You are Unauthorized!");
                 }
-            } 
+            }
 
             $company->update([
                 'is_active' => $request->status

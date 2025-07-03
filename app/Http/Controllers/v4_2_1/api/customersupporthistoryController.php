@@ -12,9 +12,19 @@ class customersupporthistoryController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
+
+        $this->dbname($request->company_id);
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
+            $this->customerrorresponse();
+        }
+
+        $this->rp = json_decode($user_rp, true);
+
         $this->masterdbname = DB::connection()->getDatabaseName();
         $this->customer_supportModel = $this->getmodel('customer_support');
         $this->customersupporthistoryModel = $this->getmodel('customersupporthistory');

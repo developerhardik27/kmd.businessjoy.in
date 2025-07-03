@@ -117,7 +117,8 @@ class userController extends commonController
             "errorlog" => ["show", "add", "view", "edit", "delete", "alldata"],
             "cronjob" => ["show", "add", "view", "edit", "delete", "alldata"],
             "techdoc" => ["show", "add", "view", "edit", "delete", "alldata"],
-            "versiondoc" => ["show", "add", "view", "edit", "delete", "alldata"]
+            "versiondoc" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "recentactivitydata" => ["show", "add", "view", "edit", "delete", "alldata"]
         ],
     ];
 

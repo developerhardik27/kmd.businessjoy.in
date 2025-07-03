@@ -17,18 +17,20 @@ class tblleadController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname = DB::connection()->getDatabaseName();
 
+        $this->dbname($request->company_id);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
-        $permissions = json_decode($user_rp, true);
-        if (empty($permissions)) {
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
-        $this->rp = json_decode($permissions[0]['rp'], true);
+
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->tblleadModel = $this->getmodel('tbllead');
         $this->lead_recent_activityModel = $this->getmodel('lead_recent_activity');
@@ -570,7 +572,7 @@ class tblleadController extends commonController
             ])
             ->make(true);
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -585,7 +587,7 @@ class tblleadController extends commonController
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email',
-            'contact_no' => 'nulllable|regex:/^\+?[0-9]{1,15}$/|max:15',
+            'contact_no' => 'nullable|regex:/^\+?[0-9]{1,15}$/|max:15',
             'budget',
             'lead_title' => 'nullable|max:255',
             'title',
@@ -911,8 +913,7 @@ class tblleadController extends commonController
 
     public function sourcevalue()
     {
-
-        $uniqueSources = $this->tblleadModel::distinct()->pluck('source');
+        $uniqueSources = $this->tblleadModel::distinct()->whereNotNull('source')->pluck('source');
 
         if ($uniqueSources->isEmpty()) {
             return $this->successresponse(404, 'message', 'No any source value  Found!');

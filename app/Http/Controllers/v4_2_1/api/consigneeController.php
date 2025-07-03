@@ -15,21 +15,20 @@ class consigneeController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->dbname($request->company_id);
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        $this->masterdbname = DB::connection()->getDatabaseName();
+        
+        $this->dbname($request->company_id);
+        // **** for checking user has permission to action on all data 
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
 
-        $user_rp = DB::connection('dynamic_connection')
-            ->table('user_permissions')
-            ->select('rp')
-            ->where('user_id', $this->userId)
-            ->get();
-        $permissions = json_decode($user_rp, true);
-        if(empty($permissions)){
+        if (empty($user_rp)) {
             $this->customerrorresponse();
         }
-        $this->rp = json_decode($permissions[0]['rp'], true);
+
+        $this->rp = json_decode($user_rp, true);
+
+        $this->masterdbname = DB::connection()->getDatabaseName();
 
         $this->consigneeModel = $this->getmodel('consignee');
     }
