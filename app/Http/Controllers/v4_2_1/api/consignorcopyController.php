@@ -17,7 +17,7 @@ class consignorcopyController extends commonController
     {
         $this->companyId = $request->company_id ?? session('company_id');
         $this->userId = $request->user_id ?? session('user_id');
-        
+
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
@@ -51,7 +51,7 @@ class consignorcopyController extends commonController
                 'data' => [],
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0
-            ]); 
+            ]);
         }
 
         $consignorcopy = $this->consignor_copyModel::leftjoin('consignees', 'consignor_copy.consignee_id', 'consignees.id')
@@ -80,7 +80,7 @@ class consignorcopyController extends commonController
                         WHEN consignors.firstname IS NULL AND consignors.lastname IS NULL THEN consignors.company_name
                         ELSE CONCAT_WS(' ', consignors.firstname, consignors.lastname)
                     END as consignor
-                "),  
+                "),
                 'consignor_copy.cha',
                 'consignor_copy.type',
                 'consignor_copy.container_no',
@@ -114,7 +114,7 @@ class consignorcopyController extends commonController
         }
 
 
-       $totalcount = $consignorcopy->get()->count(); // count total record
+        $totalcount = $consignorcopy->get()->count(); // count total record
 
 
         //applyfilters
@@ -126,7 +126,7 @@ class consignorcopyController extends commonController
             'filter_loading_date_to' => 'loading_date',
             'filter_stuffing_date_from' => 'stuffing_date',
             'filter_stuffing_date_to' => 'stuffing_date',
-            'filter_truck_no' => 'truck_number', 
+            'filter_truck_no' => 'truck_number',
             'filter_consignee' => 'consignee_id',
             'filter_consignor' => 'consignor_id',
         ];
@@ -174,7 +174,7 @@ class consignorcopyController extends commonController
         }
 
         $latesttcid = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)->first();
- 
+
         return DataTables::of($consignorcopy)
             ->with([
                 'status' => 200,
@@ -343,7 +343,7 @@ class consignorcopyController extends commonController
                         WHEN consignors.firstname IS NULL AND consignors.lastname IS NULL THEN consignors.company_name
                         ELSE CONCAT_WS(' ', consignors.firstname, consignors.lastname)
                     END as consignor
-                "), 
+                "),
                 'consignor_copy.cha',
                 'consignor_copy.type',
                 'consignor_copy.container_no',
@@ -409,7 +409,7 @@ class consignorcopyController extends commonController
                 ->pluck('t_and_c');
         }
 
-    
+
         // get consignor 
         $consignor = $this->consignorModel::join($this->masterdbname . '.city', 'consignors.city_id', $this->masterdbname . '.city.id')
             ->where('consignors.id', $consignorcopy->consignor_id)
@@ -431,7 +431,7 @@ class consignorcopyController extends commonController
             ->where('consignees.id', $consignorcopy->consignee_id)->select(
                 'consignees.*',
                 'city.city_name',
-                 DB::raw("
+                DB::raw("
                     CONCAT_WS(', ', 
                         consignees.house_no_building_name, 
                         consignees.road_name_area_colony,
@@ -479,7 +479,7 @@ class consignorcopyController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
- 
+
         return $this->successresponse(200, 'consignorcopy', $consignorcopy);
 
     }
@@ -544,7 +544,7 @@ class consignorcopyController extends commonController
                 if ($consignorcopy->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are unauthorized');
                 }
-            } 
+            }
 
             $consignorcopy->update([  // update consignor data
                 'loading_date' => $request->loading_date,
@@ -610,17 +610,17 @@ class consignorcopyController extends commonController
             if ($consginorcopy->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        } 
+        }
 
         // Check if it's the latest record (by consignment number)
         $latestCopy = $this->consignor_copyModel::where('is_deleted', 0)->orderBy('consignment_note_no', 'desc')->first();
 
-        if ($latestCopy && $latestCopy->id == $consginorcopy->id) {
-            // Decrement the setting value if this is the latest record
-            if ($getconsigment_note_number->current_consignment_note_no > 1) {
-                $getconsigment_note_number->current_consignment_note_no--;
-                $getconsigment_note_number->save();
-            }
+        if ($latestCopy) {
+            $getconsigment_note_number->current_consignment_note_no = $latestCopy->consignment_note_no++;
+            $getconsigment_note_number->save();
+        } else {
+            $getconsigment_note_number->current_consignment_note_no = $getconsigment_note_number->start_consignment_note_no ?? 1;
+            $getconsigment_note_number->save();
         }
 
         $consginorcopy->update([
@@ -639,7 +639,7 @@ class consignorcopyController extends commonController
         if ($this->rp['logisticmodule']['consignorcopy']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        
+
         $consginorcopy = $this->consignor_copyModel::find($id);
 
         $t_and_c = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)
@@ -653,7 +653,7 @@ class consignorcopyController extends commonController
             if ($consginorcopy->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
-        } 
+        }
 
         if (!$t_and_c) {
             return $this->successresponse(500, 'message', 'No terms and conditions found');
