@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class logisticothersettingsController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $logistic_settingModel, $consignor_copy_terms_and_conditionModel;
+    public $userId, $companyId, $masterdbname, $rp, $logistic_settingModel, $consignor_copy_terms_and_conditionModel, $consignor_copyModel;
 
     public function __construct(Request $request)
     {
@@ -30,6 +30,7 @@ class logisticothersettingsController extends commonController
 
         $this->masterdbname = DB::connection()->getDatabaseName();
 
+        $this->consignor_copyModel = $this->getmodel('consignor_copy');
         $this->logistic_settingModel = $this->getmodel('logistic_setting');
         $this->consignor_copy_terms_and_conditionModel = $this->getmodel('consignor_copy_terms_and_condition');
     }
@@ -42,7 +43,10 @@ class logisticothersettingsController extends commonController
             return $this->successresponse(404, 'logisticsettings', 'No Records Found');
         }
 
-        return $this->successresponse(200, 'logisticsettings', $logisticsettings);
+        // Check if it's the latest record (by consignment number)
+        $lrCount = $this->consignor_copyModel::where('is_deleted', 0)->count();
+
+        return $this->successresponse(200, 'logisticsettings', $logisticsettings,'lrcount',$lrCount);
     }
 
     public function termsandconditionsindex(Request $request)
@@ -303,15 +307,19 @@ class logisticothersettingsController extends commonController
             return $this->errorresponse(422, $validator->messages());
         } else {
 
-
             $logisticsetting = $this->logistic_settingModel::find(1);
 
             if (!$logisticsetting) {
                 return $this->successresponse(404, 'message', 'No such consignment note number setting found!');
             }
 
-            if ($logisticsetting->current_consignment_note_no > $request->consignment_note_number) {
-                return $this->successresponse(500, 'message', 'Please enter consignment note number higher than or equal to ' . $logisticsetting->current_consignment_note_no);
+            // Check if it's the latest record (by consignment number)
+            $latestCopy = $this->consignor_copyModel::where('is_deleted', 0)->orderBy('consignment_note_no', 'desc')->first();
+
+            if ($latestCopy) {
+                if ($logisticsetting->current_consignment_note_no > $request->consignment_note_number) {
+                    return $this->successresponse(500, 'message', 'Please enter consignment note number higher than or equal to ' . $logisticsetting->current_consignment_note_no);
+                }
             }
 
             $logisticsetting->update([

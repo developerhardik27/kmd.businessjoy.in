@@ -197,8 +197,12 @@
                                                 <label for="consignment_note_number">Consignment Note Number</label>
                                                 <input type="number" class="form-control" min="1"
                                                     name="consignment_note_number" id="consignment_note_number">
+                                                <p id="info-consignment_note_no" class="text-info m-0">
+                                                    
+                                                </p>
                                                 <span class="error-msg" id="error-consignment_note_number"
                                                     style="color: red"></span>
+
                                             </div>
                                         </div>
                                         <div class="form-row">
@@ -361,6 +365,11 @@
                     success: function(response) {
                         if (response.status == 200 && response.logisticsettings != '') {
                             othersettings = response.logisticsettings;
+
+                            if(response.lrcount > 0){ 
+                                $('#info-consignment_note_no').text(`Consignment note number not allow to smaller than ${othersettings.current_consignment_note_no}`);
+                            }
+
                             $('#startcnn').html(
                                 `${othersettings.start_consignment_note_no || 'Not Set Yet'}`);
                             $('#gst_tax_payable_by_span').html(

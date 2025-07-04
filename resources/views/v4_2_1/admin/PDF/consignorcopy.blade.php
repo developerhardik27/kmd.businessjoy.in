@@ -124,10 +124,25 @@
             z-index: 1;
         }
 
+        .pdf-header {
+            position: fixed;
+            top: -20px; 
+            right: 0px;
+            text-align: center;
+            font-size: 12px;
+            text-transform:capitalize;
+            z-index: 10;
+        }
+
     </style>
 </head>
 
 <body>
+
+    <div class="pdf-header">
+        consignor copy
+    </div>
+    
     {{-- ✅ Text Watermark --}}
     {{-- <div class="watermark">CONFIDENTIAL</div> --}}
     {{-- ✅ Image Watermark (Uncomment if using image) --}}
