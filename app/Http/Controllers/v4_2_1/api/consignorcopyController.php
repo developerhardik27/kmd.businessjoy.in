@@ -226,9 +226,9 @@ class consignorcopyController extends commonController
             "pay" => "nullable|numeric",
             "value" => "nullable|numeric",
             "reached_at_factory_date" => "nullable|date",
-            "reached_at_factory_time" => "nullable|date_format:H:i",
+            "reached_at_factory_time" => "nullable|date_format:H:i:s",
             "left_from_factory_date" => "nullable|date",
-            "left_from_factory_time" => "nullable|date_format:H:i",
+            "left_from_factory_time" => "nullable|date_format:H:i:s",
         ]);
 
 
@@ -525,9 +525,9 @@ class consignorcopyController extends commonController
             "pay" => "nullable|numeric",
             "value" => "nullable|numeric",
             "reached_at_factory_date" => "nullable|date",
-            "reached_at_factory_time" => "nullable|date_format:H:i",
+            "reached_at_factory_time" => "nullable|date_format:H:i:s",
             "left_from_factory_date" => "nullable|date",
-            "left_from_factory_time" => "nullable|date_format:H:i",
+            "left_from_factory_time" => "nullable|date_format:H:i:s",
         ]);
 
         if ($validator->fails()) {
