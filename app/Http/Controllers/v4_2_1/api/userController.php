@@ -110,7 +110,8 @@ class userController extends commonController
             "logisticothersettings" => ["show", "add", "view", "edit", "delete", "alldata"],
             "consignee" => ["show", "add", "view", "edit", "delete", "alldata"],
             "consignor" => ["show", "add", "view", "edit", "delete", "alldata"],
-            "logisticapi" => ["show", "add", "view", "edit", "delete", "alldata"]
+            "logisticapi" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "watermark" => ["show", "add", "view", "edit", "delete", "alldata"]
         ],
         "developermodule" => [
             "slowpage" => ["show", "add", "view", "edit", "delete", "alldata"],
@@ -139,8 +140,9 @@ class userController extends commonController
         DB::purge('dynamic_connection');
         DB::reconnect('dynamic_connection');
 
-        $this->companyId = $request->company_id;
-        $this->userId = $request->user_id;
+        $this->companyId = $request->company_id ?? session('company_id');
+        $this->userId = $request->user_id ?? session('user_id');
+        
         $this->masterdbname = DB::connection()->getDatabaseName();
 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();

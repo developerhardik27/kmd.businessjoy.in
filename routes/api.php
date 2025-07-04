@@ -560,14 +560,21 @@ Route::middleware(['checkToken'])->group(function () {
     $logisticothersettingsController = getversion('logisticothersettingsController');
     Route::controller($logisticothersettingsController)->group(function () {
         Route::get('/getlogisticothersettings', 'getlogisticothersettings')->name('getlogisticothersettings');
+        Route::post('/logistic/othersettings', 'logisticothersettingsstore')->name('logisticothersettings.store');
+
         Route::get('/consignorcopy/termsandconditions', 'termsandconditionsindex')->name('consignorcopytermsandconditions.index');
         Route::post('/consignorcopy/termsandconditions/insert', 'consignorcopytcstore')->name('consignorcopytermsandconditions.store');
         Route::get('/consignorcopy/termsandconditions/edit/{id}', 'tcedit')->name('consignorcopytermsandconditions.edit');
         Route::post('/consignorcopy/termsandconditions/update/{id}', 'tcupdate')->name('consignorcopytermsandconditions.update');
         Route::put('/consignorcopy/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('consignorcopytermsandconditions.statusupdate');
         Route::put('/consignorcopy/termsandconditions/delete/{id}', 'tcdestroy')->name('consignorcopytermsandconditions.delete');
+       
         Route::post('/consignorcopy/consignmentnotenumber', 'consignmentnotenumberstore')->name('consignmentnotenumber.store');
-        Route::post('/logistic/othersettings', 'logisticothersettingsstore')->name('logisticothersettings.store');
+       
+        Route::get('/watermark', 'getwatermark')->name('watermark.index');
+        Route::post('/watermark/update', 'updatewatermark')->name('watermark.update');
+
+
     });
 
     // system monitor settings route (Developer tools)

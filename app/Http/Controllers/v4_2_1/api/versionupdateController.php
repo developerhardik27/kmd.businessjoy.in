@@ -140,6 +140,10 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v4_2_1/master',
                                     ];
+                                }else{
+                                     $paths = [
+                                        'database/migrations/v4_2_1/individual',
+                                    ];
                                 }
                                 break;
                             // Add more cases as needed
@@ -481,6 +485,10 @@ class versionupdateController extends commonController
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
                        
+                                        if (!isset($jsonrp['logisticmodule']['watermark'])) {
+                                            $jsonrp['logisticmodule']['watermark'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
                                         if (!isset($jsonrp['developermodule']['recentactivitydata'])) {
                                             $jsonrp['developermodule']['recentactivitydata'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
