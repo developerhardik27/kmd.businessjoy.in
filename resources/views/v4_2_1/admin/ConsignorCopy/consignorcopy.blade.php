@@ -462,7 +462,7 @@
                                 let generateConsignorCopyPdfUrl =
                                     "{{ route('consignorcopy.generatepdf', '__consignorcopyId__') }}"
                                     .replace('__consignorcopyId__', data);
-                                @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                @if (session('user_permissions.logisticmodule.consignorcopy.view') == '1')
                                     return `
                                         <span data-toggle="tooltip" data-placement="left" title="Download Consignor Copy Pdf">
                                             <a href="${generateConsignorCopyPdfUrl}" target="_blank" id="pdf">

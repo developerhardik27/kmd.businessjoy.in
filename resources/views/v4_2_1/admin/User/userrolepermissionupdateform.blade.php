@@ -4580,6 +4580,66 @@
                                                 </td>
                                             </tr>
                                         @endif
+
+                                        @if (session('user_permissions.logisticmodule.watermark.edit') == '1' || $user_id == 1)
+                                            <tr id="watermark">
+                                                <td>PDF Watermark</td>
+                                                <td>
+                                                    <input type="checkbox" class="clickmenu"
+                                                        data-value='watermark' id="showwatermarkmenu"
+                                                        name="showwatermarkmenu" value="1">
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.watermark.add') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showwatermarkmenu' id="addwatermark"
+                                                            name="addwatermark" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.watermark.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showwatermarkmenu'
+                                                            id="viewwatermark" name="viewwatermark"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.watermark.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showwatermarkmenu'
+                                                            id="editwatermark" name="editwatermark"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.watermark.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showwatermarkmenu'
+                                                            id="deletewatermark" name="deletewatermark"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.watermark.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showwatermarkmenu'
+                                                            id="alldatawatermark" name="alldatawatermark"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
                                     </tbody>
                                 </table>
                                 <div class="form-group">

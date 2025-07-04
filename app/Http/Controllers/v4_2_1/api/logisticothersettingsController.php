@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\v4_2_1\api;
 
+use App\Models\company;
+use App\Models\company_detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -13,10 +15,10 @@ class logisticothersettingsController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->companyId = $request->company_id;
-        $this->userId = $request->user_id;
+        $this->companyId = $request->company_id ?? session('company_id');
+        $this->userId = $request->user_id ?? session('user_id');
 
-        $this->dbname($request->company_id);
+        $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
 
@@ -69,7 +71,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
- 
+
             $all_old_t_and_c = $this->consignor_copy_terms_and_conditionModel::query()->update([
                 'is_active' => 0
             ]);
@@ -126,7 +128,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
- 
+
             $termsandcondition = $this->consignor_copy_terms_and_conditionModel::find($id);
 
             if (!$termsandcondition) {
@@ -193,13 +195,91 @@ class logisticothersettingsController extends commonController
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
- 
+
         $termsandcondition->update([
             'is_deleted' => 1
         ]);
 
         return $this->successresponse(200, 'message', 'Terms And Conditions succesfully deleted');
     }
+
+
+    public function getwatermark(Request $request)
+    {
+
+        if ($this->rp['logisticmodule']['watermark']['add'] != 1 && $this->rp['logisticmodule']['watermark']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $company = company::find($this->companyId);
+
+        if (!$company) {
+            return $this->successresponse(500, 'message', 'No Record Found');
+        }
+
+        $watermarkImage = company_detail::where('id', $company->company_details_id)->value('watermark_img');
+
+        if (!$watermarkImage) {
+            return $this->successresponse(404, 'watermarksettings', 'No Records Found');
+        }
+
+        return $this->successresponse(200, 'watermarksettings', $watermarkImage);
+    }
+
+
+    public function updatewatermark(Request $request)
+    {
+        //condition for check if user has permission to edit  record
+        if ($this->rp['logisticmodule']['watermark']['add'] != 1 && $this->rp['logisticmodule']['watermark']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'watermark_image' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+            $imageName = null;
+
+            $company = company::find($this->companyId);
+
+            if (!$company) {
+                return $this->successresponse(500, 'message', 'No such reocrd Found');
+            }
+
+            $watermarkImage = company_detail::find($company->company_details_id);
+
+            if (!$watermarkImage) {
+                return $this->successresponse(404, 'message', 'No such record found!');
+            }
+
+            if (($request->hasFile('watermark_image') && $request->file('watermark_image') != null)) {
+
+                $image = $request->file('watermark_image');
+
+                // Check if image file is uploaded
+                if ($image) {
+                    $imageName = 'watermark_' . $watermarkImage->name . $request->name . time() . '.' . $image->getClientOriginalExtension();
+                    $image->move('uploads/', $imageName); // upload image
+                }
+
+            }
+
+            $updateimg = $watermarkImage->update([
+                'watermark_img' => $imageName,
+            ]);
+
+            if (!$updateimg) {
+                return $this->successresponse(500, 'message', 'Settings not succesfully updated', 'watermarksettings', null);
+            }
+
+            return $this->successresponse(200, 'message', 'Settings succesfully updated', 'watermarksettings', $imageName);
+        }
+    }
+
 
     /**
      * Summary of consignmentnotenumberstore
@@ -222,7 +302,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-           
+
 
             $logisticsetting = $this->logistic_settingModel::find(1);
 
@@ -266,7 +346,7 @@ class logisticothersettingsController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         } else {
-           
+
 
             $logisticsetting = $this->logistic_settingModel::find(1);
 

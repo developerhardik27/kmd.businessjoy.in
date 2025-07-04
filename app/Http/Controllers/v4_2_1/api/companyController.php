@@ -20,10 +20,10 @@ class companyController extends commonController
     public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $user_permissionModel, $newdbname,$masterdbname;
     public function __construct(Request $request)
     {
-        $this->companyId = $request->company_id;
-        $this->userId = $request->user_id;
+         $this->companyId = $request->company_id ?? session('company_id');
+        $this->userId = $request->user_id ?? session('user_id');
         
-        $this->dbname($request->company_id);
+        $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
 
@@ -273,6 +273,7 @@ class companyController extends commonController
                 'database/migrations/v4_0_0',
                 'database/migrations/v4_1_0',
                 'database/migrations/v4_2_0',
+                'database/migrations/v4_2_1/individual',
             ];
 
             // Run migrations only from the specified path
@@ -483,7 +484,9 @@ class companyController extends commonController
                                     "logisticothersettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "consignee" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "consignor" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "logisticapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                    "logisticapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "watermark" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                    
                                 ],
                                 'developermodule' => [
                                     "slowpage" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],

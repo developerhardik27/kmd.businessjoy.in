@@ -11,16 +11,7 @@ class company extends Model
 
     protected $table = 'company';
 
-    protected $fillable = [
-       'company_details_id',
-       'dbname',
-       'app_version',
-       'max_users',
-       'created_by',
-       'updated_by',
-       'created_at',
-       'updated_at',
-       'is_active',
-       'is_deleted'
+    protected $guarded = [
+       
     ];
 }

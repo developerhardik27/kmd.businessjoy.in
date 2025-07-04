@@ -11,13 +11,5 @@ class country extends Model
 
     protected $table = 'country';
 
-    protected $fillable = [    
-       'country_name',
-       'created_by',
-       'updated_by',
-       'created_at',
-       'updated_at',
-       'is_active',
-       'is_deleted'
-    ];
+    protected $guarded = [];
 }

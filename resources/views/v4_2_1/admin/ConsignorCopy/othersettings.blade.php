@@ -110,6 +110,64 @@
         </div>
         <div class="container-fluid">
             <div class="row">
+                @if (session('user_permissions.logisticmodule.watermark.edit') == 1 ||
+                        session('user_permissions.logisticmodule.watermark.add') == 1)
+                    <div class="col-md-6">
+                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Watermark Settings"
+                            type="button" id="editWatermarkSettingsBtn"
+                            class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                            <i class="ri-edit-fill"></i>
+                        </button>
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                                <div class="iq-header-title">
+                                    <h4 class="card-title">Watermark Image Settings</h4>
+                                </div>
+                            </div>
+                            <div class="iq-card-body">
+                                <form id="watermarkform" class="d-none">
+                                    @csrf
+                                    <div class="form-group">
+                                        <div class="form-row">
+                                            <div class="col-sm-12">
+                                                <input type="hidden" name="token" class="form-control"
+                                                    value="{{ session('api_token') }}" required />
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
+                                                <input type="hidden" value="{{ $company_id }}" name="company_id"
+                                                    class="form-control">
+                                                <label for="watermark_image">Watermark Image</label><br>
+                                                <input type="file" class="form-control-file w-100"
+                                                    accept=".jpg, .jpeg, .png" name="watermark_image"
+                                                    id="watermark_image" />
+                                                <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that
+                                                    is smaller than 1 MB.</p>
+                                                <span class="error-msg" id="error-watermark_image"
+                                                    style="color: red"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col-sm-12 mt-2">
+                                                <button type="button" id="cancelWatermarkSettingsBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right">Cancel</button>
+                                                <button type="reset" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Reset"
+                                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
+                                                <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Save"
+                                                    class="btn btn-primary float-right my-0">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                Current Watermark : <img id="current_watermark_img" src="" width="100px"
+                                    alt="Not Set Yet">
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.edit') == 1)
                     <div class="col-md-6">
                         <button data-toggle="tooltip" data-placement="bottom"
@@ -268,6 +326,7 @@
              */
 
             let othersettings = null; //declare default setting variable
+            let watermarkImg = null;
 
             // intialize summernote editor for terms and conditions
             $('#t_and_c').summernote({
@@ -279,7 +338,7 @@
                     ['insert', ['table']],
                     ['view', ['fullscreen', 'codeview']]
                 ],
-                placeholder: 'Add Notes',
+                placeholder: 'Add New T&C',
                 tabsize: 2,
                 height: 100,
             });
@@ -308,7 +367,8 @@
                                 `${othersettings.gst_tax_payable_by || 'Not Set Yet'}`);
                             $('#weight_span').html(`${othersettings.weight || 'Not Set Yet'}`);
                             $('#authorized_signatory_span').html(
-                                `${othersettings.authorized_signatory ?  `${othersettings.authorized_signatory}`.replace('_',' ')  : 'Not Set Yet'}`);
+                                `${othersettings.authorized_signatory ?  `${othersettings.authorized_signatory}`.replace('_',' ')  : 'Not Set Yet'}`
+                            );
                         } else {
                             othersettings = null;
                             Toast.fire({
@@ -419,6 +479,50 @@
 
             //call function for loaddata (terms and condition)
             loaddata();
+
+
+            // get watermark function
+            function getwatermarksettings(){
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('watermark.index') }}",
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    },
+                    success: function(response) {
+                        if (response.status == 200 && response.watermarksettings != '') {
+                            watermarkImg = response.watermarksettings;
+                            imagePath = "{{asset('uploads/')}}" + '/'+ watermarkImg;
+                            $('#current_watermark_img').attr('src',`${imagePath}`);
+                        } else { 
+                            watermarkImg = null; 
+                        }
+                        loaderhide();
+                        // You can update your HTML with the data here if needed
+                    },
+                    error: function(xhr, status, error) { // if calling api request error
+                        watermarkImg = null; 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        var errorMessage = "";
+                        try {
+                            var responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || "An error occurred";
+                        } catch (e) {
+                            errorMessage = "An error occurred";
+                        }
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
+                    }
+                }); 
+            }
+
+            getwatermarksettings();
+
 
             //  t & cstatus update(active to inactive)            
             $(document).on("click", ".status-active", function() {
@@ -639,7 +743,8 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value) {
-                               $('#error-' + key).text(value[0].replace('t and c','T&C'));
+                                $('#error-' + key).text(value[0].replace('t and c',
+                                    'T&C'));
                             });
                         } else {
                             var errorMessage = "";
@@ -663,6 +768,84 @@
              */
 
 
+            // watermark settings  start
+        
+            // show edit customer id form
+            $('#editWatermarkSettingsBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#watermarkform').removeClass('d-none');
+                $('#editWatermarkSettingsBtn').addClass('d-none');
+            })
+
+            // hide edit customer id form
+            $('#cancelWatermarkSettingsBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#watermarkform')[0].reset();
+                $('#watermarkform').addClass('d-none');
+                $('#editWatermarkSettingsBtn').removeClass('d-none');
+            })
+
+            $('#watermarkform').submit(function(event) {
+                event.preventDefault();
+                loadershow();
+                url = "{{ route('watermark.update') }}";
+                $('.error-msg').text('');
+                var formdata = new FormData($(this)[0]);
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.status == 200) {
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+                            imagePath = "{{asset('uploads/')}}" + '/'+ response.watermarksettings;
+                            $('#current_watermark_img').attr('src',`${imagePath}`);
+                            $('#watermarkform')[0].reset();
+                            $('#watermarkform').addClass('d-none');
+                            $('#editWatermarkSettingsBtn').removeClass('d-none');
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr.responseText); // Log the full error response for debugging
+                        if (xhr.status == 422) {
+                            var errors = xhr.responseJSON.errors;
+                            $.each(errors, function(key, value) {
+                                $('#error-' + key).text(value[0]);
+                            });
+                        } else {
+                            var errorMessage = "";
+                            try {
+                                var responseJSON = JSON.parse(xhr.responseText);
+                                errorMessage = responseJSON.message || "An error occurred";
+                            } catch (e) {
+                                errorMessage = "An error occurred";
+                            }
+                            Toast.fire({
+                                icon: "error",
+                                title: errorMessage
+                            });
+                        }
+                    }
+                });
+            });
+
+            // end watermark settings
+
+
             /*
              * customer id number code start
              */
@@ -684,6 +867,7 @@
             })
 
             // submit edit customer id form
+
             $('#cidform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
@@ -776,7 +960,7 @@
             $('#othersettingsform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
-                 $('.error-msg').text('');
+                $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
