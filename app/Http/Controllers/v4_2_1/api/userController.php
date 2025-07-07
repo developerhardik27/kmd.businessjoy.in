@@ -1104,13 +1104,21 @@ class userController extends commonController
         $report_alldata = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->assignedto : "0";
         $report_log = (($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->logreport : "0";
 
+        $reportapi_show = (($this->rp['reportmodule']['reportapi']['show'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->showreportapimenu : "0";
+        $reportapi_add = (($this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->addreportapi : "0";
+        $reportapi_view = (($this->rp['reportmodule']['reportapi']['view'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->viewreportapi : "0";
+        $reportapi_edit = (($this->rp['reportmodule']['reportapi']['edit'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->editreportapi : "0";
+        $reportapi_delete = (($this->rp['reportmodule']['reportapi']['delete'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->deletereportapi : "0";
+        $reportapi_alldata = (($this->rp['reportmodule']['reportapi']['alldata'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->alldatareportapi : "0";
+
         $rp = [
             'accountmodule' => [
 
             ],
             "reportmodule" => [
                 "reportdashboard" => ["show" => $reportdashboard_show, "add" => $reportdashboard_add, "view" => $reportdashboard_view, "edit" => $reportdashboard_edit, "delete" => $reportdashboard_delete, "alldata" => $reportdashboard_alldata],
-                "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $report_alldata, "log" => $report_log]
+                "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $report_alldata, "log" => $report_log],
+                "reportapi" => ["show" => $reportapi_show, "add" => $reportapi_add, "view" => $reportapi_view, "edit" => $reportapi_edit, "delete" => $reportapi_delete, "alldata" => $reportapi_alldata]
             ]
 
         ];
@@ -1151,12 +1159,20 @@ class userController extends commonController
         $report_alldata = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->assignedto : "0";
         $report_log = (($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->logreport : "0";
 
+        $reportapi_show = (($this->rp['reportmodule']['reportapi']['show'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->showreportapimenu : "0";
+        $reportapi_add = (($this->rp['reportmodule']['reportapi']['add'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->addreportapi : "0";
+        $reportapi_view = (($this->rp['reportmodule']['reportapi']['view'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->viewreportapi : "0";
+        $reportapi_edit = (($this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->editreportapi : "0";
+        $reportapi_delete = (($this->rp['reportmodule']['reportapi']['delete'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->deletereportapi : "0";
+        $reportapi_alldata = (($this->rp['reportmodule']['reportapi']['alldata'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->alldatareportapi : "0";
+
         $rp = [
             "accountmodule" => [
             ],
             "reportmodule" => [
                 "reportdashboard" => ["show" => $reportdashboard_show, "add" => $reportdashboard_add, "view" => $reportdashboard_view, "edit" => $reportdashboard_edit, "delete" => $reportdashboard_delete, "alldata" => $reportdashboard_alldata],
-                "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $report_alldata, "log" => $report_log]
+                "report" => ["show" => $report_show, "add" => $report_add, "view" => $report_view, "edit" => $report_edit, "delete" => $report_delete, "alldata" => $report_alldata, "log" => $report_log],
+                "reportapi" => ["show" => $reportapi_show, "add" => $reportapi_add, "view" => $reportapi_view, "edit" => $reportapi_edit, "delete" => $reportapi_delete, "alldata" => $reportapi_alldata]
             ],
         ];
 
