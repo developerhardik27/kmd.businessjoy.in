@@ -627,6 +627,7 @@ class companyController extends commonController
 
                 $imageName = $company[0]->img;
                 $sign_imageName = $company[0]->pr_sign_img;
+                $watermark_imageName = $company[0]->watermark_img;
 
                 if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
 
@@ -659,7 +660,8 @@ class companyController extends commonController
                     'gst_no' => $request->gst_number,
                     'pan_number' => $request->pan_number,
                     'img' => $imageName,
-                    'pr_sign_img' => $sign_imageName
+                    'pr_sign_img' => $sign_imageName,
+                    'watermark_img' => $watermark_imageName
                 ];
 
                 $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details (create new company details record  everytime on company update)
