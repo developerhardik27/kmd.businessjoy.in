@@ -612,7 +612,7 @@ class companyController extends commonController
                 }
 
                 $company = company::join('company_details', 'company.company_details_id', '=', 'company_details.id')
-                    ->select('company_details.img', 'company_details.pr_sign_img')->where('company.id', $id)
+                    ->select('company_details.img', 'company_details.pr_sign_img','company_details.watermark_img')->where('company.id', $id)
                     ->get();
 
                 if (empty($company)) {
@@ -628,6 +628,7 @@ class companyController extends commonController
                 $imageName = $company[0]->img;
                 $sign_imageName = $company[0]->pr_sign_img;
                 $watermark_imageName = $company[0]->watermark_img;
+
 
                 if (($request->hasFile('img') && $request->file('img') != null) || ($request->hasFile('sign_img') && $request->file('sign_img') != null)) {
 
