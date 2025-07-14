@@ -535,7 +535,7 @@ class userController extends commonController
                     'state_id' => $request->state,
                     'city_id' => $request->city,
                     'pincode' => $request->pincode,
-                    'role_permission' => $request->user_role_permission,
+                    'role_permissions' => $request->user_role_permission,
                     'pass_token' => $passwordtoken,
                     'company_id' => $this->companyId,
                     'created_by' => $this->userId
