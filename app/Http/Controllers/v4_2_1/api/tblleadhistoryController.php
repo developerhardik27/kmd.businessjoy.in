@@ -164,7 +164,8 @@ class tblleadhistoryController extends commonController
         if ($this->rp['leadmodule']['lead']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $lead = $this->tblleadhistoryModel::select('id', 'call_date', 'history_notes', 'call_status')
+        
+        $lead = $this->tblleadhistoryModel::select('id', 'call_date', 'history_notes', 'call_status','created_by')
             ->where('leadid', $id)
             ->orderBy('id', 'DESC')
             ->get();
