@@ -96,7 +96,9 @@ class otherapiController extends Controller
         if ($lead) {
             return response()->json([
                 'status' => 200,
-                'message' => 'lead succesfully created'
+                'message' => 'lead succesfully created',
+                'email' => $request->email,
+                'contact_no' => $request->contact_no
             ], 200);
         } else {
             return response()->json([
