@@ -2113,17 +2113,14 @@
 
             //logisticdashboard start
 
-            function fetchDataAndDrawConsigmentChart(filters) {
+            function fetchDataAndDrawConsigmentChart() {
                 $.ajax({
                     url: "{{ route('consignorcopy.chartdata') }}", // your route to fetch chart data
                     method: "GET",
                     data: {
                         user_id: "{{ session()->get('user_id') }}",
                         token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }} ",
-                        date_filter: filters.date_filter || '1_month',
-                        from_date: filters.from_date,
-                        to_date: filters.to_date
+                        company_id: " {{ session()->get('company_id') }} "
                     },
                     success: function(data) {
                         const categories = data.map(item => item
