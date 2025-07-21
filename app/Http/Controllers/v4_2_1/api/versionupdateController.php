@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\v4_2_1\api;
 
+use App\Models\tech_support;
+use App\Models\User;
 use Exception;
 use App\Models\company;
 use Illuminate\Http\Request;
+use App\Models\company_detail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +22,7 @@ class versionupdateController extends commonController
     {
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-       
+
     }
 
 
@@ -42,9 +46,7 @@ class versionupdateController extends commonController
                 return $this->errorresponse(422, $validator->messages());
             } else {
 
-               
                 $company = company::find($request->company);
-
 
                 if ($company) {
                     config([
@@ -129,7 +131,7 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/newmasterdbtable',
                                     ];
-                                }else{
+                                } else {
                                     $paths = [
                                         'database/migrations/v4_2_0',
                                     ];
@@ -140,20 +142,31 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v4_2_1/master',
                                     ];
-                                }else{
-                                     $paths = [
+                                } else {
+                                    $paths = [
                                         'database/migrations/v4_2_1/individual',
+                                    ];
+                                }
+                                break;
+                            case 'v4_2_2':
+                                if ($request->company == 1) {
+                                    $paths = [
+                                        'database/migrations/v4_2_2/master',
+                                    ];
+                                } else {
+                                    $paths = [
+                                        'database/migrations/v4_2_2/individual',
                                     ];
                                 }
                                 break;
                             // Add more cases as needed
                         }
 
-                        
+
                         if (!empty($paths)) {
                             // Run migrations only from the specified path and specific db
                             foreach ($paths as $path) {
-                                try{
+                                try {
                                     Artisan::call('migrate', [
                                         '--path' => $path,
                                         '--database' => $company->dbname,
@@ -164,7 +177,7 @@ class versionupdateController extends commonController
                             }
                         }
 
-                         
+
 
                         config(['database.connections.dynamic_connection.database' => $company->dbname]);
 
@@ -466,7 +479,7 @@ class versionupdateController extends commonController
                                         if (!isset($jsonrp['logisticmodule']['logisticapi'])) {
                                             $jsonrp['logisticmodule']['logisticapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
-                                        
+
 
                                         // Encode updated permissions back to JSON
                                         $updatedRpJson = json_encode($jsonrp);
@@ -484,7 +497,7 @@ class versionupdateController extends commonController
                                 if ($rp) {
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
-                       
+
                                         if (!isset($jsonrp['logisticmodule']['watermark'])) {
                                             $jsonrp['logisticmodule']['watermark'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
@@ -499,6 +512,290 @@ class versionupdateController extends commonController
                                         DB::connection('dynamic_connection')->table('user_permissions')
                                             ->where('user_id', $userrp->user_id)
                                             ->update(['rp' => $updatedRpJson]);
+                                    }
+                                }
+
+                                break;
+
+                            case 'v4_2_2':
+
+                                if ($company->id != 1) {
+                                    $blogsettings = DB::connection('dynamic_connection')->table('blog_settings')
+                                        ->count();
+
+                                    if ($blogsettings == 0) {
+                                        DB::connection('dynamic_connection')->table('blog_settings')
+                                            ->insert([
+                                                'details_endpoint' => '',
+                                                'img_allowed_filetype' => 'jpg,jpeg,png',
+                                                'img_max_size' => '10',
+                                                'img_width' => '600',
+                                                'img_height' => '400',
+                                                'thumbnail_img_width' => '400',
+                                                'thumbnail_img_height' => '266',
+                                                'validate_dimension' => '0',
+                                                'created_at' => now()
+                                            ]);
+                                    }
+                                }
+
+                                $directoryPath = public_path('uploads/') . $company->id;
+
+                                if (!file_exists($directoryPath)) {
+                                    mkdir($directoryPath, 0755, true);
+                                    mkdir($directoryPath . '/blog', 0755, true);
+                                    mkdir($directoryPath . '/product', 0755, true);
+                                    mkdir($directoryPath . '/lead/attachments/', 0755, true);
+                                    mkdir($directoryPath . '/lead/callhistory/', 0755, true);
+                                }
+
+                                // products img move
+                                if ($company->id != 1) {
+                                    $products = DB::connection('dynamic_connection')->table('products')->where('is_deleted', 0)->get();
+
+                                    if (!$products->isEmpty()) {
+
+                                        foreach ($products as $product) {
+                                            $productImgs = $product->product_media;
+
+                                            if (!empty($productImgs)) {
+                                                $newImgName = [];
+                                                $productImgs = explode(',', $productImgs);
+
+                                                foreach ($productImgs as $productImg) {
+
+                                                    $checkProductImg = public_path('uploads/products/' . $productImg);
+
+                                                    if (File::exists($checkProductImg)) {
+                                                        // Generate a new unique name for the productimg
+                                                        $extension = File::extension($productImg);
+                                                        $productImgNewName = uniqid() . '-' . time() . '.' . $extension;
+
+                                                        $dirPath = public_path('uploads/' . $company->id . '/product/' . $product->id . '/');
+
+                                                        if (!File::exists($dirPath)) {
+                                                            File::makeDirectory($dirPath, 0755, true);
+                                                        }
+
+                                                        $destinationPath = $dirPath . $productImgNewName;
+
+                                                        // Move file
+                                                        File::move($checkProductImg, $destinationPath);
+
+                                                        // Save the relative path to the DB
+                                                        $newImgName[] = $company->id . '/product/' . $product->id . '/' . $productImgNewName;
+
+                                                    }
+
+                                                }
+
+                                                $newImgString = implode(',', $newImgName);
+
+                                                DB::connection('dynamic_connection')->table('products')->where('id', $product->id)->update([
+                                                    'product_media' => $newImgString
+                                                ]);
+
+                                            }
+
+                                        }
+
+                                    }
+                                }
+
+                                // blog img move
+                                if ($company->id != 1) {
+                                    $blogs = DB::connection('dynamic_connection')->table('blogs')->where('is_deleted', 0)->get();
+
+                                    if (!$blogs->isEmpty()) {
+                                        foreach ($blogs as $blog) {
+                                            $blogOldImg = $blog->img;
+
+                                            if (!empty($blogOldImg)) {
+                                                // Prepare paths
+                                                $blogImagePath = public_path('blog/' . ltrim($blogOldImg, '/'));
+                                                $thumbnailPath = public_path('blog/thumbnail/' . ltrim($blogOldImg, '/')); // ✅ Fixed missing slash
+
+                                                // Generate new names
+                                                $extension = pathinfo($blogOldImg, PATHINFO_EXTENSION);
+                                                $newFileName = uniqid() . '-' . time() . '.' . $extension;
+                                                $newThumbFileName = uniqid() . '-' . time() . '.' . $extension;
+
+                                                $dateFolder = date('dmY');
+                                                $baseDir = public_path("uploads/{$company->id}/blog/{$dateFolder}/");
+
+                                                // Move main blog image
+                                                if (File::exists($blogImagePath)) {
+                                                    if (!File::exists($baseDir)) {
+                                                        File::makeDirectory($baseDir, 0755, true);
+                                                    }
+
+                                                    $destinationImagePath = $baseDir . $newFileName;
+                                                    File::move($blogImagePath, $destinationImagePath);
+
+                                                    $blog->img = "{$company->id}/blog/{$dateFolder}/{$newFileName}";
+                                                }
+
+                                                // Move thumbnail image
+                                                $thumbDir = $baseDir . 'thumbnail/';
+                                                if (File::exists($thumbnailPath)) {
+                                                    if (!File::exists($thumbDir)) {
+                                                        File::makeDirectory($thumbDir, 0755, true);
+                                                    }
+
+                                                    $destinationThumbPath = $thumbDir . $newThumbFileName;
+                                                    File::move($thumbnailPath, $destinationThumbPath);
+
+                                                    $blog->thumbnail_img = "{$company->id}/blog/{$dateFolder}/thumbnail/{$newThumbFileName}";
+                                                }
+
+                                                // Save updated blog
+                                                DB::connection('dynamic_connection')->table('blogs')->where('id', $blog->id)->update([
+                                                    'img' => $blog->img,
+                                                    'thumbnail_img' => $blog->thumbnail_img,
+                                                ]);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                $company_details = company_detail::find($company->company_details_id);
+
+                                if ($company_details) {
+                                    $fields = ['img', 'pr_sign_img', 'watermark_img'];
+
+                                    foreach ($fields as $field) {
+                                        $value = $company_details->$field;
+                                        if (!empty($value)) {
+                                            $image = public_path('uploads/' . $company_details->$field);
+
+                                            if (File::exists($image)) {
+                                                // Generate a new unique name for the image
+                                                $extension = File::extension($company_details->$field);
+                                                $newName = uniqid() . '-' . time() . '.' . $extension;
+
+                                                $dirPath = public_path('uploads/' . $company->id . '/');
+
+                                                $destinationPath = $dirPath . $newName;
+
+                                                // Move file
+                                                File::move($image, $destinationPath);
+
+                                                // Save the relative path to the DB
+                                                $company_details->$field = $company->id . '/' . $newName;
+                                            }
+                                        }
+                                    }
+
+                                    // Save updated record
+                                    $company_details->save();
+                                }
+
+                                // update user permissions and change img/attachments paths
+                                $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                                if ($rp) {
+
+                                    foreach ($rp as $userrp) {
+
+                                        if (!file_exists($directoryPath . '/user_' . $userrp->user_id)) { // create user folder for photos
+                                            mkdir($directoryPath . '/user_' . $userrp->user_id, 0755, true);
+                                            mkdir($directoryPath . '/techsupport/user_' . $userrp->user_id, 0755, true);
+                                        }
+
+                                        $jsonrp = json_decode($userrp->rp, true);
+
+                                        if (!isset($jsonrp['developermodule']['developerdashboard'])) {
+                                            $jsonrp['developermodule']['developerdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        if (!isset($jsonrp['adminmodule']['loginhistory'])) {
+                                            $jsonrp['adminmodule']['loginhistory'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        if (!isset($jsonrp['blogmodule']['blogsettings'])) {
+                                            $jsonrp['blogmodule']['blogsettings'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        // Encode updated permissions back to JSON
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+
+                                        // move img/files to new path and update path in db
+                                        $user = User::find($userrp->user_id);
+
+                                        if ($user) {
+                                            $oldimg = $user->img;
+                                            if (!empty($oldimg)) {
+                                                $userimage = public_path('uploads/' . $user->img);
+
+                                                if (File::exists($userimage)) {
+                                                    // Generate a new unique name for the userimage
+                                                    $extension = File::extension($user->img);
+                                                    $userImgNewName = uniqid() . '-' . time() . '.' . $extension;
+
+                                                    $dirPath = public_path('uploads/' . $company->id . '/user_' . $user->id . '/');
+
+                                                    $destinationPath = $dirPath . $userImgNewName;
+
+                                                    // Move file
+                                                    File::move($userimage, $destinationPath);
+
+                                                    // Save the relative path to the DB
+                                                    $user->img = $company->id . '/user_' . $user->id . '/' . $userImgNewName;
+                                                    $user->save();
+                                                }
+                                            }
+                                        }
+
+                                        //techsupport attachment move 
+                                        $techSupports = tech_support::where('is_deleted', 0)->get();
+
+                                        if (!$techSupports->isEmpty()) {
+                                            foreach ($techSupports as $techSupport) {
+
+                                                if (!in_array($techSupport->attachment, ['[]', ''])) {
+                                                    $newImgName = [];
+                                                    $attachments = json_decode($techSupport->attachment, true);
+
+                                                    foreach ($attachments as $attachment) {
+                                                        $checkAttachment = public_path('uploads/files/' . $attachment);
+
+                                                        if (File::exists($checkAttachment)) {
+                                                            // Generate a new unique name for the userimage
+                                                            $extension = File::extension($attachment);
+                                                            $newAttachmentName = uniqid() . '-' . time() . '.' . $extension;
+
+                                                            $dirPath = public_path('uploads/' . $company->id . '/techsupport/' . $techSupport->id . '/');
+
+                                                            if (!File::exists($dirPath)) {
+                                                                File::makeDirectory($dirPath, 0755, true);
+                                                            }
+
+                                                            $destinationPath = $dirPath . $newAttachmentName;
+
+                                                            // Move file
+                                                            File::move($checkAttachment, $destinationPath);
+
+                                                            // Save the relative path to the DB
+                                                            $newImgName[] = $company->id . '/techsupport/' . $techSupport->id . '/' . $newAttachmentName;
+
+                                                        }
+
+                                                    }
+
+                                                    if (!empty($newImgName)) {
+                                                        $newImgString = json_encode($newImgName);
+
+                                                        tech_support::where('id', $techSupport->id)->update([
+                                                            'attachment' => $newImgString
+                                                        ]);
+                                                    }
+                                                }
+
+                                            }
+                                        }
                                     }
                                 }
 

@@ -212,7 +212,6 @@ return [
 
     'main_db' => env('MAIN_DB', 'business_joy_Oceanmnc_pev'),
 
-
     'recent_activity_retention_days' => [
         'lead_activity' => env('noVariable', 90),
         'login_activity' => env('noVariable', 90),
@@ -236,4 +235,10 @@ return [
         ],
         // Add more as needed
     ],
+
+    'recent_activity_pages' => [
+        ['module' => 'Developer','page' => 'For All Page(Slow Pages)', 'limit' => '5 sec'],
+        ['module' => 'Lead','page' => 'Recent Activity', 'limit' => '90 Days'],
+        ['module' => 'Admin','page' => 'Login', 'limit' => '90 Days'],
+    ]
 ];
