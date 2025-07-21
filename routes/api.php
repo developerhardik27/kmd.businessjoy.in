@@ -22,10 +22,7 @@ use App\Http\Controllers\api\otherapiController;
 |
 */
 
-// middleware route group 
-
-Route::middleware(['checkToken'])->group(function () {
-
+if(!function_exists('getversion')){
     function getversion($controller)
     {
         $request = request();
@@ -36,23 +33,31 @@ Route::middleware(['checkToken'])->group(function () {
             if ($request->has('user_id')) {
                 // Retrieve the user if the user_id exists in the request
                 $user = User::find($request->user_id);
-
+    
                 // If the user exists, retrieve the company's version
                 if ($user) {
                     $version = Company::find($user->company_id);
                 }
             }
             // Determine the version based on whether the user and version exist
-            $versionexplode = $version ? $version->app_version : "v4_2_0";
+            $versionexplode = $version ? $version->app_version : "v4_2_1";
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
-            $versionexplode = "v4_2_0"; // Set a default version
+            $versionexplode = "v4_2_1"; // Set a default version
         }
-
-
+    
+    
         return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
+}
+    
+
+// middleware route group 
+
+Route::middleware(['checkToken'])->group(function () {
+
+
     // Default version is 1 if company not found
 
     // customer route
@@ -308,6 +313,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/lead/buldelete', 'bulkdestroy')->name('lead.bulkdelete');
         Route::put('/lead/changestatus', 'changestatus')->name('lead.changestatus');
         Route::put('/lead/changeleadstage', 'changeleadstage')->name('lead.changeleadstage');
+        Route::post('/lead/imporfromexcel', 'importFromExcel')->name('lead.importfromexcel');
     });
 
     // lead call history route
@@ -438,6 +444,9 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/blog/edit/{id}', 'edit')->name('blog.edit');
         Route::post('/blog/update/{id}', 'update')->name('blog.update');
         Route::put('/blog/delete/{id}', 'destroy')->name('blog.delete');
+
+        Route::get('/blog/settings', 'getblogsettings')->name('blog.settings');
+        Route::put('/blog/settings/update', 'updateBlogSettings')->name('blog.updatesettings');
     });
 
     // api_authorization  route
@@ -547,6 +556,7 @@ Route::middleware(['checkToken'])->group(function () {
     // consignor copy route
     $consignorcopyController = getversion('consignorcopyController');
     Route::controller($consignorcopyController)->group(function () {
+        Route::get('/consignorcopy/chartdata', 'getConsignmentChartData')->name('consignorcopy.chartdata');
         Route::get('/consignorcopy', 'index')->name('consignorcopy.index');
         Route::post('/consignorcopy/insert', 'store')->name('consignorcopy.store');
         Route::get('/consignorcopy/search/{id}', 'show')->name('consignorcopy.search');
@@ -568,9 +578,9 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/consignorcopy/termsandconditions/update/{id}', 'tcupdate')->name('consignorcopytermsandconditions.update');
         Route::put('/consignorcopy/termsandconditions/statusupdate/{id}', 'tcstatusupdate')->name('consignorcopytermsandconditions.statusupdate');
         Route::put('/consignorcopy/termsandconditions/delete/{id}', 'tcdestroy')->name('consignorcopytermsandconditions.delete');
-       
+
         Route::post('/consignorcopy/consignmentnotenumber', 'consignmentnotenumberstore')->name('consignmentnotenumber.store');
-       
+
         Route::get('/watermark', 'getwatermark')->name('watermark.index');
         Route::post('/watermark/update', 'updatewatermark')->name('watermark.update');
 
@@ -580,6 +590,8 @@ Route::middleware(['checkToken'])->group(function () {
     // system monitor settings route (Developer tools)
     $systemmonitorController = getversion('systemmonitorController');
     Route::controller($systemmonitorController)->group(function () {
+        Route::get('/developer/slowpages/daywisechartdata', 'dailySlowPagesReport')->name('slowpages.dailyreport');
+        Route::get('/developer/slowpages/companywisechartdata', 'companyWiseChartData')->name('slowpages.companywisechartdata');
         Route::get('/developer/slowpages', 'slowpages')->name('getslowpages');
         Route::put('/developer/slowpages/delete/{id}', 'slowpagedestroy')->name('slowpage.delete');
         Route::get('/developer/errorlogs', 'geterrorlogfiles')->name('geterrorlogs');

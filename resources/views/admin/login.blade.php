@@ -40,7 +40,7 @@
                 @endif
                 <a href="{{ route('admin.forgot') }}">Forgot Your Password?</a>
                 <button>Sign In</button> 
-            </form>
+            </form> 
         </div>
     </div>
 </body>

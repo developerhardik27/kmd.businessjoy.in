@@ -7,6 +7,24 @@ use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
 
 
+// Define a function to generate the controller class name based on the session value
+if (!function_exists('getadminversion')) {
+    function getadminversion($controller)
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+        if (isset($_SESSION['folder_name'])) {
+            $version = $_SESSION['folder_name'];
+            return 'App\\Http\\Controllers\\' . $version . '\\admin\\' . $controller;
+        } else {
+            return 'App\\Http\\Controllers\\v4_2_1\\admin\\' . $controller;
+
+        }
+
+    }
+}
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -59,7 +77,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
         Route::group(['middleware' => 'admin.guest'], function () {
             Route::controller(AdminLoginController::class)->group(function () {
                 Route::get('/login', 'index')->name('admin.login')->withoutMiddleware([CheckSession::class]);
-                Route::post('/authenticate', 'authenticate')->name('admin.authenticate')->withoutMiddleware([CheckSession::class]);
+                Route::match(['get', 'post'], '/authenticate', 'authenticate')->name('admin.authenticate')->withoutMiddleware([CheckSession::class]);
                 Route::get('/forgotpassword', 'forgot')->name('admin.forgot')->withoutMiddleware([CheckSession::class]);
                 Route::post('/forgotpassword', 'forgot_password')->name('admin.forgotpassword')->withoutMiddleware([CheckSession::class]);
                 Route::get('/reset/{token}', 'reset_password')->name('admin.resetpassword')->withoutMiddleware([CheckSession::class]);
@@ -70,21 +88,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
         });
 
         Route::group(['middleware' => 'admin.auth'], function () {
-
-            // Define a function to generate the controller class name based on the session value
-            function getadminversion($controller)
-            {
-                if (session_status() !== PHP_SESSION_ACTIVE)
-                    session_start();
-                if (isset($_SESSION['folder_name'])) {
-                    $version = $_SESSION['folder_name'];
-                    return 'App\\Http\\Controllers\\' . $version . '\\admin\\' . $controller;
-                } else {
-                    return 'App\\Http\\Controllers\\v1_0_0\\admin\\' . $controller;
-
-                }
-
-            }
 
             Route::get('/superadminloginfromanyuser/{userId}', [AdminLoginController::class, 'superAdminLoginFromAnyUser'])->name('admin.superadminloginfromanyuser');
 
@@ -109,16 +112,16 @@ Route::group(['middleware' => ['CheckSession']], function () {
             // user route 
             $UserController = getadminversion('UserController');
             Route::controller($UserController)->group(function () {
-                Route::get('/MyLoginHistory/{id}', 'loginhistory')->name('admin.myloginhistory');
+                Route::get('/MyLoginHistory/{id}', 'loginhistory')->name('admin.myloginhistory')->middleware('checkPermission:adminmodule,loginhistory,show');
                 Route::get('/User', 'index')->name('admin.user')->middleware('checkPermission:adminmodule,user,show');
                 Route::get('/AddNewUser', 'create')->name('admin.adduser')->middleware('checkPermission:adminmodule,user,add');
                 Route::get('/EditUser/{id}', 'edit')->name('admin.edituser')->middleware('checkPermission:adminmodule,user,edit');
                 Route::get('/EditUserdetail/{id}', 'edituser')->name('admin.edituserdetail')->middleware('checkPermission:adminmodule,user,edit');
                 Route::get('/userprofile/{id}', 'profile')->name('admin.userprofile');
 
-                Route::get('/UserRolePermissions', 'userrolepermission')->name('admin.userrolepermission')->middleware('checkPermission:adminmodule,userpermission,show');
-                Route::get('/AddNewUserRolePermissions', 'createuserrolepermission')->name('admin.adduserrolepermission')->middleware('checkPermission:adminmodule,userpermission,add');
-                Route::get('/EditUserRolePermissions/{id}', 'edituserrolepermission')->name('admin.edituserrolepermission')->middleware('checkPermission:adminmodule,userpermission,edit');
+                Route::get('/UserPermissionGroup', 'userrolepermission')->name('admin.userrolepermission')->middleware('checkPermission:adminmodule,userpermission,show');
+                Route::get('/AddNewUserPermissionGroup', 'createuserrolepermission')->name('admin.adduserrolepermission')->middleware('checkPermission:adminmodule,userpermission,add');
+                Route::get('/EditUserPermissionGroup/{id}', 'edituserrolepermission')->name('admin.edituserrolepermission')->middleware('checkPermission:adminmodule,userpermission,edit');
             });
 
             $VersionUpdateController = getadminversion('VersionUpdateController');
@@ -237,6 +240,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewLead', 'create')->name('admin.addlead')->middleware('checkPermission:leadmodule,lead,add');
                 Route::get('/EditLead/{id}', 'edit')->name('admin.editlead')->middleware('checkPermission:leadmodule,lead,edit');
                 Route::get('/Lead/Api', 'leadapi')->name('admin.leadapi')->middleware('checkPermission:leadmodule,leadapi,show');
+                Route::get('/Lead/ImportFromExcel', 'importfromexcel')->name('admin.importfromexcel')->middleware('checkPermission:leadmodule,leadapi,add');
+                Route::get('/lead/ImportFromExcel/template',  'downloadLeadTemplate')->name('lead.importtemplatedownload');
             });
 
             // lead module routes end----- 
@@ -285,6 +290,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             $BlogController = getadminversion('BlogController');
             Route::controller($BlogController)->group(function () {
                 Route::get('/Blog', 'index')->name('admin.blog')->middleware('checkPermission:blogmodule,blog,show');
+                Route::get('/Blog/Settings', 'blogsettings')->name('admin.blogsettings')->middleware('checkPermission:blogmodule,blogsettings,show');
                 Route::get('/AddNewBlog', 'create')->name('admin.addblog')->middleware('checkPermission:blogmodule,blog,add');
                 Route::get('/BlogTag', 'blogtag')->name('admin.blogtag')->middleware('checkPermission:blogmodule,blog,add');
                 Route::get('/BlogCategory', 'blogcategory')->name('admin.blogcategory')->middleware('checkPermission:blogmodule,blog,add');
@@ -325,7 +331,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             /**
              * logistic module route end
              */
-            
+
 
             /**
              * developer module route start

@@ -9,6 +9,6 @@ class tech_support extends Model
 {
     use HasFactory;
     protected $table = 'tech_supports';
-    public $guarded = [] ;
+    public $guarded = [];
 
 }

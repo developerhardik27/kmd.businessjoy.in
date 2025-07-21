@@ -130,7 +130,7 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light py-3">
                 <div class="container-fluid px-4 px-lg-5">
                     <a href="#" class="navbar-brand">
-                        <img src="{{ asset('landing/img/logo.png') }}" alt="Logo" height="40">
+                        <img src="{{ asset('landing/img/logo.png') }}" alt="Logo" height="50px">
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarCollapse">
@@ -396,6 +396,20 @@
                             </h5>
                             <p class="m-0">Engage customers and improve SEO with a built-in blog platform. Share
                                 news, updates, and valuable content to keep your audience engaged.</p>
+                            <br>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="feature-item bg-light rounded p-4">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-secondary-gradient rounded-circle mb-4"
+                                style="width: 60px; height: 60px;">
+                                <i class="fa fa-puzzle-piece text-white fs-4"></i>
+                            </div>
+                            <h5 class="mb-3">Custom Module
+                            </h5>
+                            <p class="m-0">We build custom modules to match your needs, with automation, smart
+                                features, and deep customization to boost productivity.</p>
                             <br>
                             <br>
                         </div>
@@ -855,8 +869,7 @@
                                         </div>
                                     </div>
                                     <div class="col-12 text-center">
-                                        <button id="contactSubmitBtn"
-                                            class="btn btn-primary-gradient rounded-pill fs-5 py-3 px-5"
+                                        <button id="contactSubmitBtn" class="btn btn-primary-gradient rounded-pill fs-5 py-3 px-5"
                                             type="submit">Schedule a Free Demo</button>
                                     </div>
                                 </div>
@@ -1001,8 +1014,11 @@
                                     placeholder="Your Email" name="email" style="height: 48px;">
                                 <span class="error-msg" id="error-email" style="color: red"></span>
                                 <button type="submit"
-                                    class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i
-                                        class="fa fa-paper-plane text-primary-gradient fs-4"></i></button>
+                                    class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2">
+                                    <span class="submit-icon">
+                                        <i class="fa fa-paper-plane text-primary-gradient fs-4"></i>
+                                    </span>    
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -1102,6 +1118,13 @@
                 var action = $(this).attr('action'); // Get the form action URL
 
                 var submitBtn = this_form.find("input[type='submit'], button[type='submit']")
+                var submitIcon = submitBtn.find(".submit-icon");
+
+                if(submitIcon){
+                    // Replace icon with spinner
+                    submitIcon.html('<i class="fa fa-spinner fa-spin text-primary-gradient fs-4"></i>');
+                }
+
                 // disable submit buttons during AJAX request
                 submitBtn.prop('disabled', true); // disable submit btn
 
@@ -1131,10 +1154,18 @@
                                     } else {
                                         toastr.error('Something went wrong!');
                                     }
+                                    if(submitIcon){
+                                        // Reset icon and enable button
+                                        submitIcon.html('<i class="fa fa-paper-plane text-primary-gradient fs-4"></i>');
+                                    }
                                     submitBtn.prop('disabled', false);
                                 },
                                 error: function(xhr, status, error) {
                                     console.log(xhr.responseText);
+                                    if(submitIcon){
+                                        // Reset icon and enable button
+                                        submitIcon.html('<i class="fa fa-paper-plane text-primary-gradient fs-4"></i>');
+                                    }
                                     if (xhr.status === 422) {
                                         var errors = xhr.responseJSON.errors;
                                         $.each(errors, function(key, value) {
@@ -1164,7 +1195,6 @@
                         });
                 });
             });
-
 
         });
     </script>

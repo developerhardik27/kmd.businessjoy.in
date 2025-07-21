@@ -35,6 +35,8 @@ class AdminLoginController extends Controller
         if (isset($json[$module]) && !empty($module)) {
             foreach ($json[$module] as $key => $value) {
                 foreach ($value as $key2 => $value2) {
+                    if ($value == 'loginhistory')
+                        continue;
                     if ($key2 === "show" && $value2 == 1) {
                         return true;
                     }
@@ -50,7 +52,7 @@ class AdminLoginController extends Controller
             foreach ($json[$module] as $key => $value) {
                 if (is_string($key) && stripos($key, 'dashboard') !== false) {
                     foreach ($value as $key2 => $value2) {
-                       if ($key2 === "show" && $value2 == 1) {
+                        if ($key2 === "show" && $value2 == 1) {
                             return true;
                         }
                     }
@@ -124,6 +126,7 @@ class AdminLoginController extends Controller
             session(['user_permissions' => $rp]);
 
             $menus = [];
+            $allmenus = [];
 
             /*
              * $menus (using in dashboard for showing menus) 
@@ -133,6 +136,7 @@ class AdminLoginController extends Controller
             if ($this->hasPermission($rp, "invoicemodule")) {
                 session(['invoice' => "yes"]);
                 session(['menu' => 'invoice']);
+                $allmenus[] = 'invoice';
                 if ($this->hasDashboardPermission($rp, 'invoicemodule')) {
                     $menus[] = 'invoice';
                 }
@@ -140,6 +144,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "quotationmodule")) {
                 session(['quotation' => "yes"]);
+                $allmenus[] = 'quotation';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
                     session(['menu' => 'quotation']);
                 }
@@ -150,6 +155,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "leadmodule")) {
                 session(['lead' => "yes"]);
+                $allmenus[] = 'lead';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
                     session(['menu' => 'lead']);
                 }
@@ -160,6 +166,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "customersupportmodule")) {
                 session(['customersupport' => "yes"]);
+                $allmenus[] = 'customersupport';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
                     session(['menu' => 'Customer support']);
                 }
@@ -168,6 +175,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "adminmodule")) {
                 session(['admin' => "yes"]);
+                $allmenus[] = 'admin';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                     session(['menu' => 'admin']);
                 }
@@ -184,6 +192,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "inventorymodule")) {
                 session(['inventory' => "yes"]);
+                $allmenus[] = 'inventory';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
                     session(['menu' => 'inventory']);
                 }
@@ -192,6 +201,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "remindermodule")) {
                 session(['reminder' => "yes"]);
+                $allmenus[] = 'reminder';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
                     session(['menu' => 'reminder']);
                 }
@@ -204,6 +214,7 @@ class AdminLoginController extends Controller
                 session(['invoice' => "yes"]);
                 session(['menu' => 'invoice']);
                 session(['report' => "yes"]);
+                $allmenus[] = 'report';
                 // if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory'])))) {
                 // session(['menu' => 'invoice']);
                 // }
@@ -212,6 +223,7 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "blogmodule")) {
                 session(['blog' => "yes"]);
+                $allmenus[] = 'blog';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
                     session(['menu' => 'blog']);
                 }
@@ -220,22 +232,25 @@ class AdminLoginController extends Controller
 
             if ($this->hasPermission($rp, "logisticmodule")) {
                 session(['logistic' => "yes"]);
+                $allmenus[] = 'logistic';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
                     session(['menu' => 'logistic']);
                 }
-                // $menus[] = 'logistic';
+                $menus[] = 'logistic';
             }
 
             if ($this->hasPermission($rp, "developermodule")) {
                 session(['developer' => "yes"]);
+                $allmenus[] = 'developer';
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
                     session(['menu' => 'developer']);
                 }
-                // $menus[] = 'developer';
+                $menus[] = 'developer';
             }
 
             $request->session()->put([
-                'allmenu' => $menus
+                'allmenu' => $menus,
+                'navmanu' => $allmenus // showing navbar base on this > 1
             ]);
 
         }
@@ -565,6 +580,7 @@ class AdminLoginController extends Controller
                     session(['user_permissions' => $rp]);
 
                     $menus = [];
+                    $allmenus = [];
 
                     /*
                      * $menus (using in dashboard for showing menus) 
@@ -575,6 +591,7 @@ class AdminLoginController extends Controller
                     if ($this->hasPermission($rp, "invoicemodule")) {
                         session(['invoice' => "yes"]);
                         session(['menu' => 'invoice']);
+                        $allmenus[] = 'invoice';
                         if ($this->hasDashboardPermission($rp, 'invoicemodule')) {
                             $menus[] = 'invoice';
                         }
@@ -582,6 +599,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "quotationmodule")) {
                         session(['quotation' => "yes"]);
+                        $allmenus[] = 'quotation';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice'])))) {
                             session(['menu' => 'quotation']);
                         }
@@ -592,6 +610,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "leadmodule")) {
                         session(['lead' => "yes"]);
+                        $allmenus[] = 'lead';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'quotation'])))) {
                             session(['menu' => 'lead']);
                         }
@@ -602,6 +621,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "customersupportmodule")) {
                         session(['customersupport' => "yes"]);
+                        $allmenus[] = 'customersupport';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation'])))) {
                             session(['menu' => 'Customer support']);
                         }
@@ -610,6 +630,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "adminmodule")) {
                         session(['admin' => "yes"]);
+                        $allmenus[] = 'admin';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                             session(['menu' => 'admin']);
                         }
@@ -626,6 +647,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "inventorymodule")) {
                         session(['inventory' => "yes"]);
+                        $allmenus[] = 'inventory';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin'])))) {
                             session(['menu' => 'inventory']);
                         }
@@ -634,6 +656,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "remindermodule")) {
                         session(['reminder' => "yes"]);
+                        $allmenus[] = 'reminder';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory'])))) {
                             session(['menu' => 'reminder']);
                         }
@@ -646,6 +669,7 @@ class AdminLoginController extends Controller
                         session(['invoice' => "yes"]);
                         session(['menu' => 'invoice']);
                         session(['report' => "yes"]);
+                        $allmenus[] = 'report';
                         // if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'customersupport', 'admin', 'account', 'lead', 'inventory'])))) {
                         // session(['menu' => 'invoice']);
                         // }
@@ -654,6 +678,7 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "blogmodule")) {
                         session(['blog' => "yes"]);
+                        $allmenus[] = 'blog';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder'])))) {
                             session(['menu' => 'blog']);
                         }
@@ -662,22 +687,25 @@ class AdminLoginController extends Controller
 
                     if ($this->hasPermission($rp, "logisticmodule")) {
                         session(['logistic' => "yes"]);
+                        $allmenus[] = 'logistic';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
                             session(['menu' => 'logistic']);
                         }
-                        // $menus[] = 'logistic';
+                        $menus[] = 'logistic';
                     }
 
                     if ($this->hasPermission($rp, "developermodule")) {
                         session(['developer' => "yes"]);
+                        $allmenus[] = 'developer';
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
                             session(['menu' => 'developer']);
                         }
-                        // $menus[] = 'developer';
+                        $menus[] = 'developer';
                     }
 
                     $request->session()->put([
-                        'allmenu' => $menus
+                        'allmenu' => $menus,
+                        'navmanu' => $allmenus // showing navbar base on this > 1
                     ]);
 
                 }

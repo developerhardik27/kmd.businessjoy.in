@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\company_detail;
 use Closure;
 use App\Models\company;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class LogPageLoadTime
         // Record the start time
         $startTime = microtime(true);
 
-        // Process the request
+        // Process the request 
         $response = $next($request);
 
         // Record the end time
@@ -30,16 +31,15 @@ class LogPageLoadTime
         // Calculate the duration in milliseconds
         $duration = ($endTime - $startTime) * 1000;
         $threshold = config('app.page_load_threshold_ms');
-        
-        
+
         // Log page info if duration exceeds the threshold
-        if ($duration > $threshold) { 
-            $logInfo = [] ;
-             
+        if ($duration > $threshold) {
+            $logInfo = [];
+
             $logInfo = [
                 'page_url' => $request->fullUrl(),
                 'controller' => class_basename($request->route()->controller ?? 'Unknown'),
-                'method' => $request->route()->getActionMethod() ?? 'Unknown', 
+                'method' => $request->route()->getActionMethod() ?? 'Unknown',
                 'start_time' => date('Y-m-d H:i:s', $startTime),
                 'end_time' => date('Y-m-d H:i:s', $endTime),
                 'load_time' => $duration,
@@ -47,14 +47,33 @@ class LogPageLoadTime
                 'created_at' => now()
             ];
 
-            if(Auth::guard('admin')->user()){ 
-                $dbname = company::find(Auth::guard('admin')->user()->company_id); 
-                $logInfo['username'] = Auth::guard('admin')->user()->firstname . Auth::guard('admin')->user()->lastname ;
-                $logInfo['db_name'] =  $dbname->dbname ; 
-            } 
+            $originPage = $request->header('X-Origin-Page')
+                ?? $request->headers->get('referer')
+                ?? 'Unknown';
+
+            $logInfo['view_name'] = $originPage;
+
+            if (Auth::guard('admin')->check()) {
+                $user = Auth::guard('admin')->user();
+                $company = company::find($user->company_id);
+
+                $logInfo['username'] = $user->firstname . ' ' . $user->lastname;
+                $logInfo['user_email'] = $user->email;
+
+                if ($company) {
+                    $logInfo['db_name'] = $company->dbname;
+
+                    // $companydetail = company_detail::find($company->company_details_id);
+                    $logInfo['company_name'] = $company->id;
+                   
+                } else {
+                    $logInfo['db_name'] = 'Unknown';
+                    $logInfo['company_name'] = 'Unknown';
+                }
+            }
             // Save to database
             $this->saveLog($logInfo);
-        } 
+        }
 
         return $response;
     }
