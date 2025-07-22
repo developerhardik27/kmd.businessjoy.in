@@ -91,7 +91,7 @@ class systemmonitorController extends commonController
     {
         // Authorization check (as before)
         if ($this->rp['developermodule']['developerdashboard']['view'] != 1) {
-            return $this->successresponse(403, 'message', 'You are Unauthorized');
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
         }   
 
         $query = page_load_log::query();
