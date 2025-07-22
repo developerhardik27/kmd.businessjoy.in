@@ -245,7 +245,9 @@ class AdminLoginController extends Controller
                 if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
                     session(['menu' => 'developer']);
                 }
-                $menus[] = 'developer';
+                if ($this->hasDashboardPermission($rp, 'developermodule')) {
+                    $menus[] = 'developer'; 
+                }
             }
 
             $request->session()->put([
@@ -700,7 +702,9 @@ class AdminLoginController extends Controller
                         if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
                             session(['menu' => 'developer']);
                         }
-                        $menus[] = 'developer';
+                        if ($this->hasDashboardPermission($rp, 'developermodule')) {
+                            $menus[] = 'developer'; 
+                        }
                     }
 
                     $request->session()->put([
