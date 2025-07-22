@@ -2237,6 +2237,15 @@
                         to_date: params.to_date || ''
                     },
                     success: function(data) {
+                        if (!Array.isArray(data)) {
+                            Toast.fire({
+                                icon: "error",
+                                title: data.message || "Unexpected error"
+                            });
+                            loaderhide();
+                            return;
+                        }
+
                         const categories = data.map(item => item.company_name);
                         const totalSeconds = data.map(item => parseFloat(item.total_seconds).toFixed(
                             2));
@@ -2329,6 +2338,15 @@
                         to_date: params.to_date
                     },
                     success: function(data) {
+                        if (!Array.isArray(data)) {
+                            Toast.fire({
+                                icon: "error",
+                                title: data.message || "Unexpected error"
+                            });
+                            loaderhide();
+                            return;
+                        }
+
                         const dates = data.map(item => item.date);
                         const avgSecs = data.map(item => item.avg_seconds);
                         const totalLogs = data.map(item => item.total_logs);
