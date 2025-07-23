@@ -310,10 +310,15 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/lead/edit/{id}', 'edit')->name('lead.edit');
         Route::post('/lead/update/{id}', 'update')->name('lead.update');
         Route::put('/lead/delete', 'destroy')->name('lead.delete');
-        Route::put('/lead/buldelete', 'bulkdestroy')->name('lead.bulkdelete');
+        Route::put('/lead/bulkdelete', 'bulkdestroy')->name('lead.bulkdelete');
         Route::put('/lead/changestatus', 'changestatus')->name('lead.changestatus');
         Route::put('/lead/changeleadstage', 'changeleadstage')->name('lead.changeleadstage');
+       
+        Route::get('/lead/importhistory', 'importhistory')->name('lead.importhistory');
         Route::post('/lead/imporfromexcel', 'importFromExcel')->name('lead.importfromexcel');
+        
+        Route::post('/lead/exportwithcallhistory', 'downloadLeadsExcel')->name('lead.exportwithcallhistory');
+        Route::get('/lead/exporthistory', 'exporthistory')->name('lead.exporthistory');
     });
 
     // lead call history route
