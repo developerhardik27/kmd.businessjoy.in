@@ -148,10 +148,10 @@
                         },
                         dataSrc: function(json) {
                             if (json.status && json.status !== 200) {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: json.message || 'Something went wrong!'
-                                });
+                                // Toast.fire({
+                                //     icon: 'error',
+                                //     title: json.message || 'Something went wrong!'
+                                // });
                                 return []; // Return empty array so DataTables shows 'No data available' message
                             }
 
