@@ -240,10 +240,10 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewLead', 'create')->name('admin.addlead')->middleware('checkPermission:leadmodule,lead,add');
                 Route::get('/EditLead/{id}', 'edit')->name('admin.editlead')->middleware('checkPermission:leadmodule,lead,edit');
                 Route::get('/Lead/Api', 'leadapi')->name('admin.leadapi')->middleware('checkPermission:leadmodule,leadapi,show');
-                Route::get('/Lead/ImportFromExcel', 'importfromexcel')->name('admin.importfromexcel')->middleware('checkPermission:leadmodule,leadapi,add');
-                Route::get('/lead/ImportFromExcel/template',  'downloadLeadTemplate')->name('lead.importtemplatedownload');
-            });
-
+                Route::get('/Lead/ImportFromExcel', 'importfromexcel')->name('admin.importfromexcel')->middleware('checkPermission:leadmodule,import,add');
+                Route::get('/lead/ImportFromExcel/template', 'downloadLeadTemplate')->name('lead.importtemplatedownload');
+                Route::get('/lead/ExportHistory', 'exporthistory')->name('admin.exportleadhistory')->middleware('checkPermission:leadmodule,export,show');
+            }); 
             // lead module routes end----- 
 
             // customer support module routes start 
