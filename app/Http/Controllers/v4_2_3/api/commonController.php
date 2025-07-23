@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 class commonController extends Controller
 {
 
-    public function dbname(string $id = null)
+    public function dbname($id = null)
     {
         $dbname = company::find($id);
         if ($dbname == null) {
