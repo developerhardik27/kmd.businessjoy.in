@@ -57,23 +57,23 @@ class otherapiController extends Controller
      */
     public function oceanlead(Request $request)
     {
-        $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
-            ->where(function ($query) use ($request) {
-                if (!empty($request->email)) {
-                    $query->orWhere('email', $request->email);
-                }
-                if (!empty($request->contact_no)) {
-                    $query->orWhere('contact_no', $request->contact_no);
-                }
-            })->where('is_deleted', 0)->exists();
+        // $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
+        //     ->where(function ($query) use ($request) {
+        //         if (!empty($request->email)) {
+        //             $query->orWhere('email', $request->email);
+        //         }
+        //         if (!empty($request->contact_no)) {
+        //             $query->orWhere('contact_no', $request->contact_no);
+        //         }
+        //     })->where('is_deleted', 0)->exists();
 
 
-        if ($checkrecord) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are already in'
-            ], 200);
-        }
+        // if ($checkrecord) {
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'You are already in'
+        //     ], 200);
+        // }
 
 
         $name = $this->splitName($request->name);
