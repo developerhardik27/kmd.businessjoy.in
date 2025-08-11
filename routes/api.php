@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckServerKey;
 use App\Http\Controllers\api\cityController;
 use App\Http\Controllers\api\stateController;
+use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\api\countryController;
 use App\Http\Controllers\api\dbscriptController;
 use App\Http\Controllers\api\otherapiController;
+use App\Http\Controllers\admin\AdminLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,9 +57,15 @@ if(!function_exists('getversion')){
 
 // middleware route group 
 
+Route::controller(AdminLoginController::class)->group(function () {
+    Route::post('/authenticate', 'apiAuthenticate')->name('admin.apiauthenticate');
+});
+
+Route::controller(HomeController::class)->group(function () {
+    Route::post('/logout', 'apiLogout')->name('admin.apilogout');
+});
+
 Route::middleware(['checkToken'])->group(function () {
-
-
     // Default version is 1 if company not found
 
     // customer route
@@ -319,6 +327,9 @@ Route::middleware(['checkToken'])->group(function () {
         
         Route::post('/lead/exportwithcallhistory', 'downloadLeadsExcel')->name('lead.exportwithcallhistory');
         Route::get('/lead/exporthistory', 'exporthistory')->name('lead.exporthistory');
+
+        Route::get('/lead/settings', 'getLeadSettings')->name('lead.settings');
+        Route::put('/lead/settings/update', 'updateLeadSettings')->name('lead.updatesettings');
     });
 
     // lead call history route
@@ -327,6 +338,8 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/leadhistory/insert', 'store')->name('leadhistory.store');
         Route::get('/leadhistory/search/{id}', 'show')->name('leadhistory.search');
         Route::get('/lead/calendar', 'getcalendardata')->name('lead.getcalendardata');
+        Route::post('/leadhistory/update', 'update')->name('leadhistory.update');
+        Route::put('/leadhistory/delete', 'destroy')->name('leadhistory.delete');
     });
 
     // lead api server key route
@@ -607,6 +620,10 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/developer/recentactivitydata/edit/{id}', 'editrecentactivitydata')->name('recentactivitydata.edit');
         Route::put('/developer/recentactivitydata/update/{id}', 'updaterecentactivitydata')->name('recentactivitydata.update');
         Route::put('/developer/recentactivitydata/delete/{id}', 'destroyrecentactivitydata')->name('recentactivitydata.delete');
+       
+        Route::get('/developer/cleardata/analyzation', 'clearDataAnalyzation')->name('cleardata.analyzation');
+        Route::get('/developer/cleardata/clear', 'deleteSoftDeletedData')->name('developer.cleanup.softdeleted');
+
     });
 
 });

@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\landing\LandingPageController;
@@ -17,10 +18,8 @@ if (!function_exists('getadminversion')) {
             $version = $_SESSION['folder_name'];
             return 'App\\Http\\Controllers\\' . $version . '\\admin\\' . $controller;
         } else {
-            return 'App\\Http\\Controllers\\v4_2_1\\admin\\' . $controller;
-
+            return 'App\\Http\\Controllers\\v4_2_3\\admin\\' . $controller;
         }
-
     }
 }
 
@@ -77,7 +76,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
         Route::group(['middleware' => 'admin.guest'], function () {
             Route::controller(AdminLoginController::class)->group(function () {
                 Route::get('/login', 'index')->name('admin.login')->withoutMiddleware([CheckSession::class]);
-                Route::match(['get', 'post'], '/authenticate', 'authenticate')->name('admin.authenticate')->withoutMiddleware([CheckSession::class]);
+                Route::match(['get', 'post'], '/authenticate/{id?}', 'authenticate')->name('admin.authenticate')->withoutMiddleware([CheckSession::class]);
                 Route::get('/forgotpassword', 'forgot')->name('admin.forgot')->withoutMiddleware([CheckSession::class]);
                 Route::post('/forgotpassword', 'forgot_password')->name('admin.forgotpassword')->withoutMiddleware([CheckSession::class]);
                 Route::get('/reset/{token}', 'reset_password')->name('admin.resetpassword')->withoutMiddleware([CheckSession::class]);
@@ -89,7 +88,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
         Route::group(['middleware' => 'admin.auth'], function () {
 
-            Route::get('/superadminloginfromanyuser/{userId}', [AdminLoginController::class, 'superAdminLoginFromAnyUser'])->name('admin.superadminloginfromanyuser');
+            Route::get('/superadminloginfromanyuser/{userId}', [AdminLoginController::class, 'authenticate'])->name('admin.superadminloginfromanyuser');
 
             Route::controller(HomeController::class)->group(function () {
                 Route::get('/index', 'index')->name('admin.index');
@@ -232,6 +231,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             $TblLeadController = getadminversion('TblLeadController');
             Route::controller($TblLeadController)->group(function () {
                 Route::get('/Lead', 'index')->name('admin.lead')->middleware('checkPermission:leadmodule,lead,show');
+                Route::get('/Lead/Settings', 'leadSettings')->name('admin.leadsettings')->middleware('checkPermission:leadmodule,leadsettings,show');
                 Route::get('/UpcomingFollowUp', 'upcomingfollowup')->name('admin.upcomingfollowup')->middleware('checkPermission:leadmodule,upcomingfollowup,show');
                 Route::get('/Lead/Analysis', 'analysis')->name('admin.analysis')->middleware('checkPermission:leadmodule,analysis,show');
                 Route::get('/Lead/OwnerPerformance', 'leadownerperformance')->name('admin.leadownerperformance')->middleware('checkPermission:leadmodule,leadownerperformance,show');
@@ -243,7 +243,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Lead/ImportFromExcel', 'importfromexcel')->name('admin.importfromexcel')->middleware('checkPermission:leadmodule,import,add');
                 Route::get('/lead/ImportFromExcel/template', 'downloadLeadTemplate')->name('lead.importtemplatedownload');
                 Route::get('/lead/ExportHistory', 'exporthistory')->name('admin.exportleadhistory')->middleware('checkPermission:leadmodule,export,show');
-            }); 
+            });
             // lead module routes end----- 
 
             // customer support module routes start 
@@ -346,6 +346,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Developer/RecentActivityData', 'recentactivitydata')->name('admin.recentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,show');
                 Route::get('/Developer/RecentActivityData/Add', 'createrecentactivitydata')->name('admin.addrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,add');
                 Route::get('/Developer/RecentActivityData/Edit/{id}', 'editrecentactivitydata')->name('admin.editrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,edit');
+                Route::get('/Developer/ClearData', 'clearData')->name('admin.cleardata')->middleware('checkPermission:developermodule,cleardata,show');
             });
 
             /**
@@ -364,6 +365,13 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
                 // generate consignor copy pdf 
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
+            });
+
+            $AmazonController = getadminversion('AmazonController');
+
+            Route::controller($AmazonController)->group(function () {
+                Route::get('/amazon/authorize', 'amazonauthorize')->name('amazon.authorize');
+                Route::get('/amazon/callback', 'amazoncallback')->name('amazon.callback');
             });
         });
     });

@@ -19,7 +19,7 @@ class VersionUpdateController extends Controller
         }
     }
     public function versioncontrol(){
-        if(Auth::guard('admin')->user()->id == 1){
+        if(session('admin_role') == 1){
             return view($this->version.'.admin.versionupdate');
         }
         abort(404);

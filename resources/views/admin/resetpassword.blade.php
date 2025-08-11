@@ -10,7 +10,7 @@
     {{-- <link rel="stylesheet" href="{{asset('admin/css/typography.css')}} "> --}}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name') }} | Reset Password</title>
-    <link rel="stylesheet" href="{{asset('admin/css/login.css')}}">
+    <link rel="stylesheet" href="{{ asset('admin/css/login.css') }}">
 
 </head>
 
@@ -18,11 +18,7 @@
     @if (Auth::guard('admin')->user())
         return redirect()->route('admin.index');
     @endif
-
-
     <div class="container" id="container">
-        <div class="form-container sign-up">
-        </div>
         <div class="form-container sign-in">
             <form action="" method="post">
                 <img src="{{ asset('admin/images/bjlogo3.png') }}" width="230px" alt="logo">
@@ -32,7 +28,7 @@
                 <input type="password" id="password" name="password" placeholder="password" required>
                 <input type="text" id="cpassword" name="cpassword" placeholder="confirm password" required>
                 @if (Session::has('success'))
-                <span style="color: green"><b> &#10003; {{ Session::get('success') }}</b></span>
+                    <span style="color: green"><b> &#10003; {{ Session::get('success') }}</b></span>
                 @endif
                 @if (Session::has('error'))
                     <span style="color: red"><b> &#9888; {{ Session::get('error') }}</b></span>

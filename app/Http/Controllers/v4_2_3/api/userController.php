@@ -145,8 +145,8 @@ class userController extends commonController
         DB::purge('dynamic_connection');
         DB::reconnect('dynamic_connection');
 
-        $this->companyId = $request->company_id ?? session('company_id');
-        $this->userId = $request->user_id ?? session('user_id');
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
 
         $this->masterdbname = DB::connection()->getDatabaseName();
 

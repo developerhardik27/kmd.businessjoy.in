@@ -13,8 +13,8 @@ class tblquotationothersettingController extends commonController
 
     public function __construct(Request $request)
     {
-        $this->companyId = $request->company_id ?? session('company_id');
-        $this->userId = $request->user_id ?? session('user_id');
+        $this->companyId = $request->company_id;
+        $this->userId = $request->user_id;
         
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 

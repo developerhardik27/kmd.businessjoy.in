@@ -123,7 +123,7 @@
                             Toast.fire({
                                 icon: "error",
                                 title: response.message
-                            });;
+                            });
                         } else {
                             Toast.fire({
                                 icon: "error",

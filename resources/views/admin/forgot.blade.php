@@ -10,37 +10,142 @@
     {{-- <link rel="stylesheet" href="{{asset('admin/css/typography.css')}} "> --}}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name') }} | Forgot Password</title>
-    <link href="{{asset('landing/img/favicon.png')}}" rel="icon">
-    <link rel="stylesheet" href="{{asset('admin/css/login.css')}}">
+    <link href="{{ asset('landing/img/favicon.png') }}" rel="icon">
+    <link rel="stylesheet" href="{{ asset('admin/css/login.css') }}">
+    <style>
+        .loader-container {
+            /* display: none; */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.5;
+            z-index: 9999;
+            /* Semi-transparent background */
+
+        }
+
+        .loader-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            transform: translate(-50%, -50%);
+            /* Add any additional styling for your loader image */
+        }
+
+        .blurred-content {
+            filter: blur(5px);
+            /* Adjust the blur value according to your preference */
+            /* Add any additional styling for your content */
+        }
+
+        .remove-blur {
+            filter: none;
+            /* Remove the blur effect */
+        }
+
+        .grecaptcha-badge {
+            visibility: hidden !important;
+        }
+    </style>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 </head>
 
 <body>
-    @if (Auth::guard('admin')->user())
-        return redirect()->route('admin.index');
-    @endif
-
-
-
-
     <div class="container" id="container">
-        
-        <div class="form-container sign-in">
-            <form action="{{ route('admin.forgotpassword') }}" method="post">
+        <div id="loader-container" class="loader-container">
+            <img id="loader" class="loader-img" src="{{ asset('admin/images/BusinessJoyLoader.gif') }}"
+                alt="Loader">
+        </div>
+        <div class="form-container sign-in wrapper blurred-content">
+            <form id="forgotpasswordform" method="post">
                 <img src="{{ asset('admin/images/bjlogo3.png') }}" width="230px" alt="logo">
                 @csrf
                 <h2>Forgot Password</h2>
                 <input type="email" id="username" name="email" placeholder="Enter Email" required>
-                @if (Session::has('success'))
-                <span style="color: green"><b> &#10003; {{ Session::get('success') }}</b></span>
-                @endif
-                @if (Session::has('error'))
-                    <span style="color: red"><b> &#9888; {{ Session::get('error') }}</b></span>
-                @endif
+
+                <p style="color: green" class="m-0"><b><span class="error-msg" id="success-msg"></span></b></p>
+
+                <p style="color: red" class="m-0"><b><span class="error-msg" id="error-msg"></span></b></p>
+
                 <a href="{{ route('admin.login') }}">&larr; Back to Login</a>
-                <button>Send link</button>
+                <button type="submit">Send link</button>
             </form>
         </div>
     </div>
+
+    <script src="{{ asset('admin/js/jquery.min.js') }} "></script>
+    <script>
+        function loadershow() {
+            $(".wrapper").addClass("blurred-content").removeClass("remove-blur");
+            $("#loader-container").show();
+        }
+
+        function loaderhide() {
+            $("#loader-container").hide();
+            $(".wrapper").removeClass("blurred-content").addClass("remove-blur");
+        }
+
+        $('document').ready(function() {
+            loaderhide();
+            $('#forgotpasswordform').submit(function(event) {
+                loadershow();
+                event.preventDefault();
+                $('.error-msg').text('');
+                const formData = new FormData(this);
+                grecaptcha.ready(function() {
+                    var recaptchaSiteKey = "{{ env('RECAPTCHA_SITE_KEY') }}";
+                    grecaptcha.execute(recaptchaSiteKey, {
+                            action: 'submit'
+                        })
+                        .then(function(token) {
+                            // Append reCAPTCHA response token to formData
+                            formData.append('g-recaptcha-response', token);
+
+                            $.ajax({
+                                type: 'POST',
+                                url: "{{ route('admin.forgotpassword') }}",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function(response) {
+                                    // Handle the response from the server
+                                    if (response.status == 200) {
+                                        $('#forgotpasswordform')[0].reset();
+                                        $('#success-msg').text(
+                                            `${response.message}`);
+                                    } else {
+                                        $('#error-msg').text(`${response.message}`);
+                                    }
+                                    loaderhide();
+                                },
+                                error: function(xhr, status,
+                                    error) { // if calling api request error 
+                                    loaderhide();
+                                    console.log(xhr
+                                        .responseText
+                                    ); // Log the full error response for debugging
+                                    if (xhr.status === 422) {
+                                        var errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            $('#error-' + key).text(value[
+                                                0]);
+                                        });
+                                    }
+                                }
+                            })
+                        })
+                        .catch(function(error) {
+                            console.error('reCAPTCHA execution error:', error);
+                            toastr.error("Failed to verify reCAPTCHA, please try again.");
+                        });
+                });
+            });
+        });
+    </script>
+
 </body>
 
 </html>

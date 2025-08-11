@@ -29,28 +29,21 @@ class HomeController extends Controller
         return view($this->version . '.admin.index');
     }
 
-
-
     public function logout(Request $request)
     {
+        $apiToken = session('api_token');
+        $request->merge([
+            'api_token' => $apiToken
+        ]); 
 
-        $user = DB::table('users')
-            ->where('id', session('user_id'));
+        $response =  $this->apiLogout($request);
 
-        if (session('loggedby') == 'admin') {
-            $user->update(['super_api_token' => null]);
-        }else{
-            $user->update(['api_token' => null]);
+        $response = $response->getData(true);
+
+        if ($response['status'] == '200') {
+            return redirect()->route('admin.login');
         }
 
-        $request->session()->flush();
-
-        if (session_status() !== PHP_SESSION_ACTIVE)
-            session_start();
-        session_destroy();
-        Auth::guard('admin')->logout();
-
-        return redirect()->route('admin.login');
     }
 
     // when user logged in new device then old session destroy and old user logout from old device automatic
@@ -66,4 +59,44 @@ class HomeController extends Controller
 
         return redirect()->route('admin.login')->with('unauthorized', 'You are already logged in on a different device');
     }
+
+    public function apiLogout(Request $request)
+    {
+        $token = $request->api_token;
+
+        if (!$token) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Authorization token not provided'
+            ], 200);
+        }
+
+        // Check if it's a normal user or a superadmin impersonation
+        $user = DB::table('users')
+            ->where('api_token', $token)
+            ->orWhere('super_api_token', $token)
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid or expired token'
+            ], 200);
+        }
+
+        // Revoke the appropriate token
+        $updateField = $user->super_api_token === $token ? 'super_api_token' : 'api_token';
+
+        DB::table('users')->where('id', $user->id)->update([
+            $updateField => null
+        ]);
+
+        Auth::guard('admin')->logout(); // optional if still authenticated
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Logged out successfully'
+        ], 200);
+    }
+
 }

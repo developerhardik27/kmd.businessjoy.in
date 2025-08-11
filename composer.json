@@ -13,6 +13,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^3.8",
         "jenssegers/agent": "^2.6",
+        "jlevers/selling-partner-api": "*",
         "laravel/breeze": "^1.23",
         "laravel/framework": "^10.10",
         "laravel/passport": "^11.10",

@@ -1090,7 +1090,7 @@
                             `<option value='${value.id}'> ${value.country_name}</option>`
                         )
                     });
-                    country_id = "{{ Auth::guard('admin')->user()->country_id }}";
+                    country_id = "{{ session('user')['country_id'] }}";
                     $('#consigneeform #modal_country').val(country_id);
                     $('#consignorform #modal_country').val(country_id);
                 } else {
@@ -1132,7 +1132,7 @@
                             )
                         });
                         if (id == 0) {
-                            state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                            state_id = "{{ session('user')['state_id'] }}";
                             $(`#${parentform} #modal_state`).val(state_id);
                         }
                     } else {
@@ -1173,7 +1173,7 @@
                         });
                         if (id == 0) {
                             $(`#${parentform} #modal_city`).val(
-                                "{{ Auth::guard('admin')->user()->city_id }}");
+                                "{{ session('user')['city_id'] }}");
                         }
                     } else {
                         $(`#${parentform} #modal_city`).append(`<option> No Data Found</option>`);
