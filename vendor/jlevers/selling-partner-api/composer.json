@@ -1,0 +1,71 @@
+{
+    "name": "jlevers/selling-partner-api",
+    "version": "6.0.5",
+    "description": "PHP client for Amazon's Selling Partner API",
+    "keywords": [
+        "api",
+        "selling-partner-api",
+        "amazon",
+        "ecommerce",
+        "sp-api",
+        "sdk",
+        "rest",
+        "api"
+    ],
+    "license": "BSD-3-Clause",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jesse Evers",
+            "homepage": "https://jesseevers.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "composer/semver": "^3.4",
+        "guzzlehttp/guzzle": "^6.0|^7.0",
+        "highsidelabs/saloon-sdk-generator": "^1.0",
+        "saloonphp/saloon": "^3.4",
+        "openspout/openspout": "^4.23",
+        "illuminate/support": "^10.48"
+    },
+    "require-dev": {
+        "symfony/console": "^6.3",
+        "psy/psysh": "^0.11.22",
+        "voku/simple_html_dom": "^4.8",
+        "laravel/pint": "^1.13",
+        "phpcompatibility/php-compatibility": "dev-develop"
+    },
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "SellingPartnerApi\\": "src/"
+        },
+        "files": [
+            "src/Generator/constants.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SellingPartnerApi\\Tests\\": "test/"
+        }
+    },
+    "scripts": {
+        "lint": [
+            "@pint",
+            "@php-compatibility-check"
+        ],
+        "pint": "php vendor/bin/pint",
+        "php-compatibility-check": "./vendor/bin/phpcs -p ./src ./bin --standard=PHPCompatibility --runtime-set testVersion 8.1-",
+        "post-install-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
+        "post-update-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

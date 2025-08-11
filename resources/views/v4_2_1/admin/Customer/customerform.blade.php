@@ -160,7 +160,7 @@
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
-                        country_id = "{{ Auth::guard('admin')->user()->country_id }}";
+                        country_id = "{{ session('user')['country_id'] }}";
                         $('#country').val(country_id);
                         loadstate();
                     } else {
@@ -216,7 +216,7 @@
                                 )
                             });
                             if (id == 0) {
-                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                                state_id = "{{ session('user')['state_id'] }}";
                                 $('#state').val(state_id);
                                 loadcity();
                             }
@@ -273,7 +273,7 @@
                                 )
                             });
                             if (id == 0) {
-                                $('#city').val("{{ Auth::guard('admin')->user()->city_id }}");
+                                $('#city').val("{{ session('user')['city_id'] }}");
                             }
                         } else {
                             $('#city').append(`<option> No Data Found</option>`);

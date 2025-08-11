@@ -1,0 +1,96 @@
+{
+    "name": "highsidelabs/saloon-sdk-generator",
+    "description": "Simplified SDK Scaffolding for Saloon",
+    "keywords": [
+        "sdk generator",
+        "saloon"
+    ],
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Helge Sverre",
+            "email": "helge.sverre@crescat.io"
+        },
+        {
+            "name": "Jesse Evers",
+            "email": "jesse@highsidelabs.co"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "ext-zip": "*",
+        "cebe/php-openapi": "^1.7",
+        "laravel-zero/phar-updater": "^1.3",
+        "nette/php-generator": "^4.0",
+        "nunomaduro/termwind": "^1.15.1",
+        "saloonphp/saloon": "^3.0",
+        "saloonphp/laravel-plugin": "^3.0"
+    },
+    "require-dev": {
+        "laravel-zero/framework": "^10.0.2",
+        "laravel/pint": "^1.8",
+        "mockery/mockery": "^1.5.1",
+        "pestphp/pest": "^2.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crescat\\SaloonSdkGenerator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "build": "php ./codegen app:build sdkgenerator --build-version=1.0",
+        "clean": "rm -rf ./tests/Output/*",
+        "generate:fiken": "./codegen generate:sdk --force --namespace=Crescat\\\\Fiken --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Output/Fiken",
+        "generate:gocardless": "./codegen generate:sdk --force --namespace=Crescat\\\\GoCardless --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Output/GoCardless",
+        "generate:openai": "./codegen generate:sdk --force --namespace=Crescat\\\\OpenAI --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Output/Openai",
+        "generate:paddle": "./codegen generate:sdk --force --namespace=Crescat\\\\Paddle --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Output/Paddle",
+        "generate:stripe": "./codegen generate:sdk --force --namespace=Crescat\\\\Stripe --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Output/Stripe",
+        "generate:tableau": "./codegen generate:sdk --force --namespace=Crescat\\\\Tableau --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Output/Tableau",
+        "generate:tripletex": "./codegen generate:sdk --force --namespace=Crescat\\\\Tripletex --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Output/Tripletex",
+        "generate:checkmango": "./codegen generate:sdk --force --namespace=Checkmango\\\\Sdk --type=openapi --name=Checkmango tests/Samples/checkmango.json --output tests/Output/Checkmango",
+        "generate:kassalapp": "./codegen generate:sdk --force --namespace=Kassalapp\\\\Sdk --type=openapi --name=Kassalapp tests/Samples/kassalapp.json --output tests/Output/Kassalapp",
+        "generate:altinn": "./codegen generate:sdk --force --namespace=Altinn\\\\Sdk --type=postman --name=Altinn tests/Samples/altinn.json --output tests/Output/Altinn",
+        "generate:crescat": "./codegen generate:sdk --force --namespace=Crescat\\\\Sdk --type=openapi --name=Crescat tests/Samples/crescat.yaml --output tests/Output/Crescat",
+        "generate:zip:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Output --zip",
+        "generate:zip:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Output --zip",
+        "generate:zip:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Output --zip",
+        "generate:zip:paddle": "./codegen generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Output --zip",
+        "generate:zip:stripe": "./codegen generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Output --zip",
+        "generate:zip:tableau": "./codegen generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Output --zip",
+        "generate:zip:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Output --zip",
+        "generate:all": [
+            "@generate:fiken",
+            "@generate:gocardless",
+            "@generate:openai",
+            "@generate:paddle",
+            "@generate:tableau",
+            "@generate:tripletex",
+            "@generate:stripe",
+            "@generate:checkmango",
+            "@generate:kassalapp",
+            "@generate:crescat"
+        ],
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "bin": [
+        "builds/sdkgenerator"
+    ]
+}

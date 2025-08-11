@@ -24,7 +24,6 @@ class versionupdateController extends commonController
         $this->userId = $request->user_id;
     }
 
-
     /**
      * Summary of updatecompanyversion
      * upgrade company version
