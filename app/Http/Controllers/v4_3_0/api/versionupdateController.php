@@ -855,10 +855,10 @@ class versionupdateController extends commonController
                                 }
 
                                 if ($company->id != 1) {
-                                    $blogsettings = DB::connection('dynamic_connection')->table('lead_settings')
+                                    $leadsettings = DB::connection('dynamic_connection')->table('lead_settings')
                                         ->count();
 
-                                    if ($blogsettings == 0) {
+                                    if ($leadsettings == 0) {
                                         DB::connection('dynamic_connection')->table('lead_settings')
                                             ->insert([
                                                 'country' => 0,
