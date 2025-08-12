@@ -303,6 +303,7 @@ class companyController extends commonController
                 'database/migrations/v4_2_1/individual',
                 'database/migrations/v4_2_2/individual',
                 'database/migrations/v4_2_3/individual',
+                'database/migrations/v4_3_0/individual',
             ];
 
             // Run migrations only from the specified path
