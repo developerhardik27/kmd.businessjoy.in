@@ -41,6 +41,7 @@ class HomeController extends Controller
         $response = $response->getData(true);
 
         if ($response['status'] == '200') {
+            $request->session()->flush();
             return redirect()->route('admin.login');
         }
 

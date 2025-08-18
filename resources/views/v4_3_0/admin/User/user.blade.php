@@ -503,7 +503,7 @@
             $(document).on('click','.super-login-btn',function(){
                 loadershow(); 
                 let targetId = $(this).data('user-id');
-                let targetUrl = "{{route('admin.superadminloginfromanyuser','__userId__')}}".replace('__userId',targetId);
+                let targetUrl = "{{route('admin.superadminloginfromanyuser','__userId__')}}".replace('__userId_',targetId);
                   $.ajax({
                     type: 'get',
                     url: targetUrl, 
