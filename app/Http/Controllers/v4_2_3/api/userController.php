@@ -552,10 +552,11 @@ class userController extends commonController
                     }
 
                     $userrp = $this->user_permissionModel::create([
-                        'user_id' => $users,
+                        'user_id' => $users->id,
                         'rp' => $rpjson,
                         'created_by' => $this->userId
                     ]);
+                    
                     $name = $request->firstname . ' ' . $request->lastname;
                     Mail::to($request->email)->bcc('parthdeveloper9@gmail.com')->send(new sendmail($passwordtoken, $name, $request->email));
                     return $this->successresponse(200, 'message', 'user succesfully created');

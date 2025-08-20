@@ -554,7 +554,7 @@ class userController extends commonController
                     }
 
                     $userrp = $this->user_permissionModel::create([
-                        'user_id' => $users,
+                        'user_id' => $users->id,
                         'rp' => $rpjson,
                         'created_by' => $this->userId
                     ]);
