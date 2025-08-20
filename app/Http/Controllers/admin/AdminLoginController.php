@@ -32,19 +32,26 @@ class AdminLoginController extends Controller
     }
 
     // check user permission function
+    // check user permission function
     public function hasPermission($json, $module)
     {
         if (isset($json[$module]) && !empty($module)) {
-            foreach ($json[$module] as $key => $value) {
-                foreach ($value as $key2 => $value2) {
-                    if ($value == 'loginhistory')
-                        continue;
-                    if ($key2 === "show" && $value2 == 1) {
+            foreach ($json[$module] as $submodule => $permissions) {
+
+                // Skip "loginhistory"
+                if ($submodule == 'loginhistory') {
+                    continue;
+                }
+
+                foreach ($permissions as $action => $allowed) {
+                    if ($action === "show" && $allowed == 1) {
                         return true;
                     }
                 }
             }
         }
+
+        return false; // Don't forget to return false if nothing matched
     }
 
     // check dashboard permission function
@@ -1069,6 +1076,7 @@ class AdminLoginController extends Controller
 
         // Validate role and active status
         if (!in_array($admin->role, [1, 2, 3]) || $admin->is_active != 1) {
+            $request->session()->flush();
             Auth::guard('admin')->logout();
             return response()->json([
                 'status' => 403,
