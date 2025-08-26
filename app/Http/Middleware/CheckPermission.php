@@ -69,6 +69,9 @@ class CheckPermission
         }
 
         if ($request->session()->get('just_logged_in') === true) {
+            if (session('menu') != 'yes') {
+                session(['menu' => session('navmanu')[0]]);
+            }
             return redirect()->route('admin.welcome');
         }
 
