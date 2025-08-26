@@ -511,7 +511,7 @@ class AdminLoginController extends Controller
             $redirectLocation = route('admin.' . $defaultPage);
         }
 
-        $request->session()->flash('just_logged_in', true); 
+        Session::flash('just_logged_in', true);
 
         return response()->json([
             'status' => 200,
