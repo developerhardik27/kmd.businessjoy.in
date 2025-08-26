@@ -34,7 +34,7 @@ class HomeController extends Controller
         $apiToken = session('api_token');
         $request->merge([
             'api_token' => $apiToken
-        ]); 
+        ]);
 
         $response =  $this->apiLogout($request);
 
@@ -42,9 +42,11 @@ class HomeController extends Controller
 
         if ($response['status'] == '200') {
             $request->session()->flush();
+            if (session_status() !== PHP_SESSION_ACTIVE)
+                session_start();
+            session_destroy();
             return redirect()->route('admin.login');
         }
-
     }
 
     // when user logged in new device then old session destroy and old user logout from old device automatic
@@ -99,5 +101,4 @@ class HomeController extends Controller
             'message' => 'Logged out successfully'
         ], 200);
     }
-
 }
