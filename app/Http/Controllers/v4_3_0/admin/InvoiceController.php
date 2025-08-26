@@ -26,6 +26,11 @@ class InvoiceController extends Controller
     public function invoiceview(string $id)
     {
 
+        request()->merge([
+            'company_id' => session('company_id'),
+            'user_id' => session('user_id')
+        ]);
+
         $dbname = company::find(Session::get('company_id'));
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
@@ -92,6 +97,10 @@ class InvoiceController extends Controller
 
     public function create()
     {
+        request()->merge([
+            'company_id' => session('company_id'),
+            'user_id' => session('user_id')
+        ]);
         $company_id = Session::get('company_id');
         $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
         $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
@@ -127,10 +136,9 @@ class InvoiceController extends Controller
     {
 
         $invoice = $this->invoiceModel::findOrFail($id);
-        
+
         $is_editable = $invoice->is_editable;
 
         return view($this->version . '.admin.Invoice.invoiceupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
     }
-
 }

@@ -23,7 +23,7 @@ class QuotationController extends Controller
             $this->quotationModel = 'App\\Models\\v4_3_0\\quotation';
         }
     }
-     
+
     /**
      * quotation settings pages.
      */
@@ -62,7 +62,12 @@ class QuotationController extends Controller
 
     public function create()
     {
-        $company_id = Session::get('company_id'); 
+        request()->merge([
+            'company_id' => session('company_id'),
+            'user_id' => session('user_id')
+        ]);
+
+        $company_id = Session::get('company_id');
 
         $quotationcolumnController = "App\\Http\\Controllers\\" . $this->version . "\\api\\tblquotationcolumnController";
         $jsoncolumndetails = app($quotationcolumnController)->column_details($company_id);
@@ -77,7 +82,7 @@ class QuotationController extends Controller
         if ($quotationothersettingdetails->status != 200 || count($quotationothersettingdetails->pattern) < 2) {
             return view($this->version . '.admin.Quotation.quotationothersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
-       
+
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.Quotation.quotationmanagecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
@@ -92,10 +97,9 @@ class QuotationController extends Controller
     {
 
         $quotation = $this->quotationModel::findOrFail($id);
-        
+
         $is_editable = $quotation->is_editable;
 
         return view($this->version . '.admin.Quotation.quotationupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
     }
-
 }

@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class VersionUpdateController extends Controller
 {
-
     public $version;
     public function __construct()
     {

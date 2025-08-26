@@ -149,7 +149,7 @@
                         @elseif (Session::has('menu') && Session::get('menu') == 'quotation')
                             @if (session('user_permissions.quotationmodule.quotation.show') == '1')
                                 <li
-                                    class="{{ request()->routeIs('admin.quotatoin', 'admin.addquotation') ? 'active' : '' }}">
+                                    class="{{ request()->routeIs('admin.quotation', 'admin.addquotation') ? 'active' : '' }}">
                                     <a href="#quotationinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
                                         aria-expanded="false"><i
                                             class="ri ri-clipboard-line"></i><span>Quotation</span><i
