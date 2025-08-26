@@ -68,6 +68,10 @@ class CheckPermission
             return $next($request);
         }
 
+        if ($request->session()->get('just_logged_in') === true) {
+            return redirect()->route('admin.welcome');
+        }
+
         // Handle unauthorized access
         abort(404, 'You are Unauthorized.');
     }
