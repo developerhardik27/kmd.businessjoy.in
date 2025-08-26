@@ -689,7 +689,7 @@ class blogController extends commonController
         }
 
         $validator = Validator::make($request->all(), [
-            'blog_details_endpoint' => 'required|url',
+            'blog_details_endpoint' => 'nullable|url',
             'blog_image_allowed_filetype' => 'required|string',
             'blog_image_max_size' => 'required|numeric|min:1|max:20',
             'blog_image_width' => 'required|integer|min:50|max:2000',
