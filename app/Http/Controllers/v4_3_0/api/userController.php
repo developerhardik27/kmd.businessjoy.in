@@ -1101,27 +1101,27 @@ class userController extends commonController
     public function adduserpermission($request)
     {
 
-        $reportdashboard_show = (($this->rp['reportmodule']['reportdashboard']['show'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->showreportdashboardmenu : "0";
-        $reportdashboard_add = (($this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->addreportdashboard : "0";
-        $reportdashboard_view = (($this->rp['reportmodule']['reportdashboard']['view'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->viewreportdashboard : "0";
-        $reportdashboard_edit = (($this->rp['reportmodule']['reportdashboard']['edit'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->editreportdashboard : "0";
-        $reportdashboard_delete = (($this->rp['reportmodule']['reportdashboard']['delete'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->deletereportdashboard : "0";
-        $reportdashboard_alldata = (($this->rp['reportmodule']['reportdashboard']['add'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->alldatareportdashboard : "0";
+        $reportdashboard_show = (($this->rp['reportmodule']['reportdashboard']['show'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->showreportdashboardmenu : null;
+        $reportdashboard_add = (($this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->addreportdashboard : null;
+        $reportdashboard_view = (($this->rp['reportmodule']['reportdashboard']['view'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->viewreportdashboard : null;
+        $reportdashboard_edit = (($this->rp['reportmodule']['reportdashboard']['edit'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->editreportdashboard : null;
+        $reportdashboard_delete = (($this->rp['reportmodule']['reportdashboard']['delete'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->deletereportdashboard : null;
+        $reportdashboard_alldata = (($this->rp['reportmodule']['reportdashboard']['add'] == 1 && $this->rp['reportmodule']['reportdashboard']['add'] == 1) || $this->userId == 1) ? $request->alldatareportdashboard : null;
 
-        $report_show = (($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->showreportmenu : "0";
-        $report_add = (($this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->addreport : "0";
-        $report_view = (($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->viewreport : "0";
-        $report_edit = (($this->rp['reportmodule']['report']['edit'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->editreport : "0";
-        $report_delete = (($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->deletereport : "0";
-        $report_alldata = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->assignedto : "0";
-        $report_log = (($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->logreport : "0";
+        $report_show = (($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->showreportmenu : null;
+        $report_add = (($this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->addreport : null;
+        $report_view = (($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->viewreport : null;
+        $report_edit = (($this->rp['reportmodule']['report']['edit'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->editreport : null;
+        $report_delete = (($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->deletereport : null;
+        $report_alldata = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->assignedto : null;
+        $report_log = (($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['add'] == 1) || $this->userId == 1) ? $request->logreport : null;
 
-        $reportapi_show = (($this->rp['reportmodule']['reportapi']['show'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->showreportapimenu : "0";
-        $reportapi_add = (($this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->addreportapi : "0";
-        $reportapi_view = (($this->rp['reportmodule']['reportapi']['view'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->viewreportapi : "0";
-        $reportapi_edit = (($this->rp['reportmodule']['reportapi']['edit'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->editreportapi : "0";
-        $reportapi_delete = (($this->rp['reportmodule']['reportapi']['delete'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->deletereportapi : "0";
-        $reportapi_alldata = (($this->rp['reportmodule']['reportapi']['alldata'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->alldatareportapi : "0";
+        $reportapi_show = (($this->rp['reportmodule']['reportapi']['show'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->showreportapimenu : null;
+        $reportapi_add = (($this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->addreportapi : null;
+        $reportapi_view = (($this->rp['reportmodule']['reportapi']['view'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->viewreportapi : null;
+        $reportapi_edit = (($this->rp['reportmodule']['reportapi']['edit'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->editreportapi : null;
+        $reportapi_delete = (($this->rp['reportmodule']['reportapi']['delete'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->deletereportapi : null;
+        $reportapi_alldata = (($this->rp['reportmodule']['reportapi']['alldata'] == 1 && $this->rp['reportmodule']['reportapi']['add'] == 1) || $this->userId == 1) ? $request->alldatareportapi : null;
 
         $rp = [
             'accountmodule' => [
@@ -1155,7 +1155,6 @@ class userController extends commonController
 
     public function edituserpermission($request)
     {
-
         $reportdashboard_show = (($this->rp['reportmodule']['reportdashboard']['show'] == 1 && $this->rp['reportmodule']['reportdashboard']['edit'] == 1) || $this->userId == 1) ? $request->showreportdashboardmenu : $this->rp['reportmodule']['reportdashboard']['show'];
         $reportdashboard_add = (($this->rp['reportmodule']['reportdashboard']['add'] == 1 && $this->rp['reportmodule']['reportdashboard']['edit'] == 1) || $this->userId == 1) ? $request->addreportdashboard : $this->rp['reportmodule']['reportdashboard']['add'];
         $reportdashboard_view = (($this->rp['reportmodule']['reportdashboard']['view'] == 1 && $this->rp['reportmodule']['reportdashboard']['edit'] == 1) || $this->userId == 1) ? $request->viewreportdashboard : $this->rp['reportmodule']['reportdashboard']['view'];
@@ -1163,20 +1162,20 @@ class userController extends commonController
         $reportdashboard_delete = (($this->rp['reportmodule']['reportdashboard']['delete'] == 1 && $this->rp['reportmodule']['reportdashboard']['edit'] == 1) || $this->userId == 1) ? $request->deletereportdashboard : $this->rp['reportmodule']['reportdashboard']['delete'];
         $reportdashboard_alldata = (($this->rp['reportmodule']['reportdashboard']['alldata'] == 1 && $this->rp['reportmodule']['reportdashboard']['edit'] == 1) || $this->userId == 1) ? $request->alldatareportdashboard : $this->rp['reportmodule']['reportdashboard']['alldata'];
 
-        $report_show = (($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->showreportmenu : "0";
-        $report_add = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->addreport : "0";
-        $report_view = (($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->viewreport : "0";
-        $report_edit = (($this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->editreport : "0";
-        $report_delete = (($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->deletereport : "0";
-        $report_alldata = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->assignedto : "0";
-        $report_log = (($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->logreport : "0";
+        $report_show = (($this->rp['reportmodule']['report']['show'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->showreportmenu : null;
+        $report_add = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->addreport : null;
+        $report_view = (($this->rp['reportmodule']['report']['view'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->viewreport : null;
+        $report_edit = (($this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->editreport : null;
+        $report_delete = (($this->rp['reportmodule']['report']['delete'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->deletereport : null;
+        $report_alldata = (($this->rp['reportmodule']['report']['add'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->assignedto : null;
+        $report_log = (($this->rp['reportmodule']['report']['log'] == 1 && $this->rp['reportmodule']['report']['edit'] == 1) || $this->userId == 1) ? $request->logreport : null;
 
-        $reportapi_show = (($this->rp['reportmodule']['reportapi']['show'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->showreportapimenu : "0";
-        $reportapi_add = (($this->rp['reportmodule']['reportapi']['add'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->addreportapi : "0";
-        $reportapi_view = (($this->rp['reportmodule']['reportapi']['view'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->viewreportapi : "0";
-        $reportapi_edit = (($this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->editreportapi : "0";
-        $reportapi_delete = (($this->rp['reportmodule']['reportapi']['delete'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->deletereportapi : "0";
-        $reportapi_alldata = (($this->rp['reportmodule']['reportapi']['alldata'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->alldatareportapi : "0";
+        $reportapi_show = (($this->rp['reportmodule']['reportapi']['show'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->showreportapimenu : null;
+        $reportapi_add = (($this->rp['reportmodule']['reportapi']['add'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->addreportapi : null;
+        $reportapi_view = (($this->rp['reportmodule']['reportapi']['view'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->viewreportapi : null;
+        $reportapi_edit = (($this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->editreportapi : null;
+        $reportapi_delete = (($this->rp['reportmodule']['reportapi']['delete'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->deletereportapi : null;
+        $reportapi_alldata = (($this->rp['reportmodule']['reportapi']['alldata'] == 1 && $this->rp['reportmodule']['reportapi']['edit'] == 1) || $this->userId == 1) ? $request->alldatareportapi : null;
 
         $rp = [
             "accountmodule" => [
@@ -1218,7 +1217,7 @@ class userController extends commonController
 
         $requestKey = $action == 'max' ? 'maxuser' : $action . $submodule;
 
-        return $allowed ? ($request->$requestKey ?? "0") : "0";
+        return $allowed ? ($request->$requestKey ?? null) : null;
     }
 
 }
