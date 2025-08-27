@@ -24,7 +24,7 @@ class SyncScheduledTasks extends Command
      *
      * @var string
      */
-    protected $description = 'Manage task scheduling list';
+    protected $description = 'Manage cron job list in UI: add, status change, and track last run.';
 
     /**
      * Execute the console command.
@@ -61,7 +61,7 @@ class SyncScheduledTasks extends Command
             }
 
             $cronExpression = $event->expression;
-            $cron = CronExpression::factory($cronExpression);
+            $cron = CronExpression::fromString($cronExpression);
             $nextRun = $cron->getNextRunDate();
             $formattedSchedule = $nextRun->format('Y-m-d H:i');
 
@@ -108,5 +108,4 @@ class SyncScheduledTasks extends Command
 
         $this->info('✅ Cron jobs synced successfully into the scheduled_tasks table.');
     }
-
 }
