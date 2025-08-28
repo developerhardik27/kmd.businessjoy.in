@@ -170,6 +170,10 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v4_3_0/individual',
                                     ];
+                                } else {
+                                    $paths = [
+                                        'database/migrations/v4_3_0/master',
+                                    ];
                                 }
                                 break;
 
@@ -844,7 +848,7 @@ class versionupdateController extends commonController
                                         if (!isset($jsonrp['developermodule']['cleardata'])) {
                                             $jsonrp['developermodule']['cleardata'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
-                                        
+
                                         // Encode updated permissions back to JSON
                                         $updatedRpJson = json_encode($jsonrp);
                                         // Update the database

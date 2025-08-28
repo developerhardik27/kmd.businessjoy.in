@@ -61,7 +61,7 @@ class SyncScheduledTasks extends Command
             }
 
             $cronExpression = $event->expression;
-            $cron = CronExpression::fromString($cronExpression);
+            $cron = CronExpression::factory($cronExpression);
             $nextRun = $cron->getNextRunDate();
             $formattedSchedule = $nextRun->format('Y-m-d H:i');
 
@@ -102,6 +102,9 @@ class SyncScheduledTasks extends Command
                 ]
             );
         }
+
+        task_schedule_list::where('name', $this->signature)
+            ->update(['last_run_time' => now()]);
 
         // Mark commands not scheduled anymore as inactive
         task_schedule_list::whereNotIn('name', $activeNames)->update(['is_active' => 0]);

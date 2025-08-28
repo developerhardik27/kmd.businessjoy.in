@@ -7,6 +7,7 @@ use App\Models\company;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use App\Models\task_schedule_list;
 
 class deleteTempRecords extends Command
 {
@@ -74,7 +75,8 @@ class deleteTempRecords extends Command
                 }
             }
 
-
+            task_schedule_list::where('name', $this->signature)
+                ->update(['last_run_time' => now()]);
         } catch (\Exception $e) {
             // Catch any general errors and log them
             $this->info("An error occurred during the delete temp records: " . $e->getMessage());
@@ -85,7 +87,5 @@ class deleteTempRecords extends Command
 
         // Final message to confirm completion
         $this->info('Temp records and corresponding files deleted successfully.');
-
     }
-
 }

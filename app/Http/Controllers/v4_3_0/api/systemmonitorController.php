@@ -314,6 +314,7 @@ class systemmonitorController extends commonController
             'description',
             'is_active',
             DB::raw("DATE_FORMAT(schedule, '%d-%M-%Y %h:%i:%s %p') as schedule_formatted"),
+            DB::raw("DATE_FORMAT(last_run_time, '%d-%M-%Y %h:%i:%s %p') as last_run"),
             DB::raw("DATE_FORMAT(updated_at, '%d-%M-%Y %h:%i:%s %p') as updated_at_formatted")
         )->get();
 
