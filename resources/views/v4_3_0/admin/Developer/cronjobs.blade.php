@@ -49,6 +49,7 @@
                 <th>Task Name</th>
                 <th>Description</th>
                 <th>Status</th>
+                <th>Last Run Time</th>
                 <th>Next Run Time</th>
             </tr>
         </thead>
@@ -148,6 +149,13 @@
                             render : function(data, type, row){
                                 return data == 1 ? `<span class="text-success">Active</span>` :  `<span class="text-damger">InActive</span>`;
                             }
+                        },
+                        {
+                            data: 'last_run',
+                            name: 'last_run',
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '-'
                         },
                         {
                             data: 'schedule_formatted',

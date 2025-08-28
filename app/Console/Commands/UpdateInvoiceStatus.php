@@ -6,7 +6,7 @@ use App\Models\company;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\task_schedule_list;
 
 class UpdateInvoiceStatus extends Command
 {
@@ -73,10 +73,10 @@ class UpdateInvoiceStatus extends Command
 
 
 
+        task_schedule_list::where('name', $this->signature)
+            ->update(['last_run_time' => now()]);
 
         // Revert back to the default database connection
         DB::setDefaultConnection('mysql');
-
-
     }
 }

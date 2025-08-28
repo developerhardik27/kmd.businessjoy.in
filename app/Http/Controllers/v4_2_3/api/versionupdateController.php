@@ -170,6 +170,10 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v4_3_0/individual',
                                     ];
+                                }else{
+                                    $paths = [
+                                        'database/migrations/v4_3_0/master',
+                                    ];
                                 }
                                 break;
 
