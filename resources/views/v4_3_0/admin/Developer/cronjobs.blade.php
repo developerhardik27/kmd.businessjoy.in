@@ -57,11 +57,35 @@
 
         </tbody>
     </table>
+    <div id="cron_overdue" style="display: none;" role="alert">
+    </div>
 @endsection
 
 
 @push('ajax')
     <script>
+        function showWarning(message) {
+            // Check if already exists
+            if ($('#cronWarning').length === 0) {
+                const warningHtml = `
+                    <div id="cronWarning" class="alert alert-warning mt-3">
+                        ${message}
+                    </div>
+                `;
+                $('#cron_overdue').show();
+                $('#cron_overdue').append(warningHtml);
+            } else {
+                $('#cron_overdue').show();
+                $('#cronWarning').html(message);
+            }
+        }
+
+        function removeWarning() {
+            $('#cron_overdue').hide();
+            $('#cronWarning').remove();
+        }
+
+
         $('document').ready(function() {
 
             // companyId and userId both are required in every ajax request for all action *************
@@ -101,6 +125,38 @@
 
                             global_response = json;
 
+                            // Check if sync:scheduled-tasks cron is behind
+                            // Check if sync:scheduled-tasks is overdue
+                            const now = new Date();
+                            let cronIsOverdue = false;
+
+                            if (Array.isArray(json.data)) {
+                                for (const item of json.data) {
+                                    if (item.name === 'sync:scheduled-tasks' && item.next_run) {
+                                        // Normalize next_run format:
+                                        const trimmed = item.next_run.trim();
+                                        const normalized = trimmed.length === 16 ? trimmed + ':00' :
+                                            trimmed;
+
+                                        // Convert "YYYY-MM-DD HH:mm:ss" to ISO "YYYY-MM-DDTHH:mm:ss"
+                                        const nextRun = new Date(normalized.replace(' ', 'T'));
+
+                                        if (!isNaN(nextRun.getTime()) && nextRun < now) {
+                                            cronIsOverdue = true;
+                                            showWarning(
+                                                `⚠️ The 'sync:scheduled-tasks' cron job is overdue.`
+                                            );
+                                            break; // no need to check further once found overdue
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!cronIsOverdue) {
+                                removeWarning();
+                            }
+
+
                             return json.data;
                         },
                         complete: function() {
@@ -118,8 +174,7 @@
                     order: [
                         [0, 'desc']
                     ],
-                    columns: [
-                        {
+                    columns: [{
                             data: 'id',
                             name: 'id',
                             orderable: true,
@@ -146,8 +201,9 @@
                             orderable: false,
                             searchable: false,
                             defaultContent: '-',
-                            render : function(data, type, row){
-                                return data == 1 ? `<span class="text-success">Active</span>` :  `<span class="text-damger">InActive</span>`;
+                            render: function(data, type, row) {
+                                return data == 1 ? `<span class="text-success">Active</span>` :
+                                    `<span class="text-danger">InActive</span>`;
                             }
                         },
                         {
@@ -163,11 +219,11 @@
                             orderable: false,
                             searchable: false,
                             defaultContent: '-',
-                            render : function(data, type, row){
-                                if(row.is_active == 1){
+                            render: function(data, type, row) {
+                                if (row.is_active == 1) {
                                     return data;
-                                }else{
-                                    return '-' ;
+                                } else {
+                                    return '-';
                                 }
                             }
                         }
