@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\admin\AdminLoginController;
-use App\Http\Controllers\admin\HomeController;
-use App\Http\Controllers\landing\LandingPageController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\admin\HomeController;
+use App\Http\Controllers\admin\AmazonController;
+use App\Http\Controllers\admin\AdminLoginController;
+use App\Http\Controllers\landing\LandingPageController;
 
 
 // Define a function to generate the controller class name based on the session value
@@ -70,6 +71,10 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 return redirect()->route('admin.login')->with('error', 'Session Expired');
             }
         })->name('admin.welcome');
+
+        Route::controller(AmazonController::class)->group(function () {
+            Route::get('/amazon/callback', 'amazoncallback')->name('amazon.callback');
+        });
 
         Route::get('/setmenusession', [AdminLoginController::class, 'setmenusession'])->name('admin.setmenusession');
 
@@ -274,7 +279,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/EditReminder/{id}', 'edit')->name('admin.editreminder')->middleware('checkPermission:remindermodule,reminder,edit');
             });
 
-
             // technical support route 
             $TechSupportController = getadminversion('TechSupportController');
             Route::controller($TechSupportController)->group(function () {
@@ -282,7 +286,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewTechsupport', 'create')->name('admin.addtechsupport')->middleware('checkPermission:adminmodule,techsupport,add');
                 Route::get('/EditTechsupport/{id}', 'edit')->name('admin.edittechsupport')->middleware('checkPermission:adminmodule,techsupport,edit');
             });
-
 
             // blog module routes 
 
@@ -297,7 +300,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/EditBlog/{id}', 'edit')->name('admin.editblog')->middleware('checkPermission:blogmodule,blog,edit');
                 Route::get('/blog/Api', 'blogapi')->name('admin.blogapi')->middleware('checkPermission:blogmodule,blogapi,show');
             });
-
 
             /**
              * logistic module route start
@@ -367,11 +369,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
             });
 
-            $AmazonController = getadminversion('AmazonController');
-
-            Route::controller($AmazonController)->group(function () {
+            Route::controller(AmazonController::class)->group(function () {
                 Route::get('/amazon/authorize', 'amazonauthorize')->name('amazon.authorize');
-                Route::get('/amazon/callback', 'amazoncallback')->name('amazon.callback');
             });
         });
     });

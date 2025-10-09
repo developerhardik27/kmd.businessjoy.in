@@ -60,7 +60,18 @@ class Kernel extends ConsoleKernel
                 File::append($logPath, "===== [delete:temp-records] Ended at " . now() . " =====\n\n");
             });
 
-        // 3. sync:scheduled-tasks
+        // 3. delete:temp-records
+        $schedule->command('amazon:refresh-tokens')
+            ->hourly()
+            ->before(function () use ($logPath) {
+                File::append($logPath, "===== [amazon:refresh-tokens] Started at " . now() . " =====\n");
+            })
+            ->appendOutputTo($logPath)
+            ->after(function () use ($logPath) {
+                File::append($logPath, "===== [amazon:refresh-tokens] Ended at " . now() . " =====\n\n");
+            });
+
+        // 4. sync:scheduled-tasks
         $schedule->command('sync:scheduled-tasks')
             ->dailyAt('06:00')
             ->before(function () use ($logPath) {
