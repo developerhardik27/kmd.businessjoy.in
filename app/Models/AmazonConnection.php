@@ -9,7 +9,7 @@ class AmazonConnection extends Model
 {
     use HasFactory;
 
-    protected $table = 'amazon_connection';
+    protected $table = 'amazon_connections';
 
     public $guarded = [];
 }
