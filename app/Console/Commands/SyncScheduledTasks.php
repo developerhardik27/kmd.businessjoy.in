@@ -24,7 +24,7 @@ class SyncScheduledTasks extends Command
      *
      * @var string
      */
-    protected $description = 'Manage task scheduling list';
+    protected $description = 'Manage cron job list in UI: add, status change, and track last run.';
 
     /**
      * Execute the console command.
@@ -103,10 +103,12 @@ class SyncScheduledTasks extends Command
             );
         }
 
+        task_schedule_list::where('name', $this->signature)
+            ->update(['last_run_time' => now()]);
+
         // Mark commands not scheduled anymore as inactive
         task_schedule_list::whereNotIn('name', $activeNames)->update(['is_active' => 0]);
 
         $this->info('✅ Cron jobs synced successfully into the scheduled_tasks table.');
     }
-
 }

@@ -221,7 +221,7 @@ Avatar Size
 .avatar-100 { height: 100px; width: 100px; line-height: 100px; font-size: 1.6rem; }
 .avatar-110 { height: 110px; width: 110px; line-height: 110px; font-size: 1.6rem; }
 .avatar-120 { height: 120px; width: 120px; line-height: 120px; font-size: 1.6rem; }
-.avatar-130 { height: 130px; width: 130px; line-height: 130px; font-size: 1.6rem; }
+.avatar-130 { max-height: 130px; width: 130px; line-height: 130px; font-size: 1.6rem; }
 
 /*----------------------------------------------
 Margin Bottom

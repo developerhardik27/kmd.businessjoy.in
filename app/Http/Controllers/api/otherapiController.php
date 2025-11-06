@@ -57,26 +57,56 @@ class otherapiController extends Controller
      */
     public function oceanlead(Request $request)
     {
-        $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
-            ->where(function ($query) use ($request) {
-                if (!empty($request->email)) {
-                    $query->orWhere('email', $request->email);
-                }
-                if (!empty($request->contact_no)) {
-                    $query->orWhere('contact_no', $request->contact_no);
-                }
-            })->where('is_deleted', 0)->exists();
+        // $checkrecord = DB::connection('dynamic_connection')->table('tbllead')
+        //     ->where(function ($query) use ($request) {
+        //         if (!empty($request->email)) {
+        //             $query->orWhere('email', $request->email);
+        //         }
+        //         if (!empty($request->contact_no)) {
+        //             $query->orWhere('contact_no', $request->contact_no);
+        //         }
+        //     })->where('is_deleted', 0)->exists();
 
 
-        if ($checkrecord) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'You are already in'
-            ], 200);
-        }
+        // if ($checkrecord) {
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'You are already in'
+        //     ], 200);
+        // }
 
 
         $name = $this->splitName($request->name);
+
+        $attachments = [];
+
+        // ✅ Detect both single and multiple file uploads
+        if ($request->hasFile('attachments')) {
+            $files = $request->file('attachments');
+
+            // If it's a single file, wrap it into an array for consistency
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+
+            $timestamp = now()->format('dmY');
+
+            foreach ($files as $file) {
+                $filename = $request->name . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $dir = public_path('uploads/' . $request->company_id . '/lead/attachments/' . $timestamp);
+
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+
+                $file->move($dir, $filename);
+                $attachments[] = $request->company_id . '/lead/attachments/' . $timestamp . '/' . $filename;
+            }
+        }
+
+
+        $attachments = json_encode($attachments); // Store as JSON or any format you prefer
+
 
         $lead = DB::connection('dynamic_connection')->table('tbllead')->insert([
             'first_name' => $name['first_name'],
@@ -86,10 +116,12 @@ class otherapiController extends Controller
             'title' => $request->title,
             'budget' => $request->budget,
             'source' => $request->source,
-            'notes' => $request->notes,
-            'msg_from_lead' => $request->message,
+            'msg_from_lead' => $request->notes,
+            'notes' => $request->message,
+            'web_url' => $request->web_url,
             'audience_type' => 'cool',
             'attempt_lead' => 0,
+            'attachment' => $attachments,
             'created_by' => $request->user_id
         ]);
 
@@ -112,10 +144,11 @@ class otherapiController extends Controller
      * Summary of blog
      * @param \Illuminate\Http\Request $request
      */
-    public function blog(Request $request){
+    public function blog(Request $request)
+    {
 
         $blogdata = app('App\Http\Controllers\\' . $request->app_version . '\api\blogController')->index($request);
-        
+
         $blogdata = $blogdata->getContent();
 
         $blogdata = json_decode($blogdata);
@@ -123,9 +156,10 @@ class otherapiController extends Controller
         return $blogdata;
     }
 
-    public function blogdetails(Request $request, string $slug = null){
-        $blogdetails = app('App\Http\Controllers\\' . $request->app_version . '\api\blogController')->show($request,$slug);
-        
+    public function blogdetails(Request $request, $slug = null)
+    {
+        $blogdetails = app('App\Http\Controllers\\' . $request->app_version . '\api\blogController')->show($request, $slug);
+
         $blogdetails = $blogdetails->getContent();
 
         $blogdetails = json_decode($blogdetails);
@@ -188,5 +222,4 @@ class otherapiController extends Controller
 
         return response()->json(['message' => 'New record created successfully'], 200);
     }
-
 }

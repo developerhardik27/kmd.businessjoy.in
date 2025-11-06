@@ -98,7 +98,7 @@ class CompanyController extends Controller
 
     public function api_authorization(){
 
-        if(Auth::guard('admin')->user()->role != 1){
+        if(session('admin_role') != 1){
             abort(403);
         }
 

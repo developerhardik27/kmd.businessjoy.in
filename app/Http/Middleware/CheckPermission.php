@@ -68,6 +68,13 @@ class CheckPermission
             return $next($request);
         }
 
+        if ($request->session()->get('just_logged_in') === true) {
+            if (session('menu') != 'yes') {
+                session(['menu' => session('navmanu')[0]]);
+            }
+            return redirect()->route('admin.welcome');
+        }
+
         // Handle unauthorized access
         abort(404, 'You are Unauthorized.');
     }

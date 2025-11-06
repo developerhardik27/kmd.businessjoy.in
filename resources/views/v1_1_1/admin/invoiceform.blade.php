@@ -1398,7 +1398,7 @@
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
-                        country_id = "{{ Auth::guard('admin')->user()->country_id }}";
+                        country_id = "{{ session('user')['country_id'] }}";
                         $('#modal_country').val(country_id);
                         loadstate();
                     } else {
@@ -1434,7 +1434,7 @@
                 $('#modal_state').html(`<option selected="" disabled="">Select your State</option>`);
                 var url = "/api/state/search/" + id;
                 if (id == 0) {
-                    url = "/api/state/search/" + "{{ Auth::guard('admin')->user()->country_id }}";
+                    url = "/api/state/search/" + "{{ session('user')['country_id'] }}";
                 }
                 $.ajax({
                     type: 'GET',
@@ -1451,7 +1451,7 @@
                                 )
                             });
                             if (id == 0) {
-                                state_id = "{{ Auth::guard('admin')->user()->state_id }}";
+                                state_id = "{{ session('user')['state_id'] }}";
                                 $('#modal_state').val(state_id);
                                 loadcity();
                             }
@@ -1487,7 +1487,7 @@
                 $('#modal_city').html(`<option selected="" disabled="">Select your City</option>`);
                 url = "/api/city/search/" + id;
                 if (id == 0) {
-                    url = "/api/city/search/" + "{{ Auth::guard('admin')->user()->state_id }}";
+                    url = "/api/city/search/" + "{{ session('user')['state_id'] }}";
                 }
                 $.ajax({
                     type: 'GET',
@@ -1504,7 +1504,7 @@
                                 )
                             });
                             if (id == 0) {
-                                $('#modal_city').val("{{ Auth::guard('admin')->user()->city_id }}");
+                                $('#modal_city').val("{{ session('user')['city_id'] }}");
                             }
                         } else {
                             $('#modal_city').append(`<option> No Data Found</option>`);

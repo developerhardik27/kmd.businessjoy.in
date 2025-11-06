@@ -13,11 +13,13 @@
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^3.8",
         "jenssegers/agent": "^2.6",
+        "jlevers/selling-partner-api": "*",
         "laravel/breeze": "^1.23",
         "laravel/framework": "^10.10",
         "laravel/passport": "^11.10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
+        "phpoffice/phpspreadsheet": "^4.4",
         "spatie/image": "^3.8",
         "spatie/laravel-ignition": "^2.3",
         "yajra/laravel-datatables-oracle": "10.3.1"
