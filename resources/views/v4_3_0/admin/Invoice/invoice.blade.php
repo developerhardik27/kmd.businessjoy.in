@@ -290,7 +290,7 @@
                                 if (row.status != 'paid') {
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id='${row.id}' class='btn btn-sm btn-primary my-0 leadid paymentformmodal'>
+                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id='${row.id}' class='btn btn-sm btn-primary m-0 leadid paymentformmodal'>
                                                 <i class='ri-paypal-fill'></i>
                                             </button>
                                         </span>
