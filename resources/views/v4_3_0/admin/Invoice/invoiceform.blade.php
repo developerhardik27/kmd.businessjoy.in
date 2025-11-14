@@ -526,6 +526,7 @@
                 user_id: USER_ID
             }).done(function(response) {
                 allColumnData = response.columnname; //store all column data for use globally in entire page
+                hiddencolumn = allColumnData.filter(col => col.is_hide === 1).length;
                 //  if(allColumnData.length > 6){  
                 //      $('.producttable').css('width',allColumnData.length * 200 + 'px');
                 //  }
@@ -560,7 +561,7 @@
                     `);
                 }
                 $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
-                $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length + 3); // set autocolspan for add new button row
+                $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3); // set autocolspan for add new button row
             }).fail(function(xhr) {
                 loaderhide();
                 handleAjaxError(xhr);
@@ -854,7 +855,7 @@
                         ${allColumnData.map(columnData => {
                                 var columnName = columnData.column_name.replace(/\s+/g, '_');
                                 var inputcontent = null ;
-                                ( columnData.is_hide === 1 ) ? hiddencolumn++ : '';
+                                ( columnData.is_hide == 1 ) ? hiddencolumn++ : '';
                                 if (columnData.column_type === 'time') {
                                     return `<td class="invoicesubmit ${(columnData.is_hide === 1)?'d-none':''} "><input type="time" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
                                 } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' ||columnData.column_type === 'decimal') {

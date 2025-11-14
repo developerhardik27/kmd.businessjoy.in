@@ -509,6 +509,7 @@
                     user_id: USER_ID
                 }).done(function(response) {
                     allColumnData = response.columnname;
+                    hiddencolumn = allColumnData.filter(col => col.is_hide === 1).length;
                         // if(allColumnData.length > 6){ 
                         //     $('.producttable').css('width',allColumnData.length * 200 + 'px');
                         // }
@@ -543,7 +544,7 @@
                         <th>Quantity</th>`);
                     }
                     $('.automaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn);
-                    $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length + 3); // set autocolspan for add new button row
+                    $('.newdivautomaticcolspan').attr('colspan',allColumnNames.length - hiddencolumn + 3); // set autocolspan for add new button row
                 }).fail(function(xhr) {
                     loaderhide();
                     handleAjaxError(xhr);
