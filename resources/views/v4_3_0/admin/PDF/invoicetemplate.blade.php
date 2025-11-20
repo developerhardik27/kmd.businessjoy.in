@@ -183,9 +183,7 @@
             table-layout: auto;
             /* Prevent table from breaking across pages */
         }
-
-
-
+ 
         .data td,
         th {
             white-space: normal;

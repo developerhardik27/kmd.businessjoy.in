@@ -118,7 +118,7 @@ class PaymentController extends commonController
                 return $this->successresponse(404, 'message', 'Invoice not found');
             }
 
-            $total_paid = $payments->sum('paid_amount');
+            $total_paid = $payments->sum('paid_amount') ?? 0;
             $total = $invoice->grand_total;
             $paid_amount = (int) $request->paidamount;
             $pending_amount = $total - $total_paid - $paid_amount;
@@ -138,7 +138,7 @@ class PaymentController extends commonController
                 'pending_amount' => $pending_amount,
                 'paid_by' => $request->paid_by,
                 'paid_type' => $request->payment_type,
-                'part_payment' => $pending_amount > 0 ? 1 : 0
+                'part_payment' => $total_paid > 0 || $pending_amount > 0 ? 1 : 0
             ];
 
             $payment_inserted = $this->payment_detailsModel::insert($payment_data);
