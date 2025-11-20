@@ -287,6 +287,7 @@
                             render: function(data, type, row) {
                                 let generateInvoiceReceiptAllUrl = "{{ route('invoice.generaterecieptll', '__invoiceId__') }}".replace('__invoiceId__', row.id);
                                 actions = ''; 
+                                console.log("row ", row);
                                 if (row.status != 'paid') {
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
@@ -296,13 +297,13 @@
                                         </span>
                                     `;
                                 }
-                                if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount != 0) {
+                                if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
                                     actions += `                                             
                                         <span> 
                                             <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-primary btn-rounded btn-sm my-0" >
-                                                        <i class="ri-download-line"></i>
-                                                    </button>
+                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-primary btn-rounded btn-sm m-0" >
+                                                    <i class="ri-download-line"></i>
+                                                </button>
                                             </a>
                                         </span>
                                     `;
@@ -311,7 +312,7 @@
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
                                             <button  data-id='${row.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                    <i class='ri-eye-fill'></i> 
+                                                <i class='ri-eye-fill'></i> 
                                             </button> 
                                         </span>
                                     `;
