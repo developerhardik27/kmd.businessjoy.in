@@ -27,6 +27,7 @@ class UsersTableSeeder extends Seeder
             'company_id' => 1,
             'created_by' => 1,
             'role'=>1,
+            'role_permissions'=>1,
         ]);
     }
 }

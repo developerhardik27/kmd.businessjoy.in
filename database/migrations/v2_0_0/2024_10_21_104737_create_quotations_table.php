@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -38,8 +39,7 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->dateTime('updated_at')->nullable();
+            $table->timestamps();
             $table->integer('is_active')->default(1);
             $table->integer('is_deleted')->default(0);
             $table->integer('is_editable')->default(1);

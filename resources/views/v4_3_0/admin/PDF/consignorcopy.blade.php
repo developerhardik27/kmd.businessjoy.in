@@ -54,7 +54,7 @@
 
         h2 {
             font-size: 18px;
-            margin:0;
+            margin: 0;
         }
 
         .content img {
@@ -70,7 +70,7 @@
             font-size: 12px;
         }
 
-        b{
+        b {
             margin: 0px !important;
             padding: 2px !important;
             font-size: 12px !important;
@@ -97,7 +97,7 @@
             margin: 0 0 !important;
         }
 
-        span{
+        span {
             margin: 0px !important;
             padding: 0px !important;
         }
@@ -109,7 +109,7 @@
             left: 15%;
             width: 70%;
             text-align: center;
-            opacity: 0.15; 
+            opacity: 0.15;
             z-index: 0;
             font-size: 80px;
             color: #000;
@@ -127,14 +127,13 @@
 
         .pdf-header {
             position: fixed;
-            top: -20px; 
+            top: -20px;
             right: 0px;
             text-align: center;
             font-size: 12px;
-            text-transform:capitalize;
+            text-transform: capitalize;
             z-index: 10;
         }
-
     </style>
 </head>
 
@@ -143,26 +142,27 @@
     <div class="pdf-header">
         consignor copy
     </div>
-    
+
     {{-- ✅ Text Watermark --}}
     {{-- <div class="watermark">CONFIDENTIAL</div> --}}
     {{-- ✅ Image Watermark (Uncomment if using image) --}}
     <div class="watermark">
-        @if($companydetails['watermark_img'] != '')
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['watermark_img']))) }}">
+        @if ($companydetails['watermark_img'] != '')
+            <img
+                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['watermark_img']))) }}">
         @endif
     </div>
     <main>
 
 
-        <div class="content"> 
+        <div class="content">
             <table class="w-100 table">
                 <tr>
                     <td class="vertical-align-center">
                         <div class="text-center vertical-align-center" style="height: auto">
                             @if ($companydetails['img'] != '')
                                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
-                                    alt="Company logo" >
+                                    alt="Company logo">
                             @endif
                         </div>
                     </td>
@@ -185,6 +185,16 @@
                                 <b>Email :</b> {{ $companydetails['email'] }}
                             </p>
                         @endif
+                        @if ($companydetails['contact_no'])
+                            <p>
+                                <b>Contact :</b> {{ $companydetails['contact_no'] }}
+                            </p>
+                        @endif
+                        @isset($companydetails['transporter_id'])
+                            <p>
+                                <b>Transporter ID:</b> {{ $companydetails['transporter_id'] }}
+                            </p>
+                        @endisset
                     </td>
                 </tr>
             </table>
@@ -253,7 +263,7 @@
                         <hr style="margin: 0;padding:0;width:100%">
                         <b>CHA : </b><span>{{ $consignorcopy['cha'] }}</span>
                     </td>
-                </tr> 
+                </tr>
             </table>
 
             <div class="page-break"></div>
@@ -386,8 +396,8 @@
                             <b>OUR COMPANY'S GST NO : <span>{{ $companydetails['gst_no'] }}<span> </b>
                             <br>
                         @endif
-                        <b>STATE : <span>{{ $companydetails['state_name'] }}<span>, 
-                        STATE CODE : <span>{{ $companydetails['state_code'] }}<span> </b>
+                        <b>STATE : <span>{{ $companydetails['state_name'] }}<span>,
+                                    STATE CODE : <span>{{ $companydetails['state_code'] }}<span> </b>
                     </td>
                 </tr>
                 @isset($tandc)

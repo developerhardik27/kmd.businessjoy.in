@@ -64,16 +64,21 @@
                     </select>
                     <span class="error-msg" id="error-currency" style="color: red"></span>
                 </div> 
-                <div class="col-sm-4 mb-3">
-                    <label for="type">Tax-Type</label><span
-                    style="color:red;">*</span>
-                    <select class="form-control" id="type" name="type" required>
-                        <option selected="" disabled="">Select Type</option>
-                        <option value="1">GST</option>
-                        <option value="2">Without GST</option>
-                    </select>
-                    <span class="error-msg" id="error-tax_type" style="color: red"></span>
-                </div> 
+
+                @if (session('company_gst_no') && session('company_gst_no') != '')
+                    <div class="col-sm-4 mb-3">
+                        <label for="type">Tax-Type</label><span style="color:red;">*</span>
+                        <select class="form-control" id="type" name="type" required>
+                            <option disabled="">Select Type</option>
+                            <option value="1" selected>GST</option>
+                            <option value="2">Without GST</option>
+                        </select>
+                        <span class="error-msg" id="error-tax_type" style="color: red"></span>
+                    </div> 
+                @else
+                    <input type="hidden" id="type" name="type" value="2">    
+                @endif
+
                 <div class="col-sm-4 mb-3">
                     <label for="acc_details">Bank Account </label><span
                     style="color:red;">*</span>
@@ -134,7 +139,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="sgstline" class="text-right">
+                <tr id="sgstline" class="text-right" @style(['display:none' => (!session('company_gst_no') && session('company_gst_no') == '')])>
                     <th class="automaticcolspan">SGST <span id="sgstpercentage"></span></th>
                     <td>
                         <div class="d-flex justify-content-between">
@@ -142,7 +147,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="cgstline" class="text-right">
+                <tr id="cgstline" class="text-right" @style(['display:none' => (!session('company_gst_no') && session('company_gst_no') == '')])>
                     <th class="automaticcolspan">CGST <span id="cgstpercentage"></span></th>
                     <td>
                         <div class="d-flex justify-content-between">
@@ -150,7 +155,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="gstline" class="text-right">
+                <tr id="gstline" class="text-right" @style(['display:none' => (!session('company_gst_no') && session('company_gst_no') == '')])>
                     <th class="automaticcolspan">Total GST <span id="gstpercentage"></span></th>
                     <td>
                         <div class="d-flex justify-content-between">
@@ -708,24 +713,6 @@
                             loadershow();
                             var selectedOption = $('#customer').find('option:selected');
                         
-                            var gstno = selectedOption.data('gstno');
-                            if (gstno != null) {    // show gst line if customer has gst no other wise hide
-                                $('#type').val(1);  // set gst type to gst
-                                if(gst != 0){
-                                    $('#sgstline,#cgstline').hide();
-                                    $('#gstline').show();
-                                }else{
-                                    $('#gstline').hide();
-                                    $('#sgstline,#cgstline').show();
-
-                                }
-                                dynamiccalculaton();
-                            } else {
-                                $('#type').val(2); // set gst type to withoutgst
-                                $('#sgstline,#cgstline,#gstline').hide();
-                                dynamiccalculaton();
-                            }
-
                             let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
 
                             ajaxRequest('GET', customerSearchUrl, { 
@@ -784,23 +771,7 @@
                 if(customerid == 'add_customer'){
                     $('#exampleModalScrollable').modal('show');
                 }
-                var gstno = selectedOption.data('gstno');
-                if (gstno != null) {
-                    $('#type').val(1);
-                    if(gst != 0){
-                        $('#sgstline,#cgstline').hide();
-                        $('#gstline').show();
-                    }else{
-                        $('#gstline').hide();
-                        $('#sgstline,#cgstline').show();
-
-                    }
-                    dynamiccalculaton();
-                } else {
-                    $('#type').val(2);
-                    $('#sgstline,#cgstline,#gstline').hide();
-                    dynamiccalculaton();
-                }
+                
                 customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
 
                 ajaxRequest('GET', customerSearchUrl, { 
@@ -1314,56 +1285,56 @@
                 });
                 total = total.toFixed(2);
                 if(!isNaN(total)){
-                $('#totalamount').val(total);
-                if($('#type').val()==1){ 
-                    var sgstvalue = ((total * sgst) / 100);
-                    var cgstvalue = ((total * cgst) / 100);
-                    sgstvalue = sgstvalue.toFixed(2);
-                    cgstvalue = cgstvalue.toFixed(2);
-                    if(gst == 0){
-                    $('#sgst').val(sgstvalue);
-                    $('#cgst').val(cgstvalue);
-                    }else{
-                        $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
-                    }
-                    var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue);
-                    grandtotalval = Math.round(totalval)
-                    if(grandtotalval >= totalval){
-                        roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
-                        if(roundoffval == 0){
-                            $('#roundoff').val(`${roundoffval}`);
-                        }else{ 
-                            $('#roundoff').val(`+ ${roundoffval}`);
+                    $('#totalamount').val(total);
+                    if($('#type').val()==1){ 
+                        var sgstvalue = ((total * sgst) / 100);
+                        var cgstvalue = ((total * cgst) / 100);
+                        sgstvalue = sgstvalue.toFixed(2);
+                        cgstvalue = cgstvalue.toFixed(2);
+                        if(gst == 0){
+                        $('#sgst').val(sgstvalue);
+                        $('#cgst').val(cgstvalue);
+                        }else{
+                            $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
                         }
-                    }else{
-                        roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
-                        if(roundoffval == 0){
-                            $('#roundoff').val(`${roundoffval}`);
-                        }else{ 
-                            $('#roundoff').val(`- ${roundoffval}`);
-                        }  
-                    }
-                    $('#grandtotal').val(grandtotalval);
-                }else{
-                    $('#grandtotal').val(Math.round(total));
-                    var totalval = parseFloat(total);
-                    grandtotalval = Math.round(totalval)
-                    if(grandtotalval >= totalval){
-                        roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
-                        if(roundoffval == 0){
-                            $('#roundoff').val(`${roundoffval}`);
-                        }else{ 
-                            $('#roundoff').val(`+ ${roundoffval}`);
+                        var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue);
+                        grandtotalval = Math.round(totalval)
+                        if(grandtotalval >= totalval){
+                            roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
+                            if(roundoffval == 0){
+                                $('#roundoff').val(`${roundoffval}`);
+                            }else{ 
+                                $('#roundoff').val(`+ ${roundoffval}`);
+                            }
+                        }else{
+                            roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
+                            if(roundoffval == 0){
+                                $('#roundoff').val(`${roundoffval}`);
+                            }else{ 
+                                $('#roundoff').val(`- ${roundoffval}`);
+                            }  
                         }
+                        $('#grandtotal').val(grandtotalval);
                     }else{
-                        roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
-                        if(roundoffval == 0){
-                            $('#roundoff').val(`${roundoffval}`);
-                        }else{ 
-                            $('#roundoff').val(`- ${roundoffval}`);
+                        $('#grandtotal').val(Math.round(total));
+                        var totalval = parseFloat(total);
+                        grandtotalval = Math.round(totalval)
+                        if(grandtotalval >= totalval){
+                            roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2) ;
+                            if(roundoffval == 0){
+                                $('#roundoff').val(`${roundoffval}`);
+                            }else{ 
+                                $('#roundoff').val(`+ ${roundoffval}`);
+                            }
+                        }else{
+                            roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2) ;
+                            if(roundoffval == 0){
+                                $('#roundoff').val(`${roundoffval}`);
+                            }else{ 
+                                $('#roundoff').val(`- ${roundoffval}`);
+                            }
                         }
                     }
-                }
                 }           
                          
             }

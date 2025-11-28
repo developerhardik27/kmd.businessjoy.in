@@ -518,6 +518,14 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (session('user_permissions.logisticmodule.transporterbilling.show') == '1')
+                                <li class="{{ request()->routeIs('admin.transporterbilling') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.transporterbilling') }}" class="iq-waves-effect">
+                                        <i class="ri-bill-line"></i>
+                                        <span>Transporter Bills</span>
+                                    </a>
+                                </li>
+                            @endif
                         @elseif (Session::has('menu') && Session::get('menu') == 'developer')
                             @if (session('user_permissions.developermodule.slowpage.show') == '1')
                                 <li class="{{ request()->routeIs('admin.slowpages') ? 'active' : '' }}">

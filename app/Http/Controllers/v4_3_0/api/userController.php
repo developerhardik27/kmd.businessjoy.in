@@ -116,7 +116,8 @@ class userController extends commonController
             "consignee" => ["show", "add", "view", "edit", "delete", "alldata"],
             "consignor" => ["show", "add", "view", "edit", "delete", "alldata"],
             "logisticapi" => ["show", "add", "view", "edit", "delete", "alldata"],
-            "watermark" => ["show", "add", "view", "edit", "delete", "alldata"]
+            "watermark" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "transporterbilling" => ["show", "add", "view", "edit", "delete", "alldata"]
         ],
         "developermodule" => [
             "developerdashboard" => ["show", "add", "view", "edit", "delete", "alldata"],
@@ -315,20 +316,24 @@ class userController extends commonController
     }
 
     // user list who has invoice module permission
-    public function invoiceuser()
+    public function invoiceuser(Request $request)
     {
-        $usersres = DB::table('users')
-            ->select('users.id', 'users.firstname', 'users.lastname')
-            ->where('users.is_deleted', 0);
-
-        if ($this->companyId != 1) {
-            $users = $usersres->where('users.company_id', $this->companyId)
-                ->whereJsonContains('rp->invoicemodule->invoice->add', "1")
-                ->whereJsonContains('rp->invoicemodule->invoice->show', "1")
-                ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id');
+        $targetUserId = $request->target_user_id ?? $this->userId; // target users company id / logged in user company id
+        $targetCompanyId = $this->companyId;
+        if ($this->companyId == 1 && $targetUserId != 1) {
+           $targetCompanyId = $this->getcompanyidbyuserid($targetUserId);
         }
 
-        $users = $usersres->get();
+        $users = DB::table('users')
+            ->select('users.id', 'users.firstname', 'users.lastname')
+            ->where('users.is_deleted', 0)
+            ->where('users.is_active', 1)
+            ->where('users.company_id', $targetCompanyId)
+            // commented this condition. give all company related users
+            // ->whereJsonContains('rp->invoicemodule->invoice->add', "1")
+            // ->whereJsonContains('rp->invoicemodule->invoice->show', "1")
+            // ->join($this->db . '.user_permissions', 'users.id', '=', $this->db . '.user_permissions.user_id')
+            ->get();
 
         if ($users->isEmpty()) {
             return $this->successresponse(404, 'user', 'No Records Found');
@@ -368,6 +373,15 @@ class userController extends commonController
             return $this->successresponse(404, 'user', 'No Records Found');
         }
         return $this->successresponse(200, 'user', $users);
+    }
+
+    /**
+     * helper function - get user's company id by user id
+     */
+
+    public function getcompanyidbyuserid(int $userId){
+        $companyId= User::where('id',$userId)->value('company_id');
+        return $companyId;
     }
 
     /**

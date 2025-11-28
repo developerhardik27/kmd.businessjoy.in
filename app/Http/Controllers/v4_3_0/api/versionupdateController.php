@@ -845,6 +845,10 @@ class versionupdateController extends commonController
                                             $jsonrp['leadmodule']['leadsettings'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
 
+                                        if (!isset($jsonrp['logisticmodule']['transporterbilling'])) {
+                                            $jsonrp['developermodule']['transporterbilling'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
                                         if (!isset($jsonrp['developermodule']['cleardata'])) {
                                             $jsonrp['developermodule']['cleardata'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }

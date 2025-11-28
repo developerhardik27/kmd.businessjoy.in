@@ -330,6 +330,14 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Logistic/othersettings', 'othersettings')->name('admin.logisticothersettings')->middleware('checkPermission:logisticmodule,logisticsettings,view');
             });
 
+            //transporter billing route 
+            $TransporterbillingController = getadminversion('TransporterbillingController');
+            Route::controller($TransporterbillingController)->group(function () {
+                Route::get('/TransporterBilling', 'index')->name('admin.transporterbilling')->middleware('checkPermission:logisticmodule,transporterbilling,show');
+                Route::get('/AddNewTransporterBilling', 'create')->name('admin.addtransporterbilling')->middleware('checkPermission:logisticmodule,transporterbilling,add');
+                Route::get('/EditTransporterBilling/{id}', 'edit')->name('admin.edittransporterbilling')->middleware('checkPermission:logisticmodule,transporterbilling,edit');
+            });
+
             /**
              * logistic module route end
              */

@@ -4933,6 +4933,62 @@
                                                 </td>
                                             </tr>
                                         @endif
+
+                                        @if (session('user_permissions.logisticmodule.transporterbilling.add') == '1' || $user_id == 1)
+                                            <tr id="transporterbilling">
+                                                <td>Transporter Billing</td>
+                                                <td>
+                                                    <input type="checkbox" class="clickmenu" data-value='transporterbilling'
+                                                        id="showtransporterbillingmenu" name="showtransporterbillingmenu"
+                                                        value="1">
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.add') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="addtransporterbilling"
+                                                            name="addtransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="viewtransporterbilling"
+                                                            name="viewtransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="edittransporterbilling"
+                                                            name="edittransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="deletetransporterbilling"
+                                                            name="deletetransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="alldatatransporterbilling"
+                                                            name="alldatatransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
                                     </tbody>
                                 </table>
                                 <div class="form-group">

@@ -60,6 +60,32 @@ class consignorcopyController extends commonController
         return response()->json($records);
     }
 
+
+    /**
+     * Display the specified resource.
+     */
+    public function GetLrByNumber(string $number)
+    {
+        if ($this->rp['logisticmodule']['consignorcopy']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $consignorcopy = $this->consignor_copyModel::select(
+            'consignment_note_no',
+            'truck_number',
+            'container_no'
+        )
+            ->where('is_deleted', 0);
+
+        $consignorcopy = $consignorcopy->where('consignment_note_no', $number)->first();
+
+        if (!$consignorcopy) {
+            return $this->successresponse(404, 'message', "No Such consignor Found!");
+        }
+
+        return $this->successresponse(200, 'consignorcopy', $consignorcopy);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -204,7 +230,6 @@ class consignorcopyController extends commonController
                 'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
-
     }
 
 
@@ -248,9 +273,9 @@ class consignorcopyController extends commonController
             "pay" => "nullable|numeric",
             "value" => "nullable|numeric",
             "reached_at_factory_date" => "nullable|date",
-            "reached_at_factory_time" => "nullable|date_format:H:i:s",
+            "reached_at_factory_time" => "nullable|date_format:H:i",
             "left_from_factory_date" => "nullable|date",
-            "left_from_factory_time" => "nullable|date_format:H:i:s",
+            "left_from_factory_time" => "nullable|date_format:H:i",
         ]);
 
 
@@ -265,6 +290,9 @@ class consignorcopyController extends commonController
 
             if ($getconsigment_note_number) {
                 $consigment_note_number = $getconsigment_note_number->current_consignment_note_no;
+                while ($this->consignor_copyModel::where('consignment_note_no', $consigment_note_number)->where('is_deleted', 0)->exists()) {
+                    $consigment_note_number++;
+                }
             }
 
             $gettandc = $this->consignor_copy_terms_and_conditionModel::where('is_active', 1)->first();
@@ -314,15 +342,13 @@ class consignorcopyController extends commonController
 
             if ($consignorcopy) {
 
-                $getconsigment_note_number->current_consignment_note_no++;
+                $getconsigment_note_number->current_consignment_note_no = ++$consigment_note_number;
                 $getconsigment_note_number->save();
 
                 return $this->successresponse(200, 'message', 'consignor copy succesfully added');
             } else {
                 return $this->successresponse(500, 'message', 'consignor copy not succesfully added !');
             }
-
-
         }
     }
 
@@ -476,10 +502,7 @@ class consignorcopyController extends commonController
         ];
 
         return $this->successresponse(200, 'data', $data);
-
-
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -503,7 +526,6 @@ class consignorcopyController extends commonController
         }
 
         return $this->successresponse(200, 'consignorcopy', $consignorcopy);
-
     }
 
 
@@ -512,7 +534,7 @@ class consignorcopyController extends commonController
      */
     public function update(Request $request, string $id)
     {
-        if ($this->rp['logisticmodule']['consignor']['edit'] != 1) {
+        if ($this->rp['logisticmodule']['consignorcopy']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are unauthorized');
         }
 
@@ -547,9 +569,9 @@ class consignorcopyController extends commonController
             "pay" => "nullable|numeric",
             "value" => "nullable|numeric",
             "reached_at_factory_date" => "nullable|date",
-            "reached_at_factory_time" => "nullable|date_format:H:i:s",
+            "reached_at_factory_time" => "nullable|date_format:H:i",
             "left_from_factory_date" => "nullable|date",
-            "left_from_factory_time" => "nullable|date_format:H:i:s",
+            "left_from_factory_time" => "nullable|date_format:H:i",
         ]);
 
         if ($validator->fails()) {
@@ -606,8 +628,6 @@ class consignorcopyController extends commonController
             ]);
 
             return $this->successresponse(200, 'message', 'consignor copy succesfully updated');
-
-
         }
     }
 
@@ -638,7 +658,7 @@ class consignorcopyController extends commonController
         $latestCopy = $this->consignor_copyModel::where('is_deleted', 0)->orderBy('consignment_note_no', 'desc')->first();
 
         if ($latestCopy) {
-            $getconsigment_note_number->current_consignment_note_no = $latestCopy->consignment_note_no++;
+            $getconsigment_note_number->current_consignment_note_no = ++$latestCopy->consignment_note_no;
             $getconsigment_note_number->save();
         } else {
             $getconsigment_note_number->current_consignment_note_no = $getconsigment_note_number->start_consignment_note_no ?? 1;
@@ -688,6 +708,4 @@ class consignorcopyController extends commonController
 
         return $this->successresponse(200, 'message', 'Terms and conditions successfully updated');
     }
-
-
 }
