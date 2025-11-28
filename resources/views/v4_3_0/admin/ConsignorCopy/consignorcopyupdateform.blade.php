@@ -894,7 +894,6 @@
                 window.location.href = "{{ route('admin.consignorcopy') }}";
             });
 
-
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old data in fields
@@ -973,7 +972,6 @@
                     }
                 });
             }
-
 
             loaddata();
 

@@ -126,18 +126,21 @@
                                     }
                                     loaderhide();
                                 },
-                                error: function(xhr, status,
-                                error) { // if calling api request error 
+                                error: function(xhr, status, error) {
                                     loaderhide();
-                                    console.log(xhr
-                                        .responseText
-                                        ); // Log the full error response for debugging
+                                    console.log(xhr.responseText); // Full response for debugging
+
                                     if (xhr.status === 422) {
                                         var errors = xhr.responseJSON.errors;
                                         $.each(errors, function(key, value) {
-                                            $('#error-' + key).text(value[
-                                                0]);
+                                            $('#error-' + key).text(value[0]);
                                         });
+                                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        // Use the message from JSON response
+                                        $('#error').text(xhr.responseJSON.message);
+                                    } else {
+                                        // Fallback error message
+                                        $('#error').text('An unexpected error occurred');
                                     }
                                 }
                             })

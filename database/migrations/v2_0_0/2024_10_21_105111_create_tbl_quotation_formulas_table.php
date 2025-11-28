@@ -21,8 +21,7 @@ return new class extends Migration
             $table->integer('company_id');
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->dateTime('updated_at')->nullable();
+            $table->timestamps();
             $table->integer('is_active')->default(1);
             $table->integer('is_deleted')->default(0);
         });

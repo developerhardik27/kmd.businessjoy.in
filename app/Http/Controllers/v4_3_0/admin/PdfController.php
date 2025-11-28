@@ -137,7 +137,6 @@ class PdfController extends Controller
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
       ];
-
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
@@ -147,6 +146,7 @@ class PdfController extends Controller
          'margin_left' => 0,
       ];
 
+      // return view($this->version . '.admin.PDF.paymentreciept', $data);
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentreciept', $data)->setPaper('a4', 'portrait');
 
       $name = 'Reciept ' . $paymentdata['paymentdetail']['receipt_number'] . '.pdf';

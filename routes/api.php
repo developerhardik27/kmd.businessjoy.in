@@ -42,11 +42,11 @@ if(!function_exists('getversion')){
                 }
             }
             // Determine the version based on whether the user and version exist
-            $versionexplode = $version ? $version->app_version : "v4_2_1";
+            $versionexplode = $version ? $version->app_version : "v4_3_0";
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
-            $versionexplode = "v4_2_1"; // Set a default version
+            $versionexplode = "v4_3_0"; // Set a default version
         }
     
     
@@ -86,6 +86,7 @@ Route::middleware(['checkToken'])->group(function () {
     // company route
     $companyController = getversion('companyController');
     Route::controller($companyController)->group(function () {
+        Route::get('/companydetails/pdf/{id}', 'companydetailspdf')->name('companydetailspdf');
         Route::get('/companyprofile', 'companyprofile')->name('company.profile');
         Route::get('/companylist', 'companylistforversioncontrol')->name('company.companylist');
         Route::get('/company', 'index')->name('company.index');
@@ -173,7 +174,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/user/delete/{id}', 'destroy')->name('user.delete');
         Route::post('/user/changepassword/{id}', 'changepassword')->name('user.changepassword');
         Route::post('/user/setdefaultpage/{id}', 'setdefaultpage')->name('user.setdefaultpage');
-
+        
         Route::get('/userrolepermission', 'userrolepermissionindex')->name('userrolepermission.index');
         Route::post('/userrolepermission/insert', 'storeuserrolepermission')->name('userrolepermission.store');
         Route::get('/getuserrolepermission', 'userrolepermissiondattable')->name('userrolepermission.datatable');
@@ -571,9 +572,10 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/consignor/delete/{id}', 'destroy')->name('consignor.delete');
     });
 
-    // consignor copy route
+     // consignor copy route
     $consignorcopyController = getversion('consignorcopyController');
     Route::controller($consignorcopyController)->group(function () {
+        Route::get('/consignorcopy/{number}', 'GetLrByNumber')->name('consignorcopy.getbynumber');
         Route::get('/consignorcopy/chartdata', 'getConsignmentChartData')->name('consignorcopy.chartdata');
         Route::get('/consignorcopy', 'index')->name('consignorcopy.index');
         Route::post('/consignorcopy/insert', 'store')->name('consignorcopy.store');
@@ -601,10 +603,43 @@ Route::middleware(['checkToken'])->group(function () {
 
         Route::get('/watermark', 'getwatermark')->name('watermark.index');
         Route::post('/watermark/update', 'updatewatermark')->name('watermark.update');
+    });
 
+    // party (transporter billing party) route
+    $transporterbillingpartyController = getversion('transporterbillingpartyController');
+    Route::controller($transporterbillingpartyController)->group(function () {
+        Route::get('/getbillingparty', 'partylist')->name('billingparty.getpartylist');
+        Route::get('/billingparty', 'index')->name('billingparty.index');
+        Route::post('/billingparty/insert', 'store')->name('billingparty.store');
+        Route::get('/billingparty/search/{id}', 'show')->name('billingparty.search');
+        Route::get('/billingparty/edit/{id}', 'edit')->name('billingparty.edit');
+        Route::put('/billingparty/statusupdate/{id}', 'statusupdate')->name('billingparty.statusupdate');
+        Route::put('/billingparty/update/{id}', 'update')->name('billingparty.update');
+        Route::put('/billingparty/delete/{id}', 'destroy')->name('billingparty.delete');
+    });
+
+    //transporter billing payment details route 
+    $transporterbillingpaymentController = getversion('transporterbillingpaymentController');
+    Route::controller($transporterbillingpaymentController)->group(function () {
+        Route::post('/billing/payment_details', 'store')->name('billingpaymentdetails.store');
+        Route::get('/billing/paymentdetail/{id}', 'paymentdetail')->name('billingpaymentdetails.search');
+        Route::get('/billing/pendingpayment/{id}', 'pendingpayment')->name('billingpaymentdetails.pendingpayment');
+    });
+
+    //transporter billing route 
+    $transporterbillingController = getversion('transporterbillingController');
+    Route::controller($transporterbillingController)->group(function () {
+        Route::get('/transporterbill/list', 'index')->name('transporterbill.list');
+        Route::post('/transporterbill/store', 'store')->name('transporterbill.store'); 
+        Route::get('/transporterbill/edit/{id}', 'edit')->name('transporterbill.edit');
+        Route::put('/transporterbill/update/{id}', 'update')->name('transporterbill.update');
+        Route::put('/transporterbill/delete/{id}', 'destroy')->name('transporterbill.delete');
+        Route::put('/transporterbill/statusupdate/{id}', 'statusupdate')->name('transporterbill.statusupdate');
 
     });
 
+
+ 
     // system monitor settings route (Developer tools)
     $systemmonitorController = getversion('systemmonitorController');
     Route::controller($systemmonitorController)->group(function () {

@@ -4,10 +4,10 @@
 @extends($folder . '.admin.Layout.mastertable')
 
 @section('page_title')
-    {{ config('app.name') }} - Invoicelist
+    {{ config('app.name') }} - Transporter Bills
 @endsection
 @section('table_title')
-    Invoice
+    Transporter Bills
 @endsection
 
 @section('style')
@@ -41,29 +41,103 @@
         }
     </style>
 @endsection
-
-@if (session('user_permissions.invoicemodule.invoice.add') == '1')
+@if (session('user_permissions.logisticmodule.transporterbilling.add') == '1')
     @section('addnew')
-        {{ route('admin.addinvoice') }}
+        {{ route('admin.addtransporterbilling') }}
     @endsection
     @section('addnewbutton')
-        <button class="btn btn-sm btn-primary">
-            <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">+ Create
-                New</span>
+        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Bill"
+            class="btn btn-sm btn-primary">
+            <span class="">+ Add New</span>
         </button>
     @endsection
 @endif
+
+@section('advancefilter')
+    <div class="col-sm-12 text-right">
+        <button class="btn btn-sm btn-primary m-0 mr-3" data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Filters" onclick="showOffCannvas()">
+            <i class="ri-filter-line"></i>
+        </button>
+    </div>
+@endsection
+
+@section('sidebar-filters')
+    <div class="col-12 p-0">
+        <div class="card">
+            <div class="card-header">
+                <h6>LR Number</h6>
+            </div>
+            <div class="card-body">
+                <input type="text" class="form-control filter" name="filter_lr_no" id="filter_lr_no" placeholder="LR No">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Container Number</h6>
+            </div>
+            <div class="card-body">
+                <input type="text" class="form-control filter" name="filter_container_no" id="filter_container_no"
+                    placeholder="Container No">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Bill Date</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="filter_bill_date_from">From</label>
+                        <input type="date" class="form-control filter" name="filter_bill_date_from"
+                            id="filter_bill_date_from">
+                    </div>
+                    <div class="col-6">
+                        <label for="filter_bill_date_to">To</label>
+                        <input type="date" class="form-control filter" name="filter_bill_date_to"
+                            id="filter_bill_date_to">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Vehicle Number</h6>
+            </div>
+            <div class="card-body">
+                <input type="text" class="form-control filter" name="filter_vehicle_no" id="filter_vehicle_no"
+                    placeholder="Truck No">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6>Party</h6>
+            </div>
+            <div class="card-body">
+                <select class="form-control filter" name="filter_party" id="filter_party">
+                </select>
+            </div>
+        </div>
+
+    </div>
+@endsection
 
 @section('table-content')
     <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
-                <th>Invoice ID</th>
-                <th>Invoice Date</th>
-                <th>Customer/Company Name</th>
+                <th>Bill No</th>
+                <th>LR No</th>
+                <th>Party</th>
+                <th>Bill Date</th>
+                <th>Container No</th>
+                <th>Vehicle No</th>
                 <th>Amount</th>
-                <th>Status</th>
-                <th>Invoice</th>
+                <th>Payment Status</th>
                 <th>Payment</th>
                 <th>Action</th>
             </tr>
@@ -92,7 +166,7 @@
                             required />
                         <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                             placeholder="token" required />
-                        <input type="hidden" name="inv_id" id="inv_id">
+                        <input type="hidden" name="bill_id" id="bill_id">
                         <label for="transid">Transaction ID</label>
                         <input type="text" name="transid" class="form-control" id="transid"
                             placeholder="Transaction id" />
@@ -113,6 +187,9 @@
                             <option value="Check">Check</option>
                         </select>
                         <span class="modal_error-msg" id="error-payment_type" style="color: red"></span><br>
+                        <label for="remarks">Remarks</label>
+                        <textarea name="remarks" id="remarks" cols="30" rows="2" class="form-control" placeholder="Remarks"></textarea>
+                        <span class="modal_error-msg" id="error-remarks" style="color: red"></span><br>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="" class="btn btn-primary">Submit</button>
@@ -127,29 +204,99 @@
 
 @push('ajax')
     <script>
-        let isEventBound = false;
         $('document').ready(function() {
+
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            @if (Session::has('message'))
-                Toast.fire({
-                    icon: "error",
-                    title: 'You have not any column for download this invoice'
-                });
-            @endif
-
-            let table = '';
-
             var global_response = '';
 
-            var search = {!! json_encode($search) !!}
+            var table = '';
 
-            // function for  get invoice data and set it table
+
+            function getPartyData() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('billingparty.getpartylist') }}",
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            resolve(response);
+                        },
+                        error: function(error) {
+                            reject(error);
+                        }
+                    });
+                });
+            }
+
+
+            async function initialize() {
+                try {
+                    // Perform AJAX calls concurrently
+                    const [partyDataResponse] = await Promise.all(
+                        [
+                            getPartyData()
+                        ]);
+
+                    // Check if user data is successfully fetched
+                    if (partyDataResponse.status == 200 && partyDataResponse.party != '') {
+                        // You can update your HTML with the data here if needed
+                        $.each(partyDataResponse.party, function(key, value) {
+                            const partyDetails = [value.firstname, value.lastname, value
+                                .company_name, value.contact_no
+                            ].filter(Boolean).join(' - ');
+
+                            if (value.is_active == 1) {
+                                $('#filter_party').append(
+                                    `<option value='${value.id}'>${partyDetails}</option>`
+                                )
+                            }
+                        });
+                        $('#filter_party').val('');
+                        $('#filter_party').select2({
+                            search: true,
+                            placeholder: 'Select a Consignee',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        }); // search bar in party list
+                    } else if (response.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    } else {
+                        $('#filter_party').append(`<option disabled '>No Data found </option>`);
+                    }
+
+                    loaderhide();
+
+                    // Further code execution after successful AJAX calls and HTML appending
+
+                    await loaddata();
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    loaderhide();
+                    $('#filter_party').append(`<option disabled '>No Data found </option>`);
+
+                    $('#data').DataTable({
+                        responsive: true,
+                        "destroy": true, //use for reinitialize datatable
+                    });
+                }
+            }
+
+            initialize();
+
+
+            // load consignor copy  data in table 
             function loaddata() {
-                loadershow();
                 table = $('#data').DataTable({
                     language: {
                         lengthMenu: '_MENU_ &nbsp;Entries per page'
@@ -160,11 +307,17 @@
                     serverSide: true,
                     ajax: {
                         type: "GET",
-                        url: "{{ route('invoice.inv_list') }}",
+                        url: "{{ route('transporterbill.list') }}",
                         data: function(d) {
                             d.user_id = "{{ session()->get('user_id') }}";
                             d.company_id = "{{ session()->get('company_id') }}";
                             d.token = "{{ session()->get('api_token') }}";
+                            d.filter_lr_no = $('#filter_lr_no').val();
+                            d.filter_container_no = $('#filter_container_no').val();
+                            d.filter_bill_date_from = $('#filter_bill_date_from').val();
+                            d.filter_bill_date_to = $('#filter_bill_date_to').val();
+                            d.filter_vehicle_no = $('#filter_vehicle_no').val();
+                            d.filter_party = $('#filter_party').val();
                         },
                         dataSrc: function(json) {
                             if (json.message) {
@@ -173,13 +326,7 @@
                                     title: json.message || 'Somethint went wrong!'
                                 })
                             }
-
-                            global_response = json;
-
                             return json.data;
-                        },
-                        complete: function() {
-                            loaderhide();
                         },
                         error: function(xhr) {
                             global_response = '';
@@ -190,44 +337,55 @@
                             });
                         }
                     },
-                    order: [
-                        [0, 'desc']
-                    ],
-                    search: {
-                        search: search
-                    },
-                    columns: [
-
-                        {
-                            data: 'inv_no',
-                            name: 'inv_no',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'inv_date_formatted',
-                            name: 'inv_date_formatted',
-                            orderable: false,
-                            searchable: true,
-                            defaultContent: '-',
-                        },
-                        {
-                            data: 'customer',
-                            name: 'customer',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'grand_total',
-                            name: 'grand_total',
+                    order: [],
+                    columns: [{
+                            data: 'bill_no',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            render: function(data, type, row) {
-                                return `${row.currency_symbol} ${row.grand_total}`;
-                            }
+                            name: 'bill_no'
+                        },
+                        {
+                            data: 'lr_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'lr_no'
+                        },
+                        {
+                            data: 'party',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'party'
+                        },
+                        {
+                            data: 'bill_date_formatted',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'bill_date_formatted'
+                        },
+                        {
+                            data: 'con_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'con_no'
+                        },
+                        {
+                            data: 'vehicle_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'vehicle_no'
+                        },
+                        {
+                            data: 'amount',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'amount'
                         },
                         {
                             data: 'status',
@@ -237,14 +395,13 @@
                             defaultContent: '-',
                             render: function(data, type, row) {
                                 actions = '-';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1')
                                     actions = `  
                                         <select data-status='${row.id}' data-original-value="${row.status}" class="status" id="status_${row.id}" name="" required >
                                             <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
                                             <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
                                             <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
                                             <option value='cancel' ${row.status == "cancel" ? 'selected' : ''}>Cancel</option>
-                                            <option value='due' ${row.status == "due" ? 'selected' : ''}>Over Due</option>
                                         </select>
                                     `;
                                 @endif
@@ -260,70 +417,22 @@
                             searchable: false,
                             defaultContent: '-',
                             render: function(data, type, row) {
-                                actions = '-';
-                                @if (session('user_permissions.invoicemodule.invoice.view') == '1')
-                                    let generateInvoicePdfUrl =
-                                        "{{ route('invoice.generatepdf', '__invoiceId__') }}"
-                                        .replace('__invoiceId__', row.id);
-                                    actions = `                                             
-                                        <span data-toggle="tooltip" data-placement="left" data-original-title="Download Invoice Pdf">
-                                            <a href=${generateInvoicePdfUrl} target='_blank' id='pdf'>
-                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
-                                            </a>
-                                        </span>
-                                    `;
-                                @endif
-
-                                return actions;
-
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                let generateInvoiceReceiptAllUrl = "{{ route('invoice.generaterecieptll', '__invoiceId__') }}".replace('__invoiceId__', row.id);
-                                actions = ''; 
+                                actions = '';
                                 if (row.status != 'paid') {
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id='${row.id}' class='btn btn-sm btn-primary m-0 paymentformmodal'>
+                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.amount}" data-id='${row.id}' class='btn btn-sm btn-primary m-0 paymentformmodal'>
                                                 <i class='ri-paypal-fill'></i>
                                             </button>
                                         </span>
                                     `;
                                 }
-                                if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
+                                if (row.part_payment == 1 || row.status == 'paid') {
                                     actions += `                                             
-                                        <span> 
-                                            <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
-                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-primary btn-rounded btn-sm m-0" >
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 1) {
-                                    actions += `                                             
-                                        <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
+                                        <span data-toggle="tooltip" data-placement="right" data-original-title="View All Payments"> 
                                             <button  data-id='${row.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
                                                 <i class='ri-eye-fill'></i> 
                                             </button> 
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 0 && row.status == 'paid') {
-                                    actions += `                                             
-                                        <span> 
-                                            <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
-                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
                                         </span>
                                     `;
                                 }
@@ -337,25 +446,25 @@
                             searchable: false,
                             render: function(data, type, row) {
                                 let actionBtns = '';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1') 
-                                    if(row.is_editable == 1){
-                                        let invoiceEditUrl = "{{ route('admin.editinvoice', '__invoiceId__') }}".replace('__invoiceId__', row.id);
-                                        actionBtns += `
-                                            <span>  
-                                                <a href=${invoiceEditUrl}>
-                                                    <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                        <i class="ri-edit-fill"></i>
-                                                    </button>
-                                                </a>
-                                            </span>
-                                        `;
-                                    }
+                                @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1')
+                                    let billEditUrl =
+                                        "{{ route('admin.edittransporterbilling', '__billId__') }}"
+                                        .replace('__billId__', row.id);
+                                    actionBtns += `
+                                        <span>  
+                                            <a href=${billEditUrl}>
+                                                <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Bill" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>
+                                    `;
                                 @endif
 
-                                @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
+                                @if (session('user_permissions.logisticmodule.transporterbilling.delete') == '1')
                                     actionBtns += `
                                          <span>
-                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Invoice" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Bill" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
                                                 <i class="ri-delete-bin-fill"></i>
                                             </button>
                                         </span>
@@ -365,6 +474,8 @@
                                 return actionBtns;
                             }
                         }
+
+
                     ],
 
                     pagingType: "full_numbers",
@@ -416,48 +527,62 @@
                 });
 
             }
-            //call data function for load customer data
-            loaddata();
 
-            // record delete 
+            // filters 
+
+            //apply filters
+
+            $('#applyfilters').on('click', function() {
+                table.draw();
+                hideOffCanvass(); // close OffCanvass
+            });
+
+
+            //remove filters
+            $('#removefilters').on('click', function() {
+                $('input.filter').val('');
+                // Clear Select2 filters properly and trigger change
+                $('#filter_party').val(null).trigger('change');
+                hideOffCanvass(); // close OffCanvass
+                table.draw();
+            });
+
+
+            // delete consignor copy             
             $(document).on("click", ".del-btn", function() {
                 var deleteid = $(this).data('id');
-                var row = this;
-                let invoiceDeleteUrl = "{{ route('invoice.delete', '__deleteId__') }}".replace(
+                let consignorCopyDltUrl = "{{ route('transporterbill.delete', '__deleteId__') }}".replace(
                     '__deleteId__', deleteid);
-
+                var row = this;
                 showConfirmationDialog(
-                    'Are you sure?',
-                    'to delete this invoice?',
-                    'Yes, delete it',
-                    'No, cancel',
-                    'question',
+                    'Are you sure?', // Title
+                    'to delete this record ?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
                     () => {
+                        // Success callback
                         loadershow();
                         $.ajax({
                             type: 'PUT',
-                            url: invoiceDeleteUrl,
+                            url: consignorCopyDltUrl,
                             data: {
                                 token: "{{ session()->get('api_token') }}",
-                                company_id: " {{ session()->get('company_id') }} ",
-                                user_id: " {{ session()->get('user_id') }} "
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
                             },
                             success: function(response) {
                                 if (response.status == 200) {
                                     Toast.fire({
                                         icon: "success",
-                                        title: response.message
+                                        title: "succesfully deleted"
                                     });
-                                    loaddata();
-                                } else if (response.status == 500) {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
+                                    table.draw();
                                 } else {
                                     Toast.fire({
                                         icon: "error",
-                                        title: "invoice not deleted."
+                                        title: response.message ||
+                                            "something went wrong!"
                                     });
                                 }
                                 loaderhide();
@@ -484,18 +609,16 @@
                         });
                     }
                 );
-
-
             });
-
 
             //status change function
             function statuschange(id, value) {
                 loadershow();
-                let invoiceStatusUrl = "{{ route('invoice.status', '__id__') }}".replace('__id__', id);
+                let transporterBillStatusUrl = "{{ route('transporterbill.statusupdate', '__id__') }}".replace(
+                    '__id__', id);
                 $.ajax({
                     type: 'PUT',
-                    url: invoiceStatusUrl,
+                    url: transporterBillStatusUrl,
                     data: {
                         status: value,
                         token: "{{ session()->get('api_token') }}",
@@ -509,15 +632,10 @@
                                 title: response.message
                             });
                             loaddata();
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
                         } else {
                             Toast.fire({
                                 icon: "error",
-                                title: "Status not updated."
+                                title: response.message || "Status not updated."
                             });
                         }
                         loaderhide();
@@ -568,14 +686,14 @@
             // form reset every time when on click make payment button
             $(document).on('click', '.paymentformmodal', function() {
                 $('#paymentform')[0].reset();
-                var invoiceid = $(this).data('id');
+                var billid = $(this).data('id');
                 var amount = $(this).data('amount');
-                $('#inv_id').val(invoiceid);
+                $('#bill_id').val(billid);
                 loadershow();
                 let pendingPaymentDetailsUrl =
-                    "{{ route('paymentdetails.pendingpayment', '__invoiceId__') }}".replace(
-                        '__invoiceId__',
-                        invoiceid);
+                    "{{ route('billingpaymentdetails.pendingpayment', '__billId__') }}".replace(
+                        '__billId__',
+                        billid);
                 $.ajax({
                     type: 'GET',
                     url: pendingPaymentDetailsUrl,
@@ -620,9 +738,9 @@
             $(document).on('click', '.viewpayment', function() {
                 loadershow();
                 $('#details').html('');
-                var invoiceid = $(this).data('id');
-                let paymentDetailsSearchUrl = "{{ route('paymentdetails.search', '__invoiceId__') }}"
-                    .replace('__invoiceId__', invoiceid);
+                var billId = $(this).data('id');
+                let paymentDetailsSearchUrl = "{{ route('billingpaymentdetails.search', '__billId__') }}"
+                    .replace('__billId__', billId);
                 $.ajax({
                     type: 'GET',
                     url: paymentDetailsSearchUrl,
@@ -635,32 +753,22 @@
                         // Handle the response from the server
                         if (response.status == 200) {
                             $.each(response.paymentdetail, function(key, value) {
-                                let generateInvoiceReceiptUrl =
-                                    "{{ route('invoice.generatereciept', '__invoiceId__') }}"
-                                    .replace('__invoiceId__', value.id);
                                 $('#details').append(`
                                     <tr>
                                         <td>
-                                            <div class="col-md-10 float-left">
+                                            <div class="col-md-12">
                                                 <div><b>Payment date : </b> ${value.datetime}</div>
                                                 <div><b>Total Amount : </b> ${value.amount}</div>
                                                 <div><b>Paid Amount : </b> ${value.paid_amount}</div>
                                                 <div><b>Pending Amount: </b> ${value.pending_amount}</div>
                                                 <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
-                                            </div>    
-                                            <div class="col-md-2 float-right">
-                                                <a href=${generateInvoiceReceiptUrl} class="float-right"  target='_blank'>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >
-                                                        <i class='ri-download-cloud-fill'></i>
-                                                    </button>
-                                                </a>
-                                            </div>    
-                                            
+                                                <div style="white-space:pre-line;"><b>Remarks: </b> ${value.remarks}</div>
+                                            </div>  
                                         </td>
                                     </tr>
                                 `)
 
-                            }); 
+                            });
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -714,7 +822,7 @@
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
-                    url: "{{ route('paymentdetails.store') }}",
+                    url: "{{ route('billingpaymentdetails.store') }}",
                     data: formdata,
                     success: function(response) {
                         // Handle the response from the server

@@ -237,8 +237,11 @@ return [
     ],
 
     'recent_activity_pages' => [
-        ['module' => 'Developer','page' => 'For All Page(Slow Pages)', 'limit' => '5 sec'],
-        ['module' => 'Lead','page' => 'Recent Activity', 'limit' => '90 Days'],
-        ['module' => 'Admin','page' => 'Login', 'limit' => '90 Days'],
-    ]
+        ['module' => 'Developer', 'page' => 'For All Page(Slow Pages)', 'limit' => '5 sec'],
+        ['module' => 'Lead', 'page' => 'Recent Activity', 'limit' => '90 Days'],
+        ['module' => 'Admin', 'page' => 'Login', 'limit' => '90 Days'],
+    ],
+
+    'latestversion' => 'v4_3_0',
+ 
 ];

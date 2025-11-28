@@ -17,8 +17,7 @@ return new class extends Migration
             $table->longText('rp')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->dateTime('updated_at')->nullable();
+            $table->timestamps();
         });
     }
 

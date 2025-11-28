@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('city_name', 50);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->dateTime('updated_at')->nullable();
+            $table->timestamps();
             $table->tinyInteger('is_active')->default(1); 
             $table->tinyInteger('is_deleted')->default(0);
         });

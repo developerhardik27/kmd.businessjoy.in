@@ -67,16 +67,19 @@
                         </select>
                         <span class="error-msg" id="error-currency" style="color: red"></span>
                     </div>
-                    <div class="col-sm-4 mb-3">
-                        <label for="type">Tax-Type</label><span
-                        style="color:red;">*</span>
-                        <select class="form-control" id="type" name="type" required>
-                            <option selected="" disabled="">Select Type</option>
-                            <option value="1">GST</option>
-                            <option value="2">Without GST</option>
-                        </select>
-                        <span class="error-msg" id="error-tax_type" style="color: red"></span>
-                    </div> 
+                    @if (session('company_gst_no') && session('company_gst_no') != '')
+                        <div class="col-sm-4 mb-3">
+                            <label for="type">Tax-Type</label><span style="color:red;">*</span>
+                            <select class="form-control" id="type" name="type" required>
+                                <option disabled="">Select Type</option>
+                                <option value="1" selected>GST</option>
+                                <option value="2">Without GST</option>
+                            </select>
+                            <span class="error-msg" id="error-tax_type" style="color: red"></span>
+                        </div> 
+                    @else
+                        <input type="hidden" id="type" name="type" value="2">    
+                    @endif 
                     <div class="col-sm-4 mb-3">
                         <label for="acc_details">Bank Account </label><span
                         style="color:red;">*</span>
@@ -689,23 +692,7 @@
                             if(customerid != 0){ 
                                 loadershow();
                                 var selectedOption = $('#customer').find('option:selected'); 
-                                var gstno = selectedOption.data('gstno');
-                                if (gstno != null) {
-                                    $('#type').val(1);
-                                    if(gst != 0){
-                                        $('#sgstline,#cgstline').hide();
-                                        $('#gstline').show();
-                                    }else{
-                                        $('#gstline').hide();
-                                        $('#sgstline,#cgstline').show();
-    
-                                    } 
-                                    dynamiccalculaton();
-                                } else {
-                                    $('#type').val(2);
-                                    $('#sgstline,#cgstline,#gstline').hide();
-                                    dynamiccalculaton();
-                                }
+                               
                                 let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
                                 ajaxRequest('GET', customerSearchUrl, { 
                                     token: API_TOKEN,
@@ -883,23 +870,7 @@
                     if(id == 'add_customer'){
                         $('#exampleModalScrollable').modal('show');
                     }
-                    var gstno = selectedOption.data('gstno');
-                    if (gstno != null) {
-                        $('#type').val(1);
-                        if(gst != 0){
-                            $('#sgstline,#cgstline').hide();
-                            $('#gstline').show();
-                        }else{
-                            $('#gstline').hide();
-                            $('#sgstline,#cgstline').show();
-
-                        }
-                        dynamiccalculaton();
-                    } else {
-                        $('#type').val(2);
-                        $('#sgstline,#cgstline,#gstline').hide();
-                        dynamiccalculaton();
-                    }
+                   
                     customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',id);
                     ajaxRequest('GET', customerSearchUrl, { 
                         token: API_TOKEN,
@@ -1169,7 +1140,6 @@
                     }
                 })
 
-                
 
                 // dynamic calculation 
                 function dynamiccalculaton(targetdata){
