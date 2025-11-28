@@ -89,6 +89,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <style>
+        @page {
+            margin: 15px;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
             font-size: 14px;
@@ -102,7 +106,7 @@
             color: rgb(255, 253, 253);
             text-transform: uppercase !important;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             border-right: none !important;
             border-bottom: none !important;
         }
@@ -180,10 +184,10 @@
             width: 100%;
             border-spacing: 10px;
             page-break-inside: auto;
-            table-layout: auto;
-            /* Prevent table from breaking across pages */
+            table-layout: auto; /* Prevent table from breaking across pages */
+            font-size: 12px;
         }
- 
+
         .data td,
         th {
             white-space: normal;
@@ -277,6 +281,13 @@
                                         </td>
                                     </tr>
                                 @endif
+                                @isset($companydetails['transporter_id'])
+                                    <tr>
+                                        <td style="padding-left:10px">
+                                            <b>Transporter ID:</b> {{ $companydetails['transporter_id'] }}
+                                        </td>
+                                    </tr>
+                                @endisset
 
                             </table>
                             <table width="100%">
@@ -596,7 +607,7 @@
                             <div>{!! nl2br(e($invdata['notes'])) !!} </div>
                         @endisset
                         @isset($invdata['t_and_c'])
-                            <span style="margin-top: 0"><b>Terms And Conditions :- </b></span>
+                            <span style="margin-top: 0;font-size:13px;"><b>Terms And Conditions :- </b></span>
                             <div id="tcspan"> {!! $invdata['t_and_c'] !!}</div>
                         @endisset
                     </td>
@@ -604,9 +615,12 @@
             </table>
 
             <div class="mt-1" style="font-size: 12px" id="footer">
-                <span class="float-left"><small>This is a computer-generated document. No signature is
-                        required.</small></span>
-                <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
+                <span class="float-left">
+                    <small>This is a computer-generated document. No signature is required.</small>
+                </span>
+                <span class="float-right">
+                    <small>{{ date('d-M-Y, h:i A') }}</small>
+                </span>
             </div>
         </div>
     </main>

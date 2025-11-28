@@ -19,7 +19,7 @@ class invoiceController extends commonController
     {
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        
+
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
         $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
@@ -39,7 +39,6 @@ class invoiceController extends commonController
         $this->inventoryModel = $this->getmodel('inventory');
         $this->product_Model = $this->getmodel('product');
         $this->product_column_mappingModel = $this->getmodel('product_column_mapping');
-
     }
 
 
@@ -132,7 +131,135 @@ class invoiceController extends commonController
         return $this->successresponse(200, 'bank', $bank);
     }
 
-    //use for pdf
+    //use for pdf 
+    public function index(string $id)
+    {
+        if ($this->rp['invoicemodule']['invoice']['view'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $invoiceres = $this->invoiceModel::join('customers', 'invoices.customer_id', '=', 'customers.id')
+            ->join('mng_col', 'invoices.id', '=', 'mng_col.invoice_id')
+            ->leftJoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftJoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftJoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
+            ->leftjoin('invoice_terms_and_conditions', 'invoices.t_and_c_id', '=', 'invoice_terms_and_conditions.id')
+            ->join($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
+            ->select(
+                'invoice_terms_and_conditions.t_and_c',
+                'invoices.id',
+                'invoices.inv_no',
+                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"),
+                'invoices.notes',
+                'invoices.total',
+                'invoices.status',
+                'invoices.sgst',
+                'invoices.cgst',
+                'invoices.gst',
+                'invoices.grand_total',
+                'invoices.payment_type',
+                'invoices.is_active',
+                'invoices.is_deleted',
+                'invoices.created_at',
+                'invoices.updated_at',
+                'customers.customer_id as cid',
+                'customers.firstname',
+                'customers.lastname',
+                'customers.company_name',
+                'customers.email',
+                'customers.contact_no',
+                'customers.house_no_building_name',
+                'customers.road_name_area_colony',
+                'customers.pincode',
+                'customers.gst_no',
+                'country.country_name',
+                'country_details.currency',
+                'country_details.currency_symbol',
+                'state.state_name',
+                'city.city_name'
+            )
+            ->groupBy('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'invoices.created_at', 'invoices.updated_at', 'customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name', 'mng_col.invoice_id')
+            ->where('invoices.is_active', 1)->where('invoices.is_deleted', 0)->where('invoices.id', $id);
+
+        if ($this->rp['invoicemodule']['invoice']['alldata'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
+            $invoiceres->where('invoices.created_by', $this->userId);
+        }
+
+        $invoice = $invoiceres->get();
+        if ($invoice->isEmpty()) {
+            return $this->successresponse(404, 'invoice', 'No Records Found');
+        }
+        return $this->successresponse(200, 'invoice', $invoice);
+    }
+
+    // use for pdf
+    public function inv_details(string $id)
+    {
+
+        $columnname = $this->invoiceModel::find($id);
+
+        if (!$columnname) {
+            return $this->successresponse(404, 'invoice', 'No Records Found');
+        }
+
+        $columnWithoutSpaces = explode(',', $columnname->show_col);
+        $columnWithSpaces = str_replace('_', ' ', $columnname->show_col);
+        $column = explode(',', $columnWithSpaces);
+
+        $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
+            ->select('column_name', 'column_type', 'column_width')->orderBy('column_order')->where('is_deleted', 0)->get();
+
+        $columnarray = array_merge($columnWithoutSpaces, ['amount']);
+
+        // Convert collection to array of associative arrays
+        $columnwithtypeArray = $columnwithtype->map(function ($item) {
+            return [
+                'column_name' => $item->column_name,
+                'column_type' => $item->column_type,
+                'column_width' => $item->column_width
+            ];
+        })->toArray();
+
+        // Prepare additional column type
+        $addamounttype = [
+            'column_name' => 'amount',
+            'column_type' => 'decimal',
+            'column_width' => '20'
+        ];
+
+        // Merge existing column types with the new column type
+        $columnwithtypeArray[] = $addamounttype;
+
+
+        if ($columnarray[0] == '') {
+            return $this->successresponse(404, 'invoice', 'No Records Found');
+        }
+
+        $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
+            ->where('invoice_id', $id)->where('is_deleted', 0)->where('is_active', 1)->get();
+
+        $gstsettingsdetails = $this->invoiceModel::select('gstsettings')->where('id', $id)
+            ->get();
+
+        $invoiceothersettings = $this->invoice_other_settingModel::first();
+
+        if ($invoice->isEmpty()) {
+            return $this->successresponse(404, 'invoice', 'No Records Found');
+        }
+        return response()->json([
+            'status' => 200,
+            'invoice' => $invoice,
+            'columns' => $columnarray,
+            'othersettings' => $gstsettingsdetails,
+            'columnswithtype' => $columnwithtypeArray,
+            'invoiceothersettings' => $invoiceothersettings
+
+        ]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
     public function inv_list(Request $request)
     {
 
@@ -228,70 +355,6 @@ class invoiceController extends commonController
         }
         return $this->successresponse(200, 'columnname', $columnname);
     }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(string $id)
-    {
-        if ($this->rp['invoicemodule']['invoice']['view'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
-
-        $invoiceres = $this->invoiceModel::join('customers', 'invoices.customer_id', '=', 'customers.id')
-            ->join('mng_col', 'invoices.id', '=', 'mng_col.invoice_id')
-            ->leftJoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
-            ->leftJoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
-            ->leftJoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
-            ->leftjoin('invoice_terms_and_conditions', 'invoices.t_and_c_id', '=', 'invoice_terms_and_conditions.id')
-            ->join($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
-            ->select(
-                'invoice_terms_and_conditions.t_and_c',
-                'invoices.id',
-                'invoices.inv_no',
-                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"),
-                'invoices.notes',
-                'invoices.total',
-                'invoices.status',
-                'invoices.sgst',
-                'invoices.cgst',
-                'invoices.gst',
-                'invoices.grand_total',
-                'invoices.payment_type',
-                'invoices.is_active',
-                'invoices.is_deleted',
-                'invoices.created_at',
-                'invoices.updated_at',
-                'customers.customer_id as cid',
-                'customers.firstname',
-                'customers.lastname',
-                'customers.company_name',
-                'customers.email',
-                'customers.contact_no',
-                'customers.house_no_building_name',
-                'customers.road_name_area_colony',
-                'customers.pincode',
-                'customers.gst_no',
-                'country.country_name',
-                'country_details.currency',
-                'country_details.currency_symbol',
-                'state.state_name',
-                'city.city_name'
-            )
-            ->groupBy('invoice_terms_and_conditions.t_and_c', 'invoices.id', 'invoices.inv_no', 'invoices.inv_date', 'invoices.notes', 'invoices.total', 'invoices.status', 'invoices.sgst', 'invoices.cgst', 'invoices.gst', 'invoices.grand_total', 'invoices.payment_type', 'invoices.is_active', 'invoices.is_deleted', 'invoices.created_at', 'invoices.updated_at', 'customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'customers.pincode', 'customers.gst_no', 'country.country_name', 'country_details.currency', 'country_details.currency_symbol', 'state.state_name', 'city.city_name', 'mng_col.invoice_id')
-            ->where('invoices.is_active', 1)->where('invoices.is_deleted', 0)->where('invoices.id', $id);
-
-        if ($this->rp['invoicemodule']['invoice']['alldata'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
-            $invoiceres->where('invoices.created_by', $this->userId);
-        }
-
-        $invoice = $invoiceres->get();
-        if ($invoice->isEmpty()) {
-            return $this->successresponse(404, 'invoice', 'No Records Found');
-        }
-        return $this->successresponse(200, 'invoice', $invoice);
-    }
-
 
 
     /**
@@ -427,8 +490,6 @@ class invoiceController extends commonController
                                 break;
                             }
                         } while ($existingInvoice);
-
-
                     } else {
                         $patterntype = 2; // pattern type 2 = global 
                         $increment_number = 1;
@@ -464,7 +525,6 @@ class invoiceController extends commonController
                                 break;
                             }
                         } while ($existingInvoice);
-
                     }
                 }
 
@@ -569,7 +629,6 @@ class invoiceController extends commonController
 
                                     $updateinventory->save();
                                 }
-
                             }
 
                             // Insert the record into the database
@@ -587,9 +646,7 @@ class invoiceController extends commonController
                 } else {
                     return $this->successresponse(500, 'message', 'company Details not found');
                 }
-
             }
-
         });
     }
 
@@ -619,8 +676,6 @@ class invoiceController extends commonController
         }
 
         return $this->successresponse(404, 'invoice', $invoice);
-
-
     }
 
     /**
@@ -644,7 +699,6 @@ class invoiceController extends commonController
             'productdetails' => $productdetails
         ];
         return $this->successresponse(200, 'data', $data);
-
     }
 
     /**
@@ -720,7 +774,6 @@ class invoiceController extends commonController
                                     }
                                     $inventory->save();
                                 }
-
                             }
 
                             unset($productvalue['inventoryproduct']);
@@ -864,17 +917,14 @@ class invoiceController extends commonController
 
                                 $updateinventory->save();
                             }
-
                         }
 
                         // Insert the record into the database
                         $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata);
                     }
-
                 }
 
                 return $this->successresponse(200, 'message', 'Invoice successfully updated');
-
             }
         });
     }
@@ -941,11 +991,8 @@ class invoiceController extends commonController
 
                                 $inventory->save();
                             }
-
                         }
-
                     }
-
                 }
 
 
@@ -960,73 +1007,8 @@ class invoiceController extends commonController
             }
             return $this->successresponse(404, 'message', 'Invoice not successfully deleted!');
         });
-
     }
 
-    // use for pdf
-    public function inv_details(string $id)
-    {
-
-        $columnname = $this->invoiceModel::find($id);
-
-        if (!$columnname) {
-            return $this->successresponse(404, 'invoice', 'No Records Found');
-        }
-
-        $columnWithoutSpaces = explode(',', $columnname->show_col);
-        $columnWithSpaces = str_replace('_', ' ', $columnname->show_col);
-        $column = explode(',', $columnWithSpaces);
-
-        $columnwithtype = $this->tbl_invoice_columnModel::whereIn('column_name', $column)
-            ->select('column_name', 'column_type', 'column_width')->orderBy('column_order')->where('is_deleted', 0)->get();
-
-        $columnarray = array_merge($columnWithoutSpaces, ['amount']);
-
-        // Convert collection to array of associative arrays
-        $columnwithtypeArray = $columnwithtype->map(function ($item) {
-            return [
-                'column_name' => $item->column_name,
-                'column_type' => $item->column_type,
-                'column_width' => $item->column_width
-            ];
-        })->toArray();
-
-        // Prepare additional column type
-        $addamounttype = [
-            'column_name' => 'amount',
-            'column_type' => 'decimal',
-            'column_width' => '20'
-        ];
-
-        // Merge existing column types with the new column type
-        $columnwithtypeArray[] = $addamounttype;
-
-
-        if ($columnarray[0] == '') {
-            return $this->successresponse(404, 'invoice', 'No Records Found');
-        }
-
-        $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
-            ->where('invoice_id', $id)->where('is_deleted', 0)->where('is_active', 1)->get();
-
-        $gstsettingsdetails = $this->invoiceModel::select('gstsettings')->where('id', $id)
-            ->get();
-
-        $invoiceothersettings = $this->invoice_other_settingModel::first();
-
-        if ($invoice->isEmpty()) {
-            return $this->successresponse(404, 'invoice', 'No Records Found');
-        }
-        return response()->json([
-            'status' => 200,
-            'invoice' => $invoice,
-            'columns' => $columnarray,
-            'othersettings' => $gstsettingsdetails,
-            'columnswithtype' => $columnwithtypeArray,
-            'invoiceothersettings' => $invoiceothersettings
-
-        ]);
-    }
 
     /**
      * Summary of status
@@ -1069,8 +1051,6 @@ class invoiceController extends commonController
             return $this->successresponse(404, 'reports', 'No Records Found');
         }
         return $this->successresponse(200, 'reports', $reports);
-
-
     }
 
     /**

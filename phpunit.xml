@@ -9,7 +9,12 @@
             <directory>tests/Unit</directory>
         </testsuite>
         <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+            <file>tests/Feature/MasterSetupTest.php</file>
+            <file>tests/Feature/ConfigTest.php</file>
+            <file>tests/Feature/SuperAdminTest.php</file>
+            <file>tests/Feature/CompanyCreationTest.php</file>
+            <file>tests/Feature/AuthTest.php</file>
+            <file>tests/Feature/AdminModule/CompanyTest.php</file>
         </testsuite>
     </testsuites>
     <source>
@@ -24,7 +29,7 @@
         <env name="DB_CONNECTION" value="mysql"/>
         <env name="DB_HOST" value="localhost"/>
         <env name="DB_PORT" value="3306"/>
-        <env name="DB_DATABASE" value="invoice_db"/>
+        <env name="DB_DATABASE" value="testing_bj"/>
         <env name="DB_USERNAME" value="root"/>
         <env name="DB_PASSWORD" value=""/>
         <env name="MAIL_MAILER" value="array"/>

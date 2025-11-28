@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('module_name')->nullable();
                 $table->date('from_date');
                 $table->date('to_date'); 
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP')); 
+                $table->timestamps(); 
                 $table->integer('created_by');  
                 $table->integer('is_deleted')->default(0);  
             });

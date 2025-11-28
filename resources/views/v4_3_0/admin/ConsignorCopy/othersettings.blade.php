@@ -197,9 +197,7 @@
                                                 <label for="consignment_note_number">Consignment Note Number</label>
                                                 <input type="number" class="form-control" min="1"
                                                     name="consignment_note_number" id="consignment_note_number">
-                                                <p id="info-consignment_note_no" class="text-info m-0">
-                                                    
-                                                </p>
+                                                <p id="info-consignment_note_no" class="text-info m-0"></p>
                                                 <span class="error-msg" id="error-consignment_note_number"
                                                     style="color: red"></span>
 
@@ -221,7 +219,8 @@
                                         </div>
                                     </div>
                                 </form>
-                                Consignment Note Number : <span id="startcnn"> </span>
+                                Consignment Note Number : <span id="startcnn"> </span><br>
+                                Current Consignment Note Number : <span id="currentcnn"> </span>
                             </div>
                         </div>
                     </div>
@@ -372,6 +371,8 @@
 
                             $('#startcnn').html(
                                 `${othersettings.start_consignment_note_no || 'Not Set Yet'}`);
+                            $('#currentcnn').html(
+                                `${othersettings.current_consignment_note_no || 'Not Set Yet'}`);
                             $('#gst_tax_payable_by_span').html(
                                 `${othersettings.gst_tax_payable_by || 'Not Set Yet'}`);
                             $('#weight_span').html(`${othersettings.weight || 'Not Set Yet'}`);

@@ -475,7 +475,15 @@
                 var data = $(this).data('view');
                 $.each(global_response.data, function(key, company) {
                     if (company.id == data) {
-                        console.log(company);
+                        let transporter_id = '';
+                        if(company.transporter_id && company.transporter_id != ''){
+                            transporter_id = `
+                                <tr>
+                                    <th>Transporter ID</th>
+                                    <td>${company.transporter_id}</td>
+                                </tr>
+                            `;
+                        }
                         $('#details').append(`
                             <tr>
                                 <th>Name</th>
@@ -521,6 +529,7 @@
                                 <th>Signature</th>
                                 <td>${company.pr_sign_img ? `<a class='text-primary font-weight-bold' href='/uploads/${company.pr_sign_img}' target='_blank'>Click here</a>`: 'Not set yet'}</td>
                             </tr>
+                            ${transporter_id}
                             <tr>
                                 <th>Created On</th>
                                 <td>${company.created_at_formatted  || '-'}</td>

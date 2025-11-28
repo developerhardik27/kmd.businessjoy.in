@@ -379,6 +379,10 @@
                                                 <label for="companywebsiteurl">Website Url:</label><br>
                                                 <p id="companywebsiteurl"></p>
                                             </div>
+                                            <div class="form-group col-sm-6" id="transporteriddiv" style="display: none">
+                                                <label for="transporterid">Transporter ID:</label><br>
+                                                <p id="transporterid"></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -556,7 +560,7 @@
             let previousValue; // store default  page 
 
             // get user data for user profile
-            function loaduserdata(){
+            function loaduserdata() {
                 $.ajax({
                     type: 'GET',
                     url: "{{ route('user.profile') }}",
@@ -593,13 +597,13 @@
                                 icon: "error",
                                 title: response.message
                             });
-    
+
                         } else {
                             Toast.fire({
                                 icon: "error",
                                 title: "something went wrong!"
                             });
-    
+
                         }
                         loaderhide();
                     },
@@ -618,7 +622,7 @@
                             icon: "error",
                             title: errorMessage
                         });
-    
+
                     }
                 });
 
@@ -648,6 +652,10 @@
                         $('#companystate').text(company.state_name);
                         $('#companycountry').text(company.country_name);
                         $('#companywebsiteurl').text(company.website_url || 'Not set yet');
+                        if (company.transporter_id && company.transporter_id != '') {
+                            $('#transporterid').text(company.transporter_id);
+                            $('#transporteriddiv').show();
+                        }
 
 
                         if (company.img != null && company.img != '') {

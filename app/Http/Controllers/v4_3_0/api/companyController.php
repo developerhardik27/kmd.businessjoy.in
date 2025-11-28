@@ -45,12 +45,11 @@ class companyController extends commonController
     // for using pdf 
     public function companydetailspdf($id)
     {
-
         $companydetails = DB::table('company_details')
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'company_details.pr_sign_img', 'company_details.transporter_id', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('company_details.id', $id)->get();
 
         if ($companydetails->isEmpty()) {
@@ -68,15 +67,14 @@ class companyController extends commonController
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company.max_users', 'company_details.website_url', 'company_details.img', 'company_details.pr_sign_img', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->select('company_details.name', 'company_details.email', 'company_details.contact_no', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company.max_users', 'company_details.website_url', 'company_details.img', 'company_details.pr_sign_img', 'company_details.transporter_id', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('company.id', $this->companyId)
             ->get();
 
         if ($company->isEmpty()) {
             return $this->successresponse(404, 'company', 'No Records Found');
         }
-
-
+ 
         $user = User::find($this->userId);
         if (!$user) {
             return $this->successresponse(404, 'company', 'No Records Found');
@@ -129,7 +127,6 @@ class companyController extends commonController
     /**
      * Display a listing of the resource.
      */
-
     public function index(Request $request)
     {
         $company = DB::table('company')
@@ -148,7 +145,8 @@ class companyController extends commonController
                 'company_details.gst_no',
                 'company_details.pan_number',
                 'company_details.img',
-                'company_details.pr_sign_img',
+                'company_details.pr_sign_img', 
+                'company_details.transporter_id', 
                 'country.country_name',
                 'state.state_name',
                 'city.city_name',
@@ -202,7 +200,6 @@ class companyController extends commonController
      */
     public function store(Request $request)
     {
-
         // validate incoming request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
@@ -221,6 +218,7 @@ class companyController extends commonController
             'company_website_url' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
             'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'transporter_id' => 'nullable|string|max:50',
             'user_id' => 'required|numeric',
             'updated_by',
             'created_at',
@@ -255,20 +253,33 @@ class companyController extends commonController
 
             // Set the dynamic database name (sanitize and format if necessary) 
 
-            $host = $_SERVER['HTTP_HOST'];
+            $appUrl = config('app.url');
+            $baseUrl = basename($appUrl);
 
-            if ($host === 'localhost:8000') {
+            if ($baseUrl === 'localhost:8000') {
                 // If the host is localhost
                 $this->newdbname = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
-            } elseif ($host === 'staging.businessjoy.in') {
+                if (app()->environment('testing')) {
+                    $this->newdbname = "testing_company";
+                }
+            } elseif ($baseUrl === 'staging.businessjoy.in') {
                 // If the host is staging.businessjoy.in
                 $this->newdbname = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = "staging_business_joy_testing_company";
             } else {
                 // For any other host, provide a default
                 $this->newdbname = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = "business_joy_testing_company";
             }
 
             // Create the dynamic database
+
+            if (app()->environment('testing')) {
+                $this->newdbname = "testing_company";
+
+                // Drop the database if it exists
+                DB::connection(config('database.dynamic_connection'))->statement('DROP DATABASE IF EXISTS `' . $this->newdbname . '`');
+            }
 
             DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' . $this->newdbname);
 
@@ -336,6 +347,7 @@ class companyController extends commonController
                     'gst_no' => $request->gst_number,
                     'pan_number' => $request->pan_number,
                     'website_url' => $request->company_website_url,
+                    'transporter_id' => $request->transporter_id
                 ];
 
 
@@ -346,7 +358,7 @@ class companyController extends commonController
                     $company = DB::table('company')->insertGetId([   // insert company record
                         'company_details_id' => $company_details_id,
                         'dbname' => $this->newdbname,
-                        'app_version' => $_SESSION['folder_name'],
+                        'app_version' => $this->companyVersion ?? $_SESSION['folder_name'],
                         'max_users' => $request->maxuser,
                         'created_by' => $this->userId,
                     ]);
@@ -661,6 +673,7 @@ class companyController extends commonController
                 'company_website_url' => 'nullable|string',
                 'img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
                 'sign_img' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+                'transporter_id' => 'nullable|string|max:50',
                 'user_id' => 'numeric',
                 'updated_at',
                 'is_active',
@@ -728,7 +741,8 @@ class companyController extends commonController
                     'website_url' => $request->company_website_url,
                     'img' => $imageName,
                     'pr_sign_img' => $sign_imageName,
-                    'watermark_img' => $watermark_imageName
+                    'watermark_img' => $watermark_imageName,
+                    'transporter_id' => $request->transporter_id
                 ];
 
                 $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details (create new company details record  everytime on company update)

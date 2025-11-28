@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->integer('current_increment_number')->nullable()->comment('use during increment by invoice');
                 $table->string('pattern_type',10)->nullable()->comment('type-1 = local , type-2 = global');
                 $table->string('increment_type',30)->nullable()->comment('type-1 = by invoice , type-2 = by customer');
-                $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP')); 
+                $table->timestamps();
                 $table->integer('created_by');  
                 $table->integer('is_deleted')->default(0); 
             });

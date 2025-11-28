@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 
 class commonController extends Controller
 {
+    public $companyVersion;
 
     public function dbname($id = null)
     {
@@ -22,6 +23,8 @@ class commonController extends Controller
             ]);
             die();
         }
+
+        $this->companyVersion = $dbname->app_version;
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
         // Establish connection to the dynamic database

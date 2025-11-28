@@ -1,5 +1,4 @@
 @php
-
     $folder = session('folder_name');
     if (
         session('user_permissions.adminmodule.company.max') &&
@@ -1329,9 +1328,7 @@
 
                     @if (
                         (Session::has('invoice') &&
-                            Session::get('invoice') == 'yes' &&
-                            Session::has('showinvoicesettings') &&
-                            Session::get('showinvoicesettings') == 'yes') ||
+                            Session::get('invoice') == 'yes') ||
                             $user_id == 1)
                         <div class="iq-card">
                             <div class="iq-card-header d-flex justify-content-between">
@@ -4999,6 +4996,62 @@
                                                 </td>
                                             </tr>
                                         @endif
+
+                                        @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1' || $user_id == 1)
+                                            <tr id="transporterbilling">
+                                                <td>Transporter Billing</td>
+                                                <td>
+                                                    <input type="checkbox" class="clickmenu" data-value='transporterbilling'
+                                                        id="showtransporterbillingmenu" name="showtransporterbillingmenu"
+                                                        value="1">
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.add') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="addtransporterbilling"
+                                                            name="addtransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="viewtransporterbilling"
+                                                            name="viewtransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="edittransporterbilling"
+                                                            name="edittransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="deletetransporterbilling"
+                                                            name="deletetransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.transporterbilling.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtransporterbillingmenu' id="alldatatransporterbilling"
+                                                            name="alldatatransporterbilling" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
                                     </tbody>
                                 </table>
                                 <div class="form-group">
@@ -5571,6 +5624,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
+            var edit_id = @json($edit_id);
 
             $('#userupdateform').attr('autocomplete', 'off');
 
@@ -5644,7 +5698,8 @@
                         data: {
                             user_id: "{{ session()->get('user_id') }}",
                             company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
+                            token: "{{ session()->get('api_token') }}",
+                            target_user_id : edit_id
                         },
                         success: function(response) {
                             resolve(response);
@@ -5742,8 +5797,7 @@
                 includeSelectAllOption: true,
                 enableCaseInsensitiveFiltering: true
             });
-
-            var edit_id = @json($edit_id);
+ 
             // show old data in fields
             let userSearchUrl = "{{ route('user.search', '__editId__') }}".replace('__editId__', edit_id);
             $.ajax({
