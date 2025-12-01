@@ -1390,6 +1390,43 @@
                                             </tr>
                                         @endif
 
+                                        @if (session('user_permissions.invoicemodule.tdsregister.add') == '1' || $user_id == 1)
+                                            <tr id="tdsregister">
+                                                <td>TDS Register</td>
+                                                <td>
+                                                    <input type="checkbox" class="clickmenu" data-value='tdsregister'
+                                                        id="showtdsregistermenu" name="showtdsregistermenu" value="1">
+                                                </td>
+                                                <td>
+                                                    NA
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.invoicemodule.tdsregister.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtdsregistermenu' id="viewtdsregister"
+                                                            name="viewtdsregister" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.invoicemodule.tdsregister.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtdsregistermenu' id="edittdsregister"
+                                                            name="edittdsregister" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    NA
+                                                </td>
+                                                <td>
+                                                    NA
+                                                </td>
+                                            </tr>
+                                        @endif
+
                                         @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1' || $user_id == 1)
                                             <tr>
                                                 <td class="p-0" style="border-right: 0;">

@@ -169,6 +169,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/invoice/othersettings', 'othersettings')->name('admin.invoiceothersettings')->middleware('checkPermission:invoicemodule,invoicesetting,view');
                 Route::get('/AddNewInvoice', 'create')->name('admin.addinvoice')->middleware('checkPermission:invoicemodule,invoice,add');
                 Route::get('/EditInvoice/{id}', 'edit')->name('admin.editinvoice')->middleware('checkPermission:invoicemodule,invoice,edit');
+
+                Route::get('/tdsregister', 'tdsregister')->name('admin.tdsregister')->middleware('checkPermission:invoicemodule,tdsregister,show');
             });
 
             // bank route 
