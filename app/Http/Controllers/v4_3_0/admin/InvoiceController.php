@@ -89,8 +89,6 @@ class InvoiceController extends Controller
         return view($this->version . '.admin.Invoice.invoice', ['search' => $search]);
     }
 
-
-
     /**
      * Show the form for creating a new resource.
      */
@@ -140,5 +138,13 @@ class InvoiceController extends Controller
         $is_editable = $invoice->is_editable;
 
         return view($this->version . '.admin.Invoice.invoiceupdateform', ['edit_id' => $id, 'user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'is_editable' => $is_editable]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function tdsregister(Request $request)
+    {
+        return view($this->version . '.admin.Invoice.tdsregister');
     }
 }

@@ -66,8 +66,16 @@
                                                     Invoice List
                                                 </a>
                                             </li>
-                                        @endif
+                                        @endif 
                                     </ul>
+                                </li>
+                            @endif
+                            @if (session('user_permissions.invoicemodule.tdsregister.show') == '1')
+                                <li class="{{ request()->routeIs('admin.tdsregister') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.tdsregister') }}" class="iq-waves-effect">
+                                        <i class="ri-file-copy-line"></i>
+                                        <span>TDS Register</span>
+                                    </a>
                                 </li>
                             @endif
                             @if (Session::has('menu') && Session::get('menu') == 'invoice')
@@ -121,7 +129,7 @@
                                         </ul>
                                     </li>
                                 @endif
-                            @endif
+                            @endif 
                             @if (session('user_permissions.invoicemodule.bank.show') == '1')
                                 <li class="{{ request()->routeIs('admin.bank') ? 'active' : '' }}">
                                     <a href="{{ route('admin.bank') }}" class="iq-waves-effect">

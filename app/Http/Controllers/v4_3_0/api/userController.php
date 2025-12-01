@@ -35,7 +35,8 @@ class userController extends commonController
             "invoicestandardsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
             "invoicegstsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
             "invoicecustomeridsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
-            "invoiceapi" => ["show", "add", "view", "edit", "delete", "alldata"]
+            "invoiceapi" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "tdsregister" => ["show", "add", "view", "edit", "delete", "alldata"],
         ],
         "leadmodule" => [
             "leaddashboard" => ["show", "add", "view", "edit", "delete", "alldata"],

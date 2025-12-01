@@ -86,33 +86,66 @@
                 <form id="paymentform">
                     <div class="modal-body">
                         @csrf
-                        <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                            required />
-                        <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
-                            required />
-                        <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                            placeholder="token" required />
-                        <input type="hidden" name="inv_id" id="inv_id">
-                        <label for="transid">Transaction ID</label>
-                        <input type="text" name="transid" class="form-control" id="transid"
-                            placeholder="Transaction id" />
-                        <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
-                        <label for="paidamount">Received Amount</label>
-                        <input type="number" name="paidamount" class="form-control" id="paidamount"
-                            placeholder="Received Amount" required />
-                        <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
-                        <label for="paid_by">Paid By</label>
-                        <input type="text" name="paid_by" class="form-control" id="paid_by"
-                            placeholder="Who Paid Amount" />
-                        <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
-                        <label for="payment_type">How They Paid</label>
-                        <select class="form-control" name="payment_type" id="payment_type">
-                            <option selected="" disabled="">Select Payment Type</option>
-                            <option value="Online Payment">Online Payment</option>
-                            <option value="Cash">Cash</option>
-                            <option value="Check">Check</option>
-                        </select>
-                        <span class="modal_error-msg" id="error-payment_type" style="color: red"></span><br>
+                        <div class="payment_details">
+                            <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                                required />
+                            <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                                required />
+                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                                placeholder="token" required />
+                            <input type="hidden" name="inv_id" id="inv_id">
+                            <label for="transid">Transaction ID</label>
+                            <input type="text" name="transid" class="form-control" id="transid"
+                                placeholder="Transaction id" />
+                            <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
+                            <label for="paidamount">Received Amount</label>
+                            <input type="number" name="paidamount" class="form-control" id="paidamount"
+                                placeholder="Received Amount" required />
+                            <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
+                            <label for="paid_by">Paid By</label>
+                            <input type="text" name="paid_by" class="form-control" id="paid_by"
+                                placeholder="Who Paid Amount" />
+                            <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
+                            <label for="payment_type">How They Paid</label>
+                            <select class="form-control" name="payment_type" id="payment_type">
+                                <option selected="" disabled="">Select Payment Type</option>
+                                <option value="Online Payment">Online Payment</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Check">Check</option>
+                            </select>
+                            <span class="modal_error-msg" id="error-payment_type" style="color: red"></span><br>
+                        </div>
+                        <div class="tds_details">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="tds_applicable"
+                                    id="tds_applicable">
+                                <label class="form-check-label" for="tds_applicable">
+                                    TDS Applicable
+                                </label>
+                                <span class="modal_error-msg" id="error-tds_applicable" style="color: red"></span><br>
+                            </div>
+                            <div class="tds_inputs" style="display: none">
+                                <hr>
+                                <label for="tds_amount">TDS Amount</label>
+                                <input type="number" name="tds_amount" class="form-control" id="tds_amount"
+                                    placeholder="TDS Amount" required />
+                                <span class="modal_error-msg" id="error-tds_amount" style="color: red"></span><br>
+                                <label for="challan_no">Challan No</label>
+                                <input type="text" name="challan_no" class="form-control" id="challan_no"
+                                    placeholder="Challan No" />
+                                <span class="modal_error-msg" id="error-challan_no" style="color: red"></span><br>
+                                <label for="status">Status</label>
+                                <select class="form-control" name="status" id="status">
+                                    <option selected="" disabled="">Select Status</option>
+                                    <option value="Recorded">Recorded</option>
+                                    <option value="Mapped to Challan">Mapped to Challan</option>
+                                    <option value="Filed in Return">Filed in Return</option>
+                                    <option value="Reconciled (matches 26AS)"> Reconciled (matches 26AS)</option>
+                                </select>
+                                <span class="modal_error-msg" id="error-status" style="color: red"></span>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="" class="btn btn-primary">Submit</button>
@@ -285,8 +318,10 @@
                             searchable: false,
                             defaultContent: '-',
                             render: function(data, type, row) {
-                                let generateInvoiceReceiptAllUrl = "{{ route('invoice.generaterecieptll', '__invoiceId__') }}".replace('__invoiceId__', row.id);
-                                actions = ''; 
+                                let generateInvoiceReceiptAllUrl =
+                                    "{{ route('invoice.generaterecieptll', '__invoiceId__') }}"
+                                    .replace('__invoiceId__', row.id);
+                                actions = '';
                                 if (row.status != 'paid') {
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
@@ -296,7 +331,8 @@
                                         </span>
                                     `;
                                 }
-                                if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
+                                if (row.part_payment == 1 && row.status == 'paid' && row
+                                    .pending_amount == 0) {
                                     actions += `                                             
                                         <span> 
                                             <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
@@ -337,9 +373,11 @@
                             searchable: false,
                             render: function(data, type, row) {
                                 let actionBtns = '';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1') 
-                                    if(row.is_editable == 1){
-                                        let invoiceEditUrl = "{{ route('admin.editinvoice', '__invoiceId__') }}".replace('__invoiceId__', row.id);
+                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                    if (row.is_editable == 1) {
+                                        let invoiceEditUrl =
+                                            "{{ route('admin.editinvoice', '__invoiceId__') }}"
+                                            .replace('__invoiceId__', row.id);
                                         actionBtns += `
                                             <span>  
                                                 <a href=${invoiceEditUrl}>
@@ -568,6 +606,7 @@
             // form reset every time when on click make payment button
             $(document).on('click', '.paymentformmodal', function() {
                 $('#paymentform')[0].reset();
+                $('.tds_inputs').hide();
                 var invoiceid = $(this).data('id');
                 var amount = $(this).data('amount');
                 $('#inv_id').val(invoiceid);
@@ -638,6 +677,15 @@
                                 let generateInvoiceReceiptUrl =
                                     "{{ route('invoice.generatereciept', '__invoiceId__') }}"
                                     .replace('__invoiceId__', value.id);
+
+                                let TDSDetails = '';
+                                if(value.tds_amount && value.tds_amount > 0){
+                                   TDSDetails =` 
+                                        <div><b>TDS Amount : </b> ${value.tds_amount}</div>
+                                        <div><b>Challan No : </b> ${value.challan_no}</div>
+                                        <div><b>TDS Status : </b> ${value.tds_status}</div>
+                                    `;
+                                }    
                                 $('#details').append(`
                                     <tr>
                                         <td>
@@ -645,6 +693,7 @@
                                                 <div><b>Payment date : </b> ${value.datetime}</div>
                                                 <div><b>Total Amount : </b> ${value.amount}</div>
                                                 <div><b>Paid Amount : </b> ${value.paid_amount}</div>
+                                                ${TDSDetails}
                                                 <div><b>Pending Amount: </b> ${value.pending_amount}</div>
                                                 <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
                                             </div>    
@@ -660,7 +709,7 @@
                                     </tr>
                                 `)
 
-                            }); 
+                            });
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -704,6 +753,15 @@
             $("#exampleModalScrollable").on("hidden.bs.modal", function() {
                 $('#details').html('');
                 $('#addfooterbutton').html('');
+            });
+
+            $('#tds_applicable').on('change',function(){
+                let val = $(this).is(':checked');
+                console.log(val);
+                $('.tds_inputs').hide();
+                if(val){
+                    $('.tds_inputs').show();
+                }
             });
 
             // payment form submit 

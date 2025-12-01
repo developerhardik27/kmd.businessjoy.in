@@ -215,6 +215,10 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('payment_details', 'store')->name('paymentdetails.store');
         Route::get('paymentdetail/{id}', 'paymentdetail')->name('paymentdetails.search');
         Route::get('pendingpayment/{id}', 'pendingpayment')->name('paymentdetails.pendingpayment');
+
+        Route::get('/tdsregister', 'tdsregister')->name('tdsregister.list');
+        Route::put('/tdsregister/updatestatus/{id}', 'tdsstatus')->name('tdsregister.updatestatus');
+        Route::put('/tdsregister/updatecreditedstatus/{td}', 'tdscreditedstatus')->name('tdsregister.updatecreditedstatus');
     });
 
     // supplier route

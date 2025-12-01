@@ -14,8 +14,7 @@ class commonController extends Controller
 
     public function dbname($id = null)
     {
-        $dbname = company::find($id);
-        if ($dbname == null) {
+        if ($id == null) {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode([
                 'status' => 500,
@@ -23,6 +22,7 @@ class commonController extends Controller
             ]);
             die();
         }
+        $dbname = company::find($id);
 
         $this->companyVersion = $dbname->app_version;
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
