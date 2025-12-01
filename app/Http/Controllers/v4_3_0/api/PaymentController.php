@@ -209,10 +209,10 @@ class PaymentController extends commonController
             $tdsQuery->where('invoices.created_by', $this->userId);
         }
 
-        $tdsQuery = $tdsQuery->get();
+        $tdsresult = $tdsQuery->get();
 
-        if ($tdsQuery->isEmpty()) {
-            return DataTables::of($tdsQuery)
+        if ($tdsresult->isEmpty()) {
+            return DataTables::of($tdsresult)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
