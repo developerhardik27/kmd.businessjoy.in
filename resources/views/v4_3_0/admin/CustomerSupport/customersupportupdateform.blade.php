@@ -328,31 +328,18 @@
                                 icon: "error",
                                 title: response.message
                             });
-                            loaderhide();
                         } else {
                             Toast.fire({
                                 icon: "error",
                                 title: response.message
                             });
                         }
-
+                        loaderhide();
                     },
                     error: function(xhr, status, error) {
+                        loaderhide();
                         // Handle error response and display validation errors
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                            loaderhide();
-                        } else {
-                            loaderhide();
-                            Toast.fire({
-                                icon: "error",
-                                title: 'An error occurred while processing your request. Please try again later.'
-                            });
-
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
             })

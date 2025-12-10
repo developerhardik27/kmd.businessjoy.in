@@ -31,12 +31,47 @@
         }
     }
 
-    $othersettings = json_decode($othersettings['gstsettings'], true);
-
-    $loopnumber = []; // array for alignment column type text or longtext
-
     $toFullName = trim(($quotationdata['firstname'] ?? '') . ' ' . ($quotationdata['lastname'] ?? ''));
     $toCompany = $quotationdata['company_name'] ?? '';
+
+    $othersettings = json_decode($othersettings['gstsettings'], true);
+
+    $loopnumber = 0; // array for alignment column type text or longtext
+
+    $blankrows = 10;
+
+    $fixedFirstCols = ['#']; // manual column for serial number with 4% width
+    $fixedWidths = 4; // % width for #
+    $amountColumnWidth = 20; // amount column width (fixed)
+    $totalWidth = $fixedWidths + $amountColumnWidth;
+    $firstRowCols = []; // columns to show in main row
+    $wrappedCols = []; // columns to wrap as separate rows
+
+    // We assume $productscolumn includes all columns except #.
+    // amount is last column, include it separately always.
+    foreach ($productscolumn as $col) {
+        if ($col['column_name'] === 'amount') {
+            // Always include amount at last, skip here
+            continue;
+        }
+
+        // Check if adding this column exceeds 100%
+        if ($totalWidth + intval($col['column_width']) <= 100) {
+            $totalWidth += intval($col['column_width']);
+            $firstRowCols[] = $col;
+        } else {
+            $wrappedCols[] = $col;
+        }
+    }
+
+    // Always push amount column at the end of first row columns
+    $amountCol = collect($productscolumn)->first(fn($c) => $c['column_name'] === 'amount');
+    if ($amountCol) {
+        $firstRowCols[] = $amountCol;
+    }
+
+    $colspan = count($firstRowCols);
+
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -232,195 +267,205 @@
                                         <span class="font-weight-bold">Address:</span>
                                         @isset($quotationdata['house_no_building_name'])
                                             {{ $quotationdata['house_no_building_name'] }} ,
-                                            @endif
+                                        @endisset
 
-                                            @isset($quotationdata['road_name_area_colony'])
-                                                {{ $quotationdata['road_name_area_colony'] }} ,
-                                                @endif
+                                        @isset($quotationdata['road_name_area_colony'])
+                                            {{ $quotationdata['road_name_area_colony'] }} ,
+                                        @endisset
 
-                                                @isset($quotationdata['city_name'])
-                                                    {{ $quotationdata['city_name'] }}
-                                                    @endif
+                                        @isset($quotationdata['city_name'])
+                                            {{ $quotationdata['city_name'] }}
+                                        @endisset
 
-                                                    @isset($quotationdata['state_name'])
-                                                        , {{ $quotationdata['state_name'] }}
-                                                        @endif
+                                        @isset($quotationdata['state_name'])
+                                            , {{ $quotationdata['state_name'] }}
+                                        @endisset
 
-                                                        @isset($quotationdata['pincode'])
-                                                            , {{ $quotationdata['pincode'] }}
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-
-                                <table style="table-layout:fixed;" border="" cellspacing=0 cellpadding=0
-                                    class="horizontal-border border data" width="100%">
-
-                                    <thead>
-                                        <tr>
-                                            <th><span style="padding-left: 5px;width:4%;"> # </span></th>
-                                            @forelse ($productscolumn as $column)
-                                                @php
-                                                    $columnname = strtoupper(
-                                                        str_replace('_', ' ', $column['column_name']),
-                                                    );
-                                                @endphp
-
-                                                @if ($column['column_type'] == 'longtext')
-                                                    @php
-                                                        $loopnumber[] = $loop->iteration;
-                                                    @endphp
-                                                @endif
-                                                <th
-                                                    style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">
-                                                    {{ $columnname }}
-                                                </th>
-                                            @empty
-                                                <th>-</th>
-                                            @endforelse
-                                        </tr>
-                                    </thead>
-                                    {{-- product data  --}}
-                                    <tbody>
-                                        @php $srno = 0 ; @endphp
-                                        @foreach ($products as $row)
-                                            @php $srno++ ; @endphp
-                                            <tr>
-                                                <td style="text-align: center;width:4%">{{ $srno }}</td>
-                                                @foreach ($row as $key => $val)
-                                                    @if ($loop->last)
-                                                        <td style="text-align:right;" class="currencysymbol">
-                                                            {{ Number::currency($val, in: $quotationdata['currency']) }}
-                                                        </td>
-                                                    @elseif (in_array($loop->iteration, $loopnumber))
-                                                        @php
-                                                            $textAlign =
-                                                                strpos($val, "\n") !== false ||
-                                                                strpos($val, '<br>') !== false
-                                                                    ? 'left'
-                                                                    : 'center';
-                                                        @endphp
-
-                                                        <td style="text-align:{{ $textAlign }};">
-                                                            {!! nl2br(e($val)) !!}
-                                                        </td>
-                                                    @else
-                                                        <td style="text-align:center;">
-                                                            {!! nl2br(e($val)) !!}
-                                                        </td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                        @endforeach
-                                        @for ($i = 0; $i < 10 - $srno; $i++)
-                                            <tr style="text-align: center">
-                                                @for ($j = 0; $j < count($products[0]); $j++)
-                                                    @if ($j == ceil(count($products[0]) / 2))
-                                                        <td style="text-align: center">-</td>
-                                                    @endif
-                                                    <td></td>
-                                                @endfor
-                                            </tr>
-                                        @endfor
-                                        {{-- end product data  --}}
-                                        <tr>
-                                            <td colspan="@php echo (count($products[0])); @endphp" class="text-right left">
-                                                Subtotal
-                                            </td>
-                                            <td class="right currencysymbol text-right" id="subtotal">
-                                                {{ Number::currency($quotationdata['total'], in: $quotationdata['currency']) }}
-                                            </td>
-                                        </tr>
-                                        @if ($othersettings['gst'] == 0)
-                                            @if ($quotationdata['sgst'] >= 1)
-                                                <tr>
-                                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                                        class="left ">
-                                                        SGST({{ $othersettings['sgst'] }}%)
-                                                    </td>
-                                                    <td style="text-align: right ;" class="currencysymbol" id="sgst">
-                                                        {{ Number::currency($quotationdata['sgst'], in: $quotationdata['currency']) }}
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                            @if ($quotationdata['cgst'] >= 1)
-                                                <tr>
-                                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                                        class="left ">
-                                                        CGST({{ $othersettings['cgst'] }}%)
-                                                    </td>
-                                                    <td style="text-align: right" class=" currencysymbol" id="cgst">
-                                                        {{ Number::currency($quotationdata['cgst'], in: $quotationdata['currency']) }}
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @else
-                                            @if ($quotationdata['gst'] >= 1)
-                                                <tr>
-                                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                                        class="left ">
-                                                        GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
-                                                    </td>
-                                                    <td style="text-align: right" class="currencysymbol " id="gst">
-                                                        {{ Number::currency($quotationdata['gst'], in: $quotationdata['currency']) }}
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endif
-                                        @unless ($roundof == 0)
-                                            <tr style="font-size:15px;text-align: right">
-                                                <td colspan="@php echo (count($products[0])); @endphp" class="text-right left">
-                                                    Round of
-                                                </td>
-                                                <td class="right currencysymbol text-right">
-                                                    {{ $sign }} {{ Number::currency($roundof, in: $quotationdata['currency']) }}
-                                                </td>
-                                            </tr>
-                                        @endunless
-                                        <tr style="font-size:15px;text-align: right">
-                                            <td colspan="@php echo (count($products[0])); @endphp" class="text-right left">
-                                                <b>Total</b>
-                                            </td>
-                                            <td class="right currencysymbol text-right">
-                                                {{ Number::currency($quotationdata['grand_total'], in: $quotationdata['currency']) }}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="@php echo (count($products[0])+1); @endphp" class="text-right"
-                                                style="vertical-align: middle; text-align: right;font-style:italic;text-transform:uppercase;">
-                                                <strong>{{ $quotationdata['currency'] }} {{ $words }} Only</strong>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                        @isset($quotationdata['pincode'])
+                                            , {{ $quotationdata['pincode'] }}
+                                        @endisset
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
 
-                                <table class="horizontal-border border">
-                                    <tr class="bgblue">
-                                        <td style="vertical-align: top;">
-                                            @isset($quotationdata['notes'])
-                                                <span style="margin-top: 0"><b>Notes :- </b></span><br>
-                                                <div>{!! nl2br(e($quotationdata['notes'])) !!} </div>
-                                            @endisset
-                                            @isset($quotationdata['t_and_c'])
-                                                <span style="margin-top: 0"><b>Terms And Conditions :- </b></span>
-                                                <div id="tcspan"> {!! $quotationdata['t_and_c'] !!}</div>
-                                            @endisset
-                                        </td>
-                                    </tr>
-                                </table>
-                                <div class="mt-1" style="font-size: 12px" id="footer">
-                                    <span class="float-left"><small>This is a computer-generated document. No signature is
-                                            required.</small></span>
-                                    <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
-                                </div>
-                            </div>
-                        </main>
-                    </body>
+            <table style="table-layout:fixed;" border="" cellspacing=0 cellpadding=0
+                class="horizontal-border border data" width="100%">
 
-                    </html>
+                <thead>
+                    <tr>
+                        <th style="width:4%;text-align:center;">ID</th>
+                        @foreach ($firstRowCols as $col)
+                            <th style="text-align: center; width: {{ $col['column_width'] }}% !important;">
+                                {{ strtoupper(str_replace('_', ' ', $col['column_name'])) }}
+                            </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                {{-- product data  --}}
+                <tbody>
+                    @php $srno = 0; @endphp
+                    @foreach ($products as $row)
+                        @php $srno++; @endphp
+
+                        {{-- Main first row --}}
+                        <tr>
+                            @php
+                                $loopnumber++;
+                            @endphp
+                            <td style="text-align: center; width:4%;">{{ $srno }}</td>
+                            @foreach ($firstRowCols as $col) 
+                                @php
+                                    $key = str_replace(' ', '_', $col['column_name']);
+                                    $val = $row[$key] ?? '';
+                                    $textAlign = $col['column_type'] == 'longtext' ? 'left' : 'center';
+                                @endphp
+
+                                @if ($key == 'amount')
+                                    <td style="text-align: right;" class="currencysymbol">
+                                        {{ Number::currency($val, in: $quotationdata['currency']) }}
+                                    </td>
+                                @else
+                                    <td style="text-align:{{$textAlign}};">
+                                        {!! nl2br(e($val)) !!}
+                                    </td>
+                                @endif
+                            @endforeach
+                        </tr>
+
+                        {{-- Wrapped columns rows --}}
+                        @foreach ($wrappedCols as $col)
+                            @php
+                                $loopnumber++;
+                                $key = str_replace(' ', '_', $col['column_name']);
+                                $val = $row[$key] ?? '';
+                                $label = strtoupper(str_replace('_', ' ', $key));
+                            @endphp
+                            <tr>
+                                <td></td> {{-- empty # column --}}
+                                <td colspan="{{ count($firstRowCols) }}">
+                                    <strong>{{ $label }}:</strong> {!! nl2br(e($val)) !!}
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+
+                    @if ($loopnumber < $blankrows)
+                        @php
+                            $blankrows -= $loopnumber;
+                        @endphp
+
+                        @for ($blankrow = 1; $blankrow <= $blankrows; $blankrow++)
+                            <tr>
+                                <td></td>
+                                @for ($j = 0; $j < count($firstRowCols); $j++)
+                                    @if ($j == ceil(count($firstRowCols) / 2) - 1)
+                                        <td style="text-align: center">-</td>
+                                    @else
+                                    <td></td>
+                                    @endif
+                                @endfor
+                            </tr>
+                        @endfor
+                    @endif
+                    {{-- end product data  --}}
+                    <tr>
+                        <td colspan="{{ $colspan }}" class="text-right left">
+                            Subtotal
+                        </td>
+                        <td class="right currencysymbol text-right" id="subtotal">
+                            {{ Number::currency($quotationdata['total'], in: $quotationdata['currency']) }}
+                        </td>
+                    </tr>
+                    @if ($othersettings['gst'] == 0)
+                        @if ($quotationdata['sgst'] >= 1)
+                            <tr>
+                                <td colspan="{{ $colspan }}" style="text-align: right"
+                                    class="left ">
+                                    SGST({{ $othersettings['sgst'] }}%)
+                                </td>
+                                <td style="text-align: right ;" class="currencysymbol" id="sgst">
+                                    {{ Number::currency($quotationdata['sgst'], in: $quotationdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($quotationdata['cgst'] >= 1)
+                            <tr>
+                                <td colspan="{{ $colspan }}" style="text-align: right"
+                                    class="left ">
+                                    CGST({{ $othersettings['cgst'] }}%)
+                                </td>
+                                <td style="text-align: right" class=" currencysymbol" id="cgst">
+                                    {{ Number::currency($quotationdata['cgst'], in: $quotationdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @else
+                        @if ($quotationdata['gst'] >= 1)
+                            <tr>
+                                <td colspan="{{ $colspan }}" style="text-align: right"
+                                    class="left ">
+                                    GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
+                                </td>
+                                <td style="text-align: right" class="currencysymbol " id="gst">
+                                    {{ Number::currency($quotationdata['gst'], in: $quotationdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @endif
+                    @unless ($roundof == 0)
+                        <tr style="font-size:15px;text-align: right">
+                            <td colspan="{{ $colspan }}" class="text-right left">
+                                Round of
+                            </td>
+                            <td class="right currencysymbol text-right">
+                                {{ $sign }} {{ Number::currency($roundof, in: $quotationdata['currency']) }}
+                            </td>
+                        </tr>
+                    @endunless
+                    <tr style="font-size:15px;text-align: right">
+                        <td colspan="{{ $colspan }}" class="text-right left">
+                            <b>Total</b>
+                        </td>
+                        <td class="right currencysymbol text-right">
+                            {{ Number::currency($quotationdata['grand_total'], in: $quotationdata['currency']) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="{{ ++$colspan }}" class="text-right"
+                            style="vertical-align: middle; text-align: right;font-style:italic;text-transform:uppercase;">
+                            <strong>{{ $quotationdata['currency'] }} {{ $words }} Only</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table class="horizontal-border border">
+                <tr class="bgblue">
+                    <td style="vertical-align: top;">
+                        @isset($quotationdata['notes'])
+                            <span style="margin-top: 0"><b>Notes :- </b></span><br>
+                            <div>{!! nl2br(e($quotationdata['notes'])) !!} </div>
+                        @endisset
+                        @isset($quotationdata['t_and_c'])
+                            <span style="margin-top: 0"><b>Terms And Conditions :- </b></span>
+                            <div id="tcspan"> {!! $quotationdata['t_and_c'] !!}</div>
+                        @endisset
+                    </td>
+                </tr>
+            </table>
+            <div class="mt-1" style="font-size: 12px" id="footer">
+                <span class="float-left"><small>This is a computer-generated document. No signature is
+                        required.</small></span>
+                <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

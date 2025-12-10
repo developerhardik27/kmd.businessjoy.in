@@ -266,34 +266,27 @@
                 $('#newTagBtnDiv').addClass('d-none');
                 let blogTagEditUrl = "{{ route('blogtag.edit', '__editId__') }}"
                     .replace('__editId__', editid);
-                $.ajax({
-                    type: 'GET',
-                    url: blogTagEditUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        user_id: "{{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.blogtag != '') {
-                            var blogtagdata = response.blogtag;
-                            $('#updated_by').val("{{ session()->get('user_id') }}");
-                            $('#edit_id').val(editid);
-                            $('#tag_name').val(blogtagdata.tag_name);
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
+                ajaxRequest('GET', blogTagEditUrl, {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: {{ session()->get('company_id') }},
+                    user_id: {{ session()->get('user_id') }},
+                }).done(function(response){
+                    if (response.status == 200 && response.blogtag != '') {
+                        var blogtagdata = response.blogtag;
+                        $('#updated_by').val("{{ session()->get('user_id') }}");
+                        $('#edit_id').val(editid);
+                        $('#tag_name').val(blogtagdata.tag_name);
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
-                });
-
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                });   
             });
 
 
@@ -311,37 +304,28 @@
                     'question', // Icon type (question icon)
                     function() {
                         loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: blogTagDeleteUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: {{ session()->get('company_id') }},
-                                user_id: {{ session()->get('user_id') }},
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message
-                                    });
-                                    table.draw();
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(error) {
-                                loaderhide();
+                        ajaxRequest('PUT', blogTagDeleteUrl, {
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: {{ session()->get('company_id') }},
+                            user_id: {{ session()->get('user_id') }},
+                        }).done(function(response){
+                            if (response.status == 200) {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
+                                table.draw();
+                            } else {
                                 Toast.fire({
                                     icon: "error",
-                                    title: "something went wrong!"
+                                    title: response.message
                                 });
                             }
-                        });
+                            loaderhide();
+                        }).fail(function(xhr){
+                            loaderhide();
+                            handleAjaxError(xhr);
+                        });  
                     }
                 );
             });
@@ -358,54 +342,29 @@
                 } else {
                     url = "{{ route('blogtag.store') }}"
                 }
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: columndata,
-                    success: function(response) {
-                        if (response.status == 200) {
-                            $('#edit_id').val('');
-                            $('#newblogtagform').addClass('d-none');
-                            $('#newTagBtnDiv').removeClass('d-none');
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            $('#tag_name').val('');
-                            table.draw();
-                        }  else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                ajaxRequest('POST', url, columndata).done(function(response){
+                    if (response.status == 200) {
+                        $('#edit_id').val('');
+                        $('#newblogtagform').addClass('d-none');
+                        $('#newTagBtnDiv').removeClass('d-none');
+                        // You can perform additional actions, such as showing a success message or redirecting the user
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
+                        $('#tag_name').val('');
+                        table.draw();
+                    }  else {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
             });
 
         });

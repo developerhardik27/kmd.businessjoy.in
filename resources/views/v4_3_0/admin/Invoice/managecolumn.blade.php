@@ -66,15 +66,15 @@
     </form>
     <hr>
     <div class="alert alert-info" style="font-size: 14px;">
-    <strong>Note:</strong>
-    <ul style="margin-bottom: 0;">
-        <li><strong>SR. Nmber</strong> column width: <code>4%</code></li>
-        <li><strong>Amount</strong> column width: <code>20%</code></li>
-        <li><strong>Total reserved width:</strong> <code>24%</code></li>
-        <li><strong>Available width for custom columns:</strong> <code>76%</code></li>
-        <li>If your custom column widths exceed 76%, the extra columns will move to the next row in the PDF.</li>
-    </ul>
-</div>
+        <strong>Note:</strong>
+        <ul style="margin-bottom: 0;">
+            <li><strong>SR. Nmber</strong> column width: <code>4%</code></li>
+            <li><strong>Amount</strong> column width: <code>20%</code></li>
+            <li><strong>Total reserved width:</strong> <code>24%</code></li>
+            <li><strong>Available width for custom columns:</strong> <code>76%</code></li>
+            <li>If your custom column widths exceed 76%, the extra columns will move to the next row in the PDF.</li>
+        </ul>
+    </div>
     <table id="data"
         class="table  table-bordered display table-responsive-lg table-striped text-center">
         <thead>
@@ -91,11 +91,12 @@
         <tbody id="tabledata">
         </tbody>
         <tr>
-            <td colspan="5" style="border:none;">
-            </td>
-            <td class="text-center" style="border-left: none">
+            <td colspan="3" class="text-right" style="border:none;">Total Width(%)</td>
+            <td class="text-center" style="border:none;"><span id="totalwidth">0</span></td>
+            <td class="text-right" style="border-right: none;">Save Sequence</td>
+            <td class="text-left" style="border-left: none">
                 <button data-toggle="tooltip" data-placement="bottom" data-original-title="Save Columns Sequence"
-                    class="btn btn-sm btn-primary savecolumnorder">
+                    class="btn btn-sm btn-primary savecolumnorder m-0">
                     <i class="ri-check-line"></i>
                 </button>
             </td>
@@ -152,7 +153,9 @@
                         if (response.status == 200 && response.invoicecolumn != '') {
                             global_response = response;
                             var id = 1;
+                            var totalWidth = 0;
                             $.each(response.invoicecolumn, function(key, value) {
+                                totalWidth = parseInt(totalWidth) + parseInt(value.column_width) || 0;
                                 $('#tabledata').append(` 
                                     <tr>
                                         <td>${id}</td>
@@ -184,6 +187,7 @@
                                     </tr>
                                 `);
                                 id++;
+                                $('#totalwidth').text(totalWidth);
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
                                 $('[data-toggle="tooltip"]').tooltip({
@@ -488,27 +492,7 @@
                                 },
                                 error: function(xhr, status, error) { // if calling api request error 
                                     loaderhide();
-                                    console.log(xhr
-                                        .responseText); // Log the full error response for debugging
-                                    if (xhr.status === 422) {
-                                        var errors = xhr.responseJSON.errors;
-                                        $.each(errors, function(key, value) {
-                                            $('#error-' + key).text(value[0]);
-                                        });
-                                    } else {
-                                        var errorMessage = "";
-                                        try {
-                                            var responseJSON = JSON.parse(xhr.responseText);
-                                            errorMessage = responseJSON.message ||
-                                                "An error occurred";
-                                        } catch (e) {
-                                            errorMessage = "An error occurred";
-                                        }
-                                        Toast.fire({
-                                            icon: "error",
-                                            title: errorMessage
-                                        });
-                                    }
+                                    handleAjaxError(xhr);
                                 }
                             });
                         }
@@ -563,25 +547,7 @@
                                     $('#column_type').prop('disabled', false);
                                     console.log(xhr
                                         .responseText); // Log the full error response for debugging
-                                    if (xhr.status === 422) {
-                                        var errors = xhr.responseJSON.errors;
-                                        $.each(errors, function(key, value) {
-                                            $('#error-' + key).text(value[0]);
-                                        });
-                                    } else {
-                                        var errorMessage = "";
-                                        try {
-                                            var responseJSON = JSON.parse(xhr.responseText);
-                                            errorMessage = responseJSON.message ||
-                                                "An error occurred";
-                                        } catch (e) {
-                                            errorMessage = "An error occurred";
-                                        }
-                                        Toast.fire({
-                                            icon: "error",
-                                            title: errorMessage
-                                        });
-                                    }
+                                    handleAjaxError(xhr);
                                 }
         
                             });

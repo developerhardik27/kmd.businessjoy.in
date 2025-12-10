@@ -235,6 +235,9 @@
                             @endisset
                         </span>
                     @endif
+                    @isset($companydetails['transporter_id'])
+                        <span>Transporter ID: {{ $companydetails['transporter_id'] }} </span>
+                    @endisset
                 </td>
             </tr>
             <tr>
@@ -282,31 +285,33 @@
                 </td>
                 <td style="vertical-align: top">
                     <table id="pdtable">
-                        <tr>
-                            <td><b>Date</b></td>
-                            <td style="text-align: right">
-                                {{ \Carbon\Carbon::parse($payment[0]['datetime'])->format('d-m-Y') }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Method</b></td>
-                            <td style="text-align: right"> {{ $payment[0]['paid_type'] }}</td>
-                        </tr>
-                        @isset($payment[0]['transaction_id'])
+                        @if (count($payment) == 1)
                             <tr>
-                                <td><b>Transcation Id</b></td>
-                                <td style="text-align: right"> {{ $payment[0]['transaction_id'] }}</td>
+                                <td><b>Date</b></td>
+                                <td style="text-align: right">
+                                    {{ \Carbon\Carbon::parse($payment[0]['datetime'])->format('d-m-Y') }}</td>
                             </tr>
-                        @endisset
-                        @isset($payment[0]['paid_by'])
                             <tr>
-                                <td><b>Paid By</b></td>
-                                <td style="text-align: right"> {{ $payment[0]['paid_by'] }}</td>
+                                <td><b>Method</b></td>
+                                <td style="text-align: right"> {{ $payment[0]['paid_type'] }}</td>
                             </tr>
-                        @endisset
-                        <tr>
-                            <td><b>Receipt #</b></td>
-                            <td style="text-align: right">{{ $payment[0]['receipt_number'] }}</td>
-                        </tr>
+                            @isset($payment[0]['transaction_id'])
+                                <tr>
+                                    <td><b>Transcation Id</b></td>
+                                    <td style="text-align: right"> {{ $payment[0]['transaction_id'] }}</td>
+                                </tr>
+                            @endisset
+                            @isset($payment[0]['paid_by'])
+                                <tr>
+                                    <td><b>Paid By</b></td>
+                                    <td style="text-align: right"> {{ $payment[0]['paid_by'] }}</td>
+                                </tr>
+                            @endisset
+                            <tr>
+                                <td><b>Receipt #</b></td>
+                                <td style="text-align: right">{{ $payment[0]['receipt_number'] }}</td>
+                            </tr>
+                        @endif    
                         <tr>
                             <td><b>Invoice #</b></td>
                             <td style="text-align: right">{{ $invdata['inv_no'] }}</td>
@@ -320,7 +325,7 @@
                                     @endisset
                                 </td>
                             </tr>
-                        @endif
+                        @endif 
                     </table>
                 </td>
             </tr>

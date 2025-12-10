@@ -407,17 +407,7 @@
                 error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
                     console.log(xhr.responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
+                    handleAjaxError(xhr);
                 }
             });
 
@@ -704,39 +694,7 @@
                     },
                     error: function(xhr, status, error) {
                         // Handle error response and display validation errors
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            var firstErrorElement =
-                            null; // Variable to track the first error element
-
-                            $.each(errors, function(key, value) {
-                                var errorElement = $('#error-' + key);
-                                errorElement.text(value[
-                                0]); // Display the error message
-
-                                // Track the first error element
-                                if (!firstErrorElement) {
-                                    firstErrorElement = errorElement;
-                                }
-                            });
-
-                            loaderhide();
-
-                            // If there's a first error, scroll to it
-                            if (firstErrorElement) {
-                                $('html, body').animate({
-                                    scrollTop: firstErrorElement.offset().top -
-                                        200 // Adjust this value as needed
-                                }, 500); // Scroll duration
-                            }
-                        } else {
-                            loaderhide();
-                            Toast.fire({
-                                icon: "error",
-                                title: 'An error occurred while processing your request. Please try again later.'
-                            });
-                        }
-
+                        handleAjaxError(xhr); 
                     }
                 });
             })

@@ -39,8 +39,6 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
-
-      
     </style>
 @endsection
 @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1')
@@ -222,7 +220,7 @@
 
             var global_response = '';
 
-            var table = '' ;
+            var table = '';
 
 
             function getConsigneeData() {
@@ -363,7 +361,7 @@
                         lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
                     destroy: true, // allows re-initialization
-                    responsive : true,
+                    responsive: true,
                     processing: true,
                     serverSide: true,
                     ajax: {
@@ -386,12 +384,12 @@
                             d.filter_consignee = $('#filter_consignee').val();
                             d.filter_consignor = $('#filter_consignor').val();
                         },
-                        dataSrc: function(json) { 
+                        dataSrc: function(json) {
                             if (json.status === 200) {
                                 tancid = json.latesttcid != null ? json.latesttcid.id : null;
                             }
 
-                            if(json.message){
+                            if (json.message) {
                                 Toast.fire({
                                     icon: "error",
                                     title: json.message || 'Somethint went wrong!'
@@ -408,7 +406,9 @@
                             });
                         }
                     },
-                    order: [[0,'desc']],
+                    order: [
+                        [0, 'desc']
+                    ],
                     columns: [
 
                         {
@@ -451,7 +451,7 @@
                             name: 'to_pay',
                             orderable: true,
                             searchable: false,
-                             defaultContent: '-',
+                            defaultContent: '-',
                         },
                         {
                             data: 'id',
@@ -530,7 +530,7 @@
 
 
                     ],
-                     
+
                     pagingType: "full_numbers",
                     drawCallback: function(settings) {
                         $('[data-toggle="tooltip"]').tooltip({
@@ -538,44 +538,44 @@
                             offset: '0, 10' // Push tooltip slightly away from the button
                         });
 
-                         // 👇 Jump to Page input injection
-                         if ($('#jumpToPageWrapper').length === 0) {
-                                let jumpHtml = `
+                        // 👇 Jump to Page input injection
+                        if ($('#jumpToPageWrapper').length === 0) {
+                            let jumpHtml = `
                                     <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
                                         <label for="jumpToPage" class="mb-0">Jump to page:</label>
                                         <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
                                         <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
                                     </div>
                                 `;
-                                $(".dt-paging").after(jumpHtml);
-                            }
+                            $(".dt-paging").after(jumpHtml);
+                        }
 
 
-                            $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
-                                function() {
-                                    let table = $('#data').DataTable();
-                                    // Check if table is initialized
-                                    if ($.fn.DataTable.isDataTable('#data')) {
-                                        let page = parseInt($('#jumpToPage').val());
-                                        let totalPages = table.page.info().pages;
+                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
+                            function() {
+                                let table = $('#data').DataTable();
+                                // Check if table is initialized
+                                if ($.fn.DataTable.isDataTable('#data')) {
+                                    let page = parseInt($('#jumpToPage').val());
+                                    let totalPages = table.page.info().pages;
 
-                                        if (!isNaN(page) && page > 0 && page <= totalPages) {
-                                            table.page(page - 1).draw('page');
-                                        } else {
-                                            Toast.fire({
-                                                icon: "error",
-                                                title: `Please enter a page number between 1 and ${totalPages}`
-                                            });
-                                        }
+                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
+                                        table.page(page - 1).draw('page');
                                     } else {
-
                                         Toast.fire({
                                             icon: "error",
-                                            title: `DataTable not yet initialized.`
+                                            title: `Please enter a page number between 1 and ${totalPages}`
                                         });
                                     }
+                                } else {
+
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: `DataTable not yet initialized.`
+                                    });
                                 }
-                            );
+                            }
+                        );
                     }
                 });
 
@@ -641,7 +641,8 @@
                                 } else {
                                     Toast.fire({
                                         icon: "error",
-                                        title: response.message || "something went wrong!"
+                                        title: response.message ||
+                                            "something went wrong!"
                                     });
                                 }
                                 loaderhide();
@@ -652,18 +653,7 @@
                                 console.log(xhr
                                     .responseText
                                 ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
+                                handleAjaxError(xhr);
                             }
                         });
                     }
@@ -704,9 +694,10 @@
                                 } else {
                                     Toast.fire({
                                         icon: "error",
-                                        title: response.message || "something went wrong!"
+                                        title: response.message ||
+                                            "something went wrong!"
                                     });
-                                } 
+                                }
                                 loaderhide();
                             },
                             error: function(xhr, status,
@@ -715,18 +706,7 @@
                                 console.log(xhr
                                     .responseText
                                 ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
+                                handleAjaxError(xhr);
                             }
                         });
                     }

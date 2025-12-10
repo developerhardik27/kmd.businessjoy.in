@@ -15,6 +15,7 @@
             <file>tests/Feature/CompanyCreationTest.php</file>
             <file>tests/Feature/AuthTest.php</file>
             <file>tests/Feature/AdminModule/CompanyTest.php</file>
+            <file>tests/Feature/AdminModule/UserTest.php</file>
         </testsuite>
     </testsuites>
     <source>
