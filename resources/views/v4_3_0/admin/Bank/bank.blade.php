@@ -75,7 +75,6 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
@@ -316,53 +315,36 @@
             // function for change bank status (active/inactive)
             function changebankstatus(bankid, statusvalue) {
                 let bankDetailsUpdateUrl = "{{ route('bank.update', '__bankId__') }}".replace('__bankId__', bankid);
-                $.ajax({
-                    type: 'PUT',
-                    url: bankDetailsUpdateUrl,
-                    data: {
-                        status: statusvalue,
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        user_id: "{{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200) {
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
+                
+                ajaxRequest('PUT',bankDetailsUpdateUrl,{
+                    status: statusvalue,
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: "{{ session()->get('user_id') }}"
+                }).done(function(response) {
+                    if (response.status == 200) {
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
 
-                            table.draw();
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: "something went wrong!"
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
+                        table.draw();
+                    } else if (response.status == 500) {
                         Toast.fire({
                             icon: "error",
-                            title: errorMessage
+                            title: response.message
+                        });
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: "something went wrong!"
                         });
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
             }
 
             // delete bank             
@@ -380,54 +362,33 @@
                     () => {
                         // Success callback
                         loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: bankDetailsDeleteUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}",
-                                user_id: "{{ session()->get('user_id') }}",
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: "succesfully deleted"
-                                    });
-                                    table.draw();
-                                } else if (response.status == 500) {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: "something went wrong!"
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status,
-                            error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                    ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
+                        ajaxRequest('PUT',bankDetailsDeleteUrl,{
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}",
+                        }).done(function(response){
+                            if (response.status == 200) {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: "succesfully deleted"
+                                });
+                                table.draw();
+                            } else if (response.status == 500) {
                                 Toast.fire({
                                     icon: "error",
-                                    title: errorMessage
+                                    title: response.message
+                                });
+                            } else {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "something went wrong!"
                                 });
                             }
-                        });
+                            loaderhide();
+                        }).fail(function(xhr){
+                            loaderhide();
+                            handleAjaxError(xhr);
+                        });  
                     }
                 );
             });
@@ -439,34 +400,34 @@
                 $.each(global_response.data, function(key, bankdetail) {
                     if (bankdetail.id == data) {
                         $('#details').append(`
-                                <tr>
-                                    <th>Holder Name</th>
-                                    <td>${bankdetail.holder_name || '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Number</th>
-                                    <td>${bankdetail.account_no || '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>IFSC Code</th>
-                                    <td>${bankdetail.ifsc_code || '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Swift Code</th>
-                                    <td>${bankdetail.swift_code || '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Branch Name</th>
-                                    <td>${bankdetail.branch_name || '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Bank Name</th>
-                                    <td>${bankdetail.bank_name || '-'}</td>
-                                </tr>
-                                <tr>
-                                    <th>Created On</th>
-                                    <td>${bankdetail.created_at_formatted || '-'}</td>
-                                </tr>
+                            <tr>
+                                <th>Holder Name</th>
+                                <td>${bankdetail.holder_name || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Account Number</th>
+                                <td>${bankdetail.account_no || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>IFSC Code</th>
+                                <td>${bankdetail.ifsc_code || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Swift Code</th>
+                                <td>${bankdetail.swift_code || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Branch Name</th>
+                                <td>${bankdetail.branch_name || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Bank Name</th>
+                                <td>${bankdetail.bank_name || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Created On</th>
+                                <td>${bankdetail.created_at_formatted || '-'}</td>
+                            </tr>
                         `);
                     }
                 });

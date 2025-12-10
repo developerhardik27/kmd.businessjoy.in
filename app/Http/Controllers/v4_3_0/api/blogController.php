@@ -12,8 +12,6 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class blogController extends commonController
 {
-
-
     public $userId, $companyId, $masterdbname, $rp, $blogModel, $blog_settingModel;
 
     public function __construct(Request $request)
@@ -24,7 +22,7 @@ class blogController extends commonController
 
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
@@ -48,27 +46,26 @@ class blogController extends commonController
         $slug = '';
 
         if ($request->slug) {
-            $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0);
+            $slug = str::slug($request->slug);
+            $checkSlug = $this->blogModel::where('slug', $slug)->where('is_deleted', 0);
 
             if ($request->edit_id) {
-                $checkSlug = $checkSlug->whereNot('id', $request->edit_id);
+                $checkSlug = $checkSlug->whereNot('id',$request->edit_id);
             }
 
             $checkSlug = $checkSlug->exists();
-
             if ($checkSlug) {
                 return response()->json([
                     'status' => 422,
-                    'slug' => str::slug($request->slug),
+                    'slug' => $slug,
                     'message' => 'Slug is already in use.'
                 ], status: 200);
             }
 
             return response()->json([
                 'status' => 200,
-                'slug' => str::slug($request->slug)
+                'slug' => $slug
             ], 200);
-
         }
 
         return response()->json([
@@ -153,7 +150,6 @@ class blogController extends commonController
             return $this->successresponse(404, 'blog', 'No Records Found');
         }
         return $this->successresponse(200, 'blog', $blogs);
-
     }
 
     /**
@@ -227,8 +223,8 @@ class blogController extends commonController
 
         $blogDetailsEndpoint = null;
 
-        if($blogSettings){
-            $blogDetailsEndpoint = $blogSettings->details_endpoint ?? null ;
+        if ($blogSettings) {
+            $blogDetailsEndpoint = $blogSettings->details_endpoint ?? null;
         }
 
         return DataTables::of($blogs)
@@ -237,7 +233,6 @@ class blogController extends commonController
                 'recordsTotal' => $totalcount, // Total records count
                 'blogSettings' => $blogDetailsEndpoint
             ])->make(true);
-
     }
 
 
@@ -262,7 +257,7 @@ class blogController extends commonController
 
         if ($blogSettings) {
             if (!empty($blogSettings->img_allowed_filetype)) {
-                 $fileAllowedType = implode(',', array_filter(array_map('trim', explode(',', $blogSettings->img_allowed_filetype))));
+                $fileAllowedType = implode(',', array_filter(array_map('trim', explode(',', $blogSettings->img_allowed_filetype))));
             }
 
             if (!empty($blogSettings->img_max_size)) {
@@ -294,7 +289,7 @@ class blogController extends commonController
             'max:' . $fileMaxSize,
         ];
 
-        if($blogSettings && $blogSettings->validate_dimension == 1){
+        if ($blogSettings && $blogSettings->validate_dimension == 1) {
             // Only apply dimensions rule if width and height are both set
             if ($fileWidthDimension && $fileHeightDimension) {
                 $imageValidationRules[] = "dimensions:width={$fileWidthDimension},height={$fileHeightDimension}";
@@ -324,7 +319,6 @@ class blogController extends commonController
             }
 
             return $this->errorresponse(422, $validator->messages());
-
         } else {
 
             if ($this->rp['blogmodule']['blog']['add'] == 1) {
@@ -384,7 +378,6 @@ class blogController extends commonController
                 }
 
                 return $this->successresponse(200, 'message', 'Blog succesfully added');
-
             } else {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
@@ -453,9 +446,6 @@ class blogController extends commonController
 
 
         return $this->successresponse(200, 'blog', $blog);
-
-
-
     }
 
     /**
@@ -479,7 +469,7 @@ class blogController extends commonController
 
         if ($blogSettings) {
             if (!empty($blogSettings->img_allowed_filetype)) {
-                 $fileAllowedType = implode(',', array_filter(array_map('trim', explode(',', $blogSettings->img_allowed_filetype))));
+                $fileAllowedType = implode(',', array_filter(array_map('trim', explode(',', $blogSettings->img_allowed_filetype))));
             }
 
             if (!empty($blogSettings->img_max_size)) {
@@ -511,7 +501,7 @@ class blogController extends commonController
             'max:' . $fileMaxSize,
         ];
 
-        if($blogSettings && $blogSettings->validate_dimension == 1){
+        if ($blogSettings && $blogSettings->validate_dimension == 1) {
             // Only apply dimensions rule if width and height are both set
             if ($fileWidthDimension && $fileHeightDimension) {
                 $imageValidationRules[] = "dimensions:width={$fileWidthDimension},height={$fileHeightDimension}";
@@ -530,25 +520,25 @@ class blogController extends commonController
             'blog_image' => $imageValidationRules
         ]);
 
+        
         if ($validator->fails()) {
-
-            if ($request->slug) {
-                $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0);
-
-                if ($request->edit_id) {
-                    $checkSlug = $checkSlug->whereNot('id', $request->edit_id);
-                }
-
-                $checkSlug = $checkSlug->exists();
-
-                if ($checkSlug) {
-                    $validator->errors()->add('slug', 'Slug is already in use.');
-                }
+            
+            $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0)->whereNot('id', $id)->exists();
+            
+            if ($checkSlug) {
+                $validator->errors()->add('slug', 'Slug is already in use.');
             }
-
+            
             return $this->errorresponse(422, $validator->messages());
         } else {
-
+            
+            $checkSlug = $this->blogModel::where('slug', $request->slug)->where('is_deleted', 0)->whereNot('id', $id)->exists();
+            
+            if ($checkSlug) {
+                $validator->errors()->add('slug', 'Slug is already in use.');
+                return $this->errorresponse(422, $validator->messages());
+            }
+            
             $blog = $this->blogModel::find($id);
             if (!$blog) {
                 return $this->successresponse(500, 'message', 'No such Blog found!');
@@ -609,7 +599,6 @@ class blogController extends commonController
                 if (file_exists($oldThumnailImagePath)) {
                     unlink($oldThumnailImagePath);
                 }
-
             }
 
             $tags = implode(',', $request->tag);
@@ -633,7 +622,6 @@ class blogController extends commonController
                 return $this->successresponse(500, 'message', 'Blog not succesfully Updated');
             }
             return $this->successresponse(200, 'message', 'Blog succesfully Updated');
-
         }
     }
 

@@ -710,36 +710,6 @@
                 }
             });
 
-            function ajaxRequest(type, url, data) {
-                return $.ajax({
-                    type,
-                    url,
-                    data
-                });
-            }
-
-            function handleAjaxError(xhr) {
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    $.each(errors, function(key, value) {
-                        $('#error-' + key).text(value[0]);
-                    });
-                    $('html, body').animate({
-                        scrollTop: 0
-                    }, 1000);
-                } else {
-                    var errorMessage = "An error occurred";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || errorMessage;
-                    } catch (e) {}
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
-                }
-            }
-
             // consignee data fetch and set consignee dropdown
             function consignees(consigneeid = '') {
                 loadershow();
@@ -957,18 +927,7 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);   
                     }
                 });
             }
@@ -1012,39 +971,7 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            let firstErrorElement = null;
-
-                            $.each(errors, function(key, value) {
-                                let errorElement = $('#error-' + key);
-                                errorElement.text(value[0]);
-
-                                // Capture the first error element
-                                if (!firstErrorElement) {
-                                    firstErrorElement = errorElement;
-                                }
-                            });
-
-                            if (firstErrorElement) {
-                                $('html, body').animate({
-                                    scrollTop: firstErrorElement.offset().top -
-                                        100 // adjust for spacing
-                                }, 800);
-                            }
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                        handleAjaxError(xhr);
                     }
                 })
             });

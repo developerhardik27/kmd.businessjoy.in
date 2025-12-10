@@ -201,17 +201,7 @@
                 error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
                     console.log(xhr.responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
+                    handleAjaxError(xhr);
                 }
             });
 
@@ -379,20 +369,7 @@
                     },
                     error: function(xhr, status, error) {
                         // Handle error response and display validation errors
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                            loaderhide();
-                        } else {
-                            loaderhide();
-                            Toast.fire({
-                                icon: "error",
-                                title: 'An error occurred while processing your request. Please try again later.'
-                            });
-
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
             })

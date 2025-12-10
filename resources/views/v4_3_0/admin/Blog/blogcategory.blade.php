@@ -262,33 +262,26 @@
                 $('#newCategoryBtnDiv').addClass('d-none');
                 let blogCategoryEditUrl = "{{ route('blogcategory.edit', '__editId__') }}".replace(
                     '__editId__', editid);
-                $.ajax({
-                    type: 'GET',
-                    url: blogCategoryEditUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: "{{ session()->get('company_id') }}",
-                        user_id: "{{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.blogcategory != '') {
-                            var blogcategorydata = response.blogcategory;
-                            $('#edit_id').val(editid);
-                            $('#category_name').val(blogcategorydata.cat_name);
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
+                ajaxRequest('GET', blogCategoryEditUrl, {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    user_id: "{{ session()->get('user_id') }}"
+                }).done(function(response){
+                    if (response.status == 200 && response.blogcategory != '') {
+                        var blogcategorydata = response.blogcategory;
+                        $('#edit_id').val(editid);
+                        $('#category_name').val(blogcategorydata.cat_name);
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
-                });
-
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                });  
             });
 
 
@@ -307,37 +300,28 @@
                     'question', // Icon type (question icon)
                     function() {
                         loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: blogCategoryDeleteUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: {{ session()->get('company_id') }},
-                                user_id: {{ session()->get('user_id') }},
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message
-                                    });
-                                    table.draw();
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(error) {
-                                loaderhide();
+                        ajaxRequest('PUT', blogCategoryDeleteUrl, {
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: {{ session()->get('company_id') }},
+                            user_id: {{ session()->get('user_id') }},
+                        }).done(function(response){
+                             if (response.status == 200) {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
+                                table.draw();
+                            } else {
                                 Toast.fire({
                                     icon: "error",
-                                    title: "something went wrong!"
+                                    title: response.message
                                 });
                             }
-                        });
+                            loaderhide();
+                        }).fail(function(xhr){
+                            loaderhide();
+                            handleAjaxError(xhr);
+                        });   
                     }
                 );
             });
@@ -354,59 +338,34 @@
                 } else {
                     url = "{{ route('blogcategory.store') }}"
                 }
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: columndata,
-                    success: function(response) {
-                        if (response.status == 200) {
-                            $('#edit_id').val('');
-                            $('#newblogcategoryform').addClass('d-none');
-                            $('#newCategoryBtnDiv').removeClass('d-none');
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            $('#category_name').val('');
-                            table.draw();
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                ajaxRequest('POST', url, columndata).done(function(response){
+                    if (response.status == 200) {
+                        $('#edit_id').val('');
+                        $('#newblogcategoryform').addClass('d-none');
+                        $('#newCategoryBtnDiv').removeClass('d-none');
+                        // You can perform additional actions, such as showing a success message or redirecting the user
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
+                        $('#category_name').val('');
+                        table.draw();
+                    } else if (response.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
             });
         });
     </script>

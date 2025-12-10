@@ -149,7 +149,7 @@ class PdfController extends Controller
       // return view($this->version . '.admin.PDF.paymentreciept', $data);
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentreciept', $data)->setPaper('a4', 'portrait');
 
-      $name = 'Reciept ' . $paymentdata['paymentdetail']['receipt_number'] . '.pdf';
+      $name = 'Reciept ' . $paymentdata['paymentdetail'][0]['receipt_number'] . '.pdf';
       // return view($this->version . '.admin.paymentreciept', $data);
       return $pdf->stream($name);
    }

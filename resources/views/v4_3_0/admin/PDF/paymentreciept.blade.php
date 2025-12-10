@@ -235,6 +235,9 @@
                             @endisset
                         </span>
                     @endif
+                    @isset($companydetails['transporter_id'])
+                        <span>Transporter ID: {{ $companydetails['transporter_id'] }} </span>
+                    @endisset
                 </td>
             </tr>
             <tr>
@@ -285,27 +288,27 @@
                         <tr>
                             <td><b>Date</b></td>
                             <td style="text-align: right">
-                                {{ \Carbon\Carbon::parse($payment['datetime'])->format('d-m-Y') }}</td>
+                                {{ \Carbon\Carbon::parse($payment[0]['datetime'])->format('d-m-Y') }}</td>
                         </tr>
                         <tr>
                             <td><b>Method</b></td>
-                            <td style="text-align: right"> {{ $payment['paid_type'] }}</td>
+                            <td style="text-align: right"> {{ $payment[0]['paid_type'] }}</td>
                         </tr>
-                        @isset($payment['transaction_id'])
+                        @isset($payment[0]['transaction_id'])
                             <tr>
                                 <td><b>Transcation Id</b></td>
-                                <td style="text-align: right"> {{ $payment['transaction_id'] }}</td>
+                                <td style="text-align: right"> {{ $payment[0]['transaction_id'] }}</td>
                             </tr>
                         @endisset
-                        @isset($payment['paid_by'])
+                        @isset($payment[0]['paid_by'])
                             <tr>
                                 <td><b>Paid By</b></td>
-                                <td style="text-align: right"> {{ $payment['paid_by'] }}</td>
+                                <td style="text-align: right"> {{ $payment[0]['paid_by'] }}</td>
                             </tr>
                         @endisset
                         <tr>
                             <td><b>Receipt #</b></td>
-                            <td style="text-align: right">{{ $payment['receipt_number'] }}</td>
+                            <td style="text-align: right">{{ $payment[0]['receipt_number'] }}</td>
                         </tr>
                         <tr>
                             <td><b>Invoice #</b></td>
@@ -320,7 +323,7 @@
                                     @endisset
                                 </td>
                             </tr>
-                        @endif
+                        @endif 
                     </table>
                 </td>
             </tr>
@@ -456,7 +459,7 @@
                         <b>Amount Received</b>
                     </td>
                     <td style="text-align: right" class="right removetdborder currencysymbol">
-                        {{ Number::currency($payment['paid_amount'], in: $invdata['currency']) }}
+                        {{ Number::currency($payment[0]['paid_amount'], in: $invdata['currency']) }}
                     </td>
                 </tr>
                 <tr class="" style="font-size:15px;text-align: right">
@@ -464,7 +467,7 @@
                             <b>TDS Amount</b>
                         </td>
                         <td style="text-align: right" class="right removetdborder currencysymbol">
-                            {{ Number::currency($payment['tds_amount'], in: $invdata['currency']) }}
+                            {{ Number::currency($payment[0]['tds_amount'], in: $invdata['currency']) }}
                         </td>
                     </tr>
                 <tr class="" style="font-size:15px;text-align: right">
@@ -472,7 +475,7 @@
                         <b>Paid Amount</b>
                     </td>
                     <td style="text-align: right" class="right removetdborder currencysymbol">
-                        {{ Number::currency($payment['amount'] - $payment['pending_amount'], in: $invdata['currency']) }}
+                        {{ Number::currency($payment[0]['amount'] - $payment[0]['pending_amount'], in: $invdata['currency']) }}
                     </td>
                 </tr>
                 <tr class="" style="font-size:15px;text-align: right">
@@ -480,7 +483,7 @@
                         <b>Pending Amount</b>
                     </td>
                     <td style="text-align: right" class="right removetdborder currencysymbol">
-                        <b>{{ Number::currency($payment['pending_amount'], in: $invdata['currency']) }}</b>
+                        <b>{{ Number::currency($payment[0]['pending_amount'], in: $invdata['currency']) }}</b>
                     </td>
                 </tr>
             </tbody>

@@ -288,7 +288,6 @@
                                         </td>
                                     </tr>
                                 @endisset
-
                             </table>
                             <table width="100%">
                                 <tr class="bgblue">

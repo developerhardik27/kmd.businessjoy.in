@@ -47,9 +47,7 @@
         }
     </style>
 @endsection
-
-
-
+ 
 @section('form-content')
 
     @if ($allow == 'no')

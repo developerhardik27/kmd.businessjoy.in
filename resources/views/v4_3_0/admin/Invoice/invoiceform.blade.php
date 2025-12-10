@@ -397,36 +397,7 @@
             const API_TOKEN = "{{ session()->get('api_token') }}";
             const COMPANY_ID = "{{ session()->get('company_id') }}";
             const USER_ID = "{{ session()->get('user_id') }}";
-
-            function ajaxRequest(type, url, data) {
-                return $.ajax({
-                    type,
-                    url,
-                    data
-                }); 
-            }
-
-            function handleAjaxError(xhr) {
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    $.each(errors, function(key, value) {
-                        $('#error-' + key).text(value[0]);
-                    });
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
-                } else {
-                    var errorMessage = "An error occurred";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || errorMessage;
-                    } catch (e) {}
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
-                }
-            }
-
-
+  
             // fetch other settings like gst and inv number and inv date
             ajaxRequest('GET', "{{ route('getoverduedays.index') }}", { 
                 token: API_TOKEN,

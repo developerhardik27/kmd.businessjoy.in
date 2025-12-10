@@ -156,7 +156,6 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-            loaderhide();
 
             $('#editblogsettings').on('click', function() {
                 $(this).toggle();
@@ -171,49 +170,43 @@
             });
 
             function loaddata() {
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('blog.settings') }}",
-                    data: {
-                        token: "{{ session('api_token') }}",
-                        company_id: "{{ session('company_id') }}",
-                        user_id: "{{ session('user_id') }}"
-                    },
-                    success: function(res) {
-                        if (res.status === 200) {
-                            const s = res.blogsettings;
-                            $('#blog_details_endpoint').val(s.details_endpoint);
-                            $('#blog_image_allowed_filetype').val(s.img_allowed_filetype);
-                            $('#blog_image_max_size').val(s.img_max_size);
-                            $('#blog_image_width').val(s.img_width);
-                            $('#blog_image_height').val(s.img_height);
-                            $('#blog_thumbnail_image_width').val(s.thumbnail_img_width);
-                            $('#blog_thumbnail_image_height').val(s.thumbnail_img_height);
-                            $('select[name="validate_dimenstion"]').val(s.validate_dimension);
+                loadershow();
+                ajaxRequest('GET', "{{ route('blog.settings') }}", {
+                    token: "{{ session()->get('api_token') }}",
+                    company_id: {{ session()->get('company_id') }},
+                    user_id: {{ session()->get('user_id') }},
+                }).done(function(res){
+                    if (res.status === 200) {
+                        const s = res.blogsettings;
+                        $('#blog_details_endpoint').val(s.details_endpoint);
+                        $('#blog_image_allowed_filetype').val(s.img_allowed_filetype);
+                        $('#blog_image_max_size').val(s.img_max_size);
+                        $('#blog_image_width').val(s.img_width);
+                        $('#blog_image_height').val(s.img_height);
+                        $('#blog_thumbnail_image_width').val(s.thumbnail_img_width);
+                        $('#blog_thumbnail_image_height').val(s.thumbnail_img_height);
+                        $('select[name="validate_dimenstion"]').val(s.validate_dimension);
 
-                            // Update the summary section
-                            $('#DetailsEndpoint').text(s.details_endpoint);
-                            $('#imgAllowedFiletype').text(s.img_allowed_filetype);
-                            $('#imgMaxSize').text(s.img_max_size);
-                            $('#imgWidth').text(s.img_width);
-                            $('#imgHeight').text(s.img_height);
-                            $('#thumbnailImgWidth').text(s.thumbnail_img_width);
-                            $('#thumbnailImgHeight').text(s.thumbnail_img_height);
-                            $('#validateDimension').text(s.validate_dimension == 1 ? 'Yes' : 'No');
-                        } else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: res.message || 'No settings found'
-                            });
-                        }
-                    },
-                    error: function() {
+                        // Update the summary section
+                        $('#DetailsEndpoint').text(s.details_endpoint);
+                        $('#imgAllowedFiletype').text(s.img_allowed_filetype);
+                        $('#imgMaxSize').text(s.img_max_size);
+                        $('#imgWidth').text(s.img_width);
+                        $('#imgHeight').text(s.img_height);
+                        $('#thumbnailImgWidth').text(s.thumbnail_img_width);
+                        $('#thumbnailImgHeight').text(s.thumbnail_img_height);
+                        $('#validateDimension').text(s.validate_dimension == 1 ? 'Yes' : 'No');
+                    } else {
                         Toast.fire({
                             icon: 'error',
-                            title: 'Failed to fetch blog settings'
+                            title: res.message || 'No settings found'
                         });
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                });  
             }
 
             loaddata();
@@ -224,51 +217,30 @@
                 $('.error-msg').text(''); // Clear previous errors
 
                 const formData = $(this).serializeArray();
+                ajaxRequest('put', "{{ route('blog.updatesettings') }}", formData).done(function(res){
+                    if (res.status === 200) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: res.message || 'Settings updated successfully!'
+                        });
 
-                $.ajax({
-                    type: 'put',
-                    url: "{{ route('blog.updatesettings') }}",
-                    data: formData,
-                    success: function(res) {
-                        loaderhide();
-                        if (res.status === 200) {
-                            Toast.fire({
-                                icon: 'success',
-                                title: res.message || 'Settings updated successfully!'
-                            });
+                        $('#blogsettingsform')[0].reset();
+                        $('#blogsettingsform').hide();
+                        $('#editblogsettings').show();
 
-                            $('#blogsettingsform')[0].reset();
-                            $('#blogsettingsform').hide();
-                            $('#editblogsettings').show();
-
-                            // Optionally refresh shown values:
-                            loaddata();
-                        } else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: res.message || 'Update failed.'
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        loaderhide();
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please fix the highlighted errors.'
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Unexpected error occurred.'
-                            });
-                        }
+                        // Optionally refresh shown values:
+                        loaddata();
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: res.message || 'Update failed.'
+                        });
                     }
-                });
+                    loaderhide();
+                }).fail(function(xhr){
+                    loaderhide();
+                    handleAjaxError(xhr);
+                }); 
             });
 
         });

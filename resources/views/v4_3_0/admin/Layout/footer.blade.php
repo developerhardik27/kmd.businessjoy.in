@@ -91,9 +91,49 @@
         $('body').removeClass('no-scroll'); // Prevent background scroll 
     }
 
+    function ajaxRequest(type, url, data) {
+        return $.ajax({
+            type,
+            url,
+            data
+        }); 
+    }
+
+    function handleAjaxError(xhr) {
+        if (xhr.status === 422) {
+            var errors = xhr.responseJSON.errors;
+            let firstErrorElement = null;
+
+            $.each(errors, function(key, value) {
+                let errorElement = $('#error-' + key);
+                errorElement.text(value[0]);
+
+                // Capture the first error element
+                if (!firstErrorElement) {
+                    firstErrorElement = errorElement;
+                }
+            });
+
+            if (firstErrorElement) {
+                $('html, body').animate({
+                    scrollTop: firstErrorElement.offset().top -
+                        100 // adjust for spacing
+                }, 800);
+            }
+        } else {
+            var errorMessage = "An error occurred";
+            try {
+                var responseJSON = JSON.parse(xhr.responseText);
+                errorMessage = responseJSON.message || errorMessage;
+            } catch (e) {}
+            Toast.fire({
+                icon: "error",
+                title: errorMessage
+            });
+        }
+    }
 
     // sweet alert functions
-
     const Toast = Swal.mixin({
         toast: true,
         position: "top-end",
@@ -136,8 +176,8 @@
 <script>
     $('document').ready(function() {
 
-        $(document).on('click', '[data-toggle="tooltip"] *', function () {
-            $('[data-toggle="tooltip"]').tooltip('hide');
+        $(document).on('click', '[data-toggle="tooltip"]', function () {
+            $(this).tooltip('hide');
         });
 
         $.ajax({

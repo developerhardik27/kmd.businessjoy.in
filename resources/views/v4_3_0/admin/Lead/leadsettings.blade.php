@@ -167,17 +167,7 @@
                     loaderhide();
                     console.log(xhr
                         .responseText); // Log the full error response for debugging
-                    var errorMessage = "";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || "An error occurred";
-                    } catch (e) {
-                        errorMessage = "An error occurred";
-                    }
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
+                    handleAjaxError(xhr);
                 }
             });
 
@@ -212,17 +202,7 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
             }
@@ -258,17 +238,7 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
             }
@@ -425,21 +395,7 @@
                     },
                     error: function(xhr) {
                         loaderhide();
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please fix the highlighted errors.'
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Unexpected error occurred.'
-                            });
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
             });

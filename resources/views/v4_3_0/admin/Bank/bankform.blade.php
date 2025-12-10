@@ -33,7 +33,7 @@
                     <input type="text" name="account_number" class="form-control" id="account_number" value=""
                         placeholder="Account Number" required />
                     <span class="error-msg" id="error-account_number" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label for="swift_code">Swift Code</label>
                     <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
@@ -45,7 +45,7 @@
                     <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" placeholder="IFSC Code"
                         required />
                     <span class="error-msg" id="error-ifsc_code" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-6 mb-2">
                     <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
                     <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
@@ -57,14 +57,14 @@
                     <input type="text" id="branch_name" name="branch_name" class="form-control"
                         placeholder="Branch Name" />
                     <span class="error-msg" id="error-branch_name" style="color: red"></span>
-                </div> 
+                </div>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
-                    <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
-                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Save Details" class="btn btn-primary float-right my-0">Save</button>
+                    <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details"
+                        class="btn iq-bg-danger float-right mr-2">Reset</button>
+                    <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save Details"
+                        class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -90,14 +90,11 @@
             // response status == 422 that means api has not got valid or required data
             loaderhide();
 
-
-
             // redirect on bank list page onclick cancel btn
             $('#cancelbtn').on('click', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.bank') }}";
             });
-
 
             // submit bank form data
             $('#bankdetailform').submit(function(event) {
@@ -105,57 +102,33 @@
                 $('.error-msg').text('');
                 loadershow();
                 const formdata = $(this).serialize();
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('bank.store') }}",
-                    data: formdata,
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            window.location =
+
+                ajaxRequest('POST', "{{ route('bank.store') }}", formdata).done(function(response) {
+                    // Handle the response from the server
+                    if (response.status == 200) {
+                        // You can perform additional actions, such as showing a success message or redirecting the user
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
+                        window.location =
                             "{{ route('admin.bank') }}"; // after succesfully data submit redirect on list page
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });;
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                    } else if (response.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });;
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
                     }
-                })
+                    loaderhide();
+                }).fail(function(xhr) {
+                    loaderhide();
+                    handleAjaxError(xhr);
+                });
             });
         });
     </script>

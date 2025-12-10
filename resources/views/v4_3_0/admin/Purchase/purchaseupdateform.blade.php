@@ -429,36 +429,6 @@
             var po_id = @json($edit_id);
             let purchaseSearchUrl = "{{ route('purchase.edit', '__editId__') }}".replace('__editId__', po_id);
 
-
-            function ajaxRequest(type, url, data) {
-                return $.ajax({
-                    type,
-                    url,
-                    data
-                });
-            }
-
-            function handleAjaxError(xhr) {
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    $.each(errors, function(key, value) {
-                        $('#error-' + key).text(value[0]);
-                    });
-                    $('html, body').animate({
-                        scrollTop: 0
-                    }, 1000);
-                } else {
-                    var errorMessage = "An error occurred";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || errorMessage;
-                    } catch (e) {}
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
-                }
-            }
             // currency data fetch from country table and set currensy dropdown
             ajaxRequest('GET', "{{ route('country.index') }}", {
                 token: API_TOKEN,
@@ -983,39 +953,7 @@
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
                         var errorcontainer;
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                // Update the text of the error message
-                                $('#error-' + key).text(value[0]);
-                                // Store the first error container to scroll to
-                                if (!errorcontainer) {
-                                    errorcontainer = '#error-' + key;
-                                }
-                            });
-
-                            // Scroll to the first error container
-                            if (errorcontainer) {
-                                $('html, body').animate({
-                                        scrollTop: $(errorcontainer).offset().top -
-                                            100 // Add some offset for better visibility, e.g., 100px from the top
-                                    },
-                                    1000
-                                ); // Duration of the scroll animation (1000ms = 1 second)
-                            }
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
             });

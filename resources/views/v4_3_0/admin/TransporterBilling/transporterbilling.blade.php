@@ -170,15 +170,22 @@
                         <label for="transid">Transaction ID</label>
                         <input type="text" name="transid" class="form-control" id="transid"
                             placeholder="Transaction id" />
-                        <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
-                        <label for="paidamount">Received Amount</label>
+                        <p class="modal_error-msg mb-1" id="error-transid" style="color: red"></p>
+                        <label for="payment_date">Payment Date</label>
+                        <input type="date" name="payment_date" class="form-control" id="payment_date" required />
+                        <p class="modal_error-msg mb-1" id="error-payment_date" style="color: red"></p>
+                        Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
+                        &nbsp;Total Paid Amount :-&nbsp;<span class="mb-1 text-info"
+                            id="info-total_paid_amount">0</span><br>
+                        <label for="paidamount">Paid Amount</label>
                         <input type="number" name="paidamount" class="form-control" id="paidamount"
-                            placeholder="Received Amount" required />
-                        <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
+                            placeholder="Paid Amount" required />
+                        <p class="modal_error-msg mb-1" id="error-paidamount" style="color: red"></p>
+                        Pending Amount :-&nbsp;<span class="mb-1 text-info" id="info-pending_amount">0</span><br>
                         <label for="paid_by">Paid By</label>
                         <input type="text" name="paid_by" class="form-control" id="paid_by"
                             placeholder="Who Paid Amount" />
-                        <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
+                        <p class="modal_error-msg mb-1" id="error-paid_by" style="color: red"></p>
                         <label for="payment_type">How They Paid</label>
                         <select class="form-control" name="payment_type" id="payment_type">
                             <option selected="" disabled="">Select Payment Type</option>
@@ -186,10 +193,10 @@
                             <option value="Cash">Cash</option>
                             <option value="Check">Check</option>
                         </select>
-                        <span class="modal_error-msg" id="error-payment_type" style="color: red"></span><br>
+                        <p class="modal_error-msg mb-1" id="error-payment_type" style="color: red"></p>
                         <label for="remarks">Remarks</label>
                         <textarea name="remarks" id="remarks" cols="30" rows="2" class="form-control" placeholder="Remarks"></textarea>
-                        <span class="modal_error-msg" id="error-remarks" style="color: red"></span><br>
+                        <p class="modal_error-msg mb-1" id="error-remarks" style="color: red"></p>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="" class="btn btn-primary">Submit</button>
@@ -295,7 +302,7 @@
             initialize();
 
 
-            // load consignor copy  data in table 
+            // load transporter bill data in table 
             function loaddata() {
                 table = $('#data').DataTable({
                     language: {
@@ -396,11 +403,32 @@
                             render: function(data, type, row) {
                                 actions = '-';
                                 @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1')
+                                    options = '';
+                                    if (row.part_payment == 1 && row.pending_amount != 0) {
+                                        options = ` 
+                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''}>Part Payment</option>
+                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
+                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
+                                        `;
+                                    }
+                                    if (row.pending_amount == 0) {
+                                        options = `
+                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
+                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''}> Paid</option>
+                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
+                                        `;
+                                    }
+
+                                    if (row.part_payment != 1 && row.part_payment != 0) {
+                                        options = `
+                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
+                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled> Paid</option>
+                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
+                                        `;
+                                    }
                                     actions = `  
                                         <select data-status='${row.id}' data-original-value="${row.status}" class="status" id="status_${row.id}" name="" required >
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
+                                            ${options}
                                             <option value='cancel' ${row.status == "cancel" ? 'selected' : ''}>Cancel</option>
                                         </select>
                                     `;
@@ -418,7 +446,7 @@
                             defaultContent: '-',
                             render: function(data, type, row) {
                                 actions = '';
-                                if (row.status != 'paid') {
+                                if (row.status != 'paid' || row.pending_amount > 0) {
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
                                             <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.amount}" data-id='${row.id}' class='btn btn-sm btn-primary m-0 paymentformmodal'>
@@ -548,10 +576,10 @@
             });
 
 
-            // delete consignor copy             
+            // delete transporter bill             
             $(document).on("click", ".del-btn", function() {
                 var deleteid = $(this).data('id');
-                let consignorCopyDltUrl = "{{ route('transporterbill.delete', '__deleteId__') }}".replace(
+                let tbillDltUrl = "{{ route('transporterbill.delete', '__deleteId__') }}".replace(
                     '__deleteId__', deleteid);
                 var row = this;
                 showConfirmationDialog(
@@ -565,7 +593,7 @@
                         loadershow();
                         $.ajax({
                             type: 'PUT',
-                            url: consignorCopyDltUrl,
+                            url: tbillDltUrl,
                             data: {
                                 token: "{{ session()->get('api_token') }}",
                                 company_id: "{{ session()->get('company_id') }}",
@@ -593,18 +621,7 @@
                                 console.log(xhr
                                     .responseText
                                 ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
+                                handleAjaxError(xhr);
                             }
                         });
                     }
@@ -644,17 +661,7 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
             }
@@ -688,6 +695,8 @@
                 $('#paymentform')[0].reset();
                 var billid = $(this).data('id');
                 var amount = $(this).data('amount');
+                var totalpaidamount = 0;
+                var pendingamount = 0;
                 $('#bill_id').val(billid);
                 loadershow();
                 let pendingPaymentDetailsUrl =
@@ -705,12 +714,18 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            console.log(response.payment)
+                            totalpaidamount = amount - response.payment[0].pending_amount;
                             $('#paidamount').val(response.payment[0].pending_amount);
                             $('#paidamount').attr('max', response.payment[0].pending_amount);
+                            $('#info-total_amount').text(amount);
+                            $('#info-total_paid_amount').text(totalpaidamount);
+                            $('#info-pending_amount').val(response.payment[0].pending_amount);
                         } else {
                             $('#paidamount').val(amount);
                             $('#paidamount').attr('max', amount);
+                            $('#info-total_amount').text(amount);
+                            $('#info-total_paid_amount').text(totalpaidamount);
+                            $('#info-pending_amount').val(pendingamount);
                         }
                         loaderhide();
                     },
@@ -718,27 +733,29 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
 
             })
 
+            $('#paidamount').on('change keyup', function() {
+                var paidamount = $(this).val();
+                var totalamount = parseInt($('#info-total_amount').text()) || 0;
+                var totalpaid = parseInt($('#info-total_paid_amount').text()) || 0;
+                var pendingamount = totalamount - totalpaid - paidamount;
+                $('#info-pending_amount').text(pendingamount);
+            });
+
             // payment details 
             $(document).on('click', '.viewpayment', function() {
                 loadershow();
+                var billId = $(this).data('id'); 
+                viewpayment(billId);
+            })
+
+            function viewpayment(billId){
                 $('#details').html('');
-                var billId = $(this).data('id');
                 let paymentDetailsSearchUrl = "{{ route('billingpaymentdetails.search', '__billId__') }}"
                     .replace('__billId__', billId);
                 $.ajax({
@@ -757,12 +774,17 @@
                                     <tr>
                                         <td>
                                             <div class="col-md-12">
+                                                <div class="float-right">
+                                                    <button data-id="${value.id}" data-bill-id="${billId}" class="btn btn-sm btn-danger pay-del-btn">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
                                                 <div><b>Payment date : </b> ${value.datetime}</div>
                                                 <div><b>Total Amount : </b> ${value.amount}</div>
                                                 <div><b>Paid Amount : </b> ${value.paid_amount}</div>
                                                 <div><b>Pending Amount: </b> ${value.pending_amount}</div>
                                                 <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
-                                                <div style="white-space:pre-line;"><b>Remarks: </b> ${value.remarks}</div>
+                                                <div style="white-space:pre-line;"><b>Remarks: </b> ${value.remarks || '-'}</div>
                                             </div>  
                                         </td>
                                     </tr>
@@ -793,20 +815,16 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
-            })
+            }
+
+            // show today date as default payment date in modal when modal will open
+            $("#paymentmodal").on("shown.bs.modal", function() {
+                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+                $('#payment_date').val(today);
+            });
 
             // reset payment details in modal when modal will close
             $("#exampleModalScrollable").on("hidden.bs.modal", function() {
@@ -851,26 +869,63 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
+            });
+
+            // delete transporter bill payment             
+            $(document).on("click", ".pay-del-btn", function() {
+                var deleteid = $(this).data('id');
+                var billId = $(this).data('bill-id');
+                let tbillPaymentDltUrl = "{{ route('billingpaymentdetails.deletepayment', '__deleteId__') }}".replace(
+                    '__deleteId__', deleteid);
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this payment record ?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: tbillPaymentDltUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "succesfully deleted"
+                                    });
+                                    viewpayment(billId);
+                                    table.draw();
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message ||
+                                            "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                handleAjaxError(xhr);
+                            }
+                        });
+                    }
+                );
             });
 
         });

@@ -19,7 +19,7 @@ class PaymentController extends commonController
 
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
@@ -36,8 +36,7 @@ class PaymentController extends commonController
     // use for pdf
     public function paymentdetailsforpdf(string $id)
     {
-
-        $paymentdetail = $this->payment_detailsModel::find($id);
+        $paymentdetail = $this->payment_detailsModel::where('id', $id)->where('is_deleted', 0)->get();
 
         if (!$paymentdetail) {
             return $this->successresponse(404, 'message', 'No Records Found');
@@ -47,11 +46,31 @@ class PaymentController extends commonController
         return $this->successresponse(200, 'paymentdetail', $paymentdetail);
     }
 
-    // use for pdf
+
     public function paymentdetail(string $id)
     {
 
-        $paymentdetail = $this->payment_detailsModel::where('inv_id', $id)->get();
+        $paymentdetail = $this->payment_detailsModel::select(
+            'id',
+            'amount',
+            'tds_amount',
+            'challan_no',
+            'tds_status',
+            'tds_credited',
+            'paid_amount',
+            'paid_by',
+            'paid_type',
+            'part_payment',
+            'pending_amount',
+            'receipt_number',
+            'transaction_id',
+            'inv_id',
+            'is_active',
+            'is_deleted',
+            DB::raw("DATE_FORMAT(datetime, '%d-%m-%Y') as datetime"),
+            DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') as created_at"),
+            DB::raw("DATE_FORMAT(updated_at, '%d-%m-%Y') as updated_at")
+        )->where('inv_id', $id)->where('is_deleted', 0)->get();
 
         if ($paymentdetail->isEmpty()) {
             return $this->successresponse(404, 'message', 'No Records Found');
@@ -66,6 +85,7 @@ class PaymentController extends commonController
     {
 
         $payment = $this->payment_detailsModel::where('inv_id', $id)
+            ->where('is_deleted', 0)
             ->orderBy('id', 'desc')
             ->limit(1)
             ->get();
@@ -81,7 +101,7 @@ class PaymentController extends commonController
     {
 
         $payment = $this->payment_detailsModel::where('inv_id', $id)
-            ->get();
+            ->where('is_deleted', 0)->get();
 
         if ($payment->isEmpty()) {
             return $this->successresponse(404, 'payment', 'No Records Found');
@@ -100,6 +120,7 @@ class PaymentController extends commonController
         $validator = Validator::make($request->all(), [
             'inv_id' => 'required|integer',
             'transid' => 'nullable|string|max:50',
+            'payment_date' => 'required|date',
             'paidamount' => 'required|numeric',
             'paid_by' => 'nullable|string|max:30',
             'payment_type' => 'nullable|string|max:30',
@@ -114,6 +135,7 @@ class PaymentController extends commonController
 
             $invoice = $this->invoiceModel::find($request->inv_id);
             $payments = $this->payment_detailsModel::where('inv_id', $request->inv_id)
+                ->where('is_deleted', 0)
                 ->where('part_payment', 1)
                 ->get();
 
@@ -128,9 +150,8 @@ class PaymentController extends commonController
             $paid_amount = (int) $request->paidamount ?? 0;
             $tds_paid_amount = (int) $request->tds_amount ?? 0;
             $pending_amount = $total - $total_paid - $paid_amount - $tds_paid_amount;
-
             // Check if full payment is already done
-            if ($total_paid >= $total) {
+            if ($total_paid == $total) {
                 return $this->successresponse(500, 'message', 'Payment already made');
             }
             if ($pending_amount < 0) {
@@ -142,6 +163,7 @@ class PaymentController extends commonController
                 'inv_id' => $request->inv_id,
                 'receipt_number' => $receipt_number,
                 'transaction_id' => $request->transid,
+                'datetime' => $request->payment_date ?? now(),
                 'amount' => $total,
                 'tds_amount' => $tds_paid_amount,
                 'challan_no' => $request->challan_no,
@@ -164,6 +186,71 @@ class PaymentController extends commonController
                 return $this->successresponse(500, 'message', 'Failed to create payment details');
             }
         }
+    }
+
+    /**
+     * destroy resource in storage.
+     */
+    public function destroy($id)
+    {
+        $payment = $this->payment_detailsModel::where('id', $id)
+            ->where('is_deleted', 0)
+            ->first();
+
+        if (!$payment) {
+            return $this->successresponse(404, 'message', 'Invoice payment not found');
+        }
+
+        $invoice = $this->invoiceModel::find($payment->inv_id);
+
+        // Fetch all payment rows for this bill
+        $payments = $this->payment_detailsModel::where('inv_id', $invoice->id)
+            ->where('is_deleted', 0)
+            ->get();
+
+        // dd($payments);   
+        $payment->is_deleted = 1;
+        $payment->updated_by = $this->userId;
+        $payment->updated_at = now();
+        $payment->save();
+        
+        if (count($payments) == 1) {
+            // Do not change status if it's already "cancel"
+            $invoice->status = ($invoice->status != 'cancel')
+                ? 'pending'
+                : 'cancel';
+            $invoice->updated_by = $this->userId;
+            $invoice->updated_at = now();
+            $invoice->save();
+            return $this->successresponse(200, 'message', 'Payment details successfully deleted.');
+        }
+
+        // Update each record
+        $totalpaid = 0;
+        foreach ($payments as $pay) {
+            if ($pay->id == $id) {
+                continue;
+            }
+            $totalpaid += $pay->paid_amount +  $pay->tds_amount;
+            $pay->pending_amount = $pay->amount - $totalpaid;
+            $pay->updated_by = $this->userId;
+            $pay->updated_at = now();
+            $pay->save();
+        }
+
+        // Update bill status
+        $billstatus = ($invoice->amount == $totalpaid)
+            ? 'paid'
+            : 'part_payment';
+
+        // Do not change status if it's already "cancel"
+        $invoice->status = ($invoice->status != 'cancel')
+            ? $billstatus
+            : 'cancel';
+
+        $invoice->save();
+
+        return $this->successresponse(200, 'message', 'Payment details successfully deleted.');
     }
 
     /**
@@ -203,6 +290,7 @@ class PaymentController extends commonController
                 'invoices.id as invoice_id'
             )
             ->where('invoices.is_deleted', 0)
+            ->where('payment_details.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
 
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
@@ -245,7 +333,6 @@ class PaymentController extends commonController
             ])
             ->make(true);
     }
-
 
 
     /**
