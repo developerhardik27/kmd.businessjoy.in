@@ -3976,7 +3976,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Log</td>
+                                                <td>All Log</td>
                                                 {{-- add more option title here if needed --}}
                                             </tr>
                                             <tr id="report">
