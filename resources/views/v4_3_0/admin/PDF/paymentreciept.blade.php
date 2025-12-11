@@ -398,7 +398,7 @@
                     </td>
                 </tr>
                 @if ($othersettings['gst'] == 0)
-                    @if ($invdata['sgst'] >= 1)
+                    @if ($invdata['sgst'] > 0)
                         <tr class="removepadding">
                             <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                 class="left removetdborder removepadding">
@@ -410,7 +410,7 @@
                             </td>
                         </tr>
                     @endif
-                    @if ($invdata['cgst'] >= 1)
+                    @if ($invdata['cgst'] > 0)
                         <tr class="removepadding">
                             <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                 class="left removetdborder removepadding">
@@ -423,7 +423,7 @@
                         </tr>
                     @endif
                 @else
-                    @if ($invdata['gst'] >= 1)
+                    @if ($invdata['gst'] > 0)
                         <tr class="removepadding">
                             <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
                                 class="left removetdborder removepadding">

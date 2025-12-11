@@ -215,6 +215,13 @@ class PdfController extends Controller
          $rp = json_decode($permissions[0]['rp'], true);
          $reportuserlist = $rp['reportmodule']['report']['alldata'];
 
+         if(!$reportuserlist){
+             return response()->json([
+               'status' => 'error',
+               'message' => "You have not access to report any user's data"
+            ]);
+         }
+
          $startDate = $request->fromdate;
          $endDate = Carbon::parse($request->todate);
 
@@ -222,7 +229,7 @@ class PdfController extends Controller
             ->where([
                'is_deleted' => 0,
             ])
-            ->whereIn('created_by', $reportuserlist)
+            ->whereIn('created_by', [$reportuserlist])
             ->get();
 
          if (count($invoices) == 0) {

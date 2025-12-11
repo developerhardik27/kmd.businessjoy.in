@@ -14,8 +14,8 @@ class invoiceController extends commonController
 {
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
-     $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-      $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel;
+        $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel;
 
     public function __construct(Request $request)
     {
@@ -746,9 +746,9 @@ class invoiceController extends commonController
                 $oldinvoice = $this->invoiceModel::find($id);
 
                 $payment = $this->payment_detailsModel::where('inv_id', $id)
-                ->where('is_deleted', 0)
-                ->orderBy('id', 'desc')
-                ->first();
+                    ->where('is_deleted', 0)
+                    ->orderBy('id', 'desc')
+                    ->first();
 
                 if ($payment) {
                     $oldTotalAmount   = $payment->amount;
@@ -1094,14 +1094,17 @@ class invoiceController extends commonController
      */
     public function reportlogsdetails(Request $request)
     {
-        if ($this->rp['reportmodule']['report']['log'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
         $reports = DB::connection('dynamic_connection')->table('reportlogs')
             ->join($this->masterdbname . '.users', 'reportlogs.created_by', '=', $this->masterdbname . '.users.id')
             ->select('reportlogs.*', DB::raw("DATE_FORMAT(reportlogs.from_date, '%d-%m-%Y') as from_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.to_date, '%d-%m-%Y') as to_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'users.firstname', 'users.lastname')
-            ->where('reportlogs.is_deleted', 0)->orderBy('id', 'desc')->get();
+            ->where('reportlogs.is_deleted', 0);
+
+        if ($this->rp['reportmodule']['report']['log'] != 1) {
+            $reports->where('reportlogs.created_by', $this->userId);
+        }
+
+        $reports =  $reports->orderBy('id', 'desc')->get();
 
         if ($reports->isEmpty()) {
             return $this->successresponse(404, 'reports', 'No Records Found');
