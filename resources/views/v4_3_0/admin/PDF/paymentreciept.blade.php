@@ -287,37 +287,37 @@
                     <table id="pdtable">
                         <tr>
                             <td><b>Date</b></td>
-                            <td style="text-align: right">
+                            <td style="text-align: right;">
                                 {{ \Carbon\Carbon::parse($payment[0]['datetime'])->format('d-m-Y') }}</td>
                         </tr>
                         <tr>
                             <td><b>Method</b></td>
-                            <td style="text-align: right"> {{ $payment[0]['paid_type'] }}</td>
+                            <td style="text-align: right;"> {{ $payment[0]['paid_type'] }}</td>
                         </tr>
                         @isset($payment[0]['transaction_id'])
                             <tr>
                                 <td><b>Transcation Id</b></td>
-                                <td style="text-align: right"> {{ $payment[0]['transaction_id'] }}</td>
+                                <td style="text-align: right;"> {{ $payment[0]['transaction_id'] }}</td>
                             </tr>
                         @endisset
                         @isset($payment[0]['paid_by'])
                             <tr>
                                 <td><b>Paid By</b></td>
-                                <td style="text-align: right"> {{ $payment[0]['paid_by'] }}</td>
+                                <td style="text-align: right;"> {{ $payment[0]['paid_by'] }}</td>
                             </tr>
                         @endisset
                         <tr>
                             <td><b>Receipt #</b></td>
-                            <td style="text-align: right">{{ $payment[0]['receipt_number'] }}</td>
+                            <td style="text-align: right;">{{ $payment[0]['receipt_number'] }}</td>
                         </tr>
                         <tr>
                             <td><b>Invoice #</b></td>
-                            <td style="text-align: right">{{ $invdata['inv_no'] }}</td>
+                            <td style="text-align: right;">{{ $invdata['inv_no'] }}</td>
                         </tr>
                         @if ($withgst)
                             <tr>
                                 <td><b>GST #</b></td>
-                                <td style="text-align: right">
+                                <td style="text-align: right;">
                                     @isset($invdata['gst_no'])
                                         {{ $invdata['gst_no'] }}
                                     @endisset
@@ -375,7 +375,7 @@
                         @endphp
                         <tr>
                             <td></td> {{-- empty # column --}}
-                            <td colspan="{{ $colspan }}">
+                            <td colspan="{{ count($firstRowCols) }}">
                                 <strong>{{ $label }}:</strong> {!! nl2br(e($val)) !!}
                             </td>
                         </tr>
@@ -389,22 +389,22 @@
             width="100%">
             <tbody>
                 <tr class="removepadding">
-                    <td colspan="{{ $colspan }}" style="text-align: right"
+                    <td style="text-align: right;"
                         class="left removetdborder  ">
                         Subtotal
                     </td>
-                    <td style="text-align: right" class="right removetdborder currencysymbol" id="subtotal">
+                    <td style="text-align: right;" class="right removetdborder currencysymbol" id="subtotal">
                         {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                     </td>
                 </tr>
                 @if ($othersettings['gst'] == 0)
                     @if ($invdata['sgst'] > 0)
                         <tr class="removepadding">
-                            <td colspan="{{ $colspan }}" style="text-align: right"
+                            <td style="text-align: right;"
                                 class="left removetdborder removepadding">
                                 SGST({{ $othersettings['sgst'] }}%)
                             </td>
-                            <td style="text-align: right ;" class="currencysymbol removetdborder removepadding"
+                            <td style="text-align: right;width:20% !important;" class="currencysymbol removetdborder removepadding"
                                 id="sgst">
                                 {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
                             </td>
@@ -412,11 +412,11 @@
                     @endif
                     @if ($invdata['cgst'] > 0)
                         <tr class="removepadding">
-                            <td colspan="{{ $colspan }}" style="text-align: right"
+                            <td style="text-align: right;"
                                 class="left removetdborder removepadding">
                                 CGST({{ $othersettings['cgst'] }}%)
                             </td>
-                            <td style="text-align: right" class="currencysymbol removetdborder removepadding"
+                            <td style="text-align: right;width:20% !important;" class="currencysymbol removetdborder removepadding"
                                 id="cgst">
                                 {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
                             </td>
@@ -425,11 +425,11 @@
                 @else
                     @if ($invdata['gst'] > 0)
                         <tr class="removepadding">
-                            <td colspan="{{ $colspan }}" style="text-align: right"
+                            <td style="text-align: right;"
                                 class="left removetdborder removepadding">
                                 GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                             </td>
-                            <td style="text-align: right" class="currencysymbol removetdborder removepadding"
+                            <td style="text-align: right;width:20% !important;" class="currencysymbol removetdborder removepadding"
                                 id="gst">
                                 {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
                             </td>
@@ -437,52 +437,52 @@
                     @endif
                 @endif
                 @unless ($roundof == 0)
-                    <tr class="removepadding" style="font-size:15px;text-align: right">
-                        <td colspan="{{ $colspan }}" class="left removetdborder removepadding">
+                    <tr class="removepadding" style="font-size:15px;text-align: right;">
+                        <td class="left removetdborder removepadding">
                             Round of
                         </td>
-                        <td style="text-align: right" class="right currencysymbol  removepadding">
+                        <td style="text-align: right;width:20% !important;" class="right currencysymbol  removepadding">
                             {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                         </td>
                     </tr>
                 @endunless
-                <tr class="" style="font-size:15px;text-align: right">
-                    <td colspan="{{ $colspan }}" class="left removetdborder">
+                <tr class="" style="font-size:15px;text-align: right;">
+                    <td class="left removetdborder">
                         <b>Total</b>
                     </td>
-                    <td style="text-align: right" class="right removetdborder currencysymbol">
+                    <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
                         {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
                     </td>
                 </tr>
-                <tr class="" style="font-size:15px;text-align: right">
-                    <td colspan="{{ $colspan }}" class="left removetdborder">
+                <tr class="" style="font-size:15px;text-align: right;">
+                    <td class="left removetdborder">
                         <b>Amount Received</b>
                     </td>
-                    <td style="text-align: right" class="right removetdborder currencysymbol">
+                    <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
                         {{ Number::currency($payment[0]['paid_amount'], in: $invdata['currency']) }}
                     </td>
                 </tr>
-                <tr class="" style="font-size:15px;text-align: right">
-                        <td colspan="{{ $colspan }}" class="left removetdborder">
+                <tr class="" style="font-size:15px;text-align: right;">
+                        <td class="left removetdborder">
                             <b>TDS Amount</b>
                         </td>
-                        <td style="text-align: right" class="right removetdborder currencysymbol">
+                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
                             {{ Number::currency($payment[0]['tds_amount'], in: $invdata['currency']) }}
                         </td>
                     </tr>
-                <tr class="" style="font-size:15px;text-align: right">
-                    <td colspan="{{ $colspan }}" class="left removetdborder">
+                <tr class="" style="font-size:15px;text-align: right;">
+                    <td class="left removetdborder">
                         <b>Paid Amount</b>
                     </td>
-                    <td style="text-align: right" class="right removetdborder currencysymbol">
+                    <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
                         {{ Number::currency($payment[0]['amount'] - $payment[0]['pending_amount'], in: $invdata['currency']) }}
                     </td>
                 </tr>
-                <tr class="" style="font-size:15px;text-align: right">
-                    <td colspan="{{ $colspan }}" class="left removetdborder">
+                <tr class="" style="font-size:15px;text-align: right;">
+                    <td class="left removetdborder">
                         <b>Pending Amount</b>
                     </td>
-                    <td style="text-align: right" class="right removetdborder currencysymbol">
+                    <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
                         <b>{{ Number::currency($payment[0]['pending_amount'], in: $invdata['currency']) }}</b>
                     </td>
                 </tr>
