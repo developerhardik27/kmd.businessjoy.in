@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Validator;
 class invoiceController extends commonController
 {
 
-    public $userId, $companyId, $masterdbname, $rp, $invoiceModel, $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel, $inventoryModel, $product_Model, $product_column_mappingModel;
+    public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
+        $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel;
 
     public function __construct(Request $request)
     {
@@ -22,7 +24,7 @@ class invoiceController extends commonController
 
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
@@ -39,6 +41,7 @@ class invoiceController extends commonController
         $this->inventoryModel = $this->getmodel('inventory');
         $this->product_Model = $this->getmodel('product');
         $this->product_column_mappingModel = $this->getmodel('product_column_mapping');
+        $this->payment_detailsModel = $this->getmodel('payment_details');
     }
 
 
@@ -258,7 +261,7 @@ class invoiceController extends commonController
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource. datatable
      */
     public function inv_list(Request $request)
     {
@@ -279,12 +282,13 @@ class invoiceController extends commonController
             ->leftJoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftJoin('payment_details', function ($join) {
                 $join->on('invoices.id', '=', 'payment_details.inv_id')
-                    ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id ORDER BY id DESC LIMIT 1)');
+                    ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
             })
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
             ->select(
                 'invoices.*',
                 DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"),
+                'payment_details.id as paymentid',
                 'payment_details.part_payment',
                 'payment_details.pending_amount',
                 'customers.house_no_building_name',
@@ -741,6 +745,58 @@ class invoiceController extends commonController
 
                 $oldinvoice = $this->invoiceModel::find($id);
 
+                $payment = $this->payment_detailsModel::where('inv_id', $id)
+                    ->where('is_deleted', 0)
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                if ($payment) {
+                    $oldTotalAmount   = $payment->amount;
+                    $pendingAmount    = $payment->pending_amount;
+                    $totalPaidAmount  = $oldTotalAmount - $pendingAmount;   // already paid
+
+                    // If user enters less than already paid
+                    if ($totalPaidAmount > $data['grandtotal']) {
+                        return $this->errorresponse(422, [
+                            'grandtotal' => [
+                                "You already received $totalPaidAmount, so this amount is not valid.Please adjust amount or delete payment entry."
+                            ]
+                        ]);
+                    }
+
+                    // Only proceed if the new amount is >= already paid
+                    if ($data['grandtotal'] >= $totalPaidAmount) {
+
+                        // Fetch all payment rows for this bill
+                        $payments = $this->payment_detailsModel::where('inv_id', $id)
+                            ->where('is_deleted', 0)
+                            ->get();
+
+                        // Update each record
+                        $totalpaid = 0;
+                        foreach ($payments as $pay) {
+                            $totalpaid += $pay->paid_amount + $pay->tds_amount;
+                            $pay->amount         = $data['grandtotal'];
+                            $pay->pending_amount = $data['grandtotal'] - $totalpaid;
+                            $pay->part_payment   = ($data['grandtotal'] > $totalPaidAmount) ? 1 : 0;
+                            $pay->updated_by   = $this->userId;
+                            $pay->save();
+                        }
+
+                        // Update bill status
+                        $oldInvoiceStatus = ($data['grandtotal'] == $totalPaidAmount)
+                            ? 'paid'
+                            : 'part_payment';
+
+                        // Do not change status if it's already "cancel"
+                        $oldinvoice->status = ($oldinvoice->status != 'cancel')
+                            ? $oldInvoiceStatus
+                            : 'cancel';
+
+                        $oldinvoice->save();
+                    }
+                }
+
                 //get quantity linked column
                 $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
 
@@ -1038,14 +1094,17 @@ class invoiceController extends commonController
      */
     public function reportlogsdetails(Request $request)
     {
-        if ($this->rp['reportmodule']['report']['log'] != 1) {
-            return $this->successresponse(500, 'message', 'You are Unauthorized');
-        }
 
         $reports = DB::connection('dynamic_connection')->table('reportlogs')
             ->join($this->masterdbname . '.users', 'reportlogs.created_by', '=', $this->masterdbname . '.users.id')
             ->select('reportlogs.*', DB::raw("DATE_FORMAT(reportlogs.from_date, '%d-%m-%Y') as from_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.to_date, '%d-%m-%Y') as to_date_formatted"), DB::raw("DATE_FORMAT(reportlogs.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"), 'users.firstname', 'users.lastname')
-            ->where('reportlogs.is_deleted', 0)->orderBy('id', 'desc')->get();
+            ->where('reportlogs.is_deleted', 0);
+
+        if ($this->rp['reportmodule']['report']['log'] != 1) {
+            $reports->where('reportlogs.created_by', $this->userId);
+        }
+
+        $reports =  $reports->orderBy('id', 'desc')->get();
 
         if ($reports->isEmpty()) {
             return $this->successresponse(404, 'reports', 'No Records Found');

@@ -35,7 +35,8 @@ class userController extends commonController
             "invoicestandardsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
             "invoicegstsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
             "invoicecustomeridsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
-            "invoiceapi" => ["show", "add", "view", "edit", "delete", "alldata"]
+            "invoiceapi" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "tdsregister" => ["show", "add", "view", "edit", "delete", "alldata"],
         ],
         "leadmodule" => [
             "leaddashboard" => ["show", "add", "view", "edit", "delete", "alldata"],
@@ -153,7 +154,7 @@ class userController extends commonController
 
         $this->masterdbname = DB::connection()->getDatabaseName();
 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->get();
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->get();
         $permissions = json_decode($user_rp, true);
         if (empty($permissions)) {
             $this->customerrorresponse();
@@ -210,7 +211,6 @@ class userController extends commonController
     // return username and company name
     public function username(Request $request)
     {
-
         $user = DB::table('users')
             ->join('company', 'users.company_id', '=', 'company.id')
             ->join('company_details', 'company.company_details_id', '=', 'company_details.id')
@@ -378,7 +378,6 @@ class userController extends commonController
     /**
      * helper function - get user's company id by user id
      */
-
     public function getcompanyidbyuserid(int $userId){
         $companyId= User::where('id',$userId)->value('company_id');
         return $companyId;
@@ -878,7 +877,6 @@ class userController extends commonController
 
     /**
      * Summary of index
-     * return bank account list
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */

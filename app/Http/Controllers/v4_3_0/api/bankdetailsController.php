@@ -14,13 +14,12 @@ class bankdetailsController extends commonController
 
     public function __construct(Request $request)
     {
-
         $this->companyId = $request->company_id;
         $this->userId = $request->user_id;
-        
+
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
@@ -44,17 +43,17 @@ class bankdetailsController extends commonController
     {
         $bankdetailres = $this->bankdetailmodel::where('id', $id);
 
-
         $bankdetail = $bankdetailres->get();
 
         if ($bankdetail->isEmpty()) {
             return $this->successresponse(404, 'bankdetail', 'No Records Found');
         }
-        if ($this->rp['invoicemodule']['bank']['view'] == 1 || $this->rp['reportmodule']['report']['view'] == 1) {
-            return $this->successresponse(200, 'bankdetail', $bankdetail);
-        } else {
+        
+        if ($this->rp['invoicemodule']['bank']['view'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
+        return $this->successresponse(200, 'bankdetail', $bankdetail);
     }
 
     /**
@@ -126,7 +125,6 @@ class bankdetailsController extends commonController
                 'recordsTotal' => $totalcount, // Total records count
             ])
             ->make(true);
-
     }
 
     /**
@@ -159,7 +157,6 @@ class bankdetailsController extends commonController
 
             if ($this->rp['invoicemodule']['bank']['add'] != 1) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
-
             }
             $bankdetail = $this->bankdetailmodel::create([
                 'holder_name' => $request->holder_name,
@@ -176,7 +173,6 @@ class bankdetailsController extends commonController
             } else {
                 return $this->successresponse(500, 'message', 'Bank Details not succesfully added');
             }
-
         }
     }
 
@@ -212,8 +208,6 @@ class bankdetailsController extends commonController
         ]);
 
         return $this->successresponse(200, 'message', 'status succesfully updated');
-
-
     }
 
     /**
@@ -247,6 +241,5 @@ class bankdetailsController extends commonController
         ]);
 
         return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
-
     }
 }

@@ -270,7 +270,6 @@
 
             // delete bank             
             $(document).on("click", ".del-btn", function() {
-
                 var deleteid = $(this).data('id');
                 var row = this;
                 let blogDeleteUrl = "{{ route('blog.delete', '__deleteId__') }}".replace(
@@ -284,51 +283,29 @@
                     'question', // Icon type (question icon)
                     function() {
                         loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: blogDeleteUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}",
-                                user_id: "{{ session()->get('user_id') }}",
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message
-                                    });
-                                    table.draw();
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message ||
-                                            "something went wrong!"
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status,
-                                error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
+                        ajaxRequest('PUT', blogDeleteUrl, {
+                            token: "{{ session()->get('api_token') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            user_id: "{{ session()->get('user_id') }}",
+                        }).done(function(response){
+                            if (response.status == 200) {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
+                                table.draw();
+                            } else {
                                 Toast.fire({
                                     icon: "error",
-                                    title: errorMessage
+                                    title: response.message ||
+                                        "something went wrong!"
                                 });
-
                             }
-                        });
+                            loaderhide();
+                        }).fail(function(xhr){
+                            loaderhide();
+                            handleAjaxError(xhr);
+                        });  
                     }
                 );
 

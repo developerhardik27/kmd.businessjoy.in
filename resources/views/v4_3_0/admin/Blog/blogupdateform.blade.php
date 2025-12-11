@@ -342,20 +342,7 @@
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
             }
@@ -386,7 +373,7 @@
                         }
                     },
                     error: function(e) {
-                        console.log(e);
+                        handleAjaxError(xhr);
                     }
                 });
             }
@@ -418,19 +405,7 @@
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
             });
@@ -442,11 +417,9 @@
 
                 if (input.files && input.files[0]) {
                     var reader = new FileReader();
-
                     reader.onload = function(e) {
                         $('#oldimg').attr('src', e.target.result);
                     }
-
                     reader.readAsDataURL(input.files[0]);
                 }
             });
@@ -503,26 +476,7 @@
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
             })

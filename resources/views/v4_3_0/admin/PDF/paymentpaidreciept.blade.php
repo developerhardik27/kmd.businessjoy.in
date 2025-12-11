@@ -5,7 +5,7 @@
     $total;
     $roundof;
     $sign = '';
-    $withgst = false; 
+    $withgst = false;
 
     if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
         $withgst = true; // if invoice created with gst
@@ -13,13 +13,13 @@
 
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
-    } else if( $invdata['sgst'] != 0 &&  $invdata['cgst'] != 0) {
+    } elseif ($invdata['sgst'] != 0 && $invdata['cgst'] != 0) {
         $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'];
-    }else {
-        $total = $invdata['total'] ;
+    } else {
+        $total = $invdata['total'];
     }
 
-    //count round off 
+    //count round off
     if ($invdata['grand_total'] > $total) {
         $value = $invdata['grand_total'] - $total;
         $roundof = number_format((float) $value, 2, '.', '');
@@ -34,9 +34,39 @@
         }
     }
 
-
     $othersettings = json_decode($othersettings['gstsettings'], true);
-    $loopnumber = []; // array for alignment column type  longtext
+
+    $fixedFirstCols = ['#']; // manual column for serial number with 4% width
+    $fixedWidths = 4; // % width for #
+    $amountColumnWidth = 20; // amount column width (fixed)
+    $totalWidth = $fixedWidths + $amountColumnWidth;
+    $firstRowCols = []; // columns to show in main row
+    $wrappedCols = []; // columns to wrap as separate rows
+
+    // We assume $productscolumn includes all columns except #.
+    // amount is last column, include it separately always.
+    foreach ($productscolumn as $col) {
+        if ($col['column_name'] === 'amount') {
+            // Always include amount at last, skip here
+            continue;
+        }
+
+        // Check if adding this column exceeds 100%
+        if ($totalWidth + intval($col['column_width']) <= 100) {
+            $totalWidth += intval($col['column_width']);
+            $firstRowCols[] = $col;
+        } else {
+            $wrappedCols[] = $col;
+        }
+    }
+
+    // Always push amount column at the end of first row columns
+    $amountCol = collect($productscolumn)->first(fn($c) => $c['column_name'] === 'amount');
+    if ($amountCol) {
+        $firstRowCols[] = $amountCol;
+    }
+
+    $colspan = count($firstRowCols);
 @endphp
 
 <!DOCTYPE html>
@@ -115,7 +145,7 @@
             margin: 0px !important;
             padding: 0px !important;
         }
- 
+
         header {
             position: fixed;
             top: -20px;
@@ -158,9 +188,10 @@
         #data td,
         th {
             white-space: normal;
-            word-wrap: break-word; 
+            word-wrap: break-word;
         }
-        #data td{
+
+        #data td {
             line-break: anywhere !important;
         }
     </style>
@@ -187,24 +218,26 @@
                     <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['house_no_building_name'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">{!! nl2br(e(wordwrap($companydetails['road_name_area_colony'], 40, "\n", true))) !!}</span>
                     <span class="default" style="display:block;">{{ $companydetails['city_name'] }},
-                        {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}</span>
+                        {{ $companydetails['state_name'] }}, {{ $companydetails['pincode'] }}
+                    </span>
                     @isset($companydetails['email'])
                         <span class="default" style="display:block;">Email: {{ $companydetails['email'] }}</span>
                     @endisset
                     <span class="default" style="display:block;">Contact: {{ $companydetails['contact_no'] }}</span>
                 </td>
-                <td style="vertical-align: top:width:33%;">
+                <td style="vertical-align: top;width:33%;">
                     <span style="display: block">
                         TAX INVOICE
                     </span>
                     @if ($withgst)
-                        <span>
-                            GSTIN No:
-                            @isset($companydetails['gst_no'])
+                        <span>GSTIN No: @isset($companydetails['gst_no'])
                                 {{ $companydetails['gst_no'] }}
                             @endisset
                         </span>
                     @endif
+                    @isset($companydetails['transporter_id'])
+                        <span>Transporter ID: {{ $companydetails['transporter_id'] }} </span>
+                    @endisset
                 </td>
             </tr>
             <tr>
@@ -247,12 +280,12 @@
                             {{ $invdata['pincode'] }}
                         @endisset
                     </span>
-                    <span class="default" style="display:block;">{{ $invdata['email'] }}</span>
+                    <span class="default"style="display:block;">{{ $invdata['email'] }}</span>
                     <span class="default">{{ $invdata['contact_no'] }}</span>
                 </td>
                 <td style="vertical-align: top">
                     <table id="pdtable">
-                        @if (count($payment) <= 1)
+                        @if (count($payment) == 1)
                             <tr>
                                 <td><b>Date</b></td>
                                 <td style="text-align: right">
@@ -264,7 +297,7 @@
                             </tr>
                             @isset($payment[0]['transaction_id'])
                                 <tr>
-                                    <td><b>Transaction Id</b></td>
+                                    <td><b>Transcation Id</b></td>
                                     <td style="text-align: right"> {{ $payment[0]['transaction_id'] }}</td>
                                 </tr>
                             @endisset
@@ -278,7 +311,7 @@
                                 <td><b>Receipt #</b></td>
                                 <td style="text-align: right">{{ $payment[0]['receipt_number'] }}</td>
                             </tr>
-                        @endif
+                        @endif    
                         <tr>
                             <td><b>Invoice #</b></td>
                             <td style="text-align: right">{{ $invdata['inv_no'] }}</td>
@@ -292,183 +325,208 @@
                                     @endisset
                                 </td>
                             </tr>
-                        @endif
+                        @endif 
                     </table>
                 </td>
             </tr>
-            @if (count($payment) > 1){
-                <tr>
-                    <td id="data" colspan="3">
-                        <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-5" width="100">
-                            <tr>
-                                <th>Date</th>
-                                <th>Method</th>
-                                <th>Receipt</th>
-                                <th>Total Amount</th>
-                                <th>Received Amount</th>
-                                <th>Pedning Amount</th>
-                            </tr>
-                            @foreach ($payment as $value)
+        </table>
+        @if (count($payment) > 1)
+            <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="w-100"
+                width="100">
+                <tbody>
+                    <tr>
+                        <td id="data" colspan="3">
+                            <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border"
+                                width="100">
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($value['datetime'])->format('d-m-Y') }}</td>
-                                    <td>{{ $value['paid_type'] }}</td>
-                                    <td>{{ $value['receipt_number'] }}</td>
-                                    <td>{{ $value['amount'] }}</td>
-                                    <td>{{ $value['paid_amount'] }}</td>
-                                    <td>{{ $value['pending_amount'] }}</td>
-                                </tr>
-                            @endforeach
-                        </table>
-                    </td>
-                </tr>
-                }
-            @else
-                <tr>
-                    <td id="data" colspan="3">
-                        <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-3" width="100">
-                            <thead>
-                                <tr class="bgblue">
-                                    <th><span style="padding-left: 5px;width:4%"> # </span></th>
-                                    @forelse ($productscolumn as $column)
-                                        @php
-                                            $columnname = strtoupper(str_replace('_', ' ', $column['column_name']));
-                                        @endphp
-
-                                        @if ($column['column_type'] == 'longtext')
-                                            @php
-                                                $loopnumber[] = $loop->iteration;
-                                            @endphp
-                                        @endif
-                                        <th style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">{{ $columnname }}</th>
-                                    @empty
-                                        <th>-</th>
-                                    @endforelse
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $srno = 0 ; @endphp
-                                @foreach ($products as $row)
-                                    @php $srno++ ; @endphp
-                                    <tr>
-                                        <td style="text-align: center;width:4%">{{ $srno }}</td>
-                                        @foreach ($row as $key => $val)
-                                            @if ($loop->last)
-                                                <td style="text-align:right;" class="currencysymbol"> 
-                                                    {{ Number::currency($val, in: $invdata['currency']) }}
-                                                </td>
-                                            @elseif (in_array($loop->iteration, $loopnumber))
-                                                @php
-                                                    $textAlign =
-                                                        strpos($val, "\n") !== false || strpos($val, '<br>') !== false
-                                                            ? 'left'
-                                                            : 'center';
-                                                @endphp
-
-                                                <td style="text-align:{{ $textAlign }};">
-                                                    {!! nl2br(e($val)) !!}
-                                                </td>
-                                            @else
-                                                <td style="text-align:center;">
-                                                    {!! nl2br(e($val)) !!}
-                                                </td>
-                                            @endif
-                                        @endforeach
-                                    </tr>
-                                @endforeach
-                                <tr>
-                                    <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
-                                        class="left removetdborder removepadding">
-                                        Subtotal
-                                    </td>
-                                    <td style="text-align: right"
-                                        class="right removetdborder currencysymbol removepadding" id="subtotal"> 
-                                        {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
-                                    </td>
-                                </tr>
-                                @if ($othersettings['gst'] == 0)
-                                    @if ($invdata['sgst'] >= 1)
-                                        <tr class=" ">
-                                            <td colspan="@php echo (count($products[0])); @endphp"
-                                                style="text-align: right" class="left removetdborder removepadding">
-                                                SGST({{ $othersettings['sgst'] }}%)
-                                            </td>
-                                            <td style="text-align: right ;"
-                                                class="currencysymbol removetdborder removepadding" id="sgst"> 
-                                                {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @if ($invdata['cgst'] >= 1)
-                                        <tr class=" ">
-                                            <td colspan="@php echo (count($products[0])); @endphp"
-                                                style="text-align: right" class="left removetdborder removepadding">
-                                                CGST({{ $othersettings['cgst'] }}%)
-                                            </td>
-                                            <td style="text-align: right"
-                                                class="removetdborder currencysymbol removepadding" id="cgst"> 
-                                                {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @else
-                                    @if ($invdata['gst'] >= 1)
-                                        <tr class=" ">
-                                            <td colspan="@php echo (count($products[0])); @endphp"
-                                                style="text-align: right" class="left removetdborder removepadding">
-                                                GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
-                                            </td>
-                                            <td style="text-align: right"
-                                                class="removetdborder currencysymbol removepadding" id="gst">
-                                                {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endif
-                                @unless ($roundof == 0)
-                                    <tr class="" style="font-size:15px;text-align: right">
-                                        <td colspan="@php echo (count($products[0])); @endphp"
-                                            class="left removetdborder removepadding">
-                                            Round of
-                                        </td>
-                                        <td style="text-align: right" class="right  currencysymbol removepadding"> 
-                                            {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
-                                        </td>
-                                    </tr>
-                                @endunless
-                                <tr class="" style="font-size:15px;text-align: right;padding-top:1px;">
-                                    <td colspan="@php echo (count($products[0])); @endphp"
-                                        class="left removetdborder">
-                                        <b>Total</b>
-                                    </td>
-                                    <td style="text-align: right" class="right removetdborder currencysymbol"> 
-                                        {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
-                                    </td>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                    <th>Receipt</th>
+                                    <th>Total Amount</th>
+                                    <th>Received Amount</th>
+                                    <th>TDS</th>
+                                    <th>Pedning Amount</th>
                                 </tr>
                                 @foreach ($payment as $value)
-                                    <tr class="" style="font-size:15px;text-align: right">
-                                        <td colspan="@php echo (count($products[0])); @endphp"
-                                            class="left removetdborder">
-                                            <b>Paid Amount</b>
-                                        </td>
-                                        <td style="text-align: right" class="right removetdborder currencysymbol"> 
-                                            {{ Number::currency($value['paid_amount'], in: $invdata['currency']) }}
-                                        </td>
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($value['datetime'])->format('d-m-Y') }}</td>
+                                        <td>{{ $value['paid_type'] }}</td>
+                                        <td>{{ $value['receipt_number'] }}</td>
+                                        <td>{{ $value['amount'] }}</td>
+                                        <td>{{ $value['paid_amount'] }}</td>
+                                        <td>{{ $value['tds_amount'] }}</td>
+                                        <td>{{ $value['pending_amount'] }}</td>
                                     </tr>
                                 @endforeach
-                                <tr class="" style="font-size:15px;text-align: right">
-                                    <td colspan="@php echo (count($products[0])); @endphp"
-                                        class="left removetdborder">
-                                        <b>Pending Amount</b>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        @else
+            <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="horizontal-border"
+                width="100">
+                <thead>
+                    <tr class="bgblue">
+                        <th style="width:4%;text-align:center;">#</th>
+                        @foreach ($firstRowCols as $col)
+                            <th style="text-align: center; width: {{ $col['column_width'] }}% !important;">
+                                {{ strtoupper(str_replace('_', ' ', $col['column_name'])) }}
+                            </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $srno = 0; @endphp
+                    @foreach ($products as $row)
+                        @php $srno++; @endphp
+
+                        {{-- Main first row --}}
+                        <tr>
+                            <td style="text-align: center; width:4%;">{{ $srno }}</td>
+                            @foreach ($firstRowCols as $col)
+                                @php
+                                    $key = str_replace(' ', '_', $col['column_name']);
+                                    $val = $row[$key] ?? '';
+                                @endphp
+
+                                @if ($key == 'amount')
+                                    <td style="text-align: right;" class="currencysymbol">
+                                        {{ Number::currency($val, in: $invdata['currency']) }}
                                     </td>
-                                    <td style="text-align: right" class="right removetdborder currencysymbol"> 
-                                        <b> {{ Number::currency(00, in: $invdata['currency']) }}</b>
+                                @else
+                                    <td style="text-align: center;">
+                                        {!! nl2br(e($val)) !!}
                                     </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-            @endif
+                                @endif
+                            @endforeach
+                        </tr>
+
+                        {{-- Wrapped columns rows --}}
+                        @foreach ($wrappedCols as $col)
+                            @php
+                                $key = str_replace(' ', '_', $col['column_name']);
+                                $val = $row[$key] ?? '';
+                                $label = strtoupper(str_replace('_', ' ', $key));
+                            @endphp
+                            <tr>
+                                <td></td> {{-- empty # column --}}
+                                <td colspan="{{ count($firstRowCols) }}">
+                                    <strong>{{ $label }}:</strong> {!! nl2br(e($val)) !!}
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+
+                    {{-- end product data --}}
+                </tbody>
+            </table>
+            <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class="horizontal-border border data"
+                width="100%">
+                <tbody>
+                    <tr class="removepadding">
+                        <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                            class="left removetdborder  ">
+                            Subtotal
+                        </td>
+                        <td style="text-align: right" class="right removetdborder currencysymbol" id="subtotal">
+                            {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
+                        </td>
+                    </tr>
+                    @if ($othersettings['gst'] == 0)
+                        @if ($invdata['sgst'] > 0)
+                            <tr class="removepadding">
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removetdborder removepadding">
+                                    SGST({{ $othersettings['sgst'] }}%)
+                                </td>
+                                <td style="text-align: right ;" class="currencysymbol removetdborder removepadding"
+                                    id="sgst">
+                                    {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($invdata['cgst'] > 0)
+                            <tr class="removepadding">
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removetdborder removepadding">
+                                    CGST({{ $othersettings['cgst'] }}%)
+                                </td>
+                                <td style="text-align: right" class="currencysymbol removetdborder removepadding"
+                                    id="cgst">
+                                    {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @else
+                        @if ($invdata['gst'] > 0)
+                            <tr class="removepadding">
+                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                    class="left removetdborder removepadding">
+                                    GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
+                                </td>
+                                <td style="text-align: right" class="currencysymbol removetdborder removepadding"
+                                    id="gst">
+                                    {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
+                                </td>
+                            </tr>
+                        @endif
+                    @endif
+                    @unless ($roundof == 0)
+                        <tr class="removepadding" style="font-size:15px;text-align: right">
+                            <td colspan="@php echo (count($products[0])); @endphp"
+                                class="left removetdborder removepadding">
+                                Round of
+                            </td>
+                            <td style="text-align: right" class="right currencysymbol  removepadding">
+                                {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
+                            </td>
+                        </tr>
+                    @endunless
+                    <tr class="" style="font-size:15px;text-align: right">
+                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                            <b>Total</b>
+                        </td>
+                        <td style="text-align: right" class="right removetdborder currencysymbol">
+                            {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
+                        </td>
+                    </tr>
+                    <tr class="" style="font-size:15px;text-align: right">
+                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                            <b>Amount Received</b>
+                        </td>
+                        <td style="text-align: right" class="right removetdborder currencysymbol">
+                            {{ Number::currency($payment[0]['paid_amount'], in: $invdata['currency']) }}
+                        </td>
+                    </tr>
+                    <tr class="" style="font-size:15px;text-align: right">
+                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                            <b>TDS Amount</b>
+                        </td>
+                        <td style="text-align: right" class="right removetdborder currencysymbol">
+                            {{ Number::currency($payment[0]['tds_amount'], in: $invdata['currency']) }}
+                        </td>
+                    </tr>
+                    <tr class="" style="font-size:15px;text-align: right">
+                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                            <b>Paid Amount</b>
+                        </td>
+                        <td style="text-align: right" class="right removetdborder currencysymbol">
+                            {{ Number::currency($payment[0]['amount'] - $payment[0]['pending_amount'], in: $invdata['currency']) }}
+                        </td>
+                    </tr>
+                    <tr class="" style="font-size:15px;text-align: right">
+                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                            <b>Pending Amount</b>
+                        </td>
+                        <td style="text-align: right" class="right removetdborder currencysymbol">
+                            <b>{{ Number::currency($payment[0]['pending_amount'], in: $invdata['currency']) }}</b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        @endif
+        <table width='100%' class="maintable" cellspacing=0 cellpadding=0>
             <tr>
                 <td colspan="2">
                     <div style="display: inline-block;">
@@ -492,6 +550,7 @@
                 </td>
             </tr>
         </table>
+
     </div>
     <footer>
         <div class="mt-1" style="font-size: 12px" id="footer">

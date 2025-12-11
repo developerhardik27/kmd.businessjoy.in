@@ -86,33 +86,73 @@
                 <form id="paymentform">
                     <div class="modal-body">
                         @csrf
-                        <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                            required />
-                        <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
-                            required />
-                        <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                            placeholder="token" required />
-                        <input type="hidden" name="inv_id" id="inv_id">
-                        <label for="transid">Transaction ID</label>
-                        <input type="text" name="transid" class="form-control" id="transid"
-                            placeholder="Transaction id" />
-                        <span class="modal_error-msg" id="error-transid" style="color: red"></span><br>
-                        <label for="paidamount">Received Amount</label>
-                        <input type="number" name="paidamount" class="form-control" id="paidamount"
-                            placeholder="Received Amount" required />
-                        <span class="modal_error-msg" id="error-paidamount" style="color: red"></span><br>
-                        <label for="paid_by">Paid By</label>
-                        <input type="text" name="paid_by" class="form-control" id="paid_by"
-                            placeholder="Who Paid Amount" />
-                        <span class="modal_error-msg" id="error-paid_by" style="color: red"></span><br>
-                        <label for="payment_type">How They Paid</label>
-                        <select class="form-control" name="payment_type" id="payment_type">
-                            <option selected="" disabled="">Select Payment Type</option>
-                            <option value="Online Payment">Online Payment</option>
-                            <option value="Cash">Cash</option>
-                            <option value="Check">Check</option>
-                        </select>
-                        <span class="modal_error-msg" id="error-payment_type" style="color: red"></span><br>
+                        <div class="payment_details">
+                            <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
+                                required />
+                            <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
+                                required />
+                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                                placeholder="token" required />
+                            <input type="hidden" name="inv_id" id="inv_id">
+                            <label for="transid">Transaction ID</label>
+                            <input type="text" name="transid" class="form-control" id="transid"
+                                placeholder="Transaction id" />
+                            <p class="modal_error-msg mb-1" id="error-transid" style="color: red"></p>
+                            <label for="payment_date">Payment Date</label>
+                            <input type="date" name="payment_date" class="form-control" id="payment_date" required />
+                            <p class="modal_error-msg mb-1" id="error-payment_date" style="color: red"></p>
+                            Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
+                            &nbsp;Received Amount :-&nbsp;<span class="mb-1 text-info"
+                                id="info-total_received_amount">0</span><br>
+                            <label for="paidamount">New Amount</label>
+                            <input type="number" name="paidamount" class="form-control" id="paidamount"
+                                placeholder="New Amount" required />
+                            <p class="modal_error-msg mb-1" id="error-paidamount" style="color: red"></p>
+                            Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
+                            <label for="paid_by">Paid By</label>
+                            <input type="text" name="paid_by" class="form-control" id="paid_by"
+                                placeholder="Who Paid Amount" />
+                            <p class="modal_error-msg mb-1" id="error-paid_by" style="color: red"></p>
+                            <label for="payment_type">How They Paid</label>
+                            <select class="form-control" name="payment_type" id="payment_type">
+                                <option selected="" disabled="">Select Payment Type</option>
+                                <option value="Online Payment">Online Payment</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Check">Check</option>
+                            </select>
+                            <p class="modal_error-msg mb-1" id="error-payment_type" style="color: red"></p>
+                        </div>
+                        <div class="tds_details">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="tds_applicable"
+                                    id="tds_applicable">
+                                <label class="form-check-label" for="tds_applicable">
+                                    TDS Applicable
+                                </label>
+                                <p class="modal_error-msg mb-1" id="error-tds_applicable" style="color: red"></p>
+                            </div>
+                            <div class="tds_inputs" style="display: none">
+                                <hr>
+                                <label for="tds_amount">TDS Amount</label>
+                                <input type="number" name="tds_amount" class="form-control" id="tds_amount"
+                                    placeholder="TDS Amount" />
+                                <p class="modal_error-msg mb-1" id="error-tds_amount" style="color: red"></p>
+                                Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
+                                <label for="challan_no">Challan No</label>
+                                <input type="text" name="challan_no" class="form-control" id="challan_no"
+                                    placeholder="Challan No" />
+                                <p class="modal_error-msg mb-1" id="error-challan_no" style="color: red"></p>
+                                <label for="status">Status</label>
+                                <select class="form-control" name="status" id="status">
+                                    <option selected="" disabled="">Select Status</option>
+                                    <option value="Recorded">Recorded</option>
+                                    <option value="Mapped to Challan">Mapped to Challan</option>
+                                    <option value="Filed in Return">Filed in Return</option>
+                                    <option value="Reconciled (matches 26AS)"> Reconciled (matches 26AS)</option>
+                                </select>
+                                <p class="modal_error-msg mb-1" id="error-status" style="color: red"></p>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="" class="btn btn-primary">Submit</button>
@@ -238,11 +278,32 @@
                             render: function(data, type, row) {
                                 actions = '-';
                                 @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                    options = '';
+                                    if (row.part_payment == 1 && row.pending_amount != 0) {
+                                        options = ` 
+                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''}>Part Payment</option>
+                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
+                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
+                                        `;
+                                    }
+                                    if (row.pending_amount == 0) {
+                                        options = `
+                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
+                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''}> Paid</option>
+                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
+                                        `;
+                                    }
+
+                                    if (row.part_payment != 1 && row.part_payment != 0) {
+                                        options = `
+                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
+                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled> Paid</option>
+                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
+                                        `;
+                                    }
                                     actions = `  
                                         <select data-status='${row.id}' data-original-value="${row.status}" class="status" id="status_${row.id}" name="" required >
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
+                                            ${options}
                                             <option value='cancel' ${row.status == "cancel" ? 'selected' : ''}>Cancel</option>
                                             <option value='due' ${row.status == "due" ? 'selected' : ''}>Over Due</option>
                                         </select>
@@ -285,8 +346,10 @@
                             searchable: false,
                             defaultContent: '-',
                             render: function(data, type, row) {
-                                let generateInvoiceReceiptAllUrl = "{{ route('invoice.generaterecieptll', '__invoiceId__') }}".replace('__invoiceId__', row.id);
-                                actions = ''; 
+                                let generateInvoiceReceiptAllUrl =
+                                    "{{ route('invoice.generaterecieptll', '__invoiceId__') }}"
+                                    .replace('__invoiceId__', row.id);
+                                actions = '';
                                 if (row.status != 'paid') {
                                     actions += `                                             
                                         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
@@ -296,7 +359,8 @@
                                         </span>
                                     `;
                                 }
-                                if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
+                                if (row.part_payment == 1 && row.status == 'paid' && row
+                                    .pending_amount == 0) {
                                     actions += `                                             
                                         <span> 
                                             <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
@@ -320,11 +384,16 @@
                                     actions += `                                             
                                         <span> 
                                             <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
-                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="right" data-original-title="Download Single Receipt" >
+                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt">
                                                     <i class="ri-download-line"></i>
                                                 </button>
                                             </a>
                                         </span>
+                                        <span data-toggle="tooltip" data-placement="right" data-original-title="Delete Payment Entry">
+                                            <button data-id="${row.paymentid}" data-inv-id="${row.id}" class="btn btn-sm btn-outline-danger pay-del-btn">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </span>    
                                     `;
                                 }
                                 return actions;
@@ -337,9 +406,11 @@
                             searchable: false,
                             render: function(data, type, row) {
                                 let actionBtns = '';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1') 
-                                    if(row.is_editable == 1){
-                                        let invoiceEditUrl = "{{ route('admin.editinvoice', '__invoiceId__') }}".replace('__invoiceId__', row.id);
+                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                    if (row.is_editable == 1) {
+                                        let invoiceEditUrl =
+                                            "{{ route('admin.editinvoice', '__invoiceId__') }}"
+                                            .replace('__invoiceId__', row.id);
                                         actionBtns += `
                                             <span>  
                                                 <a href=${invoiceEditUrl}>
@@ -462,24 +533,10 @@
                                 }
                                 loaderhide();
                             },
-                            error: function(xhr, status,
-                                error) { // if calling api request error 
+                            error: function(xhr, status, error) { // if calling api request error 
                                 loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
+                                console.log(xhr.responseText ); // Log the full error response for debugging
+                                handleAjaxError(xhr);
                             }
                         });
                     }
@@ -527,16 +584,7 @@
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
                         var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
             }
@@ -568,8 +616,11 @@
             // form reset every time when on click make payment button
             $(document).on('click', '.paymentformmodal', function() {
                 $('#paymentform')[0].reset();
+                $('.tds_inputs').hide();
                 var invoiceid = $(this).data('id');
                 var amount = $(this).data('amount');
+                var totalreceivedamount = 0;
+                var pendingamount = 0;
                 $('#inv_id').val(invoiceid);
                 loadershow();
                 let pendingPaymentDetailsUrl =
@@ -587,12 +638,18 @@
                     success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
-                            console.log(response.payment)
+                            totalreceivedamount = amount - response.payment[0].pending_amount;
                             $('#paidamount').val(response.payment[0].pending_amount);
                             $('#paidamount').attr('max', response.payment[0].pending_amount);
+                            $('#info-total_amount').text(amount);
+                            $('#info-total_received_amount').text(totalreceivedamount);
+                            $('.info-pending_amount').text(pendingamount);
                         } else {
                             $('#paidamount').val(amount);
                             $('#paidamount').attr('max', amount);
+                            $('#info-total_amount').text(amount);
+                            $('#info-total_received_amount').text(totalreceivedamount);
+                            $('.info-pending_amount').text(pendingamount);
                         }
                         loaderhide();
                     },
@@ -600,17 +657,7 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
 
@@ -619,10 +666,14 @@
             // payment details 
             $(document).on('click', '.viewpayment', function() {
                 loadershow();
+                var invoiceId = $(this).data('id');
+                viewpayment(invoiceId);
+            })
+
+            function viewpayment(invoiceId){
                 $('#details').html('');
-                var invoiceid = $(this).data('id');
                 let paymentDetailsSearchUrl = "{{ route('paymentdetails.search', '__invoiceId__') }}"
-                    .replace('__invoiceId__', invoiceid);
+                    .replace('__invoiceId__', invoiceId);
                 $.ajax({
                     type: 'GET',
                     url: paymentDetailsSearchUrl,
@@ -638,6 +689,15 @@
                                 let generateInvoiceReceiptUrl =
                                     "{{ route('invoice.generatereciept', '__invoiceId__') }}"
                                     .replace('__invoiceId__', value.id);
+
+                                let TDSDetails = '';
+                                if(value.tds_amount && value.tds_amount > 0){
+                                   TDSDetails =` 
+                                        <div><b>TDS Amount : </b> ${value.tds_amount}</div>
+                                        <div><b>Challan No : </b> ${value.challan_no}</div>
+                                        <div><b>TDS Status : </b> ${value.tds_status}</div>
+                                    `;
+                                }    
                                 $('#details').append(`
                                     <tr>
                                         <td>
@@ -645,22 +705,26 @@
                                                 <div><b>Payment date : </b> ${value.datetime}</div>
                                                 <div><b>Total Amount : </b> ${value.amount}</div>
                                                 <div><b>Paid Amount : </b> ${value.paid_amount}</div>
+                                                ${TDSDetails}
                                                 <div><b>Pending Amount: </b> ${value.pending_amount}</div>
                                                 <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
                                             </div>    
-                                            <div class="col-md-2 float-right">
-                                                <a href=${generateInvoiceReceiptUrl} class="float-right"  target='_blank'>
+                                            <div class="col-md-2 float-right p-0">
+                                                <a href=${generateInvoiceReceiptUrl} target='_blank'>
                                                     <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >
                                                         <i class='ri-download-cloud-fill'></i>
                                                     </button>
                                                 </a>
+                                                <button data-id="${value.id}" data-inv-id="${invoiceId}" class="btn btn-sm btn-danger pay-del-btn float-right">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
                                             </div>    
                                             
                                         </td>
                                     </tr>
                                 `)
 
-                            }); 
+                            });
                         } else if (response.status == 500) {
                             Toast.fire({
                                 icon: "error",
@@ -685,25 +749,39 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
+                        handleAjaxError(xhr);
                     }
                 });
-            })
+            }
+
+            // show today date as default payment date in modal when modal will open
+            $("#paymentmodal").on("shown.bs.modal", function() {
+                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+                $('#payment_date').val(today);
+            });
 
             // reset payment details in modal when modal will close
             $("#exampleModalScrollable").on("hidden.bs.modal", function() {
                 $('#details').html('');
                 $('#addfooterbutton').html('');
+            });
+
+            $('#paidamount, #tds_amount').on('change keyup', function() {
+                var paidamount = $('#paidamount').val() || 0;
+                var tdsamount = $('#tds_amount').val() || 0;
+                var totalamount = parseInt($('#info-total_amount').text()) || 0;
+                var totalreceived = parseInt($('#info-total_received_amount').text()) || 0;
+                var pendingamount = totalamount - totalreceived - paidamount - tdsamount;
+                $('.info-pending_amount').text(pendingamount);
+            });
+
+            $('#tds_applicable').on('change',function(){
+                let val = $(this).is(':checked');
+                console.log(val);
+                $('.tds_inputs').hide();
+                if(val){
+                    $('.tds_inputs').show();
+                }
             });
 
             // payment form submit 
@@ -741,30 +819,65 @@
                     },
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
-                                $('#error-' + key).text(value[0]);
-                            });
-                        } else {
-                            var errorMessage = "";
-                            try {
-                                var responseJSON = JSON.parse(xhr.responseText);
-                                errorMessage = responseJSON.message || "An error occurred";
-                            } catch (e) {
-                                errorMessage = "An error occurred";
-                            }
-                            Toast.fire({
-                                icon: "error",
-                                title: errorMessage
-                            });
-                        }
+                        handleAjaxError(xhr);
                     }
                 });
             });
 
+            // delete invoice payment             
+            $(document).on("click", ".pay-del-btn", function() {
+                var deleteid = $(this).data('id');
+                var invId = $(this).data('inv-id');
+                let invPaymentDltUrl = "{{ route('paymentdetails.deletepayment', '__deleteId__') }}".replace(
+                    '__deleteId__', deleteid);
+                var row = this;
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to delete this payment record ?', // Text
+                    'Yes, delete', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: invPaymentDltUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: response.message || "succesfully deleted"
+                                    });
+                                    viewpayment(invId);
+                                    table.draw();
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message ||
+                                            "something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
+                                loaderhide();
+                                console.log(xhr
+                                    .responseText
+                                ); // Log the full error response for debugging
+                                handleAjaxError(xhr);
+                            }
+                        });
+                    }
+                );
+            });
+ 
         });
     </script>
 @endpush

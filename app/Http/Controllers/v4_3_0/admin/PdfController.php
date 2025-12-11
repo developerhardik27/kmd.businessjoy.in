@@ -149,7 +149,7 @@ class PdfController extends Controller
       // return view($this->version . '.admin.PDF.paymentreciept', $data);
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentreciept', $data)->setPaper('a4', 'portrait');
 
-      $name = 'Reciept ' . $paymentdata['paymentdetail']['receipt_number'] . '.pdf';
+      $name = 'Reciept ' . $paymentdata['paymentdetail'][0]['receipt_number'] . '.pdf';
       // return view($this->version . '.admin.paymentreciept', $data);
       return $pdf->stream($name);
    }
@@ -215,6 +215,13 @@ class PdfController extends Controller
          $rp = json_decode($permissions[0]['rp'], true);
          $reportuserlist = $rp['reportmodule']['report']['alldata'];
 
+         if(!$reportuserlist){
+             return response()->json([
+               'status' => 'error',
+               'message' => "You have not access to report any user's data"
+            ]);
+         }
+
          $startDate = $request->fromdate;
          $endDate = Carbon::parse($request->todate);
 
@@ -222,7 +229,7 @@ class PdfController extends Controller
             ->where([
                'is_deleted' => 0,
             ])
-            ->whereIn('created_by', $reportuserlist)
+            ->whereIn('created_by', [$reportuserlist])
             ->get();
 
          if (count($invoices) == 0) {
@@ -312,6 +319,11 @@ class PdfController extends Controller
 
       if ($bankdetailsdata['status'] == 404) {
          session()->flash('custom_error_message', 'Bank details not found');
+         abort('404');
+      }
+
+      if ($bankdetailsdata['status'] == 500) {
+         session()->flash('custom_error_message', 'Bank details Unauthorized');
          abort('404');
       }
 

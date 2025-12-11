@@ -46,7 +46,8 @@
                         placeholder="company_id" required />
 
                     <label for="bill_number">Bill Number</label><span style="color:red;">*</span>
-                    <input type="text" name="bill_number" class="form-control" id="bill_number" placeholder="Bill Number"/>
+                    <input type="text" name="bill_number" class="form-control" id="bill_number"
+                        placeholder="Bill Number" />
                     <span class="error-msg" id="error-bill_number" style="color: red"></span>
                 </div>
 
@@ -277,50 +278,8 @@
                 }
             });
 
-            function ajaxRequest(type, url, data) {
-                return $.ajax({
-                    type,
-                    url,
-                    data
-                });
-            }
-
-            function handleAjaxError(xhr) {
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    let firstErrorElement = null;
-
-                    $.each(errors, function(key, value) {
-                        let errorElement = $('#error-' + key);
-                        errorElement.text(value[0]);
-
-                        // Capture the first error element
-                        if (!firstErrorElement) {
-                            firstErrorElement = errorElement;
-                        }
-                    });
-
-                    if (firstErrorElement) {
-                        $('html, body').animate({
-                            scrollTop: firstErrorElement.offset().top -
-                                100 // adjust for spacing
-                        }, 800);
-                    }
-                } else {
-                    var errorMessage = "An error occurred";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || errorMessage;
-                    } catch (e) {}
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
-                }
-            }
-
             // party data fetch and set party dropdown
-            function partys(partyid = '') {
+            function parties(partyid = '') {
                 loadershow();
                 $('#party').html(`
                    <option value="add_party" > Add New Party </option>
@@ -362,15 +321,17 @@
                         }); // search bar in party list
                     }
                     loaderhide();
+                    loaddata();
                 }).fail(function(xhr) {
                     loaderhide();
                     handleAjaxError(xhr);
+                    loaddata();
                 });
 
 
             };
 
-            partys();
+            parties();
 
             $('#party').on('change', function() {
                 loadershow();
@@ -398,8 +359,9 @@
             function loaddata() {
                 var edit_id = @json($edit_id);
                 // show old data in fields
-                let transporterBillSearchUrl = "{{ route('transporterbill.edit', '__editId__') }}".replace('__editId__',
-                edit_id);
+                let transporterBillSearchUrl = "{{ route('transporterbill.edit', '__editId__') }}".replace(
+                    '__editId__',
+                    edit_id);
                 $.ajax({
                     type: 'GET',
                     url: transporterBillSearchUrl,
@@ -410,7 +372,7 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            let transporterbill = response.transporterbill ;
+                            let transporterbill = response.transporterbill;
 
                             $('#bill_number').val(transporterbill.bill_no);
                             $('#bill_date').val(transporterbill.bill_date);
@@ -433,8 +395,6 @@
                     }
                 });
             }
-
-            loaddata();
 
             $('#lr_number').on('focusout', function() {
                 loadershow();
@@ -641,7 +601,7 @@
                             $('#partyform')[0].reset();
                             $('#partyFormModal').modal('hide');
                             // You can perform additional actions, such as showing a success message or redirecting the user
-                            partys(response.party_id);
+                            parties(response.party_id);
                             Toast.fire({
                                 icon: "success",
                                 title: response.message

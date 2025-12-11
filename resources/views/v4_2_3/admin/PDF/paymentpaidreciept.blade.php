@@ -5,7 +5,7 @@
     $total;
     $roundof;
     $sign = '';
-    $withgst = false; 
+    $withgst = false;
 
     if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
         $withgst = true; // if invoice created with gst
@@ -13,13 +13,13 @@
 
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
-    } else if( $invdata['sgst'] != 0 &&  $invdata['cgst'] != 0) {
+    } elseif ($invdata['sgst'] != 0 && $invdata['cgst'] != 0) {
         $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'];
-    }else {
-        $total = $invdata['total'] ;
+    } else {
+        $total = $invdata['total'];
     }
 
-    //count round off 
+    //count round off
     if ($invdata['grand_total'] > $total) {
         $value = $invdata['grand_total'] - $total;
         $roundof = number_format((float) $value, 2, '.', '');
@@ -33,7 +33,6 @@
             $roundof = '-' . $roundof;
         }
     }
-
 
     $othersettings = json_decode($othersettings['gstsettings'], true);
     $loopnumber = []; // array for alignment column type  longtext
@@ -115,7 +114,7 @@
             margin: 0px !important;
             padding: 0px !important;
         }
- 
+
         header {
             position: fixed;
             top: -20px;
@@ -158,9 +157,10 @@
         #data td,
         th {
             white-space: normal;
-            word-wrap: break-word; 
+            word-wrap: break-word;
         }
-        #data td{
+
+        #data td {
             line-break: anywhere !important;
         }
     </style>
@@ -296,7 +296,7 @@
                     </table>
                 </td>
             </tr>
-            @if (count($payment) > 1){
+            @if (count($payment) > 1)
                 <tr>
                     <td id="data" colspan="3">
                         <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-5" width="100">
@@ -321,11 +321,11 @@
                         </table>
                     </td>
                 </tr>
-                }
             @else
                 <tr>
                     <td id="data" colspan="3">
-                        <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="horizontal-border mt-3" width="100">
+                        <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0
+                            class="horizontal-border mt-3" width="100">
                             <thead>
                                 <tr class="bgblue">
                                     <th><span style="padding-left: 5px;width:4%"> # </span></th>
@@ -339,7 +339,9 @@
                                                 $loopnumber[] = $loop->iteration;
                                             @endphp
                                         @endif
-                                        <th style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">{{ $columnname }}</th>
+                                        <th
+                                            style="text-align: center;width: {{ $column['column_width'] != 'auto' ? $column['column_width'] . '% !important' : 'auto' }};">
+                                            {{ $columnname }}</th>
                                     @empty
                                         <th>-</th>
                                     @endforelse
@@ -353,7 +355,7 @@
                                         <td style="text-align: center;width:4%">{{ $srno }}</td>
                                         @foreach ($row as $key => $val)
                                             @if ($loop->last)
-                                                <td style="text-align:right;" class="currencysymbol"> 
+                                                <td style="text-align:right;" class="currencysymbol">
                                                     {{ Number::currency($val, in: $invdata['currency']) }}
                                                 </td>
                                             @elseif (in_array($loop->iteration, $loopnumber))
@@ -381,7 +383,7 @@
                                         Subtotal
                                     </td>
                                     <td style="text-align: right"
-                                        class="right removetdborder currencysymbol removepadding" id="subtotal"> 
+                                        class="right removetdborder currencysymbol removepadding" id="subtotal">
                                         {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                                     </td>
                                 </tr>
@@ -393,7 +395,7 @@
                                                 SGST({{ $othersettings['sgst'] }}%)
                                             </td>
                                             <td style="text-align: right ;"
-                                                class="currencysymbol removetdborder removepadding" id="sgst"> 
+                                                class="currencysymbol removetdborder removepadding" id="sgst">
                                                 {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
                                             </td>
                                         </tr>
@@ -405,7 +407,7 @@
                                                 CGST({{ $othersettings['cgst'] }}%)
                                             </td>
                                             <td style="text-align: right"
-                                                class="removetdborder currencysymbol removepadding" id="cgst"> 
+                                                class="removetdborder currencysymbol removepadding" id="cgst">
                                                 {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
                                             </td>
                                         </tr>
@@ -430,7 +432,7 @@
                                             class="left removetdborder removepadding">
                                             Round of
                                         </td>
-                                        <td style="text-align: right" class="right  currencysymbol removepadding"> 
+                                        <td style="text-align: right" class="right  currencysymbol removepadding">
                                             {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                                         </td>
                                     </tr>
@@ -440,7 +442,7 @@
                                         class="left removetdborder">
                                         <b>Total</b>
                                     </td>
-                                    <td style="text-align: right" class="right removetdborder currencysymbol"> 
+                                    <td style="text-align: right" class="right removetdborder currencysymbol">
                                         {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
                                     </td>
                                 </tr>
@@ -450,7 +452,7 @@
                                             class="left removetdborder">
                                             <b>Paid Amount</b>
                                         </td>
-                                        <td style="text-align: right" class="right removetdborder currencysymbol"> 
+                                        <td style="text-align: right" class="right removetdborder currencysymbol">
                                             {{ Number::currency($value['paid_amount'], in: $invdata['currency']) }}
                                         </td>
                                     </tr>
@@ -460,7 +462,7 @@
                                         class="left removetdborder">
                                         <b>Pending Amount</b>
                                     </td>
-                                    <td style="text-align: right" class="right removetdborder currencysymbol"> 
+                                    <td style="text-align: right" class="right removetdborder currencysymbol">
                                         <b> {{ Number::currency(00, in: $invdata['currency']) }}</b>
                                     </td>
                                 </tr>

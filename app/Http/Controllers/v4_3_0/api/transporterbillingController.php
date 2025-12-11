@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class transporterbillingController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $transporter_billingModel;
+    public $userId, $companyId, $masterdbname, $rp, $transporter_billingModel, $payment_detailsModel;
 
     public function __construct(Request $request)
     {
@@ -19,7 +19,7 @@ class transporterbillingController extends commonController
 
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
@@ -29,6 +29,7 @@ class transporterbillingController extends commonController
 
         $this->masterdbname = DB::connection()->getDatabaseName();
         $this->transporter_billingModel = $this->getmodel('transporter_billing');
+        $this->payment_detailsModel = $this->getmodel('transporter_billing_payment');
     }
 
     /**
@@ -49,7 +50,7 @@ class transporterbillingController extends commonController
         $transporterbill = $this->transporter_billingModel::leftJoin('transporter_billing_party', 'transporter_billing.party', '=', 'transporter_billing_party.id')
             ->leftJoin('transporter_billing_payment', function ($join) {
                 $join->on('transporter_billing.id', '=', 'transporter_billing_payment.transporter_billing_id')
-                    ->whereRaw('transporter_billing_payment.id = (SELECT id FROM transporter_billing_payment WHERE transporter_billing_id = transporter_billing.id ORDER BY id DESC LIMIT 1)');
+                    ->whereRaw('transporter_billing_payment.id = (SELECT id FROM transporter_billing_payment WHERE transporter_billing_id = transporter_billing.id and is_deleted=0 ORDER BY id DESC LIMIT 1)');
             })
             ->select(
                 'transporter_billing.id',
@@ -224,6 +225,59 @@ class transporterbillingController extends commonController
                 }
             }
 
+            $payment = $this->payment_detailsModel::where('transporter_billing_id', $id)
+                ->where('is_deleted', 0)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($payment) {
+
+                $oldTotalAmount   = $payment->amount;
+                $pendingAmount    = $payment->pending_amount;
+                $totalPaidAmount  = $oldTotalAmount - $pendingAmount;   // already paid
+
+                // If user enters less than already paid
+                if ($totalPaidAmount > $request->amount) {
+                    return $this->errorresponse(422, [
+                        'amount' => [
+                            "You already paid $totalPaidAmount, so this amount is not valid.Please enter correct amount or delete payment entry."
+                        ]
+                    ]);
+                }
+
+                // Only proceed if the new amount is >= already paid
+                if ($request->amount >= $totalPaidAmount) {
+
+                    // Fetch all payment rows for this bill
+                    $payments = $this->payment_detailsModel::where('transporter_billing_id', $id)
+                        ->where('is_deleted', 0)
+                        ->get();
+
+                    // Update each record
+                    $totalpaid = 0;
+                    foreach ($payments as $pay) {
+                        $totalpaid += $pay->paid_amount;
+                        $pay->amount         = $request->amount;
+                        $pay->pending_amount = $request->amount - $totalpaid;
+                        $pay->part_payment   = ($request->amount > $totalPaidAmount) ? 1 : 0;
+                        $pay->updated_by   = $this->userId;
+                        $pay->save();
+                    }
+
+                    // Update bill status
+                    $billstatus = ($request->amount == $totalPaidAmount)
+                        ? 'paid'
+                        : 'part_payment';
+
+                    // Do not change status if it's already "cancel"
+                    $transporterbill->status = ($transporterbill->status != 'cancel')
+                        ? $billstatus
+                        : 'cancel';
+
+                    $transporterbill->save();
+                }
+            }
+
             $transporterbill->update([  // update transporter bill data
                 'bill_no' => $request->bill_number,
                 'bill_date' => $request->bill_date,
@@ -263,6 +317,7 @@ class transporterbillingController extends commonController
         $transporterbill->update([
             'is_deleted' => 1
         ]);
+        
 
         return $this->successresponse(200, 'message', 'Transporter bill succesfully deleted');
     }

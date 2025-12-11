@@ -41,7 +41,7 @@ class versionupdateController extends commonController
                 return $this->errorresponse(422, $validator->messages());
             } else {
 
-               
+
                 $company = company::find($request->company);
 
 
@@ -128,7 +128,7 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/newmasterdbtable',
                                     ];
-                                }else{
+                                } else {
                                     $paths = [
                                         'database/migrations/v4_2_0',
                                     ];
@@ -139,20 +139,20 @@ class versionupdateController extends commonController
                                     $paths = [
                                         'database/migrations/v4_2_1/master',
                                     ];
-                                }else{
+                                } else {
                                     $paths = [
                                         'database/migrations/v4_2_1/individual',
                                     ];
                                 }
                                 break;
-                            // Add more cases as needed
+                                // Add more cases as needed
                         }
 
-                        
+
                         if (!empty($paths)) {
                             // Run migrations only from the specified path and specific db
                             foreach ($paths as $path) {
-                                try{
+                                try {
                                     Artisan::call('migrate', [
                                         '--path' => $path,
                                         '--database' => $company->dbname,
@@ -163,7 +163,7 @@ class versionupdateController extends commonController
                             }
                         }
 
-                         
+
 
                         config(['database.connections.dynamic_connection.database' => $company->dbname]);
 
@@ -465,7 +465,7 @@ class versionupdateController extends commonController
                                         if (!isset($jsonrp['logisticmodule']['logisticapi'])) {
                                             $jsonrp['logisticmodule']['logisticapi'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
-                                        
+
 
                                         // Encode updated permissions back to JSON
                                         $updatedRpJson = json_encode($jsonrp);
@@ -483,7 +483,7 @@ class versionupdateController extends commonController
                                 if ($rp) {
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
-                        
+
                                         if (!isset($jsonrp['logisticmodule']['watermark'])) {
                                             $jsonrp['logisticmodule']['watermark'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
@@ -508,7 +508,6 @@ class versionupdateController extends commonController
                         $company->save();
 
                         return $this->successresponse(200, 'message', 'Company version succesfully updated');
-
                     } else {
                         return $this->successresponse(500, 'message', 'This company is already in latest version.');
                     }
@@ -517,6 +516,5 @@ class versionupdateController extends commonController
                 }
             }
         });
-
     }
 }

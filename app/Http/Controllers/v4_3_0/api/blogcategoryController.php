@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class blogcategoryController extends commonController
 {
-
-
     public $userId, $companyId, $masterdbname, $rp, $blogcategorymodel;
 
     public function __construct(Request $request)
@@ -21,7 +19,7 @@ class blogcategoryController extends commonController
         
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();

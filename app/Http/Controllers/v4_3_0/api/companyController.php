@@ -24,7 +24,7 @@ class companyController extends commonController
 
         $this->dbname($this->companyId);
         // **** for checking user has permission to action on all data 
-        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->select('rp')->where('user_id', $this->userId)->value('rp');
+        $user_rp = DB::connection('dynamic_connection')->table('user_permissions')->where('user_id', $this->userId)->value('rp');
 
         if (empty($user_rp)) {
             $this->customerrorresponse();
@@ -265,18 +265,20 @@ class companyController extends commonController
             } elseif ($baseUrl === 'staging.businessjoy.in') {
                 // If the host is staging.businessjoy.in
                 $this->newdbname = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-                $this->newdbname = "staging_business_joy_testing_company";
+                if (app()->environment('testing')) {
+                    $this->newdbname = "staging_business_joy_testing_company";
+                }
             } else {
                 // For any other host, provide a default
                 $this->newdbname = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-                $this->newdbname = "business_joy_testing_company";
+                if (app()->environment('testing')) {
+                    $this->newdbname = "business_joy_testing_company";
+                }
             }
 
             // Create the dynamic database
 
             if (app()->environment('testing')) {
-                $this->newdbname = "testing_company";
-
                 // Drop the database if it exists
                 DB::connection(config('database.dynamic_connection'))->statement('DROP DATABASE IF EXISTS `' . $this->newdbname . '`');
             }
@@ -480,7 +482,8 @@ class companyController extends commonController
                                     "invoicestandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "invoiceapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                    "invoiceapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "tdsregister" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
                                 ],
                                 "leadmodule" => [
                                     "leaddashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -560,8 +563,8 @@ class companyController extends commonController
                                     "consignee" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "consignor" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "logisticapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "watermark" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
-
+                                    "watermark" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "transporterbilling" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
                                 ],
                                 'developermodule' => [
                                     "developerdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],

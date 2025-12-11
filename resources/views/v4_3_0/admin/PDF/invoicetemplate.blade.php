@@ -288,7 +288,6 @@
                                         </td>
                                     </tr>
                                 @endisset
-
                             </table>
                             <table width="100%">
                                 <tr class="bgblue">
@@ -530,7 +529,7 @@
                         </td>
                     </tr>
                     @if ($othersettings['gst'] == 0)
-                        @if ($invdata['sgst'] >= 1)
+                        @if ($invdata['sgst'] > 0)
                             <tr style="font-size:15px;text-align: right">
                                 <td colspan="{{ $colspan }}" style="text-align: right" class="left removeborder ">
                                     SGST({{ $othersettings['sgst'] }}%)
@@ -541,7 +540,7 @@
                                 </td>
                             </tr>
                         @endif
-                        @if ($invdata['cgst'] >= 1)
+                        @if ($invdata['cgst'] > 0)
                             <tr style="font-size:15px;text-align: right">
                                 <td colspan="{{ $colspan }}" style="text-align: right" class="left removeborder ">
                                     CGST({{ $othersettings['cgst'] }}%)
@@ -553,7 +552,7 @@
                             </tr>
                         @endif
                     @else
-                        @if ($invdata['gst'] >= 1)
+                        @if ($invdata['gst'] > 0)
                             <tr style="font-size:15px;text-align: right">
                                 <td colspan="{{ $colspan }}" style="text-align: right"
                                     class="left removeborder ">

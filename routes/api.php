@@ -215,6 +215,11 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('payment_details', 'store')->name('paymentdetails.store');
         Route::get('paymentdetail/{id}', 'paymentdetail')->name('paymentdetails.search');
         Route::get('pendingpayment/{id}', 'pendingpayment')->name('paymentdetails.pendingpayment');
+        Route::put('deletepayment/{id}', 'destroy')->name('paymentdetails.deletepayment');
+
+        Route::get('/tdsregister', 'tdsregister')->name('tdsregister.list');
+        Route::put('/tdsregister/updatestatus/{id}', 'tdsstatus')->name('tdsregister.updatestatus');
+        Route::put('/tdsregister/updatecreditedstatus/{td}', 'tdscreditedstatus')->name('tdsregister.updatecreditedstatus');
     });
 
     // supplier route
@@ -624,6 +629,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/billing/payment_details', 'store')->name('billingpaymentdetails.store');
         Route::get('/billing/paymentdetail/{id}', 'paymentdetail')->name('billingpaymentdetails.search');
         Route::get('/billing/pendingpayment/{id}', 'pendingpayment')->name('billingpaymentdetails.pendingpayment');
+        Route::put('/billing/deletepayment/{id}', 'destroy')->name('billingpaymentdetails.deletepayment');
     });
 
     //transporter billing route 

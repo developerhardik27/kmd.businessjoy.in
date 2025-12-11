@@ -16,10 +16,12 @@
     }
     table input.form-control {
         width: auto;
+        min-width: 100%;
     }
 
     table textarea.form-control{
         width: auto;
+        min-width: 100%;
     }
  </style>
  <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
@@ -45,16 +47,19 @@
                     </select>
                     <span class="error-msg" id="error-customer" style="color: red"></span>
                 </div> 
-                <div class="col-sm-4 mb-3">
-                    <label for="type">Tax-Type</label><span
-                    style="color:red;">*</span>
-                    <select class="form-control" id="type" name="type" required>
-                        <option selected="" disabled="">Select Type</option>
-                        <option value="1">GST</option>
-                        <option value="2">Without GST</option>
-                    </select>
-                    <span class="error-msg" id="error-tax_type" style="color: red"></span>
-                </div>
+                @if (session('company_gst_no') && session('company_gst_no') != '')
+                    <div class="col-sm-4 mb-3">
+                        <label for="type">Tax-Type</label><span style="color:red;">*</span>
+                        <select class="form-control" id="type" name="type" required>
+                            <option disabled="">Select Type</option>
+                            <option value="1" selected>GST</option>
+                            <option value="2">Without GST</option>
+                        </select>
+                        <span class="error-msg" id="error-tax_type" style="color: red"></span>
+                    </div> 
+                @else
+                    <input type="hidden" id="type" name="type" value="2">    
+                @endif
                 <div class="col-sm-4 mb-3">
                     <label for="currency">Currency</label><span
                     style="color:red;">*</span>
@@ -107,7 +112,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="sgstline" class="text-right">
+                <tr id="sgstline" class="text-right" @style(['display:none' => (!session('company_gst_no') && session('company_gst_no') == '')])>
                     <th class="automaticcolspan">SGST <span id="sgstpercentage"></span></th>
                     <td>
                         <div class="d-flex justify-content-between">
@@ -115,7 +120,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="cgstline" class="text-right">
+                <tr id="cgstline" class="text-right" @style(['display:none' => (!session('company_gst_no') && session('company_gst_no') == '')])>
                     <th class="automaticcolspan">CGST <span id="cgstpercentage"></span></th>
                     <td>
                         <div class="d-flex justify-content-between">
@@ -123,7 +128,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="gstline" class="text-right">
+                <tr id="gstline" class="text-right" @style(['display:none' => (!session('company_gst_no') && session('company_gst_no') == '')])>
                     <th class="automaticcolspan">Total GST <span id="gstpercentage"></span></th>
                     <td>
                         <div class="d-flex justify-content-between">
@@ -364,34 +369,6 @@
             const COMPANY_ID = "{{ session()->get('company_id') }}";
             const USER_ID = "{{ session()->get('user_id') }}";
 
-            function ajaxRequest(type, url, data) {
-                return $.ajax({
-                    type,
-                    url,
-                    data
-                }); 
-            }
-
-            function handleAjaxError(xhr) {
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    $.each(errors, function(key, value) {
-                        $('#error-' + key).text(value[0]);
-                    });
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
-                } else {
-                    var errorMessage = "An error occurred";
-                    try {
-                        var responseJSON = JSON.parse(xhr.responseText);
-                        errorMessage = responseJSON.message || errorMessage;
-                    } catch (e) {}
-                    Toast.fire({
-                        icon: "error",
-                        title: errorMessage
-                    });
-                }
-            }
-
 
             // fetch other settings like gst and quotation number and quotation date
             ajaxRequest('GET', "{{ route('getquotationoverduedays.index') }}", { 
@@ -629,22 +606,7 @@
                             var selectedOption = $('#customer').find('option:selected');
                         
                             var gstno = selectedOption.data('gstno');
-                            if (gstno != null) {    // show gst line if customer has gst no other wise hide
-                                $('#type').val(1);  // set gst type to gst
-                                if(gst != 0){
-                                    $('#sgstline,#cgstline').hide();
-                                    $('#gstline').show();
-                                }else{
-                                    $('#gstline').hide();
-                                    $('#sgstline,#cgstline').show();
-
-                                }
-                                dynamiccalculaton();
-                            } else {
-                                $('#type').val(2); // set gst type to withoutgst
-                                $('#sgstline,#cgstline,#gstline').hide();
-                                dynamiccalculaton();
-                            }
+                            
                             let customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
 
                             ajaxRequest('GET', customerSearchUrl, { 
@@ -704,22 +666,7 @@
                     $('#exampleModalScrollable').modal('show');
                 }
                 var gstno = selectedOption.data('gstno');
-                if (gstno != null) {
-                    $('#type').val(1);
-                    if(gst != 0){
-                        $('#sgstline,#cgstline').hide();
-                        $('#gstline').show();
-                    }else{
-                        $('#gstline').hide();
-                        $('#sgstline,#cgstline').show();
-
-                    }
-                    dynamiccalculaton();
-                } else {
-                    $('#type').val(2);
-                    $('#sgstline,#cgstline,#gstline').hide();
-                    dynamiccalculaton();
-                }
+                
                 customerSearchUrl = "{{route('customer.search','__customerId__')}}".replace('__customerId__',customerid);
 
                 ajaxRequest('GET', customerSearchUrl, { 

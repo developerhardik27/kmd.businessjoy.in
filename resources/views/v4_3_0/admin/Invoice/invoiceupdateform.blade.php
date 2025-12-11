@@ -176,7 +176,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr id="grandtotalline" class="text-right">
+                    <tr id="grandtotalline" class="text-left">
                         <th class="automaticcolspan font-weight-bold">Total</th>
                         <td>
                             <div class="d-flex justify-content-between">
@@ -185,6 +185,7 @@
                                 </b> 
                                 <input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal" readonly required>
                             </div>
+                            <span class="error-msg" id="error-grandtotal" style="color: red"></span>
                         </td>
                     </tr>
                 </table>
@@ -404,34 +405,6 @@
                 const COMPANY_ID = "{{ session()->get('company_id') }}";
                 const USER_ID = "{{ session()->get('user_id') }}";
       
-                function ajaxRequest(type, url, data) {
-                    return $.ajax({
-                        type,
-                        url,
-                        data
-                    }); 
-                }
-
-                function handleAjaxError(xhr) {
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        $.each(errors, function(key, value) {
-                            $('#error-' + key).text(value[0]);
-                        });
-                        $('html, body').animate({ scrollTop: 0 }, 1000);
-                    } else {
-                        var errorMessage = "An error occurred";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || errorMessage;
-                        } catch (e) {}
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
-                    }
-                }
-
 
                 // fetch other settings like gst and inv number and inv date 
                 ajaxRequest('GET', "{{ route('getoverduedays.index') }}", { 
@@ -1487,31 +1460,7 @@
                         },
                         error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            if (xhr.status === 422) {
-                                var errors = xhr.responseJSON.errors;
-                                var errorcontainer;
-                                $.each(errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                    errorcontainer = '#error-' + key ;
-                                });
-                                $('html, body').animate({
-                                    scrollTop: 0
-                                }, 1000);
-                            } else {
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message || "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
-                            }
+                            handleAjaxError(xhr);
                         }
                     });
                 }); 
