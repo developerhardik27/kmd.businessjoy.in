@@ -425,7 +425,7 @@
                 width="100%">
                 <tbody>
                     <tr class="removepadding">
-                        <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                        <td colspan="{{ $colspan }}" style="text-align: right"
                             class="left removetdborder  ">
                             Subtotal
                         </td>
@@ -436,7 +436,7 @@
                     @if ($othersettings['gst'] == 0)
                         @if ($invdata['sgst'] > 0)
                             <tr class="removepadding">
-                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                <td colspan="{{ $colspan }}" style="text-align: right"
                                     class="left removetdborder removepadding">
                                     SGST({{ $othersettings['sgst'] }}%)
                                 </td>
@@ -448,7 +448,7 @@
                         @endif
                         @if ($invdata['cgst'] > 0)
                             <tr class="removepadding">
-                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                <td colspan="{{ $colspan }}" style="text-align: right"
                                     class="left removetdborder removepadding">
                                     CGST({{ $othersettings['cgst'] }}%)
                                 </td>
@@ -461,7 +461,7 @@
                     @else
                         @if ($invdata['gst'] > 0)
                             <tr class="removepadding">
-                                <td colspan="@php echo (count($products[0])); @endphp" style="text-align: right"
+                                <td colspan="{{ $colspan }}" style="text-align: right"
                                     class="left removetdborder removepadding">
                                     GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                 </td>
@@ -474,7 +474,7 @@
                     @endif
                     @unless ($roundof == 0)
                         <tr class="removepadding" style="font-size:15px;text-align: right">
-                            <td colspan="@php echo (count($products[0])); @endphp"
+                            <td colspan="{{ $colspan }}"
                                 class="left removetdborder removepadding">
                                 Round of
                             </td>
@@ -484,7 +484,7 @@
                         </tr>
                     @endunless
                     <tr class="" style="font-size:15px;text-align: right">
-                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                        <td colspan="{{ $colspan }}" class="left removetdborder">
                             <b>Total</b>
                         </td>
                         <td style="text-align: right" class="right removetdborder currencysymbol">
@@ -492,7 +492,7 @@
                         </td>
                     </tr>
                     <tr class="" style="font-size:15px;text-align: right">
-                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                        <td colspan="{{ $colspan }}" class="left removetdborder">
                             <b>Amount Received</b>
                         </td>
                         <td style="text-align: right" class="right removetdborder currencysymbol">
@@ -500,7 +500,7 @@
                         </td>
                     </tr>
                     <tr class="" style="font-size:15px;text-align: right">
-                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                        <td colspan="{{ $colspan }}" class="left removetdborder">
                             <b>TDS Amount</b>
                         </td>
                         <td style="text-align: right" class="right removetdborder currencysymbol">
@@ -508,7 +508,7 @@
                         </td>
                     </tr>
                     <tr class="" style="font-size:15px;text-align: right">
-                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                        <td colspan="{{ $colspan }}" class="left removetdborder">
                             <b>Paid Amount</b>
                         </td>
                         <td style="text-align: right" class="right removetdborder currencysymbol">
@@ -516,7 +516,7 @@
                         </td>
                     </tr>
                     <tr class="" style="font-size:15px;text-align: right">
-                        <td colspan="@php echo (count($products[0])); @endphp" class="left removetdborder">
+                        <td colspan="{{ $colspan }}" class="left removetdborder">
                             <b>Pending Amount</b>
                         </td>
                         <td style="text-align: right" class="right removetdborder currencysymbol">
