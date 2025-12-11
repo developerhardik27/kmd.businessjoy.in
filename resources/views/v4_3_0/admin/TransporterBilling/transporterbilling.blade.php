@@ -719,13 +719,13 @@
                             $('#paidamount').attr('max', response.payment[0].pending_amount);
                             $('#info-total_amount').text(amount);
                             $('#info-total_paid_amount').text(totalpaidamount);
-                            $('#info-pending_amount').val(response.payment[0].pending_amount);
+                            $('#info-pending_amount').text(pendingamount);
                         } else {
                             $('#paidamount').val(amount);
                             $('#paidamount').attr('max', amount);
                             $('#info-total_amount').text(amount);
                             $('#info-total_paid_amount').text(totalpaidamount);
-                            $('#info-pending_amount').val(pendingamount);
+                            $('#info-pending_amount').text(pendingamount);
                         }
                         loaderhide();
                     },
