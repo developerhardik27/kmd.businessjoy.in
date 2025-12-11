@@ -48,11 +48,12 @@
             <tr>
                 <th>TDS Date</th>
                 <th>Invoice No</th>
-                <th>Customer/Company Name</th>
+                <th>Customer/Company</th>
+                <th>Challan No</th>
                 <th>TDS Amount</th>
                 <th>Entered From</th>
                 <th>Status</th>
-                <th>TDS Credited</th> 
+                <th>Credited</th> 
             </tr>
         </thead>
         <tbody id="tabledata">
@@ -145,6 +146,13 @@
                             defaultContent: '-'
                         },
                         {
+                            data: 'challan_no',
+                            name: 'challan_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
+                        {
                             data: 'tds_amount',
                             name: 'tds_amount',
                             orderable: false,
@@ -200,7 +208,7 @@
                                 @if (session('user_permissions.invoicemodule.tdsregister.edit') == '1')
                                     actions = `  
                                         <select data-status='${row.id}' data-original-value="${row.tds_credited}" class="tdscredited form-control" id="credited_${row.id}" name="" required >
-                                            <option disabled="">Select Credited Status</option>
+                                            <option disabled="">Select Status</option>
                                             <option value="1" ${row.tds_credited == "1" ? 'selected' : ''}>Yes</option>
                                             <option value="0" ${row.tds_credited == "0" ? 'selected' : ''}>No</option>
                                         </select>
