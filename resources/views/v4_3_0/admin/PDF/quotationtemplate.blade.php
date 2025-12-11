@@ -194,7 +194,7 @@
                 <tbody>
                     <tr>
                         <td style="text-align: center;text-transform:uppercase;" class="bgblue">
-                            <b>Quoatation</b>
+                            <b>Quotation</b>
                         </td>
                     </tr>
                     <tr>

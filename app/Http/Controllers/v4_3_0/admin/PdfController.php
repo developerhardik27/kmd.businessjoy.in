@@ -315,6 +315,11 @@ class PdfController extends Controller
          abort('404');
       }
 
+      if ($bankdetailsdata['status'] == 500) {
+         session()->flash('custom_error_message', 'Bank details Unauthorized');
+         abort('404');
+      }
+
       if ($invdata['status'] == 404) {
          session()->flash('custom_error_message', 'Invoice data not found');
          abort('404');
