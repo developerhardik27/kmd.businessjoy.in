@@ -648,8 +648,8 @@
                             $('#paidamount').val(amount);
                             $('#paidamount').attr('max', amount);
                             $('#info-total_amount').text(amount);
-                            $('#info-total_paid_amount').text(totalreceivedamount);
-                            $('#info-pending_amount').text(pendingamount);
+                            $('#info-total_received_amount').text(totalreceivedamount);
+                            $('.info-pending_amount').text(pendingamount);
                         }
                         loaderhide();
                     },
