@@ -175,9 +175,9 @@
                         <input type="date" name="payment_date" class="form-control" id="payment_date" required />
                         <p class="modal_error-msg mb-1" id="error-payment_date" style="color: red"></p>
                         Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
-                        &nbsp;Total Paid Amount :-&nbsp;<span class="mb-1 text-info"
+                        &nbsp;Paid Amount :-&nbsp;<span class="mb-1 text-info"
                             id="info-total_paid_amount">0</span><br>
-                        <label for="paidamount">Paid Amount</label>
+                        <label for="paidamount">New Amount</label>
                         <input type="number" name="paidamount" class="form-control" id="paidamount"
                             placeholder="Paid Amount" required />
                         <p class="modal_error-msg mb-1" id="error-paidamount" style="color: red"></p>

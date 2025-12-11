@@ -102,11 +102,11 @@
                             <input type="date" name="payment_date" class="form-control" id="payment_date" required />
                             <p class="modal_error-msg mb-1" id="error-payment_date" style="color: red"></p>
                             Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
-                            &nbsp;Total Received Amount :-&nbsp;<span class="mb-1 text-info"
+                            &nbsp;Received Amount :-&nbsp;<span class="mb-1 text-info"
                                 id="info-total_received_amount">0</span><br>
-                            <label for="paidamount">Received Amount</label>
+                            <label for="paidamount">New Amount</label>
                             <input type="number" name="paidamount" class="form-control" id="paidamount"
-                                placeholder="Received Amount" required />
+                                placeholder="New Amount" required />
                             <p class="modal_error-msg mb-1" id="error-paidamount" style="color: red"></p>
                             Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
                             <label for="paid_by">Paid By</label>
@@ -647,6 +647,9 @@
                         } else {
                             $('#paidamount').val(amount);
                             $('#paidamount').attr('max', amount);
+                            $('#info-total_amount').text(amount);
+                            $('#info-total_paid_amount').text(totalreceivedamount);
+                            $('#info-pending_amount').val(pendingamount);
                         }
                         loaderhide();
                     },

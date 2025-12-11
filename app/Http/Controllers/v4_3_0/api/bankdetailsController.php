@@ -49,7 +49,7 @@ class bankdetailsController extends commonController
             return $this->successresponse(404, 'bankdetail', 'No Records Found');
         }
         
-        if ($this->rp['invoicemodule']['bank']['view'] != 1 || $this->rp['reportmodule']['report']['view'] != 1) {
+        if ($this->rp['invoicemodule']['bank']['view'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 

@@ -204,12 +204,15 @@
                 var cardBody = $('.card-body');
                 var collapseSection = cardBody.closest('.collapse');
 
-                collapseSection.addClass('show');
-                // Also expand the toggle button if needed
-                var toggleButton = collapseSection.prev(
-                    '.card-header').find('button');
-                if (toggleButton.length) {
-                    toggleButton.removeClass('collapsed');
+                if (collapseSection.length && !collapseSection.hasClass(
+                        'show')) {
+                    collapseSection.addClass('show');
+                    // Also expand the toggle button if needed
+                    var toggleButton = collapseSection.prev(
+                        '.card-header').find('button');
+                    if (toggleButton.length) {
+                        toggleButton.removeClass('collapsed');
+                    }
                 }
             });
 
@@ -264,6 +267,7 @@
                         $('#house_no_building_name').val(company.house_no_building_name);
                         $('#road_name_area_colony').val(company.road_name_area_colony);
                         $('#maxuser').val(company.max_users);
+                        $('#transporter_id').val(company.transporter_id);
                         $('#company_website_url').val(company.website_url);
                         country = company.country_id;
                         state = company.state_id;

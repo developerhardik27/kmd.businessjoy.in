@@ -16,10 +16,12 @@
     }
     table input.form-control {
         width: auto;
+        min-width: 100%;
     }
 
     table textarea.form-control{
         width: auto;
+        min-width: 100%;
     }
  </style>
  <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
