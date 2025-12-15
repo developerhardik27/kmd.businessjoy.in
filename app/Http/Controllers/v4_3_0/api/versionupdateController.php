@@ -850,7 +850,11 @@ class versionupdateController extends commonController
                                         }
 
                                         if (!isset($jsonrp['logisticmodule']['transporterbilling'])) {
-                                            $jsonrp['developermodule']['transporterbilling'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['logisticmodule']['transporterbilling'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+
+                                        if (!isset($jsonrp['logisticmodule']['downloadcopysetting'])) {
+                                            $jsonrp['logisticmodule']['downloadcopysetting'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
 
                                         if (!isset($jsonrp['developermodule']['cleardata'])) {
@@ -884,7 +888,6 @@ class versionupdateController extends commonController
                                             ]);
                                     }
                                 }
-
                                 break;
                         }
 

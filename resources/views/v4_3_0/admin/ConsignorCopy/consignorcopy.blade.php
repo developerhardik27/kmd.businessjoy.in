@@ -39,6 +39,10 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
+
+        .select2 {
+            min-width: 100% !important;
+        }
     </style>
 @endsection
 @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1')
@@ -199,6 +203,38 @@
 
         </tbody>
     </table>
+
+    {{-- modal for select lr copy participants  --}}
+    <div class="modal fade" id="downloadcopy" tabindex="-1" role="dialog" aria-labelledby="downloadcopyTitle"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="downloadcopyTitle"><b>Download Copy</b></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <input type="hidden" id="pdf-url">
+                            Copies For: 
+                            <select class="select2 form-control w-100" name="download_copy[]" id="download_copy" multiple>
+                                <option value="consignor">Consignor</option>
+                                <option value="consignee">Consignee</option>
+                                <option value="driver">Driver</option>
+                            </select>
+                            <div class="modal-footer">
+                                <input type="button" value="Download" id="download-pdf-btn" class="btn btn-sm btn-primary">
+                                <button type="button" class="btn btn-danger resethistoryform" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 
@@ -221,6 +257,47 @@
             var global_response = '';
 
             var table = '';
+
+            let othersettings = false; //declare default setting variable
+
+            /*
+             *get settings 
+             */
+            function getlogisticothersettings() {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('getlogisticothersettings') }}",
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        token: "{{ session()->get('api_token') }}"
+                    },  
+                    success: function(response) {
+                        if (response.status == 200 && response.logisticsettings != '') {
+                            if(response.logisticsettings.download_copy != 'always ask'){
+                                othersettings = response.logisticsettings.download_copy;
+                            }
+                        } else {
+                            othersettings = false;
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message || 'something went wrong'
+                            });
+                        }
+                        loaderhide();
+                        // You can update your HTML with the data here if needed
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        othersettings = false;
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        handleAjaxError(xhr);
+                    }
+                });
+            }
+
+            getlogisticothersettings();
 
 
             function getConsigneeData() {
@@ -464,12 +541,10 @@
                                     .replace('__consignorcopyId__', data);
                                 @if (session('user_permissions.logisticmodule.consignorcopy.view') == '1')
                                     return `
-                                        <span data-toggle="tooltip" data-placement="left" title="Download Consignor Copy Pdf">
-                                            <a href="${generateConsignorCopyPdfUrl}" target="_blank" id="pdf">
-                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0">
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
+                                        <span data-toggle="tooltip" class="download-pdf" data-placement="left" title="Download Consignor Copy Pdf">
+                                            <button type="button" data-pdf-url="${generateConsignorCopyPdfUrl}" class="download-btn btn btn-info btn-rounded btn-sm my-0">
+                                                <i class="ri-download-line"></i>
+                                            </button>
                                         </span>
                                     `;
                                 @else
@@ -590,9 +665,7 @@
                 hideOffCanvass(); // close OffCanvass
 
             });
-
-
-
+ 
 
             //remove filters
             $('#removefilters').on('click', function() {
@@ -604,9 +677,10 @@
                 hideOffCanvass(); // close OffCanvass
 
                 table.draw();
-
             });
 
+
+            $('')
 
             // delete consignor copy             
             $(document).on("click", ".del-btn", function() {
@@ -711,6 +785,61 @@
                         });
                     }
                 );
+            });
+
+            //download pdf
+
+            $(document).on('click', '.download-pdf',function(){
+                let Url = $(this).find('button').data('pdf-url');
+                if(othersettings){
+                    // Append the query string for types
+                    Url = Url + `?copies=${othersettings}`;
+                    
+                    // Navigate to the URL with the query parameter
+                    window.open(Url, '_blank');
+                }else{
+                    $('#downloadcopy').modal('show');
+                    $('#pdf-url').val(Url);
+                    $('#download_copy').val('consignor');
+                    $('#download_copy').select2({
+                        placeholder: 'Select Options',
+                        allowClear: true,   
+                    });  
+                }
+                return;
+            });
+
+            $(document).on('click', '#download-pdf-btn', function() {
+                let copies = $('#download_copy').val();  // Get selected values from the multi-select
+                let Url = $('#pdf-url').val();           // Get the base URL
+
+                // Check if any option is selected
+                if (!copies || copies.length < 1) {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Please select at least one option."
+                    });
+                    return;  // Stop further execution if no options are selected
+                }
+
+                // Join the selected options with commas
+                copies = copies.join(',');
+
+                // Append the query string for types
+                Url = Url + `?copies=${copies}`;
+                $('#downloadcopy').modal('hide'); // close modal
+                // Navigate to the URL with the query parameter
+                window.open(Url, '_blank');
+            });
+
+            // reset payment details in modal when modal will close
+            $("#downloadcopy").on("hidden.bs.modal", function() {
+                $('#pdf-url').val('');
+                $('#download_copy').val('');
+                $('#download_copy').select2({
+                    placeholder: 'Select Options',
+                    allowClear: true,   
+                }); 
             });
 
 

@@ -596,6 +596,7 @@ Route::middleware(['checkToken'])->group(function () {
     Route::controller($logisticothersettingsController)->group(function () {
         Route::get('/getlogisticothersettings', 'getlogisticothersettings')->name('getlogisticothersettings');
         Route::post('/logistic/othersettings', 'logisticothersettingsstore')->name('logisticothersettings.store');
+        Route::post('/logistic/downloadcopysetting', 'downloadcopysettingstore')->name('downloadcopysetting.store');
 
         Route::get('/consignorcopy/termsandconditions', 'termsandconditionsindex')->name('consignorcopytermsandconditions.index');
         Route::post('/consignorcopy/termsandconditions/insert', 'consignorcopytcstore')->name('consignorcopytermsandconditions.store');

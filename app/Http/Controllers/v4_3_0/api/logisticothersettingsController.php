@@ -373,5 +373,41 @@ class logisticothersettingsController extends commonController
         }
     }
 
+    /**
+     * Summary of consignmentnotenumberstore
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function downloadcopysettingstore(Request $request)
+    {
+        //condition for check if user has permission to edit  record
+        if ($this->rp['logisticmodule']['downloadcopysetting']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'download_copy' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        } else {
+
+
+            $logisticsetting = $this->logistic_settingModel::find(1);
+
+            if (!$logisticsetting) {
+                return $this->successresponse(404, 'message', 'No such setting found!');
+            }
+
+            $logisticsetting->update([
+                'download_copy' => implode(',', $request->download_copy),
+                'updated_by' => $this->userId
+            ]);
+
+            return $this->successresponse(200, 'message', 'Settings succesfully updated');
+        }
+    }
+
 }
 

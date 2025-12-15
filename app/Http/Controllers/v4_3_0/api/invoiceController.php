@@ -452,6 +452,7 @@ class invoiceController extends commonController
                         $year = date('y');
                     }
 
+                    $nextYear = $year + 1;
                     $month = date('m');
                     $date = date('d');
                     $ai = '';
@@ -486,7 +487,7 @@ class invoiceController extends commonController
                                 }
                             }
 
-                            $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                            $inv_no = str_replace(['date', 'month', 'nextyear', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $nextYear, $year, $customerid, $cidai, $ai], $inv_no);
                             $existingInvoice = $this->invoiceModel::where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
                             $increment_number++;
 
@@ -522,7 +523,7 @@ class invoiceController extends commonController
                                     $cidai = $getpattern->start_increment_number != null ? $getpattern->start_increment_number : 1;
                                 }
                             }
-                            $inv_no = str_replace(['date', 'month', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $year, $customerid, $cidai, $ai], $inv_no);
+                            $inv_no = str_replace(['date', 'month', 'nextyear', 'year', 'customerid', 'cidai', 'ai'], [$date, $month, $nextYear, $year, $customerid, $cidai, $ai], $inv_no);
                             $existingInvoice = $this->invoiceModel::where('inv_no', $inv_no)->where('is_deleted', 0)->exists();
                             $increment_number++;
                             if (!$existingInvoice) {

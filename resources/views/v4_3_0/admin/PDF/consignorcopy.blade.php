@@ -5,6 +5,7 @@
     $consignor = $data['consignor'];
     $consignee = $data['consignee'];
     $othersettings = $data['othersettings'];
+    $copies = $data['copies'];
 @endphp
 
 
@@ -24,6 +25,7 @@
     <style>
         @page {
             margin: 15px;
+            margin-top: 8px;
         }
 
         table {
@@ -109,7 +111,7 @@
             left: 15%;
             width: 70%;
             text-align: center;
-            opacity: 0.15;
+            opacity: 0.15 !important;
             z-index: 0;
             font-size: 80px;
             color: #000;
@@ -125,292 +127,305 @@
             z-index: 1;
         }
 
-        .pdf-header {
-            position: fixed;
-            top: -20px;
-            right: 0px;
-            text-align: center;
+        .pdf-header { 
+            text-align: right;
             font-size: 12px;
             text-transform: capitalize;
-            z-index: 10;
+            z-index: 10; 
         }
     </style>
 </head>
 
 <body>
-
-    <div class="pdf-header">
-        consignor copy
-    </div>
-
-    {{-- ✅ Text Watermark --}}
-    {{-- <div class="watermark">CONFIDENTIAL</div> --}}
-    {{-- ✅ Image Watermark (Uncomment if using image) --}}
+    
+    {{--  Image Watermark --}}
     <div class="watermark">
         @if ($companydetails['watermark_img'] != '')
             <img
                 src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['watermark_img']))) }}">
         @endif
     </div>
-    <main>
+    @foreach ($copies as $copy)
+        <div class="pdf-header" @style(['page-break-before:always' => $loop->iteration > 1])>
+            {{$copy}} copy
+        </div>
 
-
-        <div class="content">
-            <table class="w-100 table">
-                <tr>
-                    <td class="vertical-align-center">
-                        <div class="text-center vertical-align-center" style="height: auto">
-                            @if ($companydetails['img'] != '')
-                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
-                                    alt="Company logo">
+        <main>
+            <div class="content">
+                <table class="w-100 table">
+                    <tr>
+                        <td class="vertical-align-center">
+                            <div class="text-center vertical-align-center" style="height: auto">
+                                @if ($companydetails['img'] != '')
+                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
+                                        alt="Company logo">
+                                @endif
+                            </div>
+                        </td>
+                        <td class="vertical-align-center">
+                            <h2>
+                                {{ ucfirst($companydetails['name']) }}
+                            </h2>
+                            <p>
+                                {{ $companydetails['house_no_building_name'] }},
+                                {{ $companydetails['road_name_area_colony'] }}
+                            </p>
+                            <p>
+                                {{ $companydetails['city_name'] }},
+                                {{ $companydetails['pincode'] }},
+                                {{ $companydetails['state_name'] }},
+                                {{ $companydetails['country_name'] }}
+                            </p>
+                            @if ($companydetails['email'])
+                                <p>
+                                    <b>Email :</b> {{ $companydetails['email'] }}
+                                </p>
                             @endif
-                        </div>
-                    </td>
-                    <td class="vertical-align-center">
-                        <h2>
-                            {{ ucfirst($companydetails['name']) }}
-                        </h2>
-                        <p>
-                            {{ $companydetails['house_no_building_name'] }},
-                            {{ $companydetails['road_name_area_colony'] }}
-                        </p>
-                        <p>
-                            {{ $companydetails['city_name'] }},
-                            {{ $companydetails['pincode'] }},
-                            {{ $companydetails['state_name'] }},
-                            {{ $companydetails['country_name'] }}
-                        </p>
-                        @if ($companydetails['email'])
-                            <p>
-                                <b>Email :</b> {{ $companydetails['email'] }}
-                            </p>
-                        @endif
-                        @if ($companydetails['contact_no'])
-                            <p>
-                                <b>Contact :</b> {{ $companydetails['contact_no'] }}
-                            </p>
-                        @endif
-                        @isset($companydetails['transporter_id'])
-                            <p>
-                                <b>Transporter ID:</b> {{ $companydetails['transporter_id'] }}
-                            </p>
-                        @endisset
-                    </td>
-                </tr>
-            </table>
-
-            <table class="w-100 table">
-                <tr>
-                    <td>
-                        <b>Consignment Note No. : </b><span>{{ $consignorcopy['consignment_note_no'] }}</span>
-                    </td>
-                    <td>
-                        <b>Loading Date : </b><span>{{ $consignorcopy['loading_date_formatted'] }}</span>
-                    </td>
-                    <td>
-                        <b>Stuffing Date : </b><span>{{ $consignorcopy['stuffing_date_formatted'] }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <b>Truck No. : </b><span>{{ $consignorcopy['truck_number'] }}</span>
-                    </td>
-                    <td>
-                        <b>Driver Name : </b><span>{{ $consignorcopy['driver_name'] }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <b>Licence No. : </b><span>{{ $consignorcopy['licence_number'] }}</span>
-                    </td>
-                    <td>
-                        <b>Mobile No. : </b><span>{{ $consignorcopy['mobile_number'] }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>From : </b><span>{{ $consignorcopy['from'] }}</span>
-                    </td>
-                    <td>
-                        <b>To : </b><span>{{ $consignorcopy['to'] }}</span>
-                    </td>
-                    <td colspan="2">
-                        <b>To : </b><span>{{ $consignorcopy['to_2'] }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        <b>GST Tax Payable By : </b><span>{{ strtoupper($consignorcopy['gst_tax_payable_by']) }}</span>
-                    </td>
-                </tr>
-            </table>
-
-            <table class="table table-bordered">
-                <tr>
-                    <td style="width: 50%">
-                        <b>Consignor : </b>
-                        <span>{{ $consignorcopy['consignor'] }}</span>
-                        <p class="ml-5">{{ $consignor['consignor_address'] }}</p>
-                        <b>GSTIN : </b><span>{{ $consignor['gst_no'] }}</span><br>
-                        <b>PANNO. : </b><span>{{ $consignor['pan_number'] }}</span>
-                    </td>
-                    <td style="width:50%;">
-                        <b>Consignee : </b>
-                        <span>{{ $consignorcopy['consignee'] }}</span>
-                        <p class="ml-5">{{ $consignee['consignee_address'] }}</p>
-                        <b>GSTIN : </b><span>{{ $consignee['gst_no'] }}</span><br>
-                        <b>PANNO. : </b><span>{{ $consignee['pan_number'] }}</span>
-                        <hr style="margin: 0;padding:0;width:100%">
-                        <b>CHA : </b><span>{{ $consignorcopy['cha'] }}</span>
-                    </td>
-                </tr>
-            </table>
-
-            <div class="page-break"></div>
-
-            <table class="table w-100 table-bordered">
-                <thead>
-                    <tr>
-                        <th rowspan="2" style="vertical-align: middle">No.of Pallets</th>
-                        <th rowspan="2" style="vertical-align: middle">NATURE OF GOODS (Said to contain)
-                        </th>
-                        <th colspan="2">
-                            WEIGHT
-                            @if ($consignorcopy['weight_type'])
-                                <span>({{ $consignorcopy['weight_type'] }})</span>
+                            @if ($companydetails['contact_no'])
+                                <p>
+                                    <b>Contact :</b> {{ $companydetails['contact_no'] }}
+                                </p>
                             @endif
-                        </th>
-                        <th colspan="2">FREIGHT</th>
+                            @isset($companydetails['transporter_id'])
+                                <p>
+                                    <b>Transporter ID:</b> {{ $companydetails['transporter_id'] }}
+                                </p>
+                            @endisset
+                        </td>
                     </tr>
+                </table>
+
+                <table class="w-100 table">
                     <tr>
-                        <th>ACTUAL</th>
-                        <th>CHARGED</th>
-                        <th>PAID</th>
-                        <th>TO PAY</th>
-                    </tr>
-                    <tr>
-                        <td rowspan="3">-</td>
-                        <td rowspan="2" class="text-left">
-                            <div class="mb-2 ">
-                                <b>Type : </b><span> {{ strtoupper($consignorcopy['type']) }}</span>
-                            </div>
-                            <div>
-                                <b>Container No. : </b><span>{{ $consignorcopy['container_no'] }}</span>
-
-                                <b>Size : </b><span>{{ $consignorcopy['size'] }}</span>
-
-                            </div>
-                            <div class="mb-2">
-                                <b>Shipping Line : </b><span>{{ $consignorcopy['shipping_line'] }}</span>
-                            </div>
-                            <div class="mb-2">
-                                <b>Seal No : </b><span>{{ $consignorcopy['seal_no'] }}</span>
-                            </div>
-                            <div class="mb-2">
-                                <b>BE / INV NO. : </b><span>{{ $consignorcopy['be_inv_no'] }}</span>
-                            </div>
-                            <div class="mb-2">
-                                <b>PORT : </b><span>{{ $consignorcopy['port'] }}</span>
-                            </div>
-                            <div class="mb-2">
-                                <b>POD : </b><span>{{ $consignorcopy['pod'] }}</span>
-                            </div>
-                            <div class="mb-2">
-
-                                <b>Service : </b><span>{{ strtoupper($consignorcopy['service']) }}</span>
-
-                                <b>SAC CODE : </b><span>{{ $consignorcopy['sac_code'] }}</span>
-
-                            </div>
+                        <td>
+                            <b>Consignment Note No. : </b><span>{{ $consignorcopy['consignment_note_no'] }}</span>
                         </td>
                         <td>
-                            <span>{{ $consignorcopy['actual'] }}</span>
+                            <b>Loading Date : </b><span>{{ $consignorcopy['loading_date_formatted'] }}</span>
                         </td>
                         <td>
-                            <span>{{ $consignorcopy['charged'] }}</span>
-                        </td>
-                        <td rowspan="2" class="text-center">
-                            <div>
-                                <span>{{ $consignorcopy['paid'] }}</span>
-                            </div>
-                            <div class="mt-5">
-                                <span>To</span><br>
-                                <span>Be</span><br>
-                                <span>Billed</span><br>
-                                <span>At</span><br>
-                                <span>{{ $companydetails['city_name'] }}</span><br>
-                            </div>
-                        </td>
-                        <td rowspan="2">
-                            <div>
-                                <span>{{ $consignorcopy['to_pay'] }}</span>
-                            </div>
+                            <b>Stuffing Date : </b><span>{{ $consignorcopy['stuffing_date_formatted'] }}</span>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <b>Value (RS). </b><span>{{ $consignorcopy['value'] }}</span>
+                            <b>Truck No. : </b><span>{{ $consignorcopy['truck_number'] }}</span>
+                        </td>
+                        <td>
+                            <b>Driver Name : </b><span>{{ $consignorcopy['driver_name'] }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <b>Licence No. : </b><span>{{ $consignorcopy['licence_number'] }}</span>
+                        </td>
+                        <td>
+                            <b>Mobile No. : </b><span>{{ $consignorcopy['mobile_number'] }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>From : </b><span>{{ $consignorcopy['from'] }}</span>
+                        </td>
+                        <td>
+                            <b>To : </b><span>{{ $consignorcopy['to'] }}</span>
+                        </td>
+                        <td colspan="2">
+                            <b>To : </b><span>{{ $consignorcopy['to_2'] }}</span>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="3">
-                            <p>GOODS BOOKED AS OWNER'S RISK.</p>
-                            <span>Not responsible for Breakage, Leakage, Damage Goods or Fires.</span>
-                        </td>
-                        <td colspan="2" rowspan="2" class="text-center">
-                            <p><b>For,{{ ucfirst($companydetails['name']) }}</b> </p>
-                            @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img']))
-                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
-                                    alt="Company logo" style="max-height:100px;">
-                            @else
-                                <br><br><br>
-                            @endif
-                            <p>Authorized Signatory</p>
+                            <b>GST Tax Payable By : </b><span>{{ strtoupper($consignorcopy['gst_tax_payable_by']) }}</span>
                         </td>
                     </tr>
-                    <tr class="text-left">
-                        <td colspan="4">
-                            <div class="align-items-baseline d-flex justify-content-between mb-2">
-                                <span>Reached At Factory :</span>
-                                <b>Date : </b><span>{{ $consignorcopy['reached_at_factory_date_formatted'] }}</span>
+                </table>
 
-                                <b>Time : </b><span>{{ $consignorcopy['reached_at_factory_time_formatted'] }}</span>
-                            </div>
-                            <div class="align-items-baseline d-flex justify-content-between mb-2">
-                                <span>Left From Factory :</span>
-                                <b>Date : </b><span>{{ $consignorcopy['left_from_factory_date_formatted'] }}</span>
-
-                                <b>Time : </b><span>{{ $consignorcopy['left_from_factory_time_formatted'] }}</span>
-
-                            </div>
-                        </td>
-                    </tr>
-                </thead>
-            </table>
-            <table class="w-100 table table-bordered">
-                <tr>
-                    <td>
-                        <b>OUR COMPANY'S PAN NO : <span>{{ $companydetails['pan_number'] }}<span> </b>
-                        <br>
-                        @if ($companydetails['gst_no'])
-                            <b>OUR COMPANY'S GST NO : <span>{{ $companydetails['gst_no'] }}<span> </b>
-                            <br>
-                        @endif
-                        <b>STATE : <span>{{ $companydetails['state_name'] }}<span>,
-                                    STATE CODE : <span>{{ $companydetails['state_code'] }}<span> </b>
-                    </td>
-                </tr>
-                @isset($tandc)
+                <table class="table table-bordered">
                     <tr>
-                        <td class="p-0">
-                            <p class="text-center bg-light m-0"><b>Terms & Conditions</b></p>
-                            <div class="m-2" style="font-size: 10px"> {!! $tandc[0] !!}</div>
+                        <td style="width: 50%">
+                            <b>Consignor : </b>
+                            <span>{{ $consignorcopy['consignor'] }}</span>
+                            <p class="ml-5">{{ $consignor['consignor_address'] }}</p>
+                            <b>GSTIN : </b><span>{{ $consignor['gst_no'] }}</span><br>
+                            <b>PANNO. : </b><span>{{ $consignor['pan_number'] }}</span>
+                        </td>
+                        <td style="width:50%;">
+                            <b>Consignee : </b>
+                            <span>{{ $consignorcopy['consignee'] }}</span>
+                            <p class="ml-5">{{ $consignee['consignee_address'] }}</p>
+                            <b>GSTIN : </b><span>{{ $consignee['gst_no'] }}</span><br>
+                            <b>PANNO. : </b><span>{{ $consignee['pan_number'] }}</span>
+                            <hr style="margin: 0;padding:0;width:100%">
+                            <b>CHA : </b><span>{{ $consignorcopy['cha'] }}</span>
                         </td>
                     </tr>
-                @endisset
-            </table>
-        </div>
-    </main>
+                </table>
+
+                <div class="page-break"></div>
+
+                <table class="table w-100 table-bordered">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="vertical-align: middle">No.of Pallets</th>
+                            <th rowspan="2" style="vertical-align: middle">NATURE OF GOODS (Said to contain)
+                            </th>
+                            <th colspan="2">
+                                WEIGHT
+                                @if ($consignorcopy['weight_type'])
+                                    <span>({{ $consignorcopy['weight_type'] }})</span>
+                                @endif
+                            </th>
+                            <th colspan="2">FREIGHT</th>
+                        </tr>
+                        <tr>
+                            <th>ACTUAL</th>
+                            <th>CHARGED</th>
+                            <th>PAID</th>
+                            <th>TO PAY</th>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">-</td>
+                            <td rowspan="2" class="text-left">
+                                <div class="mb-2 ">
+                                    <b>Type : </b><span> {{ strtoupper($consignorcopy['type']) }}</span>
+                                </div>
+                                <div>
+                                    <b>Container No. : </b><span>{{ $consignorcopy['container_no'] }}</span>
+
+                                    <b>Size : </b><span>{{ $consignorcopy['size'] }}</span>
+
+                                </div>
+                                <div class="mb-2">
+                                    <b>Shipping Line : </b><span>{{ $consignorcopy['shipping_line'] }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <b>Seal No : </b><span>{{ $consignorcopy['seal_no'] }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <b>BE / INV NO. : </b><span>{{ $consignorcopy['be_inv_no'] }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <b>PORT : </b><span>{{ $consignorcopy['port'] }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <b>POD : </b><span>{{ $consignorcopy['pod'] }}</span>
+                                </div>
+                                <div class="mb-2">
+
+                                    <b>Service : </b><span>{{ strtoupper($consignorcopy['service']) }}</span>
+
+                                    <b>SAC CODE : </b><span>{{ $consignorcopy['sac_code'] }}</span>
+
+                                </div>
+                            </td>
+                            <td>
+                                <span>{{ $consignorcopy['actual'] }}</span>
+                            </td>
+                            <td>
+                                <span>{{ $consignorcopy['charged'] }}</span>
+                            </td>
+                            <td rowspan="2" class="text-center">
+                                <div>
+                                    <span>{{ $consignorcopy['paid'] }}</span>
+                                </div>
+                                <div class="mt-5">
+                                    <span>To</span><br>
+                                    <span>Be</span><br>
+                                    <span>Billed</span><br>
+                                    <span>At</span><br>
+                                    <span>{{ $companydetails['city_name'] }}</span><br>
+                                </div>
+                            </td>
+                            <td rowspan="2">
+                                <div>
+                                    <span>{{ $consignorcopy['to_pay'] }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <b>Value (RS). </b><span>{{ $consignorcopy['value'] }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <p>GOODS BOOKED AS OWNER'S RISK.</p>
+                                <span>Not responsible for Breakage, Leakage, Damage Goods or Fires.</span>
+                            </td>
+                            <td colspan="2" rowspan="2" class="text-center">
+                                <p><b>For,{{ ucfirst($companydetails['name']) }}</b> </p>
+                                @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img']))
+                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
+                                        alt="Company logo" style="max-height:100px;">
+                                @else
+                                    <br><br><br>
+                                @endif
+                                <p>Authorized Signatory</p>
+                            </td>
+                        </tr>
+                        <tr class="text-left">
+                            <td colspan="4">
+                                <div class="align-items-baseline d-flex justify-content-between mb-2">
+                                    <span>Reached At Factory :</span>
+                                    <b>Date : </b>
+                                    @if ($consignorcopy['reached_at_factory_date_formatted'])
+                                        <span>{{ $consignorcopy['reached_at_factory_date_formatted'] }}</span>
+                                    @else
+                                        <span>______________</span>
+                                    @endif  
+                                    <b>Time : </b>
+                                    @if ($consignorcopy['reached_at_factory_time_formatted'])
+                                        <span>{{ $consignorcopy['reached_at_factory_time_formatted'] }}</span>
+                                    @else
+                                        <span>______________</span>
+                                    @endif 
+                                </div>
+                                <div class="align-items-baseline d-flex justify-content-between mb-2">
+                                    <span>Left From Factory :</span>
+                                    <b>Date : </b>
+                                    @if ($consignorcopy['left_from_factory_date_formatted'])
+                                        <span>{{ $consignorcopy['left_from_factory_date_formatted'] }}</span>
+                                    @else
+                                        <span>______________</span>
+                                    @endif  
+
+                                    <b>Time : </b>
+                                    @if ($consignorcopy['left_from_factory_time_formatted'])
+                                        <span>{{ $consignorcopy['left_from_factory_time_formatted'] }}</span>
+                                    @else
+                                        <span>______________</span>
+                                    @endif 
+                                </div>
+                            </td>
+                        </tr>
+                    </thead>
+                </table>
+                <table class="w-100 table table-bordered">
+                    <tr>
+                        <td>
+                            <b>OUR COMPANY'S PAN NO : <span>{{ $companydetails['pan_number'] }}<span> </b>
+                            <br>
+                            @if ($companydetails['gst_no'])
+                                <b>OUR COMPANY'S GST NO : <span>{{ $companydetails['gst_no'] }}<span> </b>
+                                <br>
+                            @endif
+                            <b>STATE : <span>{{ $companydetails['state_name'] }}<span>,
+                                        STATE CODE : <span>{{ $companydetails['state_code'] }}<span> </b>
+                        </td>
+                    </tr>
+                    @isset($tandc)
+                        <tr>
+                            <td class="p-0">
+                                <p class="text-center bg-light m-0"><b>Terms & Conditions</b></p>
+                                <div class="m-2" style="font-size: 10px"> {!! $tandc[0] !!}</div>
+                            </td>
+                        </tr>
+                    @endisset
+                </table>
+            </div>
+        </main>
+    @endforeach
 </body>
 
 </html>
