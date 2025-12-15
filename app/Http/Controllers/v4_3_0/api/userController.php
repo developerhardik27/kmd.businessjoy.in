@@ -118,6 +118,7 @@ class userController extends commonController
             "consignor" => ["show", "add", "view", "edit", "delete", "alldata"],
             "logisticapi" => ["show", "add", "view", "edit", "delete", "alldata"],
             "watermark" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "downloadcopysetting" => ["show", "add", "view", "edit", "delete", "alldata"],
             "transporterbilling" => ["show", "add", "view", "edit", "delete", "alldata"]
         ],
         "developermodule" => [
