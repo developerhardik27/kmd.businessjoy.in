@@ -474,6 +474,18 @@ class PdfController extends Controller
       if(!$request->copies){
          abort(404,'invalid url');
       }
+      // Convert the comma-separated string into an array and check if any value is invalid
+      $copies = array_map('strtolower', explode(',', $request->copies));
+
+      if(count($copies) > 3){
+         abort(404,'invalid url');
+      }
+
+      foreach ($copies as $copy) {
+         if (!in_array($copy, ['consignor', 'consignee', 'driver'])) {
+            abort(404, 'Invalid URL');
+         }
+      }
       
       request()->merge([
          'company_id' => session('company_id'),

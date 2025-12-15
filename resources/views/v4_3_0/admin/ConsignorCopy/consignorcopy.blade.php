@@ -827,7 +827,7 @@
 
                 // Append the query string for types
                 Url = Url + `?copies=${copies}`;
-
+                $('#downloadcopy').modal('hide'); // close modal
                 // Navigate to the URL with the query parameter
                 window.open(Url, '_blank');
             });
