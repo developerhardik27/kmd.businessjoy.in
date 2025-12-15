@@ -111,7 +111,7 @@
             left: 15%;
             width: 70%;
             text-align: center;
-            opacity: 0.15;
+            opacity: 0.15 !important;
             z-index: 0;
             font-size: 80px;
             color: #000;
@@ -138,18 +138,18 @@
 
 <body>
     
+    {{--  Image Watermark --}}
+    <div class="watermark">
+        @if ($companydetails['watermark_img'] != '')
+            <img
+                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['watermark_img']))) }}">
+        @endif
+    </div>
     @foreach ($copies as $copy)
         <div class="pdf-header" @style(['page-break-before:always' => $loop->iteration > 1])>
             {{$copy}} copy
         </div>
 
-        {{--  Image Watermark --}}
-        <div class="watermark">
-            @if ($companydetails['watermark_img'] != '')
-                <img
-                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['watermark_img']))) }}">
-            @endif
-        </div>
         <main>
             <div class="content">
                 <table class="w-100 table">
