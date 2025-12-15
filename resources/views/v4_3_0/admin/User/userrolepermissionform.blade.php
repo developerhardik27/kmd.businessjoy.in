@@ -4971,6 +4971,66 @@
                                             </tr>
                                         @endif
 
+                                        @if (session('user_permissions.logisticmodule.downloadcopysetting.add') == '1' || $user_id == 1)
+                                            <tr id="downloadcopysetting">
+                                                <td>Download Copy Setting</td>
+                                                <td>
+                                                    <input type="checkbox" class="clickmenu"
+                                                        data-value='downloadcopysetting' id="showdownloadcopysettingmenu"
+                                                        name="showdownloadcopysettingmenu" value="1">
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.downloadcopysetting.add') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showdownloadcopysettingmenu' id="adddownloadcopysetting"
+                                                            name="adddownloadcopysetting" value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.downloadcopysetting.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showdownloadcopysettingmenu'
+                                                            id="viewdownloadcopysetting" name="viewdownloadcopysetting"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.downloadcopysetting.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showdownloadcopysettingmenu'
+                                                            id="editdownloadcopysetting" name="editdownloadcopysetting"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.downloadcopysetting.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showdownloadcopysettingmenu'
+                                                            id="deletedownloadcopysetting" name="deletedownloadcopysetting"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (session('user_permissions.logisticmodule.downloadcopysetting.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showdownloadcopysettingmenu'
+                                                            id="alldatadownloadcopysetting" name="alldatadownloadcopysetting"
+                                                            value="1">
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
+
                                         @if (session('user_permissions.logisticmodule.transporterbilling.add') == '1' || $user_id == 1)
                                             <tr id="transporterbilling">
                                                 <td>Transporter Billing</td>

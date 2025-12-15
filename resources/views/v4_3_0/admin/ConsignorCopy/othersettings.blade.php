@@ -34,6 +34,10 @@
         .note-editable li {
             margin-bottom: 5px;
         }
+
+        .select2 {
+            min-width: 100% !important;
+        }
     </style>
 @endsection
 
@@ -305,6 +309,62 @@
                         </div>
                     </div>
                 @endif
+                @if (session('user_permissions.logisticmodule.downloadcopysetting.edit') == 1)
+                    <div class="col-md-6">
+                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Download Copy Setting"
+                            type="button" id="editDownloadCopySettingBtn"
+                            class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
+                            <i class="ri-edit-fill"></i>
+                        </button>
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                                <div class="iq-header-title">
+                                    <h4 class="card-title">Download Copy</h4>
+                                </div>
+                            </div>
+                            <div class="iq-card-body">
+                                <form id="downloadcopysettingform" class="d-none">
+                                    @csrf
+                                    <div class="form-group">
+                                        <div class="form-row">
+                                            <div class="col-12 mb-2">
+                                                <input type="hidden" name="token" class="form-control"
+                                                    value="{{ session('api_token') }}" required />
+                                                <input type="hidden" value="{{ session('user_id') }}" name="user_id"
+                                                    class="form-control">
+                                                <input type="hidden" value="{{ session('company_id') }}" name="company_id"
+                                                    class="form-control">
+                                                <label for="download_copy">Copies</label>
+                                                <select class="select2 form-control w-100" name="download_copy[]" id="download_copy" multiple>
+                                                    <option value="consignor">Consignor</option>
+                                                    <option value="consignee">Consignee</option>
+                                                    <option value="driver">Driver</option>
+                                                    <option value="always ask">Always ask</option>
+                                                </select>
+                                                <span class="error-msg" id="error-download_copy"
+                                                    style="color: red"></span>
+                                            </div> 
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col-sm-12 mt-2">
+                                                <button type="button" id="cancelDownloadCopySettingBtn" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right">Cancel</button>
+                                                <button type="reset" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Reset"
+                                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
+                                                <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Save"
+                                                    class="btn btn-primary float-right my-0">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                <p><strong>Copies : </strong> <span id="download_copy_span"> </span></p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -312,7 +372,8 @@
 
 
 @push('ajax')
-    <script>
+    <script> 
+
         $('document').ready(function() {
 
             // companyId and userId both are required in every ajax request for all action *************
@@ -350,7 +411,7 @@
             loaderhide();
 
             /*
-             *overdue and year start settings code start
+             *settings code start
              */
             function getlogisticothersettings() {
                 $.ajax({
@@ -379,6 +440,9 @@
                             $('#authorized_signatory_span').html(
                                 `${othersettings.authorized_signatory ?  `${othersettings.authorized_signatory}`.replace('_',' ')  : 'Not Set Yet'}`
                             );
+
+                            $('#download_copy_span').html(
+                                `${othersettings.download_copy || 'Not Set Yet'}`);
                         } else {
                             othersettings = null;
                             Toast.fire({
@@ -727,8 +791,7 @@
             /*
              *terms and conditions settings code end
              */
-
-
+ 
             // watermark settings  start
         
             // show edit customer id form
@@ -904,6 +967,92 @@
                             $('#othersettingsform')[0].reset();
                             $('#othersettingsform').addClass('d-none');
                             $('#editOtherSettingsBtn').removeClass('d-none');
+                            getlogisticothersettings();
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: "something went wrong!"
+                            });
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr, status, error) { // if calling api request error 
+                        loaderhide();
+                        console.log(xhr
+                            .responseText); // Log the full error response for debugging
+                        handleAjaxError(xhr);
+                    }
+                });
+            });
+
+            /*
+             * Download Copy settings 
+             */
+
+            // Detect when an option is selected
+            $('#download_copy').on('select2:select', function(e) {
+                let selectedValue = e.params.data.id;  // Get the value of the selected option
+                
+                // If "Always ask" is selected, handle accordingly
+                if (selectedValue === 'always ask') {
+                    let values = $(this).val();  // Get the current values
+                    $(this).val('always ask').trigger('change');
+                }
+            });
+
+            $('#download_copy').on('change',function(ele){
+                let values = $(this).val();
+                if(values.includes('always ask') && values.length > 1){
+                    let allwVal= values.filter(val => val !== 'always ask');
+                    $(this).val(allwVal).trigger('change');
+                }
+                if(values.length == 0){
+                    $(this).val('always ask').trigger('change');
+                }
+            }); 
+
+            // show other settings form
+            $('#editDownloadCopySettingBtn').on('click', function(e) {
+                e.preventDefault();
+                $('.error-msg').text('');
+                $('#download_copy').val(othersettings.download_copy.split(','))
+                .select2({
+                    placeholder: 'Select Options',
+                    allowClear: true,
+                });     
+                $('#downloadcopysettingform').removeClass('d-none');
+                $(this).addClass('d-none');
+            })
+
+            // hide other settings form
+            $('#cancelDownloadCopySettingBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#downloadcopysettingform')[0].reset();
+                $('#downloadcopysettingform').addClass('d-none');
+                $('#editDownloadCopySettingBtn').removeClass('d-none');
+            })
+
+            // submit edit customer id form
+            $('#downloadcopysettingform').on('submit', function(e) {
+                e.preventDefault();
+                loadershow();
+                $('.error-msg').text('');
+                const formdata = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('downloadcopysetting.store') }}",
+                    data: formdata,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.status == 200) {
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+                            $('#downloadcopysettingform')[0].reset();
+                            $('#downloadcopysettingform').addClass('d-none');
+                            $('#editDownloadCopySettingBtn').removeClass('d-none');
                             getlogisticothersettings();
                         } else {
                             Toast.fire({

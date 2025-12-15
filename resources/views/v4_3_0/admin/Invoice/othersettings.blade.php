@@ -70,6 +70,7 @@
                                                     <option value="" selected disabled>Select Input Type</option>
                                                     <option value="text">Text</option>
                                                     <option value="year">Year</option>
+                                                    <option value="nextyear">Next Year</option>
                                                     <option value="month">Month</option>
                                                     <option value="date">Date</option>
                                                     <option value="customerid">Customer Id</option>
@@ -1115,7 +1116,9 @@
                             // Update the HTML content
                             $.each(data, function(key, value) {
                                 var pattern = value.invoice_pattern;
-                                var modifiedfiedpattern = pattern.replace('year',
+                                var modifiedfiedpattern = 
+                                pattern.replace('nextyear',
+                                        "<span style='color:tomato'>nextyear</span>").replace('year',
                                         "<span style='color:goldenrod'>year</span>")
                                     .replace('month',
                                         "<span style='color:lawngreen'>month</span>")
@@ -1199,13 +1202,20 @@
                         <span class="text-center"><i data-type="month" class="ri-delete-bin-line btn btn-primary iq-bg-danger invoicepatterninputdlt"></i></span>
                     </div>
                 `);
-                } else if (value == 'year') {
+                } else if (value == 'nextyear') {
                     $('#invoicenumberinputs').append(`
-                    <div class="col-sm-2 text-center invoicepatterninput">
-                        <input type="text" data-type="year"  readonly value="year"  class="form-control">
-                        <span class="text-center"><i data-type="year" class="ri-delete-bin-line btn btn-primary iq-bg-danger invoicepatterninputdlt"></i></span>
-                    </div>
-                `);
+                        <div class="col-sm-2 text-center invoicepatterninput">
+                            <input type="text" data-type="nextyear"  readonly value="nextyear"  class="form-control">
+                            <span class="text-center"><i data-type="nextyear" class="ri-delete-bin-line btn btn-primary iq-bg-danger invoicepatterninputdlt"></i></span>
+                        </div>
+                    `);
+                }else if (value == 'year') {
+                    $('#invoicenumberinputs').append(`
+                        <div class="col-sm-2 text-center invoicepatterninput">
+                            <input type="text" data-type="year"  readonly value="year"  class="form-control">
+                            <span class="text-center"><i data-type="year" class="ri-delete-bin-line btn btn-primary iq-bg-danger invoicepatterninputdlt"></i></span>
+                        </div>
+                    `);
                 } else if (value == 'customerid') {
                     $('#invoicenumberinputs').append(`
                     <div class="col-sm-2 text-center invoicepatterninput">

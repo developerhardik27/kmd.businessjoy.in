@@ -469,8 +469,12 @@ class PdfController extends Controller
    }
 
 
-   public function generateconsignorcopypdf(int $id)
-   {
+   public function generateconsignorcopypdf(Request $request,int $id)
+   {  
+      if(!$request->copies){
+         abort(404,'invalid url');
+      }
+      
       request()->merge([
          'company_id' => session('company_id'),
          'user_id' => session('user_id')
@@ -478,11 +482,11 @@ class PdfController extends Controller
 
       $consignor_copy = $this->consignor_copyModel::findOrFail($id);
 
-      $jsonconsignercopydata = app('App\Http\Controllers\\' . $this->version . '\api\consignorcopyController')->show($id);
+      $jsonconsignorcopydata = app('App\Http\Controllers\\' . $this->version . '\api\consignorcopyController')->show($id);
 
-      $jsonconsignercopyContent = $jsonconsignercopydata->getContent();
+      $jsonconsignercopyContent = $jsonconsignorcopydata->getContent();
 
-      $consignercopydata = json_decode($jsonconsignercopyContent, true);
+      $consignorcopydata = json_decode($jsonconsignercopyContent, true);
 
       $options = [
          'isPhpEnabled' => true,
@@ -498,15 +502,17 @@ class PdfController extends Controller
          'defaultFont' => 'Helvetica'
       ];
 
-      if ($consignercopydata['status'] != 200) {
+      if ($consignorcopydata['status'] != 200) {
          return redirect()->back()->with('message', 'failed');
       }
+
+      $consignorcopydata['data']['copies'] = explode(',',$request->copies);
       
-      // return view($this->version . '.admin.PDF.consignorcopy', $consignercopydata);
+      // return view($this->version . '.admin.PDF.consignorcopy', $consignorcopydata);
 
-      $pdfname = 'ConsignorCopy_' . $consignercopydata['data']['consignorcopy']['consignment_note_no'] . '_' . $consignercopydata['data']['consignorcopy']['consignor'] . '_' . date('d-M-y') . '.pdf';
+      $pdfname = 'ConsignorCopy_' . $consignorcopydata['data']['consignorcopy']['consignment_note_no'] . '_' . $consignorcopydata['data']['consignorcopy']['consignor'] . '_' . date('d-M-y') . '.pdf';
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.consignorcopy', $consignercopydata)->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.consignorcopy', $consignorcopydata)->setPaper('a4', 'portrait');
 
       return $pdf->stream($pdfname);
    }
