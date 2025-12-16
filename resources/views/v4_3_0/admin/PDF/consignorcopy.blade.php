@@ -18,9 +18,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> {{ ucfirst($companydetails['name']) }} - Consignor Copy</title>
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css')}}">
 
     <style>
         @page {
@@ -141,8 +139,7 @@
     {{--  Image Watermark --}}
     <div class="watermark">
         @if ($companydetails['watermark_img'] != '')
-            <img
-                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['watermark_img']))) }}">
+            <img src="{{ public_path('uploads/' . $companydetails['watermark_img']) }}" alt="WaterMark">
         @endif
     </div>
     @foreach ($copies as $copy)
@@ -157,7 +154,7 @@
                         <td class="vertical-align-center">
                             <div class="text-center vertical-align-center" style="height: auto">
                                 @if ($companydetails['img'] != '')
-                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
+                                    <img src="{{ public_path('uploads/' . $companydetails['img']) }}"
                                         alt="Company logo">
                                 @endif
                             </div>
@@ -356,7 +353,7 @@
                             <td colspan="2" rowspan="2" class="text-center">
                                 <p><b>For,{{ ucfirst($companydetails['name']) }}</b> </p>
                                 @if ($othersettings['authorized_signatory'] == 'company_signature' && isset($companydetails['pr_sign_img']))
-                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}"
+                                    <img src="{{ public_path('uploads/' . $companydetails['pr_sign_img']) }}"
                                         alt="Company logo" style="max-height:100px;">
                                 @else
                                     <br><br><br>

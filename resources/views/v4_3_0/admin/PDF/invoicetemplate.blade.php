@@ -85,9 +85,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }} - invoicePDf</title>
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css')}}">
     <style>
         @page {
             margin: 15px;
@@ -367,7 +365,7 @@
                         <td style="width: 40%;padding:0;text-align: center;" @class(['vertical-align-custom' => $isVerticalAlign])>
                             <div style="display: inline-block;" class="vertical-align-center">
                                 @if ($companydetails['img'] != '')
-                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
+                                    <img src="{{ public_path('uploads/' . $companydetails['img']) }}"
                                         class="rounded mt-auto mx-auto d-block" alt="Company logo"
                                         style="max-width: 300px;max-height:150px;">
                                 @endif
