@@ -81,10 +81,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }} - Quotation PDf</title>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }} " />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css')}}">
     <style>
         @page {
             margin: 15px;
@@ -200,7 +197,7 @@
                     <tr>
                         <td style="text-align: center;">
                             @if ($companydetails['img'] != '')
-                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}"
+                                <img src="{{ public_path('uploads/' . $companydetails['img']) }}"
                                     alt="Company logo" style="max-width: 300px; max-height: 150px;">
                             @endif
                         </td>

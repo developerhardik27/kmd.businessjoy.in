@@ -77,8 +77,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }} - Payment Reciept</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css')}}">
     <style>
         .bottom-border-input {
             border: none;
@@ -208,7 +207,7 @@
             <tr>
                 <td style="vertical-align: top;width:33%;">
                     <div style="display: inline-block;">
-                        <img @if ($companydetails['img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['img']))) }}" @endif
+                        <img @if ($companydetails['img'] != '') src="{{ public_path('uploads/' . $companydetails['img']) }}" @endif
                             class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
                     </div>
                 </td>
@@ -499,7 +498,7 @@
             <tr>
                 <td>
                     <div style="display: inline-block;">
-                        <img @if ($companydetails['pr_sign_img'] != '') src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('uploads/' . $companydetails['pr_sign_img']))) }}" @endif
+                        <img @if ($companydetails['pr_sign_img'] != '') src="{{ public_path('uploads/' . $companydetails['pr_sign_img']) }}" @endif
                             class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
                     </div>
                 </td>
