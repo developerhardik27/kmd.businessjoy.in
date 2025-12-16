@@ -147,11 +147,13 @@
                             </form>
                         </div>
                     </div>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse"
-                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-label="Toggle navigation">
-                        <i class="ri-menu-3-line"></i>
-                    </button>
+                    @if (count(session('navmanu')) > 1)
+                        <button class="navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-label="Toggle navigation">
+                            <i class="ri-menu-3-line"></i>
+                        </button>
+                    @endif
                     <div class="iq-menu-bt align-self-center">
                         <div class="wrapper-menu">
                             <div class="main-circle">
