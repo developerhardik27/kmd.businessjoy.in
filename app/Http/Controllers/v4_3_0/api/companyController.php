@@ -725,7 +725,7 @@ class companyController extends commonController
                     if ($sign_image) {
                         $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
                         $sign_image->move($dirPath, $sign_imageName); // upload signature image
-                        $sign_imageName = $id . '/' . $sign_image;
+                        $sign_imageName = $id . '/' . $sign_imageName;
                     }
                 }
 
