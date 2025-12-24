@@ -185,9 +185,9 @@ class tblquotationcolumnController extends commonController
             return $this->successresponse(500, 'message', 'You are unauthorized');
         }
 
-        $quotationcolumn = $this->tbl_quotation_columnModel::get();
+        $quotationcolumn = $this->tbl_quotation_columnModel::find($id);
 
-        if ($quotationcolumn->isEmpty()) {
+        if (!$quotationcolumn) {
             return $this->successresponse(404, 'message', "No such quotation column found!");
         }
         if ($this->rp['quotationmodule']['quotationmngcol']['alldata'] != 1) {
