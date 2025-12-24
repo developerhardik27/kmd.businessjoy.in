@@ -82,7 +82,6 @@ class PaymentController extends commonController
      */
     public function pendingpayment(string $id)
     {
-        dd(200);
         $payment = $this->payment_detailsModel::where('inv_id', $id)
             ->where('is_deleted', 0)
             ->orderBy('id', 'desc')
