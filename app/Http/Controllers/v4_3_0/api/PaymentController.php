@@ -49,7 +49,6 @@ class PaymentController extends commonController
 
     public function paymentdetail(string $id)
     {
-
         $paymentdetail = $this->payment_detailsModel::select(
             'id',
             'amount',
@@ -83,7 +82,6 @@ class PaymentController extends commonController
      */
     public function pendingpayment(string $id)
     {
-
         $payment = $this->payment_detailsModel::where('inv_id', $id)
             ->where('is_deleted', 0)
             ->orderBy('id', 'desc')
