@@ -653,8 +653,10 @@
                         }
                         loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        $('#paymentmodal').modal('hide');
+                    error: function(xhr, status, error) { // if calling api request error
+                        setTimeout(() => {
+                            $('#paymentmodal').modal('hide');
+                        }, 500); 
                         loaderhide();
                         console.log(xhr.responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
