@@ -654,9 +654,9 @@
                         loaderhide();
                     },
                     error: function(xhr, status, error) { // if calling api request error 
+                        $('#paymentmodal').modal('hide');
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                        console.log(xhr.responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
                     }
                 });
