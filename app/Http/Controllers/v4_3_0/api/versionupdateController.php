@@ -910,6 +910,18 @@ class versionupdateController extends commonController
                                         if (!isset($jsonrp['logisticmodule']['lrcolumnmapping'])) {
                                             $jsonrp['logisticmodule']['lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
+                                        if (!isset($jsonrp['invoicemodule']['invoiceformsetting'])) {
+                                            $jsonrp['invoicemodule']['invoiceformsetting'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (isset($jsonrp['invoicemodule']['formsetting'])) {
+                                            unset($jsonrp['invoicemodule']['formsetting']);
+                                        }
+                                        if (!isset($jsonrp['logisticmodule']['logisticformsetting'])) {
+                                            $jsonrp['logisticmodule']['logisticformsetting'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if(isset($jsonrp['logisticmodule']['formsetting'])) {
+                                            unset($jsonrp['logisticmodule']['formsetting']);
+                                        }
                                         $updatedRpJson = json_encode($jsonrp);
                                         // Update the database
                                         DB::connection('dynamic_connection')->table('user_permissions')

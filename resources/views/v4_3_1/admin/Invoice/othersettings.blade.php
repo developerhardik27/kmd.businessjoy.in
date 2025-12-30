@@ -48,8 +48,8 @@
             @if (session('user_permissions.invoicemodule.invoicenumbersetting.edit') == 1)
                 <div class="row">
                     <div class="col-sm-12 col-lg-12">
-                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice Number Settings"
-                            type="button" id="editinvoicenumberBtn"
+                        <button data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Edit Invoice Number Settings" type="button" id="editinvoicenumberBtn"
                             class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0 patternsettingBtn">
                             <i class="ri-edit-fill"></i>
                         </button>
@@ -78,7 +78,8 @@
                                                     <option value="cidai">Auto Increment According To Customer</option>
                                                 </select>
                                                 <span class="text-info">You can use auto increment input only once</span>
-                                                <span class="error-msg" id="error-overdue_day" style="color: red"></span><br>
+                                                <span class="error-msg" id="error-overdue_day"
+                                                    style="color: red"></span><br>
                                             </div>
                                             <div class="col-sm-4">
                                                 <label for="patterntype">Invoice Pattern Type</label>
@@ -130,7 +131,8 @@
                                                 <div class="custom-control custom-switch custom-control-inline">
                                                     <input type="checkbox" class="custom-control-input" checked=""
                                                         id="manualinvnumberswitch" value="yes">
-                                                    <label class="custom-control-label" for="manualinvnumberswitch">Yes</label>
+                                                    <label class="custom-control-label"
+                                                        for="manualinvnumberswitch">Yes</label>
                                                 </div>
                                             </span>
                                         </td>
@@ -142,7 +144,8 @@
                                                 <div class="custom-control custom-switch custom-control-inline">
                                                     <input type="checkbox" class="custom-control-input" checked=""
                                                         id="manualinvdateswitch" value="yes">
-                                                    <label class="custom-control-label" for="manualinvdateswitch">Yes</label>
+                                                    <label class="custom-control-label"
+                                                        for="manualinvdateswitch">Yes</label>
                                                 </div>
                                             </span>
                                         </td>
@@ -178,7 +181,8 @@
                                                     required />
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <textarea class="form-control" name='t_and_c' id="t_and_c" rows="2"
@@ -249,22 +253,22 @@
 
                                         <div class="col-sm-6 mb-2">
                                             Invoice Overdue Days :
-                                            <input type="number" id="overdue_day" name="overdue_day" class="form-control"
-                                                min="1" required>
+                                            <input type="number" id="overdue_day" name="overdue_day"
+                                                class="form-control" min="1" required>
                                             <span class="error-msg text-danger" id="error-overdue_day"></span>
                                         </div>
 
                                         <div class="col-sm-6 mb-2">
                                             Year Starting Date :
-                                            <input type="date" id="year_start_date" name="year_start_date" class="form-control"
-                                                required>
+                                            <input type="date" id="year_start_date" name="year_start_date"
+                                                class="form-control" required>
                                             <span class="error-msg text-danger" id="error-year_start_date"></span>
                                         </div>
 
                                         <div class="col-sm-6 mb-2">
                                             No. Of Blank Rows :
-                                            <input type="number" min="0" id="no_of_blank_rows" name="no_of_blank_rows"
-                                                class="form-control" required>
+                                            <input type="number" min="0" id="no_of_blank_rows"
+                                                name="no_of_blank_rows" class="form-control" required>
                                             <span class="error-msg text-danger" id="error-no_of_blank_rows"></span>
                                         </div>
 
@@ -284,16 +288,21 @@
                                         </div>
 
                                     </div>
-
-                                    <div class="mt-3">
-                                        <button type="button" id="othersetting-cancelbtn"
-                                            class="btn btn-secondary float-right">Cancel</button>
-
-                                        <button type="reset" class="btn iq-bg-danger float-right mr-2">Reset</button>
-
-                                        <button type="submit" class="btn btn-primary float-right">Update</button>
+                                    <div class="form-group">
+                                        <div class="form-row">
+                                            <div class="col-sm-12 mt-2">
+                                                <button type="button" id="othersetting-cancelbtn" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right">Cancel</button>
+                                                <button type="reset" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Reset"
+                                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
+                                                <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Update Settings"
+                                                    class="btn btn-primary float-right my-0">Update</button>
+                                            </div>
+                                        </div>
                                     </div>
-
                                     <hr>
                                 </form>
 
@@ -305,7 +314,8 @@
                                     <div class="custom-control custom-switch custom-control-inline">
                                         <input type="checkbox" class="custom-control-input" disabled
                                             id="god_namedisabledswitch">
-                                        <label class="custom-control-label" for="god_namedisabledswitch" id="godnamestatus">
+                                        <label class="custom-control-label" for="god_namedisabledswitch"
+                                            id="godnamestatus">
                                         </label>
                                     </div>
                                 </span>
@@ -335,16 +345,18 @@
                                             <div class="col-sm-6">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" placeholder="token" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
-                                                SGST : <input type="number" id="sgst" name='sgst' class="form-control"
-                                                    placeholder="SGST" min="1" step="0.01" required />
+                                                SGST : <input type="number" id="sgst" name='sgst'
+                                                    class="form-control" placeholder="SGST" min="1"
+                                                    step="0.01" required />
                                                 <span class="error-msg" id="error-sgst" style="color: red"></span><br>
                                             </div>
                                             <div class="col-sm-6">
-                                                CGST : <input type="number" id="cgst" name='cgst' class="form-control"
-                                                    placeholder="CGST" step="0.01" required />
+                                                CGST : <input type="number" id="cgst" name='cgst'
+                                                    class="form-control" placeholder="CGST" step="0.01" required />
                                                 <span class="error-msg" id="error-cgst" style="color: red"></span>
                                             </div>
                                         </div>
@@ -354,8 +366,9 @@
                                                     class="custom-control custom-switch custom-switch-text custom-control-inline">
                                                     <div class="custom-switch-inner">
                                                         <p class="mb-0">
-                                                            <input type="checkbox" name="gst" class="custom-control-input"
-                                                                id="gstswitch" value="1">
+                                                            <input type="checkbox" name="gst"
+                                                                class="custom-control-input" id="gstswitch"
+                                                                value="1">
                                                             <label class="custom-control-label" for="gstswitch"
                                                                 data-on-label="On" data-off-label="Off">
                                                             </label>
@@ -386,8 +399,8 @@
                                 CGST : <span id="viewcgst"> </span> <br>
                                 Combined GST : <span id="viewgst">
                                     <div class="custom-control custom-switch custom-control-inline">
-                                        <input type="checkbox" class="custom-control-input" disabled="" checked=""
-                                            id="gstdisabledswitch">
+                                        <input type="checkbox" class="custom-control-input" disabled=""
+                                            checked="" id="gstdisabledswitch">
                                         <label class="custom-control-label" for="gstdisabledswitch">active</label>
                                     </div>
                                 </span> <br>
@@ -397,8 +410,8 @@
                 @endif
                 @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.edit') == 1)
                     <div class="col-md-6">
-                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Where To Start Customer ID"
-                            type="button" id="editcustomeridBtn"
+                        <button data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Where To Start Customer ID" type="button" id="editcustomeridBtn"
                             class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
                             <i class="ri-edit-fill"></i>
                         </button>
@@ -418,12 +431,13 @@
                                                     required />
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <label for="customer_id">Customer Id</label>
-                                                <input type="number" class="form-control" min="0" name="customer_id"
-                                                    id="customer_id">
+                                                <input type="number" class="form-control" min="0"
+                                                    name="customer_id" id="customer_id">
                                                 <span class="error-msg" id="error-customer_id" style="color: red"></span>
                                             </div>
                                         </div>
@@ -448,10 +462,10 @@
                     </div>
                 @endif
 
-                @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.edit') == 1)
+                @if (session('user_permissions.invoicemodule.invoiceformsetting.edit') == 1)
                     <div class="col-md-6">
-                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Form Settings" type="button"
-                            id="editcustomerformsettingsBtn"
+                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Form Settings"
+                            type="button" id="editcustomerformsettingsBtn"
                             class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
                             <i class="ri-edit-fill"></i>
                         </button>
@@ -471,7 +485,8 @@
                                                     required />
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <label for="customer_type">Custom Drop Down</label>
@@ -503,8 +518,9 @@
                                         </div>
                                         <div class="form-row">
                                             <div class="col-sm-12 mt-2">
-                                                <button type="btn" id="cancelcustomerformsettingBtn" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Cancel"
+                                                <button type="btn" id="cancelcustomerformsettingBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset"
@@ -537,7 +553,7 @@
     @endisset
 
     <script>
-        $('document').ready(function () {
+        $('document').ready(function() {
 
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
@@ -588,12 +604,13 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.overdueday != '') {
                             var data = response.overdueday[0];
                             customer_dropdown = data['customer_dropdown'];
 
-                            document.querySelectorAll('input[name="customer_type[]"]').forEach((checkbox) => {
+                            document.querySelectorAll('input[name="customer_type[]"]').forEach((
+                                checkbox) => {
                                 if (customer_dropdown.includes(checkbox.value)) {
                                     checkbox.checked = true;
                                 }
@@ -637,10 +654,12 @@
                             }
                             if (god_name == 1) {
                                 $('#godnameswith').prop('checked', true); // Check the checkbox
-                                $('#god_namedisabledswitch').prop('checked', true); // Check the checkbox
+                                $('#god_namedisabledswitch').prop('checked',
+                                    true); // Check the checkbox
                             } else {
                                 $('#godnameswith').prop('checked', false); // Uncheck the checkbox
-                                $('#god_namedisabledswitch').prop('checked', false); // Uncheck the checkbox
+                                $('#god_namedisabledswitch').prop('checked',
+                                    false); // Uncheck the checkbox
                             }
                             if (invoice_number == 1) {
                                 $('#manualinvnumberswitch').prop('checked', true); // Check the checkbox
@@ -674,7 +693,7 @@
                         loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -686,7 +705,7 @@
             getoverduedays();
 
             // show overdue day and year start from  settings form
-            $('#editoverdueday').on('click', function () {
+            $('#editoverdueday').on('click', function() {
                 $(this).hide();
                 getoverduedays();
                 if (overdueday != '') {
@@ -695,25 +714,26 @@
             });
 
             // hide overdue day and year start from settings form on click othersetting-cancelbtn
-            $('#othersetting-cancelbtn').on('click', function () {
+            $('#othersetting-cancelbtn').on('click', function() {
                 $('#editoverdueday').show();
                 $('#overduedaysform').hide();
                 $('#overduedaysform')[0].reset();
             });
 
             // submit over due day and year start from setting form
-            $('#overduedaysform').submit(function (event) {
+            $('#overduedaysform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 editid = $('#overdue_day').data('id');
-                let getOverDueDaysUpdateUrl = "{{ route('getoverduedays.update', '__editId__') }}".replace('__editId__', editid);
+                let getOverDueDaysUpdateUrl = "{{ route('getoverduedays.update', '__editId__') }}".replace(
+                    '__editId__', editid);
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
                     url: getOverDueDaysUpdateUrl,
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             $('#editoverdueday').show();
@@ -738,7 +758,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -756,30 +776,31 @@
              */
 
             // show gst settings form
-            $('#editgstsettings').on('click', function () {
+            $('#editgstsettings').on('click', function() {
                 getoverduedays();
                 $('#gstsettingsform').show();
             });
 
             //hide gst settings form
-            $('#gst-cancelbtn').on('click', function () {
+            $('#gst-cancelbtn').on('click', function() {
                 $('#gstsettingsform').hide();
                 $('#gstsettingsform')[0].reset();
             });
 
             //submit gst settings form
-            $('#gstsettingsform').submit(function (event) {
+            $('#gstsettingsform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 editid = $('#sgst').data('id');
-                let gstSettingsUpdateUrl = "{{ route('gstsettingsupdate.update', '__editId__') }}".replace('__editId__', editid);
+                let gstSettingsUpdateUrl = "{{ route('gstsettingsupdate.update', '__editId__') }}".replace(
+                    '__editId__', editid);
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
                 $.ajax({
                     type: 'POST',
                     url: gstSettingsUpdateUrl,
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             $('#gstsettingsform').hide();
@@ -803,7 +824,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -833,12 +854,13 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.termsandconditions != '') {
                             global_response = response;
                             var id = 1;
-                            $.each(response.termsandconditions, function (key, value) {
-                                $('#tabledata').append(` <tr>
+                            $.each(response.termsandconditions, function(key, value) {
+                                $('#tabledata').append(
+                                    ` <tr>
                                                                                                                                             <td>${id}</td>
                                                                                                                                             <td class='text-left' style="white-space: pre-line;"><div id="tcdiv">${value.t_and_c}</div></td>
                                                                                                                                             <td>
@@ -856,7 +878,8 @@
                                                                                                                                                     </button>
                                                                                                                                                 </span>
                                                                                                                                             </td>
-                                                                                                                                        </tr>`);
+                                                                                                                                        </tr>`
+                                );
                                 id++;
                             });
                             $('[data-toggle="tooltip"]').tooltip('dispose');
@@ -872,7 +895,7 @@
                         loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -885,12 +908,12 @@
             loaddata();
 
             //  t & cstatus update(active to inactive)            
-            $(document).on("click", ".status-active", function () {
+            $(document).on("click", ".status-active", function() {
                 element = $(this);
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to change status to inactive?', // Text
-                    'Yes, change',  // Confirm button text
+                    'Yes, change', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
@@ -902,12 +925,12 @@
             });
 
             //  t & c status update (inactive to active)            
-            $(document).on("click", ".status-deactive", function () {
+            $(document).on("click", ".status-deactive", function() {
                 element = $(this);
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to change status to active?', // Text
-                    'Yes, change',  // Confirm button text
+                    'Yes, change', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
@@ -920,7 +943,8 @@
 
             //chagne t&c status update function (active/inactive)
             function changetcstatus(tcid, statusvalue) {
-                let termsAndConditionsStatusUpdateUrl = "{{ route('termsandconditions.statusupdate', '__tcId__') }}".replace('__tcId__', tcid);
+                let termsAndConditionsStatusUpdateUrl =
+                    "{{ route('termsandconditions.statusupdate', '__tcId__') }}".replace('__tcId__', tcid);
                 $.ajax({
                     type: 'PUT',
                     url: termsAndConditionsStatusUpdateUrl,
@@ -930,7 +954,7 @@
                         company_id: "{{ session()->get('company_id') }}",
                         user_id: "{{ session()->get('user_id') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200) {
                             Toast.fire({
                                 icon: "success",
@@ -950,7 +974,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -960,19 +984,21 @@
             }
 
             // delete terms and conditions              
-            $(document).on("click", ".del-btn", function () {
+            $(document).on("click", ".del-btn", function() {
                 var deleteid = $(this).data('id');
                 var row = this;
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to delete this record?', // Text
-                    'Yes, delete',  // Confirm button text
+                    'Yes, delete', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
                         // Success callback
                         loadershow();
-                        let termsAndConditionsDeleteUrl = "{{ route('termsandconditions.delete', '__deleteId__') }}".replace('__deleteId__', deleteid);
+                        let termsAndConditionsDeleteUrl =
+                            "{{ route('termsandconditions.delete', '__deleteId__') }}".replace(
+                                '__deleteId__', deleteid);
                         $.ajax({
                             type: 'PUT',
                             url: termsAndConditionsDeleteUrl,
@@ -981,7 +1007,7 @@
                                 company_id: "{{ session()->get('company_id') }}",
                                 user_id: "{{ session()->get('user_id') }}",
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status == 200) {
                                     Toast.fire({
                                         icon: "success",
@@ -1001,10 +1027,12 @@
                                 }
                                 loaderhide();
                             },
-                            error: function (xhr, status, error) { // if calling api request error 
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
-                                    .responseText); // Log the full error response for debugging
+                                    .responseText
+                                ); // Log the full error response for debugging
                                 handleAjaxError(xhr);
                             }
                         });
@@ -1013,14 +1041,14 @@
             });
 
             // show add new terms and conditions form on click add new terms and condition btn
-            $('#newtcBtn').on('click', function (e) {
+            $('#newtcBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#tcform').removeClass('d-none');
                 $('#newtcBtn').addClass('d-none');
             })
 
             // hide add new terms and conditions form on click cancel tc button
-            $('#canceltcBtn').on('click', function (e) {
+            $('#canceltcBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#tcform')[0].reset();
                 $('#t_and_c').summernote('code', '');
@@ -1029,13 +1057,13 @@
             })
 
             // reset add new terms and conditions form on  click reset tc button
-            $('#resettcBtn').on('click', function (e) {
+            $('#resettcBtn').on('click', function(e) {
                 $('#tcform')[0].reset();
                 $('#t_and_c').summernote('code', '');
             })
 
             // submit terms and conditions form 
-            $('#tcform').submit(function (event) {
+            $('#tcform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 url = "{{ route('termsandconditions.store') }}";
@@ -1045,7 +1073,7 @@
                     type: 'POST',
                     url: url,
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1069,7 +1097,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1087,13 +1115,13 @@
              */
 
             // invoice number settings  user can add or not enter manual invoice number during create invoice
-            $('#manualinvnumberswitch').on('change', function () {
+            $('#manualinvnumberswitch').on('change', function() {
                 var val = $(this).prop('checked') ? 'yes' : 'no';
                 element = $(this);
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to update this setting?', // Text
-                    'Yes, update',  // Confirm button text
+                    'Yes, update', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
@@ -1112,7 +1140,7 @@
                                 token: "{{ session()->get('api_token') }}",
                                 status: invnumberstatus
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status == 200) {
                                     Toast.fire({
                                         icon: "success",
@@ -1127,10 +1155,12 @@
                                 loaderhide();
                                 // You can update your HTML with the data here if needed
                             },
-                            error: function (xhr, status, error) { // if calling api request error 
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
-                                    .responseText); // Log the full error response for debugging
+                                    .responseText
+                                ); // Log the full error response for debugging
                                 handleAjaxError(xhr);
                             }
                         });
@@ -1148,14 +1178,14 @@
             });
 
             // invoice number settings  user can add or not enter manual invoice date during create invoice
-            $('#manualinvdateswitch').on('change', function () {
+            $('#manualinvdateswitch').on('change', function() {
                 var val = $(this).prop('checked') ? 'yes' : 'no';
                 element = $(this);
 
                 showConfirmationDialog(
-                    'Are you sure?',  // Title
+                    'Are you sure?', // Title
                     'to update this setting?', // Text
-                    'Yes, update',  // Confirm button text
+                    'Yes, update', // Confirm button text
                     'No, cancel', // Cancel button text
                     'question', // Icon type (question icon)
                     () => {
@@ -1174,7 +1204,7 @@
                                 token: "{{ session()->get('api_token') }}",
                                 status: invdatestatus
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status == 200) {
                                     Toast.fire({
                                         icon: "success",
@@ -1189,10 +1219,12 @@
                                 loaderhide();
                                 // You can update your HTML with the data here if needed
                             },
-                            error: function (xhr, status, error) { // if calling api request error 
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
-                                    .responseText); // Log the full error response for debugging
+                                    .responseText
+                                ); // Log the full error response for debugging
                                 handleAjaxError(xhr);
                             }
                         });
@@ -1218,28 +1250,29 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.pattern != '') {
                             var data = response.pattern[0];
                             // Update the HTML content
-                            $.each(data, function (key, value) {
+                            $.each(data, function(key, value) {
                                 var pattern = value.invoice_pattern;
                                 var modifiedfiedpattern =
                                     pattern.replace('nextyear',
-                                        "<span style='color:tomato'>nextyear</span>").replace('year',
-                                            "<span style='color:goldenrod'>year</span>")
-                                        .replace('month',
-                                            "<span style='color:lawngreen'>month</span>")
-                                        .replace('date',
-                                            "<span style='color:darkmagenta'>date</span>")
-                                        .replace('customerid',
-                                            "<span style='color:lightseagreen'>customerid</span>")
-                                        .replace('cidai', "<span style='color:silver'>" + response
-                                            .pattern[1].customer_id +
-                                            "(Auto increment as per customer)</span>")
-                                        .replace('ai', "<span style='color:red'>" + value
-                                            .start_increment_number +
-                                            "(Auto increment as per invoice)");
+                                        "<span style='color:tomato'>nextyear</span>").replace(
+                                        'year',
+                                        "<span style='color:goldenrod'>year</span>")
+                                    .replace('month',
+                                        "<span style='color:lawngreen'>month</span>")
+                                    .replace('date',
+                                        "<span style='color:darkmagenta'>date</span>")
+                                    .replace('customerid',
+                                        "<span style='color:lightseagreen'>customerid</span>")
+                                    .replace('cidai', "<span style='color:silver'>" + response
+                                        .pattern[1].customer_id +
+                                        "(Auto increment as per customer)</span>")
+                                    .replace('ai', "<span style='color:red'>" + value
+                                        .start_increment_number +
+                                        "(Auto increment as per invoice)");
                                 if (value.pattern_type == "global") {
                                     $('#globalinvoicepattern').html(modifiedfiedpattern);
                                 } else {
@@ -1259,7 +1292,7 @@
                         loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1271,13 +1304,13 @@
             getinvoicepatterns();
 
             // show add or edit invoice number pattern form on click add/edit invoice number btn
-            $('#editinvoicenumberBtn').on('click', function () {
+            $('#editinvoicenumberBtn').on('click', function() {
                 $(this).addClass('d-none');
                 $('#invoicenumberpatternform').removeClass('d-none');
             });
 
             // hide add/edit invoice number pattern form
-            $('#cancelnumberpattern').on('click', function () {
+            $('#cancelnumberpattern').on('click', function() {
                 $('#invoicenumberinputs').html(' ');
                 $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',
                     false);
@@ -1286,7 +1319,7 @@
             });
 
             // append dynamic input on select type during create invoice number pattern
-            $('#invoicepattern').on('change', function () {
+            $('#invoicepattern').on('change', function() {
 
                 var value = $(this).val();
                 if (value == 'text') {
@@ -1352,7 +1385,7 @@
             });
 
             //delete dynamic input on click delete btn  during create invoice number pattern
-            $(document).on('click', '.invoicepatterninputdlt', function () {
+            $(document).on('click', '.invoicepatterninputdlt', function() {
                 var inputtype = $(this).data('type');
 
                 if (inputtype === 'ai' || inputtype === 'cidai') {
@@ -1363,25 +1396,25 @@
             });
 
             // remove all dynamic appended input type on click reset pattern btn
-            $('#resetpatterninput').on('click', function () {
+            $('#resetpatterninput').on('click', function() {
                 $('#invoicenumberinputs').html(' ');
                 $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled',
                     false);
             });
 
             // submit invoice number pattern form
-            $('#invoicenumberpatternform').on('submit', function (e) {
+            $('#invoicenumberpatternform').on('submit', function(e) {
                 e.preventDefault();
 
                 var inputs = [];
-                $('div.invoicepatterninput > input').each(function () {
+                $('div.invoicepatterninput > input').each(function() {
                     inputs.push({
                         type: $(this).data('type'),
                         value: $(this).val()
                     });
                 });
 
-                var hasAnyAiInput = inputs.some(function (input) {
+                var hasAnyAiInput = inputs.some(function(input) {
                     return input.type === 'ai' || input.type === 'cidai';
                 });
 
@@ -1399,7 +1432,7 @@
                         type: 'POST',
                         url: "{{ route('invoicepattern.store') }}",
                         data: data,
-                        success: function (response) {
+                        success: function(response) {
                             // Handle the response from the server
                             if (response.status == 200) {
                                 // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1409,15 +1442,17 @@
                                 });
                                 $('#invoicenumberpatternform')[0].reset();
                                 $('#invoicenumberinputs').html(' ');
-                                $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled', false);
+                                $('#invoicepattern').find(
+                                    'option[value="ai"],option[value="cidai"]').prop(
+                                    'disabled', false);
                                 $('#invoicenumberpatternform').addClass('d-none');
                                 $('#editinvoicenumberBtn').removeClass('d-none');
                                 getinvoicepatterns();
                             } else if (response.status == 1) {
                                 showConfirmationDialog(
-                                    'Are you sure?',  // Title
+                                    'Are you sure?', // Title
                                     response.message, // Text
-                                    'Yes, ',  // Confirm button text
+                                    'Yes, ', // Confirm button text
                                     'No, cancel', // Cancel button text
                                     'question', // Icon type (question icon)
                                     () => {
@@ -1428,7 +1463,9 @@
                                         // Error callback
                                         $('#invoicenumberpatternform')[0].reset();
                                         $('#invoicenumberinputs').html(' ');
-                                        $('#invoicepattern').find('option[value="ai"],option[value="cidai"]').prop('disabled', false);
+                                        $('#invoicepattern').find(
+                                                'option[value="ai"],option[value="cidai"]')
+                                            .prop('disabled', false);
                                     }
                                 );
                             } else if (response.status == 500) {
@@ -1444,7 +1481,7 @@
                             }
                             loaderhide();
                         },
-                        error: function (xhr, status, error) { // if calling api request error 
+                        error: function(xhr, status, error) { // if calling api request error 
                             loaderhide();
                             console.log(xhr
                                 .responseText); // Log the full error response for debugging
@@ -1474,7 +1511,7 @@
                     type: 'POST',
                     url: "{{ route('invoicepattern.store') }}",
                     data: data,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1501,7 +1538,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1511,7 +1548,7 @@
             }
 
             // show edit customer id form
-            $('#editcustomeridBtn').on('click', function (e) {
+            $('#editcustomeridBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#cidform').removeClass('d-none');
                 $('#formsettingform').removeClass('d-none');
@@ -1520,7 +1557,7 @@
 
 
             // hide edit customer id form
-            $('#cancelcustomeridBtn').on('click', function (e) {
+            $('#cancelcustomeridBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#cidform')[0].reset();
                 $('#cidform').addClass('d-none');
@@ -1528,7 +1565,7 @@
             })
 
             // submit edit customer id form
-            $('#cidform').on('submit', function (e) {
+            $('#cidform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
                 const formdata = $(this).serialize();
@@ -1536,7 +1573,7 @@
                     type: 'POST',
                     url: "{{ route('customerid.store') }}",
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1561,7 +1598,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1575,21 +1612,22 @@
              * customer id number code end
              */
             // show edit customer form settings
-            $('#editcustomerformsettingsBtn').on('click', function (e) {
+            $('#editcustomerformsettingsBtn').on('click', function(e) {
                 e.preventDefault();
+                getoverduedays();
                 $('#customerformsettingform').removeClass('d-none');
                 $('#editcustomerformsettingsBtn').addClass('d-none');
             })
 
             // hide edit customer form settings
-            $('#cancelcustomerformsettingBtn').on('click', function (e) {
+            $('#cancelcustomerformsettingBtn').on('click', function(e) {
                 e.preventDefault();
-                $('#customerformsettingform')[0].reset();
+
                 $('#customerformsettingform').addClass('d-none');
                 $('#editcustomerformsettingsBtn').removeClass('d-none');
             })
 
-            $('#customerformsettingform').on('submit', function (e) {
+            $('#customerformsettingform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
                 const formdata = $(this).serialize();
@@ -1597,7 +1635,7 @@
                     type: 'POST',
                     url: "{{ route('invoicecustomerdropdown.store') }}",
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1622,7 +1660,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging

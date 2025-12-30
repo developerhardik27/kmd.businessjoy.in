@@ -75,8 +75,8 @@
                     </div>
                     <div class="col-sm-6 mb-2">
                         <label for="email">Email</label><span style="color:red;">*</span>
-                        <input type="email" name='email' class="form-control" id="email" value="" placeholder="Enter Email"
-                            autocomplete="off" required />
+                        <input type="email" name='email' class="form-control" id="email" value=""
+                            placeholder="Enter Email" autocomplete="off" required />
                         <span class="error-msg" id="error-email" style="color: red"></span>
                     </div>
                     <div class="col-sm-6 mb-2">
@@ -117,7 +117,8 @@
                     </div>
                     <div class="col-sm-6 mb-2">
                         <label for="pincode">Pincode</label><span style="color:red;">*</span>
-                        <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code" required />
+                        <input type="text" id="pincode" name='pincode' class="form-control" placeholder="Pin Code"
+                            required />
                         <span class="error-msg" id="error-pincode" style="color: red"></span>
                     </div>
                     <div class="col-sm-6 mb-2">
@@ -128,8 +129,8 @@
                         <span class="error-msg" id="error-img" style="color: red"></span>
                     </div>
                     <div class="col-sm-12">
-                        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
-                            class="btn btn-secondary float-right cancelbtn">
+                        <button type="button" data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
                             Cancel
                         </button>
                         <button type="reset" id="formreset" data-toggle="tooltip" data-placement="bottom"
@@ -144,16 +145,15 @@
                 </div>
             </div>
 
-            @if (
-                    session('user_permissions.adminmodule.userpermission.view') == '1' ||
+            @if (session('user_permissions.adminmodule.userpermission.view') == '1' ||
                     session('user_permissions.adminmodule.userpermission.add') == '1' ||
-                    $user_id == 1
-                )
+                    $user_id == 1)
                 <div class="form-group">
                     <div class="form-row">
                         <div class="col-sm-6 mb-2">
                             <label for="user_role_permission">User Permission Group</label>
-                            <select type="text" id="user_role_permission" name='user_role_permission' class="form-control">
+                            <select type="text" id="user_role_permission" name='user_role_permission'
+                                class="form-control">
                                 <option value="" selected>Select User Role</option>
                             </select>
                             <span class="error-msg" id="error-user_role_permission" style="color: red"></span>
@@ -175,7 +175,8 @@
                                         <thead>
                                             <tr>
                                                 <th colspan="7" class="text-right"><b>Select All </b>
-                                                    <input type="checkbox" id="adminallcheck" data-module="admin" class="allcheck">
+                                                    <input type="checkbox" id="adminallcheck" data-module="admin"
+                                                        class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -193,45 +194,55 @@
                                                 <tr id="admindashboard">
                                                     <td>Admin Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='admindashboard'
-                                                            id="showadmindashboardmenu" name="showadmindashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='admindashboard' id="showadmindashboardmenu"
+                                                            name="showadmindashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.admindashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadmindashboardmenu'
-                                                                id="addadmindashboard" name="addadmindashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadmindashboardmenu' id="addadmindashboard"
+                                                                name="addadmindashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.admindashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadmindashboardmenu'
-                                                                id="viewadmindashboard" name="viewadmindashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadmindashboardmenu'
+                                                                id="viewadmindashboard" name="viewadmindashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.admindashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadmindashboardmenu'
-                                                                id="editadmindashboard" name="editadmindashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadmindashboardmenu'
+                                                                id="editadmindashboard" name="editadmindashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.admindashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadmindashboardmenu'
-                                                                id="deleteadmindashboard" name="deleteadmindashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadmindashboardmenu'
+                                                                id="deleteadmindashboard" name="deleteadmindashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.admindashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadmindashboardmenu'
-                                                                id="alldataadmindashboard" name="alldataadmindashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadmindashboardmenu'
+                                                                id="alldataadmindashboard" name="alldataadmindashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -243,55 +254,59 @@
                                                 <tr id="company">
                                                     <td rowspan="{{ $rowspan }}">Company</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='company' id="showcompanymenu"
-                                                            name="showcompanymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='company'
+                                                            id="showcompanymenu" name="showcompanymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
-                                                                id="addcompany" name="addcompany" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcompanymenu' id="addcompany"
+                                                                name="addcompany" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
-                                                                id="viewcompany" name="viewcompany" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcompanymenu' id="viewcompany"
+                                                                name="viewcompany" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
-                                                                id="editcompany" name="editcompany" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcompanymenu' id="editcompany"
+                                                                name="editcompany" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
-                                                                id="deletecompany" name="deletecompany" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcompanymenu' id="deletecompany"
+                                                                name="deletecompany" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.company.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
-                                                                id="alldatacompany" name="alldatacompany" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcompanymenu' id="alldatacompany"
+                                                                name="alldatacompany" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                 </tr>
                                                 @if (
-                                                        (Session::has('user_permissions.adminmodule.company.max') &&
-                                                            session('user_permissions.adminmodule.company.max') == '1') ||
-                                                        $user_id == 1
-                                                    )
+                                                    (Session::has('user_permissions.adminmodule.company.max') &&
+                                                        session('user_permissions.adminmodule.company.max') == '1') ||
+                                                        $user_id == 1)
                                                     <tr>
                                                         <td>Max Users</td>
                                                         {{-- add more option title here if needed --}}
@@ -299,8 +314,9 @@
                                                     <tr id="company">
                                                         <td>
                                                             @if (session('user_permissions.adminmodule.company.max') == '1' || $user_id == 1)
-                                                                <input type="checkbox" class="clicksubmenu" data-value='showcompanymenu'
-                                                                    id="maxcompany" name="maxuser" value="1">
+                                                                <input type="checkbox" class="clicksubmenu"
+                                                                    data-value='showcompanymenu' id="maxcompany"
+                                                                    name="maxuser" value="1">
                                                             @else
                                                                 -
                                                             @endif
@@ -314,45 +330,50 @@
                                                 <tr id="user">
                                                     <td>User</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='user' id="showusermenu"
-                                                            name="showusermenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='user'
+                                                            id="showusermenu" name="showusermenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showusermenu' id="adduser"
-                                                                name="adduser" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showusermenu' id="adduser" name="adduser"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showusermenu' id="viewuser"
-                                                                name="viewuser" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showusermenu' id="viewuser" name="viewuser"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showusermenu' id="edituser"
-                                                                name="edituser" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showusermenu' id="edituser" name="edituser"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
-                                                                id="deleteuser" name="deleteuser" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showusermenu' id="deleteuser"
+                                                                name="deleteuser" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showusermenu'
-                                                                id="alldatauser" name="alldatauser" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showusermenu' id="alldatauser"
+                                                                name="alldatauser" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -365,28 +386,34 @@
                                                     <td>Tech support</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='techsupport'
-                                                            id="showtechsupportmenu" name="showtechsupportmenu" value="1">
+                                                            id="showtechsupportmenu" name="showtechsupportmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showtechsupportmenu'
-                                                            id="addtechsupport" name="addtechsupport" value="1">
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtechsupportmenu' id="addtechsupport"
+                                                            name="addtechsupport" value="1">
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showtechsupportmenu'
-                                                            id="viewtechsupport" name="viewtechsupport" value="1">
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtechsupportmenu' id="viewtechsupport"
+                                                            name="viewtechsupport" value="1">
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showtechsupportmenu'
-                                                            id="edittechsupport" name="edittechsupport" value="1">
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtechsupportmenu' id="edittechsupport"
+                                                            name="edittechsupport" value="1">
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showtechsupportmenu'
-                                                            id="deletetechsupport" name="deletetechsupport" value="1">
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showtechsupportmenu' id="deletetechsupport"
+                                                            name="deletetechsupport" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.user.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtechsupportmenu'
-                                                                id="alldatatechsupport" name="alldatatechsupport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtechsupportmenu' id="alldatatechsupport"
+                                                                name="alldatatechsupport" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -398,45 +425,55 @@
                                                 <tr id="userpermission">
                                                     <td>User Permission</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='userpermission'
-                                                            id="showuserpermissionmenu" name="showuserpermissionmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='userpermission' id="showuserpermissionmenu"
+                                                            name="showuserpermissionmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.userpermission.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showuserpermissionmenu'
-                                                                id="adduserpermission" name="adduserpermission" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showuserpermissionmenu' id="adduserpermission"
+                                                                name="adduserpermission" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.userpermission.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showuserpermissionmenu'
-                                                                id="viewuserpermission" name="viewuserpermission" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showuserpermissionmenu'
+                                                                id="viewuserpermission" name="viewuserpermission"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.userpermission.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showuserpermissionmenu'
-                                                                id="edituserpermission" name="edituserpermission" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showuserpermissionmenu'
+                                                                id="edituserpermission" name="edituserpermission"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.userpermission.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showuserpermissionmenu'
-                                                                id="deleteuserpermission" name="deleteuserpermission" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showuserpermissionmenu'
+                                                                id="deleteuserpermission" name="deleteuserpermission"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.userpermission.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showuserpermissionmenu'
-                                                                id="alldatauserpermission" name="alldatauserpermission" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showuserpermissionmenu'
+                                                                id="alldatauserpermission" name="alldatauserpermission"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -448,45 +485,50 @@
                                                 <tr id="adminapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='adminapi' id="showadminapimenu"
-                                                            name="showadminapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='adminapi'
+                                                            id="showadminapimenu" name="showadminapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.adminapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadminapimenu'
-                                                                id="addadminapi" name="addadminapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadminapimenu' id="addadminapi"
+                                                                name="addadminapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.adminapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadminapimenu'
-                                                                id="viewadminapi" name="viewadminapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadminapimenu' id="viewadminapi"
+                                                                name="viewadminapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.adminapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadminapimenu'
-                                                                id="editadminapi" name="editadminapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadminapimenu' id="editadminapi"
+                                                                name="editadminapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.adminapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadminapimenu'
-                                                                id="deleteadminapi" name="deleteadminapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadminapimenu' id="deleteadminapi"
+                                                                name="deleteadminapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.adminapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showadminapimenu'
-                                                                id="alldataadminapi" name="alldataadminapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showadminapimenu' id="alldataadminapi"
+                                                                name="alldataadminapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -498,45 +540,51 @@
                                                 <tr id="loginhistory">
                                                     <td>Login History</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='loginhistory'
-                                                            id="showloginhistorymenu" name="showloginhistorymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='loginhistory' id="showloginhistorymenu"
+                                                            name="showloginhistorymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.loginhistory.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showloginhistorymenu'
-                                                                id="addloginhistory" name="addloginhistory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showloginhistorymenu' id="addloginhistory"
+                                                                name="addloginhistory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.loginhistory.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showloginhistorymenu'
-                                                                id="viewloginhistory" name="viewloginhistory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showloginhistorymenu' id="viewloginhistory"
+                                                                name="viewloginhistory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.loginhistory.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showloginhistorymenu'
-                                                                id="editloginhistory" name="editloginhistory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showloginhistorymenu' id="editloginhistory"
+                                                                name="editloginhistory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.loginhistory.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showloginhistorymenu'
-                                                                id="deleteloginhistory" name="deleteloginhistory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showloginhistorymenu' id="deleteloginhistory"
+                                                                name="deleteloginhistory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.adminmodule.loginhistory.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showloginhistorymenu'
-                                                                id="alldataloginhistory" name="alldataloginhistory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showloginhistorymenu' id="alldataloginhistory"
+                                                                name="alldataloginhistory" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -548,11 +596,12 @@
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12 text-right">
-                                                <button type="submit" id="adminmodulesubmit" class="btn btn-primary submitBtn"
+                                                <button type="submit" id="adminmodulesubmit"
+                                                    class="btn btn-primary submitBtn" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Save">Save</button>
+                                                <button type="button" id="adminmodulereset" data-module="admin"
                                                     data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Save">Save</button>
-                                                <button type="button" id="adminmodulereset" data-module="admin" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Reset Admin Module"
+                                                    data-original-title="Reset Admin Module"
                                                     class="btn iq-bg-danger resetbtn">
                                                     Reset
                                                 </button>
@@ -600,45 +649,57 @@
                                                 <tr id="quotationdashboard">
                                                     <td>Quotation Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='quotationdashboard'
-                                                            id="showquotationdashboardmenu" name="showquotationdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationdashboard'
+                                                            id="showquotationdashboardmenu"
+                                                            name="showquotationdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationdashboardmenu'
-                                                                id="addquotationdashboard" name="addquotationdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationdashboardmenu'
+                                                                id="addquotationdashboard" name="addquotationdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationdashboardmenu'
-                                                                id="viewquotationdashboard" name="viewquotationdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationdashboardmenu'
+                                                                id="viewquotationdashboard" name="viewquotationdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationdashboardmenu'
-                                                                id="editquotationdashboard" name="editquotationdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationdashboardmenu'
+                                                                id="editquotationdashboard" name="editquotationdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationdashboardmenu'
-                                                                id="deletequotationdashboard" name="deletequotationdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationdashboardmenu'
+                                                                id="deletequotationdashboard"
+                                                                name="deletequotationdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationdashboardmenu'
-                                                                id="alldataquotationdashboard" name="alldataquotationdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationdashboardmenu'
+                                                                id="alldataquotationdashboard"
+                                                                name="alldataquotationdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -651,44 +712,50 @@
                                                     <td>Quotation</td>
                                                     <td>
                                                         <input type="checkbox" class="clickmenu" data-value='quotation'
-                                                            id="showquotationmenu" name="showquotationmenu" value="1">
+                                                            id="showquotationmenu" name="showquotationmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotation.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmenu'
-                                                                id="addquotation" name="addquotation" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmenu' id="addquotation"
+                                                                name="addquotation" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotation.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmenu'
-                                                                id="viewquotation" name="viewquotation" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmenu' id="viewquotation"
+                                                                name="viewquotation" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotation.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmenu'
-                                                                id="editquotation" name="editquotation" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmenu' id="editquotation"
+                                                                name="editquotation" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotation.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmenu'
-                                                                id="deletequotation" name="deletequotation" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmenu' id="deletequotation"
+                                                                name="deletequotation" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotation.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmenu'
-                                                                id="alldataquotation" name="alldataquotation" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmenu' id="alldataquotation"
+                                                                name="alldataquotation" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -699,7 +766,8 @@
                                             @if (session('user_permissions.quotationmodule.quotationsetting.add') == '1' || $user_id == 1)
                                                 <tr>
                                                     <td class="p-0" style="border-right: 0;">
-                                                        <span class="btn expandsettingsbutton" data-target="quotation_settings_rows">
+                                                        <span class="btn expandsettingsbutton"
+                                                            data-target="quotation_settings_rows">
                                                             <i class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                             Quotation Settings
                                                         </span>
@@ -710,45 +778,56 @@
                                             @if (session('user_permissions.quotationmodule.quotationmngcol.add') == '1' || $user_id == 1)
                                                 <tr id="quotationmngcol" class="quotation_settings_rows subsettingrows">
                                                     <td>Manage Quotation Column</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationmngcol'
-                                                            id="showquotationmngcolmenu" name="showquotationmngcolmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationmngcol' id="showquotationmngcolmenu"
+                                                            name="showquotationmngcolmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationmngcol.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmngcolmenu'
-                                                                id="addquotationmngcol" name="addquotationmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmngcolmenu'
+                                                                id="addquotationmngcol" name="addquotationmngcol"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationmngcol.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmngcolmenu'
-                                                                id="viewquotationmngcol" name="viewquotationmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmngcolmenu'
+                                                                id="viewquotationmngcol" name="viewquotationmngcol"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationmngcol.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmngcolmenu'
-                                                                id="editquotationmngcol" name="editquotationmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmngcolmenu'
+                                                                id="editquotationmngcol" name="editquotationmngcol"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationmngcol.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmngcolmenu'
-                                                                id="deletequotationmngcol" name="deletequotationmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmngcolmenu'
+                                                                id="deletequotationmngcol" name="deletequotationmngcol"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationmngcol.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationmngcolmenu'
-                                                                id="alldataquotationmngcol" name="alldataquotationmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationmngcolmenu'
+                                                                id="alldataquotationmngcol" name="alldataquotationmngcol"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -760,45 +839,56 @@
                                             @if (session('user_permissions.quotationmodule.quotationformula.add') == '1' || $user_id == 1)
                                                 <tr id="quotationformula" class="quotation_settings_rows subsettingrows">
                                                     <td>Quotation Formula</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationformula'
-                                                            id="showquotationformulamenu" name="showquotationformulamenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationformula' id="showquotationformulamenu"
+                                                            name="showquotationformulamenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationformula.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationformulamenu'
-                                                                id="addquotationformula" name="addquotationformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationformulamenu'
+                                                                id="addquotationformula" name="addquotationformula"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationformula.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationformulamenu'
-                                                                id="viewquotationformula" name="viewquotationformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationformulamenu'
+                                                                id="viewquotationformula" name="viewquotationformula"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationformula.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationformulamenu'
-                                                                id="editquotationformula" name="editquotationformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationformulamenu'
+                                                                id="editquotationformula" name="editquotationformula"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationformula.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationformulamenu'
-                                                                id="deletequotationformula" name="deletequotationformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationformulamenu'
+                                                                id="deletequotationformula" name="deletequotationformula"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationformula.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationformulamenu'
-                                                                id="alldataquotationformula" name="alldataquotationformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationformulamenu'
+                                                                id="alldataquotationformula"
+                                                                name="alldataquotationformula" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -813,45 +903,56 @@
                                                             data-target="quotation_other_settings_rows"><i
                                                                 class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                             Quotation/Settings</span></td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationsetting'
-                                                            id="showquotationsettingmenu" name="showquotationsettingmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationsetting' id="showquotationsettingmenu"
+                                                            name="showquotationsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationsetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationsettingmenu'
-                                                                id="addquotationsetting" name="addquotationsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationsettingmenu'
+                                                                id="addquotationsetting" name="addquotationsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationsetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationsettingmenu'
-                                                                id="viewquotationsetting" name="viewquotationsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationsettingmenu'
+                                                                id="viewquotationsetting" name="viewquotationsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationsetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationsettingmenu'
-                                                                id="editquotationsetting" name="editquotationsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationsettingmenu'
+                                                                id="editquotationsetting" name="editquotationsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationsetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationsettingmenu'
-                                                                id="deletequotationsetting" name="deletequotationsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationsettingmenu'
+                                                                id="deletequotationsetting" name="deletequotationsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationsetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationsettingmenu'
-                                                                id="alldataquotationsetting" name="alldataquotationsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationsettingmenu'
+                                                                id="alldataquotationsetting"
+                                                                name="alldataquotationsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -861,16 +962,19 @@
                                             @endif
 
                                             @if (session('user_permissions.quotationmodule.quotationnumbersetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationnumbersetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationnumbersetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation Number Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationnumbersetting'
-                                                            id="showquotationnumbersettingmenu" name="showquotationnumbersettingmenu"
-                                                            value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationnumbersetting'
+                                                            id="showquotationnumbersettingmenu"
+                                                            name="showquotationnumbersettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationnumbersetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationnumbersettingmenu' id="addquotationnumbersetting"
+                                                                data-value='showquotationnumbersettingmenu'
+                                                                id="addquotationnumbersetting"
                                                                 name="addquotationnumbersetting" value="1">
                                                         @else
                                                             -
@@ -879,7 +983,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationnumbersetting.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationnumbersettingmenu' id="viewquotationnumbersetting"
+                                                                data-value='showquotationnumbersettingmenu'
+                                                                id="viewquotationnumbersetting"
                                                                 name="viewquotationnumbersetting" value="1">
                                                         @else
                                                             -
@@ -888,7 +993,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationnumbersetting.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationnumbersettingmenu' id="editquotationnumbersetting"
+                                                                data-value='showquotationnumbersettingmenu'
+                                                                id="editquotationnumbersetting"
                                                                 name="editquotationnumbersetting" value="1">
                                                         @else
                                                             -
@@ -897,7 +1003,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationnumbersetting.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationnumbersettingmenu' id="deletequotationnumbersetting"
+                                                                data-value='showquotationnumbersettingmenu'
+                                                                id="deletequotationnumbersetting"
                                                                 name="deletequotationnumbersetting" value="1">
                                                         @else
                                                             -
@@ -906,7 +1013,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationnumbersetting.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationnumbersettingmenu' id="alldataquotationnumbersetting"
+                                                                data-value='showquotationnumbersettingmenu'
+                                                                id="alldataquotationnumbersetting"
                                                                 name="alldataquotationnumbersetting" value="1">
                                                         @else
                                                             -
@@ -917,16 +1025,19 @@
                                             @endif
 
                                             @if (session('user_permissions.quotationmodule.quotationtandcsetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationtandcsetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationtandcsetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation T&C Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationtandcsetting'
-                                                            id="showquotationtandcsettingmenu" name="showquotationtandcsettingmenu"
-                                                            value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationtandcsetting'
+                                                            id="showquotationtandcsettingmenu"
+                                                            name="showquotationtandcsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationtandcsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationtandcsettingmenu' id="addquotationtandcsetting"
+                                                                data-value='showquotationtandcsettingmenu'
+                                                                id="addquotationtandcsetting"
                                                                 name="addquotationtandcsetting" value="1">
                                                         @else
                                                             -
@@ -935,7 +1046,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationtandcsetting.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationtandcsettingmenu' id="viewquotationtandcsetting"
+                                                                data-value='showquotationtandcsettingmenu'
+                                                                id="viewquotationtandcsetting"
                                                                 name="viewquotationtandcsetting" value="1">
                                                         @else
                                                             -
@@ -944,7 +1056,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationtandcsetting.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationtandcsettingmenu' id="editquotationtandcsetting"
+                                                                data-value='showquotationtandcsettingmenu'
+                                                                id="editquotationtandcsetting"
                                                                 name="editquotationtandcsetting" value="1">
                                                         @else
                                                             -
@@ -953,7 +1066,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationtandcsetting.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationtandcsettingmenu' id="deletequotationtandcsetting"
+                                                                data-value='showquotationtandcsettingmenu'
+                                                                id="deletequotationtandcsetting"
                                                                 name="deletequotationtandcsetting" value="1">
                                                         @else
                                                             -
@@ -962,7 +1076,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationtandcsetting.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationtandcsettingmenu' id="alldataquotationtandcsetting"
+                                                                data-value='showquotationtandcsettingmenu'
+                                                                id="alldataquotationtandcsetting"
                                                                 name="alldataquotationtandcsetting" value="1">
                                                         @else
                                                             -
@@ -973,16 +1088,19 @@
                                             @endif
 
                                             @if (session('user_permissions.quotationmodule.quotationstandardsetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationstandardsetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationstandardsetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation Standard Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationstandardsetting'
-                                                            id="showquotationstandardsettingmenu" name="showquotationstandardsettingmenu"
-                                                            value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationstandardsetting'
+                                                            id="showquotationstandardsettingmenu"
+                                                            name="showquotationstandardsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationstandardsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationstandardsettingmenu' id="addquotationstandardsetting"
+                                                                data-value='showquotationstandardsettingmenu'
+                                                                id="addquotationstandardsetting"
                                                                 name="addquotationstandardsetting" value="1">
                                                         @else
                                                             -
@@ -991,7 +1109,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationstandardsetting.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationstandardsettingmenu' id="viewquotationstandardsetting"
+                                                                data-value='showquotationstandardsettingmenu'
+                                                                id="viewquotationstandardsetting"
                                                                 name="viewquotationstandardsetting" value="1">
                                                         @else
                                                             -
@@ -1000,7 +1119,8 @@
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationstandardsetting.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showquotationstandardsettingmenu' id="editquotationstandardsetting"
+                                                                data-value='showquotationstandardsettingmenu'
+                                                                id="editquotationstandardsetting"
                                                                 name="editquotationstandardsetting" value="1">
                                                         @else
                                                             -
@@ -1010,8 +1130,8 @@
                                                         @if (session('user_permissions.quotationmodule.quotationstandardsetting.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showquotationstandardsettingmenu'
-                                                                id="deletequotationstandardsetting" name="deletequotationstandardsetting"
-                                                                value="1">
+                                                                id="deletequotationstandardsetting"
+                                                                name="deletequotationstandardsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1020,8 +1140,8 @@
                                                         @if (session('user_permissions.quotationmodule.quotationstandardsetting.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showquotationstandardsettingmenu'
-                                                                id="alldataquotationstandardsetting" name="alldataquotationstandardsetting"
-                                                                value="1">
+                                                                id="alldataquotationstandardsetting"
+                                                                name="alldataquotationstandardsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1031,47 +1151,60 @@
                                             @endif
 
                                             @if (session('user_permissions.quotationmodule.quotationgstsetting.add') == '1' || $user_id == 1)
-                                                <tr id="quotationgstsetting" class="quotation_other_settings_rows subsettingrows">
+                                                <tr id="quotationgstsetting"
+                                                    class="quotation_other_settings_rows subsettingrows">
                                                     <td>Quotation GST Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationgstsetting'
-                                                            id="showquotationgstsettingmenu" name="showquotationgstsettingmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationgstsetting'
+                                                            id="showquotationgstsettingmenu"
+                                                            name="showquotationgstsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationgstsetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationgstsettingmenu'
-                                                                id="addquotationgstsetting" name="addquotationgstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationgstsettingmenu'
+                                                                id="addquotationgstsetting" name="addquotationgstsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationgstsetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationgstsettingmenu'
-                                                                id="viewquotationgstsetting" name="viewquotationgstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationgstsettingmenu'
+                                                                id="viewquotationgstsetting"
+                                                                name="viewquotationgstsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationgstsetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationgstsettingmenu'
-                                                                id="editquotationgstsetting" name="editquotationgstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationgstsettingmenu'
+                                                                id="editquotationgstsetting"
+                                                                name="editquotationgstsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationgstsetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationgstsettingmenu'
-                                                                id="deletequotationgstsetting" name="deletequotationgstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationgstsettingmenu'
+                                                                id="deletequotationgstsetting"
+                                                                name="deletequotationgstsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationgstsetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationgstsettingmenu'
-                                                                id="alldataquotationgstsetting" name="alldataquotationgstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationgstsettingmenu'
+                                                                id="alldataquotationgstsetting"
+                                                                name="alldataquotationgstsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1083,45 +1216,56 @@
                                             @if (session('user_permissions.quotationmodule.quotatoincustomer.add') == '1' || $user_id == 1)
                                                 <tr id="quotationcustomer">
                                                     <td>Customer</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='quotationcustomer'
-                                                            id="showquotationcustomermenu" name="showquotationcustomermenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationcustomer' id="showquotationcustomermenu"
+                                                            name="showquotationcustomermenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationcustomer.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationcustomermenu'
-                                                                id="addquotationcustomer" name="addquotationcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationcustomermenu'
+                                                                id="addquotationcustomer" name="addquotationcustomer"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationcustomer.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationcustomermenu'
-                                                                id="viewquotationcustomer" name="viewquotationcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationcustomermenu'
+                                                                id="viewquotationcustomer" name="viewquotationcustomer"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationcustomer.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationcustomermenu'
-                                                                id="editquotationcustomer" name="editquotationcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationcustomermenu'
+                                                                id="editquotationcustomer" name="editquotationcustomer"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationcustomer.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationcustomermenu'
-                                                                id="deletequotationcustomer" name="deletequotationcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationcustomermenu'
+                                                                id="deletequotationcustomer"
+                                                                name="deletequotationcustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationcustomer.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationcustomermenu'
-                                                                id="alldataquotationcustomer" name="alldataquotationcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationcustomermenu'
+                                                                id="alldataquotationcustomer"
+                                                                name="alldataquotationcustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1134,45 +1278,51 @@
                                                 <tr id="quotationapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='quotationapi'
-                                                            id="showquotationapimenu" name="showquotationapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='quotationapi' id="showquotationapimenu"
+                                                            name="showquotationapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationapimenu'
-                                                                id="addquotationapi" name="addquotationapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationapimenu' id="addquotationapi"
+                                                                name="addquotationapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationapimenu'
-                                                                id="viewquotationapi" name="viewquotationapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationapimenu' id="viewquotationapi"
+                                                                name="viewquotationapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationapimenu'
-                                                                id="editquotationapi" name="editquotationapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationapimenu' id="editquotationapi"
+                                                                name="editquotationapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationapimenu'
-                                                                id="deletequotationapi" name="deletequotationapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationapimenu' id="deletequotationapi"
+                                                                name="deletequotationapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.quotationmodule.quotationapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showquotationapimenu'
-                                                                id="alldataquotationapi" name="alldataquotationapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showquotationapimenu' id="alldataquotationapi"
+                                                                name="alldataquotationapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1185,7 +1335,8 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
                                                 <button type="button" id="quotationmodulereset" data-module="quotation"
@@ -1219,7 +1370,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="invoiceallcheck" data-module="invoice" class="allcheck">
+                                                    <input type="checkbox" id="invoiceallcheck" data-module="invoice"
+                                                        class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -1233,49 +1385,61 @@
                                             </tr>
                                         </thead>
                                         <tbody id="invoicecheckboxes">
+
                                             @if (session('user_permissions.invoicemodule.invoicedashboard.add') == '1' || $user_id == 1)
                                                 <tr id="invoicedashboard">
                                                     <td>Invoice Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='invoicedashboard'
-                                                            id="showinvoicedashboardmenu" name="showinvoicedashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicedashboard' id="showinvoicedashboardmenu"
+                                                            name="showinvoicedashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicedashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicedashboardmenu'
-                                                                id="addinvoicedashboard" name="addinvoicedashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicedashboardmenu'
+                                                                id="addinvoicedashboard" name="addinvoicedashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicedashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicedashboardmenu'
-                                                                id="viewinvoicedashboard" name="viewinvoicedashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicedashboardmenu'
+                                                                id="viewinvoicedashboard" name="viewinvoicedashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicedashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicedashboardmenu'
-                                                                id="editinvoicedashboard" name="editinvoicedashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicedashboardmenu'
+                                                                id="editinvoicedashboard" name="editinvoicedashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicedashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicedashboardmenu'
-                                                                id="deleteinvoicedashboard" name="deleteinvoicedashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicedashboardmenu'
+                                                                id="deleteinvoicedashboard" name="deleteinvoicedashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicedashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicedashboardmenu'
-                                                                id="alldatainvoicedashboard" name="alldatainvoicedashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicedashboardmenu'
+                                                                id="alldatainvoicedashboard"
+                                                                name="alldatainvoicedashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1287,45 +1451,51 @@
                                                 <tr id="invoice">
                                                     <td>Invoice</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='invoice' id="showinvoicemenu"
-                                                            name="showinvoicemenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='invoice'
+                                                            id="showinvoicemenu" name="showinvoicemenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoice.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
-                                                                id="addinvoice" name="addinvoice" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicemenu' id="addinvoice"
+                                                                name="addinvoice" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoice.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
-                                                                id="viewinvoice" name="viewinvoice" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicemenu' id="viewinvoice"
+                                                                name="viewinvoice" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoice.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
-                                                                id="editinvoice" name="editinvoice" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicemenu' id="editinvoice"
+                                                                name="editinvoice" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoice.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
-                                                                id="deleteinvoice" name="deleteinvoice" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicemenu' id="deleteinvoice"
+                                                                name="deleteinvoice" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoice.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicemenu'
-                                                                id="alldatainvoice" name="alldatainvoice" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicemenu' id="alldatainvoice"
+                                                                name="alldatainvoice" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1337,24 +1507,27 @@
                                                 <tr id="tdsregister">
                                                     <td>TDS Register</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='tdsregister'
-                                                            id="showtdsregistermenu" name="showtdsregistermenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='tdsregister' id="showtdsregistermenu"
+                                                            name="showtdsregistermenu" value="1">
                                                     </td>
                                                     <td>
                                                         NA
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.tdsregister.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtdsregistermenu'
-                                                                id="viewtdsregister" name="viewtdsregister" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtdsregistermenu' id="viewtdsregister"
+                                                                name="viewtdsregister" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.tdsregister.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtdsregistermenu'
-                                                                id="edittdsregister" name="edittdsregister" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtdsregistermenu' id="edittdsregister"
+                                                                name="edittdsregister" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1371,7 +1544,8 @@
                                             @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1' || $user_id == 1)
                                                 <tr>
                                                     <td class="p-0" style="border-right: 0;">
-                                                        <span class="btn expandsettingsbutton" data-target="invoice_settings_rows">
+                                                        <span class="btn expandsettingsbutton"
+                                                            data-target="invoice_settings_rows">
                                                             <i class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                             Invoice Settings
                                                         </span>
@@ -1382,45 +1556,50 @@
                                             @if (session('user_permissions.invoicemodule.mngcol.add') == '1' || $user_id == 1)
                                                 <tr id="mngcol" class="invoice_settings_rows subsettingrows">
                                                     <td>Manage Invoice Column</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='mngcol' id="showmngcolmenu"
-                                                            name="showmngcolmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu" data-value='mngcol'
+                                                            id="showmngcolmenu" name="showmngcolmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.mngcol.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
-                                                                id="addmngcol" name="addmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showmngcolmenu' id="addmngcol"
+                                                                name="addmngcol" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.mngcol.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
-                                                                id="viewmngcol" name="viewmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showmngcolmenu' id="viewmngcol"
+                                                                name="viewmngcol" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.mngcol.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
-                                                                id="editmngcol" name="editmngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showmngcolmenu' id="editmngcol"
+                                                                name="editmngcol" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.mngcol.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
-                                                                id="deletemngcol" name="deletemngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showmngcolmenu' id="deletemngcol"
+                                                                name="deletemngcol" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.mngcol.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showmngcolmenu'
-                                                                id="alldatamngcol" name="alldatamngcol" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showmngcolmenu' id="alldatamngcol"
+                                                                name="alldatamngcol" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1432,45 +1611,51 @@
                                             @if (session('user_permissions.invoicemodule.formula.add') == '1' || $user_id == 1)
                                                 <tr id="formula" class="invoice_settings_rows subsettingrows">
                                                     <td>Invoice Formula</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='formula' id="showformulamenu"
-                                                            name="showformulamenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu" data-value='formula'
+                                                            id="showformulamenu" name="showformulamenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
-                                                                id="addformula" name="addformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showformulamenu' id="addformula"
+                                                                name="addformula" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
-                                                                id="viewformula" name="viewformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showformulamenu' id="viewformula"
+                                                                name="viewformula" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
-                                                                id="editformula" name="editformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showformulamenu' id="editformula"
+                                                                name="editformula" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
-                                                                id="deleteformula" name="deleteformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showformulamenu' id="deleteformula"
+                                                                name="deleteformula" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.formula.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showformulamenu'
-                                                                id="alldataformula" name="alldataformula" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showformulamenu' id="alldataformula"
+                                                                name="alldataformula" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1485,45 +1670,56 @@
                                                             data-target="invoice_other_settings_rows"><i
                                                                 class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                             Invoice/Settings</span></td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='invoicesetting'
-                                                            id="showinvoicesettingmenu" name="showinvoicesettingmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicesetting' id="showinvoicesettingmenu"
+                                                            name="showinvoicesettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicesetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
-                                                                id="addinvoicesetting" name="addinvoicesetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicesettingmenu'
+                                                                id="addinvoicesetting" name="addinvoicesetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
-                                                                id="viewinvoicesetting" name="viewinvoicesetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicesettingmenu'
+                                                                id="viewinvoicesetting" name="viewinvoicesetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicesetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
-                                                                id="editinvoicesetting" name="editinvoicesetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicesettingmenu'
+                                                                id="editinvoicesetting" name="editinvoicesetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicesetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
-                                                                id="deleteinvoicesetting" name="deleteinvoicesetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicesettingmenu'
+                                                                id="deleteinvoicesetting" name="deleteinvoicesetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicesetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicesettingmenu'
-                                                                id="alldatainvoicesetting" name="alldatainvoicesetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicesettingmenu'
+                                                                id="alldatainvoicesetting" name="alldatainvoicesetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1533,15 +1729,19 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicenumbersetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicenumbersetting" class="invoice_other_settings_rows subsettingrows">
+                                                <tr id="invoicenumbersetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
                                                     <td>Invoice Number Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='invoicenumbersetting'
-                                                            id="showinvoicenumbersettingmenu" name="showinvoicenumbersettingmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicenumbersetting'
+                                                            id="showinvoicenumbersettingmenu"
+                                                            name="showinvoicenumbersettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicenumbersetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicenumbersettingmenu' id="addinvoicenumbersetting"
+                                                                data-value='showinvoicenumbersettingmenu'
+                                                                id="addinvoicenumbersetting"
                                                                 name="addinvoicenumbersetting" value="1">
                                                         @else
                                                             -
@@ -1550,7 +1750,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicenumbersetting.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicenumbersettingmenu' id="viewinvoicenumbersetting"
+                                                                data-value='showinvoicenumbersettingmenu'
+                                                                id="viewinvoicenumbersetting"
                                                                 name="viewinvoicenumbersetting" value="1">
                                                         @else
                                                             -
@@ -1559,7 +1760,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicenumbersetting.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicenumbersettingmenu' id="editinvoicenumbersetting"
+                                                                data-value='showinvoicenumbersettingmenu'
+                                                                id="editinvoicenumbersetting"
                                                                 name="editinvoicenumbersetting" value="1">
                                                         @else
                                                             -
@@ -1568,7 +1770,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicenumbersetting.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicenumbersettingmenu' id="deleteinvoicenumbersetting"
+                                                                data-value='showinvoicenumbersettingmenu'
+                                                                id="deleteinvoicenumbersetting"
                                                                 name="deleteinvoicenumbersetting" value="1">
                                                         @else
                                                             -
@@ -1577,7 +1780,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicenumbersetting.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicenumbersettingmenu' id="alldatainvoicenumbersetting"
+                                                                data-value='showinvoicenumbersettingmenu'
+                                                                id="alldatainvoicenumbersetting"
                                                                 name="alldatainvoicenumbersetting" value="1">
                                                         @else
                                                             -
@@ -1587,49 +1791,131 @@
                                                 </tr>
                                             @endif
 
+                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.add') == '1' || $user_id == 1)
+                                                <tr id="invoiceformsetting"
+                                                    class="invoice_form_settings_rows subsettingrows">
+                                                    <td>Invoice Form Settings</td>
+
+                                                    <td>
+                                                        <input type="checkbox"class="clickmenu"data-value="invoiceformsetting"
+                                                            id="showinvoiceformsettingmenu"
+                                                            name="showinvoiceformsettingmenu"
+                                                            value="1">
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.add') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="addinvoiceformsetting"
+                                                                name="addinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.view') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="viewinvoiceformsetting"
+                                                                name="viewinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.edit') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="editinvoiceformsetting"
+                                                                name="editinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.delete') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="deleteinvoiceformsetting"
+                                                                name="deleteinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.alldata') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="alldatainvoiceformsetting"
+                                                                name="alldatainvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
+
                                             @if (session('user_permissions.invoicemodule.invoicetandcsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicetandcsetting" class="invoice_other_settings_rows subsettingrows">
+                                                <tr id="invoicetandcsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
                                                     <td>Invoice T&C Settings</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='invoicetandcsetting'
-                                                            id="showinvoicetandcsettingmenu" name="showinvoicetandcsettingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicetandcsetting'
+                                                            id="showinvoicetandcsettingmenu"
+                                                            name="showinvoicetandcsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicetandcsettingmenu'
-                                                                id="addinvoicetandcsetting" name="addinvoicetandcsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicetandcsettingmenu'
+                                                                id="addinvoicetandcsetting"
+                                                                name="addinvoicetandcsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicetandcsettingmenu'
-                                                                id="viewinvoicetandcsetting" name="viewinvoicetandcsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicetandcsettingmenu'
+                                                                id="viewinvoicetandcsetting"
+                                                                name="viewinvoicetandcsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicetandcsettingmenu'
-                                                                id="editinvoicetandcsetting" name="editinvoicetandcsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicetandcsettingmenu'
+                                                                id="editinvoicetandcsetting"
+                                                                name="editinvoicetandcsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicetandcsettingmenu'
-                                                                id="deleteinvoicetandcsetting" name="deleteinvoicetandcsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicetandcsettingmenu'
+                                                                id="deleteinvoicetandcsetting"
+                                                                name="deleteinvoicetandcsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicetandcsettingmenu'
-                                                                id="alldatainvoicetandcsetting" name="alldatainvoicetandcsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicetandcsettingmenu'
+                                                                id="alldatainvoicetandcsetting"
+                                                                name="alldatainvoicetandcsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1639,17 +1925,20 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicestandardsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicestandardsetting" class="invoice_other_settings_rows subsettingrows">
+                                                <tr id="invoicestandardsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
                                                     <td>Invoice Standard Settings</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='invoicestandardsetting'
-                                                            id="showinvoicestandardsettingmenu" name="showinvoicestandardsettingmenu"
-                                                            value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicestandardsetting'
+                                                            id="showinvoicestandardsettingmenu"
+                                                            name="showinvoicestandardsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicestandardsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicestandardsettingmenu' id="addinvoicestandardsetting"
+                                                                data-value='showinvoicestandardsettingmenu'
+                                                                id="addinvoicestandardsetting"
                                                                 name="addinvoicestandardsetting" value="1">
                                                         @else
                                                             -
@@ -1658,7 +1947,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicestandardsetting.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicestandardsettingmenu' id="viewinvoicestandardsetting"
+                                                                data-value='showinvoicestandardsettingmenu'
+                                                                id="viewinvoicestandardsetting"
                                                                 name="viewinvoicestandardsetting" value="1">
                                                         @else
                                                             -
@@ -1667,7 +1957,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicestandardsetting.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicestandardsettingmenu' id="editinvoicestandardsetting"
+                                                                data-value='showinvoicestandardsettingmenu'
+                                                                id="editinvoicestandardsetting"
                                                                 name="editinvoicestandardsetting" value="1">
                                                         @else
                                                             -
@@ -1676,7 +1967,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicestandardsetting.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicestandardsettingmenu' id="deleteinvoicestandardsetting"
+                                                                data-value='showinvoicestandardsettingmenu'
+                                                                id="deleteinvoicestandardsetting"
                                                                 name="deleteinvoicestandardsetting" value="1">
                                                         @else
                                                             -
@@ -1685,7 +1977,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicestandardsetting.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicestandardsettingmenu' id="alldatainvoicestandardsetting"
+                                                                data-value='showinvoicestandardsettingmenu'
+                                                                id="alldatainvoicestandardsetting"
                                                                 name="alldatainvoicestandardsetting" value="1">
                                                         @else
                                                             -
@@ -1696,47 +1989,60 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicegstsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicegstsetting" class="invoice_other_settings_rows subsettingrows">
+                                                <tr id="invoicegstsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
                                                     <td>Invoice GST Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='invoicegstsetting'
-                                                            id="showinvoicegstsettingmenu" name="showinvoicegstsettingmenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicegstsetting'
+                                                            id="showinvoicegstsettingmenu"
+                                                            name="showinvoicegstsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicegstsetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicegstsettingmenu'
-                                                                id="addinvoicegstsetting" name="addinvoicegstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicegstsettingmenu'
+                                                                id="addinvoicegstsetting" name="addinvoicegstsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicegstsetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicegstsettingmenu'
-                                                                id="viewinvoicegstsetting" name="viewinvoicegstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicegstsettingmenu'
+                                                                id="viewinvoicegstsetting" name="viewinvoicegstsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicegstsetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicegstsettingmenu'
-                                                                id="editinvoicegstsetting" name="editinvoicegstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicegstsettingmenu'
+                                                                id="editinvoicegstsetting" name="editinvoicegstsetting"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicegstsetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicegstsettingmenu'
-                                                                id="deleteinvoicegstsetting" name="deleteinvoicegstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicegstsettingmenu'
+                                                                id="deleteinvoicegstsetting"
+                                                                name="deleteinvoicegstsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicegstsetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoicegstsettingmenu'
-                                                                id="alldatainvoicegstsetting" name="alldatainvoicegstsetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoicegstsettingmenu'
+                                                                id="alldatainvoicegstsetting"
+                                                                name="alldatainvoicegstsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1746,16 +2052,19 @@
                                             @endif
 
                                             @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.add') == '1' || $user_id == 1)
-                                                <tr id="invoicecustomeridsetting" class="invoice_other_settings_rows subsettingrows">
+                                                <tr id="invoicecustomeridsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
                                                     <td>Invoice Customer Id Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='invoicecustomeridsetting'
-                                                            id="showinvoicecustomeridsettingmenu" name="showinvoicecustomeridsettingmenu"
-                                                            value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='invoicecustomeridsetting'
+                                                            id="showinvoicecustomeridsettingmenu"
+                                                            name="showinvoicecustomeridsettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicecustomeridsettingmenu' id="addinvoicecustomeridsetting"
+                                                                data-value='showinvoicecustomeridsettingmenu'
+                                                                id="addinvoicecustomeridsetting"
                                                                 name="addinvoicecustomeridsetting" value="1">
                                                         @else
                                                             -
@@ -1764,7 +2073,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicecustomeridsettingmenu' id="viewinvoicecustomeridsetting"
+                                                                data-value='showinvoicecustomeridsettingmenu'
+                                                                id="viewinvoicecustomeridsetting"
                                                                 name="viewinvoicecustomeridsetting" value="1">
                                                         @else
                                                             -
@@ -1773,7 +2083,8 @@
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showinvoicecustomeridsettingmenu' id="editinvoicecustomeridsetting"
+                                                                data-value='showinvoicecustomeridsettingmenu'
+                                                                id="editinvoicecustomeridsetting"
                                                                 name="editinvoicecustomeridsetting" value="1">
                                                         @else
                                                             -
@@ -1783,8 +2094,8 @@
                                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showinvoicecustomeridsettingmenu'
-                                                                id="deleteinvoicecustomeridsetting" name="deleteinvoicecustomeridsetting"
-                                                                value="1">
+                                                                id="deleteinvoicecustomeridsetting"
+                                                                name="deleteinvoicecustomeridsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1793,8 +2104,8 @@
                                                         @if (session('user_permissions.invoicemodule.invoicecustomeridsetting.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showinvoicecustomeridsettingmenu'
-                                                                id="alldatainvoicecustomeridsetting" name="alldatainvoicecustomeridsetting"
-                                                                value="1">
+                                                                id="alldatainvoicecustomeridsetting"
+                                                                name="alldatainvoicecustomeridsetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1807,12 +2118,13 @@
                                                 <tr id="bank">
                                                     <td>Bank</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='bank' id="showbankmenu"
-                                                            name="showbankmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='bank'
+                                                            id="showbankmenu" name="showbankmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.bank.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showbankmenu' id="addbank"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showbankmenu' id="addbank"
                                                                 name="addbank" value="1">
                                                         @else
                                                             -
@@ -1820,7 +2132,8 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.bank.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showbankmenu' id="viewbank"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showbankmenu' id="viewbank"
                                                                 name="viewbank" value="1">
                                                         @else
                                                             -
@@ -1828,7 +2141,8 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.bank.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showbankmenu' id="editbank"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showbankmenu' id="editbank"
                                                                 name="editbank" value="1">
                                                         @else
                                                             -
@@ -1836,16 +2150,18 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.bank.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
-                                                                id="deletebank" name="deletebank" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showbankmenu' id="deletebank"
+                                                                name="deletebank" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.bank.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showbankmenu'
-                                                                id="alldatabank" name="alldatabank" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showbankmenu' id="alldatabank"
+                                                                name="alldatabank" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1857,45 +2173,51 @@
                                                 <tr id="customer">
                                                     <td>Customer</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='customer' id="showcustomermenu"
-                                                            name="showcustomermenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='customer'
+                                                            id="showcustomermenu" name="showcustomermenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
-                                                                id="addcustomer" name="addcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomermenu' id="addcustomer"
+                                                                name="addcustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
-                                                                id="viewcustomer" name="viewcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomermenu' id="viewcustomer"
+                                                                name="viewcustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
-                                                                id="editcustomer" name="editcustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomermenu' id="editcustomer"
+                                                                name="editcustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
-                                                                id="deletecustomer" name="deletecustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomermenu' id="deletecustomer"
+                                                                name="deletecustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.customer.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomermenu'
-                                                                id="alldatacustomer" name="alldatacustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomermenu' id="alldatacustomer"
+                                                                name="alldatacustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1907,45 +2229,51 @@
                                                 <tr id="invoiceapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='invoiceapi'
-                                                            id="showinvoiceapimenu" name="showinvoiceapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='invoiceapi' id="showinvoiceapimenu"
+                                                            name="showinvoiceapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoiceapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoiceapimenu'
-                                                                id="addinvoiceapi" name="addinvoiceapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoiceapimenu' id="addinvoiceapi"
+                                                                name="addinvoiceapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoiceapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoiceapimenu'
-                                                                id="viewinvoiceapi" name="viewinvoiceapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoiceapimenu' id="viewinvoiceapi"
+                                                                name="viewinvoiceapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoiceapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoiceapimenu'
-                                                                id="editinvoiceapi" name="editinvoiceapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoiceapimenu' id="editinvoiceapi"
+                                                                name="editinvoiceapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoiceapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoiceapimenu'
-                                                                id="deleteinvoiceapi" name="deleteinvoiceapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoiceapimenu' id="deleteinvoiceapi"
+                                                                name="deleteinvoiceapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.invoicemodule.invoiceapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinvoiceapimenu'
-                                                                id="alldatainvoiceapi" name="alldatainvoiceapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinvoiceapimenu' id="alldatainvoiceapi"
+                                                                name="alldatainvoiceapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -1953,12 +2281,14 @@
                                                 </tr>
                                             @endif
                                         </tbody>
+
                                     </table>
                                     <div class="form-group">
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
                                                 <button type="button" id="invoicemodulereset" data-module="invoice"
@@ -1991,7 +2321,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="leadallcheck" data-module="lead" class="allcheck">
+                                                    <input type="checkbox" id="leadallcheck" data-module="lead"
+                                                        class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -2009,45 +2340,55 @@
                                                 <tr id="leaddashboard">
                                                     <td>Lead Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='leaddashboard'
-                                                            id="showleaddashboardmenu" name="showleaddashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='leaddashboard' id="showleaddashboardmenu"
+                                                            name="showleaddashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leaddashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleaddashboardmenu'
-                                                                id="addleaddashboard" name="addleaddashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleaddashboardmenu' id="addleaddashboard"
+                                                                name="addleaddashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leaddashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleaddashboardmenu'
-                                                                id="viewleaddashboard" name="viewleaddashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleaddashboardmenu'
+                                                                id="viewleaddashboard" name="viewleaddashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leaddashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleaddashboardmenu'
-                                                                id="editleaddashboard" name="editleaddashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleaddashboardmenu'
+                                                                id="editleaddashboard" name="editleaddashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leaddashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleaddashboardmenu'
-                                                                id="deleteleaddashboard" name="deleteleaddashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleaddashboardmenu'
+                                                                id="deleteleaddashboard" name="deleteleaddashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leaddashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleaddashboardmenu'
-                                                                id="alldataleaddashboard" name="alldataleaddashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleaddashboardmenu'
+                                                                id="alldataleaddashboard" name="alldataleaddashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2059,12 +2400,13 @@
                                                 <tr id="lead">
                                                     <td>Lead</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='lead' id="showleadmenu"
-                                                            name="showleadmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='lead'
+                                                            id="showleadmenu" name="showleadmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.lead.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadmenu' id="addlead"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadmenu' id="addlead"
                                                                 name="addlead" value="1">
                                                         @else
                                                             -
@@ -2072,7 +2414,8 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.lead.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadmenu' id="viewlead"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadmenu' id="viewlead"
                                                                 name="viewlead" value="1">
                                                         @else
                                                             -
@@ -2080,7 +2423,8 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.lead.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadmenu' id="editlead"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadmenu' id="editlead"
                                                                 name="editlead" value="1">
                                                         @else
                                                             -
@@ -2088,16 +2432,18 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.lead.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
-                                                                id="deletelead" name="deletelead" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadmenu' id="deletelead"
+                                                                name="deletelead" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.lead.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadmenu'
-                                                                id="alldatalead" name="alldatalead" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadmenu' id="alldatalead"
+                                                                name="alldatalead" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2109,45 +2455,53 @@
                                                 <tr id="leadsettings">
                                                     <td>Lead Settings</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='leadsettings'
-                                                            id="showleadsettingsmenu" name="showleadsettingsmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='leadsettings' id="showleadsettingsmenu"
+                                                            name="showleadsettingsmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadsettings.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadsettingsmenu'
-                                                                id="addleadsettings" name="addleadsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadsettingsmenu' id="addleadsettings"
+                                                                name="addleadsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadsettings.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadsettingsmenu'
-                                                                id="viewleadsettings" name="viewleadsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadsettingsmenu' id="viewleadsettings"
+                                                                name="viewleadsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadsettings.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadsettingsmenu'
-                                                                id="editleadsettings" name="editleadsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadsettingsmenu' id="editleadsettings"
+                                                                name="editleadsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadsettings.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadsettingsmenu'
-                                                                id="deleteleadsettings" name="deleteleadsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadsettingsmenu'
+                                                                id="deleteleadsettings" name="deleteleadsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadsettings.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadsettingsmenu'
-                                                                id="alldataleadsettings" name="alldataleadsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadsettingsmenu'
+                                                                id="alldataleadsettings" name="alldataleadsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2159,45 +2513,56 @@
                                                 <tr id="upcomingfollowup">
                                                     <td>Upcoming Follow-up</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='upcomingfollowup'
-                                                            id="showupcomingfollowupmenu" name="showupcomingfollowupmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='upcomingfollowup' id="showupcomingfollowupmenu"
+                                                            name="showupcomingfollowupmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.upcomingfollowup.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showupcomingfollowupmenu'
-                                                                id="addupcomingfollowup" name="addupcomingfollowup" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showupcomingfollowupmenu'
+                                                                id="addupcomingfollowup" name="addupcomingfollowup"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.upcomingfollowup.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showupcomingfollowupmenu'
-                                                                id="viewupcomingfollowup" name="viewupcomingfollowup" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showupcomingfollowupmenu'
+                                                                id="viewupcomingfollowup" name="viewupcomingfollowup"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.upcomingfollowup.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showupcomingfollowupmenu'
-                                                                id="editupcomingfollowup" name="editupcomingfollowup" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showupcomingfollowupmenu'
+                                                                id="editupcomingfollowup" name="editupcomingfollowup"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.upcomingfollowup.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showupcomingfollowupmenu'
-                                                                id="deleteupcomingfollowup" name="deleteupcomingfollowup" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showupcomingfollowupmenu'
+                                                                id="deleteupcomingfollowup"
+                                                                name="deleteupcomingfollowup" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.upcomingfollowup.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showupcomingfollowupmenu'
-                                                                id="alldataupcomingfollowup" name="alldataupcomingfollowup" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showupcomingfollowupmenu'
+                                                                id="alldataupcomingfollowup"
+                                                                name="alldataupcomingfollowup" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2209,45 +2574,51 @@
                                                 <tr id="analysis">
                                                     <td>Analysis</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='analysis' id="showanalysismenu"
-                                                            name="showanalysismenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='analysis'
+                                                            id="showanalysismenu" name="showanalysismenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.analysis.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showanalysismenu'
-                                                                id="addanalysis" name="addanalysis" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showanalysismenu' id="addanalysis"
+                                                                name="addanalysis" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.analysis.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showanalysismenu'
-                                                                id="viewanalysis" name="viewanalysis" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showanalysismenu' id="viewanalysis"
+                                                                name="viewanalysis" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.analysis.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showanalysismenu'
-                                                                id="editanalysis" name="editanalysis" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showanalysismenu' id="editanalysis"
+                                                                name="editanalysis" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.analysis.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showanalysismenu'
-                                                                id="deleteanalysis" name="deleteanalysis" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showanalysismenu' id="deleteanalysis"
+                                                                name="deleteanalysis" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.analysis.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showanalysismenu'
-                                                                id="alldataanalysis" name="alldataanalysis" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showanalysismenu' id="alldataanalysis"
+                                                                name="alldataanalysis" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2259,13 +2630,16 @@
                                                 <tr id="leadownerperformance">
                                                     <td>Lead Owner Performance</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='leadownerperformance'
-                                                            id="showleadownerperformancemenu" name="showleadownerperformancemenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='leadownerperformance'
+                                                            id="showleadownerperformancemenu"
+                                                            name="showleadownerperformancemenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadownerperformance.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showleadownerperformancemenu' id="addleadownerperformance"
+                                                                data-value='showleadownerperformancemenu'
+                                                                id="addleadownerperformance"
                                                                 name="addleadownerperformance" value="1">
                                                         @else
                                                             -
@@ -2274,7 +2648,8 @@
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadownerperformance.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showleadownerperformancemenu' id="viewleadownerperformance"
+                                                                data-value='showleadownerperformancemenu'
+                                                                id="viewleadownerperformance"
                                                                 name="viewleadownerperformance" value="1">
                                                         @else
                                                             -
@@ -2283,7 +2658,8 @@
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadownerperformance.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showleadownerperformancemenu' id="editleadownerperformance"
+                                                                data-value='showleadownerperformancemenu'
+                                                                id="editleadownerperformance"
                                                                 name="editleadownerperformance" value="1">
                                                         @else
                                                             -
@@ -2292,7 +2668,8 @@
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadownerperformance.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showleadownerperformancemenu' id="deleteleadownerperformance"
+                                                                data-value='showleadownerperformancemenu'
+                                                                id="deleteleadownerperformance"
                                                                 name="deleteleadownerperformance" value="1">
                                                         @else
                                                             -
@@ -2301,7 +2678,8 @@
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadownerperformance.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showleadownerperformancemenu' id="alldataleadownerperformance"
+                                                                data-value='showleadownerperformancemenu'
+                                                                id="alldataleadownerperformance"
                                                                 name="alldataleadownerperformance" value="1">
                                                         @else
                                                             -
@@ -2314,45 +2692,56 @@
                                                 <tr id="recentactivity">
                                                     <td>Recent Activity</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='recentactivity'
-                                                            id="showrecentactivitymenu" name="showrecentactivitymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='recentactivity' id="showrecentactivitymenu"
+                                                            name="showrecentactivitymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.recentactivity.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitymenu'
-                                                                id="addrecentactivity" name="addrecentactivity" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitymenu'
+                                                                id="addrecentactivity" name="addrecentactivity"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.recentactivity.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitymenu'
-                                                                id="viewrecentactivity" name="viewrecentactivity" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitymenu'
+                                                                id="viewrecentactivity" name="viewrecentactivity"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.recentactivity.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitymenu'
-                                                                id="editrecentactivity" name="editrecentactivity" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitymenu'
+                                                                id="editrecentactivity" name="editrecentactivity"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.recentactivity.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitymenu'
-                                                                id="deleterecentactivity" name="deleterecentactivity" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitymenu'
+                                                                id="deleterecentactivity" name="deleterecentactivity"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.recentactivity.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitymenu'
-                                                                id="alldatarecentactivity" name="alldatarecentactivity" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitymenu'
+                                                                id="alldatarecentactivity" name="alldatarecentactivity"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2364,45 +2753,51 @@
                                                 <tr id="calendar">
                                                     <td>Calendar</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='calendar' id="showcalendarmenu"
-                                                            name="showcalendarmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='calendar'
+                                                            id="showcalendarmenu" name="showcalendarmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.calendar.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcalendarmenu'
-                                                                id="addcalendar" name="addcalendar" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcalendarmenu' id="addcalendar"
+                                                                name="addcalendar" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.calendar.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcalendarmenu'
-                                                                id="viewcalendar" name="viewcalendar" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcalendarmenu' id="viewcalendar"
+                                                                name="viewcalendar" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.calendar.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcalendarmenu'
-                                                                id="editcalendar" name="editcalendar" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcalendarmenu' id="editcalendar"
+                                                                name="editcalendar" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.calendar.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcalendarmenu'
-                                                                id="deletecalendar" name="deletecalendar" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcalendarmenu' id="deletecalendar"
+                                                                name="deletecalendar" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.calendar.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcalendarmenu'
-                                                                id="alldatacalendar" name="alldatacalendar" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcalendarmenu' id="alldatacalendar"
+                                                                name="alldatacalendar" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2414,45 +2809,51 @@
                                                 <tr id="leadapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='leadapi' id="showleadapimenu"
-                                                            name="showleadapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='leadapi'
+                                                            id="showleadapimenu" name="showleadapimenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadapimenu'
-                                                                id="addleadapi" name="addleadapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadapimenu' id="addleadapi"
+                                                                name="addleadapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadapimenu'
-                                                                id="viewleadapi" name="viewleadapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadapimenu' id="viewleadapi"
+                                                                name="viewleadapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadapimenu'
-                                                                id="editleadapi" name="editleadapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadapimenu' id="editleadapi"
+                                                                name="editleadapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadapimenu'
-                                                                id="deleteleadapi" name="deleteleadapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadapimenu' id="deleteleadapi"
+                                                                name="deleteleadapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.leadapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showleadapimenu'
-                                                                id="alldataleadapi" name="alldataleadapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showleadapimenu' id="alldataleadapi"
+                                                                name="alldataleadapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2464,45 +2865,50 @@
                                                 <tr id="import">
                                                     <td>Import</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='import' id="showimportmenu"
-                                                            name="showimportmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='import'
+                                                            id="showimportmenu" name="showimportmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.import.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showimportmenu'
-                                                                id="addimport" name="addimport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showimportmenu' id="addimport"
+                                                                name="addimport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.import.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showimportmenu'
-                                                                id="viewimport" name="viewimport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showimportmenu' id="viewimport"
+                                                                name="viewimport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.import.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showimportmenu'
-                                                                id="editimport" name="editimport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showimportmenu' id="editimport"
+                                                                name="editimport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.import.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showimportmenu'
-                                                                id="deleteimport" name="deleteimport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showimportmenu' id="deleteimport"
+                                                                name="deleteimport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.import.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showimportmenu'
-                                                                id="alldataimport" name="alldataimport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showimportmenu' id="alldataimport"
+                                                                name="alldataimport" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2514,45 +2920,50 @@
                                                 <tr id="export">
                                                     <td>Export</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='export' id="showexportmenu"
-                                                            name="showexportmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='export'
+                                                            id="showexportmenu" name="showexportmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.export.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showexportmenu'
-                                                                id="addexport" name="addexport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showexportmenu' id="addexport"
+                                                                name="addexport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.export.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showexportmenu'
-                                                                id="viewexport" name="viewexport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showexportmenu' id="viewexport"
+                                                                name="viewexport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.export.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showexportmenu'
-                                                                id="editexport" name="editexport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showexportmenu' id="editexport"
+                                                                name="editexport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.export.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showexportmenu'
-                                                                id="deleteexport" name="deleteexport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showexportmenu' id="deleteexport"
+                                                                name="deleteexport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.leadmodule.export.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showexportmenu'
-                                                                id="alldataexport" name="alldataexport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showexportmenu' id="alldataexport"
+                                                                name="alldataexport" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2565,11 +2976,13 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="leadmodulereset" data-module="lead" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Reset Lead Module"
+                                                <button type="button" id="leadmodulereset" data-module="lead"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Reset Lead Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
@@ -2597,8 +3010,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="customersupportallcheck" data-module="customersupport"
-                                                        class="allcheck">
+                                                    <input type="checkbox" id="customersupportallcheck"
+                                                        data-module="customersupport" class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -2616,14 +3029,16 @@
                                                 <tr id="customersupportdashboard">
                                                     <td>Customer Support Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='customersupportdashboard'
-                                                            id="showcustomersupportdashboardmenu" name="showcustomersupportdashboardmenu"
-                                                            value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='customersupportdashboard'
+                                                            id="showcustomersupportdashboardmenu"
+                                                            name="showcustomersupportdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportdashboard.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showcustomersupportdashboardmenu' id="addcustomersupportdashboard"
+                                                                data-value='showcustomersupportdashboardmenu'
+                                                                id="addcustomersupportdashboard"
                                                                 name="addcustomersupportdashboard" value="1">
                                                         @else
                                                             -
@@ -2632,7 +3047,8 @@
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportdashboard.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showcustomersupportdashboardmenu' id="viewcustomersupportdashboard"
+                                                                data-value='showcustomersupportdashboardmenu'
+                                                                id="viewcustomersupportdashboard"
                                                                 name="viewcustomersupportdashboard" value="1">
                                                         @else
                                                             -
@@ -2641,7 +3057,8 @@
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportdashboard.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showcustomersupportdashboardmenu' id="editcustomersupportdashboard"
+                                                                data-value='showcustomersupportdashboardmenu'
+                                                                id="editcustomersupportdashboard"
                                                                 name="editcustomersupportdashboard" value="1">
                                                         @else
                                                             -
@@ -2651,8 +3068,8 @@
                                                         @if (session('user_permissions.customersupportmodule.customersupportdashboard.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showcustomersupportdashboardmenu'
-                                                                id="deletecustomersupportdashboard" name="deletecustomersupportdashboard"
-                                                                value="1">
+                                                                id="deletecustomersupportdashboard"
+                                                                name="deletecustomersupportdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2661,8 +3078,8 @@
                                                         @if (session('user_permissions.customersupportmodule.customersupportdashboard.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showcustomersupportdashboardmenu'
-                                                                id="alldatacustomersupportdashboard" name="alldatacustomersupportdashboard"
-                                                                value="1">
+                                                                id="alldatacustomersupportdashboard"
+                                                                name="alldatacustomersupportdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2674,45 +3091,56 @@
                                                 <tr id="customersupport">
                                                     <td>Customer Support</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='customersupport'
-                                                            id="showcustomersupportmenu" name="showcustomersupportmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='customersupport' id="showcustomersupportmenu"
+                                                            name="showcustomersupportmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
-                                                                id="addcustomersupport" name="addcustomersupport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportmenu'
+                                                                id="addcustomersupport" name="addcustomersupport"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
-                                                                id="viewcustomersupport" name="viewcustomersupport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportmenu'
+                                                                id="viewcustomersupport" name="viewcustomersupport"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
-                                                                id="editcustomersupport" name="editcustomersupport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportmenu'
+                                                                id="editcustomersupport" name="editcustomersupport"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
-                                                                id="deletecustomersupport" name="deletecustomersupport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportmenu'
+                                                                id="deletecustomersupport" name="deletecustomersupport"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupport.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportmenu'
-                                                                id="alldatacustomersupport" name="alldatacustomersupport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportmenu'
+                                                                id="alldatacustomersupport"
+                                                                name="alldatacustomersupport" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2724,45 +3152,57 @@
                                                 <tr id="customersupportapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='customersupportapi'
-                                                            id="showcustomersupportapimenu" name="showcustomersupportapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='customersupportapi'
+                                                            id="showcustomersupportapimenu"
+                                                            name="showcustomersupportapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportapimenu'
-                                                                id="addcustomersupportapi" name="addcustomersupportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportapimenu'
+                                                                id="addcustomersupportapi" name="addcustomersupportapi"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportapimenu'
-                                                                id="viewcustomersupportapi" name="viewcustomersupportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportapimenu'
+                                                                id="viewcustomersupportapi"
+                                                                name="viewcustomersupportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportapimenu'
-                                                                id="editcustomersupportapi" name="editcustomersupportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportapimenu'
+                                                                id="editcustomersupportapi"
+                                                                name="editcustomersupportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportapimenu'
-                                                                id="deletecustomersupportapi" name="deletecustomersupportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportapimenu'
+                                                                id="deletecustomersupportapi"
+                                                                name="deletecustomersupportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.customersupportmodule.customersupportapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcustomersupportapimenu'
-                                                                id="alldatacustomersupportapi" name="alldatacustomersupportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcustomersupportapimenu'
+                                                                id="alldatacustomersupportapi"
+                                                                name="alldatacustomersupportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2775,17 +3215,20 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="customersupportmodulereset" data-module="customersupport"
-                                                    data-toggle="tooltip" data-placement="bottom"
+                                                <button type="button" id="customersupportmodulereset"
+                                                    data-module="customersupport" data-toggle="tooltip"
+                                                    data-placement="bottom"
                                                     data-original-title="Reset Customer Support Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
-                                                <button type="submit" id="customersupportmodulesubmit" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Save"
+                                                <button type="submit" id="customersupportmodulesubmit"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
                                                     Save</button>
                                             </div>
@@ -2806,8 +3249,9 @@
                                     <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
                                         <thead>
                                             <tr>
-                                                <th colspan="7" class="text-right"><b>Select All </b> <input type="checkbox"
-                                                        id="inventoryallcheck" data-module="inventory" class="allcheck"></th>
+                                                <th colspan="7" class="text-right"><b>Select All </b> <input
+                                                        type="checkbox" id="inventoryallcheck" data-module="inventory"
+                                                        class="allcheck"></th>
                                             </tr>
                                             <tr>
                                                 <th scope="col">Menus</th>
@@ -2824,45 +3268,57 @@
                                                 <tr id="inventorydashboard">
                                                     <td>Inventory Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='inventorydashboard'
-                                                            id="showinventorydashboardmenu" name="showinventorydashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='inventorydashboard'
+                                                            id="showinventorydashboardmenu"
+                                                            name="showinventorydashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventorydashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorydashboardmenu'
-                                                                id="addinventorydashboard" name="addinventorydashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorydashboardmenu'
+                                                                id="addinventorydashboard" name="addinventorydashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventorydashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorydashboardmenu'
-                                                                id="viewinventorydashboard" name="viewinventorydashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorydashboardmenu'
+                                                                id="viewinventorydashboard"
+                                                                name="viewinventorydashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventorydashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorydashboardmenu'
-                                                                id="editinventorydashboard" name="editinventorydashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorydashboardmenu'
+                                                                id="editinventorydashboard"
+                                                                name="editinventorydashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventorydashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorydashboardmenu'
-                                                                id="deleteinventorydashboard" name="deleteinventorydashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorydashboardmenu'
+                                                                id="deleteinventorydashboard"
+                                                                name="deleteinventorydashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventorydashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorydashboardmenu'
-                                                                id="alldatainventorydashboard" name="alldatainventorydashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorydashboardmenu'
+                                                                id="alldatainventorydashboard"
+                                                                name="alldatainventorydashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2874,45 +3330,51 @@
                                                 <tr id="product">
                                                     <td>Product</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='product' id="showproductmenu"
-                                                            name="showproductmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='product'
+                                                            id="showproductmenu" name="showproductmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.product.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
-                                                                id="addproduct" name="addproduct" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductmenu' id="addproduct"
+                                                                name="addproduct" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.product.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
-                                                                id="viewproduct" name="viewproduct" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductmenu' id="viewproduct"
+                                                                name="viewproduct" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.product.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
-                                                                id="editproduct" name="editproduct" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductmenu' id="editproduct"
+                                                                name="editproduct" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.product.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
-                                                                id="deleteproduct" name="deleteproduct" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductmenu' id="deleteproduct"
+                                                                name="deleteproduct" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.product.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductmenu'
-                                                                id="alldataproduct" name="alldataproduct" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductmenu' id="alldataproduct"
+                                                                name="alldataproduct" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2922,7 +3384,8 @@
 
                                             <tr>
                                                 <td class="p-0" style="border-right: 0;">
-                                                    <span class="btn expandsettingsbutton" data-target="product_settings_rows">
+                                                    <span class="btn expandsettingsbutton"
+                                                        data-target="product_settings_rows">
                                                         <i class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                         Product Settings
                                                     </span>
@@ -2933,45 +3396,56 @@
                                                 <tr id="productcategory" class="product_settings_rows subsettingrows">
                                                     <td>Product Category</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='productcategory'
-                                                            id="showproductcategorymenu" name="showproductcategorymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='productcategory' id="showproductcategorymenu"
+                                                            name="showproductcategorymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcategory.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductcategorymenu'
-                                                                id="addproductcategory" name="addproductcategory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductcategorymenu'
+                                                                id="addproductcategory" name="addproductcategory"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcategory.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductcategorymenu'
-                                                                id="viewproductcategory" name="viewproductcategory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductcategorymenu'
+                                                                id="viewproductcategory" name="viewproductcategory"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcategory.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductcategorymenu'
-                                                                id="editproductcategory" name="editproductcategory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductcategorymenu'
+                                                                id="editproductcategory" name="editproductcategory"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcategory.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductcategorymenu'
-                                                                id="deleteproductcategory" name="deleteproductcategory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductcategorymenu'
+                                                                id="deleteproductcategory" name="deleteproductcategory"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcategory.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showproductcategorymenu'
-                                                                id="alldataproductcategory" name="alldataproductcategory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showproductcategorymenu'
+                                                                id="alldataproductcategory"
+                                                                name="alldataproductcategory" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -2980,16 +3454,20 @@
                                             @endif
 
                                             @if (session('user_permissions.inventorymodule.productcolumnmapping.add') == '1' || $user_id == 1)
-                                                <tr id="productcolumnmapping" class="product_settings_rows subsettingrows">
+                                                <tr id="productcolumnmapping"
+                                                    class="product_settings_rows subsettingrows">
                                                     <td>Product Column Mapping</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='productcolumnmapping'
-                                                            id="showproductcolumnmappingmenu" name="showproductcolumnmappingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='productcolumnmapping'
+                                                            id="showproductcolumnmappingmenu"
+                                                            name="showproductcolumnmappingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcolumnmapping.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showproductcolumnmappingmenu' id="addproductcolumnmapping"
+                                                                data-value='showproductcolumnmappingmenu'
+                                                                id="addproductcolumnmapping"
                                                                 name="addproductcolumnmapping" value="1">
                                                         @else
                                                             -
@@ -2998,7 +3476,8 @@
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcolumnmapping.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showproductcolumnmappingmenu' id="viewproductcolumnmapping"
+                                                                data-value='showproductcolumnmappingmenu'
+                                                                id="viewproductcolumnmapping"
                                                                 name="viewproductcolumnmapping" value="1">
                                                         @else
                                                             -
@@ -3007,7 +3486,8 @@
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcolumnmapping.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showproductcolumnmappingmenu' id="editproductcolumnmapping"
+                                                                data-value='showproductcolumnmappingmenu'
+                                                                id="editproductcolumnmapping"
                                                                 name="editproductcolumnmapping" value="1">
                                                         @else
                                                             -
@@ -3016,7 +3496,8 @@
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcolumnmapping.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showproductcolumnmappingmenu' id="deleteproductcolumnmapping"
+                                                                data-value='showproductcolumnmappingmenu'
+                                                                id="deleteproductcolumnmapping"
                                                                 name="deleteproductcolumnmapping" value="1">
                                                         @else
                                                             -
@@ -3025,7 +3506,8 @@
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.productcolumnmapping.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showproductcolumnmappingmenu' id="alldataproductcolumnmapping"
+                                                                data-value='showproductcolumnmappingmenu'
+                                                                id="alldataproductcolumnmapping"
                                                                 name="alldataproductcolumnmapping" value="1">
                                                         @else
                                                             -
@@ -3038,45 +3520,51 @@
                                                 <tr id="purchase">
                                                     <td>Purchase</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='purchase' id="showpurchasemenu"
-                                                            name="showpurchasemenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='purchase'
+                                                            id="showpurchasemenu" name="showpurchasemenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.purchase.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
-                                                                id="addpurchase" name="addpurchase" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showpurchasemenu' id="addpurchase"
+                                                                name="addpurchase" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.purchase.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
-                                                                id="viewpurchase" name="viewpurchase" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showpurchasemenu' id="viewpurchase"
+                                                                name="viewpurchase" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.purchase.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
-                                                                id="editpurchase" name="editpurchase" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showpurchasemenu' id="editpurchase"
+                                                                name="editpurchase" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.purchase.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
-                                                                id="deletepurchase" name="deletepurchase" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showpurchasemenu' id="deletepurchase"
+                                                                name="deletepurchase" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.purchase.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showpurchasemenu'
-                                                                id="alldatapurchase" name="alldatapurchase" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showpurchasemenu' id="alldatapurchase"
+                                                                name="alldatapurchase" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3088,45 +3576,51 @@
                                                 <tr id="inventory">
                                                     <td>Inventory</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='inventory'
-                                                            id="showinventorymenu" name="showinventorymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='inventory' id="showinventorymenu"
+                                                            name="showinventorymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventory.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorymenu'
-                                                                id="addinventory" name="addinventory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorymenu' id="addinventory"
+                                                                name="addinventory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventory.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorymenu'
-                                                                id="viewinventory" name="viewinventory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorymenu' id="viewinventory"
+                                                                name="viewinventory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventory.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorymenu'
-                                                                id="editinventory" name="editinventory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorymenu' id="editinventory"
+                                                                name="editinventory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventory.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorymenu'
-                                                                id="deleteinventory" name="deleteinventory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorymenu' id="deleteinventory"
+                                                                name="deleteinventory" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventory.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventorymenu'
-                                                                id="alldatainventory" name="alldatainventory" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventorymenu' id="alldatainventory"
+                                                                name="alldatainventory" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3138,45 +3632,51 @@
                                                 <tr id="supplier">
                                                     <td>Supplier</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='supplier' id="showsuppliermenu"
-                                                            name="showsuppliermenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='supplier'
+                                                            id="showsuppliermenu" name="showsuppliermenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.supplier.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showsuppliermenu'
-                                                                id="addsupplier" name="addsupplier" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showsuppliermenu' id="addsupplier"
+                                                                name="addsupplier" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.supplier.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showsuppliermenu'
-                                                                id="viewsupplier" name="viewsupplier" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showsuppliermenu' id="viewsupplier"
+                                                                name="viewsupplier" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.supplier.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showsuppliermenu'
-                                                                id="editsupplier" name="editsupplier" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showsuppliermenu' id="editsupplier"
+                                                                name="editsupplier" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.supplier.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showsuppliermenu'
-                                                                id="deletesupplier" name="deletesupplier" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showsuppliermenu' id="deletesupplier"
+                                                                name="deletesupplier" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.supplier.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showsuppliermenu'
-                                                                id="alldatasupplier" name="alldatasupplier" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showsuppliermenu' id="alldatasupplier"
+                                                                name="alldatasupplier" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3188,45 +3688,53 @@
                                                 <tr id="inventoryapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='inventoryapi'
-                                                            id="showinventoryapimenu" name="showinventoryapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='inventoryapi' id="showinventoryapimenu"
+                                                            name="showinventoryapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventoryapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventoryapimenu'
-                                                                id="addinventoryapi" name="addinventoryapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventoryapimenu' id="addinventoryapi"
+                                                                name="addinventoryapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventoryapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventoryapimenu'
-                                                                id="viewinventoryapi" name="viewinventoryapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventoryapimenu' id="viewinventoryapi"
+                                                                name="viewinventoryapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventoryapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventoryapimenu'
-                                                                id="editinventoryapi" name="editinventoryapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventoryapimenu' id="editinventoryapi"
+                                                                name="editinventoryapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventoryapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventoryapimenu'
-                                                                id="deleteinventoryapi" name="deleteinventoryapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventoryapimenu'
+                                                                id="deleteinventoryapi" name="deleteinventoryapi"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.inventoryapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showinventoryapimenu'
-                                                                id="alldatainventoryapi" name="alldatainventoryapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showinventoryapimenu'
+                                                                id="alldatainventoryapi" name="alldatainventoryapi"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3239,17 +3747,19 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="inventorymodulereset" data-module="inventory"
-                                                    data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Reset Inventory Module"
+                                                <button type="button" id="inventorymodulereset"
+                                                    data-module="inventory" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Reset Inventory Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
-                                                <button type="submit" id="inventorymodulesubmit" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Save"
+                                                <button type="submit" id="inventorymodulesubmit"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
                                                     Save</button>
                                             </div>
@@ -3270,8 +3780,9 @@
                                     <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
                                         <thead>
                                             <tr>
-                                                <th colspan="7" class="text-right"><b>Select All </b> <input type="checkbox"
-                                                        id="reminderallcheck" data-module="reminder" class="allcheck"></th>
+                                                <th colspan="7" class="text-right"><b>Select All </b> <input
+                                                        type="checkbox" id="reminderallcheck" data-module="reminder"
+                                                        class="allcheck"></th>
                                             </tr>
                                             <tr>
                                                 <th scope="col">Menus</th>
@@ -3288,45 +3799,57 @@
                                                 <tr id="reminderdashboard">
                                                     <td>Reminder Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='reminderdashboard'
-                                                            id="showreminderdashboardmenu" name="showreminderdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='reminderdashboard'
+                                                            id="showreminderdashboardmenu"
+                                                            name="showreminderdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderdashboardmenu'
-                                                                id="addreminderdashboard" name="addreminderdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderdashboardmenu'
+                                                                id="addreminderdashboard" name="addreminderdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderdashboardmenu'
-                                                                id="viewreminderdashboard" name="viewreminderdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderdashboardmenu'
+                                                                id="viewreminderdashboard" name="viewreminderdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderdashboardmenu'
-                                                                id="editreminderdashboard" name="editreminderdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderdashboardmenu'
+                                                                id="editreminderdashboard" name="editreminderdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderdashboardmenu'
-                                                                id="deletereminderdashboard" name="deletereminderdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderdashboardmenu'
+                                                                id="deletereminderdashboard"
+                                                                name="deletereminderdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderdashboardmenu'
-                                                                id="alldatareminderdashboard" name="alldatareminderdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderdashboardmenu'
+                                                                id="alldatareminderdashboard"
+                                                                name="alldatareminderdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3338,45 +3861,51 @@
                                                 <tr id="reminder">
                                                     <td>Reminder</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='reminder' id="showremindermenu"
-                                                            name="showremindermenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='reminder'
+                                                            id="showremindermenu" name="showremindermenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminder.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindermenu'
-                                                                id="addreminder" name="addreminder" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindermenu' id="addreminder"
+                                                                name="addreminder" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminder.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindermenu'
-                                                                id="viewreminder" name="viewreminder" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindermenu' id="viewreminder"
+                                                                name="viewreminder" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminder.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindermenu'
-                                                                id="editreminder" name="editreminder" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindermenu' id="editreminder"
+                                                                name="editreminder" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminder.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindermenu'
-                                                                id="deletereminder" name="deletereminder" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindermenu' id="deletereminder"
+                                                                name="deletereminder" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminder.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindermenu'
-                                                                id="alldatareminder" name="alldatareminder" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindermenu' id="alldatareminder"
+                                                                name="alldatareminder" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3388,45 +3917,56 @@
                                                 <tr id="remindercustomer">
                                                     <td>Reminder Customer</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='remindercustomer'
-                                                            id="showremindercustomermenu" name="showremindercustomermenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='remindercustomer' id="showremindercustomermenu"
+                                                            name="showremindercustomermenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindercustomermenu'
-                                                                id="addremindercustomer" name="addremindercustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindercustomermenu'
+                                                                id="addremindercustomer" name="addremindercustomer"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindercustomermenu'
-                                                                id="viewremindercustomer" name="viewremindercustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindercustomermenu'
+                                                                id="viewremindercustomer" name="viewremindercustomer"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindercustomermenu'
-                                                                id="editremindercustomer" name="editremindercustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindercustomermenu'
+                                                                id="editremindercustomer" name="editremindercustomer"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindercustomermenu'
-                                                                id="deleteremindercustomer" name="deleteremindercustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindercustomermenu'
+                                                                id="deleteremindercustomer"
+                                                                name="deleteremindercustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.remindercustomer.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showremindercustomermenu'
-                                                                id="alldataremindercustomer" name="alldataremindercustomer" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showremindercustomermenu'
+                                                                id="alldataremindercustomer"
+                                                                name="alldataremindercustomer" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3438,45 +3978,51 @@
                                                 <tr id="reminderapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='reminderapi'
-                                                            id="showreminderapimenu" name="showreminderapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='reminderapi' id="showreminderapimenu"
+                                                            name="showreminderapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderapimenu'
-                                                                id="addreminderapi" name="addreminderapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderapimenu' id="addreminderapi"
+                                                                name="addreminderapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderapimenu'
-                                                                id="viewreminderapi" name="viewreminderapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderapimenu' id="viewreminderapi"
+                                                                name="viewreminderapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderapimenu'
-                                                                id="editreminderapi" name="editreminderapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderapimenu' id="editreminderapi"
+                                                                name="editreminderapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderapimenu'
-                                                                id="deletereminderapi" name="deletereminderapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderapimenu' id="deletereminderapi"
+                                                                name="deletereminderapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.remindermodule.reminderapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreminderapimenu'
-                                                                id="alldatareminderapi" name="alldatareminderapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreminderapimenu' id="alldatareminderapi"
+                                                                name="alldatareminderapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3489,7 +4035,8 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
                                                 <button type="button" id="remindermodulereset" data-module="reminder"
@@ -3520,8 +4067,9 @@
                                     <table class="table table-bordered table-responsive-sm w-100 text-center p-0">
                                         <thead>
                                             <tr>
-                                                <th colspan="7" class="text-right"><b>Select All </b> <input type="checkbox"
-                                                        id="reportallcheck" data-module="report" class="allcheck"></th>
+                                                <th colspan="7" class="text-right"><b>Select All </b> <input
+                                                        type="checkbox" id="reportallcheck" data-module="report"
+                                                        class="allcheck"></th>
                                             </tr>
                                             <tr>
                                                 <th scope="col">Menus</th>
@@ -3538,45 +4086,56 @@
                                                 <tr id="reportdashboard">
                                                     <td>Report Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='reportdashboard'
-                                                            id="showreportdashboardmenu" name="showreportdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='reportdashboard' id="showreportdashboardmenu"
+                                                            name="showreportdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportdashboardmenu'
-                                                                id="addreportdashboard" name="addreportdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportdashboardmenu'
+                                                                id="addreportdashboard" name="addreportdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportdashboardmenu'
-                                                                id="viewreportdashboard" name="viewreportdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportdashboardmenu'
+                                                                id="viewreportdashboard" name="viewreportdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportdashboardmenu'
-                                                                id="editreportdashboard" name="editreportdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportdashboardmenu'
+                                                                id="editreportdashboard" name="editreportdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportdashboardmenu'
-                                                                id="deletereportdashboard" name="deletereportdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportdashboardmenu'
+                                                                id="deletereportdashboard" name="deletereportdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportdashboardmenu'
-                                                                id="alldatareportdashboard" name="alldatareportdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportdashboardmenu'
+                                                                id="alldatareportdashboard"
+                                                                name="alldatareportdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3588,43 +4147,48 @@
                                                 <tr id="report">
                                                     <td rowspan="3">report</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='report' id="showreportmenu"
-                                                            name="showreportmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='report'
+                                                            id="showreportmenu" name="showreportmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.report.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportmenu'
-                                                                id="addreport" name="addreport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportmenu' id="addreport"
+                                                                name="addreport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.report.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportmenu'
-                                                                id="viewreport" name="viewreport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportmenu' id="viewreport"
+                                                                name="viewreport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.report.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportmenu'
-                                                                id="editreport" name="editreport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportmenu' id="editreport"
+                                                                name="editreport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.report.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportmenu'
-                                                                id="deletereport" name="deletereport" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportmenu' id="deletereport"
+                                                                name="deletereport" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <select name="assignedto[]" class="form-control multiple" id="assignedto" multiple>
+                                                        <select name="assignedto[]" class="form-control multiple"
+                                                            id="assignedto" multiple>
                                                         </select>
                                                     </td>
                                                 </tr>
@@ -3634,8 +4198,9 @@
                                                 </tr>
                                                 <tr id="report">
                                                     <td>
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showreportmenu'
-                                                            id="logreport" name="logreport" value="1">
+                                                        <input type="checkbox" class="clicksubmenu"
+                                                            data-value='showreportmenu' id="logreport"
+                                                            name="logreport" value="1">
                                                     </td>
                                                 </tr>
                                             @endif
@@ -3643,45 +4208,51 @@
                                                 <tr id="reportapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='reportapi'
-                                                            id="showreportapimenu" name="showreportapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='reportapi' id="showreportapimenu"
+                                                            name="showreportapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportapimenu'
-                                                                id="addreportapi" name="addreportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportapimenu' id="addreportapi"
+                                                                name="addreportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportapimenu'
-                                                                id="viewreportapi" name="viewreportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportapimenu' id="viewreportapi"
+                                                                name="viewreportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportapimenu'
-                                                                id="editreportapi" name="editreportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportapimenu' id="editreportapi"
+                                                                name="editreportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportapimenu'
-                                                                id="deletereportapi" name="deletereportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportapimenu' id="deletereportapi"
+                                                                name="deletereportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.reportmodule.reportapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showreportapimenu'
-                                                                id="alldatareportapi" name="alldatareportapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showreportapimenu' id="alldatareportapi"
+                                                                name="alldatareportapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3694,11 +4265,13 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="reportmodulereset" data-module="report" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Reset report Module"
+                                                <button type="button" id="reportmodulereset" data-module="report"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Reset report Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
@@ -3726,7 +4299,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="blogallcheck" data-module="blog" class="allcheck">
+                                                    <input type="checkbox" id="blogallcheck" data-module="blog"
+                                                        class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -3744,45 +4318,55 @@
                                                 <tr id="blogdashboard">
                                                     <td>Blog Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='blogdashboard'
-                                                            id="showblogdashboardmenu" name="showblogdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='blogdashboard' id="showblogdashboardmenu"
+                                                            name="showblogdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogdashboardmenu'
-                                                                id="addblogdashboard" name="addblogdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogdashboardmenu' id="addblogdashboard"
+                                                                name="addblogdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogdashboardmenu'
-                                                                id="viewblogdashboard" name="viewblogdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogdashboardmenu'
+                                                                id="viewblogdashboard" name="viewblogdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogdashboardmenu'
-                                                                id="editblogdashboard" name="editblogdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogdashboardmenu'
+                                                                id="editblogdashboard" name="editblogdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogdashboardmenu'
-                                                                id="deleteblogdashboard" name="deleteblogdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogdashboardmenu'
+                                                                id="deleteblogdashboard" name="deleteblogdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogdashboardmenu'
-                                                                id="alldatablogdashboard" name="alldatablogdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogdashboardmenu'
+                                                                id="alldatablogdashboard" name="alldatablogdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3794,12 +4378,13 @@
                                                 <tr id="blog">
                                                     <td>blog</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='blog' id="showblogmenu"
-                                                            name="showblogmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='blog'
+                                                            id="showblogmenu" name="showblogmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blog.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogmenu' id="addblog"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogmenu' id="addblog"
                                                                 name="addblog" value="1">
                                                         @else
                                                             -
@@ -3807,7 +4392,8 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blog.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogmenu' id="viewblog"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogmenu' id="viewblog"
                                                                 name="viewblog" value="1">
                                                         @else
                                                             -
@@ -3815,7 +4401,8 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blog.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogmenu' id="editblog"
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogmenu' id="editblog"
                                                                 name="editblog" value="1">
                                                         @else
                                                             -
@@ -3823,16 +4410,18 @@
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blog.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogmenu'
-                                                                id="deleteblog" name="deleteblog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogmenu' id="deleteblog"
+                                                                name="deleteblog" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blog.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogmenu'
-                                                                id="alldatablog" name="alldatablog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogmenu' id="alldatablog"
+                                                                name="alldatablog" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3844,45 +4433,53 @@
                                                 <tr id="blogsettings">
                                                     <td>Blog Settings</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='blogsettings'
-                                                            id="showblogsettingsmenu" name="showblogsettingsmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='blogsettings' id="showblogsettingsmenu"
+                                                            name="showblogsettingsmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogsettings.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogsettingsmenu'
-                                                                id="addblogsettings" name="addblogsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogsettingsmenu' id="addblogsettings"
+                                                                name="addblogsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogsettings.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogsettingsmenu'
-                                                                id="viewblogsettings" name="viewblogsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogsettingsmenu' id="viewblogsettings"
+                                                                name="viewblogsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogsettings.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogsettingsmenu'
-                                                                id="editblogsettings" name="editblogsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogsettingsmenu' id="editblogsettings"
+                                                                name="editblogsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogsettings.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogsettingsmenu'
-                                                                id="deleteblogsettings" name="deleteblogsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogsettingsmenu'
+                                                                id="deleteblogsettings" name="deleteblogsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogsettings.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogsettingsmenu'
-                                                                id="alldatablogsettings" name="alldatablogsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogsettingsmenu'
+                                                                id="alldatablogsettings" name="alldatablogsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3894,45 +4491,51 @@
                                                 <tr id="blogapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='blogapi' id="showblogapimenu"
-                                                            name="showblogapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='blogapi'
+                                                            id="showblogapimenu" name="showblogapimenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogapimenu'
-                                                                id="addblogapi" name="addblogapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogapimenu' id="addblogapi"
+                                                                name="addblogapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogapimenu'
-                                                                id="viewblogapi" name="viewblogapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogapimenu' id="viewblogapi"
+                                                                name="viewblogapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogapimenu'
-                                                                id="editblogapi" name="editblogapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogapimenu' id="editblogapi"
+                                                                name="editblogapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogapimenu'
-                                                                id="deleteblogapi" name="deleteblogapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogapimenu' id="deleteblogapi"
+                                                                name="deleteblogapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.blogmodule.blogapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showblogapimenu'
-                                                                id="alldatablogapi" name="alldatablogapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showblogapimenu' id="alldatablogapi"
+                                                                name="alldatablogapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -3945,11 +4548,13 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="blogmodulereset" data-module="blog" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Reset blog Module"
+                                                <button type="button" id="blogmodulereset" data-module="blog"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Reset blog Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
@@ -3977,8 +4582,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="logisticallcheck" data-module="logistic"
-                                                        class="allcheck">
+                                                    <input type="checkbox" id="logisticallcheck"
+                                                        data-module="logistic" class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -3996,45 +4601,57 @@
                                                 <tr id="logisticdashboard">
                                                     <td>Logistic Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='logisticdashboard'
-                                                            id="showlogisticdashboardmenu" name="showlogisticdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticdashboard'
+                                                            id="showlogisticdashboardmenu"
+                                                            name="showlogisticdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="addlogisticdashboard" name="addlogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="addlogisticdashboard" name="addlogisticdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="viewlogisticdashboard" name="viewlogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="viewlogisticdashboard" name="viewlogisticdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="editlogisticdashboard" name="editlogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="editlogisticdashboard" name="editlogisticdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="deletelogisticdashboard" name="deletelogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="deletelogisticdashboard"
+                                                                name="deletelogisticdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="alldatalogisticdashboard" name="alldatalogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="alldatalogisticdashboard"
+                                                                name="alldatalogisticdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4046,45 +4663,55 @@
                                                 <tr id="consignorcopy">
                                                     <td>Consignor Copy</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='consignorcopy'
-                                                            id="showconsignorcopymenu" name="showconsignorcopymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='consignorcopy' id="showconsignorcopymenu"
+                                                            name="showconsignorcopymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="addconsignorcopy" name="addconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu' id="addconsignorcopy"
+                                                                name="addconsignorcopy" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="viewconsignorcopy" name="viewconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="viewconsignorcopy" name="viewconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="editconsignorcopy" name="editconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="editconsignorcopy" name="editconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="deleteconsignorcopy" name="deleteconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="deleteconsignorcopy" name="deleteconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="alldataconsignorcopy" name="alldataconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="alldataconsignorcopy" name="alldataconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4095,51 +4722,63 @@
                                             @if (session('user_permissions.logisticmodule.logisticsettings.add') == '1' || $user_id == 1)
                                                 <tr id="logisticsettings" class="logistic_settings_rows">
                                                     <td>
-                                                        <span class="btn expandsettingsbutton" data-target="logistic_other_settings_rows">
+                                                        <span class="btn expandsettingsbutton"
+                                                            data-target="logistic_other_settings_rows">
                                                             <i class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                             logistic/Settings
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='logisticsettings'
-                                                            id="showlogisticsettingsmenu" name="showlogisticsettingsmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticsettings' id="showlogisticsettingsmenu"
+                                                            name="showlogisticsettingsmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="addlogisticsettings" name="addlogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="addlogisticsettings" name="addlogisticsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="viewlogisticsettings" name="viewlogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="viewlogisticsettings" name="viewlogisticsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="editlogisticsettings" name="editlogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="editlogisticsettings" name="editlogisticsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="deletelogisticsettings" name="deletelogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="deletelogisticsettings"
+                                                                name="deletelogisticsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="alldatalogisticsettings" name="alldatalogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="alldatalogisticsettings"
+                                                                name="alldatalogisticsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4149,9 +4788,11 @@
                                             @endif
 
                                             @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.add') == '1' || $user_id == 1)
-                                                <tr id="consignmentnotenumbersettings" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="consignmentnotenumbersettings"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>Consignment Note Number Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignmentnotenumbersettings'
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignmentnotenumbersettings'
                                                             id="showconsignmentnotenumbersettingsmenu"
                                                             name="showconsignmentnotenumbersettingsmenu" value="1">
                                                     </td>
@@ -4159,8 +4800,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
-                                                                id="addconsignmentnotenumbersettings" name="addconsignmentnotenumbersettings"
-                                                                value="1">
+                                                                id="addconsignmentnotenumbersettings"
+                                                                name="addconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4169,8 +4810,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
-                                                                id="viewconsignmentnotenumbersettings" name="viewconsignmentnotenumbersettings"
-                                                                value="1">
+                                                                id="viewconsignmentnotenumbersettings"
+                                                                name="viewconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4179,8 +4820,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
-                                                                id="editconsignmentnotenumbersettings" name="editconsignmentnotenumbersettings"
-                                                                value="1">
+                                                                id="editconsignmentnotenumbersettings"
+                                                                name="editconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4190,7 +4831,8 @@
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
                                                                 id="deleteconsignmentnotenumbersettings"
-                                                                name="deleteconsignmentnotenumbersettings" value="1">
+                                                                name="deleteconsignmentnotenumbersettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4200,7 +4842,8 @@
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
                                                                 id="alldataconsignmentnotenumbersettings"
-                                                                name="alldataconsignmentnotenumbersettings" value="1">
+                                                                name="alldataconsignmentnotenumbersettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4210,9 +4853,11 @@
                                             @endif
 
                                             @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.add') == '1' || $user_id == 1)
-                                                <tr id="consignorcopytandcsettings" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="consignorcopytandcsettings"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>Consignor Copy T&C Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignorcopytandcsettings'
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignorcopytandcsettings'
                                                             id="showconsignorcopytandcsettingsmenu"
                                                             name="showconsignorcopytandcsettingsmenu" value="1">
                                                     </td>
@@ -4220,8 +4865,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="addconsignorcopytandcsettings" name="addconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="addconsignorcopytandcsettings"
+                                                                name="addconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4230,8 +4875,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="viewconsignorcopytandcsettings" name="viewconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="viewconsignorcopytandcsettings"
+                                                                name="viewconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4240,8 +4885,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="editconsignorcopytandcsettings" name="editconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="editconsignorcopytandcsettings"
+                                                                name="editconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4250,8 +4895,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="deleteconsignorcopytandcsettings" name="deleteconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="deleteconsignorcopytandcsettings"
+                                                                name="deleteconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4260,8 +4905,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="alldataconsignorcopytandcsettings" name="alldataconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="alldataconsignorcopytandcsettings"
+                                                                name="alldataconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4271,16 +4916,19 @@
                                             @endif
 
                                             @if (session('user_permissions.logisticmodule.logisticothersettings.add') == '1' || $user_id == 1)
-                                                <tr id="logisticothersettings" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="logisticothersettings"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>Logistic Other Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='logisticothersettings'
-                                                            id="showlogisticothersettingsmenu" name="showlogisticothersettingsmenu"
-                                                            value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticothersettings'
+                                                            id="showlogisticothersettingsmenu"
+                                                            name="showlogisticothersettingsmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="addlogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="addlogisticothersettings"
                                                                 name="addlogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -4289,7 +4937,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="viewlogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="viewlogisticothersettings"
                                                                 name="viewlogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -4298,7 +4947,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="editlogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="editlogisticothersettings"
                                                                 name="editlogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -4307,7 +4957,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="deletelogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="deletelogisticothersettings"
                                                                 name="deletelogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -4316,7 +4967,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="alldatalogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="alldatalogisticothersettings"
                                                                 name="alldatalogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -4329,45 +4981,51 @@
                                             @if (session('user_permissions.logisticmodule.consignee.add') == '1' || $user_id == 1)
                                                 <tr id="consignee">
                                                     <td>Consignee</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignee'
-                                                            id="showconsigneemenu" name="showconsigneemenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignee' id="showconsigneemenu"
+                                                            name="showconsigneemenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="addconsignee" name="addconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="addconsignee"
+                                                                name="addconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="viewconsignee" name="viewconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="viewconsignee"
+                                                                name="viewconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="editconsignee" name="editconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="editconsignee"
+                                                                name="editconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="deleteconsignee" name="deleteconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="deleteconsignee"
+                                                                name="deleteconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="alldataconsignee" name="alldataconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="alldataconsignee"
+                                                                name="alldataconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4379,45 +5037,51 @@
                                             @if (session('user_permissions.logisticmodule.consignor.add') == '1' || $user_id == 1)
                                                 <tr id="consignor">
                                                     <td>consignor</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignor'
-                                                            id="showconsignormenu" name="showconsignormenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignor' id="showconsignormenu"
+                                                            name="showconsignormenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="addconsignor" name="addconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="addconsignor"
+                                                                name="addconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="viewconsignor" name="viewconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="viewconsignor"
+                                                                name="viewconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="editconsignor" name="editconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="editconsignor"
+                                                                name="editconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="deleteconsignor" name="deleteconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="deleteconsignor"
+                                                                name="deleteconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="alldataconsignor" name="alldataconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="alldataconsignor"
+                                                                name="alldataconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4430,45 +5094,51 @@
                                                 <tr id="logisticapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='logisticapi'
-                                                            id="showlogisticapimenu" name="showlogisticapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticapi' id="showlogisticapimenu"
+                                                            name="showlogisticapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="addlogisticapi" name="addlogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="addlogisticapi"
+                                                                name="addlogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="viewlogisticapi" name="viewlogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="viewlogisticapi"
+                                                                name="viewlogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="editlogisticapi" name="editlogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="editlogisticapi"
+                                                                name="editlogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="deletelogisticapi" name="deletelogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="deletelogisticapi"
+                                                                name="deletelogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="alldatalogisticapi" name="alldatalogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="alldatalogisticapi"
+                                                                name="alldatalogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4480,45 +5150,51 @@
                                                 <tr id="watermark">
                                                     <td>PDF Watermark</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='watermark'
-                                                            id="showwatermarkmenu" name="showwatermarkmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='watermark' id="showwatermarkmenu"
+                                                            name="showwatermarkmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="addwatermark" name="addwatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="addwatermark"
+                                                                name="addwatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="viewwatermark" name="viewwatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="viewwatermark"
+                                                                name="viewwatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="editwatermark" name="editwatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="editwatermark"
+                                                                name="editwatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="deletewatermark" name="deletewatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="deletewatermark"
+                                                                name="deletewatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="alldatawatermark" name="alldatawatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="alldatawatermark"
+                                                                name="alldatawatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4530,45 +5206,57 @@
                                                 <tr id="downloadcopysetting">
                                                     <td>Download Copy Setting</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='downloadcopysetting'
-                                                            id="showdownloadcopysettingmenu" name="showdownloadcopysettingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='downloadcopysetting'
+                                                            id="showdownloadcopysettingmenu"
+                                                            name="showdownloadcopysettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="adddownloadcopysetting" name="adddownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="adddownloadcopysetting"
+                                                                name="adddownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="viewdownloadcopysetting" name="viewdownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="viewdownloadcopysetting"
+                                                                name="viewdownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="editdownloadcopysetting" name="editdownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="editdownloadcopysetting"
+                                                                name="editdownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="deletedownloadcopysetting" name="deletedownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="deletedownloadcopysetting"
+                                                                name="deletedownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="alldatadownloadcopysetting" name="alldatadownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="alldatadownloadcopysetting"
+                                                                name="alldatadownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4580,45 +5268,57 @@
                                                 <tr id="transporterbilling">
                                                     <td>Transporter Billing</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='transporterbilling'
-                                                            id="showtransporterbillingmenu" name="showtransporterbillingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='transporterbilling'
+                                                            id="showtransporterbillingmenu"
+                                                            name="showtransporterbillingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="addtransporterbilling" name="addtransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="addtransporterbilling" name="addtransporterbilling"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="viewtransporterbilling" name="viewtransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="viewtransporterbilling"
+                                                                name="viewtransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="edittransporterbilling" name="edittransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="edittransporterbilling"
+                                                                name="edittransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="deletetransporterbilling" name="deletetransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="deletetransporterbilling"
+                                                                name="deletetransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="alldatatransporterbilling" name="alldatatransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="alldatatransporterbilling"
+                                                                name="alldatatransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4631,7 +5331,8 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
                                                 <button type="button" id="logisticmodulereset" data-module="logistic"
@@ -4665,8 +5366,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="logisticallcheck" data-module="logistic"
-                                                        class="allcheck">
+                                                    <input type="checkbox" id="logisticallcheck"
+                                                        data-module="logistic" class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -4684,45 +5385,57 @@
                                                 <tr id="logisticdashboard">
                                                     <td>Logistic Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='logisticdashboard'
-                                                            id="showlogisticdashboardmenu" name="showlogisticdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticdashboard'
+                                                            id="showlogisticdashboardmenu"
+                                                            name="showlogisticdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="addlogisticdashboard" name="addlogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="addlogisticdashboard" name="addlogisticdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="viewlogisticdashboard" name="viewlogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="viewlogisticdashboard" name="viewlogisticdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="editlogisticdashboard" name="editlogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="editlogisticdashboard" name="editlogisticdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="deletelogisticdashboard" name="deletelogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="deletelogisticdashboard"
+                                                                name="deletelogisticdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticdashboardmenu'
-                                                                id="alldatalogisticdashboard" name="alldatalogisticdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticdashboardmenu'
+                                                                id="alldatalogisticdashboard"
+                                                                name="alldatalogisticdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4734,45 +5447,55 @@
                                                 <tr id="consignorcopy">
                                                     <td>Consignor Copy</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='consignorcopy'
-                                                            id="showconsignorcopymenu" name="showconsignorcopymenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='consignorcopy' id="showconsignorcopymenu"
+                                                            name="showconsignorcopymenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="addconsignorcopy" name="addconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu' id="addconsignorcopy"
+                                                                name="addconsignorcopy" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="viewconsignorcopy" name="viewconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="viewconsignorcopy" name="viewconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="editconsignorcopy" name="editconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="editconsignorcopy" name="editconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="deleteconsignorcopy" name="deleteconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="deleteconsignorcopy" name="deleteconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignorcopy.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignorcopymenu'
-                                                                id="alldataconsignorcopy" name="alldataconsignorcopy" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignorcopymenu'
+                                                                id="alldataconsignorcopy" name="alldataconsignorcopy"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4783,51 +5506,63 @@
                                             @if (session('user_permissions.logisticmodule.logisticsettings.add') == '1' || $user_id == 1)
                                                 <tr id="logisticsettings" class="logistic_settings_rows">
                                                     <td>
-                                                        <span class="btn expandsettingsbutton" data-target="logistic_other_settings_rows">
+                                                        <span class="btn expandsettingsbutton"
+                                                            data-target="logistic_other_settings_rows">
                                                             <i class="ri ri-2x ri-arrow-right-circle-fill"></i>
                                                             logistic/Settings
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='logisticsettings'
-                                                            id="showlogisticsettingsmenu" name="showlogisticsettingsmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticsettings' id="showlogisticsettingsmenu"
+                                                            name="showlogisticsettingsmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="addlogisticsettings" name="addlogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="addlogisticsettings" name="addlogisticsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="viewlogisticsettings" name="viewlogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="viewlogisticsettings" name="viewlogisticsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="editlogisticsettings" name="editlogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="editlogisticsettings" name="editlogisticsettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="deletelogisticsettings" name="deletelogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="deletelogisticsettings"
+                                                                name="deletelogisticsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticsettings.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticsettingsmenu'
-                                                                id="alldatalogisticsettings" name="alldatalogisticsettings" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticsettingsmenu'
+                                                                id="alldatalogisticsettings"
+                                                                name="alldatalogisticsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4837,58 +5572,123 @@
                                             @endif
 
                                             @if (session('user_permissions.logisticmodule.Lrcolumnmapping.add') == '1' || $user_id == 1)
-                                                <tr id="columnmapping" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="columnmapping"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>LR Column Mapping</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='Lrcolumnmapping'
-                                                            id="showLrcolumnmappingmenu" name="showLrcolumnmappingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='Lrcolumnmapping' id="showLrcolumnmappingmenu"
+                                                            name="showLrcolumnmappingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.Lrcolumnmapping.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                                id="addLrcolumnmapping" name="addLrcolumnmapping" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showLrcolumnmappingmenu'
+                                                                id="addLrcolumnmapping" name="addLrcolumnmapping"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.Lrcolumnmapping.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                                id="viewLrcolumnmapping" name="viewLrcolumnmapping" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showLrcolumnmappingmenu'
+                                                                id="viewLrcolumnmapping" name="viewLrcolumnmapping"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.Lrcolumnmapping.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                                id="editLrcolumnmapping" name="editLrcolumnmapping" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showLrcolumnmappingmenu'
+                                                                id="editLrcolumnmapping" name="editLrcolumnmapping"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.Lrcolumnmapping.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                                id="deleteLrcolumnmapping" name="deleteLrcolumnmapping" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showLrcolumnmappingmenu'
+                                                                id="deleteLrcolumnmapping" name="deleteLrcolumnmapping"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.inventorymodule.Lrcolumnmapping.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                                id="alldataLrcolumnmapping" name="alldataLrcolumnmapping" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showLrcolumnmappingmenu'
+                                                                id="alldataLrcolumnmapping"
+                                                                name="alldataLrcolumnmapping" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                 </tr>
                                             @endif
+                                          @if (session('user_permissions.logisticmodule.logisticformsetting.add') == '1' || $user_id == 1)
+                                                <tr id="logisticformsetting"
+                                                    class="logistic_other_settings_rows subsettingrows">
+                                                    <td>Invoice Form Settings</td>
+
+                                                    <td>
+                                                        <input type="checkbox"class="clickmenu"data-value="logisticformsetting"id="showlogisticformsettingmenu"name="showlogisticformsettingmenu"value="1">
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.add') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="addlogisticformsetting"name="addlogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.view') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="viewlogisticformsetting"name="viewlogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.edit') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="editlogisticformsetting"name="editlogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.delete') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="deletelogisticformsetting"name="deletelogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.alldata') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="alldatalogisticformsetting"name="alldatalogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
+
                                             @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.add') == '1' || $user_id == 1)
-                                                <tr id="consignmentnotenumbersettings" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="consignmentnotenumbersettings"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>Consignment Note Number Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignmentnotenumbersettings'
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignmentnotenumbersettings'
                                                             id="showconsignmentnotenumbersettingsmenu"
                                                             name="showconsignmentnotenumbersettingsmenu" value="1">
                                                     </td>
@@ -4896,8 +5696,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
-                                                                id="addconsignmentnotenumbersettings" name="addconsignmentnotenumbersettings"
-                                                                value="1">
+                                                                id="addconsignmentnotenumbersettings"
+                                                                name="addconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4906,8 +5706,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
-                                                                id="viewconsignmentnotenumbersettings" name="viewconsignmentnotenumbersettings"
-                                                                value="1">
+                                                                id="viewconsignmentnotenumbersettings"
+                                                                name="viewconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4916,8 +5716,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
-                                                                id="editconsignmentnotenumbersettings" name="editconsignmentnotenumbersettings"
-                                                                value="1">
+                                                                id="editconsignmentnotenumbersettings"
+                                                                name="editconsignmentnotenumbersettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4927,7 +5727,8 @@
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
                                                                 id="deleteconsignmentnotenumbersettings"
-                                                                name="deleteconsignmentnotenumbersettings" value="1">
+                                                                name="deleteconsignmentnotenumbersettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4937,7 +5738,8 @@
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignmentnotenumbersettingsmenu'
                                                                 id="alldataconsignmentnotenumbersettings"
-                                                                name="alldataconsignmentnotenumbersettings" value="1">
+                                                                name="alldataconsignmentnotenumbersettings"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4947,9 +5749,11 @@
                                             @endif
 
                                             @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.add') == '1' || $user_id == 1)
-                                                <tr id="consignorcopytandcsettings" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="consignorcopytandcsettings"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>Consignor Copy T&C Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignorcopytandcsettings'
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignorcopytandcsettings'
                                                             id="showconsignorcopytandcsettingsmenu"
                                                             name="showconsignorcopytandcsettingsmenu" value="1">
                                                     </td>
@@ -4957,8 +5761,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="addconsignorcopytandcsettings" name="addconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="addconsignorcopytandcsettings"
+                                                                name="addconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4967,8 +5771,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="viewconsignorcopytandcsettings" name="viewconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="viewconsignorcopytandcsettings"
+                                                                name="viewconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4977,8 +5781,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="editconsignorcopytandcsettings" name="editconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="editconsignorcopytandcsettings"
+                                                                name="editconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4987,8 +5791,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="deleteconsignorcopytandcsettings" name="deleteconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="deleteconsignorcopytandcsettings"
+                                                                name="deleteconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -4997,8 +5801,8 @@
                                                         @if (session('user_permissions.logisticmodule.consignorcopytandcsettings.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
                                                                 data-value='showconsignorcopytandcsettingsmenu'
-                                                                id="alldataconsignorcopytandcsettings" name="alldataconsignorcopytandcsettings"
-                                                                value="1">
+                                                                id="alldataconsignorcopytandcsettings"
+                                                                name="alldataconsignorcopytandcsettings" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5008,16 +5812,19 @@
                                             @endif
 
                                             @if (session('user_permissions.logisticmodule.logisticothersettings.add') == '1' || $user_id == 1)
-                                                <tr id="logisticothersettings" class="logistic_other_settings_rows subsettingrows">
+                                                <tr id="logisticothersettings"
+                                                    class="logistic_other_settings_rows subsettingrows">
                                                     <td>Logistic Other Settings</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='logisticothersettings'
-                                                            id="showlogisticothersettingsmenu" name="showlogisticothersettingsmenu"
-                                                            value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticothersettings'
+                                                            id="showlogisticothersettingsmenu"
+                                                            name="showlogisticothersettingsmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.add') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="addlogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="addlogisticothersettings"
                                                                 name="addlogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -5026,7 +5833,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.view') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="viewlogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="viewlogisticothersettings"
                                                                 name="viewlogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -5035,7 +5843,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.edit') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="editlogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="editlogisticothersettings"
                                                                 name="editlogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -5044,7 +5853,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.delete') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="deletelogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="deletelogisticothersettings"
                                                                 name="deletelogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -5053,7 +5863,8 @@
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticothersettings.alldata') == '1' || $user_id == 1)
                                                             <input type="checkbox" class="clicksubmenu"
-                                                                data-value='showlogisticothersettingsmenu' id="alldatalogisticothersettings"
+                                                                data-value='showlogisticothersettingsmenu'
+                                                                id="alldatalogisticothersettings"
                                                                 name="alldatalogisticothersettings" value="1">
                                                         @else
                                                             -
@@ -5066,45 +5877,51 @@
                                             @if (session('user_permissions.logisticmodule.consignee.add') == '1' || $user_id == 1)
                                                 <tr id="consignee">
                                                     <td>Consignee</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignee'
-                                                            id="showconsigneemenu" name="showconsigneemenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignee' id="showconsigneemenu"
+                                                            name="showconsigneemenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="addconsignee" name="addconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="addconsignee"
+                                                                name="addconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="viewconsignee" name="viewconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="viewconsignee"
+                                                                name="viewconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="editconsignee" name="editconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="editconsignee"
+                                                                name="editconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="deleteconsignee" name="deleteconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="deleteconsignee"
+                                                                name="deleteconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignee.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsigneemenu'
-                                                                id="alldataconsignee" name="alldataconsignee" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsigneemenu' id="alldataconsignee"
+                                                                name="alldataconsignee" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5116,45 +5933,51 @@
                                             @if (session('user_permissions.logisticmodule.consignor.add') == '1' || $user_id == 1)
                                                 <tr id="consignor">
                                                     <td>consignor</td>
-                                                    <td> <input type="checkbox" class="clickmenu" data-value='consignor'
-                                                            id="showconsignormenu" name="showconsignormenu" value="1">
+                                                    <td> <input type="checkbox" class="clickmenu"
+                                                            data-value='consignor' id="showconsignormenu"
+                                                            name="showconsignormenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="addconsignor" name="addconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="addconsignor"
+                                                                name="addconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="viewconsignor" name="viewconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="viewconsignor"
+                                                                name="viewconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="editconsignor" name="editconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="editconsignor"
+                                                                name="editconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="deleteconsignor" name="deleteconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="deleteconsignor"
+                                                                name="deleteconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.consignor.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showconsignormenu'
-                                                                id="alldataconsignor" name="alldataconsignor" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showconsignormenu' id="alldataconsignor"
+                                                                name="alldataconsignor" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5167,45 +5990,51 @@
                                                 <tr id="logisticapi">
                                                     <td>API</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='logisticapi'
-                                                            id="showlogisticapimenu" name="showlogisticapimenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='logisticapi' id="showlogisticapimenu"
+                                                            name="showlogisticapimenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="addlogisticapi" name="addlogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="addlogisticapi"
+                                                                name="addlogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="viewlogisticapi" name="viewlogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="viewlogisticapi"
+                                                                name="viewlogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="editlogisticapi" name="editlogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="editlogisticapi"
+                                                                name="editlogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="deletelogisticapi" name="deletelogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="deletelogisticapi"
+                                                                name="deletelogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.logisticapi.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showlogisticapimenu'
-                                                                id="alldatalogisticapi" name="alldatalogisticapi" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showlogisticapimenu' id="alldatalogisticapi"
+                                                                name="alldatalogisticapi" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5217,45 +6046,51 @@
                                                 <tr id="watermark">
                                                     <td>PDF Watermark</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='watermark'
-                                                            id="showwatermarkmenu" name="showwatermarkmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='watermark' id="showwatermarkmenu"
+                                                            name="showwatermarkmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="addwatermark" name="addwatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="addwatermark"
+                                                                name="addwatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="viewwatermark" name="viewwatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="viewwatermark"
+                                                                name="viewwatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="editwatermark" name="editwatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="editwatermark"
+                                                                name="editwatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="deletewatermark" name="deletewatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="deletewatermark"
+                                                                name="deletewatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.watermark.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showwatermarkmenu'
-                                                                id="alldatawatermark" name="alldatawatermark" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showwatermarkmenu' id="alldatawatermark"
+                                                                name="alldatawatermark" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5267,45 +6102,57 @@
                                                 <tr id="downloadcopysetting">
                                                     <td>Download Copy Setting</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='downloadcopysetting'
-                                                            id="showdownloadcopysettingmenu" name="showdownloadcopysettingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='downloadcopysetting'
+                                                            id="showdownloadcopysettingmenu"
+                                                            name="showdownloadcopysettingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="adddownloadcopysetting" name="adddownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="adddownloadcopysetting"
+                                                                name="adddownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="viewdownloadcopysetting" name="viewdownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="viewdownloadcopysetting"
+                                                                name="viewdownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="editdownloadcopysetting" name="editdownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="editdownloadcopysetting"
+                                                                name="editdownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="deletedownloadcopysetting" name="deletedownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="deletedownloadcopysetting"
+                                                                name="deletedownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.downloadcopysetting.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdownloadcopysettingmenu'
-                                                                id="alldatadownloadcopysetting" name="alldatadownloadcopysetting" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdownloadcopysettingmenu'
+                                                                id="alldatadownloadcopysetting"
+                                                                name="alldatadownloadcopysetting" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5317,45 +6164,57 @@
                                                 <tr id="transporterbilling">
                                                     <td>Transporter Billing</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='transporterbilling'
-                                                            id="showtransporterbillingmenu" name="showtransporterbillingmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='transporterbilling'
+                                                            id="showtransporterbillingmenu"
+                                                            name="showtransporterbillingmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="addtransporterbilling" name="addtransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="addtransporterbilling" name="addtransporterbilling"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="viewtransporterbilling" name="viewtransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="viewtransporterbilling"
+                                                                name="viewtransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="edittransporterbilling" name="edittransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="edittransporterbilling"
+                                                                name="edittransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="deletetransporterbilling" name="deletetransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="deletetransporterbilling"
+                                                                name="deletetransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.logisticmodule.transporterbilling.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtransporterbillingmenu'
-                                                                id="alldatatransporterbilling" name="alldatatransporterbilling" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtransporterbillingmenu'
+                                                                id="alldatatransporterbilling"
+                                                                name="alldatatransporterbilling" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5368,7 +6227,8 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
                                                 <button type="button" id="logisticmodulereset" data-module="logistic"
@@ -5401,8 +6261,8 @@
                                             <tr>
                                                 <th colspan="7" class="text-right">
                                                     <b>Select All </b>
-                                                    <input type="checkbox" id="developerallcheck" data-module="developer"
-                                                        class="allcheck">
+                                                    <input type="checkbox" id="developerallcheck"
+                                                        data-module="developer" class="allcheck">
                                                 </th>
                                             </tr>
                                             <tr>
@@ -5420,45 +6280,57 @@
                                                 <tr id="developerdashboard">
                                                     <td>Developer Dashboard</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='developerdashboard'
-                                                            id="showdeveloperdashboardmenu" name="showdeveloperdashboardmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='developerdashboard'
+                                                            id="showdeveloperdashboardmenu"
+                                                            name="showdeveloperdashboardmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.developerdashboard.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdeveloperdashboardmenu'
-                                                                id="adddeveloperdashboard" name="adddeveloperdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdeveloperdashboardmenu'
+                                                                id="adddeveloperdashboard" name="adddeveloperdashboard"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.developerdashboard.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdeveloperdashboardmenu'
-                                                                id="viewdeveloperdashboard" name="viewdeveloperdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdeveloperdashboardmenu'
+                                                                id="viewdeveloperdashboard"
+                                                                name="viewdeveloperdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.developerdashboard.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdeveloperdashboardmenu'
-                                                                id="editdeveloperdashboard" name="editdeveloperdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdeveloperdashboardmenu'
+                                                                id="editdeveloperdashboard"
+                                                                name="editdeveloperdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.developerdashboard.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdeveloperdashboardmenu'
-                                                                id="deletedeveloperdashboard" name="deletedeveloperdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdeveloperdashboardmenu'
+                                                                id="deletedeveloperdashboard"
+                                                                name="deletedeveloperdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.developerdashboard.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showdeveloperdashboardmenu'
-                                                                id="alldatadeveloperdashboard" name="alldatadeveloperdashboard" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showdeveloperdashboardmenu'
+                                                                id="alldatadeveloperdashboard"
+                                                                name="alldatadeveloperdashboard" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5470,45 +6342,51 @@
                                                 <tr id="slowpage">
                                                     <td>Slow Page</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='slowpage' id="showslowpagemenu"
-                                                            name="showslowpagemenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='slowpage'
+                                                            id="showslowpagemenu" name="showslowpagemenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.slowpage.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showslowpagemenu'
-                                                                id="addslowpage" name="addslowpage" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showslowpagemenu' id="addslowpage"
+                                                                name="addslowpage" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.slowpage.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showslowpagemenu'
-                                                                id="viewslowpage" name="viewslowpage" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showslowpagemenu' id="viewslowpage"
+                                                                name="viewslowpage" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.slowpage.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showslowpagemenu'
-                                                                id="editslowpage" name="editslowpage" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showslowpagemenu' id="editslowpage"
+                                                                name="editslowpage" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.slowpage.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showslowpagemenu'
-                                                                id="deleteslowpage" name="deleteslowpage" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showslowpagemenu' id="deleteslowpage"
+                                                                name="deleteslowpage" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.slowpage.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showslowpagemenu'
-                                                                id="alldataslowpage" name="alldataslowpage" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showslowpagemenu' id="alldataslowpage"
+                                                                name="alldataslowpage" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5520,45 +6398,51 @@
                                                 <tr id="errorlog">
                                                     <td>Error Log</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='errorlog' id="showerrorlogmenu"
-                                                            name="showerrorlogmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='errorlog'
+                                                            id="showerrorlogmenu" name="showerrorlogmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.errorlog.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showerrorlogmenu'
-                                                                id="adderrorlog" name="adderrorlog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showerrorlogmenu' id="adderrorlog"
+                                                                name="adderrorlog" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.errorlog.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showerrorlogmenu'
-                                                                id="viewerrorlog" name="viewerrorlog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showerrorlogmenu' id="viewerrorlog"
+                                                                name="viewerrorlog" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.errorlog.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showerrorlogmenu'
-                                                                id="editerrorlog" name="editerrorlog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showerrorlogmenu' id="editerrorlog"
+                                                                name="editerrorlog" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.errorlog.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showerrorlogmenu'
-                                                                id="deleteerrorlog" name="deleteerrorlog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showerrorlogmenu' id="deleteerrorlog"
+                                                                name="deleteerrorlog" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.errorlog.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showerrorlogmenu'
-                                                                id="alldataerrorlog" name="alldataerrorlog" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showerrorlogmenu' id="alldataerrorlog"
+                                                                name="alldataerrorlog" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5570,45 +6454,51 @@
                                                 <tr id="cronjob">
                                                     <td>Cron Job</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='cronjob' id="showcronjobmenu"
-                                                            name="showcronjobmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='cronjob'
+                                                            id="showcronjobmenu" name="showcronjobmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cronjob.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcronjobmenu'
-                                                                id="addcronjob" name="addcronjob" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcronjobmenu' id="addcronjob"
+                                                                name="addcronjob" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cronjob.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcronjobmenu'
-                                                                id="viewcronjob" name="viewcronjob" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcronjobmenu' id="viewcronjob"
+                                                                name="viewcronjob" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cronjob.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcronjobmenu'
-                                                                id="editcronjob" name="editcronjob" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcronjobmenu' id="editcronjob"
+                                                                name="editcronjob" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cronjob.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcronjobmenu'
-                                                                id="deletecronjob" name="deletecronjob" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcronjobmenu' id="deletecronjob"
+                                                                name="deletecronjob" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cronjob.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcronjobmenu'
-                                                                id="alldatacronjob" name="alldatacronjob" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcronjobmenu' id="alldatacronjob"
+                                                                name="alldatacronjob" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5620,45 +6510,51 @@
                                                 <tr id="techdoc">
                                                     <td>Technical Documents</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='techdoc' id="showtechdocmenu"
-                                                            name="showtechdocmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu" data-value='techdoc'
+                                                            id="showtechdocmenu" name="showtechdocmenu"
+                                                            value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.techdoc.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtechdocmenu'
-                                                                id="addtechdoc" name="addtechdoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtechdocmenu' id="addtechdoc"
+                                                                name="addtechdoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.techdoc.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtechdocmenu'
-                                                                id="viewtechdoc" name="viewtechdoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtechdocmenu' id="viewtechdoc"
+                                                                name="viewtechdoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.techdoc.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtechdocmenu'
-                                                                id="edittechdoc" name="edittechdoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtechdocmenu' id="edittechdoc"
+                                                                name="edittechdoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.techdoc.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtechdocmenu'
-                                                                id="deletetechdoc" name="deletetechdoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtechdocmenu' id="deletetechdoc"
+                                                                name="deletetechdoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.techdoc.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showtechdocmenu'
-                                                                id="alldatatechdoc" name="alldatatechdoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showtechdocmenu' id="alldatatechdoc"
+                                                                name="alldatatechdoc" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5670,45 +6566,51 @@
                                                 <tr id="versiondoc">
                                                     <td>Version Documents</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='versiondoc'
-                                                            id="showversiondocmenu" name="showversiondocmenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='versiondoc' id="showversiondocmenu"
+                                                            name="showversiondocmenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.versiondoc.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showversiondocmenu'
-                                                                id="addversiondoc" name="addversiondoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showversiondocmenu' id="addversiondoc"
+                                                                name="addversiondoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.versiondoc.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showversiondocmenu'
-                                                                id="viewversiondoc" name="viewversiondoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showversiondocmenu' id="viewversiondoc"
+                                                                name="viewversiondoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.versiondoc.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showversiondocmenu'
-                                                                id="editversiondoc" name="editversiondoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showversiondocmenu' id="editversiondoc"
+                                                                name="editversiondoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.versiondoc.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showversiondocmenu'
-                                                                id="deleteversiondoc" name="deleteversiondoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showversiondocmenu' id="deleteversiondoc"
+                                                                name="deleteversiondoc" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.versiondoc.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showversiondocmenu'
-                                                                id="alldataversiondoc" name="alldataversiondoc" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showversiondocmenu' id="alldataversiondoc"
+                                                                name="alldataversiondoc" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5720,45 +6622,57 @@
                                                 <tr id="recentactivitydata">
                                                     <td>Activity/Recent Data</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='recentactivitydata'
-                                                            id="showrecentactivitydatamenu" name="showrecentactivitydatamenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='recentactivitydata'
+                                                            id="showrecentactivitydatamenu"
+                                                            name="showrecentactivitydatamenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.recentactivitydata.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitydatamenu'
-                                                                id="addrecentactivitydata" name="addrecentactivitydata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitydatamenu'
+                                                                id="addrecentactivitydata" name="addrecentactivitydata"
+                                                                value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.recentactivitydata.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitydatamenu'
-                                                                id="viewrecentactivitydata" name="viewrecentactivitydata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitydatamenu'
+                                                                id="viewrecentactivitydata"
+                                                                name="viewrecentactivitydata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.recentactivitydata.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitydatamenu'
-                                                                id="editrecentactivitydata" name="editrecentactivitydata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitydatamenu'
+                                                                id="editrecentactivitydata"
+                                                                name="editrecentactivitydata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.recentactivitydata.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitydatamenu'
-                                                                id="deleterecentactivitydata" name="deleterecentactivitydata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitydatamenu'
+                                                                id="deleterecentactivitydata"
+                                                                name="deleterecentactivitydata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.recentactivitydata.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showrecentactivitydatamenu'
-                                                                id="alldatarecentactivitydata" name="alldatarecentactivitydata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showrecentactivitydatamenu'
+                                                                id="alldatarecentactivitydata"
+                                                                name="alldatarecentactivitydata" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5770,45 +6684,51 @@
                                                 <tr id="cleardata">
                                                     <td>Clear Data</td>
                                                     <td>
-                                                        <input type="checkbox" class="clickmenu" data-value='cleardata'
-                                                            id="showcleardatamenu" name="showcleardatamenu" value="1">
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='cleardata' id="showcleardatamenu"
+                                                            name="showcleardatamenu" value="1">
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cleardata.add') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcleardatamenu'
-                                                                id="addcleardata" name="addcleardata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcleardatamenu' id="addcleardata"
+                                                                name="addcleardata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cleardata.view') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcleardatamenu'
-                                                                id="viewcleardata" name="viewcleardata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcleardatamenu' id="viewcleardata"
+                                                                name="viewcleardata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cleardata.edit') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcleardatamenu'
-                                                                id="editcleardata" name="editcleardata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcleardatamenu' id="editcleardata"
+                                                                name="editcleardata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cleardata.delete') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcleardatamenu'
-                                                                id="deletecleardata" name="deletecleardata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcleardatamenu' id="deletecleardata"
+                                                                name="deletecleardata" value="1">
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if (session('user_permissions.developermodule.cleardata.alldata') == '1' || $user_id == 1)
-                                                            <input type="checkbox" class="clicksubmenu" data-value='showcleardatamenu'
-                                                                id="alldatacleardata" name="alldatacleardata" value="1">
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showcleardatamenu' id="alldatacleardata"
+                                                                name="alldatacleardata" value="1">
                                                         @else
                                                             -
                                                         @endif
@@ -5821,17 +6741,19 @@
                                         <div class="form-row">
                                             <div class="col-sm-12">
                                                 <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Cancel" class="btn btn-secondary float-right cancelbtn">
+                                                    data-original-title="Cancel"
+                                                    class="btn btn-secondary float-right cancelbtn">
                                                     Cancel
                                                 </button>
-                                                <button type="button" id="developermodulereset" data-module="developer"
-                                                    data-toggle="tooltip" data-placement="bottom"
-                                                    data-original-title="Reset Developer Module"
+                                                <button type="button" id="developermodulereset"
+                                                    data-module="developer" data-toggle="tooltip"
+                                                    data-placement="bottom" data-original-title="Reset Developer Module"
                                                     class="btn iq-bg-danger float-right resetbtn mr-2">
                                                     Reset
                                                 </button>
-                                                <button type="submit" id="developermodulesubmit" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Save"
+                                                <button type="submit" id="developermodulesubmit"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Save"
                                                     class="btn btn-primary float-right my-0 submitBtn">
                                                     Save
                                                 </button>
@@ -5868,7 +6790,7 @@
         }
     </script>
     <script>
-        $('document').ready(function () {
+        $('document').ready(function() {
             // companyId and userId both are required in every ajax request for all action */*/*/
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
@@ -5885,7 +6807,7 @@
 
             $('.subsettingrows').slideUp();
 
-            $('.expandsettingsbutton').on('click', function () {
+            $('.expandsettingsbutton').on('click', function() {
                 let targetrows = $(this).data('target');
                 let isInvoiceSettings = targetrows === 'invoice_settings_rows';
                 let isQuotationSettings = targetrows === 'quotation_settings_rows';
@@ -5950,10 +6872,10 @@
                             company_id: "{{ session()->get('company_id') }}",
                             token: "{{ session()->get('api_token') }}"
                         },
-                        success: function (response) {
+                        success: function(response) {
                             resolve(response);
                         },
-                        error: function (error) {
+                        error: function(error) {
                             reject(error);
                         }
                     });
@@ -5971,7 +6893,7 @@
                     // Check if user data is successfully fetched
                     if (userDataResponse.status == 200 && userDataResponse.user != '') {
                         // You can update your HTML with the data here if needed     
-                        $.each(userDataResponse.user, function (key, value) {
+                        $.each(userDataResponse.user, function(key, value) {
                             var optionValue = ((value.firstname != null) ? value.firstname : '') + ' ' +
                                 ((value.lastname != null) ? value.lastname : '');
                             $('#assignedto').append(
@@ -6017,11 +6939,11 @@
                     company_id: "{{ session()->get('company_id') }}",
                     token: "{{ session()->get('api_token') }}"
                 },
-                success: function (response) {
+                success: function(response) {
                     if (response.status == 200 && response.userrolepermission != '') {
                         userrolepermission = response.userrolepermission;
                         // You can update your HTML with the data here if needed
-                        $.each(userrolepermission, function (key, value) {
+                        $.each(userrolepermission, function(key, value) {
                             $('#user_role_permission').append(
                                 `<option value='${value.id}'> ${value.role_name}</option>`
                             )
@@ -6032,7 +6954,7 @@
                     }
                     loaderhide();
                 },
-                error: function (error) {
+                error: function(error) {
                     loaderhide();
                     userrolepermission = '';
                     console.log(error);
@@ -6054,11 +6976,11 @@
                 data: {
                     token: "{{ session()->get('api_token') }}"
                 },
-                success: function (response) {
+                success: function(response) {
 
                     if (response.status == 200 && response.country != '') {
                         // You can update your HTML with the data here if needed
-                        $.each(response.country, function (key, value) {
+                        $.each(response.country, function(key, value) {
                             $('#country').append(
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
@@ -6071,7 +6993,7 @@
                     }
                     loaderhide();
                 },
-                error: function (xhr, status, error) { // if calling api request error 
+                error: function(xhr, status, error) { // if calling api request error 
                     loaderhide();
                     console.log(xhr
                         .responseText); // Log the full error response for debugging
@@ -6104,10 +7026,10 @@
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.state != '') {
                             // You can update your HTML with the data here if needed
-                            $.each(response.state, function (key, value) {
+                            $.each(response.state, function(key, value) {
                                 $('#state').append(
                                     `<option value='${value.id}'> ${value.state_name}</option>`
                                 )
@@ -6122,7 +7044,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -6155,10 +7077,10 @@
                     data: {
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.city != '') {
                             // You can update your HTML with the data here if needed
-                            $.each(response.city, function (key, value) {
+                            $.each(response.city, function(key, value) {
                                 $('#city').append(
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
@@ -6171,7 +7093,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -6191,7 +7113,7 @@
             }
 
             // load state in dropdown when country change
-            $('#country').on('change', function () {
+            $('#country').on('change', function() {
                 loadershow();
                 $('#city').html(`<option selected="" disabled="">Select your city</option>`);
                 var country_id = $(this).val();
@@ -6199,14 +7121,14 @@
             });
 
             // load city in dropdown when state select/change
-            $('#state').on('change', function () {
+            $('#state').on('change', function() {
                 loadershow();
                 var state_id = $(this).val();
                 loadcity(state_id);
             });
 
             // check/uncheck all checkboxes module wise
-            $(document).on('click', '.allcheck', function () {
+            $(document).on('click', '.allcheck', function() {
                 $('#user_role_permission').val(''); //remove role if user modify manually
                 if (userrp == 1) {
                     var module = $(this).data('module');
@@ -6234,7 +7156,7 @@
 
 
             // check all checkboxes in the row if click on any menu
-            $(document).on('change', '.clickmenu', function () {
+            $(document).on('change', '.clickmenu', function() {
                 $('#user_role_permission').val(''); //remove role if user modify manually
                 // if (userrp == 1) {
                 //     value = $(this).data('value');
@@ -6257,7 +7179,7 @@
             })
 
             // check  mian menu if check any submenu(edit,delete,add...)
-            $(document).on('change', '.clicksubmenu', function () {
+            $(document).on('change', '.clicksubmenu', function() {
                 $('#user_role_permission').val(''); //remove role if user modify manually
                 // if (userrp == 1) {
                 //     value = $(this).data('value');
@@ -6269,7 +7191,7 @@
 
 
             //for checkboxes reset 
-            $(document).on('click', '.resetbtn', function () {
+            $(document).on('click', '.resetbtn', function() {
                 if (userrp == 1) {
                     var module = $(this).data('module');
                     $(`#${module}checkboxes input[type="checkbox"] , #${module}allcheck`).prop(
@@ -6285,23 +7207,23 @@
             })
 
             // redirect to user list page if click any cancel btn
-            $(document).on('click', '.cancelbtn', function () {
+            $(document).on('click', '.cancelbtn', function() {
                 loadershow();
                 window.location.href = "{{ route('admin.user') }}"
             });
 
 
-            $('#user_role_permission').on('change', function () {
+            $('#user_role_permission').on('change', function() {
                 $('.permission-row input[type="checkbox"]').prop('checked', false);
                 let user_role = $(this).val();
                 if (user_role) {
-                    $.each(userrolepermission, function (key, value) {
+                    $.each(userrolepermission, function(key, value) {
                         if (value.id == user_role) {
                             rp = JSON.parse(value.role_permissions);
                             if (rp.reportmodule) {
                                 var assignedreportuser = rp.reportmodule.report.alldata;
                                 if (assignedreportuser != 'null' && assignedreportuser != null) {
-                                    assignedreportuser.forEach(function (value) {
+                                    assignedreportuser.forEach(function(value) {
                                         $('#assignedto').multiselect('select', value);
                                     });
                                     $('#assignedto').multiselect('rebuild');
@@ -6310,9 +7232,9 @@
                                     }
                                 }
                             }
-                            $.each(rp, function (key, value) {
-                                $.each(value, function (key2, value2) {
-                                    $.each(value2, function (key3, value3) {
+                            $.each(rp, function(key, value) {
+                                $.each(value, function(key2, value2) {
+                                    $.each(value2, function(key3, value3) {
                                         if (value3 == 1) {
                                             if (key3 == "show") {
                                                 $(`#show${key2}menu`).prop(
@@ -6334,7 +7256,7 @@
             });
 
             //submit form
-            $('#userform').submit(function (event) {
+            $('#userform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
@@ -6345,7 +7267,7 @@
                     data: formdata,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -6367,13 +7289,13 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
-                            $.each(errors, function (key, value) {
+                            $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
                         } else {

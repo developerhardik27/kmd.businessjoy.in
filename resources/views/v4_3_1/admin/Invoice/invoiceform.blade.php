@@ -682,9 +682,10 @@
                     // You can update your HTML with the data here if needed
                     $.each(response.data, function (key, value) {
                         consignorcopycount++;
+                        const lrdetails = [value.consignee, value.consignment_note_no, value.consignor, value.container_no, value.to_pay].filter(Boolean).join(' - ');
                         $('#lr').append(`
                             <option id="lr_option_${value.id}" value="${value.id}">
-                                ${value.consignee} - ${value.consignment_note_no} - ${value.consignor} - ${value.container_no} - ${value.to_pay}
+                                ${lrdetails}
                             </option>
                         `);
                     });

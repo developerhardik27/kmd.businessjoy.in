@@ -66,7 +66,8 @@
                                             <div class="col-sm-6">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <textarea class="form-control" name='t_and_c' id="t_and_c" rows="2"
@@ -113,10 +114,8 @@
         </div>
         <div class="container-fluid">
             <div class="row">
-                @if (
-                        session('user_permissions.logisticmodule.watermark.edit') == 1 ||
-                        session('user_permissions.logisticmodule.watermark.add') == 1
-                    )
+                @if (session('user_permissions.logisticmodule.watermark.edit') == 1 ||
+                        session('user_permissions.logisticmodule.watermark.add') == 1)
                     <div class="col-md-6">
                         <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Watermark Settings"
                             type="button" id="editWatermarkSettingsBtn"
@@ -137,22 +136,26 @@
                                             <div class="col-sm-12">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <label for="watermark_image">Watermark Image</label><br>
-                                                <input type="file" class="form-control-file w-100" accept=".jpg, .jpeg, .png"
-                                                    name="watermark_image" id="watermark_image" />
+                                                <input type="file" class="form-control-file w-100"
+                                                    accept=".jpg, .jpeg, .png" name="watermark_image"
+                                                    id="watermark_image" />
                                                 <p class="text-primary">Please select a photo file (JPG, JPEG, or PNG) that
                                                     is smaller than 1 MB.</p>
-                                                <span class="error-msg" id="error-watermark_image" style="color: red"></span>
+                                                <span class="error-msg" id="error-watermark_image"
+                                                    style="color: red"></span>
                                             </div>
                                         </div>
 
                                         <div class="form-row">
                                             <div class="col-sm-12 mt-2">
-                                                <button type="button" id="cancelWatermarkSettingsBtn" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Cancel"
+                                                <button type="button" id="cancelWatermarkSettingsBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset"
@@ -164,7 +167,8 @@
                                         </div>
                                     </div>
                                 </form>
-                                Current Watermark : <img id="current_watermark_img" src="" width="100px" alt="Not Set Yet"><br>
+                                Current Watermark : <img id="current_watermark_img" src="" width="100px"
+                                    alt="Not Set Yet"><br>
 
                             </div>
                         </div>
@@ -192,12 +196,13 @@
                                             <div class="col-sm-12">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <label for="consignment_note_number">Consignment Note Number</label>
-                                                <input type="number" class="form-control" min="1" name="consignment_note_number"
-                                                    id="consignment_note_number">
+                                                <input type="number" class="form-control" min="1"
+                                                    name="consignment_note_number" id="consignment_note_number">
                                                 <p id="info-consignment_note_no" class="text-info m-0"></p>
                                                 <span class="error-msg" id="error-consignment_note_number"
                                                     style="color: red"></span>
@@ -206,8 +211,9 @@
                                         </div>
                                         <div class="form-row">
                                             <div class="col-sm-12 mt-2">
-                                                <button type="button" id="cancelconsignmentnotenumberBtn" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Cancel"
+                                                <button type="button" id="cancelconsignmentnotenumberBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset"
@@ -246,17 +252,20 @@
                                             <div class="col-12 mb-2">
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <label for="gst_tax_payable_by">GST Tax Payable By</label>
-                                                <select class="form-control" name="gst_tax_payable_by" id="gst_tax_payable_by">
+                                                <select class="form-control" name="gst_tax_payable_by"
+                                                    id="gst_tax_payable_by">
                                                     <option selected value="">Select</option>
                                                     <option value="consignee/consignor">Consignee/Consignor</option>
                                                     <option value="consignee">Consignee</option>
                                                     <option value="consignor">Consignor</option>
                                                 </select>
-                                                <span class="error-msg" id="error-gst_tax_payable_by" style="color: red"></span>
+                                                <span class="error-msg" id="error-gst_tax_payable_by"
+                                                    style="color: red"></span>
                                             </div>
                                             <div class="col-12 mb-2">
                                                 <label for="weight">Weight</label>
@@ -286,8 +295,8 @@
                                                     class="custom-control custom-control-inline custom-switch custom-switch-text d-inline">
                                                     <input type="checkbox" class="custom-control-input" id="godnameswith"
                                                         name="god_name" value="1">
-                                                    <label class="custom-control-label" for="godnameswith" data-on-label="On"
-                                                        data-off-label="Off"></label>
+                                                    <label class="custom-control-label" for="godnameswith"
+                                                        data-on-label="On" data-off-label="Off"></label>
                                                 </div>
                                             </div>
                                         </div>
@@ -316,7 +325,8 @@
                                         <input type="checkbox" class="custom-control-input" disabled
                                             id="god_namedisabledswitch">
 
-                                        <label class="custom-control-label" for="god_namedisabledswitch" id="godnamestatus">
+                                        <label class="custom-control-label" for="god_namedisabledswitch"
+                                            id="godnamestatus">
                                         </label>
                                     </span>
                                 </p>
@@ -327,8 +337,9 @@
                 @endif
                 @if (session('user_permissions.logisticmodule.downloadcopysetting.edit') == 1)
                     <div class="col-md-6">
-                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Download Copy Setting"
-                            type="button" id="editDownloadCopySettingBtn"
+                        <button data-toggle="tooltip" data-placement="bottom"
+                            data-original-title="Edit Download Copy Setting" type="button"
+                            id="editDownloadCopySettingBtn"
                             class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
                             <i class="ri-edit-fill"></i>
                         </button>
@@ -348,8 +359,8 @@
                                                     value="{{ session('api_token') }}" required />
                                                 <input type="hidden" value="{{ session('user_id') }}" name="user_id"
                                                     class="form-control">
-                                                <input type="hidden" value="{{ session('company_id') }}" name="company_id"
-                                                    class="form-control">
+                                                <input type="hidden" value="{{ session('company_id') }}"
+                                                    name="company_id" class="form-control">
                                                 <label for="download_copy">Copies</label>
                                                 <select class="select2 form-control w-100" name="download_copy[]"
                                                     id="download_copy" multiple>
@@ -358,13 +369,15 @@
                                                     <option value="driver">Driver</option>
                                                     <option value="always ask">Always ask</option>
                                                 </select>
-                                                <span class="error-msg" id="error-download_copy" style="color: red"></span>
+                                                <span class="error-msg" id="error-download_copy"
+                                                    style="color: red"></span>
                                             </div>
                                         </div>
                                         <div class="form-row">
                                             <div class="col-sm-12 mt-2">
-                                                <button type="button" id="cancelDownloadCopySettingBtn" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Cancel"
+                                                <button type="button" id="cancelDownloadCopySettingBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset"
@@ -381,10 +394,10 @@
                         </div>
                     </div>
                 @endif
-                @if (session('user_permissions.logisticmodule.logisticothersettings.edit') == 1)
+                @if (session('user_permissions.logisticmodule.logisticformsetting.edit') == 1)
                     <div class="col-md-6">
-                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Form Settings" type="button"
-                            id="editcustomerformsettingsBtn"
+                        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Form Settings"
+                            type="button" id="editcustomerformsettingsBtn"
                             class="float-right m-4 btn btn-outline-success btn-rounded btn-sm my-0">
                             <i class="ri-edit-fill"></i>
                         </button>
@@ -404,13 +417,14 @@
                                                     required />
                                                 <input type="hidden" name="token" class="form-control"
                                                     value="{{ session('api_token') }}" required />
-                                                <input type="hidden" value="{{ $user_id }}" name="user_id" class="form-control">
+                                                <input type="hidden" value="{{ $user_id }}" name="user_id"
+                                                    class="form-control">
                                                 <input type="hidden" value="{{ $company_id }}" name="company_id"
                                                     class="form-control">
                                                 <label for="customer_type">Custom Drop Down</label>
 
                                                 <div class="checkbox-group">
-                                                     <label>
+                                                    <label>
                                                         <input type="checkbox" name="customer_type[]" value="invoice">
                                                         invoice
                                                     </label>
@@ -425,8 +439,9 @@
                                         </div>
                                         <div class="form-row">
                                             <div class="col-sm-12 mt-2">
-                                                <button type="btn" id="cancelcustomerformsettingBtn" data-toggle="tooltip"
-                                                    data-placement="bottom" data-original-title="Cancel"
+                                                <button type="btn" id="cancelcustomerformsettingBtn"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Reset"
@@ -451,8 +466,7 @@
 
 @push('ajax')
     <script>
-
-        $('document').ready(function () {
+        $('document').ready(function() {
 
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
@@ -500,14 +514,15 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.logisticsettings != '') {
                             othersettings = response.logisticsettings;
 
                             //this code for get god name 
                             customer_dropdown = response.logisticsettings['customer_dropdown'];
 
-                            document.querySelectorAll('input[name="customer_type[]"]').forEach((checkbox) => {
+                            document.querySelectorAll('input[name="customer_type[]"]').forEach((
+                                checkbox) => {
                                 if (customer_dropdown.includes(checkbox.value)) {
                                     checkbox.checked = true;
                                 }
@@ -520,15 +535,19 @@
                             $('#godnamestatus').text(god_name == 1 ? 'active' : 'inactive');
                             if (god_name == 1) {
                                 $('#godnameswith').prop('checked', true); // Check the checkbox
-                                $('#god_namedisabledswitch').prop('checked', true); // Check the checkbox
+                                $('#god_namedisabledswitch').prop('checked',
+                                true); // Check the checkbox
                             } else {
                                 $('#godnameswith').prop('checked', false); // Uncheck the checkbox
-                                $('#god_namedisabledswitch').prop('checked', false); // Uncheck the checkbox
+                                $('#god_namedisabledswitch').prop('checked',
+                                false); // Uncheck the checkbox
                             }
 
                             //this code for get other details 
                             if (response.lrcount > 0) {
-                                $('#info-consignment_note_no').text(`Consignment note number not allow to smaller than ${othersettings.current_consignment_note_no}`);
+                                $('#info-consignment_note_no').text(
+                                    `Consignment note number not allow to smaller than ${othersettings.current_consignment_note_no}`
+                                    );
                             }
 
                             $('#startcnn').html(
@@ -554,7 +573,7 @@
                         loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         othersettings = null;
                         loaderhide();
                         console.log(xhr
@@ -582,12 +601,13 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200 && response.termsandconditions != '') {
                             global_response = response;
                             var id = 1;
-                            $.each(response.termsandconditions, function (key, value) {
-                                $('#tabledata').append(` 
+                            $.each(response.termsandconditions, function(key, value) {
+                                $('#tabledata').append(
+                                    ` 
                                                                                                                                     <tr>
                                                                                                                                         <td>${id}</td>
                                                                                                                                         <td class='text-left'><div id="tcdiv">${value.t_and_c}</div></td>
@@ -625,7 +645,7 @@
                         loaderhide();
                         // You can update your HTML with the data here if needed
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -648,7 +668,7 @@
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status === 200 && response.watermarksettings) {
 
                             let data = response.watermarksettings;
@@ -664,7 +684,7 @@
 
                         loaderhide();
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         loaderhide();
                         console.log(xhr.responseText);
                         handleAjaxError(xhr);
@@ -675,7 +695,7 @@
 
 
             //  t & cstatus update(active to inactive)            
-            $(document).on("click", ".status-active", function () {
+            $(document).on("click", ".status-active", function() {
                 element = $(this);
                 showConfirmationDialog(
                     'Are you sure?', // Title
@@ -692,7 +712,7 @@
             });
 
             //  t & c status update (inactive to active)            
-            $(document).on("click", ".status-deactive", function () {
+            $(document).on("click", ".status-deactive", function() {
                 element = $(this);
                 showConfirmationDialog(
                     'Are you sure?', // Title
@@ -712,7 +732,7 @@
             function changetcstatus(tcid, statusvalue) {
                 let termsAndConditionsStatusUpdateUrl =
                     "{{ route('consignorcopytermsandconditions.statusupdate', '__tcId__') }}"
-                        .replace('__tcId__', tcid);
+                    .replace('__tcId__', tcid);
                 $.ajax({
                     type: 'PUT',
                     url: termsAndConditionsStatusUpdateUrl,
@@ -722,7 +742,7 @@
                         company_id: "{{ session()->get('company_id') }}",
                         user_id: "{{ session()->get('user_id') }}"
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status == 200) {
                             Toast.fire({
                                 icon: "success",
@@ -742,7 +762,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr.responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
@@ -751,7 +771,7 @@
             }
 
             // delete terms and conditions              
-            $(document).on("click", ".del-btn", function () {
+            $(document).on("click", ".del-btn", function() {
                 var deleteid = $(this).data('id');
                 var row = this;
                 showConfirmationDialog(
@@ -765,8 +785,8 @@
                         loadershow();
                         let termsAndConditionsDeleteUrl =
                             "{{ route('consignorcopytermsandconditions.delete', '__deleteId__') }}"
-                                .replace(
-                                    '__deleteId__', deleteid);
+                            .replace(
+                                '__deleteId__', deleteid);
                         $.ajax({
                             type: 'PUT',
                             url: termsAndConditionsDeleteUrl,
@@ -775,7 +795,7 @@
                                 company_id: "{{ session()->get('company_id') }}",
                                 user_id: "{{ session()->get('user_id') }}",
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status == 200) {
                                     Toast.fire({
                                         icon: "success",
@@ -795,7 +815,7 @@
                                 }
                                 loaderhide();
                             },
-                            error: function (xhr, status,
+                            error: function(xhr, status,
                                 error) { // if calling api request error 
                                 loaderhide();
                                 console.log(xhr
@@ -809,14 +829,14 @@
             });
 
             // show add new terms and conditions form on click add new terms and condition btn
-            $('#newtcBtn').on('click', function (e) {
+            $('#newtcBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#tcform').removeClass('d-none');
                 $('#newtcBtn').addClass('d-none');
             })
 
             // hide add new terms and conditions form on click cancel tc button
-            $('#canceltcBtn').on('click', function (e) {
+            $('#canceltcBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#tcform')[0].reset();
                 $('#t_and_c').summernote('code', '');
@@ -825,13 +845,13 @@
             })
 
             // reset add new terms and conditions form on  click reset tc button
-            $('#resettcBtn').on('click', function (e) {
+            $('#resettcBtn').on('click', function(e) {
                 $('#tcform')[0].reset();
                 $('#t_and_c').summernote('code', '');
             })
 
             // submit terms and conditions form 
-            $('#tcform').submit(function (event) {
+            $('#tcform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 url = "{{ route('consignorcopytermsandconditions.store') }}";
@@ -841,7 +861,7 @@
                     type: 'POST',
                     url: url,
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -865,13 +885,13 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
-                            $.each(errors, function (key, value) {
+                            $.each(errors, function(key, value) {
                                 $('#error-' + key).text(value[0].replace('t and c',
                                     'T&C'));
                             });
@@ -899,21 +919,21 @@
             // watermark settings  start
 
             // show edit customer id form
-            $('#editWatermarkSettingsBtn').on('click', function (e) {
+            $('#editWatermarkSettingsBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#watermarkform').removeClass('d-none');
                 $('#editWatermarkSettingsBtn').addClass('d-none');
             })
 
             // hide edit customer id form
-            $('#cancelWatermarkSettingsBtn').on('click', function (e) {
+            $('#cancelWatermarkSettingsBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#watermarkform')[0].reset();
                 $('#watermarkform').addClass('d-none');
                 $('#editWatermarkSettingsBtn').removeClass('d-none');
             })
 
-            $('#watermarkform').submit(function (event) {
+            $('#watermarkform').submit(function(event) {
                 event.preventDefault();
                 loadershow();
                 url = "{{ route('watermark.update') }}";
@@ -925,7 +945,7 @@
                     data: formdata,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -933,7 +953,8 @@
                                 icon: "success",
                                 title: response.message
                             });
-                            imagePath = "{{asset('uploads/')}}" + '/' + response.watermarksettings;
+                            imagePath = "{{ asset('uploads/') }}" + '/' + response
+                                .watermarksettings;
                             $('#current_watermark_img').attr('src', `${imagePath}`);
                             $('#watermarkform')[0].reset();
                             $('#watermarkform').addClass('d-none');
@@ -946,9 +967,10 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
-                        console.log(xhr.responseText); // Log the full error response for debugging
+                        console.log(xhr
+                        .responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
                     }
                 });
@@ -962,7 +984,7 @@
              */
 
             // show edit customer id form
-            $('#editconsignmentnotenumberBtn').on('click', function (e) {
+            $('#editconsignmentnotenumberBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#consignment_note_number').val(othersettings.start_consignment_note_no);
                 $('#cidform').removeClass('d-none');
@@ -970,7 +992,7 @@
             })
 
             // hide edit customer id form
-            $('#cancelconsignmentnotenumberBtn').on('click', function (e) {
+            $('#cancelconsignmentnotenumberBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#cidform')[0].reset();
                 $('#cidform').addClass('d-none');
@@ -979,7 +1001,7 @@
 
             // submit edit customer id form
 
-            $('#cidform').on('submit', function (e) {
+            $('#cidform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
                 const formdata = $(this).serialize();
@@ -987,7 +1009,7 @@
                     type: 'POST',
                     url: "{{ route('consignmentnotenumber.store') }}",
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1012,7 +1034,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1032,7 +1054,7 @@
              */
 
             // show other settings form
-            $('#editOtherSettingsBtn').on('click', function (e) {
+            $('#editOtherSettingsBtn').on('click', function(e) {
                 e.preventDefault();
                 $('.error-msg').text('');
                 $('#gst_tax_payable_by').val(othersettings.gst_tax_payable_by);
@@ -1043,7 +1065,7 @@
             })
 
             // hide other settings form
-            $('#cancelOtherSettingsBtn').on('click', function (e) {
+            $('#cancelOtherSettingsBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#othersettingsform')[0].reset();
                 $('#othersettingsform').addClass('d-none');
@@ -1051,7 +1073,7 @@
             })
 
             // submit edit customer id form
-            $('#othersettingsform').on('submit', function (e) {
+            $('#othersettingsform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
@@ -1060,7 +1082,7 @@
                     type: 'POST',
                     url: "{{ route('logisticothersettings.store') }}",
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1080,7 +1102,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1094,17 +1116,17 @@
              */
 
             // Detect when an option is selected
-            $('#download_copy').on('select2:select', function (e) {
-                let selectedValue = e.params.data.id;  // Get the value of the selected option
+            $('#download_copy').on('select2:select', function(e) {
+                let selectedValue = e.params.data.id; // Get the value of the selected option
 
                 // If "Always ask" is selected, handle accordingly
                 if (selectedValue === 'always ask') {
-                    let values = $(this).val();  // Get the current values
+                    let values = $(this).val(); // Get the current values
                     $(this).val('always ask').trigger('change');
                 }
             });
 
-            $('#download_copy').on('change', function (ele) {
+            $('#download_copy').on('change', function(ele) {
                 let values = $(this).val();
                 if (values.includes('always ask') && values.length > 1) {
                     let allwVal = values.filter(val => val !== 'always ask');
@@ -1116,7 +1138,7 @@
             });
 
             // show other settings form
-            $('#editDownloadCopySettingBtn').on('click', function (e) {
+            $('#editDownloadCopySettingBtn').on('click', function(e) {
                 e.preventDefault();
                 $('.error-msg').text('');
                 $('#download_copy').val(othersettings.download_copy.split(','))
@@ -1129,7 +1151,7 @@
             })
 
             // hide other settings form
-            $('#cancelDownloadCopySettingBtn').on('click', function (e) {
+            $('#cancelDownloadCopySettingBtn').on('click', function(e) {
                 e.preventDefault();
                 $('#downloadcopysettingform')[0].reset();
                 $('#downloadcopysettingform').addClass('d-none');
@@ -1137,7 +1159,7 @@
             })
 
             // submit edit customer id form
-            $('#downloadcopysettingform').on('submit', function (e) {
+            $('#downloadcopysettingform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
                 $('.error-msg').text('');
@@ -1146,7 +1168,7 @@
                     type: 'POST',
                     url: "{{ route('downloadcopysetting.store') }}",
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1166,7 +1188,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
@@ -1174,20 +1196,22 @@
                     }
                 });
             });
-            $('#editcustomerformsettingsBtn').on('click', function (e) {
+            $('#editcustomerformsettingsBtn').on('click', function(e) {
                 e.preventDefault();
+                getlogisticothersettings();
+
                 $('#customerformsettingform').removeClass('d-none');
                 $('#editcustomerformsettingsBtn').addClass('d-none');
             })
             // hide edit customer form settings
-            $('#cancelcustomerformsettingBtn').on('click', function (e) {
+            $('#cancelcustomerformsettingBtn').on('click', function(e) {
                 e.preventDefault();
-                $('#customerformsettingform')[0].reset();
+
                 $('#customerformsettingform').addClass('d-none');
                 $('#editcustomerformsettingsBtn').removeClass('d-none');
             })
 
-            $('#customerformsettingform').on('submit', function (e) {
+            $('#customerformsettingform').on('submit', function(e) {
                 e.preventDefault();
                 loadershow();
                 const formdata = $(this).serialize();
@@ -1195,7 +1219,7 @@
                     type: 'POST',
                     url: "{{ route('customerdropdowninlogistic.store') }}",
                     data: formdata,
-                    success: function (response) {
+                    success: function(response) {
                         // Handle the response from the server
                         if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1220,7 +1244,7 @@
                         }
                         loaderhide();
                     },
-                    error: function (xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging

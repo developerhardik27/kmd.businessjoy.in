@@ -1570,7 +1570,74 @@
                                                 </td>
                                             </tr>
                                         @endif
+                                       @if (session('user_permissions.invoicemodule.invoiceformsetting.edit') == '1' || $user_id == 1)
+                                                <tr id="invoiceformsetting"
+                                                    class="invoice_other_settings_rows subsettingrows">
+                                                    <td>Invoice Form Settings</td>
 
+                                                    <td>
+                                                        <input type="checkbox"class="clickmenu"data-value="invoiceformsetting"
+                                                            id="showinvoiceformsettingmenu"
+                                                            name="showinvoiceformsettingmenu"
+                                                            value="1">
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.add') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="addinvoiceformsetting"
+                                                                name="addinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.view') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="viewinvoiceformsetting"
+                                                                name="viewinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.edit') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="editinvoiceformsetting"
+                                                                name="editinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.delete') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="deleteinvoiceformsetting"
+                                                                name="deleteinvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.invoicemodule.invoiceformsetting.alldata') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showinvoiceformsettingmenu"
+                                                                id="alldatainvoiceformsetting"
+                                                                name="alldatainvoiceformsetting"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @if (session('user_permissions.invoicemodule.invoicetandcsetting.edit') == '1' || $user_id == 1)
                                             <tr id="invoicetandcsetting" class="invoice_other_settings_rows subsettingrows">
                                                 <td>Invoice T&C Settings</td>
@@ -4165,6 +4232,56 @@
                                                 </td>
                                             </tr>
                                         @endif
+                                          @if (session('user_permissions.logisticmodule.logisticformsetting.edit') == '1' || $user_id == 1)
+                                                <tr id="logisticformsetting"
+                                                    class="logistic_other_settings_rows subsettingrows">
+                                                    <td>Invoice Form Settings</td>
+
+                                                    <td>
+                                                        <input type="checkbox"class="clickmenu"data-value="logisticformsetting"id="showlogisticformsettingmenu"name="showlogisticformsettingmenu"value="1">
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.add') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="addlogisticformsetting"name="addlogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.view') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="viewlogisticformsetting"name="viewlogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.edit') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="editlogisticformsetting"name="editlogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.delete') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="deletelogisticformsetting"name="deletelogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if (session('user_permissions.logisticmodule.logisticformsetting.alldata') == '1' || $user_id == 1)
+                                                            <input type="checkbox"class="clicksubmenu"data-value="showlogisticformsettingmenu"id="alldatalogisticformsetting"name="alldatalogisticformsetting"value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @if (session('user_permissions.logisticmodule.consignmentnotenumbersettings.edit') == '1' || $user_id == 1)
                                             <tr id="consignmentnotenumbersettings" class="logistic_other_settings_rows subsettingrows">
                                                 <td>Consignment Note Number Settings</td>
