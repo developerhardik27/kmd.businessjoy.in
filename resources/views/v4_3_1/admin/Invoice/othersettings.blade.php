@@ -478,7 +478,7 @@
 
                                                 <div class="checkbox-group">
                                                     <label>
-                                                        <input type="checkbox" name="customer_type[]" value="invoice" checked>
+                                                        <input type="checkbox" name="customer_type[]" value="invoice">
                                                         invoice
                                                     </label>
 
@@ -492,7 +492,7 @@
                                                         Consignees
                                                     </label>
                                                     <label>
-                                                        <input type="checkbox" name="customer_type[]" value="quotation" checked>
+                                                        <input type="checkbox" name="customer_type[]" value="quotation">
                                                         Quotation
                                                     </label>
 
@@ -503,7 +503,7 @@
                                         </div>
                                         <div class="form-row">
                                             <div class="col-sm-12 mt-2">
-                                                <button type="btn" id="cancelcustomeridBtn" data-toggle="tooltip"
+                                                <button type="btn" id="cancelcustomerformsettingBtn" data-toggle="tooltip"
                                                     data-placement="bottom" data-original-title="Cancel"
                                                     class="btn btn-secondary float-right">Cancel</button>
                                                 <button type="reset" data-toggle="tooltip" data-placement="bottom"
@@ -1580,6 +1580,7 @@
                 $('#customerformsettingform').removeClass('d-none');
                 $('#editcustomerformsettingsBtn').addClass('d-none');
             })
+
             // hide edit customer form settings
             $('#cancelcustomerformsettingBtn').on('click', function (e) {
                 e.preventDefault();

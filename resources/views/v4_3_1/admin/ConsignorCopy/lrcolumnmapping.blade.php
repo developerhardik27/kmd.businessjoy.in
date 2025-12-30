@@ -40,19 +40,18 @@
                                             <input type="hidden" name="edit_id" id="edit_id" value="">    
                                             <select name="lr_column" class="form-control " id="lr_column">
                                                 <option selected value="">Select Lr  Column</option>
-                                                <option value="loading_date">loading_date</option> 
-                                                <option value="stuffing_date">stuffing_date</option> 
-                                                <option value="truck_number">truck_number</option>
-                                                <option value="driver_name">driver_name</option>
-                                                <option value="weight_type">WEIGHT</option>
-                                                <option value="actual">ACTUAL</option>
-                                                <option value="charged">CHARGED</option>
-                                                <option value="value">value</option>
-                                                <option value="paid">PAID</option>
-                                                <option value="to_pay">TO PAY</option>
-                                                <option value="container_no">container_no</option>
-                                                <option value="seal_no">seal_no</option>
-                                                
+                                                <option value="loading_date">Loading Date</option> 
+                                                <option value="stuffing_date">Stuffing Date</option> 
+                                                <option value="truck_number">Truck Number</option>
+                                                <option value="driver_name">Driver Name</option>
+                                                <option value="weight_type">Weight</option>
+                                                <option value="actual">Actual</option>
+                                                <option value="charged">Charged</option>
+                                                <option value="value">Value</option>
+                                                <option value="paid">Paid</option>
+                                                <option value="to_pay">To Pay</option>
+                                                <option value="container_no">Container No</option>
+                                                <option value="seal_no">Seal No</option>
                                             </select>
                                             <span class="error-msg" id="error-lr_column" style="color: red"></span>
                                         </div>
