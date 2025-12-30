@@ -211,9 +211,9 @@ class tblinvoicecolumnController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $invoicecolumn = $this->tbl_invoice_columnModel::get();
+        $invoicecolumn = $this->tbl_invoice_columnModel::find($id);
 
-        if ($invoicecolumn->isEmpty()) {
+        if (!$invoicecolumn) {
             return $this->successresponse(404, 'message', "No Such Invoice Column Found!");
         }
 

@@ -653,10 +653,12 @@
                         }
                         loaderhide();
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error
+                        setTimeout(() => {
+                            $('#paymentmodal').modal('hide');
+                        }, 500); 
                         loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
+                        console.log(xhr.responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
                     }
                 });

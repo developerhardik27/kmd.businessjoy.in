@@ -211,7 +211,7 @@ class otherapiController extends Controller
             'start_time' => $startTime,
             'end_time' => $endTime,
             'created_at' => $createdTime,
-            'ip_address' => $data['ip_address'],
+            'ip_address' => isset($data['ip_address']) ? $data['ip_address'] : '',
             'country' => $data['country'],
             'landing_page_name' => $data['landing_page_name'],
             'landing_page_url' => $data['landing_page_url'],
