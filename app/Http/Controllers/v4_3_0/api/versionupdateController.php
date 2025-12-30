@@ -852,8 +852,8 @@ class versionupdateController extends commonController
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
 
-                                        if (!isset($jsonrp['invoicemoduel']['tdsregister'])) {
-                                            $jsonrp['invoicemoduel']['tdsregister'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        if (!isset($jsonrp['invoicemodule']['tdsregister'])) {
+                                            $jsonrp['invoicemodule']['tdsregister'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
 
                                         if (!isset($jsonrp['leadmodule']['leadsettings'])) {

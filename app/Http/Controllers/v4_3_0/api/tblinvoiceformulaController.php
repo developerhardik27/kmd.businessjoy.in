@@ -108,9 +108,9 @@ class tblinvoiceformulaController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $invoiceformula = $this->tbl_invoice_formulaModel::get();
+        $invoiceformula = $this->tbl_invoice_formulaModel::find($id);
 
-        if ($invoiceformula->isEmpty()) {
+        if (!$invoiceformula) {
             return $this->successresponse(404, 'message', "No Such Invoice Formula Found!");
         }
         if ($this->rp['invoicemodule']['formula']['alldata'] != 1) {

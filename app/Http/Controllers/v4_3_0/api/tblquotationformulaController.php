@@ -107,9 +107,9 @@ class tblquotationformulaController extends commonController
             return $this->successresponse(500, 'message', 'You are unauthorized');
         }
 
-        $quotationformula = $this->tbl_quotation_formulaModel::get();
+        $quotationformula = $this->tbl_quotation_formulaModel::find($id);
 
-        if ($quotationformula->isEmpty()) {
+        if (!$quotationformula) {
             return $this->successresponse(404, 'message', "No such quotation formula found!");
         }
         if ($this->rp['quotationmodule']['quotationformula']['alldata'] != 1) {

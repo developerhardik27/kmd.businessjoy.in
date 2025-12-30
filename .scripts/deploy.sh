@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Deployment started in staging ....."
+echo "Deployment started in main ....."
 
 # Define your deployment directories and branches
 declare -A branches=(
@@ -12,6 +12,14 @@ declare -A branches=(
 # Determine the current branch
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
+# Check if the current branch is in detached HEAD state
+if [[ "$current_branch" == "HEAD" ]]; then
+    echo "Error: Detached HEAD state detected. Checking out to 'main' branch."
+    git checkout main
+    current_branch="main"
+fi
+
+echo "Current branch: $current_branch"
 # Check if the current branch exists in your defined branches
 if [[ -n "${branches[$current_branch]}" ]]; then
     deployment_directory="${branches[$current_branch]}"
