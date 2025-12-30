@@ -796,8 +796,6 @@
                     Url = Url + `?copies=${othersettings}`;
                     
                     // Navigate to the URL with the query parameter
-
-                    alert(Url);
                     window.open(Url, '_blank');
                 }else{
                     $('#downloadcopy').modal('show');

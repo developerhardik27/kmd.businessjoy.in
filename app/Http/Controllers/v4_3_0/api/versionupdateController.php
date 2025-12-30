@@ -903,6 +903,7 @@ class versionupdateController extends commonController
                             case 'v4_3_1':
                                 $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
                                 if ($rp) {
+                                    // update user permissions
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
                                         // Encode updated permissions back to JSON
@@ -917,9 +918,10 @@ class versionupdateController extends commonController
                                     }
                                 }
                                 if ($company->id != 1) {
-
+                                    // get consignee from consignee table
                                     $consignees = DB::connection('dynamic_connection')->table('consignees')->get();
 
+                                    // move consignee from consignee table to customers table and delete from consignee table
                                     if ($consignees->isNotEmpty()) {
                                         foreach ($consignees as $consignee) {
                                             $customer =  DB::connection('dynamic_connection')->table('customers')->insertGetId([
@@ -955,8 +957,10 @@ class versionupdateController extends commonController
                                             ->delete();
                                     }
 
+                                    // get consignors from consignors table
                                     $consignors = DB::connection('dynamic_connection')->table('consignors')->get();
 
+                                    // move consignors from consignors table to customers table and delete from consignors table
                                     if ($consignors->isNotEmpty()) {
                                         foreach ($consignors as $consignor) {
                                             $customer =  DB::connection('dynamic_connection')->table('customers')->insertGetId([

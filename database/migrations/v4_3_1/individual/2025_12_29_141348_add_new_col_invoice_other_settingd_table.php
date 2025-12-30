@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoice_other_settings', function (Blueprint $table) {
-            $table->text('customer_dropdown')->nullable();
+            $table->text('customer_dropdown')->default("['invoice','quotation']");
         });
     }
 

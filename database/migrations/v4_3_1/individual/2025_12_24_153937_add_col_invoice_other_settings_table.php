@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('invoice_other_settings', function (Blueprint $table) {
             $table->text('god_name_show/hide')->default(1);
-            $table->text('customer_dropdown')->nullable();
         });
     }
 
@@ -24,7 +23,6 @@ return new class extends Migration
     {
         Schema::table('invoice_other_settings', function (Blueprint $table) {
             $table->dropColumn('god_name_show/hide');
-            $table->dropColumn('customer_dropdown');
         });
     }
 };

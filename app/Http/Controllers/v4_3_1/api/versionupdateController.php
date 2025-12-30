@@ -271,7 +271,7 @@ class versionupdateController extends commonController
                                     }
                                 }
                                 break;
-                            case 'company_details':
+                            case 'v2_0_0':
                                 $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
                                 if ($rp) {
                                     foreach ($rp as $userrp) {
@@ -905,6 +905,7 @@ class versionupdateController extends commonController
                             case 'v4_3_1':
                                 $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
                                 if ($rp) {
+                                    // update user permissions
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
                                         // Encode updated permissions back to JSON
@@ -919,9 +920,10 @@ class versionupdateController extends commonController
                                     }
                                 }
                                 if ($company->id != 1) {
-
+                                    // get consignee from consignee table
                                     $consignees = DB::connection('dynamic_connection')->table('consignees')->get();
 
+                                    // move consignee from consignee table to customers table and delete from consignee table
                                     if ($consignees->isNotEmpty()) {
                                         foreach ($consignees as $consignee) {
                                             $customer =  DB::connection('dynamic_connection')->table('customers')->insertGetId([
@@ -952,13 +954,15 @@ class versionupdateController extends commonController
                                                 ->where('consignee_id', $consignee->id)->update([
                                                     'consignee_id' => $customer
                                                 ]);
-                                            }
-                                            DB::connection('dynamic_connection')->table('consignees')
-                                                ->delete();
+                                        }
+                                        DB::connection('dynamic_connection')->table('consignees')
+                                            ->delete();
                                     }
 
+                                    // get consignors from consignors table
                                     $consignors = DB::connection('dynamic_connection')->table('consignors')->get();
-
+                                    
+                                    // move consignors from consignors table to customers table and delete from consignors table
                                     if ($consignors->isNotEmpty()) {
                                         foreach ($consignors as $consignor) {
                                             $customer =  DB::connection('dynamic_connection')->table('customers')->insertGetId([
@@ -989,11 +993,11 @@ class versionupdateController extends commonController
                                                 ->where('consignor_id', $consignor->id)->update([
                                                     'consignor_id' => $customer
                                                 ]);
-                                                
-                                            }
-                                            DB::connection('dynamic_connection')->table('consignors')
-                                                ->delete();
+                                        }
+                                        DB::connection('dynamic_connection')->table('consignors')
+                                            ->delete();
                                     }
+
                                 }
                                 break;
                         }

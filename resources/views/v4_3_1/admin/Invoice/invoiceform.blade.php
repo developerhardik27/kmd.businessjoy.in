@@ -643,8 +643,8 @@
                         if (value.is_active == 1) {
                             productcount++;
                             $('#product').append(`
-                                                                                    <option id="product_option_${value.id}" ${value.track_quantity == 0 ? 'disabled' : ''} value='${value.id}'>${value.name} ${value.track_quantity == 0 ? ' - inventory not tracked' : ''}</option>
-                                                                                `);
+                                <option id="product_option_${value.id}" ${value.track_quantity == 0 ? 'disabled' : ''} value='${value.id}'>${value.name} ${value.track_quantity == 0 ? ' - inventory not tracked' : ''}</option>
+                            `);
                         }
                     });
                     $('#product').val('');
@@ -681,15 +681,14 @@
                     var consignorcopycount = 0;
                     // You can update your HTML with the data here if needed
                     $.each(response.data, function (key, value) {
-
                         consignorcopycount++;
                         $('#lr').append(`
-                                                                              <option id="lr_option_${value.id}" value="${value.id}">
-                    ${value.consignee} - ${value.consignment_note_no} - ${value.consignor} - ${value.container_no} - ${value.to_pay}
-                </option>
-            `);
-
+                            <option id="lr_option_${value.id}" value="${value.id}">
+                                ${value.consignee} - ${value.consignment_note_no} - ${value.consignor} - ${value.container_no} - ${value.to_pay}
+                            </option>
+                        `);
                     });
+
                     $('#lr').val('');
                     $('#lr').select2({
                         placeholder: "Select lr",
@@ -722,8 +721,8 @@
                     // You can update your HTML with the data here if needed
                     $.each(response.country, function (key, value) {
                         $('#currency').append(`
-                                                                                <option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>
-                                                                            `);
+                            <option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>
+                        `);
                     });
                 } else {
                     $('#currency').append(`<option disabled '>No Data found </option>`);
@@ -755,8 +754,8 @@
                             const customerDetails = [value.firstname, value.lastname, value.company_name, value.contact_no, value.email].filter(Boolean).join(' - ');
 
                             $('#customer').append(`
-                                                                                    <option  data-gstno='${value.gst_no}' value='${value.id}'>${customerDetails}</option>
-                                                                                `);
+                                <option  data-gstno='${value.gst_no}' value='${value.id}'>${customerDetails}</option>
+                            `);
                         });
                         $('#customer').val(customerid);
                         $('#customer').select2();  // search bar in customer list

@@ -311,9 +311,11 @@
                         if (typeof godNames === 'string') {
                             godNames = JSON.parse(godNames);
                         }
-                        godNames.forEach((value, index) => {
-                            $('#god_name_' + (index + 1)).val(value);
-                        });
+                        if(godNames && godNames.length > 0){
+                            godNames.forEach((value, index) => {
+                                $('#god_name_' + (index + 1)).val(value);
+                            });
+                        }
                         country = company.country_id;
                         state = company.state_id;
                         city = company.city_id;
