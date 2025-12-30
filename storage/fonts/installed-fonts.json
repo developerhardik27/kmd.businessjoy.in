@@ -1,0 +1,16 @@
+{
+    "noto sans gujarati": {
+        "normal": "noto_sans_gujarati_normal_40db1ad1038a9dee6a6a3f09c6c80fc7",
+        "bold": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/noto_sans_gujarati_bold_866ccad762f978332c1c2f21f570c8fe"
+    },
+    "anek gujarati": {
+        "100": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_100_9aa51725b90c7d3b0b6433138eea3983",
+        "200": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_200_f8b3b7e02a8acdd8d0e2c953cf464dd1",
+        "300": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_300_3eeb16adb752214a1f75bd7db9754921",
+        "normal": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_normal_d93c75e6a952863d241cdc0a6defc8b6",
+        "500": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_500_9683a12cc5c23bca6f756566fb2322d5",
+        "600": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_600_879d05c8cdbe545103f0f2694154c23a",
+        "bold": "D:\\BusinessJoy\\BusinessJoy\\storage\\fonts\/anek_gujarati_bold_6149ef26faa8d9cfd582c89d57472aae",
+        "800": "anek_gujarati_800_150bb5d4ce43c3a7bd819b15fcd2ed5c"
+    }
+}

@@ -254,11 +254,11 @@ class AdminLoginController extends Controller
             }
             // $menus[] = 'blog';
         }
-
+       
         if ($this->hasPermission($responseData['permissions'], "logisticmodule")) {
             session(['logistic' => "yes"]);
             $allmenus[] = 'logistic';
-            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog'])))) {
+            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog','account'])))) {
                 session(['menu' => 'logistic']);
             }
             $menus[] = 'logistic';
@@ -267,7 +267,7 @@ class AdminLoginController extends Controller
         if ($this->hasPermission($responseData['permissions'], "developermodule")) {
             session(['developer' => "yes"]);
             $allmenus[] = 'developer';
-            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'logistic'])))) {
+            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog','account','logistic'])))) {
                 session(['menu' => 'developer']);
             }
             if ($this->hasDashboardPermission($responseData['permissions'], 'developermodule')) {
@@ -420,50 +420,50 @@ class AdminLoginController extends Controller
             }
         }
 
-        $request->validate([
-            'g-recaptcha-response' => 'required|captcha',
-        ]);
+        // $request->validate([
+        //     'g-recaptcha-response' => 'required|captcha',
+        // ]);
 
-        $secretKey = env('RECAPTCHA_SECRET_KEY'); // Get the secret key from .env file
+        // $secretKey = env('RECAPTCHA_SECRET_KEY'); // Get the secret key from .env file
 
-        // Send a request to Google's reCAPTCHA API to verify the token
-        $client = new Client();
-        $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
-            'form_params' => [
-                'secret' => $secretKey,
-                'response' => $recaptchaResponse,
-            ],
-        ]);
+        // // Send a request to Google's reCAPTCHA API to verify the token
+        // $client = new Client();
+        // $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
+        //     'form_params' => [
+        //         'secret' => $secretKey,
+        //         'response' => $recaptchaResponse,
+        //     ],
+        // ]);
 
-        $data = json_decode($response->getBody()->getContents());
+        // $data = json_decode($response->getBody()->getContents());
 
-        if ($data->success && $data->score >= 0.7) {
+        // if ($data->success && $data->score >= 0.7) {
 
-            $user = User::where('email', '=', $request->email)->first();
+        $user = User::where('email', '=', $request->email)->first();
 
-            if (!empty($user)) {
-                $user->pass_token = str::random(40);
-                $user->save();
+        if (!empty($user)) {
+            $user->pass_token = str::random(40);
+            $user->save();
 
-                Mail::to($user->email)->send(new ForgotPasswordMail($user));
+            Mail::to($user->email)->send(new ForgotPasswordMail($user));
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Password reset link sent. Please check your email inbox.'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'sorry ! you are not registered '
-                ]);
-            }
+            return response()->json([
+                'status' => 200,
+                'message' => 'Password reset link sent. Please check your email inbox.'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'sorry ! you are not registered '
+            ]);
         }
 
-        // If verification fails, send an error response
-        return response()->json([
-            'status' => 500,
-            'message' => 'reCAPTCHA verification failed. Please try again.',
-        ]);
+
+        // // If verification fails, send an error response
+        // return response()->json([
+        //     'status' => 500,
+        //     'message' => 'reCAPTCHA verification failed. Please try again.',
+        // ]);
     }
 
     /**
@@ -676,6 +676,8 @@ class AdminLoginController extends Controller
         DB::reconnect('dynamic_connection');
 
         // Get permissions
+
+        // dynamic connection 
         $rpData = DB::connection('dynamic_connection')
             ->table('user_permissions')
             ->select('rp')

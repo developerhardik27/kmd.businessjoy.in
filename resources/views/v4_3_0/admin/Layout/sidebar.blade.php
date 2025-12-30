@@ -45,8 +45,7 @@
 
                         @if (Session::has('menu') && Session::get('menu') == 'invoice')
                             @if (session('user_permissions.invoicemodule.invoice.show') == '1')
-                                <li
-                                    class="{{ request()->routeIs('admin.invoice', 'admin.addinvoice') ? 'active' : '' }}">
+                                <li class="{{ request()->routeIs('admin.invoice', 'admin.addinvoice') ? 'active' : '' }}">
                                     <a href="#invoiceinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
                                         aria-expanded="false"><i class="ri-file-list-3-line"></i><span>Invoice</span><i
                                             class="ri-arrow-right-s-line iq-arrow-right"></i></a>
@@ -66,7 +65,7 @@
                                                     Invoice List
                                                 </a>
                                             </li>
-                                        @endif 
+                                        @endif
                                     </ul>
                                 </li>
                             @endif
@@ -79,57 +78,54 @@
                                 </li>
                             @endif
                             @if (Session::has('menu') && Session::get('menu') == 'invoice')
-                                @if (session('user_permissions.invoicemodule.invoicesetting.show') == '1' ||
-                                        session('user_permissions.invoicemodule.mngcol.show') == '1' ||
-                                        session('user_permissions.invoicemodule.formula.show') == '1')
-                                    <li
-                                        class="{{ request()->routeIs(
-                                            'admin.invoicesettings',
-                                            'admin.invoicemanagecolumn',
-                                            'admin.invoiceformula',
-                                            'admin.invoiceothersettings',
-                                        )
-                                            ? 'active'
-                                            : '' }}">
-                                        <a href="#invoicesettinginfo" class="iq-waves-effect collapsed"
-                                            data-toggle="collapse" aria-expanded="false">
-                                            <i class="ri-list-settings-line"></i>
-                                            <span> Invoice Settings</span>
-                                            <i class="ri-arrow-right-s-line iq-arrow-right"></i>
-                                        </a>
-                                        <ul id="invoicesettinginfo" class="iq-submenu collapse"
-                                            data-parent="#iq-sidebar-toggle">
-                                            @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
-                                                <li
-                                                    class="{{ request()->routeIs('admin.invoicemanagecolumn') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.invoicemanagecolumn') }}">
-                                                        <i class="ri-file-add-line"></i>
-                                                        Manage Columns
+                                @if (
+                                                    session('user_permissions.invoicemodule.invoicesetting.show') == '1' ||
+                                                    session('user_permissions.invoicemodule.mngcol.show') == '1' ||
+                                                    session('user_permissions.invoicemodule.formula.show') == '1'
+                                                )
+                                                <li class="{{ request()->routeIs(
+                                        'admin.invoicesettings',
+                                        'admin.invoicemanagecolumn',
+                                        'admin.invoiceformula',
+                                        'admin.invoiceothersettings',
+                                    )
+                                        ? 'active'
+                                        : '' }}">
+                                                    <a href="#invoicesettinginfo" class="iq-waves-effect collapsed" data-toggle="collapse"
+                                                        aria-expanded="false">
+                                                        <i class="ri-list-settings-line"></i>
+                                                        <span> Invoice Settings</span>
+                                                        <i class="ri-arrow-right-s-line iq-arrow-right"></i>
                                                     </a>
+                                                    <ul id="invoicesettinginfo" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
+                                                        @if (session('user_permissions.invoicemodule.mngcol.view') == '1')
+                                                            <li class="{{ request()->routeIs('admin.invoicemanagecolumn') ? 'active' : '' }}">
+                                                                <a href="{{ route('admin.invoicemanagecolumn') }}">
+                                                                    <i class="ri-file-add-line"></i>
+                                                                    Manage Columns
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                        @if (session('user_permissions.invoicemodule.formula.view') == '1')
+                                                            <li class="{{ request()->routeIs('admin.invoiceformula') ? 'active' : '' }}">
+                                                                <a href="{{ route('admin.invoiceformula') }}">
+                                                                    <i class="ri-file-list-line"></i>
+                                                                    Set Formula
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                        @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
+                                                            <li class="{{ request()->routeIs('admin.invoiceothersettings') ? 'active' : '' }}">
+                                                                <a href="{{ route('admin.invoiceothersettings') }}">
+                                                                    <i class="ri-settings-5-line"></i>
+                                                                    Other Setting
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
                                                 </li>
-                                            @endif
-                                            @if (session('user_permissions.invoicemodule.formula.view') == '1')
-                                                <li
-                                                    class="{{ request()->routeIs('admin.invoiceformula') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.invoiceformula') }}">
-                                                        <i class="ri-file-list-line"></i>
-                                                        Set Formula
-                                                    </a>
-                                                </li>
-                                            @endif
-                                            @if (session('user_permissions.invoicemodule.invoicesetting.view') == '1')
-                                                <li
-                                                    class="{{ request()->routeIs('admin.invoiceothersettings') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.invoiceothersettings') }}">
-                                                        <i class="ri-settings-5-line"></i>
-                                                        Other Setting
-                                                    </a>
-                                                </li>
-                                            @endif
-                                        </ul>
-                                    </li>
                                 @endif
-                            @endif 
+                            @endif
                             @if (session('user_permissions.invoicemodule.bank.show') == '1')
                                 <li class="{{ request()->routeIs('admin.bank') ? 'active' : '' }}">
                                     <a href="{{ route('admin.bank') }}" class="iq-waves-effect">
@@ -156,17 +152,13 @@
                             @endif
                         @elseif (Session::has('menu') && Session::get('menu') == 'quotation')
                             @if (session('user_permissions.quotationmodule.quotation.show') == '1')
-                                <li
-                                    class="{{ request()->routeIs('admin.quotation', 'admin.addquotation') ? 'active' : '' }}">
+                                <li class="{{ request()->routeIs('admin.quotation', 'admin.addquotation') ? 'active' : '' }}">
                                     <a href="#quotationinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
-                                        aria-expanded="false"><i
-                                            class="ri ri-clipboard-line"></i><span>Quotation</span><i
+                                        aria-expanded="false"><i class="ri ri-clipboard-line"></i><span>Quotation</span><i
                                             class="ri-arrow-right-s-line iq-arrow-right"></i></a>
-                                    <ul id="quotationinfo" class="iq-submenu collapse"
-                                        data-parent="#iq-sidebar-toggle">
+                                    <ul id="quotationinfo" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
                                         @if (session('user_permissions.quotationmodule.quotation.add') == '1')
-                                            <li
-                                                class="{{ request()->routeIs('admin.addquotation') ? 'active' : '' }}">
+                                            <li class="{{ request()->routeIs('admin.addquotation') ? 'active' : '' }}">
                                                 <a href="{{ route('admin.addquotation') }}">
                                                     <i class="ri-file-add-line"></i>
                                                     Create Quotation
@@ -185,55 +177,52 @@
                                 </li>
                             @endif
                             @if (Session::has('menu') && Session::get('menu') == 'quotation')
-                                @if (session('user_permissions.quotationmodule.quotationsetting.show') == '1' ||
-                                        session('user_permissions.quotationmodule.quotationmngcol.show') == '1' ||
-                                        session('user_permissions.quotationmodule.quotationformula.show') == '1')
-                                    <li
-                                        class="{{ request()->routeIs(
-                                            'admin.quotationsettings',
-                                            'admin.quotationmanagecolumn',
-                                            'admin.quotationformula',
-                                            'admin.quotationothersettings',
-                                        )
-                                            ? 'active'
-                                            : '' }}">
-                                        <a href="#quotationsettinginfo" class="iq-waves-effect collapsed"
-                                            data-toggle="collapse" aria-expanded="false">
-                                            <i class="ri-list-settings-line"></i>
-                                            <span> Quotation Settings</span>
-                                            <i class="ri-arrow-right-s-line iq-arrow-right"></i>
-                                        </a>
-                                        <ul id="quotationsettinginfo" class="iq-submenu collapse"
-                                            data-parent="#quotationinfo">
-                                            @if (session('user_permissions.quotationmodule.quotationmngcol.show') == '1')
-                                                <li
-                                                    class="{{ request()->routeIs('admin.quotationmanagecolumn') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.quotationmanagecolumn') }}">
-                                                        <i class="ri-file-add-line"></i>
-                                                        Manage Quotation Columns
+                                @if (
+                                                    session('user_permissions.quotationmodule.quotationsetting.show') == '1' ||
+                                                    session('user_permissions.quotationmodule.quotationmngcol.show') == '1' ||
+                                                    session('user_permissions.quotationmodule.quotationformula.show') == '1'
+                                                )
+                                                <li class="{{ request()->routeIs(
+                                        'admin.quotationsettings',
+                                        'admin.quotationmanagecolumn',
+                                        'admin.quotationformula',
+                                        'admin.quotationothersettings',
+                                    )
+                                        ? 'active'
+                                        : '' }}">
+                                                    <a href="#quotationsettinginfo" class="iq-waves-effect collapsed" data-toggle="collapse"
+                                                        aria-expanded="false">
+                                                        <i class="ri-list-settings-line"></i>
+                                                        <span> Quotation Settings</span>
+                                                        <i class="ri-arrow-right-s-line iq-arrow-right"></i>
                                                     </a>
+                                                    <ul id="quotationsettinginfo" class="iq-submenu collapse" data-parent="#quotationinfo">
+                                                        @if (session('user_permissions.quotationmodule.quotationmngcol.show') == '1')
+                                                            <li class="{{ request()->routeIs('admin.quotationmanagecolumn') ? 'active' : '' }}">
+                                                                <a href="{{ route('admin.quotationmanagecolumn') }}">
+                                                                    <i class="ri-file-add-line"></i>
+                                                                    Manage Quotation Columns
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                        @if (session('user_permissions.quotationmodule.quotationformula.show') == '1')
+                                                            <li class="{{ request()->routeIs('admin.quotationformula') ? 'active' : '' }}">
+                                                                <a href="{{ route('admin.quotationformula') }}">
+                                                                    <i class="ri-file-list-line"></i>
+                                                                    Set Quotation Formula
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                        @if (session('user_permissions.quotationmodule.quotationsetting.show') == '1')
+                                                            <li class="{{ request()->routeIs('admin.quotationothersettings') ? 'active' : '' }}">
+                                                                <a href="{{ route('admin.quotationothersettings') }}">
+                                                                    <i class="ri-settings-5-line"></i>
+                                                                    Quotation Other Setting
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
                                                 </li>
-                                            @endif
-                                            @if (session('user_permissions.quotationmodule.quotationformula.show') == '1')
-                                                <li
-                                                    class="{{ request()->routeIs('admin.quotationformula') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.quotationformula') }}">
-                                                        <i class="ri-file-list-line"></i>
-                                                        Set Quotation Formula
-                                                    </a>
-                                                </li>
-                                            @endif
-                                            @if (session('user_permissions.quotationmodule.quotationsetting.show') == '1')
-                                                <li
-                                                    class="{{ request()->routeIs('admin.quotationothersettings') ? 'active' : '' }}">
-                                                    <a href="{{ route('admin.quotationothersettings') }}">
-                                                        <i class="ri-settings-5-line"></i>
-                                                        Quotation Other Setting
-                                                    </a>
-                                                </li>
-                                            @endif
-                                        </ul>
-                                    </li>
                                 @endif
                             @endif
                             @if (session('user_permissions.quotationmodule.quotationcustomer.show') == '1')
@@ -451,7 +440,7 @@
                                         <i class="ri-settings-2-line"></i>
                                         <span>Blog Settings</span>
                                     </a>
-                                </li> 
+                                </li>
                             @endif
                             @if (session('user_permissions.blogmodule.blogapi.show') == '1')
                                 <li class="{{ request()->routeIs('admin.blogapi') ? 'active' : '' }}">
@@ -478,29 +467,27 @@
                                         <span>Consignor Copy</span>
                                     </a>
                                 </li>
-                            @endif 
+                            @endif
                             {{-- currently not requirs submenu --}}
                             {{-- @if (session('user_permissions.logisticmodule.logisticsettings.show') == '1')
-                                <li class="{{ request()->routeIs('admin.logisticothersettings') ? 'active' : '' }}">
-                                    <a href="#logisticsettinginfo" class="iq-waves-effect collapsed"
-                                        data-toggle="collapse" aria-expanded="false">
-                                        <i class="ri-list-settings-line"></i>
-                                        <span>Settings</span>
-                                        <i class="ri-arrow-right-s-line iq-arrow-right"></i>
-                                    </a>
-                                    <ul id="logisticsettinginfo" class="iq-submenu collapse"
-                                        data-parent="#iq-sidebar-toggle">
-                                        @if (session('user_permissions.logisticmodule.logisticsettings.show') == '1')
-                                            <li
-                                                class="{{ request()->routeIs('admin.logisticothersettings') ? 'active' : '' }}">
-                                                <a href="{{ route('admin.logisticothersettings') }}">
-                                                    <i class="ri-settings-5-line"></i>
-                                                    Other Settings
-                                                </a>
-                                            </li>
-                                        @endif
-                                    </ul>
-                                </li>
+                            <li class="{{ request()->routeIs('admin.logisticothersettings') ? 'active' : '' }}">
+                                <a href="#logisticsettinginfo" class="iq-waves-effect collapsed" data-toggle="collapse"
+                                    aria-expanded="false">
+                                    <i class="ri-list-settings-line"></i>
+                                    <span>Settings</span>
+                                    <i class="ri-arrow-right-s-line iq-arrow-right"></i>
+                                </a>
+                                <ul id="logisticsettinginfo" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
+                                    @if (session('user_permissions.logisticmodule.logisticsettings.show') == '1')
+                                    <li class="{{ request()->routeIs('admin.logisticothersettings') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.logisticothersettings') }}">
+                                            <i class="ri-settings-5-line"></i>
+                                            Other Settings
+                                        </a>
+                                    </li>
+                                    @endif
+                                </ul>
+                            </li>
                             @endif --}}
                             @if (session('user_permissions.logisticmodule.logisticsettings.show') == '1')
                                 <li class="{{ request()->routeIs('admin.logisticothersettings') ? 'active' : '' }}">
@@ -541,17 +528,17 @@
                                         <i class="ri-clipboard-line"></i>
                                         <span>Slow Pages</span>
                                     </a>
-                                </li> 
+                                </li>
                             @endif
-                            @if (session('user_permissions.developermodule.errorlog.show') == '1')     
+                            @if (session('user_permissions.developermodule.errorlog.show') == '1')
                                 <li class="{{ request()->routeIs('admin.errorlogs') ? 'active' : '' }}">
                                     <a href="{{ route('admin.errorlogs') }}" class="iq-waves-effect">
                                         <i class="ri-alert-line"></i>
                                         <span>Error Logs</span>
                                     </a>
-                                </li> 
+                                </li>
                             @endif
-                            @if (session('user_permissions.developermodule.cronjob.show') == '1')  
+                            @if (session('user_permissions.developermodule.cronjob.show') == '1')
                                 <li class="{{ request()->routeIs('admin.cronjobs') ? 'active' : '' }}">
                                     <a href="{{ route('admin.cronjobs') }}" class="iq-waves-effect">
                                         <i class="ri-calendar-line"></i>
@@ -559,7 +546,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.developermodule.techdoc.show') == '1')  
+                            @if (session('user_permissions.developermodule.techdoc.show') == '1')
                                 <li class="{{ request()->routeIs('admin.techdocs') ? 'active' : '' }}">
                                     <a href="{{ route('admin.techdocs') }}" class="iq-waves-effect">
                                         <i class="ri-book-2-line"></i>
@@ -567,7 +554,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.developermodule.versiondoc.show') == '1')      
+                            @if (session('user_permissions.developermodule.versiondoc.show') == '1')
                                 <li class="{{ request()->routeIs('admin.versiondocs') ? 'active' : '' }}">
                                     <a href="{{ route('admin.versiondocs') }}" class="iq-waves-effect">
                                         <i class="ri-stack-line"></i>
@@ -575,7 +562,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.developermodule.recentactivitydata.show') == '1')      
+                            @if (session('user_permissions.developermodule.recentactivitydata.show') == '1')
                                 <li class="{{ request()->routeIs('admin.recentactivitydata') ? 'active' : '' }}">
                                     <a href="{{ route('admin.recentactivitydata') }}" class="iq-waves-effect">
                                         <i class="ri-flashlight-line"></i>
@@ -583,7 +570,7 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (session('user_permissions.developermodule.cleardata.show') == '1')      
+                            @if (session('user_permissions.developermodule.cleardata.show') == '1')
                                 <li class="{{ request()->routeIs('admin.cleardata') ? 'active' : '' }}">
                                     <a href="{{ route('admin.cleardata') }}" class="iq-waves-effect">
                                         <i class="ri-delete-bin-line"></i>

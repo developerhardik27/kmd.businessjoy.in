@@ -6,14 +6,16 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class tblleadController extends commonController
 {
@@ -457,14 +459,16 @@ class tblleadController extends commonController
             ]);
         }
 
-        $leadquery = $this->tblleadModel::leftjoin($this->masterdbname.'.country', 'tbllead.country_id', '=', $this->masterdbname.'.country.id')
-            ->leftjoin($this->masterdbname.'.state', 'tbllead.state_id', '=', $this->masterdbname.'.state.id')
-            ->leftjoin($this->masterdbname.'.city', 'tbllead.city_id', '=', $this->masterdbname.'.city.id')
+      
+        $leadquery = $this->tblleadModel
+            ::leftJoin($this->masterdbname . '.country', 'tbllead.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftJoin($this->masterdbname . '.state', 'tbllead.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftJoin($this->masterdbname . '.city', 'tbllead.city_id', '=', $this->masterdbname . '.city.id')
             ->select(
                 'tbllead.id',
-                DB::raw("CONCAT_WS(' ', tbllead.first_name, tbllead.last_name)as name"),
+                DB::raw("CONCAT_WS(' ', tbllead.first_name, tbllead.last_name) AS name"),
                 'tbllead.email',
-                DB::raw("CAST(tbllead.contact_no AS CHAR) as contact_no"),
+                DB::raw("CAST(tbllead.contact_no AS CHAR) AS contact_no"),
                 'tbllead.lead_title',
                 'tbllead.title',
                 'tbllead.budget',
@@ -476,7 +480,7 @@ class tblleadController extends commonController
                 'country.country_name',
                 'state.state_name',
                 'city.city_name',
-                DB::raw("DATE_FORMAT(tbllead.next_follow_up, '%d-%m-%Y %h:%i:%s %p') as next_follow_up_formatted"),
+                DB::raw("DATE_FORMAT(tbllead.next_follow_up, '%d-%m-%Y %h:%i:%s %p') AS next_follow_up_formatted"),
                 'tbllead.number_of_follow_up',
                 'tbllead.attempt_lead',
                 'tbllead.notes',
@@ -484,7 +488,7 @@ class tblleadController extends commonController
                 'tbllead.web_url',
                 'tbllead.assigned_to',
                 'tbllead.created_by',
-                DB::raw("DATE_FORMAT(tbllead.created_at, '%d-%m-%Y %h:%i:%s %p') as created_at_formatted"),
+                DB::raw("DATE_FORMAT(tbllead.created_at, '%d-%m-%Y %h:%i:%s %p') AS created_at_formatted"),
                 'tbllead.updated_at',
                 'tbllead.is_active',
                 'tbllead.is_deleted',
@@ -494,7 +498,11 @@ class tblleadController extends commonController
             )
             ->where('tbllead.is_deleted', 0);
 
-
+        // $loggedUserName = 'vinay1 dodiya';
+        // if ($this->rp['leadmodule']['lead']['alldata'] = 1) {
+        //     // STRICT MATCH — ONLY assigned_to == session('name')
+        //     $leadquery->where('tbllead.assigned_to', $loggedUserName);
+        // }
         $pagetype = $request->page_type; // lead/upcomingfollowup
 
         if (isset($pagetype)) {
@@ -503,7 +511,7 @@ class tblleadController extends commonController
                 $leadquery->where('tbllead.created_by', $this->userId);
             }
         } else {
-            if ($this->rp['leadmodule']['lead']['alldata'] != 1) {
+            if ($this->rp['leadmodule']['lead']['alldata'] != 1 && $request->filter_assigned_to == null) {
                 $leadquery->where('tbllead.created_by', $this->userId);
             }
         }

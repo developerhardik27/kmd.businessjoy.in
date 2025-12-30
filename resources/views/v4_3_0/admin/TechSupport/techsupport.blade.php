@@ -107,8 +107,7 @@
         {{ route('admin.addtechsupport') }}
     @endsection
     @section('addnewbutton')
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticekt"
-            class="btn btn-sm btn-primary">
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add Ticekt" class="btn btn-sm btn-primary">
             <span class="">+ Ticket</span>
         </button>
     @endsection
@@ -135,7 +134,7 @@
 
 @push('ajax')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
@@ -161,10 +160,10 @@
                             company_id: "{{ session()->get('company_id') }}",
                             token: "{{ session()->get('api_token') }}"
                         },
-                        success: function(response) {
+                        success: function (response) {
                             resolve(response);
                         },
-                        error: function(error) {
+                        error: function (error) {
                             reject(error);
                         }
                     });
@@ -178,7 +177,7 @@
 
                     if (filterData) {
 
-                        $.each(filterData, function(key, value) {
+                        $.each(filterData, function (key, value) {
                             if (value != ' ') {
                                 $(`#${key}`).val(value);
                             }
@@ -213,7 +212,7 @@
                     // Check if user data is successfully fetched
                     if (userDataResponse.status == 200 && userDataResponse.user != '') {
                         // You can update your HTML with the data here if needed     
-                        $.each(userDataResponse.user, function(key, value) {
+                        $.each(userDataResponse.user, function (key, value) {
                             var optionValue = value.firstname + ' ' + value.lastname;
                             $('#filter_assigned_to').append(
                                 `<option value="${value.id}">${optionValue}</option>`);
@@ -276,7 +275,7 @@
                     ajax: {
                         type: "GET",
                         url: "{{ route('techsupport.index') }}",
-                        data: function(d) {
+                        data: function (d) {
                             d.user_id = "{{ session()->get('user_id') }}";
                             d.company_id = "{{ session()->get('company_id') }}";
                             d.token = "{{ session()->get('api_token') }}";
@@ -285,7 +284,7 @@
                             d.filter_from_date = $('#filter_from_date').val();
                             d.filter_to_date = $('#filter_to_date').val();
                         },
-                        dataSrc: function(json) {
+                        dataSrc: function (json) {
                             if (json.message) {
                                 Toast.fire({
                                     icon: "error",
@@ -297,10 +296,10 @@
 
                             return json.data;
                         },
-                        complete: function() {
+                        complete: function () {
                             loaderhide();
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             global_response = '';
                             console.log(xhr.responseText);
                             Toast.fire({
@@ -313,116 +312,126 @@
                         [0, 'desc']
                     ],
                     columns: [{
-                            data: 'id',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'id'
-                        },
-                        {
-                            data: 'first_name', // key from JSON (used for searching & sorting)
-                            name: 'first_name', // server-side field name or alias
-                            orderable: false, // if you want to disable sorting
-                            searchable: false,
-                            render: function(data, type, row) {
-                                return `
-                                    <span class="view-btn d-flex mb-2" data-view="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable" style="cursor:pointer;">
-                                        <b><i class="fas fa-user pr-2"></i></b> ${row.first_name || ''} ${row.last_name || ''}
-                                    </span>
-                                    <span class="d-flex mb-2">
-                                        <b><i class="fas fa-envelope pr-2"></i></b>
-                                        <a href="mailto:${row.email}" style="text-decoration:none;">${row.email || ''}</a>
-                                    </span>
-                                    <span class="d-flex mb-2">
-                                        <b><i class="fas fa-phone-alt pr-2"></i></b>
-                                        <a href="tel:${row.contact_no}" style="text-decoration:none;">${row.contact_no || ''}</a>
-                                    </span>
-                                    @if (session('user_id') == 1)
-                                        <span class="d-flex mb-2"><b><i class="fas fa-building pr-2"></i></b> ${row.company_name || ''}</span>
-                                    @endif
-                                `;
-                            }
-                        },
-                        {
-                            data: 'ticket',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'ticket'
-                        },
-                        {
-                            data: 'status',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'status',
-                            render: function(data, type, row) {
-                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                    return `     
-                                        <select class="status form-control-sm" data-original-value="${row.status}" data-statusid=${row.id} id='status_${row.id}'>
-                                            <option value='pending' ${row.status == 'pending' ? 'selected' : ''}>Pending</option>
-                                            <option value='in_progress' ${row.status == 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                            <option value='resolved' ${row.status == 'resolved' ? 'selected' : ''}>Resolved</option>
-                                            <option value='cancelled' ${row.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                        </select>
+                        data: 'id',
+                        orderable: true,
+                        searchable: true,
+                        defaultContent: '-',
+                        name: 'id'
+                    },
+                    {
+                        data: 'first_name', // key from JSON (used for searching & sorting)
+                        name: 'first_name', // server-side field name or alias
+                        orderable: false, // if you want to disable sorting
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                        <span class="view-btn d-flex mb-2" data-view="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable" style="cursor:pointer;">
+                                            <b><i class="fas fa-user pr-2"></i></b> ${row.first_name || ''} ${row.last_name || ''}
+                                        </span>
+                                        <span class="d-flex mb-2">
+                                            <b><i class="fas fa-envelope pr-2"></i></b>
+                                            <a href="mailto:${row.email}" style="text-decoration:none;">${row.email || ''}</a>
+                                        </span>
+                                        <span class="d-flex mb-2">
+                                            <b><i class="fas fa-phone-alt pr-2"></i></b>
+                                            <a href="tel:${row.contact_no}" style="text-decoration:none;">${row.contact_no || ''}</a>
+                                        </span>
+                                        @if (session('user_id') == 1)
+                                            <span class="d-flex mb-2"><b><i class="fas fa-building pr-2"></i></b> ${row.company_name || ''}</span>
+                                        @endif
                                     `;
-                                @else
-                                    return ` ${row.status.replace('_',' ') || ''}`;
-                                @endif
-                            }
-                        },
-                        {
-                            data: 'created_at_formatted',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'created_at_formatted'
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                let actionBtns = '';
-                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                    actionBtns += `
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send Message">
-                                            <a title="Send Whatapp Message" class='btn btn-success btn-sm my-1' target="_blank" href="https://wa.me/${row.contact_no}">
+                        }
+                    },
+                    {
+                        data: 'ticket',
+                        orderable: true,
+                        searchable: true,
+                        defaultContent: '-',
+                        name: 'ticket'
+                    },
+                    {
+                        data: 'status',
+                        orderable: true,
+                        searchable: true,
+                        defaultContent: '-',
+                        name: 'status',
+                        render: function (data, type, row) {
+                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                return `     
+                                                <select class="status form-control-sm" data-original-value="${row.status}" data-statusid=${row.id} id='status_${row.id}'>
+                                                    <option value='pending' ${row.status == 'pending' ? 'selected' : ''}>Pending</option>
+                                                    <option value='in_progress' ${row.status == 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                                    <option value='resolved' ${row.status == 'resolved' ? 'selected' : ''}>Resolved</option>
+                                                    <option value='cancelled' ${row.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                                </select>
+                                            `;
+                            @else
+                                return ` ${row.status.replace('_', ' ') || ''}`;
+                            @endif
+                                }
+                    },
+                    {
+                        data: 'created_at_formatted',
+                        orderable: true,
+                        searchable: true,
+                        defaultContent: '-',
+                        name: 'created_at_formatted'
+                    },
+                    {
+                        data: 'id',
+                        name: 'id',
+                        orderable: false,
+                        searchable: false,
+                        defaultContent: '-',
+                        render: function (data, type, row) {
+                            let actionBtns = '';
+                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                                        actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Send WhatsApp Message">
+                                            <a class="btn btn-success btn-sm my-1"
+                                               target="_blank"
+                                               href="https://wa.me/${row.contact_no}?text=${encodeURIComponent(
+                                                            `Hello ${row.first_name} ${row.last_name},
+
+                                Your Ticket No: ${row.ticket}
+                                Current Status: ${row.status.replace('_', ' ')}
+
+                                Thank you.`
+                                                        )}">
                                                 <i class="ri-whatsapp-line text-white"></i>
                                             </a>
                                         </span>
                                     `;
-                                @endif
+                            @endif
 
-                                @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
-                                    actionBtns += `
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Ticket">
-                                            <button type="button" data-id='${row.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
-                                                <i class="ri-edit-fill"></i>
-                                            </button>  
-                                        </span>
-                                    `;
-                                @endif
 
-                                @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
-                                    actionBtns += `
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Ticket">
-                                            <button type="button" data-uid= '${row.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
-                                                <i class="ri-delete-bin-fill"></i>
-                                            </button>
-                                        </span>
-                                    `;
-                                @endif
+                            @if (session('user_permissions.adminmodule.techsupport.edit') == '1')
+                                actionBtns += `
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Ticket">
+                                                    <button type="button" data-id='${row.id}' class="btn btn-warning btn-rounded btn-sm my-1 editbtn">
+                                                        <i class="ri-edit-fill"></i>
+                                                    </button>  
+                                                </span>
+                                            `;
+                            @endif
 
-                                return actionBtns;
-                            }
+                            @if (session('user_permissions.adminmodule.techsupport.delete') == '1')
+                                actionBtns += `
+                                                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Ticket">
+                                                    <button type="button" data-uid= '${row.id}' class="dltbtn btn btn-danger btn-rounded btn-sm my-1">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </span>
+                                            `;
+                            @endif
+
+                                    return actionBtns;
                         }
+                    }
                     ],
 
                     pagingType: "full_numbers",
-                    drawCallback: function(settings) {
+                    drawCallback: function (settings) {
                         $('[data-toggle="tooltip"]').tooltip({
                             boundary: 'window',
                             offset: '0, 10' // Push tooltip slightly away from the button
@@ -431,18 +440,18 @@
                         // 👇 Jump to Page input injection
                         if ($('#jumpToPageWrapper').length === 0) {
                             let jumpHtml = `
-                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
-                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
-                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
-                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
-                                    </div>
-                                `;
+                                        <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
+                                            <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                            <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
+                                            <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                                        </div>
+                                    `;
                             $(".dt-paging").after(jumpHtml);
                         }
 
 
                         $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
-                            function() {
+                            function () {
                                 let table = $('#data').DataTable();
                                 // Check if table is initialized
                                 if ($.fn.DataTable.isDataTable('#data')) {
@@ -478,10 +487,10 @@
             }
 
             // show individual customer support history record into the popupbox
-            $(document).on("click", ".view-btn", function() {
+            $(document).on("click", ".view-btn", function () {
                 $('#details').html('');
                 var data = $(this).data('view');
-                $.each(global_response.data, function(key, ticket) {
+                $.each(global_response.data, function (key, ticket) {
                     if (ticket.id == data) {
                         // Ensure ticket.attachment is an array
                         let attachments = [];
@@ -502,61 +511,61 @@
                         }
 
                         $('#details').append(`
-                            <tr> 
-                                <th>Ticket Number</th>
-                                <td>${ticket.ticket}</td>
-                            </tr> 
-                            <tr> 
-                                <th>First Name</th>
-                                <td>${ticket.first_name}</td>
-                            </tr> 
-                            <tr> 
-                                <th>Last Name</th>
-                                <td>${ticket.last_name}</td>
-                            </tr> 
-                            <tr>
-                                <th>Email</th>
-                                <td>${ticket.email}</td>
-                            </tr>
-                            <tr>
-                                <th>Contact Number</th>
-                                <td>${ticket.contact_no}</td>
-                            </tr>
-                            <tr>
-                                <th>Status</th>
-                                <td>${ticket.status}</td>
-                            </tr>
-                            <tr>
-                                <th>Module Name</th>
-                                <td>${ticket.module_name}</td>
-                            <tr>
-                                <th>Issue type</th>
-                                <td>${ticket.issue_type}</td>
-                            </tr>
-                            <tr>
-                                <th>Created On</th>
-                                <td>${ticket.created_at_formatted}</td>
-                            </tr>
-                            <tr>
-                                <th >Notes</th>
-                                <td class='text-wrap'><div>${ticket.description ? decodeHTML(ticket.description) : '-'}</div></div></td>
-                            </tr>
-                            <tr>
-                                <th >Remarks</th>
-                                <td class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Attachments</th>
-                                <td>
-                                    ${attachments.length > 0
-                                        ? attachments.map(attachment => 
-                                            `<a class='text-primary font-weight-bold' href='/uploads/${attachment}' target='_blank'>${attachment}</a>`
-                                        ).join('<br>') // Display each attachment on a new line
-                                        : '-'
-                                    }
-                                </td>
-                            </tr>
-                        `);
+                                <tr> 
+                                    <th>Ticket Number</th>
+                                    <td>${ticket.ticket}</td>
+                                </tr> 
+                                <tr> 
+                                    <th>First Name</th>
+                                    <td>${ticket.first_name}</td>
+                                </tr> 
+                                <tr> 
+                                    <th>Last Name</th>
+                                    <td>${ticket.last_name}</td>
+                                </tr> 
+                                <tr>
+                                    <th>Email</th>
+                                    <td>${ticket.email}</td>
+                                </tr>
+                                <tr>
+                                    <th>Contact Number</th>
+                                    <td>${ticket.contact_no}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>${ticket.status}</td>
+                                </tr>
+                                <tr>
+                                    <th>Module Name</th>
+                                    <td>${ticket.module_name}</td>
+                                <tr>
+                                    <th>Issue type</th>
+                                    <td>${ticket.issue_type}</td>
+                                </tr>
+                                <tr>
+                                    <th>Created On</th>
+                                    <td>${ticket.created_at_formatted}</td>
+                                </tr>
+                                <tr>
+                                    <th >Notes</th>
+                                    <td class='text-wrap'><div>${ticket.description ? decodeHTML(ticket.description) : '-'}</div></div></td>
+                                </tr>
+                                <tr>
+                                    <th >Remarks</th>
+                                    <td class='text-wrap'>${ticket.remarks != null ? ticket.remarks : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <th>Attachments</th>
+                                    <td>
+                                        ${attachments.length > 0
+                                ? attachments.map(attachment =>
+                                    `<a class='text-primary font-weight-bold' href='/uploads/${attachment}' target='_blank'>${attachment}</a>`
+                                ).join('<br>') // Display each attachment on a new line
+                                : '-'
+                            }
+                                    </td>
+                                </tr>
+                            `);
                     }
                 });
             });
@@ -569,7 +578,7 @@
 
 
             // change customer support status
-            $(document).on('change', '.status', function() {
+            $(document).on('change', '.status', function () {
                 var element = $(this);
                 var oldstatus = element.data('original-value');
                 showConfirmationDialog(
@@ -595,7 +604,7 @@
                                 company_id: "{{ session()->get('company_id') }}",
                                 user_id: "{{ session()->get('user_id') }}"
                             },
-                            success: function(data) {
+                            success: function (data) {
                                 loaderhide();
                                 if (data.status == false) {
                                     Toast.fire({
@@ -630,7 +639,7 @@
 
             //  on click edit button this will be save advanced filter data on 
             // local server session and redirect update page
-            $(document).on("click", '.editbtn', function() {
+            $(document).on("click", '.editbtn', function () {
                 editid = $(this).data('id');
                 // loadershow();
                 filter_from_date = $('#filter_from_date').val();
@@ -656,7 +665,7 @@
 
 
             // delete customer support record
-            $(document).on("click", ".dltbtn", function() {
+            $(document).on("click", ".dltbtn", function () {
 
                 var id = $(this).data('uid');
                 var row = this;
@@ -679,7 +688,7 @@
                                 company_id: "{{ session()->get('company_id') }}",
                                 user_id: "{{ session()->get('user_id') }}"
                             },
-                            success: function(data) {
+                            success: function (data) {
                                 loaderhide();
                                 if (data.status == false) {
                                     Toast.fire({
@@ -710,7 +719,7 @@
 
 
             // call advance filter function on change sidebar filter
-            $('.applyfilters').on('click', function(e) {
+            $('.applyfilters').on('click', function (e) {
                 e.preventDefault();
                 table.draw();
                 hideOffCanvass(); // close OffCanvass
@@ -718,7 +727,7 @@
 
 
             // remove all filters
-            $('.removefilters').on('click', function() {
+            $('.removefilters').on('click', function () {
                 $('#filter_from_date').val('');
                 $('#filter_from_date').val('');
                 // clear 

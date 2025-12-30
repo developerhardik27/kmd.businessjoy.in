@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Response;
 use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\admin\AmazonController;
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\landing\LandingPageController;
 
+Route::get('checkphp', function () {});
 
 // Define a function to generate the controller class name based on the session value
 if (!function_exists('getadminversion')) {
@@ -204,8 +206,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/ProductColumnMapping', 'productcolumnmapping')->name('admin.productcolumnmapping')->middleware('checkPermission:inventorymodule,productcolumnmapping,add');
                 Route::get('/AddNewProduct', 'create')->name('admin.addproduct')->middleware('checkPermission:inventorymodule,product,add');
                 Route::get('/EditProduct/{id}', 'edit')->name('admin.editproduct')->middleware('checkPermission:inventorymodule,product,edit');
+                
             });
-
             // product category route 
             $InventoryController = getadminversion('InventoryController');
             Route::controller($InventoryController)->group(function () {
@@ -330,6 +332,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewConsignorCopy', 'create')->name('admin.addconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,add');
                 Route::get('/EditConsignorCopy/{id}', 'edit')->name('admin.editconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,edit');
                 Route::get('/Logistic/othersettings', 'othersettings')->name('admin.logisticothersettings')->middleware('checkPermission:logisticmodule,logisticsettings,view');
+                 Route::get('/lrcolumnmapping','lrcolumnmapping')->name(name: 'admin.lrcolumnmapping');
+           
             });
 
             //transporter billing route 

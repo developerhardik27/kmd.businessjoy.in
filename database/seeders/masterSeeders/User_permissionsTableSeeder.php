@@ -120,7 +120,6 @@ class User_permissionsTableSeeder extends Seeder
                 "recentactivitydata" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
                 "cleardata" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"]
             ]
-
         ];
         $rpjson = json_encode($rp);
 
