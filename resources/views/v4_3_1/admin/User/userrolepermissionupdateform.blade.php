@@ -4121,32 +4121,32 @@
                                                 </td>
                                                 <td>
                                                     @if (session('user_permissions.inventorymodule.lrcolumnmapping.view') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="viewLrcolumnmapping" name="viewLrcolumnmapping" value="1">
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="viewlrcolumnmapping" name="viewlrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.edit') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="editLrcolumnmapping" name="editLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="editlrcolumnmapping" name="editlrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.delete') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="deleteLrcolumnmapping" name="deleteLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="deletelrcolumnmapping" name="deletelrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.alldata') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="alldataLrcolumnmapping" name="alldataLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="alldatalrcolumnmapping" name="alldatalrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
