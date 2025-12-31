@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Artisan;
 
@@ -29,27 +30,47 @@ class MasterSetup extends Command
     public function handle()
     {
         $paths = [
-            base_path('database/migrations/masterdb'),
-            base_path('database/migrations/newmasterdbtable'),
-            base_path('database/migrations/v4_2_1/master'),
-            base_path('database/migrations/v4_2_2/master'),
-            base_path('database/migrations/v4_2_3/master'),
-            base_path('database/migrations/v4_3_0/master'),
-            base_path('database/migrations/v4_3_1/master'),
+            'database/migrations/masterdb',
+            'database/migrations/newmasterdbtable',
+            'database/migrations/v4_2_1/master',
+            'database/migrations/v4_2_2/master',
+            'database/migrations/v4_2_3/master',
+            'database/migrations/v4_3_0/master',
+            'database/migrations/v4_3_1/master',
         ];
-       
+
+        Artisan::call('optimize:clear');
+        $migrationsuccesfully = false;
         foreach ($paths as $path) {
             try {
+                Log::info("Running migration: {$path}");
+
                 Artisan::call('migrate', [
                     '--path' => $path,
-
+                    '--force' => true,
                 ]);
-            } catch (Exception $e) {
-                Log::error($e);
+            } catch (\Exception $e) {
+                Log::error("Migration failed for {$path}: " . $e->getMessage());
             }
         }
-        Artisan::call('db:seed', [
-            '--force' => true
-        ]);
+        $migrationsuccesfully = true;
+        if ($migrationsuccesfully) {
+            $this->seedMasterData();
+            $this->info('Master data setup completed successfully.');
+        } else {
+            $this->error('Master data setup encountered errors during migration.');
+        }
+    }
+    public function seedMasterData()
+    {
+        try {
+            Artisan::call('db:seed', [
+                '--force' => true
+            ]);
+            $this->info('Master data seeded successfully.');
+        } catch (Exception $e) {
+            Log::error('Seeding master data failed: ' . $e->getMessage());
+            $this->error('Seeding master data failed. Check logs for details.');
+        }
     }
 }

@@ -20,6 +20,7 @@ class User_permissionsTableSeeder extends Seeder
                 "mngcol" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "formula" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "invoicesetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "invoiceformsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "bank" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "customer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "invoicenumbersetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -27,7 +28,8 @@ class User_permissionsTableSeeder extends Seeder
                 "invoicestandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                "invoiceapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                "invoiceapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "tdsregister" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
             ],
             "leadmodule" => [
                 "leaddashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -48,13 +50,13 @@ class User_permissionsTableSeeder extends Seeder
                 "customersupportapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
             ],
             "adminmodule" => [
-                "admindashboard" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "company" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1", "max" => "1"],
-                "user" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "techsupport" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "userpermission" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "adminapi" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "loginhistory" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"]
+                "admindashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "company" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null, "max" => null],
+                "user" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "techsupport" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "userpermission" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "adminapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "loginhistory" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
             ],
             "inventorymodule" => [
                 "inventorydashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -66,7 +68,6 @@ class User_permissionsTableSeeder extends Seeder
                 "supplier" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "inventoryapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
             ],
-            "accountmodule" => [],
             "remindermodule" => [
                 "reminderdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "reminder" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -101,24 +102,27 @@ class User_permissionsTableSeeder extends Seeder
                 "logisticdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "consignorcopy" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "logisticsettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "Lrnumbersettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "logisticformsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "consignmentnotenumbersettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "consignorcopytandcsettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "logisticothersettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "consignee" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "consignor" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                 "logisticapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                "watermark" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
-
+                "watermark" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "downloadcopysetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "transporterbilling" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
             ],
             'developermodule' => [
-                "developerdashboard" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "slowpage" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "errorlog" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "cronjob" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "techdoc" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "versiondoc" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "recentactivitydata" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"],
-                "cleardata" => ["show" => "1", "add" => "1", "view" => "1", "edit" => "1", "delete" => "1", "alldata" => "1"]
+                "developerdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "slowpage" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "errorlog" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "cronjob" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "techdoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "versiondoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "recentactivitydata" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                "cleardata" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
             ]
 
         ];
