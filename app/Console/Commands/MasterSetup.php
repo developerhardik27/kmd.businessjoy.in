@@ -40,35 +40,44 @@ class MasterSetup extends Command
         ];
 
         Artisan::call('optimize:clear');
-        $migrationsuccesfully = false;
+
+        $migrationsuccesfully = true;  // Set this to true initially and check each migration
+
         foreach ($paths as $path) {
             try {
                 Log::info("Running migration: {$path}");
 
-                Artisan::call('migrate', [
+                $exitCode = Artisan::call('migrate', [
                     '--path' => $path,
-                    '--force' => true,
                 ]);
+
+                if ($exitCode !== 0) {
+                    throw new \Exception("Migration failed with exit code {$exitCode} for {$path}");
+                }
+
+                Log::info("Migration completed successfully: {$path}");
             } catch (\Exception $e) {
                 Log::error("Migration failed for {$path}: " . $e->getMessage());
+                $migrationsuccesfully = false;  // If one migration fails, set this to false
             }
         }
-        $migrationsuccesfully = true;
+
         if ($migrationsuccesfully) {
+            $this->info('Master data migration completed successfully.');
             $this->seedMasterData();
-            $this->info('Master data setup completed successfully.');
         } else {
             $this->error('Master data setup encountered errors during migration.');
         }
     }
-    public function seedMasterData()
+
+    private function seedMasterData()
     {
         try {
             Artisan::call('db:seed', [
                 '--force' => true
             ]);
             $this->info('Master data seeded successfully.');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::error('Seeding master data failed: ' . $e->getMessage());
             $this->error('Seeding master data failed. Check logs for details.');
         }
