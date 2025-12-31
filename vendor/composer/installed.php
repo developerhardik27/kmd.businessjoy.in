@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '87a28ad92f5fe5c020a5d4163024d94d16cf5d7d',
+        'reference' => '5cac59ca5d4940cb8fec1da03ef43286bc23cacf',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -508,6 +508,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'intervention/image-laravel' => array(
+            'pretty_version' => '1.3.0',
+            'version' => '1.3.0.0',
+            'reference' => '24738a017d42a6fa8d9adabdbd69a2c19c5b0d30',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../intervention/image-laravel',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'jaybizzle/crawler-detect' => array(
             'pretty_version' => 'v1.3.4',
             'version' => '1.3.4.0',
@@ -580,7 +589,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '87a28ad92f5fe5c020a5d4163024d94d16cf5d7d',
+            'reference' => '5cac59ca5d4940cb8fec1da03ef43286bc23cacf',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1180,8 +1189,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '3.0.0',
-                1 => '1.0|2.0|3.0',
+                0 => '1.0|2.0|3.0',
+                1 => '3.0.0',
             ),
         ),
         'psr/simple-cache' => array(

@@ -24,7 +24,7 @@ use App\Http\Controllers\admin\AdminLoginController;
 |
 */
 
-if(!function_exists('getversion')){
+if (!function_exists('getversion')) {
     function getversion($controller)
     {
         $request = request();
@@ -35,7 +35,7 @@ if(!function_exists('getversion')){
             if ($request->has('user_id')) {
                 // Retrieve the user if the user_id exists in the request
                 $user = User::find($request->user_id);
-    
+
                 // If the user exists, retrieve the company's version
                 if ($user) {
                     $version = Company::find($user->company_id);
@@ -48,12 +48,12 @@ if(!function_exists('getversion')){
             // For example, log the error or display a friendly message 
             $versionexplode = "v4_3_0"; // Set a default version
         }
-    
-    
+
+
         return 'App\\Http\\Controllers\\' . $versionexplode . '\\api\\' . $controller;
     }
 }
-    
+
 
 // middleware route group 
 
@@ -174,7 +174,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/user/delete/{id}', 'destroy')->name('user.delete');
         Route::post('/user/changepassword/{id}', 'changepassword')->name('user.changepassword');
         Route::post('/user/setdefaultpage/{id}', 'setdefaultpage')->name('user.setdefaultpage');
-        
+
         Route::get('/userrolepermission', 'userrolepermissionindex')->name('userrolepermission.index');
         Route::post('/userrolepermission/insert', 'storeuserrolepermission')->name('userrolepermission.store');
         Route::get('/getuserrolepermission', 'userrolepermissiondattable')->name('userrolepermission.datatable');
@@ -182,7 +182,6 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/userrolepermission/update/{id}', 'updateuserrolepermission')->name('userrolepermission.update');
         Route::put('/userrolepermission/statusupdate/{id}', 'userrolepermissionstatusupdate')->name('userrolepermission.statusupdate');
         Route::put('/userrolepermission/delete/{id}', 'userrolepermissiondestroy')->name('userrolepermission.delete');
-
     });
 
 
@@ -327,10 +326,10 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/lead/bulkdelete', 'bulkdestroy')->name('lead.bulkdelete');
         Route::put('/lead/changestatus', 'changestatus')->name('lead.changestatus');
         Route::put('/lead/changeleadstage', 'changeleadstage')->name('lead.changeleadstage');
-       
+
         Route::get('/lead/importhistory', 'importhistory')->name('lead.importhistory');
         Route::post('/lead/imporfromexcel', 'importFromExcel')->name('lead.importfromexcel');
-        
+
         Route::post('/lead/exportwithcallhistory', 'downloadLeadsExcel')->name('lead.exportwithcallhistory');
         Route::get('/lead/exporthistory', 'exporthistory')->name('lead.exporthistory');
 
@@ -399,6 +398,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/customerid', 'customeridstore')->name('customerid.store');
         Route::post('/manualinvoicenumber', 'manual_invoice_number')->name('othersettings.updateinvoicenumberstatus');
         Route::post('/manualinvoicedate', 'manual_invoice_date')->name('othersettings.updateinvoicedatestatus');
+        Route::post('/customerdropdown-invoice', 'customerdropdown')->name('invoicecustomerdropdown.store');
     });
 
 
@@ -577,7 +577,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/consignor/delete/{id}', 'destroy')->name('consignor.delete');
     });
 
-     // consignor copy route
+    // consignor copy route
     $consignorcopyController = getversion('consignorcopyController');
     Route::controller($consignorcopyController)->group(function () {
         Route::get('/consignorcopy/{number}', 'GetLrByNumber')->name('consignorcopy.getbynumber');
@@ -589,6 +589,12 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/consignorcopy/updatetandc/{id}', 'updatetandc')->name('consignorcopy.updatetandc');
         Route::put('/consignorcopy/update/{id}', 'update')->name('consignorcopy.update');
         Route::put('/consignorcopy/delete/{id}', 'destroy')->name('consignorcopy.delete');
+
+        Route::get('/lrcolumnmapping', 'columnmappingindex')->name('lrcolumnmapping.index');
+        Route::post('/lrcolumnmapping/insert', 'storecolumnmapping')->name('lrcolumnmapping.store');
+        Route::get('/lrcolumnmapping/edit/{id}', 'editcolumnmapping')->name('lrcolumnmapping.edit');
+        Route::put('/lrcolumnmapping/update/{id}', 'updatecolumnmapping')->name('lrcolumnmapping.update');
+        Route::put('/lrcolumnmapping/delete/{id}', 'destroycolumnmapping')->name('lrcolumnmapping.delete');
     });
 
     // logistic other settings route
@@ -609,6 +615,7 @@ Route::middleware(['checkToken'])->group(function () {
 
         Route::get('/watermark', 'getwatermark')->name('watermark.index');
         Route::post('/watermark/update', 'updatewatermark')->name('watermark.update');
+        Route::post('/customerdropdown', 'customerdropdown')->name('customerdropdowninlogistic.store');
     });
 
     // party (transporter billing party) route
@@ -637,16 +644,15 @@ Route::middleware(['checkToken'])->group(function () {
     $transporterbillingController = getversion('transporterbillingController');
     Route::controller($transporterbillingController)->group(function () {
         Route::get('/transporterbill/list', 'index')->name('transporterbill.list');
-        Route::post('/transporterbill/store', 'store')->name('transporterbill.store'); 
+        Route::post('/transporterbill/store', 'store')->name('transporterbill.store');
         Route::get('/transporterbill/edit/{id}', 'edit')->name('transporterbill.edit');
         Route::put('/transporterbill/update/{id}', 'update')->name('transporterbill.update');
         Route::put('/transporterbill/delete/{id}', 'destroy')->name('transporterbill.delete');
         Route::put('/transporterbill/statusupdate/{id}', 'statusupdate')->name('transporterbill.statusupdate');
-
     });
 
 
- 
+
     // system monitor settings route (Developer tools)
     $systemmonitorController = getversion('systemmonitorController');
     Route::controller($systemmonitorController)->group(function () {
@@ -662,12 +668,10 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/developer/recentactivitydata/edit/{id}', 'editrecentactivitydata')->name('recentactivitydata.edit');
         Route::put('/developer/recentactivitydata/update/{id}', 'updaterecentactivitydata')->name('recentactivitydata.update');
         Route::put('/developer/recentactivitydata/delete/{id}', 'destroyrecentactivitydata')->name('recentactivitydata.delete');
-       
+
         Route::get('/developer/cleardata/analyzation', 'clearDataAnalyzation')->name('cleardata.analyzation');
         Route::get('/developer/cleardata/clear', 'deleteSoftDeletedData')->name('developer.cleanup.softdeleted');
-
     });
-
 });
 
 //country route
@@ -715,4 +719,3 @@ Route::middleware([CheckServerKey::class])->group(function () {
 
 // Route that does NOT use CheckServerKey
 Route::post('/track-activity', [otherapiController::class, 'store'])->name('track.activity');
-

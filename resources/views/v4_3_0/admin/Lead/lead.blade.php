@@ -1180,24 +1180,6 @@
                                 <td>Customer Type</td>
                                 <th>${lead.customer_type || '-'}</th>
                             </tr>
-                            ${leadsettings.country == 1 ?`
-                                <tr>
-                                    <td>Country</td>
-                                    <th>${lead.country_name || '-'}</th>
-                                </tr>` : ''
-                            }
-                            ${leadsettings.state == 1 ?`
-                                <tr>
-                                    <td>State</td>
-                                    <th>${lead.state_name || '-'}</th>
-                                </tr>` : ''
-                            }
-                            ${leadsettings.city == 1 ?`
-                                <tr>
-                                    <td>City</td>
-                                    <th>${lead.city_name || '-'}</th>
-                                </tr>` : ''
-                            }
                             <tr>
                                 <td>Status</td>
                                 <th>${lead.status || '-'}</th>

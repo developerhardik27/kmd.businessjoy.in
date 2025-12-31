@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('city', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('state_id');
-            $table->string('city_name', 50);
-            $table->unsignedBigInteger('created_by');
+            $table->string('city_name', 200);
+            $table->unsignedBigInteger('created_by')->default(1);
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->tinyInteger('is_active')->default(1); 

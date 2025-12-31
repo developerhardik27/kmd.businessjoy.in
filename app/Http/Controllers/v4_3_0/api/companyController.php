@@ -74,7 +74,7 @@ class companyController extends commonController
         if ($company->isEmpty()) {
             return $this->successresponse(404, 'company', 'No Records Found');
         }
- 
+
         $user = User::find($this->userId);
         if (!$user) {
             return $this->successresponse(404, 'company', 'No Records Found');
@@ -145,8 +145,8 @@ class companyController extends commonController
                 'company_details.gst_no',
                 'company_details.pan_number',
                 'company_details.img',
-                'company_details.pr_sign_img', 
-                'company_details.transporter_id', 
+                'company_details.pr_sign_img',
+                'company_details.transporter_id',
                 'country.country_name',
                 'state.state_name',
                 'city.city_name',
@@ -283,6 +283,7 @@ class companyController extends commonController
                 DB::connection(config('database.dynamic_connection'))->statement('DROP DATABASE IF EXISTS `' . $this->newdbname . '`');
             }
 
+            // this to create new data base 
             DB::connection(config('database.dynamic_connection'))->statement('CREATE DATABASE ' . $this->newdbname);
 
             // Switch to the new database connection
@@ -303,7 +304,7 @@ class companyController extends commonController
                 ]
             ]);
 
-            // required migrations path
+            // required migrations path for company table
             $paths = [
                 'database/migrations/individualcompanydb',
                 'database/migrations/v1_1_1',
@@ -317,6 +318,7 @@ class companyController extends commonController
                 'database/migrations/v4_2_2/individual',
                 'database/migrations/v4_2_3/individual',
                 'database/migrations/v4_3_0/individual',
+              
             ];
 
             // Run migrations only from the specified path
@@ -326,8 +328,9 @@ class companyController extends commonController
                     '--database' => $this->newdbname,
                 ]);
             }
-
+            // switch to database 
             config(['database.connections.dynamic_connection.database' => $this->newdbname]);
+
 
             return $this->executeTransaction(function () use ($request) {
                 // Establish connection to the dynamic database
@@ -352,7 +355,7 @@ class companyController extends commonController
                     'transporter_id' => $request->transporter_id
                 ];
 
-
+                // add company details this in main superadmin side db name is newbjdb
                 $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details
 
                 if ($company_details) {
@@ -373,7 +376,7 @@ class companyController extends commonController
                         $sign_image = $request->file('sign_img');
 
                         $dirPath = public_path('uploads/') . $company . '/';
-
+                        dd($dirPath);
                         if (!file_exists($dirPath)) {
                             mkdir($dirPath, 0755, true);
                         }
@@ -522,7 +525,7 @@ class companyController extends commonController
                                     "supplier" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "inventoryapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
                                 ],
-                                "accountmodule" => [],
+                              
                                 "remindermodule" => [
                                     "reminderdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "reminder" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -569,6 +572,7 @@ class companyController extends commonController
                                 ],
                                 'developermodule' => [
                                     "developerdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "automadetest" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "slowpage" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "errorlog" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "cronjob" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -576,7 +580,8 @@ class companyController extends commonController
                                     "versiondoc" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "recentactivitydata" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "cleardata" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
-                                ]
+                                ],
+                                
                             ];
 
                             $rpjson = json_encode($rp);
@@ -748,6 +753,8 @@ class companyController extends commonController
                     'watermark_img' => $watermark_imageName,
                     'transporter_id' => $request->transporter_id
                 ];
+
+
 
                 $company_details = DB::table('company_details')->insertGetId($company_details_data); // insert company details (create new company details record  everytime on company update)
                 if ($company_details) {

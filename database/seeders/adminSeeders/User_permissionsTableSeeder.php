@@ -34,9 +34,7 @@ class User_permissionsTableSeeder extends Seeder
             "inventorymodule" => [
                 "product" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
             ],
-            "accountmodule" => [
-                "purchase" => ["show" => "0", "add" => "0", "view" => "0", "edit" => "0", "delete" => "0", "alldata" => "0"]
-            ]
+           'accountmodule' => []
         ];
         $rpjson = json_encode($rp);
          

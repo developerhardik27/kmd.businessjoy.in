@@ -176,6 +176,17 @@ class versionupdateController extends commonController
                                     ];
                                 }
                                 break;
+                            case 'v4_3_1':
+                                if ($request->company != 1) {
+                                    $paths = [
+                                        'database/migrations/v4_3_1/individual',
+                                    ];
+                                } else {
+                                    $paths = [
+                                        'database/migrations/v4_3_1/master',
+                                    ];
+                                }
+                                break;
 
                                 // Add more cases as needed
                         }
@@ -886,6 +897,118 @@ class versionupdateController extends commonController
                                                 'city_default_value' => null,
                                                 'created_at' => now()
                                             ]);
+                                    }
+                                }
+                                break;
+                            case 'v4_3_1':
+                                $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                                if ($rp) {
+                                    // update user permissions
+                                    foreach ($rp as $userrp) {
+                                        $jsonrp = json_decode($userrp->rp, true);
+                                        // Encode updated permissions back to JSON
+                                        if (!isset($jsonrp['logisticmodule']['lrcolumnmapping'])) {
+                                            $jsonrp['logisticmodule']['lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if(!isset($jsonrp['developermodule']['automadetest'])) {
+                                            $jsonrp['developermodule']['automadetest'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['invoicemodule']['invoiceformsetting'])) {
+                                            $jsonrp['invoicemodule']['invoiceformsetting'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (isset($jsonrp['invoicemodule']['formsetting'])) {
+                                            unset($jsonrp['invoicemodule']['formsetting']);
+                                        }
+                                        if (!isset($jsonrp['logisticmodule']['logisticformsetting'])) {
+                                            $jsonrp['logisticmodule']['logisticformsetting'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if(isset($jsonrp['logisticmodule']['formsetting'])) {
+                                            unset($jsonrp['logisticmodule']['formsetting']);
+                                        }
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+                                    }
+                                }
+                                if ($company->id != 1) {
+                                    // get consignee from consignee table
+                                    $consignees = DB::connection('dynamic_connection')->table('consignees')->get();
+
+                                    // move consignee from consignee table to customers table and delete from consignee table
+                                    if ($consignees->isNotEmpty()) {
+                                        foreach ($consignees as $consignee) {
+                                            $customer =  DB::connection('dynamic_connection')->table('customers')->insertGetId([
+                                                'firstname' => $consignee->firstname,
+                                                'lastname' => $consignee->lastname,
+                                                'company_name' => $consignee->company_name,
+                                                'email' => $consignee->email,
+                                                'contact_no' => $consignee->contact_no,
+                                                'house_no_building_name' => $consignee->house_no_building_name,
+                                                'road_name_area_colony' => $consignee->road_name_area_colony,
+                                                'country_id' => $consignee->country_id,
+                                                'state_id' => $consignee->state_id,
+                                                'city_id' => $consignee->city_id,
+                                                'pincode' => $consignee->pincode,
+                                                'gst_no' => $consignee->gst_no,
+                                                'pan_number' => $consignee->pan_number,
+                                                'customer_type' => 'consignee',
+                                                'company_id' => $company->id,
+                                                'created_by' => $consignee->created_by,
+                                                'updated_by' => $consignee->updated_by,
+                                                'created_at' => $consignee->created_at,
+                                                'updated_at' => $consignee->updated_at,
+                                                'is_active' => $consignee->is_active,
+                                                'is_deleted' => $consignee->is_deleted,
+                                            ]);
+
+                                            DB::connection('dynamic_connection')->table('consignor_copy')
+                                                ->where('consignee_id', $consignee->id)->update([
+                                                    'consignee_id' => $customer
+                                                ]);
+                                        }
+                                        DB::connection('dynamic_connection')->table('consignees')
+                                            ->delete();
+                                    }
+
+                                    // get consignors from consignors table
+                                    $consignors = DB::connection('dynamic_connection')->table('consignors')->get();
+
+                                    // move consignors from consignors table to customers table and delete from consignors table
+                                    if ($consignors->isNotEmpty()) {
+                                        foreach ($consignors as $consignor) {
+                                            $customer =  DB::connection('dynamic_connection')->table('customers')->insertGetId([
+                                                'firstname' => $consignor->firstname,
+                                                'lastname' => $consignor->lastname,
+                                                'company_name' => $consignor->company_name,
+                                                'email' => $consignor->email,
+                                                'contact_no' => $consignor->contact_no,
+                                                'house_no_building_name' => $consignor->house_no_building_name,
+                                                'road_name_area_colony' => $consignor->road_name_area_colony,
+                                                'country_id' => $consignor->country_id,
+                                                'state_id' => $consignor->state_id,
+                                                'city_id' => $consignor->city_id,
+                                                'pincode' => $consignor->pincode,
+                                                'gst_no' => $consignor->gst_no,
+                                                'pan_number' => $consignor->pan_number,
+                                                'customer_type' => 'consignor',
+                                                'company_id' => $company->id,
+                                                'created_by' => $consignor->created_by,
+                                                'updated_by' => $consignor->updated_by,
+                                                'created_at' => $consignor->created_at,
+                                                'updated_at' => $consignor->updated_at,
+                                                'is_active' => $consignor->is_active,
+                                                'is_deleted' => $consignor->is_deleted,
+                                            ]);
+
+                                            DB::connection('dynamic_connection')->table('consignor_copy')
+                                                ->where('consignor_id', $consignor->id)->update([
+                                                    'consignor_id' => $customer
+                                                ]);
+                                        }
+                                        DB::connection('dynamic_connection')->table('consignors')
+                                            ->delete();
                                     }
                                 }
                                 break;

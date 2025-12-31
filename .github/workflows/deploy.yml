@@ -21,6 +21,3 @@ jobs:
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: | 
             cd ~/htdocs/staging.businessjoy.in && ./.scripts/deploy.sh
-
-
-           

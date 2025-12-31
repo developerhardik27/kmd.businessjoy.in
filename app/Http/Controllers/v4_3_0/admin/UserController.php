@@ -7,6 +7,7 @@ use App\Models\company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use App\Models\company_detail;
 
 class UserController extends Controller
 {
@@ -90,7 +91,9 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $this->authorize('view', $user);
+        $com_details = company_detail::where('company_id',$user->company_id)->get();
 
+       // dd($com_details);
         return view($this->version.'.admin.User.profile', ['user_id' => Session::get('user_id'),'company_id' => Session::get('company_id'), 'id' => $id ]);
     }
 
