@@ -38,9 +38,7 @@ class DatabaseSeeder extends Seeder
             CountryTableSeeder::class,
             CompanyTableSeeder::class,
             Company_detailsTableSeeder::class,
-            CityTableSeeder::class,
-            LeadStageSeeder::class,
-            LeadStatusSeeder::class
+            CityTableSeeder::class
         ]);
     }
 }
