@@ -113,8 +113,8 @@ class SystemMonitorController extends Controller
     {
         return view($this->version . '.admin.Developer.cleardata');
     }
-
-
-
-
+    public function automatetest()
+    {
+        return view($this->version . '.admin.Developer.automatetest');
+    }
 }

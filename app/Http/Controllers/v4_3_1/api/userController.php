@@ -126,6 +126,7 @@ class userController extends commonController
         ],
         "developermodule" => [
             "developerdashboard" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "automatetest" => ["show", "add", "view", "edit", "delete", "alldata"],
             "slowpage" => ["show", "add", "view", "edit", "delete", "alldata"],
             "errorlog" => ["show", "add", "view", "edit", "delete", "alldata"],
             "cronjob" => ["show", "add", "view", "edit", "delete", "alldata"],

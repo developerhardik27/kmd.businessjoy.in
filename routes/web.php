@@ -363,6 +363,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Developer/RecentActivityData/Add', 'createrecentactivitydata')->name('admin.addrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,add');
                 Route::get('/Developer/RecentActivityData/Edit/{id}', 'editrecentactivitydata')->name('admin.editrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,edit');
                 Route::get('/Developer/ClearData', 'clearData')->name('admin.cleardata')->middleware('checkPermission:developermodule,cleardata,show');
+                Route::get('/Developer/AutomateTest', 'automatetest')->name('admin.automatetest')->middleware('checkPermission:developermodule,automatetest,show');
             });
 
             /**
