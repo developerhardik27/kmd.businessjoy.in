@@ -718,13 +718,13 @@ class consignorcopyController extends commonController
     {
 
         // condition for check if user has permission to view records
-        if ($this->rp['inventorymodule']['productcolumnmapping']['view'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
         $lrcolumnmappingres = $this->lr_column_mappingModel::where('is_deleted', 0);
 
-        if ($this->rp['inventorymodule']['productcolumnmapping']['alldata'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
             $lrcolumnmappingres->where('created_by', $this->userId);
         }
 
@@ -744,7 +744,7 @@ class consignorcopyController extends commonController
     public function storecolumnmapping(Request $request)
     {
         // condition for check if user has permission to add new records
-        if ($this->rp['inventorymodule']['productcolumnmapping']['add'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
@@ -788,7 +788,7 @@ class consignorcopyController extends commonController
     public function editcolumnmapping(int $id)
     {
         //condition for check if user has permission to edit record
-        if ($this->rp['inventorymodule']['productcolumnmapping']['edit'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
@@ -798,7 +798,7 @@ class consignorcopyController extends commonController
             return $this->successresponse(404, 'message', "No such column links found!");
         }
 
-        if ($this->rp['inventorymodule']['productcolumnmapping']['alldata'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
             if ($lrcolumnmapping->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
@@ -813,7 +813,7 @@ class consignorcopyController extends commonController
     public function updatecolumnmapping(Request $request, int $id)
     {
         //condition for check if user has permission to edit record
-        if ($this->rp['inventorymodule']['productcolumnmapping']['edit'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
@@ -843,7 +843,7 @@ class consignorcopyController extends commonController
             if (!$lrcolumnmapping) {
                 return $this->successresponse(404, 'message', 'No such columns link found!');
             }
-            if ($this->rp['inventorymodule']['productcolumnmapping']['alldata'] != 1) {
+            if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
                 if ($lrcolumnmapping->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
@@ -865,7 +865,7 @@ class consignorcopyController extends commonController
     public function destroycolumnmapping(int $id)
     {
         //condition for check if user has permission to delete record
-        if ($this->rp['inventorymodule']['productcolumnmapping']['delete'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['delete'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
@@ -875,7 +875,7 @@ class consignorcopyController extends commonController
             return $this->successresponse(404, 'message', 'No such columns link found!');
         }
 
-        if ($this->rp['inventorymodule']['productcolumnmapping']['alldata'] != 1) {
+        if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
             if ($lrcolumnmapping->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
