@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
           Schema::table('logistic_settings', function (Blueprint $table) {
-            $table->text('customer_dropdown')->default("['invoice']");
+            $table->string('customer_dropdown')->default("['invoice']");
         });
     }
 

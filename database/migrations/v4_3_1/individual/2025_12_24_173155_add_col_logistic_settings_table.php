@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('logistic_settings', function (Blueprint $table) {
-            $table->text('god_name_show/hide')->default(1);
+            $table->integer('god_name_show/hide')->default(1);
         });
     }
 
