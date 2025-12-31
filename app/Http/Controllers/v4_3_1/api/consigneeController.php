@@ -213,6 +213,7 @@ class consigneeController extends commonController
                 'gst_no' => $request->gst_number,
                 'pan_number' => $request->pan_number,
                 'created_by' => $this->userId,
+                'company_id' => $this->companyId,
             ]);
 
             if ($consignee) {
