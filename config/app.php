@@ -232,6 +232,8 @@ return [
             'V4.0.0' => 'versionchange/v4_0_0.docx',
             'V4.1.0' => 'versionchange/v4_1_0.docx',
             'V4.2.0' => 'versionchange/v4_2_0.docx',
+            'V4.3.0' => 'versionchange/v4_3_0.docx',
+            'V4.3.1' => 'versionchange/v4_3_1.docx',
         ],
         // Add more as needed
     ],

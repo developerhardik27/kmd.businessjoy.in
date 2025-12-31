@@ -5162,7 +5162,67 @@
                                                 </td>
                                             </tr>
                                         @endif
-
+                                        @if (session('user_permissions.developermodule.automatetest.edit') == '1' || $user_id == 1)
+                                                <tr id="automatetest">
+                                                   <td>Automate Test</td>
+                                                    <td>
+                                                        <input type="checkbox" class="clickmenu"
+                                                            data-value='automatetest'
+                                                            id="showautomatetestmenu"
+                                                            name="showautomatetestmenu" value="1">
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.developermodule.automatetest.add') == '1' || $user_id == 1)
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showautomatetestmenu'
+                                                                id="addautomatetest" name="addautomatetest"
+                                                                value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.developermodule.automatetest.view') == '1' || $user_id == 1)
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showautomatetestmenu'
+                                                                id="viewautomatetest"
+                                                                name="viewautomatetest" value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.developermodule.automatetest.edit') == '1' || $user_id == 1)
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showautomatetestmenu'
+                                                                id="editautomatetest"
+                                                                name="editautomatetest" value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.developermodule.automatetest.delete') == '1' || $user_id == 1)
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showautomatetestmenu'
+                                                                id="deleteautomatetest"
+                                                                name="deleteautomatetest" value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (session('user_permissions.developermodule.automatetest.alldata') == '1' || $user_id == 1)
+                                                            <input type="checkbox" class="clicksubmenu"
+                                                                data-value='showautomatetestmenu'
+                                                                id="alldataautomatetest"
+                                                                name="alldataautomatetest" value="1">
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                        @endif
                                         @if (session('user_permissions.developermodule.cleardata.edit') == '1' || $user_id == 1)
                                             <tr id="cleardata">
                                                 <td>Clear Data</td>
