@@ -4183,49 +4183,49 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                        @if (session('user_permissions.logisticmodule.Lrcolumnmapping.edit') == '1' || $user_id == 1)
+                                        @if (session('user_permissions.logisticmodule.lrcolumnmapping.edit') == '1' || $user_id == 1)
                                             <tr id="columnmapping" class="logistic_other_settings_rows subsettingrows">
                                                 <td>LR Column Mapping</td>
                                                 <td>
-                                                    <input type="checkbox" class="clickmenu" data-value='Lrcolumnmapping'
-                                                        id="showLrcolumnmappingmenu" name="showLrcolumnmappingmenu" value="1">
+                                                    <input type="checkbox" class="clickmenu" data-value='lrcolumnmapping'
+                                                        id="showlrcolumnmappingmenu" name="showlrcolumnmappingmenu" value="1">
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.add') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="addLrcolumnmapping" name="addLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.add') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="addlrcolumnmapping" name="addlrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.view') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="viewLrcolumnmapping" name="viewLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.view') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="viewlrcolumnmapping" name="viewlrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.edit') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="editLrcolumnmapping" name="editLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.edit') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="editlrcolumnmapping" name="editlrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.delete') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="deleteLrcolumnmapping" name="deleteLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.delete') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="deletelrcolumnmapping" name="deletelrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if (session('user_permissions.inventorymodule.Lrcolumnmapping.alldata') == '1' || $user_id == 1)
-                                                        <input type="checkbox" class="clicksubmenu" data-value='showLrcolumnmappingmenu'
-                                                            id="alldataLrcolumnmapping" name="alldataLrcolumnmapping" value="1">
+                                                    @if (session('user_permissions.inventorymodule.lrcolumnmapping.alldata') == '1' || $user_id == 1)
+                                                        <input type="checkbox" class="clicksubmenu" data-value='showlrcolumnmappingmenu'
+                                                            id="alldatalrcolumnmapping" name="alldatalrcolumnmapping" value="1">
                                                     @else
                                                         -
                                                     @endif

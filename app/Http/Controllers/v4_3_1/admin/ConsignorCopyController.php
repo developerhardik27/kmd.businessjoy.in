@@ -49,9 +49,9 @@ class ConsignorCopyController extends Controller
     {
         return view($this->version . '.admin.ConsignorCopy.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
-    public function Lrcolumnmapping()
+    public function lrcolumnmapping()
     {
-        return view($this->version . '.admin.ConsignorCopy.Lrcolumnmapping', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
+        return view($this->version . '.admin.ConsignorCopy.lrcolumnmapping', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }
     
 }

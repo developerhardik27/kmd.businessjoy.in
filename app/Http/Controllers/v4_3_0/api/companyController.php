@@ -395,7 +395,7 @@ class companyController extends commonController
                         if ($sign_image) {
                             $sign_imageName = $request->name . time() . 'sign.' . $sign_image->getClientOriginalExtension();
                             $sign_image->move($dirPath, $sign_imageName); // upload signature image
-                            $updateDetails['img'] = $company . '/' . $sign_image;
+                            $updateDetails['img'] = $company . '/' . $sign_imageName;
                         }
 
                         DB::table('company_details')->where('id', $company_details_id)->update(

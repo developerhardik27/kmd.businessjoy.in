@@ -112,7 +112,7 @@ class userController extends commonController
             "logisticdashboard" => ["show", "add", "view", "edit", "delete", "alldata"],
             "consignorcopy" => ["show", "add", "view", "edit", "delete", "alldata"],
             "logisticsettings" => ["show", "add", "view", "edit", "delete", "alldata"],
-            "Lrcolumnmapping" => ["show", "add", "view", "edit", "delete", "alldata"],
+            "lrcolumnmapping" => ["show", "add", "view", "edit", "delete", "alldata"],
             "logisticformsetting" => ["show", "add", "view", "edit", "delete", "alldata"],
             "consignmentnotenumbersettings" => ["show", "add", "view", "edit", "delete", "alldata"],
             "consignorcopytandcsettings" => ["show", "add", "view", "edit", "delete", "alldata"],

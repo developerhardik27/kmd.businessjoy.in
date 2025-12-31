@@ -590,11 +590,11 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/consignorcopy/update/{id}', 'update')->name('consignorcopy.update');
         Route::put('/consignorcopy/delete/{id}', 'destroy')->name('consignorcopy.delete');
 
-        Route::get('/Lrcolumnmapping', 'columnmappingindex')->name('Lrcolumnmapping.index');
-        Route::post('/Lrcolumnmapping/insert', 'storecolumnmapping')->name('Lrcolumnmapping.store');
-        Route::get('/Lrcolumnmapping/edit/{id}', 'editcolumnmapping')->name('Lrcolumnmapping.edit');
-        Route::put('/Lrcolumnmapping/update/{id}', 'updatecolumnmapping')->name('Lrcolumnmapping.update');
-        Route::put('/Lrcolumnmapping/delete/{id}', 'destroycolumnmapping')->name('Lrcolumnmapping.delete');
+        Route::get('/lrcolumnmapping', 'columnmappingindex')->name('lrcolumnmapping.index');
+        Route::post('/lrcolumnmapping/insert', 'storecolumnmapping')->name('lrcolumnmapping.store');
+        Route::get('/lrcolumnmapping/edit/{id}', 'editcolumnmapping')->name('lrcolumnmapping.edit');
+        Route::put('/lrcolumnmapping/update/{id}', 'updatecolumnmapping')->name('lrcolumnmapping.update');
+        Route::put('/lrcolumnmapping/delete/{id}', 'destroycolumnmapping')->name('lrcolumnmapping.delete');
     });
 
     // logistic other settings route

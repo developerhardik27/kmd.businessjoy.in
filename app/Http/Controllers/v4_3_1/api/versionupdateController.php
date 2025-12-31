@@ -907,8 +907,8 @@ class versionupdateController extends commonController
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
                                         // Encode updated permissions back to JSON
-                                        if (!isset($jsonrp['logisticmodule']['Lrcolumnmapping'])) {
-                                            $jsonrp['logisticmodule']['Lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        if (!isset($jsonrp['logisticmodule']['lrcolumnmapping'])) {
+                                            $jsonrp['logisticmodule']['lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if(!isset($jsonrp['developermodule']['automatetest'])) {
                                             $jsonrp['developermodule']['automatetest'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
