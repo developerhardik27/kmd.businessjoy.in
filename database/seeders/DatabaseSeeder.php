@@ -13,6 +13,8 @@ use Database\Seeders\masterSeeders\CompanyTableSeeder;
 use Database\Seeders\masterSeeders\User_roleTableSeeder;
 use Database\Seeders\masterSeeders\User_permissionsTableSeeder;
 use Database\Seeders\masterSeeders\Company_detailsTableSeeder;
+use Database\Seeders\masterSeeders\LeadStageSeeder;
+use Database\Seeders\masterSeeders\LeadStatusSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -28,15 +30,17 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-        UsersTableSeeder::class,
-        User_roleTableSeeder::class,
-        User_permissionsTableSeeder::class,
-        StateTableSeeder::class,
-        CurrencyTableSeeder::class,
-        CountryTableSeeder::class,
-        CompanyTableSeeder::class,
-        Company_detailsTableSeeder::class,
-        CityTableSeeder::class,
+            UsersTableSeeder::class,
+            User_roleTableSeeder::class,
+            User_permissionsTableSeeder::class,
+            StateTableSeeder::class,
+            CurrencyTableSeeder::class,
+            CountryTableSeeder::class,
+            CompanyTableSeeder::class,
+            Company_detailsTableSeeder::class,
+            CityTableSeeder::class,
+            LeadStageSeeder::class,
+            LeadStatusSeeder::class
         ]);
     }
 }

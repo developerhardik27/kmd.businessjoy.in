@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('state_id');
             $table->string('city_name', 50);
-            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('created_by')->default(1);
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->tinyInteger('is_active')->default(1); 

@@ -50,7 +50,7 @@ class companyController extends commonController
             ->join('country', 'company_details.country_id', '=', 'country.id')
             ->join('state', 'company_details.state_id', '=', 'state.id')
             ->join('city', 'company_details.city_id', '=', 'city.id')
-            ->select('company_details.name', 'company_details.company_id', 'company_details.email', 'company_details.contact_no','company_details.alternative_number', 'company_details.god_names', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'company_details.pr_sign_img', 'company_details.transporter_id', 'country.country_name', 'state.state_name', 'city.city_name')
+            ->select('company_details.name', 'company_details.company_id', 'company_details.email', 'company_details.contact_no', 'company_details.alternative_number', 'company_details.god_names', 'company_details.house_no_building_name', 'company_details.road_name_area_colony', 'company_details.gst_no', 'company_details.pincode', 'company_details.img', 'company_details.pr_sign_img', 'company_details.transporter_id', 'country.country_name', 'state.state_name', 'city.city_name')
             ->where('company_details.id', $id)->get();
 
         if ($companydetails->isEmpty()) {
@@ -200,7 +200,7 @@ class companyController extends commonController
     /**
      * Store a newly created resource in storage.
      */
-   
+
     public function store(Request $request)
     {
         // validate incoming request data
@@ -335,9 +335,9 @@ class companyController extends commonController
                     '--database' => $this->newdbname,
                 ]);
             }
+
             // switch to database 
             config(['database.connections.dynamic_connection.database' => $this->newdbname]);
-
 
             return $this->executeTransaction(function () use ($request) {
                 // Establish connection to the dynamic database
@@ -415,52 +415,8 @@ class companyController extends commonController
                         );
                     }
 
-                    $this->invoice_other_settingModel::create([  // default invoice other settings insert
-                        'overdue_day' => 45,
-                        'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
-                        'sgst' => 9,
-                        'cgst' => 9,
-                        'gst' => 0,
-                        'customer_id' => 1,
-                        'current_customer_id' => 1,
-                        'created_by' => $this->userId,
-                    ]);
-
-                    $this->quotation_other_settingModel::create([  // default quotation other settings insert
-                        'overdue_day' => 30,
-                        'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
-                        'sgst' => 9,
-                        'cgst' => 9,
-                        'gst' => 0,
-                        'customer_id' => 1,
-                        'current_customer_id' => 1,
-                        'created_by' => $this->userId,
-                    ]);
-
-                    $this->logistic_settingModel::create([  // default logistic other settings create
-                        'created_by' => $this->userId,
-                    ]);
-
-                    $this->blog_settingModel::create([  // default blog settings create
-                        'details_endpoint' => '',
-                        'img_allowed_filetype' => 'jpg,jpeg,png',
-                        'img_max_size' => '10',
-                        'img_width' => '600',
-                        'img_height' => '400',
-                        'thumbnail_img_width' => '400',
-                        'thumbnail_img_height' => '266',
-                        'validate_dimension' => '0',
-                    ]);
-
-                    $this->lead_settingModel::create([  // default lead settings create
-                        'country' => 0,
-                        'state' => 0,
-                        'city' => 0,
-                        'autofill_value' => 'As Per User',
-                        'country_default_value' => null,
-                        'state_default_value' => null,
-                        'city_default_value' => null,
-                    ]);
+                    // seeding default settings
+                    $this->seedingDefaultSettings($this->userId);
 
                     if ($company) {
 
@@ -873,5 +829,57 @@ class companyController extends commonController
 
             return $this->successresponse(200, 'message', 'Comapny status succesfully updated');
         });
+    }
+
+
+    // helper functions
+    private function seedingDefaultSettings(int $userId)
+    {
+        $this->invoice_other_settingModel::create([  // default invoice other settings insert
+            'overdue_day' => 45,
+            'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
+            'sgst' => 9,
+            'cgst' => 9,
+            'gst' => 0,
+            'customer_id' => 1,
+            'current_customer_id' => 1,
+            'created_by' => $userId,
+        ]);
+
+        $this->quotation_other_settingModel::create([  // default quotation other settings insert
+            'overdue_day' => 30,
+            'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
+            'sgst' => 9,
+            'cgst' => 9,
+            'gst' => 0,
+            'customer_id' => 1,
+            'current_customer_id' => 1,
+            'created_by' => $userId,
+        ]);
+
+        $this->logistic_settingModel::create([  // default logistic other settings create
+            'created_by' => $userId,
+        ]);
+
+        $this->blog_settingModel::create([  // default blog settings create
+            'details_endpoint' => '',
+            'img_allowed_filetype' => 'jpg,jpeg,png',
+            'img_max_size' => '10',
+            'img_width' => '600',
+            'img_height' => '400',
+            'thumbnail_img_width' => '400',
+            'thumbnail_img_height' => '266',
+            'validate_dimension' => '0',
+        ]);
+
+        $this->lead_settingModel::create([  // default lead settings create
+            'country' => 0,
+            'state' => 0,
+            'city' => 0,
+            'autofill_value' => 'As Per User',
+            'country_default_value' => null,
+            'state_default_value' => null,
+            'city_default_value' => null,
+        ]);
     }
 }

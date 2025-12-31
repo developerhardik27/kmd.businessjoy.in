@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('currency', function (Blueprint $table) {
             $table->id();
-           $table->string('country',50);
-           $table->string('currency',50);
-           $table->string('code',50);
-           $table->string('symbol',50);
+            $table->string('country', 50);
+            $table->string('currency', 50);
+            $table->string('code', 50);
+            $table->string('symbol', 50);
         });
     }
 
