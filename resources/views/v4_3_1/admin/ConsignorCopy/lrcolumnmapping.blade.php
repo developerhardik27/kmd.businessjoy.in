@@ -158,17 +158,17 @@
                 $('.error-msg').text('');
                 $.ajax({
                     type: 'GET',
-                    url: "{{ route('lrcolumnmapping.index') }}",
+                    url: "{{ route('Lrcolumnmapping.index') }}",
                     data: {
                         token: "{{ session()->get('api_token') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         user_id: "{{ session()->get('user_id') }}"
                     },
                     success: function(response) {
-                        if (response.status == 200 && response.lrcolumnmapping != '') {
+                        if (response.status == 200 && response.Lrcolumnmapping != '') {
                             global_response = response;
                             var id = 1;
-                            $.each(response.lrcolumnmapping, function(key, value) {
+                            $.each(response.Lrcolumnmapping, function(key, value) {
                                 $('#tabledata').append(` 
                                     <tr>
                                         <td>${id}</td>
@@ -233,7 +233,7 @@
                         var editid = element.data('id'); 
                         $('#newColForm').removeClass('d-none');
                         $('#newColBtn').addClass('d-none');
-                        let lrColumnMappingEditUrl = "{{ route('lrcolumnmapping.edit','__editId__') }}".replace('__editId__',editid);
+                        let lrColumnMappingEditUrl = "{{ route('Lrcolumnmapping.edit','__editId__') }}".replace('__editId__',editid);
                         $.ajax({
                             type: 'GET',
                             url: lrColumnMappingEditUrl,
@@ -243,11 +243,11 @@
                                 user_id: "{{ session()->get('user_id') }}"
                             },
                             success: function(response) {
-                                if (response.status == 200 && response.lrcolumnmapping != '') {
-                                    var lrcolumnmapping = response.lrcolumnmapping; 
+                                if (response.status == 200 && response.Lrcolumnmapping != '') {
+                                    var Lrcolumnmapping = response.Lrcolumnmapping; 
                                     $('#edit_id').val(editid); 
-                                    $('#lr_column').val(lrcolumnmapping.lr_column);
-                                    $('#invoice_column').val(lrcolumnmapping.invoice_column); 
+                                    $('#lr_column').val(Lrcolumnmapping.lr_column);
+                                    $('#invoice_column').val(Lrcolumnmapping.invoice_column); 
                                 } else if (response.status == 500) {
                                     Toast.fire({
                                         icon: "error",
@@ -286,7 +286,7 @@
                     () => {
                         // Success callback
                         loadershow();
-                        let lrColumnMapponigDeleteUrl = "{{ route('lrcolumnmapping.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
+                        let lrColumnMapponigDeleteUrl = "{{ route('Lrcolumnmapping.delete','__deleteId__') }}".replace('__deleteId__',deleteid);
                         $.ajax({
                             type: 'PUT',
                             url: lrColumnMapponigDeleteUrl,
@@ -335,10 +335,10 @@
                 var fomrdata = element.serializeArray();
                 var editid = $('#edit_id').val();
                 if(editid != '' && editid != null){
-                    url = "{{route('lrcolumnmapping.update','__editid__')}}".replace('__editid__',editid);
+                    url = "{{route('Lrcolumnmapping.update','__editid__')}}".replace('__editid__',editid);
                     type = 'put';
                 }else{
-                    url = "{{ route('lrcolumnmapping.store') }}";
+                    url = "{{ route('Lrcolumnmapping.store') }}";
                     type = 'post';
                 }
 

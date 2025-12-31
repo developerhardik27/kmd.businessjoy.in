@@ -332,8 +332,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewConsignorCopy', 'create')->name('admin.addconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,add');
                 Route::get('/EditConsignorCopy/{id}', 'edit')->name('admin.editconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,edit');
                 Route::get('/Logistic/othersettings', 'othersettings')->name('admin.logisticothersettings')->middleware('checkPermission:logisticmodule,logisticsettings,view');
-                 Route::get('/lrcolumnmapping','lrcolumnmapping')->name(name: 'admin.lrcolumnmapping');
-           
+                Route::get('/Lrcolumnmapping','Lrcolumnmapping')->name(name: 'admin.Lrcolumnmapping')->middleware('checkPermission:logisticmodule,Lrcolumnmapping,add');
             });
 
             //transporter billing route 

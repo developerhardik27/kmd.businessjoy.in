@@ -363,8 +363,6 @@ class versionupdateController extends commonController
                                             'logisticmodule' => [
                                                 "consignorcopy" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                                 "logisticsettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                                "Lrcolumnmapping" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-
                                                 "consignmentnotenumbersettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                                 "consignorcopytandcsettings" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                                 "consignee" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -909,8 +907,8 @@ class versionupdateController extends commonController
                                     foreach ($rp as $userrp) {
                                         $jsonrp = json_decode($userrp->rp, true);
                                         // Encode updated permissions back to JSON
-                                        if (!isset($jsonrp['logisticmodule']['lrcolumnmapping'])) {
-                                            $jsonrp['logisticmodule']['lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        if (!isset($jsonrp['logisticmodule']['Lrcolumnmapping'])) {
+                                            $jsonrp['logisticmodule']['Lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if(!isset($jsonrp['developermodule']['automatetest'])) {
                                             $jsonrp['developermodule']['automatetest'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];

@@ -722,19 +722,19 @@ class consignorcopyController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $lrcolumnmappingres = $this->lr_column_mappingModel::where('is_deleted', 0);
+        $Lrcolumnmappingres = $this->lr_column_mappingModel::where('is_deleted', 0);
 
         if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
-            $lrcolumnmappingres->where('created_by', $this->userId);
+            $Lrcolumnmappingres->where('created_by', $this->userId);
         }
 
-        $lrcolumnmapping = $lrcolumnmappingres->get();
+        $Lrcolumnmapping = $Lrcolumnmappingres->get();
 
-        if ($lrcolumnmapping->isEmpty()) {
-            return $this->successresponse(404, 'lrcolumnmapping', 'No Records Found');
+        if ($Lrcolumnmapping->isEmpty()) {
+            return $this->successresponse(404, 'Lrcolumnmapping', 'No Records Found');
         }
 
-        return $this->successresponse(200, 'lrcolumnmapping', $lrcolumnmapping);
+        return $this->successresponse(200, 'Lrcolumnmapping', $Lrcolumnmapping);
     }
 
 
@@ -768,13 +768,13 @@ class consignorcopyController extends commonController
                 return $this->successresponse(500, 'message', 'column links already exists');
             }
 
-            $lrcolumnmapping = $this->lr_column_mappingModel::create([
+            $Lrcolumnmapping = $this->lr_column_mappingModel::create([
                 'lr_column' => $request->lr_column,
                 'invoice_column' => $request->invoice_column,
                 'created_by' => $this->userId,
             ]);
 
-            if ($lrcolumnmapping) {
+            if ($Lrcolumnmapping) {
                 return $this->successresponse(200, 'message', 'columns succesfully linked.');
             } else {
                 return $this->successresponse(500, 'message', 'columns not succesfully linked');
@@ -792,19 +792,19 @@ class consignorcopyController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $lrcolumnmapping = $this->lr_column_mappingModel::find($id);
+        $Lrcolumnmapping = $this->lr_column_mappingModel::find($id);
 
-        if (!$lrcolumnmapping) {
+        if (!$Lrcolumnmapping) {
             return $this->successresponse(404, 'message', "No such column links found!");
         }
 
         if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
-            if ($lrcolumnmapping->created_by != $this->userId) {
+            if ($Lrcolumnmapping->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        dd($lrcolumnmapping);
-        return $this->successresponse(200, 'lrcolumnmapping', $lrcolumnmapping);
+        dd($Lrcolumnmapping);
+        return $this->successresponse(200, 'Lrcolumnmapping', $Lrcolumnmapping);
     }
 
     /*
@@ -838,18 +838,18 @@ class consignorcopyController extends commonController
                 return $this->successresponse(500, 'message', 'column links already exists');
             }
 
-            $lrcolumnmapping = $this->lr_column_mappingModel::find($id);
+            $Lrcolumnmapping = $this->lr_column_mappingModel::find($id);
 
-            if (!$lrcolumnmapping) {
+            if (!$Lrcolumnmapping) {
                 return $this->successresponse(404, 'message', 'No such columns link found!');
             }
             if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
-                if ($lrcolumnmapping->created_by != $this->userId) {
+                if ($Lrcolumnmapping->created_by != $this->userId) {
                     return $this->successresponse(500, 'message', 'You are Unauthorized');
                 }
             }
 
-            $lrcolumnmapping->update([
+            $Lrcolumnmapping->update([
                 'lr_column' => $request->lr_column,
                 'invoice_column' => $request->invoice_column,
                 'updated_by' => $this->userId,
@@ -869,19 +869,19 @@ class consignorcopyController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $lrcolumnmapping = $this->lr_column_mappingModel::find($id);
+        $Lrcolumnmapping = $this->lr_column_mappingModel::find($id);
 
-        if (!$lrcolumnmapping) {
+        if (!$Lrcolumnmapping) {
             return $this->successresponse(404, 'message', 'No such columns link found!');
         }
 
         if ($this->rp['logisticmodule']['Lrcolumnmapping']['alldata'] != 1) {
-            if ($lrcolumnmapping->created_by != $this->userId) {
+            if ($Lrcolumnmapping->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
 
-        $lrcolumnmapping->update([
+        $Lrcolumnmapping->update([
             'is_deleted' => 1
         ]);
         return $this->successresponse(200, 'message', 'columns link succesfully deleted');

@@ -470,13 +470,13 @@
                     handleAjaxError(xhr);
                 });
                 //  fetch lr columns link
-                ajaxRequest('GET', "{{ route('lrcolumnmapping.index') }}", {
+                ajaxRequest('GET', "{{ route('Lrcolumnmapping.index') }}", {
                     token: API_TOKEN,
                     company_id: COMPANY_ID,
                     user_id: USER_ID
                 }).done(function (response) {
-                    if (response.status == 200 && response.lrcolumnmapping != '') {
-                        lrcolumnlinks = response.lrcolumnmapping;
+                    if (response.status == 200 && response.Lrcolumnmapping != '') {
+                        lrcolumnlinks = response.Lrcolumnmapping;
                     }
                     // else if(response.status == 500){
                     //     Toast.fire({

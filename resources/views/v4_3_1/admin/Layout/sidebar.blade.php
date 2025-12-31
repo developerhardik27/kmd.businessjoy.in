@@ -525,8 +525,8 @@
                                 </li>
                             @endif
                             @if (session('user_permissions.logisticmodule.Lrcolumnmapping.show') == '1')
-                                <li class="{{ request()->routeIs('admin.lrcolumnmapping') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.lrcolumnmapping') }}" class="iq-waves-effect">
+                                <li class="{{ request()->routeIs('admin.Lrcolumnmapping') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.Lrcolumnmapping') }}" class="iq-waves-effect">
                                         <i class="ri-links-line"></i>
                                         <span>LR Column Mapping</span>
                                     </a>
