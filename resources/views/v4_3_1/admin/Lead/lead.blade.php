@@ -476,7 +476,15 @@
             });
 
             // When checkboxes change state
-            $(document).on('change', '.lead-checkbox, #select-all-leads', toggleActionButton);
+            $(document).on('change', '.lead-checkbox, #select-all-leads', function(){
+                let total = $('.lead-checkbox').length;
+                let checked = $('.lead-checkbox:checked').length;
+
+                // Sync Select All checkbox
+                $('#select-all-leads').prop('checked', total === checked);
+
+                toggleActionButton();
+            });
 
             $('#history_notes').summernote({
                 toolbar: [
