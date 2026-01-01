@@ -608,27 +608,27 @@
                             $.each(response.termsandconditions, function(key, value) {
                                 $('#tabledata').append(
                                     ` 
-                                                                                                                                    <tr>
-                                                                                                                                        <td>${id}</td>
-                                                                                                                                        <td class='text-left'><div id="tcdiv">${value.t_and_c}</div></td>
-                                                                                                                                        <td>
-                                                                                                                                            @if (session('user_permissions.invoicemodule.invoicesetting.edit') == '1')
-                                                                                                                                                ${value.is_active == 1 ? '<div id=status_' + value.id + '> <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive" data-status=' + value.id + ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0">active</button></div>' : '<div data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_' + value.id + '><button data-status= ' + value.id + ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></div>'}
-                                                                                                                                            @else
-                                                                                                                                                -
-                                                                                                                                            @endif
-                                                                                                                                        </td>
-                                                                                                                                        <td>
-                                                                                                                                            <span>
-                                                                                                                                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" data-id= '${value.id}'
-                                                                                                                                                    class="del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
-                                                                                                                                                    <i class="ri-delete-bin-fill"></i>
-                                                                                                                                                </button>
-                                                                                                                                            </span>
-                                                                                                                                        </td>
-                                                                                                                                    </tr>
-                                                                                                                                `);
-                                id++;
+                                                                                            <tr>
+                                                                                                <td>${id}</td>
+                                                                                                <td class='text-left'><div id="tcdiv">${value.t_and_c}</div></td>
+                                                                                                <td>
+                                                                                                    @if (session('user_permissions.invoicemodule.invoicesetting.edit') == '1')
+                                                                                                        ${value.is_active == 1 ? '<div id=status_' + value.id + '> <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Inactive" data-status=' + value.id + ' class="status-active btn btn-outline-success btn-rounded btn-sm my-0">active</button></div>' : '<div data-toggle="tooltip" data-placement="bottom" data-original-title="Active" id=status_' + value.id + '><button data-status= ' + value.id + ' class="status-deactive btn btn-outline-dark btn-rounded btn-sm my-0" >InActive</button></div>'}
+                                                                                                    @else
+                                                                                                        -
+                                                                                                    @endif
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <span>
+                                                                                                        <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" data-id= '${value.id}'
+                                                                                                            class="del-btn btn iq-bg-danger btn-rounded btn-sm my-0">
+                                                                                                            <i class="ri-delete-bin-fill"></i>
+                                                                                                        </button>
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        `);
+id++;
                             });
                             $('[data-toggle="tooltip"]').tooltip({
                                 boundary: 'window',

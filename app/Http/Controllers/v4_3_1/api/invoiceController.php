@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v4_3_1\api;
 
 use Carbon\Carbon;
 use App\Models\company;
+use App\Models\company_detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -187,7 +188,6 @@ class invoiceController extends commonController
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
             $invoiceres->where('invoices.created_by', $this->userId);
         }
-
         $invoice = $invoiceres->get();
         if ($invoice->isEmpty()) {
             return $this->successresponse(404, 'invoice', 'No Records Found');
@@ -320,11 +320,13 @@ class invoiceController extends commonController
                 ])
                 ->make(true);
         }
+        $company_detials = company::where("id", $this->companyId)->value("company_details_id");
 
         return DataTables::of($invoice)
             ->with([
                 'status' => 200,
                 'recordsTotal' => $totalcount, // Total records count
+                'company_details_id' => $company_detials
             ])
             ->make(true);
     }
@@ -986,6 +988,27 @@ class invoiceController extends commonController
         });
     }
 
+    public function updatecompanydetails(Request $request, string $id)
+    {
+
+        $company_id = $request->company_id;
+        $invoceid = $request->invoiceid;
+
+        $company_detials = company::where("id", $company_id)->value("company_details_id");
+
+        if (!$company_detials) {
+            return $this->successresponse(500, 'message', 'Company Details not found');
+        }
+        DB::connection('dynamic_connection')->table('invoices')
+            ->where('id', $invoceid)
+            ->update([
+
+                'company_details_id' => $company_detials,
+                'updated_by' => $this->userId,
+            ]);
+
+        return $this->successresponse(200, 'message', 'Company details updated successfully');
+    }
     /**
      * Remove the specified resource from storage.
      */

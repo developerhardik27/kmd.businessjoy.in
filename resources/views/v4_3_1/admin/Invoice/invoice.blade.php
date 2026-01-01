@@ -215,6 +215,7 @@
                             }
 
                             global_response = json;
+                          
 
                             return json.data;
                         },
@@ -422,6 +423,16 @@
                                         `;
                                     }
                                 @endif
+                                if(row.company_details_id != global_response.company_details_id) {
+                                actionBtns += `
+                                    <span>
+                                        <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Update Company Details"
+                                            class="update-company-details-btn btn btn-outline-primary btn-rounded btn-sm my-0">
+                                            <i class="ri-file-edit-line"></i>
+                                        </button>
+                                    </span>
+                                `;
+                                }
 
                                 @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
                                     actionBtns += `
@@ -533,9 +544,12 @@
                                 }
                                 loaderhide();
                             },
-                            error: function(xhr, status, error) { // if calling api request error 
+                            error: function(xhr, status,
+                                error) { // if calling api request error 
                                 loaderhide();
-                                console.log(xhr.responseText ); // Log the full error response for debugging
+                                console.log(xhr
+                                    .responseText
+                                    ); // Log the full error response for debugging
                                 handleAjaxError(xhr);
                             }
                         });
@@ -670,7 +684,7 @@
                 viewpayment(invoiceId);
             })
 
-            function viewpayment(invoiceId){
+            function viewpayment(invoiceId) {
                 $('#details').html('');
                 let paymentDetailsSearchUrl = "{{ route('paymentdetails.search', '__invoiceId__') }}"
                     .replace('__invoiceId__', invoiceId);
@@ -691,13 +705,13 @@
                                     .replace('__invoiceId__', value.id);
 
                                 let TDSDetails = '';
-                                if(value.tds_amount && value.tds_amount > 0){
-                                   TDSDetails =` 
+                                if (value.tds_amount && value.tds_amount > 0) {
+                                    TDSDetails = ` 
                                         <div><b>TDS Amount : </b> ${value.tds_amount}</div>
                                         <div><b>Challan No : </b> ${value.challan_no}</div>
                                         <div><b>TDS Status : </b> ${value.tds_status}</div>
                                     `;
-                                }    
+                                }
                                 $('#details').append(`
                                     <tr>
                                         <td>
@@ -775,10 +789,10 @@
                 $('.info-pending_amount').text(pendingamount);
             });
 
-            $('#tds_applicable').on('change',function(){
+            $('#tds_applicable').on('change', function() {
                 let val = $(this).is(':checked');
                 $('.tds_inputs').hide();
-                if(val){
+                if (val) {
                     $('.tds_inputs').show();
                 }
             });
@@ -822,13 +836,67 @@
                     }
                 });
             });
+            $(document).on("click", ".update-company-details-btn", function() {
+                var invoiceid = $(this).data('id');
+                let companyDetailsUrl =
+                    "{{ route('invoice.updatecompanydetails', '__invoiceid__') }}".replace(
+                        '__invoiceid__', invoiceid);
+                var row = this;
+
+                showConfirmationDialog(
+                    'Are you sure?', // Title
+                    'to update company details?', // Text
+                    'Yes, update', // Confirm button text
+                    'No, cancel', // Cancel button text
+                    'question', // Icon type (question icon)
+                    () => {
+                        // Success callback
+                        loadershow();
+                        $.ajax({
+                            type: 'PUT',
+                            url: companyDetailsUrl,
+                            data: {
+                                token: "{{ session()->get('api_token') }}",
+                                company_id: "{{ session()->get('company_id') }}",
+                                user_id: "{{ session()->get('user_id') }}",
+                                invoiceid: invoiceid
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "Company details successfully updated"
+                                    });
+                                    $(row).hide(); 
+                                } else {
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: response.message ||
+                                            "Something went wrong!"
+                                    });
+                                }
+                                loaderhide();
+                            },
+                            error: function(xhr, status,
+                            error) { // If calling API request error
+                                loaderhide();
+                                console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                                handleAjaxError(xhr);
+                            }
+                        });
+                    }
+                );
+            });
+
 
             // delete invoice payment             
             $(document).on("click", ".pay-del-btn", function() {
                 var deleteid = $(this).data('id');
                 var invId = $(this).data('inv-id');
-                let invPaymentDltUrl = "{{ route('paymentdetails.deletepayment', '__deleteId__') }}".replace(
-                    '__deleteId__', deleteid);
+                let invPaymentDltUrl = "{{ route('paymentdetails.deletepayment', '__deleteId__') }}"
+                    .replace(
+                        '__deleteId__', deleteid);
                 var row = this;
                 showConfirmationDialog(
                     'Are you sure?', // Title
@@ -851,7 +919,8 @@
                                 if (response.status == 200) {
                                     Toast.fire({
                                         icon: "success",
-                                        title: response.message || "succesfully deleted"
+                                        title: response.message ||
+                                            "succesfully deleted"
                                     });
                                     viewpayment(invId);
                                     table.draw();
@@ -876,7 +945,7 @@
                     }
                 );
             });
- 
+
         });
     </script>
 @endpush

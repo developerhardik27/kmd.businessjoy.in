@@ -297,6 +297,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('chart', 'monthlyInvoiceChart')->name('invoice.chart');
         Route::get('/reportlogs', 'reportlogsdetails')->name('report.logs');
         Route::put('/reportlog/delete/{id}', 'reportlogdestroy')->name('report.delete');
+        Route::put('/invoice/updatecompanydetails/{id}', 'updatecompanydetails')->name('invoice.updatecompanydetails');
     });
 
     // lead route 
@@ -604,7 +605,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/logistic/othersettings', 'logisticothersettingsstore')->name('logisticothersettings.store');
         Route::post('/logistic/downloadcopysetting', 'downloadcopysettingstore')->name('downloadcopysetting.store');
 
-        Route::get('/consignorcopy/termsandconditions', 'termsandconditionsindex')->name('consignorcopytermsandconditions.index');
+        Route::get('/consignorcopy/termsandconditions/fetch', 'termsandconditionsindex')->name('consignorcopytermsandconditions.index');
         Route::post('/consignorcopy/termsandconditions/insert', 'consignorcopytcstore')->name('consignorcopytermsandconditions.store');
         Route::get('/consignorcopy/termsandconditions/edit/{id}', 'tcedit')->name('consignorcopytermsandconditions.edit');
         Route::post('/consignorcopy/termsandconditions/update/{id}', 'tcupdate')->name('consignorcopytermsandconditions.update');
