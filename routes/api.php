@@ -582,7 +582,7 @@ Route::middleware(['checkToken'])->group(function () {
     $consignorcopyController = getversion('consignorcopyController');
     Route::controller($consignorcopyController)->group(function () {
         Route::get('/consignorcopy/{number}', 'GetLrByNumber')->name('consignorcopy.getbynumber');
-        Route::get('/consignorcopy/chartdata', 'getConsignmentChartData')->name('consignorcopy.chartdata');
+        Route::get('/consignorcopy/chart/data', 'getConsignmentChartData')->name('consignorcopy.chartdata');
         Route::get('/consignorcopy', 'index')->name('consignorcopy.index');
         Route::post('/consignorcopy/insert', 'store')->name('consignorcopy.store');
         Route::get('/consignorcopy/search/{id}', 'show')->name('consignorcopy.search');
