@@ -212,7 +212,9 @@ class AdminLoginController extends Controller
             if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                 session(['menu' => 'admin']);
             }
-            // $menus[] = 'admin';
+           if ($this->hasDashboardPermission($responseData['permissions'], 'adminmodule')) {
+                $menus[] = 'admin';
+            }
         }
 
         if ($this->hasPermission($responseData['permissions'], "inventorymodule")) {
@@ -254,11 +256,11 @@ class AdminLoginController extends Controller
             }
             // $menus[] = 'blog';
         }
-       
+
         if ($this->hasPermission($responseData['permissions'], "logisticmodule")) {
             session(['logistic' => "yes"]);
             $allmenus[] = 'logistic';
-            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog','account'])))) {
+            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'account'])))) {
                 session(['menu' => 'logistic']);
             }
             $menus[] = 'logistic';
@@ -267,7 +269,7 @@ class AdminLoginController extends Controller
         if ($this->hasPermission($responseData['permissions'], "developermodule")) {
             session(['developer' => "yes"]);
             $allmenus[] = 'developer';
-            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog','account','logistic'])))) {
+            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'account', 'logistic'])))) {
                 session(['menu' => 'developer']);
             }
             if ($this->hasDashboardPermission($responseData['permissions'], 'developermodule')) {
@@ -334,6 +336,9 @@ class AdminLoginController extends Controller
                     'via' => $via,
                     'company_id' => $user->company_id,
                 ]);
+                //user login that user_login field update to 1
+                User::where('id', $user->id)
+                    ->update(['user_login' => 1]);
             } else {
                 $user = User::where('email', $request->email)->where('is_deleted', 0)->first();
 

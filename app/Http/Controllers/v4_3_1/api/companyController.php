@@ -885,4 +885,25 @@ class companyController extends commonController
             'city_default_value' => null,
         ]);
     }
+
+    public function admindeshbord(Request $request)
+    {
+        $companyData = DB::table('company as c')
+            ->join('company_details as cd','cd.id','=','c.company_details_id')
+            ->leftJoin('users as u', function ($join) {
+                $join->on('u.company_id', '=', 'c.id')
+                    ->where('u.is_deleted', 0);
+            })
+            ->select(
+       'u.user_login as user_login',
+                'cd.name as company_name',
+                DB::raw('COUNT(u.id) as total_users'),
+            )
+             ->groupBy( 'u.user_login','cd.name')
+            ->get();
+        $data = [
+            'companyData' => $companyData
+        ];
+        return $this->successresponse(200, 'admindashboard', $data);
+    }
 }

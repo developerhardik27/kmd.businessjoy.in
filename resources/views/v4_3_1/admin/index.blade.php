@@ -53,6 +53,29 @@
                 <div class="col-lg-12">
                     <div class="iq-edit-list-data">
                         <div class="tab-content">
+                            <div class="tab-pane fade @if (session('menu') == 'admin') active show @endif"
+                                id="admindashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>admin Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-12">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Admin Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div id="admin-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
                             <div class="tab-pane fade @if (session('menu') == 'invoice') active show @endif"
                                 id="invoicedashboard" role="tabpanel">
                                 <div class="container-fluid">
@@ -560,7 +583,8 @@
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="filter-block container mb-4">
-                                                        <div class="align-items-center d-flex flex-column justify-content-center">
+                                                        <div
+                                                            class="align-items-center d-flex flex-column justify-content-center">
                                                             <div class="m-0 mb-sm-1 mr-sm-1">
                                                                 <select class="form-control dateFilter">
                                                                     <option value="1_month" selected>Last 1 Month</option>
@@ -569,7 +593,7 @@
                                                                     <option value="1_year">Last 1 Year</option>
                                                                     <option value="custom">Custom Range</option>
                                                                 </select>
-                                                            </div> 
+                                                            </div>
                                                             <div class="custom-dates mr-sm-1" style="display:none;">
                                                                 <div class="row">
                                                                     <div class="col-12 col-md-6 form-group">
@@ -612,7 +636,8 @@
                                                 </div>
                                                 <div class="iq-card-body">
                                                     <div class="filter-block container mb-4">
-                                                        <div class="align-items-center d-flex flex-column justify-content-center">
+                                                        <div
+                                                            class="align-items-center d-flex flex-column justify-content-center">
                                                             <div class="m-0 mb-sm-1 mr-sm-1">
                                                                 <select class="form-control dateFilter">
                                                                     <option value="1_month" selected>Last 1 Month</option>
@@ -621,7 +646,7 @@
                                                                     <option value="1_year">Last 1 Year</option>
                                                                     <option value="custom">Custom Range</option>
                                                                 </select>
-                                                            </div> 
+                                                            </div>
                                                             <div class="custom-dates mr-sm-1" style="display:none;">
                                                                 <div class="row">
                                                                     <div class="col-12 col-md-6 form-group">
@@ -646,8 +671,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div id="daily-slow-pages-chart"
-                                                        style="width: 100%; height: 400px;">
+                                                    <div id="daily-slow-pages-chart" style="width: 100%; height: 400px;">
                                                     </div>
                                                 </div>
                                             </div>
@@ -837,7 +861,7 @@
                         from_date: fromDate,
                         to_date: toDate
                     });
-                }else if(fnName =='fetchAndDrawDailySlowPagesChart'){
+                } else if (fnName == 'fetchAndDrawDailySlowPagesChart') {
                     fetchAndDrawDailySlowPagesChart({
                         date_filter: dateFilter,
                         from_date: fromDate,
@@ -2328,7 +2352,7 @@
                 }
 
                 $.ajax({
-                    url: '{{ route("slowpages.dailyreport") }}',
+                    url: '{{ route('slowpages.dailyreport') }}',
                     method: 'GET',
                     data: {
                         user_id: "{{ session()->get('user_id') }}",
@@ -2353,25 +2377,37 @@
                         const totalLogs = data.map(item => item.total_logs);
 
                         slowPageDailyChartInstance = Highcharts.chart('daily-slow-pages-chart', {
-                            chart: { 
+                            chart: {
                                 type: 'column',
                                 zoomType: 'xy'
                             },
-                            title: { text: 'Daily Slow Pages Report' },
-                            xAxis: { categories: dates, title: { text: 'Date' } },
+                            title: {
+                                text: 'Daily Slow Pages Report'
+                            },
+                            xAxis: {
+                                categories: dates,
+                                title: {
+                                    text: 'Date'
+                                }
+                            },
                             yAxis: [{
-                                title: { text: 'Avg Load Time (s)' }
+                                title: {
+                                    text: 'Avg Load Time (s)'
+                                }
                             }, {
-                                title: { text: 'Log Count' },
+                                title: {
+                                    text: 'Log Count'
+                                },
                                 opposite: true
                             }],
-                            series: [
-                                {
+                            series: [{
                                     name: 'Avg Load Time',
                                     type: 'spline',
                                     data: avgSecs,
                                     yAxis: 0,
-                                    tooltip: { valueSuffix: ' s' }
+                                    tooltip: {
+                                        valueSuffix: ' s'
+                                    }
                                 },
                                 {
                                     name: 'Log Count',
@@ -2380,7 +2416,9 @@
                                     yAxis: 1
                                 }
                             ],
-                            credits: { enabled: false }
+                            credits: {
+                                enabled: false
+                            }
                         });
                     },
                     error: function() {
@@ -2396,8 +2434,96 @@
                 fetchAndDrawDailySlowPagesChart();
                 loaderhide();
             }
+
+            function fetchAdminDashboardData() {
+                $.ajax({
+                    url: "{{ route('admindeshbord') }}", // Replace this with your Laravel backend endpoint
+                    method: 'GET',
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }} "
+                    },
+                    success: function(adminData) {
+                        let companyData = adminData.admindashboard.companyData;
+
+                        let companies = [];
+                        let totalUsers = [];
+                        let loggedInUsers = [];
+
+                        companyData.forEach(item => {
+                            let index = companies.indexOf(item.company_name);
+
+                            if (index === -1) {
+                                // New company, add to arrays
+                                companies.push(item.company_name);
+                                totalUsers.push(item.total_users);
+                                loggedInUsers.push(item.user_login);
+                            } else {
+                                // Existing company, add to totals
+                                totalUsers[index] += item.total_users;
+                                loggedInUsers[index] += item.user_login;
+                            }
+                        });
+
+                        console.log(companies, totalUsers, loggedInUsers);
+                        Highcharts.chart("admin-chart", {
+                            chart: {
+                                type: "line" // base chart type
+                            },
+                            title: {
+                                text: "Company Users & Logged-in Users"
+                            },
+                            xAxis: {
+                                categories: companies,
+                                crosshair: true
+                            },
+                            yAxis: {
+                                title: {
+                                    text: "Number of Users"
+                                }
+                            },
+                            series: [{
+                                    name: "Total Users",
+                                    data: totalUsers,
+                                    color: "#fbc647", // yellow/orange
+                                    type: "column" // column bars
+                                },
+                                {
+                                    name: "Logged-in Users",
+                                    data: loggedInUsers,
+                                    color: "#827af3", // purple/blue
+                                    type: "spline" // line
+                                }
+                            ],
+                            tooltip: {
+                                enabled: true,
+
+                            },
+                            credits: {
+                                enabled: false
+                            }
+                        });
+
+
+
+                    },
+                    error: function(error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+
+            function admindashboard() {
+                loadershow();
+                fetchAdminDashboardData();
+                loaderhide();
+            }
             //developermodule end
 
+            @if (session('menu') == 'admin')
+                admindashboard();
+            @endif
             @if (session('menu') == 'invoice')
                 invoicedashboard();
             @endif

@@ -97,6 +97,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::post('/company/update/{id}', 'update')->name('company.update');
         Route::post('/company/delete/{id}', 'destroy')->name('company.delete');
         Route::put('/company/statusupdate/{id}', 'statusupdate')->name('company.statusupdate');
+        Route::get('/admindeshbord', 'admindeshbord')->name('admindeshbord');
     });
 
     // version control route
