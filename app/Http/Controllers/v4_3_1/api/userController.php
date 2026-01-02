@@ -745,6 +745,14 @@ class userController extends commonController
                         if ($this->rp['adminmodule']['userpermission']['edit'] == 1) {
                             $searchuserrp = $this->user_permissionModel::where('user_id', $id)->first();
                             if ($searchuserrp) {
+
+                                if($searchuserrp->rp !== $rpjson){
+                                    $user = User::find($id);
+                                    $user->api_token = null;
+                                    $user->super_api_token = null;
+                                    $user->save(); 
+                                }
+
                                 $rpupdate = $searchuserrp->update([
                                     "rp" => $rpjson,
                                     'updated_by' => $this->userId

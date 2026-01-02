@@ -212,7 +212,8 @@ class AdminLoginController extends Controller
             if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport'])))) {
                 session(['menu' => 'admin']);
             }
-           if ($this->hasDashboardPermission($responseData['permissions'], 'adminmodule')) {
+
+            if ($this->hasDashboardPermission($responseData['permissions'], 'adminmodule') && $user['company_id'] == 1) {
                 $menus[] = 'admin';
             }
         }
@@ -607,6 +608,12 @@ class AdminLoginController extends Controller
                 ], 404);
             }
 
+            $superAdmin  = Auth::guard('admin')->user();
+            $superAdmin = User::find($superAdmin->id);
+            $superAdmin->api_token = null;
+            $superAdmin->super_api_token = null;
+            $superAdmin->user_login = 0;
+            $superAdmin->save();
             Auth::guard('admin')->logout();
             $request->session()->flush();
 

@@ -59,12 +59,18 @@ class HomeController extends Controller
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
         session_destroy();
+        
         $user = Auth::guard('admin')->user();
         //user login that user_login field update to 1
         User::where('id', $user->id)
             ->update(['user_login' => 0]);
+
         Auth::guard('admin')->logout();
 
+        if(!$user->api_token && !$user->super_api_token){
+            return redirect()->route('admin.login')->with('unauthorized', 'Your permissions have been updated, Please login again.');
+        }
+        
         return redirect()->route('admin.login')->with('unauthorized', 'You are already logged in on a different device');
     }
 
