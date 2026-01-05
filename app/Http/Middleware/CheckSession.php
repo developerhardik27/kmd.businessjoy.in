@@ -3,9 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckSession
@@ -21,7 +22,7 @@ class CheckSession
         $route = $request->route();
 
         if ($route && $route->getName()) {
-            
+
             // Log the route name
             // Log::debug('Current route name: ' . $routeName);
 
@@ -35,12 +36,13 @@ class CheckSession
                 // if (!in_array($request->route()->getName(), $routename)) {
                 //     // Redirect to the 'admin.login' route
                 // }
+                $user = Auth::guard('admin')->user();
+                //user login that user_login field update to 1
+                User::where('id', $user->id)
+                    ->update(['user_login' => 0]);
                 Auth::guard('admin')->logout();
                 return redirect()->route('admin.login')->with('error', 'Session Expired');
-
             }
-
-
         }
 
         // else {

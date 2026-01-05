@@ -59,7 +59,6 @@ class HomeController extends Controller
         if (session_status() !== PHP_SESSION_ACTIVE)
             session_start();
         session_destroy();
-        
         $user = Auth::guard('admin')->user();
         //user login that user_login field update to 1
         User::where('id', $user->id)
@@ -90,9 +89,7 @@ class HomeController extends Controller
             ->where('api_token', $token)
             ->orWhere('super_api_token', $token)
             ->first();
-        //user login that user_login field update to 1
-        User::where('id', $user->id)
-            ->update(['user_login' => 0]);
+
         if (!$user) {
             return response()->json([
                 'status' => 401,
