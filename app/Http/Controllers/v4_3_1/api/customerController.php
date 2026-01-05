@@ -106,12 +106,15 @@ class customerController extends commonController
                 'recordsFiltered' => 0
             ]);
         }
-
+        $dropdown = $this->invoice_other_settingModel::where('id', 1)->value('customer_dropdown');
+       $dropdown = json_decode($dropdown, true);
+       array_push($dropdown,'quotation','invoice'); 
         $customersres = $this->customerModel::leftjoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
             ->leftjoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
             ->leftjoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
             ->leftjoin($this->masterdbname . '.users', 'customers.created_by', '=', $this->masterdbname . '.users.id')
             ->select('customers.id', 'customers.customer_id', 'customers.firstname', 'customers.lastname', 'customers.company_name', 'customers.email', 'customers.contact_no', 'customers.house_no_building_name', 'customers.road_name_area_colony', 'country.country_name', 'state.state_name', 'city.city_name', 'customers.pincode', 'customers.gst_no', 'customers.company_id', 'customers.created_by', 'customers.updated_by', DB::raw("DATE_FORMAT(customers.created_at, '%d-%M-%Y %h:%i %p') as created_at_formatted"), 'customers.updated_at', 'customers.is_active', 'users.firstname as createdby_fname', 'users.lastname as createdby_lname')
+            ->whereIn('customers.customer_type', $dropdown)
             ->where('customers.is_deleted', 0);
 
         if ($this->rp['invoicemodule']['customer']['alldata'] != 1) {

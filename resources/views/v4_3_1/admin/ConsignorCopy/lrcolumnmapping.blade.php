@@ -40,6 +40,7 @@
                                             <input type="hidden" name="edit_id" id="edit_id" value="">    
                                             <select name="lr_column" class="form-control " id="lr_column">
                                                 <option selected value="">Select Lr  Column</option>
+                                                <option value="consignment_note_no"> Lr No </option>
                                                 <option value="loading_date">Loading Date</option> 
                                                 <option value="stuffing_date">Stuffing Date</option> 
                                                 <option value="truck_number">Truck Number</option>
