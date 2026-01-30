@@ -61,7 +61,7 @@
         </div>
         <div class="form-container sign-in wrapper blurred-content">
             <form id="forgotpasswordform" method="post">
-                <img src="{{ asset('admin/images/bjlogo3.png') }}" width="230px" alt="logo">
+                <img src="{{ asset('admin/images/KMD Logo1.png') }}" width="150px" height="150px" alt="logo">
                 @csrf
                 <h2>Forgot Password</h2>
                 <input type="email" id="username" name="email" placeholder="Enter Email" required>

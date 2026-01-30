@@ -18,7 +18,7 @@ class CompanyTableSeeder extends Seeder
         DB::table('company')->insert([
             'company_details_id' => '1',
             'dbname' => config('database.connections.mysql.database'),
-            'app_version' => config('app.latestversion', 'v1_0_0'),
+            'app_version' => config('app.latestversion', 'v4_3_2'),
             'max_users' => 5,
             'created_by' => 1,
         ]);

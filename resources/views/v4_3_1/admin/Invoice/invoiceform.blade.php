@@ -82,6 +82,7 @@
                     </select>
                     <span class="error-msg" id="error-bank_account" style="color: red"></span>
                 </div>
+                
                 <div class="col-sm-4 mb-3" id="inv_date_div">
                     <label for="invoice_date">Invoice Date</label>
                     <input type="datetime-local" class="form-control" id="invoice_date" name="invoice_date">

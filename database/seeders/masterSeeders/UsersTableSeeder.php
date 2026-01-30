@@ -19,15 +19,16 @@ class UsersTableSeeder extends Seeder
             'lastname' => 'admin',
             'email' => 'superadmin@email.com',
             'password' => Hash::make('sa123'),
+            'user_login' => 0,
             'contact_no' => 9874634240,
-            'country_id' => 1,
-            'state_id' => 7,
-            'city_id' => 323,
+            'country_id' => 101,
+            'state_id' => 4030,
+            'city_id' => 131900,
             'pincode' => 465738,
             'company_id' => 1,
             'created_by' => 1,
-            'role'=>1,
-            'role_permissions'=>1,
+            'role' => 1,
+            'role_permissions' => 1,
         ]);
     }
 }

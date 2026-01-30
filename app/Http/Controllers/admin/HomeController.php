@@ -60,7 +60,7 @@ class HomeController extends Controller
             session_start();
         session_destroy();
         $user = Auth::guard('admin')->user();
-        //user login that user_login field update to 1
+        //user singlelogout  that user_login field update to 0
         User::where('id', $user->id)
             ->update(['user_login' => 0]);
 
@@ -99,7 +99,9 @@ class HomeController extends Controller
 
         // Revoke the appropriate token
         $updateField = $user->super_api_token === $token ? 'super_api_token' : 'api_token';
-
+        // user direct clicke on logout that this user_login update to 0
+        User::where('id', $user->id)
+        ->update(['user_login' => 0]);
         DB::table('users')->where('id', $user->id)->update([
             $updateField => null
         ]);

@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\admin\AmazonController;
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\landing\LandingPageController;
+use App\Http\Controllers\v4_3_2\admin\HrController;
 
 Route::get('checkphp', function () {});
 
@@ -206,7 +207,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/ProductColumnMapping', 'productcolumnmapping')->name('admin.productcolumnmapping')->middleware('checkPermission:inventorymodule,productcolumnmapping,add');
                 Route::get('/AddNewProduct', 'create')->name('admin.addproduct')->middleware('checkPermission:inventorymodule,product,add');
                 Route::get('/EditProduct/{id}', 'edit')->name('admin.editproduct')->middleware('checkPermission:inventorymodule,product,edit');
-                
             });
             // product category route 
             $InventoryController = getadminversion('InventoryController');
@@ -305,6 +305,62 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/blog/Api', 'blogapi')->name('admin.blogapi')->middleware('checkPermission:blogmodule,blogapi,show');
             });
 
+            // hr module route start
+            $HrController = getadminversion('HrController');
+            Route::controller($HrController)->group(function () {
+                Route::get('/employee', 'index')->name('admin.employee')->middleware('checkPermission:hrmodule,employees,show');
+                Route::get('/AddNewemployee', 'create')->name('admin.addemployee.form')->middleware('checkPermission:hrmodule,employees,add');
+                Route::get('/Editemployee/{id}', 'edit')->name('admin.editemployee')->middleware('checkPermission:hrmodule,employees,edit');
+                Route::get('/companiesholidays', 'companiesholidays')->name('admin.companiesholidays')->middleware('checkPermission:hrmodule,companiesholidays,show');
+                Route::get('/letter', 'letter')->name('admin.letter');
+                Route::get('/letter/edit/{id}', 'editletter')->name('admin.editletter');
+            });
+
+
+
+
+            // hr module route end
+
+            // tea module route start
+            $companymasterController = getadminversion('companymasterController');
+            Route::controller($companymasterController)->group(function () {
+                Route::get('/companymaster', 'index')->name('admin.companymaster')->middleware('checkPermission:teamodule,companymaster,show');
+                Route::get('/AddNewcompanymaster', 'create')->name('admin.companymasterform')->middleware('checkPermission:teamodule,companymaster,add');
+                Route::get('/Editcompanymaster/{id}', 'edit')->name('admin.companymasterupdateform')->middleware('checkPermission:teamodule,companymaster,edit');
+                Route::get('/garden', 'gardenindex')->name('admin.garden')->middleware('checkPermission:teamodule,garden,show');
+                Route::get('/AddNewgarden', 'gardencreate')->name('admin.gardenform')->middleware('checkPermission:teamodule,garden,add');
+                Route::get('/Editgarden/{id}', 'gardenedit')->name('admin.gardenupdateform')->middleware('checkPermission:teamodule,garden,edit');
+            });
+
+            $partyController = getadminversion('partyController');
+            Route::controller($partyController)->group(function () {
+                Route::get('/party', 'partyindex')->name('admin.party')->middleware('checkPermission:teamodule,party,show');
+                Route::get('/AddNewparty', 'partycreate')->name('admin.partyform')->middleware('checkPermission:teamodule,party,add');
+                Route::get('/Editparty/{id}', 'partyedit')->name('admin.partyupdateform')->middleware('checkPermission:teamodule,party,edit');
+                Route::get('/grade', 'gradeindex')->name('admin.grade')->middleware('checkPermission:teamodule,grade,show');
+                Route::get('/AddNewgrade', 'gradecreate')->name('admin.gradeform')->middleware('checkPermission:teamodule,grade,add');
+                Route::get('/Editgrade/{id}', 'gradeedit')->name('admin.gradeupdateform')->middleware('checkPermission:teamodule,grade,edit');
+            });
+            $brokerpurchaseController = getadminversion('brokerPurchaseController');
+            Route::controller($brokerpurchaseController)->group(function () {
+                Route::get('/brokerpurchase', 'index')->name('admin.brokerpurchase')->middleware('checkPermission:teamodule,brokerpurchase,show');
+                Route::get('/AddNewbrokerpurchase', 'create')->name('admin.brokerpurchaseform')->middleware('checkPermission:teamodule,brokerpurchase,add');
+                Route::get('/Editbrokerpurchase/{id}', 'edit')->name('admin.brokerpurchaseupdateform')->middleware('checkPermission:teamodule,brokerpurchase,edit');
+                Route::post('/storeInvoiceSession', 'storeInvoiceSession')->name('admin.storeInvoiceSession')->middleware('checkPermission:teamodule,brokerpurchase,show');
+
+            });
+            $brokeragebillController = getadminversion('brokeragebillController');
+            Route::controller($brokeragebillController)->group(function () {
+                Route::get('/brokeragebill', 'index')->name('admin.brokeragebill')->middleware('checkPermission:teamodule,brokeragebill,show');
+                Route::get('/Addbrokeragebill/{id?}', 'create')->name('admin.brokeragebillform')->middleware('checkPermission:teamodule,brokeragebill,add');
+            });
+
+            $orderController = getadminversion('orderController');
+            Route::controller($orderController)->group(function () {
+                Route::get('/order', 'index')->name('admin.order')->middleware('checkPermission:teamodule,teadashboard,show');
+                Route::get('/AddNeworder', 'create')->name('admin.orderform')->middleware('checkPermission:teamodule,teadashboard,add');
+                Route::get('/Editorder/{id}', 'edit')->name('admin.orderupdateform')->middleware('checkPermission:teamodule,teadashboard,edit');
+            });
             /**
              * logistic module route start
              */
@@ -332,7 +388,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewConsignorCopy', 'create')->name('admin.addconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,add');
                 Route::get('/EditConsignorCopy/{id}', 'edit')->name('admin.editconsignorcopy')->middleware('checkPermission:logisticmodule,consignorcopy,edit');
                 Route::get('/Logistic/othersettings', 'othersettings')->name('admin.logisticothersettings')->middleware('checkPermission:logisticmodule,logisticsettings,view');
-                Route::get('/lrcolumnmapping','lrcolumnmapping')->name('admin.lrcolumnmapping')->middleware('checkPermission:logisticmodule,lrcolumnmapping,add');
+                Route::get('/lrcolumnmapping', 'lrcolumnmapping')->name('admin.lrcolumnmapping')->middleware('checkPermission:logisticmodule,lrcolumnmapping,add');
             });
 
             //transporter billing route 
@@ -363,6 +419,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Developer/RecentActivityData/Edit/{id}', 'editrecentactivitydata')->name('admin.editrecentactivitydata')->middleware('checkPermission:developermodule,recentactivitydata,edit');
                 Route::get('/Developer/ClearData', 'clearData')->name('admin.cleardata')->middleware('checkPermission:developermodule,cleardata,show');
                 Route::get('/Developer/AutomateTest', 'automatetest')->name('admin.automatetest')->middleware('checkPermission:developermodule,automatetest,show');
+                Route::get('/Developer/queues', 'queues')->name('admin.queues')->middleware('checkPermission:developermodule,queues,show');
             });
 
             /**

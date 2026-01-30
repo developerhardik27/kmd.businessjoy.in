@@ -277,6 +277,22 @@ class AdminLoginController extends Controller
                 $menus[] = 'developer';
             }
         }
+        if ($this->hasPermission($responseData['permissions'], "hrmodule")) {
+            session(['hr' => "yes"]);
+            $allmenus[] = 'hr';
+            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'developer'])))) {
+                session(['menu' => 'hr']);
+            }
+            $menus[] = 'hr';
+        }
+        if ($this->hasPermission($responseData['permissions'], "teamodule")) {
+            session(['tea' => "yes"]);
+            $allmenus[] = 'tea';
+            if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'developer','hr'])))) {
+                session(['menu' => 'tea']);
+            }
+            $menus[] = 'tea';
+        }
 
         session([
             'allmenu' => $menus,

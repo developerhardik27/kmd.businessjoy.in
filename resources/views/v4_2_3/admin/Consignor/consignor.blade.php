@@ -103,7 +103,7 @@
                             if (json.message) {
                                 Toast.fire({
                                     icon: "error",
-                                    title: json.message || 'Somethint went wrong!'
+                                    title: json.message || 'Something went wrong!'
                                 })
                             }
 

@@ -187,6 +187,17 @@ class versionupdateController extends commonController
                                     ];
                                 }
                                 break;
+                            case 'v4_3_2':
+                                if ($request->company != 1) {
+                                    $paths = [
+                                        'database/migrations/v4_3_2/individual',
+                                    ];
+                                } else {
+                                    $paths = [
+                                        'database/migrations/v4_3_2/master',
+                                    ];
+                                }
+                                break;
 
                                 // Add more cases as needed
                         }
@@ -910,7 +921,7 @@ class versionupdateController extends commonController
                                         if (!isset($jsonrp['logisticmodule']['lrcolumnmapping'])) {
                                             $jsonrp['logisticmodule']['lrcolumnmapping'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
-                                        if(!isset($jsonrp['developermodule']['automatetest'])) {
+                                        if (!isset($jsonrp['developermodule']['automatetest'])) {
                                             $jsonrp['developermodule']['automatetest'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
                                         if (!isset($jsonrp['invoicemodule']['invoiceformsetting'])) {
@@ -922,7 +933,7 @@ class versionupdateController extends commonController
                                         if (!isset($jsonrp['logisticmodule']['logisticformsetting'])) {
                                             $jsonrp['logisticmodule']['logisticformsetting'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
                                         }
-                                        if(isset($jsonrp['logisticmodule']['formsetting'])) {
+                                        if (isset($jsonrp['logisticmodule']['formsetting'])) {
                                             unset($jsonrp['logisticmodule']['formsetting']);
                                         }
                                         $updatedRpJson = json_encode($jsonrp);
@@ -1011,6 +1022,47 @@ class versionupdateController extends commonController
                                             ->delete();
                                     }
                                 }
+                                break;
+                            case 'v4_3_2':
+                                $rp = DB::connection('dynamic_connection')->table('user_permissions')->get();
+                                if ($rp) {
+                                    // update user permissions
+                                    foreach ($rp as $userrp) {
+                                        $jsonrp = json_decode($userrp->rp, true);
+                                        // Encode updated permissions back to JSON
+                                        if (!isset($jsonrp['hrmodule'])) {
+                                            $jsonrp['hrmodule']['hrdashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['hrmodule']['employees'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['hrmodule']['companiesholidays'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['hrmodule']['letters'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['developermodule'])) {
+                                            $jsonrp['developermodule']['queues'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        if (!isset($jsonrp['teamodule'])) {
+                                            $jsonrp['teamodule']['teadashboard'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['companymaster'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['garden'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['party'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['order'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['grade'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['brokerpurchase'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                            $jsonrp['teamodule']['brokeragebill'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        }
+                                        // if (!isset($jsonrp['teamodule']['brokerpurchase'])) {
+                                        //     $jsonrp['teamodule']['brokerpurchase'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        // }
+                                        // if (!isset($jsonrp['teamodule']['brokeragebill'])) {
+                                        //     $jsonrp['teamodule']['brokeragebill'] = ["show" => 0, "add" => 0, "view" => 0, "edit" => 0, "delete" => 0, "alldata" => 0];
+                                        // }
+                                        $updatedRpJson = json_encode($jsonrp);
+                                        // Update the database
+                                        DB::connection('dynamic_connection')->table('user_permissions')
+                                            ->where('user_id', $userrp->user_id)
+                                            ->update(['rp' => $updatedRpJson]);
+                                    }
+                                }
+
                                 break;
                         }
                         $company->app_version = $request->version;

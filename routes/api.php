@@ -42,11 +42,11 @@ if (!function_exists('getversion')) {
                 }
             }
             // Determine the version based on whether the user and version exist
-            $versionexplode = $version ? $version->app_version : "v4_3_0";
+            $versionexplode = $version ? $version->app_version : "v4_3_2";
         } catch (\Exception $e) {
             // Handle database connection or query exception
             // For example, log the error or display a friendly message 
-            $versionexplode = "v4_3_0"; // Set a default version
+            $versionexplode = "v4_3_2"; // Set a default version
         }
 
 
@@ -474,7 +474,91 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/blog/settings', 'getblogsettings')->name('blog.settings');
         Route::put('/blog/settings/update', 'updateBlogSettings')->name('blog.updatesettings');
     });
+    $HrController = getversion('HrController');
+    Route::controller($HrController)->group(function () {
+        Route::get('/employee', 'index')->name('employee.index');
+        Route::post('/employee/insert', 'store')->name('employee.store');
+        Route::get('/employee/edit/{id}', 'edit')->name('employee.edit');
+        Route::post('/employee/update/{id}', 'update')->name('employee.update');
+        Route::put('/employee/delete/{id}', 'destroy')->name('employee.delete');
 
+
+        Route::get('/holiday', 'holidayindex')->name('holiday.index');
+        Route::post('/holiday/insert', 'holidaystore')->name('holiday.store');
+        Route::get('/holiday/edit/{id}', 'holidayedit')->name('holiday.edit');
+        Route::put('/holiday/update/{id}', 'holidayupdate')->name('holiday.update');
+        Route::put('/holiday/delete/{id}', 'holidaydestroy')->name('holiday.delete');
+
+        Route::get('/letter', 'letterindex')->name('letter.index');
+        Route::post('/letter/insert', 'letterstore')->name('letter.store');
+        Route::get('/letter/edit/{id}', 'letteredit')->name('letter.edit');
+        Route::put('/letter/update/{id}', 'letterupdate')->name('letter.update');
+        Route::put('/letter/delete/{id}', 'letterdestroy')->name('letter.delete');
+    });
+    // tea model companymaster crud
+    $companymasterController = getversion('companymasterController');
+    Route::controller($companymasterController)->group(function () {
+        Route::get('/companymaster', 'index')->name('companymaster.index');
+        Route::post('/companymaster/insert', 'store')->name('companymaster.store');
+        Route::get('/companymaster/edit/{id}', 'edit')->name('companymaster.edit');
+        Route::get('/companymaster/search/{id}', 'edit')->name('companymaster.search');
+        Route::put('/companymaster/update/{id}', 'update')->name('companymaster.update');
+        Route::put('/companymaster/delete/{id}', 'destroy')->name('companymaster.delete');
+        Route::get('/garden', 'gardenindex')->name('garden.index');
+        Route::post('/garden/insert', 'gardenstore')->name('garden.store');
+        Route::get('/garden/edit/{id}', 'gardenedit')->name('garden.edit');
+        Route::put('/garden/update/{id}', 'gardenupdate')->name('garden.update');
+        Route::put('/garden/delete/{id}', 'gardendestroy')->name('garden.delete');
+    });
+    $partyController = getversion('partyController');
+    Route::controller($partyController)->group(function () {
+        Route::get('/buyer', 'buyerindex')->name('buyer.index');
+        Route::get('/transport', 'transportindex')->name('transport.index');
+        Route::get('/party', 'partyindex')->name('party.index');
+        Route::post('/party/insert', 'partystore')->name('party.store');
+        Route::get('/party/edit/{id}', 'partyedit')->name('party.edit');
+        Route::get('/party/search/{id}', 'partyedit')->name('party.search');
+        Route::put('/party/update/{id}', 'partyupdate')->name('party.update');
+        Route::put('/party/delete/{id}', 'partydestroy')->name('party.delete');
+        Route::get('/grade', 'gradeindex')->name('grade.index');
+        Route::post('/grade/insert', 'gradestore')->name('grade.store');
+        Route::get('/grade/edit/{id}', 'gradeedit')->name('grade.edit');
+        Route::put('/grade/update/{id}', 'gradeupdate')->name('grade.update');
+        Route::put('/grade/delete/{id}', 'gradedestroy')->name('grade.delete');
+    });
+    $brokerpurchaseController = getversion('brokerPurchaseController');
+    Route::controller($brokerpurchaseController)->group(function () {
+        Route::get('/brokerpurchase', 'index')->name('brokerpurchase.index');
+        Route::get('/brokerpurchase/getGardens', 'getGardens')->name('brokerpurchase.getGardens');
+        Route::get('/brokerpurchase/get-invoices', 'getInvoices')->name('brokerpurchase.getInvoices');
+        Route::get('/brokerpurchase/get-update-invoices', 'getupdateInvoices')->name('brokerpurchase.getupdateInvoices');
+        Route::get('/brokerpurchase/check-invoices', 'checkInvoice')->name('brokerpurchase.checkInvoice');
+        Route::get('/brokerpurchase/get-other-details', 'getOtherDetails')->name('brokerpurchase.getOtherDetails');
+        Route::post('/brokerpurchase/insert', 'store')->name('brokerpurchase.store');
+        Route::get('/brokerpurchase/edit/{id}', 'edit')->name('brokerpurchase.edit');
+        Route::put('/brokerpurchase/update/{id}', 'update')->name('brokerpurchase.update');
+        Route::put('/brokerpurchase/delete/{id}', 'destroy')->name('brokerpurchase.delete');
+        Route::get('/brokerpurchase/createInvoice', 'createInvoice')->name('brokerpurchase.createInvoice');
+    });
+    $brokeragebillController = getversion('brokeragebillController');
+    Route::controller($brokeragebillController)->group(function () {
+        Route::get('/brokeragebill', 'index')->name('brokeragebill.index');
+        Route::get('/brokeragebill/getGardens', 'getGardens')->name('brokeragebill.getGardens');
+        Route::get('/brokeragebill/get-OtherData', 'getOtherData')->name('brokeragebill.getOtherData');
+        Route::post('/brokeragebill/insert', 'store')->name('brokeragebill.store');
+        Route::get('/brokeragebill/edit/{id}', 'edit')->name('brokeragebill.edit');
+        Route::put('/brokeragebill/update/{id}', 'update')->name('brokeragebill.update');
+        Route::put('/brokeragebill/delete/{id}', 'destroy')->name('brokeragebill.delete');
+    });
+    $orderController = getversion('orderController');
+    Route::controller($orderController)->group(function () {
+
+        Route::get('/order', 'index')->name('order.index');
+        Route::post('/order/insert', 'store')->name('order.store');
+        Route::get('/order/edit/{id}', 'edit')->name('order.edit');
+        Route::put('/order/update/{id}', 'update')->name('order.update');
+        Route::put('/order/delete/{id}', 'destroy')->name('order.delete');
+    });
     // api_authorization  route
     $apiauthorizationController = getversion('apiauthorizationController');
     Route::controller($apiauthorizationController)->group(function () {

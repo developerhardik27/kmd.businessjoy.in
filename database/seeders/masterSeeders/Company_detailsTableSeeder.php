@@ -19,11 +19,13 @@ class Company_detailsTableSeeder extends Seeder
             'contact_no' => 9874634240,
             'house_no_building_name' => 'tesdfa',
             'road_name_area_colony' => 'tesdfa',
-            'country_id' => 1,
-            'state_id' => 7,
-            'city_id' => 333,
+            'country_id' => 101,
+            'state_id' => 4030,
+            'city_id' => 131900,
             'pincode' => 465738,
-            'gst_no' => 'test324235dsf'
+            'gst_no' => 'test324235dsf',
+            'god_names' => json_encode(["Jay somnath", "jay mataji", "Jay somnath"]),
+            'alternative_number' => "7285008403",
         ]);
     }
 }

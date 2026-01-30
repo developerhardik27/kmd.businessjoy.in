@@ -244,6 +244,6 @@ return [
         ['module' => 'Admin', 'page' => 'Login', 'limit' => '90 Days'],
     ],
 
-    'latestversion' => 'v4_3_0',
+    'latestversion' => 'v4_3_2',
  
 ];

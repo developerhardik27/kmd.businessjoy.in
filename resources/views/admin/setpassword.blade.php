@@ -21,7 +21,7 @@
     <div class="container" id="container">
         <div class="form-container sign-in">
             <form action="" method="post">
-                <img src="{{ asset('admin/images/bjlogo3.png') }}" width="230px" alt="logo">
+                <img src="{{ asset('admin/images/KMD Logo1.png') }}" width="150px" height="150px" alt="logo">
                 @csrf
                 <h1>Set Password</h1>
                 <p>Enter Your Desired Password</p>

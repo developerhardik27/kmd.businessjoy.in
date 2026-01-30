@@ -22,7 +22,7 @@ class CheckPermission
         $menu = '';
 
         $user = Auth::user();
-
+        
         $dbname = company::find($user->company_id);
         config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
 
@@ -60,6 +60,9 @@ class CheckPermission
         }
         if ($module == 'quotationmodule') {
             $menu = 'quotation';
+        }
+        if ($module == 'hrmodule') {
+            $menu = 'hr';
         }
 
         // Check if the user has permission for the given module and action
