@@ -5,12 +5,12 @@
                     <div class="top-logo">
                         <a href="" class="logo">
                             <div class="iq-light-logo">
-                                <img src="{{ asset('admin/images/bjlogo3.png') }}" class="img-fluid" alt="">
+                                <img src="{{ asset('admin/images/KMD Logo1.png') }}" class="img-fluid" alt="">
                             </div>
                             <div class="iq-dark-logo">
-                                <img src="{{ asset('admin/images/bjlogo3.png') }}" class="img-fluid" alt="">
+                                <img src="{{ asset('admin/images/KMD Logo1.png') }}" class="img-fluid" alt="">
                             </div>
-                            <span>Business Joy</span>
+                            {{-- <span>Business Joy</span> --}}
                         </a>
                     </div>
                 </div>
@@ -209,6 +209,17 @@
                                             <i class="ri-file-list-line" data-toggle="tooltip"
                                                 data-placement="bottom"
                                                 data-original-title="Broker Purchase List"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                                 @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                    <li>
+                                        {{-- {{ route('admin.invoice') }} --}}
+                                        <a href="{{ route('admin.invoice') }}"
+                                            class="nav-link router-link-exact-active router-link-active">
+                                            <i class="ri-file-text-line" data-toggle="tooltip"
+                                                data-placement="bottom"
+                                                data-original-title="Invoice List"></i>
                                         </a>
                                     </li>
                                 @endif

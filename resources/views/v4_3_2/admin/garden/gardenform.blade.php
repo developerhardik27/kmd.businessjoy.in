@@ -23,7 +23,7 @@
 
                     <label for="garden_name">garden name</label><span class="" style="color:red;">*</span>
                     <input type="text" id="garden_name" class="form-control " name='garden_name'
-                        placeholder="garden  Name" >
+                        placeholder="garden  Name">
                     <span class="error-msg" id="error-garden_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
@@ -108,8 +108,7 @@
                         data-original-title="Reset garden Details"
                         class="btn iq-bg-danger float-right mr-2">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Save garden Details"
-                        class="btn btn-primary float-right my-0">Save</button>
+                        data-original-title="Save garden Details" class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -124,7 +123,13 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-          
+            let message = "{{ session('message') }}";
+            if (message) {
+                Toast.fire({
+                    icon: 'error',
+                    title: message
+                });
+            }
 
             // show country data in dropdown and set defautl value according to logged in user
             $.ajax({
@@ -268,7 +273,7 @@
                     url: "{{ route('garden.store') }}",
                     data: formdata,
                     success: function(response) {
-                          if (response.status == 200) {
+                        if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             Toast.fire({
                                 icon: "success",
@@ -289,7 +294,7 @@
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
-                        .responseText); // Log the full error response for debugging
+                            .responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
                     }
                 });

@@ -32,9 +32,21 @@ class brokeragebillController extends Controller
     }
     public function create(Request $request)
     {
+        request()->merge([
+            'company_id' => session('company_id'),
+            'user_id' => session('user_id')
+        ]);
+        $ordercontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\ordercontroller";
+        $jsonorderdetails = app($ordercontroller)->index();
+        $orderdetailscontent = $jsonorderdetails->getContent();
+        $orderdetails = json_decode($orderdetailscontent);
+
+        if ($orderdetails->status != 200) {
+            return redirect()->route('admin.orderform')->with("message", "Please create Order before creating Broker Bill");
+        }
         return view($this->version . '.admin.brokeragebill.brokeragebillform', [
             'company_id' => Session::get('company_id'),
             'edit_id' => $request->id
         ]);
-    }   
+    }
 }

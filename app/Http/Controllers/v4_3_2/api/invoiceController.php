@@ -16,7 +16,7 @@ class invoiceController extends commonController
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
         $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel;
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel,$companymastersModel;
 
     public function __construct(Request $request)
     {
@@ -44,6 +44,7 @@ class invoiceController extends commonController
         $this->product_column_mappingModel = $this->getmodel('product_column_mapping');
         $this->payment_detailsModel = $this->getmodel('payment_details');
         $this->partyModel = $this->getmodel('party');
+        $this->companymastersModel = $this->getmodel('companymaster');
     }
 
 
@@ -164,7 +165,7 @@ class invoiceController extends commonController
             ->where('invoices.is_deleted', 0)
             ->where('invoices.id', $id)
             ->get();
-
+   
         if ($invoice->isEmpty()) {
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
@@ -250,10 +251,10 @@ class invoiceController extends commonController
             ]);
         }
 
-        $invoiceres = $this->invoiceModel::leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
-            ->leftJoin($this->masterdbname . '.country', 'customers.country_id', '=', $this->masterdbname . '.country.id')
-            ->leftJoin($this->masterdbname . '.state', 'customers.state_id', '=', $this->masterdbname . '.state.id')
-            ->leftJoin($this->masterdbname . '.city', 'customers.city_id', '=', $this->masterdbname . '.city.id')
+        $invoiceres = $this->invoiceModel::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
+            ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftJoin($this->masterdbname . '.city', 'partys.city_id', '=', $this->masterdbname . '.city.id')
             ->leftJoin('payment_details', function ($join) {
                 $join->on('invoices.id', '=', 'payment_details.inv_id')
                     ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
@@ -265,9 +266,8 @@ class invoiceController extends commonController
                 'payment_details.id as paymentid',
                 'payment_details.part_payment',
                 'payment_details.pending_amount',
-                'customers.house_no_building_name',
-                'customers.road_name_area_colony',
-                DB::raw("CONCAT_WS(' ', customers.firstname, customers.lastname, customers.company_name)as customer"),
+                'partys.address',
+                DB::raw("CONCAT_WS(' ', partys.name)as customer"),
                 'country.country_name',
                 'country_details.currency',
                 'country_details.currency_symbol',
@@ -284,7 +284,7 @@ class invoiceController extends commonController
         $totalcount = $invoiceres->get()->count(); // count total record
 
         $invoice = $invoiceres->get();
-
+        
         if ($invoice->isEmpty()) {
             return DataTables::of($invoice)
                 ->with([
@@ -294,8 +294,7 @@ class invoiceController extends commonController
                 ])
                 ->make(true);
         }
-        $company_detials = company::where("id", $this->companyId)->value("company_details_id");
-
+        $company_detials = $this->companymastersModel::where("id", $this->companyId)->value("id");
         return DataTables::of($invoice)
             ->with([
                 'status' => 200,
@@ -399,7 +398,7 @@ class invoiceController extends commonController
                 // fetch last record from invoice tbl for generate dynamic inv no
                 $customer = $this->partyModel::where('id', $data['customer'])->get();
                 // dd($customer);
-                // $customer = DB::connection('dynamic_connection')->table('customers')->where('id', $data['customer'])->get();
+                // $customer = DB::connection('dynamic_connection')->table('partys')->where('id', $data['customer'])->get();
                 $company = $this->partyModel::where('id', $data['customer'])->get();
 
                 $customerid = $customer[0]->customer_id;
@@ -645,10 +644,10 @@ class invoiceController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $invoice = $this->invoiceModel::join('customers', 'invoices.customer_id', '=', 'customers.id')
+        $invoice = $this->invoiceModel::join('partys', 'invoices.customer_id', '=', 'partys.id')
             ->join('mng_col', 'invoices.id', '=', 'mng_col.invoice_id')
             ->join('products', 'mng_col.product_id', '=', 'products.id')
-            ->select('invoices.*', 'customers.firstname', 'customers.lastname', 'mng_col.item_description', 'mng_col.price', 'products.price_per_unit')
+            ->select('invoices.*', 'partys.firstname', 'partys.lastname', 'mng_col.item_description', 'mng_col.price', 'products.price_per_unit')
             ->where('invoices.is_deleted', 0)->where('invoices.is_active', 1)->where('id', $id)->get();
 
         if ($invoice->isEmpty()) {

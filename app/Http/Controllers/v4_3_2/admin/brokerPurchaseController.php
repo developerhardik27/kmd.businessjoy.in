@@ -32,6 +32,18 @@ class brokerPurchaseController extends Controller
     }
     public function create()
     {
+        request()->merge([
+            'company_id' => session('company_id'),
+            'user_id' => session('user_id')
+        ]);
+        $ordercontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\ordercontroller";
+        $jsonorderdetails = app($ordercontroller)->index();
+        $orderdetailscontent = $jsonorderdetails->getContent();
+        $orderdetails = json_decode($orderdetailscontent);
+
+        if ($orderdetails->status != 200) {
+            return redirect()->route('admin.orderform')->with("message", "Please create Order before creating Sample Purchase");
+        }
         return view($this->version . '.admin.brokerpurchase.brokerpurchaseform', ['company_id' => Session::get('company_id')]);
     }
     public function edit($id)
@@ -40,7 +52,7 @@ class brokerPurchaseController extends Controller
     }
     public function storeInvoiceSession(Request $request)
     {
-         session()->flash('invoice_data', $request->data);
+        session()->flash('invoice_data', $request->data);
         //session(['invoice_data' => $request->data]);
         return response()->json(['status' => 200]);
     }

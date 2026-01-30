@@ -22,19 +22,16 @@
                     <input type="hidden" value="{{ session('company_id') }}" class="form-control" name="company_id">
 
                     <label for="grade">Grade name</label><span class="" style="color:red;">*</span>
-                    <input type="text" id="grade" class="form-control " name='grade'
-                        placeholder="grade  Name" >
+                    <input type="text" id="grade" class="form-control " name='grade' placeholder="grade  Name">
                     <span class="error-msg" id="error-grade" style="color: red"></span>
                 </div>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Grade Details"
-                        class="btn iq-bg-danger float-right mr-2">Reset</button>
+                        data-original-title="Reset Grade Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Save Grade Details"
-                        class="btn btn-primary float-right my-0">Save</button>
+                        data-original-title="Save Grade Details" class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -48,8 +45,14 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+            let message = "{{ session('message') }}";
+            if (message) {
+                Toast.fire({
+                    icon: 'error',
+                    title: message
+                });
+            }
 
-          
 
             // redirect on garden list page on click cancel btn
             $('#cancelbtn').on('click', function() {
@@ -68,7 +71,7 @@
                     url: "{{ route('grade.store') }}",
                     data: formdata,
                     success: function(response) {
-                          if (response.status == 200) {
+                        if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             Toast.fire({
                                 icon: "success",
@@ -89,7 +92,7 @@
                     error: function(xhr, status, error) { // if calling api request error 
                         loaderhide();
                         console.log(xhr
-                        .responseText); // Log the full error response for debugging
+                            .responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
                     }
                 });

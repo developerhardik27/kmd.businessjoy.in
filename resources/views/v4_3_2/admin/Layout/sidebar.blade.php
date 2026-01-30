@@ -12,11 +12,11 @@
                 <a href="{{ route('admin.index') }}">
                     <div class="iq-light-logo">
                         <div class="iq-light-logo d-flex align-items-center">
-                            <img id="sidebar-logo-img" src="{{ asset('admin/images/KMD Logo1.png') }} " class="img-fluid"
-                                alt="">
+                            <img id="sidebar-logo-img" src="{{ asset('admin/images/KMD Logo1.png') }} "
+                                class="img-fluid" alt="">
                             <img id="sidebar-logo-img2" src="{{ asset('admin/images/KMD Logo1.png') }} "
                                 class="img-fluid" alt="" style="width:70px; height: 70px;">
-                               
+
                         </div>
                     </div>
                     {{-- <span>Business Joy</span> --}}
@@ -555,9 +555,9 @@
                             @endif
                             @if (session('user_permissions.invoicemodule.invoice.view') == '1')
                                 <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.invoice') }}">
-                                        <i class="ri-file-list-line"></i>
-                                        Invoice List
+                                    <a href="{{ route('admin.invoice') }}"class="iq-waves-effect">
+                                    <i class="ri-file-text-line"></i>
+                                        <span>Invoice List</span> 
                                     </a>
                                 </li>
                             @endif

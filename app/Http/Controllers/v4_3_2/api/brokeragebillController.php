@@ -40,7 +40,7 @@ class brokeragebillController extends commonController
         }
         $gardens = $this->order_detailModel
             ::join('gardens', 'gardens.id', '=', 'order_details.garden_id')
-            ->where('order_details.is_delete', 0)
+            ->where('order_details.is_deleted', 0)
             ->select(
                 'gardens.id as garden_id',
                 'gardens.garden_name as garden_name'
@@ -59,7 +59,7 @@ class brokeragebillController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $usedInvoices = $this->brokerpurchaseModel
-            ::where('broker_purchases.is_delete', 0)
+            ::where('broker_purchases.is_deleted', 0)
             ->where('broker_purchases.garden_id', $request->garden_id)
             ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
             ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
@@ -87,7 +87,7 @@ class brokeragebillController extends commonController
                 DB::raw('SUM(broker_purchases.net_kg) as total_net_kg'),
                 DB::raw('SUM(broker_purchases.brokerage) as total_brokerage')
             )
-            ->where('broker_purchases.is_delete', 0)
+            ->where('broker_purchases.is_deleted', 0)
             ->groupBy('broker_purchases.garden_id', 'gardens.garden_name')
             ->get();
 

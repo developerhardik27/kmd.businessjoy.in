@@ -31,12 +31,32 @@ class orderController extends Controller
     }
     public function create()
     {
+        request()->merge([
+            'company_id' => session('company_id'),
+            'user_id' => session('user_id')
+        ]);
+        $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partycontroller";
+        $jsonpartydetails = app($partycontroller)->buyerindex();
+        $partydetailscontent = $jsonpartydetails->getContent();
+        $pdetails = json_decode($partydetailscontent);
+
+        $companymasterController = "App\\Http\\Controllers\\" . $this->version . "\\api\\companymasterController";
+        $jsongardendetails = app($companymasterController)->gardenindex();
+        $gardendetailscontent = $jsongardendetails->getContent();
+        $gardendetails = json_decode($gardendetailscontent);
+
+        if ($gardendetails->status != 200) {
+           
+            return redirect()->route('admin.gardenform')->with("message", "Please create Garden before creating Order");
+       
+            }
+        if ($pdetails->status != 200) {
+            return redirect()->route('admin.partyform')->with("message", "Please create Party before creating Order");
+        }
         return view($this->version . '.admin.order.orderform', ['company_id' => Session::get('company_id')]);
     }
     public function edit($id)
     {
         return view($this->version . '.admin.order.orderupdateform', ['edit_id' => $id]);
     }
-
-    
 }
