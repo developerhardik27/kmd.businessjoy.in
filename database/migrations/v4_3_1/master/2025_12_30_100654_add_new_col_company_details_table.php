@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('company_details', function (Blueprint $table) {
-            $table->bigInteger('alternative_number')->nullable();
+            $table->integer('alternative_number')->nullable();
         });
     }
 

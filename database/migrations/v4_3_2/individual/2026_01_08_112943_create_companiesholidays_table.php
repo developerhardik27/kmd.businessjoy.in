@@ -18,11 +18,11 @@ return new class extends Migration
             $table->date('date'); 
             $table->text('description')->nullable();
 
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
 
-            $table->boolean('is_active')->default(1);
-            $table->boolean('is_delete')->default(0);
+            $table->integer('is_active')->default(1);
+            $table->integer('is_deleted')->default(0);
 
             $table->timestamps();
         });

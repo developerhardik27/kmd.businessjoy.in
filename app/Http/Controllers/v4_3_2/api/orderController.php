@@ -40,7 +40,7 @@ class orderController extends commonController
         $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->join('partys as transport', 'transport.id', 'orders.transport')
             ->select('buyer.name as buyer_name', 'transport.name as transport_name', 'orders.*')
-            ->where("orders.is_delete", 0)->get();
+            ->where("orders.is_deleted", 0)->get();
 
         if ($order->isEmpty()) {
             return DataTables::of($order)
@@ -286,11 +286,11 @@ class orderController extends commonController
         }
         $order->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
         $this->order_detailModel::where('order_id', $id)->update([
-            'is_delete' => 1
+            'is_deleted' => 1
         ]);
 
         return $this->successresponse(200, 'message', 'order succesfully deleted');

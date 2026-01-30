@@ -29,11 +29,12 @@ return new class extends Migration
             $table->text('footer_content');
 
             // Tracking
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
 
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_delete')->default(false);
+            $table->integer('is_active')->default(1);
+            $table->integer('is_deleted')->default(0);
+
 
             $table->timestamps(); // created_at & updated_at
         });

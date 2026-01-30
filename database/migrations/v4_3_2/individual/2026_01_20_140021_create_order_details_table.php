@@ -13,21 +13,20 @@ return new class extends Migration
     {
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('garden_id');
+            $table->integer('order_id');
+            $table->integer('garden_id');
             $table->string('invoice_no');
-            $table->unsignedBigInteger('grade')->nullable();
+            $table->integer('grade')->nullable();
             $table->decimal('bags', 12, 2)->default(0);
             $table->decimal('kg', 12, 2)->default(0);
             $table->decimal('net_kg', 12, 2)->default(0);
             $table->decimal('rate', 12, 2)->default(0);
             $table->decimal('amount', 12, 2)->default(0);
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->boolean('is_active')->default(1);
-            $table->boolean('is_delete')->default(0);
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
+            $table->integer('is_active')->default(1);
+            $table->integer('is_deleted')->default(0);
             $table->timestamps();
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
     }
     /**

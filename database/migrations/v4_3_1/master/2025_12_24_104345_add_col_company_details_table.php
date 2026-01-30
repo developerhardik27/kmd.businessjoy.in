@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('company_details', function (Blueprint $table) {
-            $table->JSON('god_names')->nullable();
+            $table->text('god_names')->nullable();
         });
     }
 

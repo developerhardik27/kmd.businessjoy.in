@@ -235,7 +235,7 @@ class companyController extends commonController
      * Store a newly created resource in storage.
      */
 
-    public function store(Request $request)
+      public function store(Request $request)
     {
         // validate incoming request data
         $validator = Validator::make($request->all(), [
@@ -296,21 +296,15 @@ class companyController extends commonController
 
             if ($baseUrl === 'localhost:8000') {
                 // If the host is localhost
-                $this->newdbname = 'bj_local_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = 'kmd_businessjoy_' . $modifiedname . '_' . Str::lower(Str::random(3));
                 if (app()->environment('testing')) {
-                    $this->newdbname = "testing_company";
+                    $this->newdbname = "kmd_businessjoy_testing_company";
                 }
-            } elseif ($baseUrl === 'staging.businessjoy.in') {
-                // If the host is staging.businessjoy.in
-                $this->newdbname = 'staging_business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
-                if (app()->environment('testing')) {
-                    $this->newdbname = "staging_business_joy_testing_company";
-                }
-            } else {
+            }  else {
                 // For any other host, provide a default
-                $this->newdbname = 'business_joy_' . $modifiedname . '_' . Str::lower(Str::random(3));
+                $this->newdbname = 'kmd_businessjoy_' . $modifiedname . '_' . Str::lower(Str::random(3));
                 if (app()->environment('testing')) {
-                    $this->newdbname = "business_joy_testing_company";
+                    $this->newdbname = "kmd_businessjoy_testing_company";
                 }
             }
 
@@ -365,6 +359,7 @@ class companyController extends commonController
                 Artisan::call('migrate', [
                     '--path' => $path,
                     '--database' => $this->newdbname,
+                   	'--force' => true,
                 ]);
             }
 
@@ -384,6 +379,7 @@ class companyController extends commonController
                     'name' => $request->name,
                     'email' => $request->email,
                     'contact_no' => $request->contact_number,
+
                     'house_no_building_name' => $request->house_no_building_name,
                     'road_name_area_colony' => $request->road_name_area_colony,
                     'country_id' => $request->country,
@@ -486,7 +482,10 @@ class companyController extends commonController
                                     "invoicegstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "invoicecustomeridsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "invoiceapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "tdsregister" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                    "tdsregister" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicecommission" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicecommissionsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "invoicecommissionparty" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
                                 ],
                                 "leadmodule" => [
                                     "leaddashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
@@ -553,7 +552,8 @@ class companyController extends commonController
                                     "quotationstandardsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "quotationgstsetting" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
                                     "quotationcustomer" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
-                                    "quotationapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
+                                    "quotationapi" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],
+                                    "thirdpartyquotation" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null]
                                 ],
                                 'logisticmodule' => [
                                     "logisticdashboard" => ["show" => null, "add" => null, "view" => null, "edit" => null, "delete" => null, "alldata" => null],

@@ -37,7 +37,7 @@ class partyController extends commonController
         if ($this->rp['teamodule']['party']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $party = $this->partyModel::where("is_delete", 0)->get();
+        $party = $this->partyModel::where("is_deleted", 0)->get();
         if ($party->isEmpty()) {
             return DataTables::of($party)
                 ->with([
@@ -57,7 +57,7 @@ class partyController extends commonController
         if ($this->rp['teamodule']['party']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $party = $this->partyModel::where("is_delete", 0)
+        $party = $this->partyModel::where("is_deleted", 0)
             ->where('party_type', 'Buyer')
             ->get();
         if ($party->isEmpty()) {
@@ -79,7 +79,7 @@ class partyController extends commonController
         if ($this->rp['teamodule']['party']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $party = $this->partyModel::where("is_delete", 0)
+        $party = $this->partyModel::where("is_deleted", 0)
             ->where('party_type', 'Transport')
             ->get();
         if ($party->isEmpty()) {
@@ -255,7 +255,7 @@ class partyController extends commonController
         }
         $party->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
 
@@ -267,7 +267,7 @@ class partyController extends commonController
         if ($this->rp['teamodule']['grade']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $grade = $this->gradeModel::where("is_delete", 0)->get();
+        $grade = $this->gradeModel::where("is_deleted", 0)->get();
         if ($grade->isEmpty()) {
             return DataTables::of($grade)
                 ->with([
@@ -380,7 +380,7 @@ class partyController extends commonController
         }
         $grade->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
 

@@ -13,18 +13,18 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('buyer_party');
-            $table->unsignedBigInteger('transport')->nullable();
+            $table->integer('buyer_party');
+            $table->integer('transport')->nullable();
             $table->string('credit_days')->nullable();
             $table->decimal('discount', 8, 2)->default(0);
             $table->decimal('totalNetKg', 12, 2)->default(0);
             $table->decimal('totalAmount', 12, 2)->default(0);
             $table->decimal('discountAmount', 12, 2)->default(0);
             $table->decimal('finalAmount', 12, 2)->default(0);
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->boolean('is_active')->default(1);
-            $table->boolean('is_delete')->default(0);
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
+            $table->integer('is_active')->default(1);
+            $table->integer('is_deleted')->default(0);
             $table->timestamps();
         });
     }

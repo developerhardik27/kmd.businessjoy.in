@@ -64,13 +64,13 @@ class companymasterController extends commonController
                 'companymasters.created_by',
                 'companymasters.updated_by',
                 'companymasters.is_active',
-                'companymasters.is_delete',
+                'companymasters.is_deleted',
                 'companymasters.created_at',
                 'companymasters.updated_at',
 
                 DB::raw('GROUP_CONCAT(gardens.garden_name SEPARATOR ", ") as garden_names')
             )
-            ->where('companymasters.is_delete', 0)
+            ->where('companymasters.is_deleted', 0)
             ->groupBy(
                 'companymasters.id',
                 'companymasters.company_name',
@@ -91,7 +91,7 @@ class companymasterController extends commonController
                 'companymasters.created_by',
                 'companymasters.updated_by',
                 'companymasters.is_active',
-                'companymasters.is_delete',
+                'companymasters.is_deleted',
                 'companymasters.created_at',
                 'companymasters.updated_at'
             )
@@ -285,7 +285,7 @@ class companymasterController extends commonController
         }
         $companymaster->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
         $this->companygardenModel::where('company_id', $id)->delete();
@@ -298,7 +298,7 @@ class companymasterController extends commonController
         if ($this->rp['teamodule']['garden']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $garden = $this->gardenModel::where("is_delete", 0)->get();
+        $garden = $this->gardenModel::where("is_deleted", 0)->get();
         if ($garden->isEmpty()) {
             return DataTables::of($garden)
                 ->with([
@@ -455,7 +455,7 @@ class companymasterController extends commonController
         }
         $garden->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
         $this->companygardenModel::where('garden_id', $id)->delete();

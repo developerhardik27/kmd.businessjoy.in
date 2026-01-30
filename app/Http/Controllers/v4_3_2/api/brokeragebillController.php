@@ -158,7 +158,7 @@ class brokeragebillController extends commonController
         }
         $brokerpurchase->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
 

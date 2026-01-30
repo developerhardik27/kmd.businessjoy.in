@@ -41,7 +41,7 @@ class brokerPurchaseController extends commonController
         }
         $gardens = $this->order_detailModel
             ::join('gardens', 'gardens.id', '=', 'order_details.garden_id')
-            ->where('order_details.is_delete', 0)
+            ->where('order_details.is_deleted', 0)
             ->select(
                 'gardens.id as garden_id',
                 'gardens.garden_name as garden_name'
@@ -58,7 +58,7 @@ class brokerPurchaseController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $invoices = $this->order_detailModel
-            ::where('is_delete', 0)
+            ::where('is_deleted', 0)
             ->where('garden_id', $request->garden_id)
             ->select('invoice_no')
             ->distinct()
@@ -86,13 +86,13 @@ class brokerPurchaseController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $usedInvoices = $this->brokerpurchaseModel
-            ::where('is_delete', 0)
+            ::where('is_deleted', 0)
             ->where('garden_id', $request->garden_id)
             ->pluck('invoice_no')
             ->toArray();
 
         $allInvoices = $this->order_detailModel
-            ::where('is_delete', 0)
+            ::where('is_deleted', 0)
             ->where('garden_id', $request->garden_id)
             ->whereNotIn('invoice_no', $usedInvoices)
             ->orderBy('invoice_no', 'ASC')
@@ -108,7 +108,7 @@ class brokerPurchaseController extends commonController
 
         $order = $this->order_detailModel
             ::join('grades', 'grades.id', '=', 'order_details.grade')
-            ->where('order_details.is_delete', 0)
+            ->where('order_details.is_deleted', 0)
             ->where('order_details.invoice_no', $request->invoice_no)
             ->select(
                 'order_details.id as order_id',
@@ -173,7 +173,7 @@ class brokerPurchaseController extends commonController
                 'buyer.name as buyer_name',
                 'transporter.name as transport_name'
             )
-            ->where('broker_purchases.is_delete', 0)
+            ->where('broker_purchases.is_deleted', 0)
             ->whereIn('companymasters.id', $companyIds)   // Filter by selected companies
             ->whereIn('orders.buyer_party', $buyerParties)
             ->get();
@@ -211,7 +211,7 @@ class brokerPurchaseController extends commonController
                 $join->on('invoices.customer_id', '=', 'orders.buyer_party')
                     ->on('invoices.company_details_id', '=', 'companymasters.id');
             })
-            ->where('broker_purchases.is_delete', 0);
+            ->where('broker_purchases.is_deleted', 0);
 
    
         $filters = [
@@ -392,7 +392,7 @@ class brokerPurchaseController extends commonController
         }
         $brokerpurchase->update(
             [
-                "is_delete" => 1
+                "is_deleted" => 1
             ]
         );
 
