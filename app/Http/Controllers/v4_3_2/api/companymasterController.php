@@ -38,7 +38,65 @@ class companymasterController extends commonController
         if ($this->rp['teamodule']['companymaster']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $companymaster = $this->companymasterModel::where("is_delete", 0)->get();
+       
+        $companymaster = $this->companymasterModel::leftJoin('company_garden', 'companymasters.id', '=', 'company_garden.company_id')
+            ->leftJoin('gardens', 'company_garden.garden_id', '=', 'gardens.id')
+            ->leftJoin($this->masterdbname . '.country', 'companymasters.country_id', '=', 'country.id')
+            ->leftJoin($this->masterdbname . '.state', 'companymasters.state_id', '=', 'state.id')
+            ->leftJoin($this->masterdbname . '.city', 'companymasters.city_id', '=', 'city.id')
+            ->select(
+                'companymasters.id',
+                'companymasters.company_name',
+                'companymasters.email',
+                'companymasters.contact_person_name',
+                'companymasters.mobile_1',
+                'companymasters.mobile_2',
+                'companymasters.country_id',
+                'companymasters.state_id',
+                'companymasters.city_id',
+                'companymasters.pincode',
+                'companymasters.address',
+                'companymasters.gst_no',
+                'companymasters.pan',
+                'country.country_name',
+                'state.state_name',
+                'city.city_name',
+                'companymasters.created_by',
+                'companymasters.updated_by',
+                'companymasters.is_active',
+                'companymasters.is_delete',
+                'companymasters.created_at',
+                'companymasters.updated_at',
+
+                DB::raw('GROUP_CONCAT(gardens.garden_name SEPARATOR ", ") as garden_names')
+            )
+            ->where('companymasters.is_delete', 0)
+            ->groupBy(
+                'companymasters.id',
+                'companymasters.company_name',
+                'companymasters.email',
+                'companymasters.contact_person_name',
+                'companymasters.mobile_1',
+                'companymasters.mobile_2',
+                'companymasters.country_id',
+                'country.country_name',
+                'state.state_name',
+                'city.city_name',
+                'companymasters.state_id',
+                'companymasters.city_id',
+                'companymasters.pincode',
+                'companymasters.address',
+                'companymasters.gst_no',
+                'companymasters.pan',
+                'companymasters.created_by',
+                'companymasters.updated_by',
+                'companymasters.is_active',
+                'companymasters.is_delete',
+                'companymasters.created_at',
+                'companymasters.updated_at'
+            )
+            ->get();
+
         if ($companymaster->isEmpty()) {
             return DataTables::of($companymaster)
                 ->with([

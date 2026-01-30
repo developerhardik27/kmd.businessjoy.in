@@ -58,9 +58,9 @@
                 <th>Id</th>
                 <th>company name</th>
                 <th>email</th>
+                <th>Gardens</th>
                 <th>contact person name</th>
                 <th>mobile 1</th>
-                <th>mobile 2</th>
                 <th>Address</th>
                 <th>Action</th>
             </tr>
@@ -149,6 +149,13 @@
                             name: 'email'
                         },
                         {
+                            data: 'garden_names',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'garden_names'
+                        },
+                        {
                             data: 'contact_person_name',
                             orderable: true,
                             searchable: true,
@@ -162,13 +169,7 @@
                             defaultContent: '-',
                             name: 'mobile_1'
                         },
-                        {
-                            data: 'mobile_2',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'mobile_2'
-                        },
+                       
                         {
                             data: 'address',
                             orderable: true,
@@ -284,16 +285,20 @@
                             <td>${company.id || '-'}</td>
                         </tr>
                         <tr>
-                            <th>company Name</th>
+                            <th>Company Name</th>
                             <td>${company.company_name|| '-'}</td>
                         </tr>
                          <tr>
                             <th>Email</th>
                             <td>${company.email|| '-'}</td>
                         </tr>
-                         <tr>
+                        <tr>
                             <th>Contact Person Name</th>
                             <td>${company.contact_person_name|| '-'}</td>
+                        </tr>
+                        <tr>
+                            <th>Gardens</th>
+                            <td>${company.garden_names|| '-'}</td>
                         </tr>
                          <tr>
                             <th>Mobile</th>
@@ -301,7 +306,7 @@
                         </tr>
                          <tr>
                             <th>Address</th>
-                            <td>${company.address|| '-'}</td>
+                            <td>${company.address + ', ' + company.pincode +', '+ company.city_name +', '+ company.state_name +', '+ company.country_name || '-'}</td>
                         </tr>
                     `);
                     }

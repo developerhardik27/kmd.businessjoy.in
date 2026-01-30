@@ -12,11 +12,11 @@
                 <a href="{{ route('admin.index') }}">
                     <div class="iq-light-logo">
                         <div class="iq-light-logo d-flex align-items-center">
-                            <img id="sidebar-logo-img" src="{{ asset('admin/images/favicon.png') }} " class="img-fluid"
+                            <img id="sidebar-logo-img" src="{{ asset('admin/images/KMD Logo1.png') }} " class="img-fluid"
                                 alt="">
                             <img id="sidebar-logo-img2" src="{{ asset('admin/images/KMD Logo1.png') }} "
                                 class="img-fluid" alt="" style="width:70px; height: 70px;">
-                                <h2 class="pl-lg-4">KMD</h2>
+                               
                         </div>
                     </div>
                     {{-- <span>Business Joy</span> --}}
