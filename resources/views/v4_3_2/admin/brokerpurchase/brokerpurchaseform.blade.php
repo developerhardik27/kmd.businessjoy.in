@@ -77,7 +77,13 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
+            let message = "{{ session('message') }}";
+            if (message) {
+                Toast.fire({
+                    icon: 'error',
+                    title: message
+                });
+            }
             // redirect on brokerpurchase list page on click cancel btn
             loadGardens();
 

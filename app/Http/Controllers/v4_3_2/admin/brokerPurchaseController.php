@@ -42,7 +42,7 @@ class brokerPurchaseController extends Controller
         $orderdetails = json_decode($orderdetailscontent);
 
         if ($orderdetails->status != 200) {
-            return redirect()->route('admin.orderform')->with("message", "Please create Order before creating Sample Purchase");
+            return redirect()->route('admin.orderform')->with("message", "Please create Order before creating Sample Purchase or Broker Bill.");
         }
         return view($this->version . '.admin.brokerpurchase.brokerpurchaseform', ['company_id' => Session::get('company_id')]);
     }

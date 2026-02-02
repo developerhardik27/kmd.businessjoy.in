@@ -35,7 +35,7 @@ class orderController extends Controller
             'company_id' => session('company_id'),
             'user_id' => session('user_id')
         ]);
-        $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partycontroller";
+        $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partyController";
         $jsonpartydetails = app($partycontroller)->buyerindex();
         $partydetailscontent = $jsonpartydetails->getContent();
         $pdetails = json_decode($partydetailscontent);

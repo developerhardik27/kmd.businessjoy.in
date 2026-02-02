@@ -11,7 +11,7 @@ use App\Http\Controllers\landing\LandingPageController;
 use App\Http\Controllers\v4_3_2\admin\HrController;
 
 Route::get('checkphp', function () {});
-
+Route::redirect('/', '/admin/login/');
 // Define a function to generate the controller class name based on the session value
 if (!function_exists('getadminversion')) {
     function getadminversion($controller)
@@ -29,7 +29,7 @@ if (!function_exists('getadminversion')) {
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('admin.login');
 });
 
 Route::get('/become-a-partner', function () {

@@ -211,7 +211,6 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
-
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
@@ -647,6 +646,8 @@
                             d.filter_buyer = $('#filter_buyer').val();
                             d.filter_garden = $('#filter_garden').val();
                             d.filter_grade = $('#filter_grade').val();
+                            d.filter_from_date = $('#filter_from_date').val();
+                            d.filter_to_date = $('#filter_to_date').val();
                         },
                         dataSrc: function(json) {
                             if (json.message) {

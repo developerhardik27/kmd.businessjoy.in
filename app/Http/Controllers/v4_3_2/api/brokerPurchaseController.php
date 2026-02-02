@@ -194,7 +194,10 @@ class brokerPurchaseController extends commonController
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-
+        $brokerpurchase = $this->brokerpurchaseModel::where('is_deleted', 0)->get();
+        if ($brokerpurchase->isEmpty()) {
+            return $this->successresponse(404, 'message', 'No Data Found');
+        }
         $brokerpurchase = $this->brokerpurchaseModel
             ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
             ->join('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
@@ -213,7 +216,7 @@ class brokerPurchaseController extends commonController
             })
             ->where('broker_purchases.is_deleted', 0);
 
-   
+
         $filters = [
             'filter_company'      => 'companymasters.id',
             'filter_buyer'        => 'orders.buyer_party',
@@ -227,21 +230,18 @@ class brokerPurchaseController extends commonController
             'filter_to_date'      => 'broker_purchases.created_at',
         ];
 
-         foreach ($filters as $requestKey => $column) {
+        foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey;
 
             if (isset($value)) {
-                if( $requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to' ) {
+                if ($requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to') {
                     $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                     $brokerpurchase->where($column, $operator, $value);
-                }
-                else if (
-                    strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false
-                ) {
+                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
                     $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                     $brokerpurchase->whereDate($column, $operator, $value);
                 } else {
-                   
+
                     $brokerpurchase->whereIn($column, $value);
                 }
             }
