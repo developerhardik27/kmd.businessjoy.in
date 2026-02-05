@@ -44,10 +44,11 @@
             <div class="form-row">
                 <div class="col-sm-4 mb-3">
                     <input type="hidden" name="country_id" id="country" class="form-control" value="" />
+                    <input type="hidden" name="sampleIds" id="sampleIds" class="form-control" value="" />
                     <input type="hidden" name="user_id" id="created_by" class="form-control" value="{{ $user_id }}" />
                     <input type="hidden" name="company_id" id="company_id" class="form-control"
                         value="{{ $company_id }}" />
-                  
+                    
 
                     <label for="customer">Buyer</label><span style="color:red;">*</span>
                     <select class="form-control select2" id="customer" name="customer" required>
@@ -105,13 +106,13 @@
                         placeholder="Invoice Number">
                     <span class="error-msg" id="error-inv_number" style="color: red"></span>
                 </div>
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-4 mb-3">
                     <label for="HSN">HSN Code</label><span style="color:red;">*</span>
                     <input type="text" name="HSN" id="HSN" class="form-control"
                         placeholder="HSN Code">
                     <span class="error-msg" id="error-HSN" style="color: red"></span>
                 </div>
-                  <div class="col-sm-6 mb-3">
+                  <div class="col-sm-4 mb-3">
                     <label for="Description">Description</label><span style="color:red;">*</span>
                     <input type="text" name="Description" id="Description" class="form-control"
                         placeholder="Description">
@@ -418,7 +419,7 @@
                         ${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
                             <th>Amount</th>
                             <th>Move</th>
-                            <th>Action</th>
+                            <th id="action">Action</th>
                     `);
                     managetooltip();
                 } else if (response.status == 500) {
@@ -467,9 +468,13 @@
         }
         function setdata() {
             let invoice_data = @json(session('invoice_data'));
+            
             if (invoice_data) {
+                $("#action").addClass('d-none');
                 $(".newdivautomaticcolspan").addClass('d-none');
                 let productdetails = invoice_data.line_items;
+                console.log(invoice_data.maindata.sampleIds);
+                $("#sampleIds").val(invoice_data.maindata.sampleIds.join(','));
                 customers(invoice_data.line_items[0].buyer_id);
                 transports(invoice_data.line_items[0].transport_id);
                 companymaster(invoice_data.maindata.companymaster_id[0]);
@@ -510,9 +515,7 @@
                                         <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
                                         <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
                                     </td>
-                                    <td>
-                                        <span class="remove-row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" type="button" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1"><i class="ri-delete-bin-2-line"></i></button></span>
-                                    </td>
+                                   
                                 </tr>
                             `);
                             managetooltip();
@@ -801,7 +804,7 @@
              
                 outputvalue = performCalculation(formula.operation, value1, value2)
                 iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
-                formula.output_column = formula.output_column.replace(/\s+/g, '_');
+                // formula.output_column = formula.output_column.replace(/\s+/g, '_');
                 results[formula.output_column] = outputvalue.toFixed(2);
               
                 $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
@@ -1762,6 +1765,7 @@
                 company_id: $('#company_id').val(),
                 companymaster_id: $('#companymaster_id').val(),
                 transport_id: $('#transport_id').val(),
+                sampleIds : $('#sampleIds').val(),
                 HSN: $('#HSN').val(),
                 Description: $('#Description').val(),
                 bank_account: $('#acc_details').val(),

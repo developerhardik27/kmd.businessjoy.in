@@ -36,9 +36,19 @@ class orderController extends Controller
             'user_id' => session('user_id')
         ]);
         $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partyController";
-        $jsonpartydetails = app($partycontroller)->buyerindex();
-        $partydetailscontent = $jsonpartydetails->getContent();
-        $pdetails = json_decode($partydetailscontent);
+        $jsonbuyerdetails = app($partycontroller)->buyerindex();
+        $buyerdetailscontent = $jsonbuyerdetails->getContent();
+        $pdetails = json_decode($buyerdetailscontent);
+
+        $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partyController";
+        $jsontransportdetails = app($partycontroller)->transportindex();
+        $transportdetailscontent = $jsontransportdetails->getContent();
+        $tdetails = json_decode($transportdetailscontent);
+
+         $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partyController";
+        $jsongradedetails = app($partycontroller)->gradeindex();
+        $gradedetailscontent = $jsongradedetails->getContent();
+        $gradedetails = json_decode($gradedetailscontent);
 
         $companymasterController = "App\\Http\\Controllers\\" . $this->version . "\\api\\companymasterController";
         $jsongardendetails = app($companymasterController)->gardenindex();
@@ -46,10 +56,14 @@ class orderController extends Controller
         $gardendetails = json_decode($gardendetailscontent);
 
         if ($gardendetails->status != 200) {
-           
             return redirect()->route('admin.gardenform')->with("message", "Please create Garden before creating Order");
-       
-            }
+        }
+        if ($gradedetails->status != 200) {
+            return redirect()->route('admin.gradeform')->with("message", "Please create Grade before creating Order");
+        }
+        if ($tdetails->status != 200) {
+            return redirect()->route('admin.partyform')->with("message", "Please create Transporter before creating Order");
+        }
         if ($pdetails->status != 200) {
             return redirect()->route('admin.partyform')->with("message", "Please create Party before creating Order");
         }

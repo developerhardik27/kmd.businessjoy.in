@@ -221,6 +221,14 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/tdsregister/updatestatus/{id}', 'tdsstatus')->name('tdsregister.updatestatus');
         Route::put('/tdsregister/updatecreditedstatus/{td}', 'tdscreditedstatus')->name('tdsregister.updatecreditedstatus');
     });
+    $brokragebillpaymentController = getversion('brokragebillpaymentController');
+    Route::controller($brokragebillpaymentController)->group(function () {
+        Route::post('broker_payment_details', 'store')->name('broker_paymentdetails.store');
+        Route::get('broker_paymentdetail/{id}', 'paymentdetail')->name('broker_paymentdetails.search');
+        Route::get('broker_pendingpayment/{id}', 'pendingpayment')->name('broker_paymentdetails.pendingpayment');
+        Route::put('broker_deletepayment/{id}', 'destroy')->name('broker_paymentdetails.deletepayment');
+        Route::put('/broker_paymentdetail_status/{id}', 'broker_paymentdetail_status')->name('broker_paymentdetail_.status');
+    });
 
     // supplier route
     $supplierController = getversion('supplierController');
@@ -543,12 +551,15 @@ Route::middleware(['checkToken'])->group(function () {
     $brokeragebillController = getversion('brokeragebillController');
     Route::controller($brokeragebillController)->group(function () {
         Route::get('/brokeragebill', 'index')->name('brokeragebill.index');
+        Route::get('/brokeragebillpdf', 'brokeragebillpdflist')->name('brokeragebill.brokeragebillpdflist');
         Route::get('/brokeragebill/getGardens', 'getGardens')->name('brokeragebill.getGardens');
         Route::get('/brokeragebill/get-OtherData', 'getOtherData')->name('brokeragebill.getOtherData');
         Route::post('/brokeragebill/insert', 'store')->name('brokeragebill.store');
         Route::get('/brokeragebill/edit/{id}', 'edit')->name('brokeragebill.edit');
         Route::put('/brokeragebill/update/{id}', 'update')->name('brokeragebill.update');
         Route::put('/brokeragebill/delete/{id}', 'destroy')->name('brokeragebill.delete');
+        Route::post('/brokeragebillpdf/insert', 'brokeragebillpdf')->name('brokeragebill.brokeragebillpdf');
+        Route::get('/brokeragebill/getpanddingpayment/{id}', 'getpanddingpayment')->name('brokeragebill.getpanddingpayment');
     });
     $orderController = getversion('orderController');
     Route::controller($orderController)->group(function () {
@@ -725,6 +736,8 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/billing/pendingpayment/{id}', 'pendingpayment')->name('billingpaymentdetails.pendingpayment');
         Route::put('/billing/deletepayment/{id}', 'destroy')->name('billingpaymentdetails.deletepayment');
     });
+
+
 
     //transporter billing route 
     $transporterbillingController = getversion('transporterbillingController');

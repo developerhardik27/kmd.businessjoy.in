@@ -48,6 +48,7 @@
                 <div class="form-row">
                     <div class="col-sm-4 mb-3">
                         <input type="hidden" name="country_id" id="country" class="form-control" value="" />
+                        <input type="hidden" name="sampleIds" id="sampleIds" class="form-control" value="" />
                         <input type="hidden" name="user_id" id="updated_by" class="form-control" value="{{ $user_id }}" />
                         <input type="hidden" name="company_id" id="company_id" class="form-control" value="{{ $company_id }}" />
                          <label for="customer">Buyer</label><span style="color:red;">*</span>
@@ -104,13 +105,13 @@
                         <input type="text" name="inv_number" id="inv_number" class="form-control" placeholder="Invoice Number">
                         <span class="error-msg" id="error-inv_number" style="color: red"></span>
                     </div>
-                     <div class="col-sm-6 mb-3">
+                     <div class="col-sm-4 mb-3">
                     <label for="HSN">HSN Code</label><span style="color:red;">*</span>
                     <input type="text" name="HSN" id="HSN" class="form-control"
                         placeholder="HSN Code">
                     <span class="error-msg" id="error-HSN" style="color: red"></span>
                 </div>
-                  <div class="col-sm-6 mb-3">
+                  <div class="col-sm-4 mb-3">
                     <label for="Description">Description</label><span style="color:red;">*</span>
                     <input type="text" name="Description" id="Description" class="form-control"
                         placeholder="Description">
@@ -557,7 +558,6 @@
                             `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
                                                                 <th>Amount</th>
                                                                 <th>Move</th>
-                                                                <th>Remove</th>
                                                             `
                         );
 
@@ -956,6 +956,7 @@
 
 
                 };
+                let sampleIdsArray = [];
                         // get & set invoice old data in the form input
                 var edit_id = @json($edit_id);
                 let invoiceEditUrl = "{{route('invoice.edit', '__editId__')}}".replace('__editId__', edit_id);
@@ -967,7 +968,14 @@
                     if (response.status == 200) {
                         invdetails = response.data.invdetails;
                         productdetails = response.data.productdetails;
+                      
+                        if (typeof invdetails.sample_ids === 'string') {
+                            sampleIdsArray = invdetails.sample_ids.split(',').map(id => id.trim());
+                        } else if (Array.isArray(invdetails.sample_ids)) {
+                            sampleIdsArray = invdetails.sample_ids;
+                        }
                         $('#customer').val(invdetails.customer_id);
+                        $("#sampleIds").val(sampleIdsArray.join(','));
                         $('#companymaster_id').val(invdetails.company_details_id);
                         $('#transport_id').val(invdetails.transport_id);
                         $('#HSN').val(invdetails.HSN);
@@ -1056,9 +1064,7 @@
                                         <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
                                         <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
                                     </td>
-                                    <td>
-                                        <span class="remove-row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}"><button data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" type="button" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1"><i class="ri-delete-bin-2-line"></i></button></span>
-                                    </td>
+                                 
                                 </tr>
                             `);
                             managetooltip();
@@ -1493,8 +1499,11 @@
                         var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
                         var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
                         outputvalue = performCalculation(formula.operation, value1, value2)
-                        formula.output_column = formula.output_column.replace(/\s+/g, '_');
+                        // formula.output_column = formula.output_column.replace(/\s+/g, '_');
+                        console.log("formula.output_column ",formula.output_column);
                         iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
+                        console.log("iteam_data[0][formula.output_column] ",iteam_data[0][formula.output_column]);
+                        console.log("iteam_data ",iteam_data);
                         results[formula.output_column] = outputvalue.toFixed(2);
                         $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
                     });

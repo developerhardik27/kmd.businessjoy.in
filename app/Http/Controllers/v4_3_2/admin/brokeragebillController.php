@@ -49,4 +49,13 @@ class brokeragebillController extends Controller
             'edit_id' => $request->id
         ]);
     }
+    public function brokeragebillpdflist(Request $request)
+    {
+        if (isset($request->search)) {
+            $search = $request->search;
+        } else {
+            $search = '';
+        }
+        return view($this->version . '.admin.brokeragebill.brokeragebillpdflist', ["search" => $search]);
+    }
 }

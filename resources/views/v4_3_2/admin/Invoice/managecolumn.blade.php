@@ -130,7 +130,7 @@
             // validation for column name
             $('#column_name').on('input', function() {
                 var name = $(this).val();
-                var filteredName = name.replace(/[^A-Za-z_ ]/g,
+                var filteredName = name.replace(/[^A-Za-z ]/g,
                     ''); // Remove any characters not in the allowed set
                 $(this).val(filteredName); // Update the input value with the filtered name
             });

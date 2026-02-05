@@ -30,9 +30,9 @@
 
                 </div>
                 <div class="col-sm-6 mb-2">
-                    <label for="invoice_no">Select Invoice No</label><span style="color:red;">*</span>
+                    <label for="invoice_no">Select Invoice/Lot No</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name="invoice_no" id="invoice_no">
-                        <option selected disabled>Select your Invoice No</option>
+                        <option selected disabled>Select Invoice/Lot No</option>
                     </select>
                     <span class="error-msg" id="error-invoice_no" style="color: red"></span>
                 </div>
@@ -55,6 +55,8 @@
                         placeholder="Enter Net Weight" readonly>
                     <span class="error-msg" id="error-net_kg" style="color: red"></span>
                 </div>
+                <input type="hidden" class="form-control requiredinput" name="rate" id="rate"
+                    placeholder="Enter Rate" readonly>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -208,6 +210,8 @@
                             $('#grade_name').val(data.grade_name);
                             $('#bags').val(data.bags);
                             $('#net_kg').val(data.net_kg);
+
+                            $('#rate').val(data.rate);
                         } else {
                             Toast.fire({
                                 icon: "error",

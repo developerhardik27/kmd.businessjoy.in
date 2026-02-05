@@ -17,11 +17,11 @@ return new class extends Migration {
             $table->dateTime('inv_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->integer('customer_id');
             $table->longText('notes')->nullable();
-            $table->float('total', 10, 2);
-            $table->float('sgst', 10, 2)->nullable();
-            $table->float('cgst', 10, 2)->nullable();
+            $table->float('total', 15, 2);
+            $table->float('sgst', 15, 2)->nullable();
+            $table->float('cgst', 15, 2)->nullable();
             $table->float('gst')->default(0);
-            $table->float('grand_total', 10, 2);
+            $table->float('grand_total', 15, 2);
             $table->integer('currency_id');
             $table->string('payment_type', 30);
             $table->string('status', 30)->default('pending');

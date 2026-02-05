@@ -16,7 +16,7 @@ class invoiceController extends commonController
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
         $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel,$companymastersModel;
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $brokerpurchaseModel;
 
     public function __construct(Request $request)
     {
@@ -45,6 +45,7 @@ class invoiceController extends commonController
         $this->payment_detailsModel = $this->getmodel('payment_details');
         $this->partyModel = $this->getmodel('party');
         $this->companymastersModel = $this->getmodel('companymaster');
+        $this->brokerpurchaseModel = $this->getmodel('broker_purchase');
     }
 
 
@@ -165,7 +166,7 @@ class invoiceController extends commonController
             ->where('invoices.is_deleted', 0)
             ->where('invoices.id', $id)
             ->get();
-   
+
         if ($invoice->isEmpty()) {
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
@@ -177,7 +178,7 @@ class invoiceController extends commonController
     {
 
         $columnname = $this->invoiceModel::find($id);
-       
+
         if (!$columnname) {
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
@@ -212,7 +213,7 @@ class invoiceController extends commonController
         if ($columnarray[0] == '') {
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
-     
+
         $invoice = DB::connection('dynamic_connection')->table('mng_col')->select($columnarray)
             ->where('invoice_id', $id)->where('is_deleted', 0)->where('is_active', 1)->get();
 
@@ -284,7 +285,7 @@ class invoiceController extends commonController
         $totalcount = $invoiceres->get()->count(); // count total record
 
         $invoice = $invoiceres->get();
-        
+
         if ($invoice->isEmpty()) {
             return DataTables::of($invoice)
                 ->with([
@@ -345,14 +346,16 @@ class invoiceController extends commonController
         return $this->executeTransaction(function () use ($request) {
 
             $data = $request->data; // invoice details
+
             $itemdata = $request->iteam_data; // product details
-         
+
             // validate incoming request data
             $validator = Validator::make($data, [
                 "bank_account" => 'required',
                 "customer" => 'required',
                 'companymaster_id' => 'required',
                 'transport_id' => 'required',
+                "sample_ids" => 'nullable',
                 'inv_number' => 'required',
                 'invoice_date' => 'required',
                 'HSN' => 'nullable',
@@ -372,7 +375,7 @@ class invoiceController extends commonController
                 'is_active',
                 'is_deleted'
             ]);
-           
+
             if ($validator->fails()) {
                 return $this->errorresponse(422, $validator->messages());
             } else {
@@ -384,7 +387,7 @@ class invoiceController extends commonController
                 //fetch all column for add details into manage column table and add show column into invoice table
                 $column = []; // array for show column 
                 $mngcol = $this->tbl_invoice_columnModel::orderBy('column_order')->where('is_deleted', 0)->where('is_hide', 0)->get();
-                
+
                 foreach ($mngcol as $key => $val) {
                     array_push($column, $val->column_name); // push value in show column array
                 }
@@ -512,8 +515,7 @@ class invoiceController extends commonController
                         } while ($existingInvoice);
                     }
                 }
-
-                  
+                $ids = $data['sampleIds'];
                 $company_details = company::find($this->companyId);
 
                 if ($company_details) {
@@ -523,6 +525,7 @@ class invoiceController extends commonController
                         'inv_no' => $inv_no,
                         'customer_id' => $data['customer'],
                         'transport_id' => $data['transport_id'],
+                        'sample_ids' => json_encode($ids),
                         'HSN' => $data['HSN'],
                         'Description' => $data['Description'],
                         'notes' => $data['notes'],
@@ -538,6 +541,7 @@ class invoiceController extends commonController
                         'overdue_date' => $othersetting->overdue_day,
                         'pattern_type' => $patterntype
                     ];
+
 
                     if ($data['invoice_date']) { // if user entered manually 
                         $invoicerec['inv_date'] = $data['invoice_date'];
@@ -571,8 +575,14 @@ class invoiceController extends commonController
                         $invoicerec['t_and_c_id'] = $tclastrec->id;
                     }
 
-                    $invoice = $this->invoiceModel::insertGetId($invoicerec); // insert invoice record 
+                    $invoice = $this->invoiceModel::insertGetId($invoicerec);
+                    
+                    $ids = explode(',', $ids);
 
+                    $updateinvoiceid = $this->brokerpurchaseModel::whereIn('id', $ids)
+                        ->update([
+                            "invoice_id" => $invoice,
+                        ]);
                     if ($invoice) {
                         $inv_id = $invoice;
 
@@ -1034,11 +1044,10 @@ class invoiceController extends commonController
             // Mark the invoice and related entries as deleted
             $invoices = $this->invoiceModel::where('id', $id)
                 ->update(['is_deleted' => 1]);
-
+            $brokerpurchase = $this->brokerpurchaseModel::where('invoice_id', $id)
+                ->update(['invoice_id' => null]);
             if ($invoices) {
-
                 $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');
-
 
                 if ($quantitycolumn->count() > 0) {
 

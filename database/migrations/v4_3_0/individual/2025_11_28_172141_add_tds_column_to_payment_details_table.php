@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payment_details', function (Blueprint $table) {
-            $table->double('tds_amount', 10, 2)->default(0)->after('amount');
+            $table->double('tds_amount', 15, 2)->default(0)->after('amount');
             $table->string('challan_no', 50)->nullable()->after('tds_amount');
             $table->string('tds_status', 50)->nullable()->after('challan_no');
             $table->tinyInteger('tds_credited')->default(0)->after('tds_status');

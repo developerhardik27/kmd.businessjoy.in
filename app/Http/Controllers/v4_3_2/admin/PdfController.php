@@ -6,6 +6,7 @@ use Exception;
 
 use ZipArchive;
 use App\Models\company;
+use App\Models\company_detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -22,7 +23,7 @@ use Dompdf\Options;
 
 class PdfController extends Controller
 {
-   public $version, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel;
+   public $version, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel,$company_gardenModel;
    public function __construct()
    {
       if (session_status() !== PHP_SESSION_ACTIVE)
@@ -33,6 +34,12 @@ class PdfController extends Controller
          $this->paymentdetailsModel = 'App\\Models\\' . $this->version . "\\payment_details";
          $this->quotationModel = 'App\\Models\\' . $this->version . "\\quotation";
          $this->consignor_copyModel = 'App\\Models\\' . $this->version . "\\consignor_copy";
+         $this->brokerpurchaseModel = 'App\\Models\\' . $this->version . "\\broker_purchase";
+         $this->bank_detailsModel = 'App\\Models\\' . $this->version . "\\bank_detail";
+         $this->broker_bill_invoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
+         $this->broker_payment_detailsModel = 'App\\Models\\' . $this->version . "\\broker_bill_payment_detail";
+         $this->company_gardenModel = 'App\\Models\\' . $this->version . "\\company_garden";
+
       } else {
          $this->invoiceModel = 'App\\Models\\v4_3_1\\invoice';
          $this->paymentdetailsModel = 'App\\Models\\v4_3_1\\payment_details';
@@ -57,7 +64,7 @@ class PdfController extends Controller
       $invoice = $this->invoiceModel::findOrFail($id);
 
       $this->authorize('view', $invoice);
-     
+
       $data = $this->prepareDataForPDF($invoice);
 
       $options = [
@@ -84,6 +91,307 @@ class PdfController extends Controller
 
       return $pdf->stream($pdfname);
    }
+   public function generatebrokragebillpdf(string $id)
+   {
+      $dbname = company::find(Session::get('company_id'));
+      $mainCompanyData = company_detail::where('company_details.id', $dbname->company_details_id)
+         ->join('country', 'country.id', '=', 'company_details.country_id')
+         ->join('state', 'state.id', '=', 'company_details.state_id')
+         ->join('city', 'city.id', '=', 'company_details.city_id')
+         ->select(
+            'company_details.*',
+            'country.country_name as country_name',
+            'state.state_name as state_name',
+            'city.city_name as city_name'
+         )
+         ->first();
+
+      config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+
+      // Establish connection to the dynamic database
+      DB::purge('dynamic_connection');
+      DB::reconnect('dynamic_connection');
+      $invoice = $this->broker_bill_invoiceModel::findOrFail($id);
+
+      $gardenCompanyData = $this->brokerpurchaseModel
+         ::where('broker_purchases.is_deleted', 0)
+         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->leftJoin('broker_bill_invoice', function ($join) {
+            $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id')
+               ->where('broker_bill_invoice.is_deleted', 0);
+         })
+
+         ->select(
+            'company_garden.company_id as garden_company_id',
+            'companymasters.*',
+            'broker_bill_invoice.id as invoice_id',
+         )
+         ->first();
+
+      $bank_details  = $this->bank_detailsModel::first();
+
+      $usedInvoices = $this->brokerpurchaseModel
+         ::where('broker_purchases.is_deleted', 0)
+         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+         ->join('order_details', function ($join) {
+            $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
+               ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+         })
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->join('orders', 'orders.id', '=', 'order_details.order_id')
+         ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+         ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+         ->leftJoin('invoices', function ($join) {
+            $join->on('invoices.company_details_id', '=', 'companymasters.id')
+               ->on('invoices.customer_id', '=', 'orders.buyer_party')
+               ->where('invoices.is_deleted', '=', 0);
+         })
+         ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
+
+
+         ->select(
+            'broker_purchases.*',
+            'gardens.garden_name as garden_name',
+            'grades.grade as grade',
+            'orders.buyer_party',
+            'buyer.name as buyer_name',
+            'invoices.inv_no',
+            'invoices.inv_date',
+
+         )
+         ->get();
+
+      $data = [
+         "mainCompanyData" => $mainCompanyData,
+         "gardenCompanyData" => $gardenCompanyData,
+         "usedInvoices" => $usedInvoices,
+         "bank_details" => $bank_details,
+         "invoice" => $invoice,
+      ];
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+         'defaultFont' => 'Helvetica'
+      ];
+
+      $companyname = $data['mainCompanyData']['name']; // if customer company name is not set
+      if ($data['mainCompanyData']['name'] != '') {
+         $companyname = $data['mainCompanyData']['name'];
+      }
+      $gardencompanyname = $data['gardenCompanyData']['company_name'];
+      // return view($this->version . '.admin.PDF.invoicetemplate', $data);
+      $pdfname = $gardencompanyname . ' ' . $companyname . ' ' . date('d-M-y') . '.pdf';
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.brokragebilltemplate', ["data" => $data])->setPaper('a4', 'portrait');
+      return $pdf->stream($pdfname);
+   }
+   public function brokerBillgeneraterecieptall(string $id)
+   {
+
+      $dbname = company::find(Session::get('company_id'));
+      $mainCompanyData = company_detail::where('company_details.id', $dbname->company_details_id)
+         ->join('country', 'country.id', '=', 'company_details.country_id')
+         ->join('state', 'state.id', '=', 'company_details.state_id')
+         ->join('city', 'city.id', '=', 'company_details.city_id')
+         ->select(
+            'company_details.*',
+            'country.country_name as country_name',
+            'state.state_name as state_name',
+            'city.city_name as city_name'
+         )
+         ->first();
+      config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+      // Establish connection to the dynamic database
+      DB::purge('dynamic_connection');
+      DB::reconnect('dynamic_connection');
+      $invoice = $this->broker_bill_invoiceModel::findOrFail($id);
+      $gardenCompanyData = $this->brokerpurchaseModel
+         ::where('broker_purchases.is_deleted', 0)
+         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->leftJoin('broker_bill_invoice', function ($join) {
+            $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id');
+         })
+         ->select(
+            'company_garden.company_id as garden_company_id',
+            'companymasters.*',
+            'broker_bill_invoice.invoice_no as  Bill_no',
+            'broker_bill_invoice.invoice_date as  Bill_date',
+         )
+         ->first();
+      $bank_details  = $this->bank_detailsModel::first();
+      $paymentdetail = $this->broker_payment_detailsModel::where('inv_id', $id)->where('is_deleted', 0)->get();
+      $usedInvoices = $this->brokerpurchaseModel
+         ::where('broker_purchases.is_deleted', 0)
+         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+         ->join('order_details', function ($join) {
+            $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
+               ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+         })
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->join('orders', 'orders.id', '=', 'order_details.order_id')
+         ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+         ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+         ->leftJoin('invoices', function ($join) {
+            $join->on('invoices.company_details_id', '=', 'companymasters.id')
+               ->on('invoices.customer_id', '=', 'orders.buyer_party')
+               ->where('invoices.is_deleted', '=', 0);
+         })
+         ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
+
+         ->select(
+            'broker_purchases.*',
+            'gardens.garden_name as garden_name',
+            'grades.grade as grade',
+            'orders.buyer_party',
+            'buyer.name as buyer_name',
+            'invoices.inv_no',
+            'invoices.inv_date',
+         )
+         ->get();
+
+      $data = [
+         "mainCompanyData" => $mainCompanyData,
+         "gardenCompanyData" => $gardenCompanyData,
+         "usedInvoices" => $usedInvoices,
+         "bank_details" => $bank_details,
+         "invoice" => $invoice,
+         'paymentdetail' => $paymentdetail,
+      ];
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.brokrageBillpaymentpaidrecieptall', ["data" => $data])->setPaper('a4', 'portrait');
+
+      $name = 'Receipt ' . $data['paymentdetail'][0]['receipt_number'] . '.pdf';
+
+      if (count($data['paymentdetail']) > 1) {
+         $name = 'PaymentHistory ' . $data['invoice']['inv_no'] . '.pdf';
+      }
+
+      // return view($this->version . '.admin.brokrageBillpaymentpaidreciept', $data);
+      return $pdf->stream($name);
+   }
+
+   public function brokerBillgeneratereciept(string $id)
+   {
+
+      $dbname = company::find(Session::get('company_id'));
+      $mainCompanyData = company_detail::where('company_details.id', $dbname->company_details_id)
+         ->join('country', 'country.id', '=', 'company_details.country_id')
+         ->join('state', 'state.id', '=', 'company_details.state_id')
+         ->join('city', 'city.id', '=', 'company_details.city_id')
+         ->select(
+            'company_details.*',
+            'country.country_name as country_name',
+            'state.state_name as state_name',
+            'city.city_name as city_name'
+         )
+         ->first();
+      config(['database.connections.dynamic_connection.database' => $dbname->dbname]);
+      // Establish connection to the dynamic database
+      DB::purge('dynamic_connection');
+      DB::reconnect('dynamic_connection');
+      $paymentdetail = $this->broker_payment_detailsModel::findOrFail($id);
+
+      $invoice = $this->broker_bill_invoiceModel::findOrFail($paymentdetail->inv_id);
+
+      $gardenCompanyData = $this->brokerpurchaseModel
+         ::where('broker_purchases.is_deleted', 0)
+         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->leftJoin('broker_bill_invoice', function ($join) {
+            $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id');
+         })
+         ->select(
+            'company_garden.company_id as garden_company_id',
+            'companymasters.*',
+            'broker_bill_invoice.invoice_no as  Bill_no',
+            'broker_bill_invoice.invoice_date as  Bill_date',
+         )
+         ->first();
+      $bank_details  = $this->bank_detailsModel::first();
+      $paymentdetail = $this->broker_payment_detailsModel::where('id', $id)->where('is_deleted', 0)->get();
+      $usedInvoices = $this->brokerpurchaseModel
+         ::where('broker_purchases.is_deleted', 0)
+         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+         ->join('order_details', function ($join) {
+            $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
+               ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+         })
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->join('orders', 'orders.id', '=', 'order_details.order_id')
+         ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+         ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+         ->leftJoin('invoices', function ($join) {
+            $join->on('invoices.company_details_id', '=', 'companymasters.id')
+               ->on('invoices.customer_id', '=', 'orders.buyer_party')
+               ->where('invoices.is_deleted', '=', 0);
+         })
+       ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
+         ->select(
+            'broker_purchases.*',
+            'gardens.garden_name as garden_name',
+            'grades.grade as grade',
+            'orders.buyer_party',
+            'buyer.name as buyer_name',
+            'invoices.inv_no',
+            'invoices.inv_date',
+         )
+         ->get();
+
+      $data = [
+         "mainCompanyData" => $mainCompanyData,
+         "gardenCompanyData" => $gardenCompanyData,
+         "usedInvoices" => $usedInvoices,
+         "bank_details" => $bank_details,
+         "invoice" => $invoice,
+         'paymentdetail' => $paymentdetail,
+      ];
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+         'defaultFont' => 'Helvetica'
+      ];
+
+      //return view($this->version . '.admin.PDF.brokrageBillpaymentpaidreciept', $data);
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.brokrageBillpaymentpaidreciept', ["data" => $data])->setPaper('a4', 'portrait');
+
+      $name = 'Receipt ' . $data['paymentdetail'][0]['receipt_number'] . '.pdf';
+      // return view($this->version . '.admin.brokrageBillpaymentpaidreciept', $data);
+      return $pdf->stream($name);
+   }
    // generate part partpayment single receipt (id is considering payment details id)
    public function generatereciept(string $id)
    {
@@ -98,34 +406,57 @@ class PdfController extends Controller
       // Establish connection to the dynamic database
       DB::purge('dynamic_connection');
       DB::reconnect('dynamic_connection');
-
-      $paymentdetail = $this->paymentdetailsModel::findOrFail($id);
-      $invoice = $this->invoiceModel::findOrFail($paymentdetail->inv_id);
+	
+      $paymentdetail = $this->paymentdetailsModel::where('id',$id)->get();
+    
+      $invoice = $this->invoiceModel::findOrFail($paymentdetail[0]->inv_id);
       $this->authorize('view', $invoice);
 
-      $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($paymentdetail->inv_id);
-      $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($paymentdetail->inv_id);
-      $jsonpaymentdata = app('App\Http\Controllers\\' . $this->version . '\api\PaymentController')->paymentdetailsforpdf($id);
+     
+	  $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($invoice->id);
+      $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
+      $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
+      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
 
+      // this get form data is product data
       $jsonproductContent = $jsonproductdata->getContent();
-      $jsonpaymentContent = $jsonpaymentdata->getContent();
-      $jsoninvContent = $jsoninvdata->getContent();
-      $jsoncompanyContent = $jsoncompanydetailsdata->getContent();
+
+      //this form data is invoice data
+      $jsoninvformdata = $jsoninvdata->getContent();
+      //this get copmany details data
+      $jsoncompanymasterContent = $jsoncompanydetailsdata->getContent();
+
+      //this get transport details data
+      $jsontransportContent = $jsontransportdata->getContent();
+      // this get bank details data
+      $jsonbankContent = $jsonbankdetailsdata->getContent();
 
       // Decode the JSON data
       $productdata = json_decode($jsonproductContent, true);
-      $paymentdata = json_decode($jsonpaymentContent, true);
-      $invdata = json_decode($jsoninvContent, true);
-      $companydetailsdata = json_decode($jsoncompanyContent, true);
+      $invdata = json_decode($jsoninvformdata, true);
+      $companydetailsdata = json_decode($jsoncompanymasterContent, true);
+      $transportdata = json_decode($jsontransportContent, true);
+      $bankdetailsdata = json_decode($jsonbankContent, true);
+     
+     
 
+      
       if ($productdata['status'] == 404) {
          session()->flash('custom_error_message', 'Product column not found');
          abort('404');
       }
+      if ($transportdata['status'] == 404) {
+         session()->flash('custom_error_message', 'Transport details not found');
+         abort('404');
+      }
+      if ($bankdetailsdata['status'] == 404) {
+         session()->flash('custom_error_message', 'Bank details not found');
+         abort('404');
+      }
 
-      if ($paymentdata['status'] == 404) {
-         session()->flash('custom_error_message', 'Payment data not found');
+      if ($bankdetailsdata['status'] == 500) {
+         session()->flash('custom_error_message', 'Bank details Unauthorized');
          abort('404');
       }
 
@@ -143,10 +474,27 @@ class PdfController extends Controller
          'productscolumn' => $productdata['columnswithtype'],
          'products' => $productdata['invoice'],
          'othersettings' => $productdata['othersettings'][0],
-         'payment' => $paymentdata['paymentdetail'],
+         'invoiceothersettings' => $productdata['invoiceothersettings'],
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
+         'transportdetails' => $transportdata['party'],
+         'bankdetails' => $bankdetailsdata['bankdetail'][0],
+         'paymentdetail' => $paymentdetail
       ];
+
+      if (isset($paymentdetails)) {
+         $jsonpaymentdata = app('App\Http\Controllers\\' . $this->version . '\api\PaymentController')->index($invoice->id);
+         $jsonpaymentContent = $jsonpaymentdata->getContent();
+         $paymentdata = json_decode($jsonpaymentContent, true);
+
+         if ($paymentdata['status'] == 404) {
+            session()->flash('custom_error_message', 'Payment data not found');
+            abort('404');
+         }
+
+         $data['payment'] = $paymentdata['payment'];
+      }
+    
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
@@ -158,9 +506,9 @@ class PdfController extends Controller
       ];
 
       //return view($this->version . '.admin.PDF.paymentreciept', $data);
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentreciept', $data)->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.paymentreciept', ["data" => $data])->setPaper('a4', 'portrait');
 
-      $name = 'Reciept ' . $paymentdata['paymentdetail'][0]['receipt_number'] . '.pdf';
+      $name = 'Reciept ' . $paymentdetail[0]['receipt_number'] . '.pdf';
       // return view($this->version . '.admin.paymentreciept', $data);
       return $pdf->stream($name);
    }
@@ -182,6 +530,7 @@ class PdfController extends Controller
 
 
       $invoice = $this->invoiceModel::findOrFail($id);
+
       $this->authorize('view', $invoice);
 
 
@@ -311,10 +660,10 @@ class PdfController extends Controller
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
       $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
       $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
-     
+
       // this get form data is product data
       $jsonproductContent = $jsonproductdata->getContent();
-     
+
       //this form data is invoice data
       $jsoninvformdata = $jsoninvdata->getContent();
       //this get copmany details data
@@ -324,20 +673,20 @@ class PdfController extends Controller
       $jsontransportContent = $jsontransportdata->getContent();
       // this get bank details data
       $jsonbankContent = $jsonbankdetailsdata->getContent();
-      
+
       // Decode the JSON data
       $productdata = json_decode($jsonproductContent, true);
       $invdata = json_decode($jsoninvformdata, true);
       $companydetailsdata = json_decode($jsoncompanymasterContent, true);
       $transportdata = json_decode($jsontransportContent, true);
       $bankdetailsdata = json_decode($jsonbankContent, true);
-   //   dd($transportdata);
+      //   dd($transportdata);
 
       if ($productdata['status'] == 404) {
          session()->flash('custom_error_message', 'Product column not found');
          abort('404');
       }
-      if($transportdata['status'] == 404){
+      if ($transportdata['status'] == 404) {
          session()->flash('custom_error_message', 'Transport details not found');
          abort('404');
       }

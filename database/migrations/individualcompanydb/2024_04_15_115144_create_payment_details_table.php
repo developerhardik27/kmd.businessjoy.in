@@ -19,9 +19,9 @@ return new class extends Migration {
             $table->dateTime('datetime')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->string('paid_by', 30)->nullable();
             $table->string('paid_type', 30)->nullable();
-            $table->double('amount', 10, 2);
-            $table->double('paid_amount', 10, 2);
-            $table->double('pending_amount', 10, 2);
+            $table->double('amount', 15, 2);
+            $table->double('paid_amount', 15, 2);
+            $table->double('pending_amount', 15, 2);
             $table->integer('part_payment')->default(0);
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('updated_at')->nullable();

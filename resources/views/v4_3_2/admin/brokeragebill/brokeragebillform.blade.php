@@ -34,6 +34,7 @@
                         <thead>
                             <tr>
                                 <th>Grade</th>
+                                <td>Brokerage Date</td>
                                 <th>Brokerage</th>
                                 <th>Bags</th>
                                 <th>Net Kg</th>
@@ -149,7 +150,8 @@
                                         <input type="text" name="rows[${index}][grade]" 
                                             value="${item.grade}" class="form-control">
                                     </td>
-
+                                    <td>
+                                        <input type="date" name="rows[${index}][brokerage_date]" value="${item.brokerage_date}" class="form-control">
                                     <td>
                                         <input type="text" name="rows[${index}][brokerage]" 
                                             value="${item.brokerage}" class="form-control">

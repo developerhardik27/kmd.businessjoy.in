@@ -545,30 +545,83 @@
                                 </li>
                             @endif
 
-                            @if (session('user_permissions.teamodule.brokerpurchase.show') == '1')
-                                <li class="{{ request()->routeIs('admin.brokerpurchase') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.brokerpurchase') }}" class="iq-waves-effect">
-                                        <i class="ri-file-list-line"></i>
-                                        <span>Sample Purchase</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if (session('user_permissions.invoicemodule.invoice.view') == '1')
-                                <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.invoice') }}"class="iq-waves-effect">
-                                    <i class="ri-file-text-line"></i>
-                                        <span>Invoice List</span> 
-                                    </a>
-                                </li>
-                            @endif
-                            @if (session('user_permissions.teamodule.brokeragebill.show') == '1')
-                                <li class="{{ request()->routeIs('admin.brokeragebill') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.brokeragebill') }}" class="iq-waves-effect">
-                                        <i class="ri-file-paper-line"></i>
-                                        <span>Broker Bill</span>
-                                    </a>
-                                </li>
-                            @endif
+                            <li
+                                class="{{ request()->routeIs('admin.brokerpurchase', 'admin.invoice') ? 'active' : '' }}">
+
+                                <a href="#samplepurchaseinfo" class="iq-waves-effect collapsed"
+                                    data-toggle="collapse"
+                                    aria-expanded="{{ request()->routeIs('admin.brokerpurchase', 'admin.invoice') ? 'true' : 'false' }}">
+
+                                    <i class="ri-folder-line"></i>
+                                    <span>Sample Purchase </span>
+                                    <i class="ri-arrow-right-s-line iq-arrow-right"></i>
+                                </a>
+
+                                <ul id="samplepurchaseinfo"
+                                    class="iq-submenu collapse {{ request()->routeIs('admin.brokerpurchase', 'admin.invoice') ? 'show' : '' }}"
+                                    data-parent="#iq-sidebar-toggle">
+
+                                    {{-- Sample Purchase --}}
+                                    @if (session('user_permissions.teamodule.brokerpurchase.show') == '1')
+                                        <li class="{{ request()->routeIs('admin.brokerpurchase') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.brokerpurchase') }}">
+                                                <i class="ri-file-list-line"></i>
+                                                <span>Sample Purchase</span>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Invoice List --}}
+                                    @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                        <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.invoice') }}">
+                                                <i class="ri-file-text-line"></i>
+                                                <span>Invoice List</span>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                </ul>
+                            </li>
+
+                            <li
+                                class="{{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'active' : '' }}">
+
+                                <a href="#brokerbillinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
+                                    aria-expanded="{{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'true' : 'false' }}">
+
+                                    <i class="ri-file-paper-line"></i>
+                                    <span>Broker Bill</span>
+                                    <i class="ri-arrow-right-s-line iq-arrow-right"></i>
+                                </a>
+
+                                <ul id="brokerbillinfo"
+                                    class="iq-submenu collapse {{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'show' : '' }}"
+                                    data-parent="#iq-sidebar-toggle">
+
+                                    {{-- Broker Bill --}}
+                                    @if (session('user_permissions.teamodule.brokeragebill.show') == '1')
+                                        <li class="{{ request()->routeIs('admin.brokeragebill') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.brokeragebill') }}">
+                                                <i class="ri-file-paper-line"></i>
+                                                <span>Broker Bill</span>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Broker Bill Pdf List --}}
+                                    @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                        <li
+                                            class="{{ request()->routeIs('admin.brokeragebillpdflist') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.brokeragebillpdflist') }}">
+                                                <i class="ri-file-text-line"></i>
+                                                <span>Broker Bill Pdf List</span>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                </ul>
+                            </li>
                         @elseif (Session::has('menu') && Session::get('menu') == 'Customer support')
                             @if (session('user_permissions.customersupportmodule.customersupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.customersupport') ? 'active' : '' }}">

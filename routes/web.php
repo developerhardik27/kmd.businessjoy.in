@@ -352,6 +352,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
             $brokeragebillController = getadminversion('brokeragebillController');
             Route::controller($brokeragebillController)->group(function () {
                 Route::get('/brokeragebill', 'index')->name('admin.brokeragebill')->middleware('checkPermission:teamodule,brokeragebill,show');
+                Route::get('/brokeragebillpdflist', 'brokeragebillpdflist')->name('admin.brokeragebillpdflist')->middleware('checkPermission:teamodule,brokeragebill,show');
                 Route::get('/Addbrokeragebill/{id?}', 'create')->name('admin.brokeragebillform')->middleware('checkPermission:teamodule,brokeragebill,add');
             });
 
@@ -435,9 +436,13 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::post('/generatepdfzip', 'generatepdfzip')->name('invoice.generatepdfzip');
                 Route::get('/generatereciept/{id}', 'generatereciept')->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/generaterecieptall/{id}', 'generaterecieptall')->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
-
+                Route::get('/broker_billgeneraterecieptall/{id}', 'brokerBillgeneraterecieptall')->name('invoice.brokerBillgeneraterecieptall')->middleware('checkPermission:invoicemodule,invoice,view');
+                 Route::get('/broker_billgeneratereciept/{id}', 'brokerBillgeneratereciept')->name('invoice.brokerBillgeneratereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 // generate consignor copy pdf 
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
+
+            Route::get('/generatebrokragebillpdf/{id}', 'generatebrokragebillpdf')->name('brokragbill.generatebrokragebillpdf')->middleware('checkPermission:invoicemodule,invoice,view');
+
             });
 
             Route::controller(AmazonController::class)->group(function () {

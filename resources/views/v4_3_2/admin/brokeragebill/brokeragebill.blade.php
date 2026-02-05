@@ -66,6 +66,45 @@
 
         </tbody>
     </table>
+    <div class="modal fade" id="pdfDateModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form id="pdfDateForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Generate PDF</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                                placeholder="token" required />
+                            <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
+                            <input type="hidden" value="{{ session('company_id') }}" class="form-control"
+                                name="company_id">
+                            <input type="hidden" name="garden_id" id="garden_id" class="form-control" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>From Date</label>
+                            <input type="date" name="from_date" id="from_date" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>To Date</label>
+                            <input type="date" name="to_date" id="to_date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Generate</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('ajax')
@@ -184,17 +223,35 @@
                                         </span>
                                     `;
                                 @endif
-
-                                // @if (session('user_permissions.teamodule.brokeragebill.delete') == '1')
-                                //     actionBtns += `
-                            //          <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete brokerpurchase Details">
-                            //                 <button type="button" data-id= '${data}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                            //                     <i class="ri-delete-bin-fill"></i>
-                            //                 </button>
-                            //             </span>
+                                // if (row.invoice_created) {
+                                //     @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                //         let generatePdfUrl =
+                                //             "{{ route('brokragbill.generatebrokragebillpdf', '__gardenId__') }}"
+                                //             .replace('__gardenId__', data);
+                                //         actionBtns += `                                             
+                            //         <span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Pdf">
+                            //             <a href=${generatePdfUrl} target='_blank' id='pdf'>
+                            //                 <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
+                            //             </a>
+                            //         </span>
                             //     `;
-                                // @endif
+                                //     @endif
+                                // } else {
 
+
+                                @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                    let storePdfUrl =
+                                        "{{ route('brokeragebill.brokeragebillpdf', '__gardenId__') }}"
+                                        .replace('__gardenId__', data);
+                                    actionBtns += `
+                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create Broker Bill PDF">
+                                            <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf" data-id ="${data}">
+                                                    <i class="ri-file-add-line"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                @endif
+                                // }
                                 return actionBtns;
                             }
                         }
@@ -249,6 +306,46 @@
                 });
 
             }
+            $(document).on("click", ".generate-pdf", function() {
+                let gardenId = $(this).data('id');
+                $('#garden_id').val(gardenId);
+                $('#pdfDateModal').modal('show');
+
+
+            });
+            $('#pdfDateForm').on('submit', function(e) {
+                e.preventDefault();
+                let formdata = $(this).serialize();
+                loadershow();
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('brokeragebill.brokeragebillpdf') }}",
+                    data: formdata,
+                    success: function(response) {
+                        if (response.status == 200) {
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+                               $('#pdfDateForm')[0].reset()
+                            $('#pdfDateModal').modal('hide');
+
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                                $('#pdfDateForm')[0].reset()
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        loaderhide();
+                    }
+                })
+            });
 
             $(document).on("click", ".view-btn", function() {
                 let garden_id = $(this).data('view');
@@ -278,25 +375,33 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Invoice No</th>
+                                <th>Brokerage</th>
                                 <th>Grade</th>
                                 <th>Bags</th>
-                                <th>Net Kg</th>
+                                <th>Total Kg</th>
+                                <th>Rate Per kg </th>
+                                <th>Total Broker</th>
                             </tr>
                         `);
+                        let id = 1;
                         response.data.forEach(function(item, index) {
-                            // Only show garden name for first row
-
+                            // Only show garden name for first row\
                             $('#viewmodaltitle').text(item.garden_name + `- Details`);
-                             $('#viewmodaltitle').addClass('font-weight-bold');
+                            $('#viewmodaltitle').addClass('font-weight-bold');
                             $('#details').append(`
                             <tr>
-                                <td>${item.id ?? '-'}</td>
+                                <td>${id ?? '-'}</td>
                                 <td>${item.invoice_no ?? '-'}</td>
+                                <td>${item.brokerage ?? '0'}(%)</td>
                                 <td>${item.grade ?? '-'}</td>
                                 <td>${item.bags ?? '-'}</td>
                                 <td>${item.net_kg ?? '-'}</td>
+                                <td>${item.rate ?? '-'}</td>
+                                <td>${((item.net_kg ?? 0) * (item.rate ?? 0) * (item.brokerage ?? 1))/100}
                             </tr>
+                            
                         `);
+                            id++;
                         });
 
                         loaderhide();

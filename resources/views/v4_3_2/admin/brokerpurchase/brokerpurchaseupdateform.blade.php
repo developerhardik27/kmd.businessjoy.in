@@ -6,7 +6,7 @@
     {{ config('app.name') }} - Update Sample Purchase
 @endsection
 @section('title')
-    Update  Sample Purchase
+    Update Sample Purchase
 @endsection
 @section('form-content')
     <form id="brokerpurchaseupdateform">
@@ -52,6 +52,8 @@
                         placeholder="Enter Net Weight" readonly>
                     <span class="error-msg" id="error-net_kg" style="color: red"></span>
                 </div>
+                <input type="hidden" class="form-control requiredinput" name="rate" id="rate"
+                    placeholder="Enter Rate" readonly>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -123,6 +125,7 @@
 
 
             function loadInvoices(garden_id, selectedInvoice = null, callback = null) {
+                selectedInvoice = parseInt(selectedInvoice);
                 loadershow();
                 $.ajax({
                     type: 'GET',
@@ -141,7 +144,7 @@
                             if (selectedInvoice) {
                                 $('#invoice_no').val(selectedInvoice);
                             } else {
-                                $("invoice_no").val('');
+                                $('#invoice_no').val('');
                             }
                             $('#invoice_no').select2({
                                 placeholder: "Select Invoice no",
@@ -177,6 +180,7 @@
                             $('#grade').val(data.grade_id);
                             $('#grade_name').val(data.grade_name);
                             $('#bags').val(data.bags);
+                            $('#rate').val(data.rate);
                             $('#net_kg').val(data.net_kg);
                         } else {
                             clearDetails();

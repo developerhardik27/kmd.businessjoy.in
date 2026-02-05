@@ -190,7 +190,6 @@
             <tr>
                 {{-- <th>#</th> --}}
                 <th>Id</th>
-                <th>Order id</th>
                 <th>Company Name</th>
                 <th>Buyer</th>
                 <th>Transport</th>
@@ -376,7 +375,7 @@
                         $('#filter_company').select2({
                             search: true,
                             placeholder: 'Select Company',
-                            allowClear: true 
+                            allowClear: true
                         });
                     } else if (response.status == 500) {
                         Toast.fire({
@@ -483,7 +482,7 @@
                             allowClear: true // Optional: adds "clear" (x) button
                         });
                     }
-                   
+
                     loaderhide();
                     await loadFilters();
 
@@ -501,16 +500,22 @@
             var global_response = '';
 
             $(document).on('change', '.purchase-checkbox', function() {
-
                 let companyId = $(this).data('company-id');
                 let buyerParty = $(this).data('buyer-party');
                 let isChecked = $(this).is(':checked');
 
-
-                $('.purchase-checkbox').prop('checked', false);
-
-
                 if (isChecked) {
+                    // Deselect checkboxes of the same company but different buyerParty
+                    $('.purchase-checkbox').each(function() {
+                        if (
+                            $(this).data('company-id') == companyId &&
+                            $(this).data('buyer-party') != buyerParty
+                        ) {
+                            $(this).prop('checked', false);
+                        }
+                    });
+
+                    // Ensure all checkboxes with same company and buyerParty are checked
                     $('.purchase-checkbox').each(function() {
                         if (
                             $(this).data('company-id') == companyId &&
@@ -527,46 +532,46 @@
             function toggleCreateInvoiceBtn() {
                 let checkedBoxes = $('.purchase-checkbox:checked');
 
-
                 if (checkedBoxes.length === 0) {
-                    $('#createInvoiceBtn').addClass('d-none');
-
-                    $('#createInvoiceBtn').removeAttr('data-company-id data-buyer-party');
+                    $('#createInvoiceBtn')
+                        .addClass('d-none')
+                        .removeAttr('data-company-id data-buyer-party data-sample-ids');
                     return;
                 }
 
-
-                $('#createInvoiceBtn').removeClass('d-none');
-
-
                 let companyIds = [];
                 let buyerParties = [];
+                let sampleIds = [];
 
                 checkedBoxes.each(function() {
                     companyIds.push($(this).data('company-id'));
                     buyerParties.push($(this).data('buyer-party'));
+                    sampleIds.push($(this).data('sample-id'));
                 });
-
 
                 companyIds = [...new Set(companyIds)];
                 buyerParties = [...new Set(buyerParties)];
-
+                sampleIds = [...new Set(sampleIds)];
 
                 $('#createInvoiceBtn')
+                    .removeClass('d-none')
                     .attr('data-company-id', companyIds.join(','))
-                    .attr('data-buyer-party', buyerParties.join(','));
+                    .attr('data-buyer-party', buyerParties.join(','))
+                    .attr('data-sample-ids', sampleIds.join(','));
 
-
-                console.log('Button company_id:', $('#createInvoiceBtn').data('company-id'));
-                console.log('Button buyer_party:', $('#createInvoiceBtn').data('buyer-party'));
+                console.log('company_id:', companyIds);
+                console.log('buyer_party:', buyerParties);
+                console.log('sample_ids:', sampleIds);
             }
+
 
             $("#createInvoiceBtn").click(function() {
                 loadershow();
                 let companyIds = ($('#createInvoiceBtn').data('company-id') || '').toString();
                 let buyerParties = ($('#createInvoiceBtn').data('buyer-party') || '')
                     .toString();
-
+                let sampleIds = ($('#createInvoiceBtn').data('sample-ids') || '')
+                    .toString();
                 if (!companyIds || !buyerParties) {
                     Toast.fire({
                         icon: 'error',
@@ -579,8 +584,9 @@
                     url: "{{ route('brokerpurchase.createInvoice') }}", // your route
                     type: "GET", // use POST for creating invoice
                     data: {
-                        company_ids: companyIds, // "1,2,3"
-                        buyer_parties: buyerParties, // "ABC,XYZ"
+                        company_ids: companyIds,
+                        buyer_parties: buyerParties,
+                        sampleIds: sampleIds,
                         user_id: "{{ session()->get('user_id') }}", // optional extra data
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}",
@@ -690,25 +696,16 @@
                                             class="purchase-checkbox"
                                             value="${row.company_id}"
                                             data-company-id="${row.company_id}"
-                                            data-buyer-party="${row.buyer_party}">
+                                            data-buyer-party="${row.buyer_party}"
+                                            data-sample-id= "${row.id}">
                                     `;
+                                }
+                                else
+                                {
+                                    return `<b>${row.id}</b>`;
                                 }
 
                             }
-                        },
-                        // {
-                        //     data: 'id',
-                        //     orderable: true,
-                        //     searchable: true,
-                        //     defaultContent: '-',
-                        //     name: 'id',
-                        // },
-                        {
-                            data: 'order_id',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'order_id'
                         },
                         {
                             data: 'company_name',

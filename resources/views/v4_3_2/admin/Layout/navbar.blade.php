@@ -208,7 +208,7 @@
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-list-line" data-toggle="tooltip"
                                                 data-placement="bottom"
-                                                data-original-title="Broker Purchase List"></i>
+                                                data-original-title="Sample  Purchase List"></i>
                                         </a>
                                     </li>
                                 @endif

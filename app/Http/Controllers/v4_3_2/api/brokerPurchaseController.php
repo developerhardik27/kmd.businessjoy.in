@@ -97,7 +97,6 @@ class brokerPurchaseController extends commonController
             ->whereNotIn('invoice_no', $usedInvoices)
             ->orderBy('invoice_no', 'ASC')
             ->get();
-
         return $this->successresponse(200, 'data', $allInvoices);
     }
     public function getOtherDetails(Request $request)
@@ -116,6 +115,7 @@ class brokerPurchaseController extends commonController
                 'order_details.invoice_no',
                 'order_details.bags',
                 'order_details.net_kg',
+                'order_details.rate',
                 'grades.id as grade_id',
                 'grades.grade as grade_name'
             )
@@ -138,7 +138,7 @@ class brokerPurchaseController extends commonController
         $data = $request->all();
         $buyerParties = explode(',', $request->buyer_parties);
         $companyIds = explode(',', $request->company_ids);
-
+        $sampleIds = explode(',', $request->sampleIds);
 
         $data1 = $this->brokerpurchaseModel
             ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
@@ -173,17 +173,21 @@ class brokerPurchaseController extends commonController
                 'buyer.name as buyer_name',
                 'transporter.name as transport_name'
             )
+            ->whereIn('broker_purchases.id', $sampleIds)
             ->where('broker_purchases.is_deleted', 0)
-            ->whereIn('companymasters.id', $companyIds)   // Filter by selected companies
+            ->whereIn('companymasters.id', $companyIds)
             ->whereIn('orders.buyer_party', $buyerParties)
             ->get();
+
         $maindata = [
             'maindata' => [
                 'companymaster_id' => $companyIds,
                 'buyer_id' => $buyerParties,
+                'sampleIds' => $sampleIds,
             ],
             "line_items" => $data1,
         ];
+
 
         // Continue your invoice creation here
         return $this->successresponse(200, 'message', 'invoice created data you get properly', 'data', $maindata);
@@ -194,10 +198,10 @@ class brokerPurchaseController extends commonController
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $brokerpurchase = $this->brokerpurchaseModel::where('is_deleted', 0)->get();
-        if ($brokerpurchase->isEmpty()) {
-            return $this->successresponse(404, 'message', 'No Data Found');
-        }
+        // $brokerpurchase = $this->brokerpurchaseModel::where('is_deleted', 0)->get();
+        // if ($brokerpurchase->isEmpty()) {
+        //     return $this->successresponse(404, 'message', 'No Data Found');
+        // }
         $brokerpurchase = $this->brokerpurchaseModel
             ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
             ->join('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
@@ -212,10 +216,12 @@ class brokerPurchaseController extends commonController
             ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
             ->leftJoin('invoices', function ($join) {
                 $join->on('invoices.customer_id', '=', 'orders.buyer_party')
-                    ->on('invoices.company_details_id', '=', 'companymasters.id');
+                    ->on('invoices.company_details_id', '=', 'companymasters.id')
+                    ->where('invoices.is_deleted', 0);
             })
-            ->where('broker_purchases.is_deleted', 0);
 
+
+            ->where('broker_purchases.is_deleted', 0);
 
         $filters = [
             'filter_company'      => 'companymasters.id',
@@ -249,7 +255,7 @@ class brokerPurchaseController extends commonController
 
         $brokerpurchase = $brokerpurchase
             ->select(
-                'invoices.id as invoice_id',
+               
                 'broker_purchases.*',
                 'grades.grade as grade_name',
                 'gardens.garden_name as garden_name',
@@ -262,7 +268,7 @@ class brokerPurchaseController extends commonController
                 'transporter.name as transport_name'
             )
             ->get();
-
+        // dd($brokerpurchase);
         if ($brokerpurchase->isEmpty()) {
             return DataTables::of($brokerpurchase)
                 ->with([
@@ -290,6 +296,7 @@ class brokerPurchaseController extends commonController
             'invoice_no' => 'required|string|max:255',
             'grade' => 'required|string|max:255',
             'bags' => 'required|string|max:255',
+            'rate' => 'nullable|string|max:255',
             'net_kg' => 'required|nullable|numeric',
         ]);
 
@@ -302,6 +309,7 @@ class brokerPurchaseController extends commonController
             'grade' => $request->grade,
             'bags' => $request->bags,
             'net_kg' => $request->net_kg,
+            'rate' => $request->rate,
             'created_by' => $request->user_id,
         ]);
         if ($create) {
@@ -354,6 +362,7 @@ class brokerPurchaseController extends commonController
             'invoice_no' => 'required|string|max:255',
             'grade' => 'required|string|max:255',
             'bags' => 'required|string|max:255',
+            'rate' => 'required|string|max:255',
             'net_kg' => 'required|nullable|numeric',
         ]);
 
@@ -366,6 +375,7 @@ class brokerPurchaseController extends commonController
             'invoice_no' => $request->invoice_no,
             'grade' => $details[0]->grade,
             'bags' => $details[0]->bags,
+            'rate' => $details[0]->rate,
             'net_kg' => $details[0]->net_kg,
             'updated_by' => $request->user_id,
         ]);
