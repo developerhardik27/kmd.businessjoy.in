@@ -3,10 +3,10 @@
 @endphp
 @extends($folder . '.admin.Layout.mastertable')
 @section('page_title')
-    {{ config('app.name') }} - Broker Bill Pdf List
+    {{ config('app.name') }} - Broker Bill Invoice List
 @endsection
 @section('table_title')
-    Broker Bill Pdf
+    Broker Bill Invoice List
 @endsection
 
 @section('style')
@@ -40,18 +40,59 @@
         }
     </style>
 @endsection
-{{-- @if (session('user_permissions.teamodule.brokeragebill.add') == '1')
-    @section('addnew')
-        {{ route('admin.brokeragebillform') }}
-    @endsection
-    @section('addnewbutton')
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New brokerage bill"
-            class="btn btn-sm btn-primary">
-            <span class="">+ New</span>
+@section('advancefilter')
+    <div class="col-sm-12 text-right px-4">
+        <button class="btn btn-sm btn-primary m-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Filters"
+            onclick="showOffCannvas()">
+            <i class="ri-filter-line"></i>
         </button>
-    @endsection
-@endif --}}
+    </div>
+@endsection
+@section('sidebar-filters')
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6>Garden</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_garden" class="form-label mt-1">Garden</label>
+                        <select name="filter_garden" class="filter form-control w-100 select2" id="filter_garden" multiple>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6>Payment</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_payment_status" class="form-label mt-1">Payment Status</label>
+                        <select name="filter_payment_status" class="filter form-control w-100 select2"
+                            id="filter_payment_status" multiple>
+                            <option value="pending">Pending </option>
+                            <option value="paid">Paid</option>
+                            <option value="part_payment">Part Payment</option>
+                            <option value="cancel">Cancel </option>
+                            <option value="due"> Over Due</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
 @section('table-content')
+    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create PDF" class="btn btn-sm btn-primary"
+        id="pdfBtn">
+        <span id="pdf-data">Generate PDF</span>
+    </button>
     <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
@@ -170,9 +211,118 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
+            let getgardenname = [];
             var global_response = '';
+            $('#filter_payment_status').select2({
+                placeholder: "Select Payment Status",
+                allowClear: true,
+                width: '100%' // ensures it uses full width
+            });
 
+            function getGardenData() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('garden.index') }}",
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            loaderhide();
+                            resolve(response);
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            handleAjaxError(xhr);
+                            reject(xhr);
+                        }
+                    });
+                });
+            }
+
+            function loadFilters() {
+                return new Promise((resolve, reject) => {
+                    var filterData = JSON.parse(sessionStorage.getItem('filterData'));
+                    if (filterData) {
+                        $.each(filterData, function(key, value) {
+                            if (value != ' ') {
+                                $('#' + key).val(value); // Removed `, true`
+                            }
+                        });
+
+                        // Trigger change event to ensure multiselect UI updates
+                        $(' #filter_garden')
+                            .trigger('change');
+
+                        loaddata();
+
+
+                        sessionStorage.removeItem('filterData');
+                        loaderhide();
+                        resolve(); // Resolve the promise here after all actions
+                    } else {
+                        // If no filter data, resolve immediately
+                        resolve();
+                        loaddata();
+                    }
+                });
+            }
+            async function initialize() {
+                try {
+                    // Perform AJAX calls concurrently
+                    const [
+                        getGardenDataresponse
+                    ] = await Promise.all([
+                        getGardenData(),
+                    ]);
+                    // this getGardenData response
+                    if (getGardenDataresponse.status == 200 && getGardenDataresponse.data != '') {
+                        // You can update your HTML with the data here if needed     
+                        $.each(getGardenDataresponse.data, function(key, value) {
+                            var garderId = value.id;
+                            var optionValue = value.garden_name + ' - ' + value.company_name;
+                            getgardenname.push(optionValue);
+                            $('#filter_garden').append(
+                                `<option value="${garderId}">${optionValue}</option>`
+                            );
+                        });
+                        $('#filter_garden').val('');
+                        $('#filter_garden').select2({
+                            search: true,
+                            placeholder: 'Select Garden',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
+                    } else if (response.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    } else {
+                        $('#filter_garden').val('');
+                        $('#filter_garden').select2({
+                            search: true,
+                            placeholder: 'No garden found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
+                    }
+                    loaderhide();
+                    await loadFilters();
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    Toast.fire({
+                        icon: "error",
+                        title: "An error occurred while initializing"
+                    });
+                    loaderhide();
+                }
+            }
+
+            initialize();
             // function for  get brokerpurchases data and set it into datatable
             function loaddata() {
                 table = $('#data').DataTable({
@@ -190,6 +340,8 @@
                             d.user_id = "{{ session()->get('user_id') }}";
                             d.company_id = "{{ session()->get('company_id') }}";
                             d.token = "{{ session()->get('api_token') }}";
+                            d.filter_payment_status = $('#filter_payment_status').val();
+                            d.filter_garden = $('#filter_garden').val();
                         },
                         dataSrc: function(json) {
                             if (json.message) {
@@ -439,6 +591,37 @@
                 });
 
             }
+
+
+            let params;
+            $('#pdfBtn').on('click', function() {
+                params = table.ajax.params();
+                params.filter_payment_status = $('#filter_payment_status').val();
+                params.filter_garden = $('#filter_garden').val();
+                let queryString = $.param(params);
+
+
+                let url = "{{ route('brokragbill.outstanding') }}" + "?" + queryString;
+
+                // Open PDF in new tab
+
+                loadershow();
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('brokragbill.outstanding') }}",
+                    data: params,
+                    success: function(response) {
+                        window.open(url, '_blank');
+                        loaderhide();
+                    },
+                    error: function(xhr) {
+                        loaderhide();
+                        handleAjaxError(xhr);
+                    }
+                });
+            });
+
             $(document).on("click", ".pay-del-btn", function() {
                 var deleteid = $(this).data('id');
                 var invId = $(this).data('inv-id');
@@ -911,7 +1094,18 @@
                     }
                 );
             });
+            $('.applyfilters').on('click', function() {
+                table.draw();
+                hideOffCanvass(); // close OffCanvass
+            });
 
+            //remove filtres
+            $('.removefilters').on('click', function() {
+                $('#filter_payment_status').val(null).trigger('change');
+                $('#filter_garden').val(null).trigger('change');
+                table.draw();
+                hideOffCanvass(); // close OffCanvass
+            });
 
 
         });

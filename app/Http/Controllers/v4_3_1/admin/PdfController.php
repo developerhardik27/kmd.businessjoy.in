@@ -32,7 +32,7 @@ class PdfController extends Controller
          $this->invoiceModel = 'App\\Models\\' . $this->version . "\\invoice";
          $this->paymentdetailsModel = 'App\\Models\\' . $this->version . "\\payment_details";
          $this->quotationModel = 'App\\Models\\' . $this->version . "\\quotation";
-         $this->consignor_copyModel = 'App\\Models\\' . $this->version . "\\consignor_copy";
+         $this->consignor_copyModel = 'App\\Models\\' . $this->version . "\\consignor_copy"; 
       } else {
          $this->invoiceModel = 'App\\Models\\v4_3_1\\invoice';
          $this->paymentdetailsModel = 'App\\Models\\v4_3_1\\payment_details';

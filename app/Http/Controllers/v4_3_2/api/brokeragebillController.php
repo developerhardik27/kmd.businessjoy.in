@@ -147,8 +147,9 @@ class brokeragebillController extends commonController
 
         return $this->successresponse(200, 'data', $usedInvoices);
     }
-    public function brokeragebillpdflist()
+    public function brokeragebillpdflist(Request $request)
     {
+
         if ($this->rp['teamodule']['brokeragebill']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
@@ -157,7 +158,33 @@ class brokeragebillController extends commonController
                 $join->on('broker_bill_invoice.id', '=', 'broker_bill_payment_details.inv_id')
                     ->whereRaw('broker_bill_payment_details.id = (SELECT id FROM broker_bill_payment_details WHERE inv_id = broker_bill_invoice.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
             })
-            ->where('broker_bill_invoice.is_deleted', 0)
+            ->where('broker_bill_invoice.is_deleted', 0);
+
+        $filters = [
+            'filter_payment_status' => 'broker_bill_invoice.status',
+            'filter_garden' => 'broker_bill_invoice.garden_id',
+        ];
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey ?? null;
+
+            if ($value !== null) {
+                if (in_array($requestKey, [
+                    'filter_credit_days_from',
+                    'filter_credit_days_to',
+                    'filter_final_amount_from',
+                    'filter_final_amount_to'
+                ])) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $list->where($column, $operator, $value);
+                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $list->whereDate($column, $operator, $value);
+                } else {
+                    $list->whereIn($column, (array)$value);
+                }
+            }
+        }
+        $list = $list
             ->select(
                 'broker_bill_invoice.*',
                 'broker_bill_payment_details.id as paymentid',
@@ -165,7 +192,7 @@ class brokeragebillController extends commonController
                 'broker_bill_payment_details.pending_amount'
             )
             ->get();
-        // dd($list);
+      
         if ($list->isEmpty()) {
             return DataTables::of($list)
                 ->with([

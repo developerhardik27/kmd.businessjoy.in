@@ -32,25 +32,99 @@ class orderController extends commonController
         $this->orderModel = $this->getmodel('order');
         $this->order_detailModel = $this->getmodel('order_detail');
     }
-    public function index()
+    public function index(Request $request)
     {
         if ($this->rp['teamodule']['order']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->join('partys as transport', 'transport.id', 'orders.transport')
-            ->select('buyer.name as buyer_name', 'transport.name as transport_name', 'orders.*')
-            ->where("orders.is_deleted", 0)->get();
+            ->join('order_details', 'order_details.order_id', 'orders.id')
+            ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->join('grades', 'grades.id', 'order_details.grade')
+            ->where("orders.is_deleted", 0);
 
-        if ($order->isEmpty()) {
-            return DataTables::of($order)
+        $filters = [
+            'filter_transport'         => 'orders.transport',
+            'filter_buyer'             => 'orders.buyer_party',
+            'filter_garden'            => 'order_details.garden_id',
+            'filter_grade'             => 'order_details.grade',
+            'filter_credit_days_from'  => 'orders.credit_days',
+            'filter_credit_days_to'    => 'orders.credit_days',
+            'filter_final_amount_from' => 'orders.finalAmount',
+            'filter_final_amount_to'   => 'orders.finalAmount',
+        ];
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey ?? null;
+
+            if ($value !== null) {
+                if (in_array($requestKey, [
+                    'filter_credit_days_from',
+                    'filter_credit_days_to',
+                    'filter_final_amount_from',
+                    'filter_final_amount_to'
+                ])) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $order->where($column, $operator, $value);
+                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $order->whereDate($column, $operator, $value);
+                } else {
+                    $order->whereIn($column, (array)$value);
+                }
+            }
+        }
+
+        $orderData = $order
+            ->select(
+                'orders.id as order_id',
+                'buyer.name as buyer_name',
+                'transport.name as transport_name',
+                'orders.*',
+                'order_details.*',
+                'gardens.garden_name as garden_name',
+                'grades.grade as grade_name'
+            )
+            ->get()
+            ->groupBy('order_id')
+            ->map(function ($details, $orderId) {
+                // Map each order to an 'auto-tuple' style array
+                $first = $details->first();
+                return [
+                    'id' => $orderId,
+                    'buyer_name' => $first->buyer_name,
+                    'transport_name' => $first->transport_name,
+                    'discount' => $first->discount,
+                    'totalNetKg' => $first->totalNetKg,
+                    'credit_days' => $first->credit_days,
+                    'final_amount' => $first->finalAmount,
+                    'details' => $details->map(function ($item) {
+                        return [
+                            'garden_name' => $item->garden_name,
+                            'grade_name' => $item->grade_name,
+                            'invoice_no' => $item->invoice_no,
+                            'bags' => $item->bags,
+                            'kg' => $item->kg,
+                            'net_kg' => $item->net_kg,
+                            'rate' => $item->rate,
+                            'amount' => $item->amount,
+                        ];
+                    })->toArray()
+                ];
+            })
+            ->values();
+
+        // return $orderData;
+
+        if ($orderData->isEmpty()) {
+            return DataTables::of($orderData)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
                 ])
                 ->make(true);
         }
-        return DataTables::of($order)
+        return DataTables::of($orderData)
             ->with([
                 'status' => 200,
             ])

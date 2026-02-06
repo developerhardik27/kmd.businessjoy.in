@@ -347,7 +347,6 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewbrokerpurchase', 'create')->name('admin.brokerpurchaseform')->middleware('checkPermission:teamodule,brokerpurchase,add');
                 Route::get('/Editbrokerpurchase/{id}', 'edit')->name('admin.brokerpurchaseupdateform')->middleware('checkPermission:teamodule,brokerpurchase,edit');
                 Route::post('/storeInvoiceSession', 'storeInvoiceSession')->name('admin.storeInvoiceSession')->middleware('checkPermission:teamodule,brokerpurchase,show');
-
             });
             $brokeragebillController = getadminversion('brokeragebillController');
             Route::controller($brokeragebillController)->group(function () {
@@ -437,12 +436,12 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/generatereciept/{id}', 'generatereciept')->name('invoice.generatereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/generaterecieptall/{id}', 'generaterecieptall')->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/brokerbillgeneraterecieptall/{id}', 'brokerBillgeneraterecieptall')->name('invoice.brokerBillgeneraterecieptall')->middleware('checkPermission:invoicemodule,invoice,view');
-                 Route::get('/brokerbillgeneratereciept/{id}', 'brokerBillgeneratereciept')->name('invoice.brokerBillgeneratereciept')->middleware('checkPermission:invoicemodule,invoice,view');
+                Route::get('/brokerbillgeneratereciept/{id}', 'brokerBillgeneratereciept')->name('invoice.brokerBillgeneratereciept')->middleware('checkPermission:invoicemodule,invoice,view');
                 // generate consignor copy pdf 
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
-
-            Route::get('/generatebrokragebillpdf/{id}', 'generatebrokragebillpdf')->name('brokragbill.generatebrokragebillpdf')->middleware('checkPermission:invoicemodule,invoice,view');
-
+                Route::get('/generatebrokragebillpdf/{id}', 'generatebrokragebillpdf')->name('brokragbill.generatebrokragebillpdf')->middleware('checkPermission:invoicemodule,invoice,view');
+                Route::get('/orderreport', 'orderreport')->name('brokragbill.orderreport')->middleware('checkPermission:teamodule,teadashboard,show');
+                Route::get('/outstanding', 'outstanding')->name('brokragbill.outstanding')->middleware('checkPermission:teamodule,teadashboard,show');
             });
 
             Route::controller(AmazonController::class)->group(function () {

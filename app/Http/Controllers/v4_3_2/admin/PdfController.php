@@ -23,7 +23,7 @@ use Dompdf\Options;
 
 class PdfController extends Controller
 {
-   public $version, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel,$company_gardenModel;
+   public $version, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
    public function __construct()
    {
       if (session_status() !== PHP_SESSION_ACTIVE)
@@ -39,12 +39,22 @@ class PdfController extends Controller
          $this->broker_bill_invoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
          $this->broker_payment_detailsModel = 'App\\Models\\' . $this->version . "\\broker_bill_payment_detail";
          $this->company_gardenModel = 'App\\Models\\' . $this->version . "\\company_garden";
-
+         $this->orderModel = 'App\\Models\\' . $this->version . "\\order";
+         $this->order_detailModel = 'App\\Models\\' . $this->version . "\\order_detail";
+         $this->brokerbillinvoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
       } else {
-         $this->invoiceModel = 'App\\Models\\v4_3_1\\invoice';
-         $this->paymentdetailsModel = 'App\\Models\\v4_3_1\\payment_details';
-         $this->quotationModel = 'App\\Models\\v4_3_1\\quotation';
-         $this->consignor_copyModel = 'App\\Models\\v4_3_1\\consignor_copyM';
+         $this->invoiceModel = 'App\\Models\\v4_3_2\\invoice';
+         $this->paymentdetailsModel = 'App\\Models\\v4_3_2\\payment_details';
+         $this->quotationModel = 'App\\Models\\v4_3_2\\quotation';
+         $this->consignor_copyModel = 'App\\Models\\v4_3_2\\consignor_copy';
+         $this->brokerpurchaseModel = 'App\\Models\\v4_3_2\\broker_purchase';
+         $this->bank_detailsModel = 'App\\Models\\v4_3_2\\bank_detail';
+         $this->broker_bill_invoiceModel = 'App\\Models\\v4_3_2\\broker_bill_invoice';
+         $this->broker_payment_detailsModel = 'App\\Models\\v4_3_2\\broker_bill_payment_detail';
+         $this->company_gardenModel = 'App\\Models\\v4_3_2\\company_garden';
+         $this->orderModel = 'App\\Models\\v4_3_2\\order';
+         $this->order_detailModel = 'App\\Models\\v4_3_2\\order_detail';
+         $this->brokerbillinvoiceModel = 'App\\Models\\v4_3_2\\broker_bill_invoice';
       }
    }
 
@@ -354,7 +364,7 @@ class PdfController extends Controller
                ->on('invoices.customer_id', '=', 'orders.buyer_party')
                ->where('invoices.is_deleted', '=', 0);
          })
-       ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
+         ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
          ->select(
             'broker_purchases.*',
             'gardens.garden_name as garden_name',
@@ -406,14 +416,14 @@ class PdfController extends Controller
       // Establish connection to the dynamic database
       DB::purge('dynamic_connection');
       DB::reconnect('dynamic_connection');
-	
-      $paymentdetail = $this->paymentdetailsModel::where('id',$id)->get();
-    
+
+      $paymentdetail = $this->paymentdetailsModel::where('id', $id)->get();
+
       $invoice = $this->invoiceModel::findOrFail($paymentdetail[0]->inv_id);
       $this->authorize('view', $invoice);
 
-     
-	  $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($invoice->id);
+
+      $jsonproductdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->inv_details($invoice->id);
       $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
       $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
@@ -438,10 +448,10 @@ class PdfController extends Controller
       $companydetailsdata = json_decode($jsoncompanymasterContent, true);
       $transportdata = json_decode($jsontransportContent, true);
       $bankdetailsdata = json_decode($jsonbankContent, true);
-     
-     
 
-      
+
+
+
       if ($productdata['status'] == 404) {
          session()->flash('custom_error_message', 'Product column not found');
          abort('404');
@@ -494,7 +504,7 @@ class PdfController extends Controller
 
          $data['payment'] = $paymentdata['payment'];
       }
-    
+
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
@@ -903,5 +913,198 @@ class PdfController extends Controller
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.consignorcopy', $consignorcopydata)->setPaper('a4', 'portrait');
 
       return $pdf->stream($pdfname);
+   }
+   public function orderreport(Request $request)
+   {
+
+
+      $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
+         ->join('partys as transport', 'transport.id', 'orders.transport')
+         ->join('order_details', 'order_details.order_id', 'orders.id')
+         ->join('gardens', 'gardens.id', 'order_details.garden_id')
+         ->join('grades', 'grades.id', 'order_details.grade')
+         ->where("orders.is_deleted", 0);
+      $filters = [
+         'filter_transport'      => 'orders.transport',
+         'filter_buyer'        => 'orders.buyer_party',
+         'filter_garden'       => 'order_details.garden_id',
+         'filter_grade'        => 'order_details.grade',
+         'filter_credit_days_from'  => 'orders.credit_days',
+         'filter_credit_days_to'    => 'orders.credit_days',
+         'filter_final_amount_from'    => 'orders.finalAmount',
+         'filter_final_amount_to'      => 'orders.finalAmount',
+      ];
+      foreach ($filters as $requestKey => $column) {
+         $value = $request->$requestKey;
+
+         if (isset($value)) {
+            if ($requestKey == 'filter_credit_days_from' || $requestKey == 'filter_credit_days_to' || $requestKey == 'filter_final_amount_from' || $requestKey == 'filter_final_amount_to') {
+               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+               $order->where($column, $operator, $value);
+            } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+               $order->whereDate($column, $operator, $value);
+            } else {
+
+               $order->whereIn($column, $value);
+            }
+         }
+      }
+
+
+      $order = $order
+         ->select(
+            'orders.id as order_id',
+            'buyer.name as buyer_name',
+            'transport.name as transport_name',
+            'orders.*',
+            'order_details.*',
+            'gardens.garden_name as garden_name',
+            'grades.grade as grade_name'
+         )
+         ->get()
+         ->groupBy('order_id')
+         ->map(function ($details, $orderId) {
+            // Map each order to an 'auto-tuple' style array
+            $first = $details->first();
+            return [
+               'id' => $orderId,
+               'buyer_name' => $first->buyer_name,
+               'transport_name' => $first->transport_name,
+               'discount' => $first->discount,
+               'totalNetKg' => $first->totalNetKg,
+               'credit_days' => $first->credit_days,
+               'final_amount' => $first->finalAmount,
+               'details' => $details->map(function ($item) {
+                  return [
+                     'garden_name' => $item->garden_name,
+                     'grade_name' => $item->grade_name,
+                     'invoice_no' => $item->invoice_no,
+                     'bags' => $item->bags,
+                     'kg' => $item->kg,
+                     'net_kg' => $item->net_kg,
+                     'rate' => $item->rate,
+                     'amount' => $item->amount,
+                  ];
+               })->toArray()
+            ];
+         })
+         ->values();
+      // dd($order);
+      if ($order->isEmpty()) {
+         return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderreport', ["order" => $order])->setPaper('a4', 'portrait');
+
+      $name = 'Order-Report.pdf';
+      // return view($this->version . '.admin.paymentpaidreciept', $data);
+      return $pdf->download('order_report_' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream($name);
+   }
+
+   public function outstanding(Request $request)
+   {
+      $list = $this->brokerbillinvoiceModel
+          ::leftJoin('broker_bill_payment_details', 'broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
+         ->where('broker_bill_invoice.is_deleted', 0);
+      $filters = [
+         'filter_payment_status' => 'broker_bill_invoice.status',
+         'filter_garden' => 'broker_bill_invoice.garden_id',
+      ];
+      foreach ($filters as $requestKey => $column) {
+         $value = $request->$requestKey;
+
+         if (isset($value)) {
+            if ($requestKey == 'filter_credit_days_from' || $requestKey == 'filter_credit_days_to' || $requestKey == 'filter_final_amount_from' || $requestKey == 'filter_final_amount_to') {
+               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+               $list->where($column, $operator, $value);
+            } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+               $list->whereDate($column, $operator, $value);
+            } else {
+
+               $list->whereIn($column, $value);
+            }
+         }
+      }
+      $list = $list
+         ->select(
+            'broker_bill_invoice.id as invoice_id',
+            'broker_bill_invoice.invoice_no',
+            'broker_bill_invoice.invoice_date',
+            'broker_bill_invoice.totalamount',
+            'broker_bill_invoice.igst',
+            'broker_bill_invoice.grand_total',
+            'broker_bill_invoice.status',
+            'broker_bill_invoice.from_date',
+            'broker_bill_invoice.to_date',
+
+            'broker_bill_payment_details.receipt_number',
+            'broker_bill_payment_details.transaction_id',
+            'broker_bill_payment_details.datetime',
+            'broker_bill_payment_details.paid_by',
+            'broker_bill_payment_details.paid_type',
+            'broker_bill_payment_details.paid_amount',
+            'broker_bill_payment_details.pending_amount'
+         )
+         ->get()
+         ->groupBy('invoice_id')
+         ->map(function ($rows, $invoiceId) {
+            $first = $rows->first();
+            return [
+               'id'            => $invoiceId,
+               'invoice_no'    => $first->invoice_no,
+               'invoice_date'  => $first->invoice_date,
+               'totalamount'  => $first->totalamount,
+               'igst'          => $first->igst,
+               'grand_total'   => $first->grand_total,
+               'status'        => $first->status,
+               'from_date'     => $first->from_date,
+               'to_date'       => $first->to_date,
+               'details' => $rows->map(function ($item) {
+                  return [
+                     'receipt_number' => $item->receipt_number,
+                     'transaction_id' => $item->transaction_id,
+                     'datetime'       => $item->datetime,
+                     'paid_by'        => $item->paid_by,
+                     'paid_type'      => $item->paid_type,
+                     'paid_amount'    => $item->paid_amount,
+                     'pending_amount' => $item->pending_amount,
+                  ];
+               })->toArray()
+            ];
+         })
+         ->values();
+
+      if ($list->isEmpty()) {
+         return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'margin_top' => 0,
+         'margin_right' => 0,
+         'margin_bottom' => 0,
+         'margin_left' => 0,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.outstanding', ["list" => $list])->setPaper('a4', 'portrait');
+
+      $name = 'Garden Outstanding.pdf';
+      // return view($this->version . '.admin.paymentpaidreciept', $data);
+      //return $pdf->download('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->download('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream($name);
    }
 }

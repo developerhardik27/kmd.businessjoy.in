@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\v4_3_2\admin;
 
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
@@ -45,7 +46,7 @@ class orderController extends Controller
         $transportdetailscontent = $jsontransportdetails->getContent();
         $tdetails = json_decode($transportdetailscontent);
 
-         $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partyController";
+        $partycontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\partyController";
         $jsongradedetails = app($partycontroller)->gradeindex();
         $gradedetailscontent = $jsongradedetails->getContent();
         $gradedetails = json_decode($gradedetailscontent);
@@ -73,4 +74,5 @@ class orderController extends Controller
     {
         return view($this->version . '.admin.order.orderupdateform', ['edit_id' => $id]);
     }
+   
 }

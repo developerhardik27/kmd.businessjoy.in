@@ -615,7 +615,7 @@
                                             class="{{ request()->routeIs('admin.brokeragebillpdflist') ? 'active' : '' }}">
                                             <a href="{{ route('admin.brokeragebillpdflist') }}">
                                                 <i class="ri-file-text-line"></i>
-                                                <span>Broker Bill Pdf List</span>
+                                                <span>Broker Bill Invoice List</span>
                                             </a>
                                         </li>
                                     @endif
