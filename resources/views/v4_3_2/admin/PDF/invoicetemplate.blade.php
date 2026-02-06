@@ -39,7 +39,7 @@
 
     $fixedFirstCols = ['#']; // manual column for serial number with 4% width
     $fixedWidths = 4; // % width for #
-    $amountColumnWidth = 20; // amount column width (fixed)
+    $amountColumnWidth = 15; // amount column width (fixed)
     $totalWidth = $fixedWidths + $amountColumnWidth;
     $firstRowCols = []; // columns to show in main row
     $wrappedCols = []; // columns to wrap as separate rows

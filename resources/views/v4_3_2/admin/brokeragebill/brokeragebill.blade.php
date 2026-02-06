@@ -328,7 +328,7 @@
                                 icon: "success",
                                 title: response.message
                             });
-                               $('#pdfDateForm')[0].reset()
+                            $('#pdfDateForm')[0].reset()
                             $('#pdfDateModal').modal('hide');
 
                         } else {
@@ -336,7 +336,7 @@
                                 icon: "error",
                                 title: response.message
                             });
-                                $('#pdfDateForm')[0].reset()
+                            $('#pdfDateForm')[0].reset()
                         }
                         loaderhide();
                     },
@@ -375,29 +375,35 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Invoice No</th>
-                                <th>Brokerage</th>
-                                <th>Grade</th>
-                                <th>Bags</th>
-                                <th>Total Kg</th>
-                                <th>Rate Per kg </th>
+                                <th>Invoice Date</th>
+                                <th>Invoice Amount</th>
+                                <th>Brokerage Date</th>
+                                <th>Brokerage </th>
                                 <th>Total Broker</th>
+                                <th>Bill Stauts </th>
                             </tr>
                         `);
                         let id = 1;
                         response.data.forEach(function(item, index) {
                             // Only show garden name for first row\
+                            let totalbrokrage = ((item.net_kg ?? 0) * (item.rate ?? 0) *
+                                (item.brokerage ?? 0)) / 100;
                             $('#viewmodaltitle').text(item.garden_name + `- Details`);
                             $('#viewmodaltitle').addClass('font-weight-bold');
                             $('#details').append(`
                             <tr>
                                 <td>${id ?? '-'}</td>
-                                <td>${item.invoice_no ?? '-'}</td>
-                                <td>${item.brokerage ?? '0'}(%)</td>
-                                <td>${item.grade ?? '-'}</td>
-                                <td>${item.bags ?? '-'}</td>
-                                <td>${item.net_kg ?? '-'}</td>
-                                <td>${item.rate ?? '-'}</td>
-                                <td>${((item.net_kg ?? 0) * (item.rate ?? 0) * (item.brokerage ?? 1))/100}
+                                <td>${item.inv_no ?? '-'}</td>
+                                <td>${item.inv_date ?? '-'}</td>
+                                <td>${item.amount ?? '-'}</td>
+                                <td>${item.brokerage_date ?? '-'}</td>
+                                <td>${item.brokerage ? item.brokerage+"(%)": "0"}</td>
+                                <td>${item.brokerage ? totalbrokrage : '0'}
+                               <td>
+                                    <span class="${item.brokerbill_no ? 'text-success' : 'text-danger'}">
+                                        ${item.brokerbill_no ? 'Generated' : 'Not Generated'}
+                                    </span>
+                                </td>
                             </tr>
                             
                         `);

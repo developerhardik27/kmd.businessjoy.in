@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('order_id');
             $table->integer('garden_id');
-            $table->string('invoice_no');
+            $table->string('invoice_no')->unique();
             $table->integer('grade')->nullable();
             $table->decimal('bags', 12, 2)->default(0);
             $table->decimal('kg', 12, 2)->default(0);

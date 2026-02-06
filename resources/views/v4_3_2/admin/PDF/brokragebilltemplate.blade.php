@@ -501,13 +501,15 @@
                     <thead>
                         <tr class="bgblue">
                             <th style="width:4%;text-align:center;">ID</th>
-                            <th style="width:4%;text-align:center;">Buyer</th>
-                            <th style="width:4%;text-align:center;">Inv No</th>
-                            <th style="width:4%;text-align:center;">Inv Date</th>
-                            <th style="width:4%;text-align:center;">Pkgs</th>
-                            <th style="width:4%;text-align:center;">Kgs</th>
-                            <th style="width:4%;text-align:center;">Amount</th>
-                            <th style="width:4%;text-align:center;">Comm</th>
+                            <th style="width:12%;text-align:center;">Buyer</th>
+                            <th style="width:10%;text-align:center;">Inv No</th>
+                            <th style="width:10%;text-align:center;">Inv Date</th>
+                            <th style="width:6%;text-align:center;">Pkgs</th>
+                            <th style="width:8%;text-align:center;">Kgs</th>
+                            <th style="width:10%;text-align:center;">Shortage</th>
+                            <th style="width:10%;text-align:center;">Net Weight Kg</th>
+                            <th style="width:10%;text-align:center;">Amount</th>
+                            <th style="width:10%;text-align:center;">Comm</th>
                         </tr>
                     </thead>
                     @php
@@ -541,9 +543,13 @@
                                 <td style="text-align:center;">{{ $key + 1 }}</td>
                                 <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
                                 <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
-                                <td style="text-align:center;">{{ $row->inv_date ?? '-' }}</td>
+                                <td style="text-align:center;">
+                                    {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('Y-m-d') : '-' }}
+                                </td>
                                 <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
                                 <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
+                                <td style="text-align:center;">{{ number_format($row->shortage ?? 0, 2) }}</td>
+                                <td style="text-align:center;">{{ number_format($row->final_net_kg ?? 0, 2) }}</td>
                                 <td style="text-align:center;">
                                     {{ number_format(($row->net_kg ?? 0) * ($row->rate ?? 0), 2) }}</td>
                                 <td style="text-align:center;">
@@ -566,6 +572,8 @@
                                 <td style="text-align:center;"> </td>
                                 <td style="text-align:center;"> </td>
                                 <td style="text-align:center;"> </td>
+                                <td style="text-align:center;"> </td>
+                                <td style="text-align:center;"> </td>
                             </tr>
                             }
                         @endfor
@@ -576,7 +584,8 @@
                                 <td style="text-align:center;">
                                     {{ $totalBags }}
                                 </td>
-                                <td></td>
+                                <td colspan="3"></td>
+
                                 <td style="text-align:center;">
                                     {{ number_format($totalAmount, 2) }}
                                 </td>
@@ -592,7 +601,7 @@
                     width="100%">
                     <tbody>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="10" class="text-right left removeborder">
+                            <td colspan="12" class="text-right left removeborder">
                                 Subtotal
                             </td>
                             <td style="width:15%;" class="right removeborder currencysymbol text-right"
@@ -601,7 +610,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="10" style="text-align: right" class="left removeborder ">
+                            <td colspan="12" style="text-align: right" class="left removeborder ">
                                 IGST(18%)
                             </td>
                             <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
@@ -609,7 +618,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="10" style="text-align: right" class="left removeborder ">
+                            <td colspan="12" style="text-align: right" class="left removeborder ">
                                 SGST(0%)
                             </td>
                             <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
@@ -617,7 +626,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="10" style="text-align: right" class="left removeborder ">
+                            <td colspan="12" style="text-align: right" class="left removeborder ">
                                 CGST(0%)
                             </td>
                             <td style="text-align: right;width: 20%;" class=" currencysymbol" id="cgst">
@@ -625,7 +634,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="10" class="text-right left removeborder">
+                            <td colspan="12" class="text-right left removeborder">
                                 Round of
                             </td>
                             <td style="width: 20%;" class="right currencysymbol text-right">
@@ -634,7 +643,7 @@
                         </tr>
 
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="10" class="text-right left removeborder">
+                            <td colspan="12" class="text-right left removeborder">
                                 <b>Total</b>
                             </td>
                             <td style="width: %;" class="right currencysymbol text-right">
@@ -642,7 +651,7 @@
                             </td>
                         </tr>
                         <tr class="removeborder">
-                            <td colspan="11" class="text-right"
+                            <td colspan="13" class="text-right"
                                 style="width: %;vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
                                 <strong>{{ strtoupper(numberToWords($roundedTotal)) }} ONLY</strong>
                             </td>

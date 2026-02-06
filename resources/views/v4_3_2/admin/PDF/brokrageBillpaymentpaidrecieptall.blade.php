@@ -261,12 +261,12 @@
                     <span style="display: block">
                         TAX INVOICE
                     </span>
-                   
-                        <span>GSTIN No: @isset($companydetails['gst_no'])
-                                {{ $companydetails['gst_no'] }}
-                            @endisset
-                        </span><br>
-                   
+
+                    <span>GSTIN No: @isset($companydetails['gst_no'])
+                            {{ $companydetails['gst_no'] }}
+                        @endisset
+                    </span><br>
+
                     @isset($companydetails['transporter_id'])
                         <span>Transporter ID: {{ $companydetails['transporter_id'] }} </span>
                     @endisset
@@ -360,7 +360,7 @@
                 </td>
             </tr>
         </table>
-    
+
         @if (count($payment) > 1)
             <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="w-100" width="100">
                 <tbody>
@@ -398,13 +398,15 @@
                 <thead>
                     <tr class="bgblue">
                         <th style="width:4%;text-align:center;">ID</th>
-                        <th style="width:4%;text-align:center;">Buyer</th>
-                        <th style="width:4%;text-align:center;">Inv No</th>
-                        <th style="width:4%;text-align:center;">Inv Date</th>
-                        <th style="width:4%;text-align:center;">Pkgs</th>
-                        <th style="width:4%;text-align:center;">Kgs</th>
-                        <th style="width:4%;text-align:center;">Amount</th>
-                        <th style="width:4%;text-align:center;">Comm</th>
+                        <th style="width:12%;text-align:center;">Buyer</th>
+                        <th style="width:10%;text-align:center;">Inv No</th>
+                        <th style="width:10%;text-align:center;">Inv Date</th>
+                        <th style="width:6%;text-align:center;">Pkgs</th>
+                        <th style="width:8%;text-align:center;">Kgs</th>
+                        <th style="width:10%;text-align:center;">Shortage</th>
+                        <th style="width:10%;text-align:center;">Net Weight Kg</th>
+                        <th style="width:10%;text-align:center;">Amount</th>
+                        <th style="width:10%;text-align:center;">Comm</th>
                     </tr>
                 </thead>
                 @php
@@ -430,7 +432,7 @@
                     $tds_amount = $payment[0]['tds_amount'];
                     $paid_amounts = $payment[0]['amount'] - $payment[0]['pending_amount'];
                     $pending_amount = $payment[0]['pending_amount'];
-                    $totalamount  = $invdata['totalamount'];
+                    $totalamount = $invdata['totalamount'];
 
                     $roundedTotal = round($grandTotal);
                     $roundOff = $roundedTotal - $grandTotal;
@@ -443,9 +445,13 @@
                             <td style="text-align:center;">{{ $key + 1 }}</td>
                             <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
-                            <td style="text-align:center;">{{ $row->inv_date ?? '-' }}</td>
+                            <td style="text-align:center;">
+                                {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('Y-m-d') : '-' }}
+                            </td>
                             <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
                             <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
+                            <td style="text-align:center;">{{ number_format($row->shortage ?? 0, 2) }}</td>
+                            <td style="text-align:center;">{{ number_format($row->final_net_kg ?? 0, 2) }}</td>
                             <td style="text-align:center;">
                                 {{ number_format(($row->net_kg ?? 0) * ($row->rate ?? 0), 2) }}</td>
                             <td style="text-align:center;">
@@ -459,15 +465,14 @@
                     @endforelse
                 </tbody>
             </table>
-            <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class=" data"
-                width="100%">
+            <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class=" data" width="100%">
                 <tbody>
                     <tr style="font-size:15px;text-align: right">
                         <td colspan="10" class="text-right left removeborder">
                             Subtotal
                         </td>
                         <td style="width:15%;" class="right removeborder currencysymbol text-right" id="subtotal">
-                           ₹{{ number_format($totalamount, 2) }}
+                            ₹{{ number_format($totalamount, 2) }}
                         </td>
                     </tr>
                     <tr style="font-size:15px;text-align: right">

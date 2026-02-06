@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('grade');
             $table->integer('bags');
             $table->decimal('net_kg', 12, 2)->default(0);
-            $table->integer('brokerage')->default(0);
+            $table->integer('brokerage')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->integer('is_active')->default(1);

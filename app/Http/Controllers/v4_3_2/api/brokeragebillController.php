@@ -68,11 +68,81 @@ class brokeragebillController extends commonController
             ->where('broker_purchases.garden_id', $request->garden_id)
             ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
             ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+            ->leftJoin('invoices', 'invoices.id', '=', 'broker_purchases.invoice_id')
+            ->leftJoin('mng_col as mc', function ($join) {
+                $join->on('mc.invoice_id', '=', 'invoices.id')
+                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+            })
             ->select(
                 'broker_purchases.*',
-                'gardens.garden_name as garden_name',
-                'grades.grade as grade'
+                'gardens.garden_name',
+                'grades.grade',
+                'invoices.inv_no',
+                'invoices.inv_date',
+                'mc.Net_Weight_Kgs',
+                'mc.shortage',
+                'mc.amount',
             )
+            ->get();
+
+        return $this->successresponse(200, 'data', $usedInvoices);
+    }
+    public function getOtherDatanull(Request $request)
+    {
+        if ($this->rp['teamodule']['brokeragebill']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        $usedInvoices = $this->brokerpurchaseModel
+            ::where('broker_purchases.is_deleted', 0)
+            ->where('broker_purchases.garden_id', $request->garden_id)
+            ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+            ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+            ->leftJoin('invoices', 'invoices.id', '=', 'broker_purchases.invoice_id')
+            ->leftJoin('mng_col as mc', function ($join) {
+                $join->on('mc.invoice_id', '=', 'invoices.id')
+                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+            })
+            ->select(
+                'broker_purchases.*',
+                'gardens.garden_name',
+                'grades.grade',
+                'invoices.inv_no',
+                'invoices.inv_date',
+                'mc.Net_Weight_Kgs',
+                'mc.shortage',
+                'mc.amount',
+            )
+            ->where('broker_purchases.brokerage', '=', null)
+            ->get();
+
+        return $this->successresponse(200, 'data', $usedInvoices);
+    }
+    public function getOtherDatanotnull(Request $request)
+    {
+        if ($this->rp['teamodule']['brokeragebill']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        $usedInvoices = $this->brokerpurchaseModel
+            ::where('broker_purchases.is_deleted', 0)
+            ->where('broker_purchases.garden_id', $request->garden_id)
+            ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+            ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+            ->leftJoin('invoices', 'invoices.id', '=', 'broker_purchases.invoice_id')
+            ->leftJoin('mng_col as mc', function ($join) {
+                $join->on('mc.invoice_id', '=', 'invoices.id')
+                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+            })
+            ->select(
+                'broker_purchases.*',
+                'gardens.garden_name',
+                'grades.grade',
+                'invoices.inv_no',
+                'invoices.inv_date',
+                'mc.Net_Weight_Kgs',
+                'mc.shortage',
+                'mc.amount',
+            )
+            ->where('broker_purchases.brokerage', '!=', null)
             ->get();
 
         return $this->successresponse(200, 'data', $usedInvoices);
@@ -151,21 +221,31 @@ class brokeragebillController extends commonController
         if ($this->rp['teamodule']['brokeragebill']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        // dd($request->all());
+        $updated = false;
+
         foreach ($request->rows as $row) {
-            $create = $this->brokerpurchaseModel
+
+            if ($row['brokerage'] === null) {
+                continue;
+            }
+
+            $result = $this->brokerpurchaseModel
                 ::where('id', $row['id'])
                 ->update([
+                    'brokerage'      => $row['brokerage'],
                     'brokerage_date' => $row['brokerage_date'],
-                    'brokerage'  => $row['brokerage'],
-                    'updated_by' => $request->user_id,
+                    'updated_by'     => $request->user_id,
                 ]);
+
+            if ($result) {
+                $updated = true;
+            }
         }
-        if ($create) {
-            return $this->successresponse(200, 'message', 'Broker Bill succesfully ');
-        } else {
-            return $this->successresponse(500, 'message', 'Broker Bill not succesfully  !');
+
+        if ($updated) {
+            return $this->successresponse(200, 'message', 'Broker Bill successfully');
         }
+        return $this->successresponse(500, 'message', 'No brokerage data to update');
     }
     public function edit($id)
     {
@@ -303,6 +383,16 @@ class brokeragebillController extends commonController
             ->update([
                 'invoice_no'   => "KMD/{$data->id}/{$financialYear}",
             ]);
+
+
+        foreach ($linedata as $invoice) {
+            $brokrage = $invoice->id;  // use ->id for model instance
+
+            $update =  $this->brokerpurchaseModel::where('id', $brokrage)->update([
+                'brokerbill_no' => $data->id,
+            ]);
+        }
+
         if ($create) {
             return $this->successresponse(200, 'message', 'Broker Bill Pdf  succesfully Created');
         } else {

@@ -553,6 +553,8 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/brokeragebill', 'index')->name('brokeragebill.index');
         Route::get('/brokeragebillpdf', 'brokeragebillpdflist')->name('brokeragebill.brokeragebillpdflist');
         Route::get('/brokeragebill/getGardens', 'getGardens')->name('brokeragebill.getGardens');
+        Route::get('/brokeragebill/get-OtherDatanull', 'getOtherDatanull')->name('brokeragebill.getOtherDatanull');
+        Route::get('/brokeragebill/get-OtherDatanotnull', 'getOtherDatanotnull')->name('brokeragebill.getOtherDatanotnull');
         Route::get('/brokeragebill/get-OtherData', 'getOtherData')->name('brokeragebill.getOtherData');
         Route::post('/brokeragebill/insert', 'store')->name('brokeragebill.store');
         Route::get('/brokeragebill/edit/{id}', 'edit')->name('brokeragebill.edit');

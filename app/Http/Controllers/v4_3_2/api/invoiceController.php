@@ -16,7 +16,7 @@ class invoiceController extends commonController
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
         $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $brokerpurchaseModel;
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel;
 
     public function __construct(Request $request)
     {
@@ -46,6 +46,7 @@ class invoiceController extends commonController
         $this->partyModel = $this->getmodel('party');
         $this->companymastersModel = $this->getmodel('companymaster');
         $this->brokerpurchaseModel = $this->getmodel('broker_purchase');
+        $this->mngcolModel = $this->getmodel('mng_col');
     }
 
 
@@ -576,13 +577,14 @@ class invoiceController extends commonController
                     }
 
                     $invoice = $this->invoiceModel::insertGetId($invoicerec);
-                    
+
                     $ids = explode(',', $ids);
 
                     $updateinvoiceid = $this->brokerpurchaseModel::whereIn('id', $ids)
                         ->update([
                             "invoice_id" => $invoice,
                         ]);
+
                     if ($invoice) {
                         $inv_id = $invoice;
 
@@ -628,6 +630,16 @@ class invoiceController extends commonController
                             }
                             // Insert the record into the database
                             $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata); // insert product record line by line
+                            $getdata = $this->mngcolModel::where('invoice_id',$invoice )->get();
+                            foreach ($getdata as $item) {
+                                $dataupdate = $this->brokerpurchaseModel::where('invoice_no', $item->Invoice_no)
+                                    ->update([
+                                        'shortage' => $item->shortage,
+                                        'net_kg' => $item->Net_Weight_Kgs,
+                                        'final_net_kg' => $item->shortage + $item->Net_Weight_Kgs,
+                                    ]);
+                            }
+                           
                         }
 
                         if ($mng_col) {

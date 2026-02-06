@@ -96,7 +96,7 @@
                 </div>
                 <div class="col-sm-4 mb-3" id="inv_date_div">
                     <label for="invoice_date">Invoice Date</label><span style="color:red;">*</span>
-                    <input type="datetime-local" class="form-control" id="invoice_date" name="invoice_date">
+                    <input type="date" class="form-control" id="invoice_date" name="invoice_date">
                     <span class="error-msg" id="error-invoice_date" style="color: red"></span>
                 </div>
                 
@@ -383,6 +383,7 @@
         const API_TOKEN = "{{ session()->get('api_token') }}";
         const COMPANY_ID = "{{ session()->get('company_id') }}";
         const USER_ID = "{{ session()->get('user_id') }}";
+        let invoice_data = @json(session('invoice_data'));
         let allColumnData = [];
         let allColumnNames = []; // all column name 
         let hiddencolumn = 0; // hidden columns 
@@ -467,8 +468,6 @@
                 });
         }
         function setdata() {
-            let invoice_data = @json(session('invoice_data'));
-            
             if (invoice_data) {
                 $("#action").addClass('d-none');
                 $(".newdivautomaticcolspan").addClass('d-none');
@@ -486,19 +485,26 @@
                             <tr class="iteam_row_${dynamicidcount}" data-inventory="${value.id || null}">
                                 ${allColumnData.map(columnData => {
                                 var columnName = columnData.column_name.replace(/\s+/g, '_');
-                           
+                             
                                 if (columnData.is_hide === 1) hiddencolumn++; // Increment hiddencolumn conditionally
                                 if (columnData.column_type === 'time') {
                                     return `
                                     <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
                                         <input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}" disabled>
                                     </td>`;
-                                } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
+                                } else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') && columnName != 'Sorting') {
                                     return `
                                     <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
                                         <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 disabled>
                                     </td>`;
-                                } else if (columnData.column_type === 'longtext') {
+                                }else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') &&  columnName == 'Sorting') {
+                                    return `
+                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
+                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 >
+                                    </td>`;
+                                }
+                                
+                                 else if (columnData.column_type === 'longtext') {
                                     return `
                                     <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
                                         <textarea name="${columnName}_${dynamicidcount}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" rows="1">${value[columnName] || `${columnData.default_value || ''}`}</textarea>
@@ -804,9 +810,11 @@
              
                 outputvalue = performCalculation(formula.operation, value1, value2)
                 iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
-                // formula.output_column = formula.output_column.replace(/\s+/g, '_');
+                if(formula.output_column == "Net Weight Kgs"){
+                    formula.output_column = formula.output_column.replace(/\s+/g, '_');
+                }
                 results[formula.output_column] = outputvalue.toFixed(2);
-              
+                console.log(formula.output_column,results[formula.output_column]);
                 $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
 
             });
@@ -1353,6 +1361,7 @@
                     </tr>`
                 );
                 managetooltip();
+                dynamiccalculaton('#Amount_' + addname);
             };
 
 

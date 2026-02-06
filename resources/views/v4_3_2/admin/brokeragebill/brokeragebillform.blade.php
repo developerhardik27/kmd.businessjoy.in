@@ -6,7 +6,7 @@
     {{ config('app.name') }} - Add New Broker Bill
 @endsection
 @section('title')
-     Broker Bill
+    Broker Bill
 @endsection
 
 
@@ -33,15 +33,20 @@
                     <table id="broker_purchases_table" class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Grade</th>
-                                <td>Brokerage Date</td>
+                                <th>Invoive No</th>
+                                <th>Invoive Date</th>
+                                <th>Invoive Amount</th>
+                                <th>Brokerage Date</th>
                                 <th>Brokerage</th>
-                                <th>Bags</th>
-                                <th>Net Kg</th>
+                                <th>Brokerage Amount</th>
                             </tr>
                         </thead>
                         <tbody>
-
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    No records found
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -116,9 +121,115 @@
             }
             $('#garden_id').on('change', function() {
                 let garden_id = $(this).val();
-                getOtherData(garden_id);
+                if (edit_id) {
+                    getOtherDatanotnull(garden_id);
+                } else {
+                    getOtherData(garden_id);
+                }
+
+
             });
 
+            function formatDateForInput(dateStr) {
+                if (!dateStr) return '';
+                return dateStr.split(' ')[0]; // YYYY-MM-DD
+            }
+            //this for edit time load data
+            function getOtherDatanotnull(garden_id) {
+                loadershow();
+                let token = "{{ session('api_token') }}";
+                let company_id = "{{ session('company_id') }}";
+                let user_id = "{{ session('user_id') }}";
+
+                $('#broker_purchases_table tbody').empty(); // Clear previous rows
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('brokeragebill.getOtherDatanotnull') }}",
+                    data: {
+                        garden_id: garden_id,
+                        company_id: company_id,
+                        user_id: user_id,
+                        token: token
+                    },
+                    success: function(response) {
+                        console.log(response.data);
+                        $('#broker_purchases_table tbody').empty();
+                        if (!response.data || response.data.length === 0) {
+                            $('#broker_purchases_table tbody').append(`
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        No records found
+                                    </td>
+                                </tr>
+                            `);
+                            loaderhide();
+                            return;
+                        }
+                        response.data.forEach(function(item, index) {
+                            let row = `
+                                <tr>
+                                    <input type="hidden" name="rows[${index}][id]" value="${item.id}">
+
+                                    <td>
+                                        <input type="text"
+                                            name="rows[${index}][inv_no]"
+                                            value="${item.inv_no ?? ''}"
+                                            class="form-control" ${item.inv_no ?? 'disabled'}>
+                                    </td>
+
+                                    <td>
+                                        <input type="date"
+                                            name="rows[${index}][inv_date]"
+                                            value="${formatDateForInput(item.inv_date)}"
+                                            class="form-control">
+                                    </td>
+
+                                    <td>
+                                        <input type="text"
+                                            name="rows[${index}][amount]"
+                                            value="${item.amount ?? ''}"
+                                            class="form-control amount" ${item.amount ?? 'disabled'}>
+                                    </td>
+
+                                   <td>
+                                        <input type="date"
+                                            name="rows[${index}][brokerage_date]"
+                                            value="${item.brokerage_date ? item.brokerage_date : new Date().toISOString().split('T')[0]}"
+                                            class="form-control">
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                            name="rows[${index}][brokerage]"
+                                            value="${item.brokerage ?? ''}"
+                                            class="form-control brokerage">
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                            name="rows[${index}][brokerage_amount]"
+                                            value="${item.borkerage_amount ?? ''}"
+                                            class="form-control brokerage_amount" step="0.01">
+                                    </td>
+                                </tr>
+                            `;
+                            let $row = $(row);
+                            $('#broker_purchases_table tbody').append($row);
+
+                            calculateBrokerageAmount($row);
+                        });
+
+
+                        loaderhide();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        loaderhide();
+                    }
+                });
+            }
+            // this for add time load data
             function getOtherData(garden_id) {
                 loadershow();
                 let token = "{{ session('api_token') }}";
@@ -129,7 +240,7 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: "{{ route('brokeragebill.getOtherData') }}",
+                    url: "{{ route('brokeragebill.getOtherDatanull') }}",
                     data: {
                         garden_id: garden_id,
                         company_id: company_id,
@@ -138,38 +249,72 @@
                     },
                     success: function(response) {
                         console.log(response.data);
-
                         $('#broker_purchases_table tbody').empty();
-
+                        if (!response.data || response.data.length === 0) {
+                            $('#broker_purchases_table tbody').append(`
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        No records found
+                                    </td>
+                                </tr>
+                            `);
+                            loaderhide();
+                            return;
+                        }
                         response.data.forEach(function(item, index) {
                             let row = `
                                 <tr>
                                     <input type="hidden" name="rows[${index}][id]" value="${item.id}">
-                                    
+
                                     <td>
-                                        <input type="text" name="rows[${index}][grade]" 
-                                            value="${item.grade}" class="form-control">
-                                    </td>
-                                    <td>
-                                        <input type="date" name="rows[${index}][brokerage_date]" value="${item.brokerage_date}" class="form-control">
-                                    <td>
-                                        <input type="text" name="rows[${index}][brokerage]" 
-                                            value="${item.brokerage}" class="form-control">
+                                        <input type="text"
+                                            name="rows[${index}][inv_no]"
+                                            value="${item.inv_no ?? ''}"
+                                            class="form-control" ${item.inv_no ?? 'disabled'}>
                                     </td>
 
                                     <td>
-                                        <input type="text" name="rows[${index}][bags]" 
-                                            value="${item.bags}" class="form-control">
+                                        <input type="date"
+                                            name="rows[${index}][inv_date]"
+                                            value="${formatDateForInput(item.inv_date)}"
+                                            class="form-control">
                                     </td>
 
                                     <td>
-                                        <input type="text" name="rows[${index}][net_kg]" 
-                                            value="${item.net_kg}" class="form-control">
+                                        <input type="text"
+                                            name="rows[${index}][amount]"
+                                            value="${item.amount ?? ''}"
+                                            class="form-control amount" ${item.amount ?? 'disabled'}>
+                                    </td>
+
+                                    <td>
+                                        <input type="date"
+                                            name="rows[${index}][brokerage_date]"
+                                            value="${item.brokerage_date ? item.brokerage_date : new Date().toISOString().split('T')[0]}"
+                                            class="form-control">
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                            name="rows[${index}][brokerage]"
+                                            value="${item.brokerage ?? ''}"
+                                            class="form-control brokerage">
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                            name="rows[${index}][brokerage_amount]"
+                                            value="${item.borkerage_amount ?? ''}"
+                                            class="form-control brokerage_amount">
                                     </td>
                                 </tr>
                             `;
-                            $('#broker_purchases_table tbody').append(row);
+                            let $row = $(row);
+                            $('#broker_purchases_table tbody').append($row);
+
+                            calculateBrokerageAmount($row);
                         });
+
 
                         loaderhide();
                     },
@@ -179,6 +324,20 @@
                     }
                 });
             }
+
+            function calculateBrokerageAmount(row) {
+                let amount = parseFloat(row.find('.amount').val()) || 0;
+                let brokerage = parseFloat(row.find('.brokerage').val()) || 0;
+
+                let brokerageAmount = amount * brokerage / 100;
+                brokerageAmount = Math.round(brokerageAmount);
+                row.find('.brokerage_amount').val(brokerageAmount.toFixed(2));
+            }
+            $(document).on('input', '.amount, .brokerage', function() {
+                let row = $(this).closest('tr');
+                calculateBrokerageAmount(row);
+            });
+
 
             // Remove row dynamically
             $(document).on('click', '.remove-row', function() {

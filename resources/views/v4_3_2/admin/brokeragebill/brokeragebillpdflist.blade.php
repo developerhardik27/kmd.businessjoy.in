@@ -59,6 +59,8 @@
                 <th>Invoice No </th>
                 <th>Invoice Date </th>
                 <th>Total Amount</th>
+                <th>Created Date (From)</th>
+                <th>Created Date (To)</th>
                 <th>Status</th>
                 <th>Invoice</th>
                 <th>Payment</th>
@@ -243,6 +245,20 @@
                             searchable: true,
                             defaultContent: '-',
                             name: 'totalamount'
+                        },
+                        {
+                            data: 'from_date',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'from_date'
+                        },
+                        {
+                            data: 'to_date',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'to_date'
                         },
                         {
                             data: 'status',
