@@ -601,8 +601,8 @@ class invoiceController extends commonController
                             ]);
 
                         foreach ($itemdata as $row) {
-                            $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->value('id');
-                            $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->value('id');
+                            $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->where('is_deleted',0)->value('id');
+                            $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->where('is_deleted',0)->value('id');
                             $user_id = $data['user_id'];
 
                             // Check if broker purchase already exists for this invoice_no

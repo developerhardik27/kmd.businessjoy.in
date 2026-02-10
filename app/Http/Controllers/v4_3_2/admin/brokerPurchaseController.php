@@ -36,7 +36,7 @@ class brokerPurchaseController extends Controller
             'company_id' => session('company_id'),
             'user_id' => session('user_id')
         ]);
-        $ordercontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\ordercontroller";
+        $ordercontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\orderController";
         $jsonorderdetails = app($ordercontroller)->index($request);
         $orderdetailscontent = $jsonorderdetails->getContent();
         $orderdetails = json_decode($orderdetailscontent);

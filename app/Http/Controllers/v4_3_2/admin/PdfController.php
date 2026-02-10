@@ -1018,7 +1018,7 @@ class PdfController extends commonController
 
       $name = 'Order-Report.pdf';
       // return view($this->version . '.admin.PDF.orderreport', ["order" => $order]);
-      return $pdf->download('order_report_' . date('Y-m-d_H-i-s') . '.pdf');
+      // return $pdf->download('order_report_' . date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream($name);
    }
 
@@ -1105,11 +1105,9 @@ class PdfController extends commonController
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
-         'margin_top' => 0,
-         'margin_right' => 0,
-         'margin_bottom' => 0,
-         'margin_left' => 0,
+         'isRemoteEnabled' => true,
       ];
+      
       $gardenNames = $list->pluck('garden_name')->unique()->values();
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.outstanding', ["list" => $list, 'gardenNames' => $gardenNames])->setPaper('a4', 'portrait');
@@ -1121,7 +1119,7 @@ class PdfController extends commonController
       }
 
       //return view($this->version . '.admin.PDF.outstanding', ["list" => $list]);
-      return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream($name);
+      // return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream($name.'-Garden_Outstanding_'. date('Y-m-d_H-i-s') . '.pdf');
    }
 }

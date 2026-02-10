@@ -384,10 +384,10 @@
         const API_TOKEN = "{{ session()->get('api_token') }}";
         const COMPANY_ID = "{{ session()->get('company_id') }}";
         const USER_ID = "{{ session()->get('user_id') }}";
-        // let invoice_data = @json(session('invoice_data'));
-        // console.log("this sample invoce data" ,invoice_data);
-        // let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
-        // console.log("this loat not data" ,lot_no_invoice_data);
+        let invoice_data = @json(session('invoice_data'));
+        console.log("this sample invoce data" ,invoice_data);
+        let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
+        console.log("this loat not data" ,lot_no_invoice_data);
         let allColumnData = [];
         let allColumnNames = []; // all column name 
         let hiddencolumn = 0; // hidden columns 
@@ -944,20 +944,31 @@
 
         }
         $('document').ready(function() {
-            let invoice_data = @json(session('invoice_data'));
-            let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
+            // let invoice_data = @json(session('invoice_data'));
+            // let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
         // If either data is missing or empty, redirect with alert
-            if (!invoice_data || invoice_data.length === 0 || !lot_no_invoice_data || lot_no_invoice_data.length === 0) {
+            // if (!invoice_data || invoice_data.length === 0 || !lot_no_invoice_data || lot_no_invoice_data.length === 0) {
+            //     Swal.fire({
+            //         icon: 'warning',
+            //         title: 'No Data Found!',
+            //         text: 'Invoice data or Lot No data is missing.',
+            //         confirmButtonText: 'OK'
+            //     }).then(() => {
+            //         // Redirect after alert
+            //         window.location.href = "{{ url('admin/invoice') }}";
+            //     });
+            // }
+           if (performance.getEntriesByType("navigation")[0].type === "reload") {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'No Data Found!',
-                    text: 'Invoice data or Lot No data is missing.',
+                    title: 'Page Reloaded!',
+                    text: 'You will be redirected to the invoice page.',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    // Redirect after alert
                     window.location.href = "{{ url('admin/invoice') }}";
                 });
             }
+
             getformula();
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved

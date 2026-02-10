@@ -1,14 +1,47 @@
+<?php
+function formatINR($amount)
+{
+    if (!$amount) {
+        return '-';
+    }
+    $explrestunits = '';
+    $amount = round($amount);
+    $num = strlen($amount);
+    if ($num > 3) {
+        $lastthree = substr($amount, -3);
+        $restunits = substr($amount, 0, -3);
+        $restunits = strlen($restunits) % 2 == 1 ? '0' . $restunits : $restunits;
+        $expunit = str_split($restunits, 2);
+        foreach ($expunit as $key => $value) {
+            if ($key == 0) {
+                $explrestunits .= (int) $value . ',';
+            } else {
+                $explrestunits .= $value . ',';
+            }
+        }
+        $formatted = $explrestunits . $lastthree;
+    } else {
+        $formatted = $amount;
+    }
+    return  $formatted;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>{{ config('app.name') }} - Payment Receipt</title>
+    <title>{{ config('app.name') }} - SAUDA REGISTER</title>
     <style>
         /* Modern reset and base styles */
         @page {
-            margin: 30px;
+            margin-top: 30px;
+            margin-right: 30px;
+            margin-bottom: 45px;
+            /* space for footer */
+            margin-left: 30px;
         }
+
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -58,26 +91,26 @@
             border: 1px solid #e0e0e0;
             padding: 15px;
             border-radius: 4px;
+            page-break-inside: avoid;
         }
 
         .invoice-header {
+            display: table;
+            width: 100%;
             background: #f4f7f9;
-            padding: 10px;
-            border-bottom: 1px solid #d1d1d1;
-            overflow: hidden;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            page-break-inside: avoid;
         }
 
-        .invoice-no {
-            font-size: 14px;
-            font-weight: bold;
-            color: #000000;
-            float: left;
+        .invoice-no,
+        .grand-total {
+            display: table-cell;
         }
 
         .grand-total {
-            float: right;
-            font-size: 14px;
-            font-weight: bold;
+            text-align: right;
         }
 
         .invoice-meta {
@@ -126,14 +159,15 @@
         }
 
         /* Footer */
-        #footer {
+        footer {
             position: fixed;
-            bottom: -10px;
-            width: 100%;
-            border-top: 1px solid #eee;
-            padding-top: 5px;
-            color: #999;
+            bottom: -30px;
+            left: 0;
+            right: 0;
+            height: 30px;
             font-size: 9px;
+            color: #999;
+            border-top: 1px solid #eee;
         }
 
         .clearfix::after {
@@ -164,55 +198,63 @@
     <div class="report-title"> SAUDA REGISTER</div>
 
     @foreach ($order as $orders)
-    <div class="invoice-box">
-        <div class="invoice-header clearfix">
-            <span class="invoice-no">Buyer Name #{{ $orders['buyer_name'] ?? '-' }}</span>
-            <span class="grand-total">Final Amount {{ $orders['final_amount'] ?? '-' }}</span>
-        </div>
+        <div class="invoice-box">
+            <div class="invoice-header clearfix">
+                <span class="invoice-no">Buyer Name #{{ $orders['buyer_name'] ?? '-' }}</span>
+                <span class="grand-total">Final Amount #{{ formatINR($orders['final_amount'] ?? 0) }}</span>
+            </div>
 
-        <div class="invoice-meta">
-            <strong>Credit Days:</strong> {{ $orders['credit_days'] ?? '-' }} &nbsp;|&nbsp;
-            <strong>Discount:</strong> {{ $orders['discount'] ?? '-' }} &nbsp;|&nbsp;
-            <strong>Transport Name:</strong> <span style="text-transform: uppercase">{{ $orders['transport_name'] ?? '-'
-                }}</span> &nbsp;|&nbsp;
-            <strong>Total Net KG:</strong> {{ $orders['totalNetKg'] ?? '-' }} to {{ $invoice['to_date'] ?? '-' }}
-        </div>
+            <div class="invoice-meta">
+                <strong>Credit Days:</strong> {{ $orders['credit_days'] ?? '-' }} &nbsp;|&nbsp;
+                <strong>Discount:</strong> {{ $orders['discount'] ?? '-' }} &nbsp;|&nbsp;
+                <strong>Transport Name:</strong> <span
+                    style="text-transform: uppercase">{{ $orders['transport_name'] ?? '-' }}</span> &nbsp;|&nbsp;
+                <strong>Total Net KG:</strong> {{ $orders['totalNetKg'] ?? '-' }}
+            </div>
 
-        <table class="payment-table">
-            <thead>
-                <tr>
-                    <th>Garden Name</th>
-                    <th>Grade Name</th>
-                    <th>Invoice No</th>
-                    <th>Bags</th>
-                    <th>KG</th>
-                    <th>Net KG</th>
-                    <th>Rate</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($orders['details'] as $detail)
-                <tr>
-                    <td>{{ $detail['garden_name'] ?? '-' }}</td>
-                    <td>{{ $detail['grade_name'] ?? '-' }}</td>
-                    <td>{{ $detail['invoice_no'] ?? '-' }}</td>
-                    <td>{{ $detail['bags'] ?? '-' }}</td>
-                    <td>{{ $detail['kg'] ?? '-' }}</td>
-                    <td>{{ $detail['net_kg'] ?? '-' }}</td>
-                    <td>{{ $detail['rate'] ?? '-' }}</td>
-                    <td>{{ $detail['amount'] ?? '-' }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+            <table class="payment-table">
+                <thead>
+                    <tr>
+                        <th>Garden Name</th>
+                        <th>Grade Name</th>
+                        <th>Invoice No</th>
+                        <th>Bags</th>
+                        <th>KG</th>
+                        <th>Net KG</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($orders['details'] as $detail)
+                        <tr>
+                            <td>{{ $detail['garden_name'] ?? '-' }}</td>
+                            <td>{{ $detail['grade_name'] ?? '-' }}</td>
+                            <td>{{ $detail['invoice_no'] ?? '-' }}</td>
+                            <td>{{ $detail['bags'] ?? '-' }}</td>
+                            <td>{{ $detail['kg'] ?? '-' }}</td>
+                            <td>{{ $detail['net_kg'] ?? '-' }}</td>
+                            <td>{{ $detail['rate'] ?? '-' }}</td>
+                            <td>{{ formatINR($detail['amount']?? 0)}}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     @endforeach
 
-    <div id="footer">
-        <div style="float: left;">This is a computer-generated document. No signature is required.</div>
-        <div style="float: right;">Printed on: {{ date('d-M-Y, h:i A') }}</div>
-    </div>
+    <footer>
+        <table width="100%">
+            <tr>
+                <td align="left">
+                    This is a computer-generated document. No signature is required.
+                </td>
+                <td align="right">
+                    Printed on: {{ date('d-M-Y, h:i A') }}
+                </td>
+            </tr>
+        </table>
+    </footer>
 
 </body>
 

@@ -298,8 +298,8 @@ class companymasterController extends commonController
         if ($this->rp['teamodule']['garden']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $garden = $this->gardenModel::leftJoin('company_garden','company_garden.garden_id','=','gardens.id')
-            ->leftJoin('companymasters','companymasters.id','=','company_garden.company_id')
+        $garden = $this->gardenModel::leftJoin('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->where('gardens.is_deleted', 0)
             ->select(
                 'gardens.*',
@@ -349,6 +349,10 @@ class companymasterController extends commonController
         ]);
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
+        }
+        $exists = $this->gardenModel::where('garden_name', $request->garden_name)->exists();
+        if ($exists) {
+            return $this->errorresponse(422, ['garden_name' => ['This garden name has already been taken.']]);
         }
         $create = $this->gardenModel::create([
             'garden_name' => $request->garden_name,
@@ -425,6 +429,10 @@ class companymasterController extends commonController
         ]);
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
+        }
+        $exists = $this->gardenModel::where('garden_name', $request->garden_name)->exists();
+        if ($exists) {
+            return $this->errorresponse(422, ['garden_name' => ['This garden name has already been taken.']]);
         }
         $update = $this->gardenModel::where('id', $id)->update([
             'garden_name' => $request->garden_name,
