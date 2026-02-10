@@ -28,8 +28,11 @@ class HrController extends commonController
         $this->rp = json_decode($user_rp, true);
 
         $this->masterdbname = DB::connection()->getDatabaseName();
+        
         $this->employeeModel = $this->getmodel('employee');
+
         $this->companiesholidayModel = $this->getmodel('companiesholiday');
+
         $this->letterModel = $this->getmodel('letter');
     }
     public function index()
