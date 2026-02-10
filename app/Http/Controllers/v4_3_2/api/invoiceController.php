@@ -16,7 +16,7 @@ class invoiceController extends commonController
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
         $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel;
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel, $order_detailModel, $gradesModel, $gardenModel;
 
     public function __construct(Request $request)
     {
@@ -47,6 +47,9 @@ class invoiceController extends commonController
         $this->companymastersModel = $this->getmodel('companymaster');
         $this->brokerpurchaseModel = $this->getmodel('broker_purchase');
         $this->mngcolModel = $this->getmodel('mng_col');
+        $this->order_detailModel = $this->getmodel('order_detail');
+        $this->gardenModel = $this->getmodel('garden');
+        $this->gradesModel = $this->getmodel('grade');
     }
 
 
@@ -343,7 +346,7 @@ class invoiceController extends commonController
      */
     public function store(Request $request)
     {
-
+        // dd($request->all());
         return $this->executeTransaction(function () use ($request) {
 
             $data = $request->data; // invoice details
@@ -577,14 +580,85 @@ class invoiceController extends commonController
                     }
 
                     $invoice = $this->invoiceModel::insertGetId($invoicerec);
+                    if (!empty($ids)) {
+                        $ids = explode(',', $ids);
 
-                    $ids = explode(',', $ids);
+                        $updateinvoiceid = $this->brokerpurchaseModel::whereIn('id', $ids)
+                            ->update([
+                                "invoice_id" => $invoice,
+                            ]);
+                    }
+                    $invoice_lot_no = $data['invoice_data'];
+                    $id = [];
 
-                    $updateinvoiceid = $this->brokerpurchaseModel::whereIn('id', $ids)
-                        ->update([
-                            "invoice_id" => $invoice,
-                        ]);
+                    if (!empty($invoice_lot_no)) {
+                        $invoice_lot_no = explode(',', $invoice_lot_no);
 
+                        // Update order_details first
+                        $updateinvoiceid = $this->order_detailModel::whereIn('invoice_no', $invoice_lot_no)
+                            ->update([
+                                "invoice_id" => $invoice,
+                            ]);
+
+                        foreach ($itemdata as $row) {
+                            $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->value('id');
+                            $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->value('id');
+                            $user_id = $data['user_id'];
+
+                            // Check if broker purchase already exists for this invoice_no
+                            $existing = $this->brokerpurchaseModel::where('invoice_no', $row['Invoice_no'])->first();
+
+                            if ($existing) {
+                                // Update existing
+                                $existing->update([
+                                    'garden_id'    => $garden_id,
+                                    'grade'        => $grade_id,
+                                    'bags'         => $row['No_Of_Pkags'],
+                                    'net_kg'       => $row['Net_Weight_Kgs'],
+                                    'shortage'     => $row['shortage'],
+                                    'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
+                                    'rate'         => $row['Rate_per_kg'],
+                                    'invoice_id'   => $invoice,
+                                    'created_by'   => $user_id,
+                                ]);
+
+                                $id[] = $existing->id;
+                            } else {
+                                // Create new
+                                $new = $this->brokerpurchaseModel::create([
+                                    'garden_id'    => $garden_id,
+                                    'invoice_no'   => $row['Invoice_no'],
+                                    'grade'        => $grade_id,
+                                    'bags'         => $row['No_Of_Pkags'],
+                                    'net_kg'       => $row['Net_Weight_Kgs'],
+                                    'shortage'     => $row['shortage'],
+                                    'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
+                                    'rate'         => $row['Rate_per_kg'],
+                                    'invoice_id'   => $invoice,
+                                    'source'       => 'invoice',
+                                    'brokerage'    => null,
+                                    'created_by'   => $user_id,
+                                ]);
+
+                                $id[] = $new->id;
+                            }
+                        }
+
+                        // Make sure $id is always array
+                        $id = is_array($id) ? $id : [$id];
+
+                        // Update sample_ids in invoice
+                        if (!empty($id)) {
+                            $sampleIds = implode(',', $id);
+
+                            $updateinvoice = $this->invoiceModel::where('id', $invoice)
+                                ->update([
+                                    'sample_ids' => $sampleIds, // can use json_encode if needed
+                                ]);
+                        }
+                    }
+
+                    // dd($updateinvoiceid);
                     if ($invoice) {
                         $inv_id = $invoice;
 
@@ -630,16 +704,17 @@ class invoiceController extends commonController
                             }
                             // Insert the record into the database
                             $mng_col = DB::connection('dynamic_connection')->table('mng_col')->insert($dynamicdata); // insert product record line by line
-                            $getdata = $this->mngcolModel::where('invoice_id',$invoice )->get();
-                            foreach ($getdata as $item) {
-                                $dataupdate = $this->brokerpurchaseModel::where('invoice_no', $item->Invoice_no)
-                                    ->update([
-                                        'shortage' => $item->shortage,
-                                        'net_kg' => $item->Net_Weight_Kgs,
-                                        'final_net_kg' => $item->shortage + $item->Net_Weight_Kgs,
-                                    ]);
+                            if (!empty($ids)) {
+                                $getdata = $this->mngcolModel::where('invoice_id', $invoice)->get();
+                                foreach ($getdata as $item) {
+                                    $dataupdate = $this->brokerpurchaseModel::where('invoice_no', $item->Invoice_no)
+                                        ->update([
+                                            'shortage' => $item->shortage,
+                                            'net_kg' => $item->Net_Weight_Kgs,
+                                            'final_net_kg' => $item->shortage + $item->Net_Weight_Kgs,
+                                        ]);
+                                }
                             }
-                           
                         }
 
                         if ($mng_col) {
@@ -1057,6 +1132,13 @@ class invoiceController extends commonController
             $invoices = $this->invoiceModel::where('id', $id)
                 ->update(['is_deleted' => 1]);
             $brokerpurchase = $this->brokerpurchaseModel::where('invoice_id', $id)
+                ->update([
+                    'invoice_id'   => null,
+                    'net_kg'       => DB::raw('final_net_kg'), // copy final_net_kg to net_kg
+                    'final_net_kg' => null,
+                    'shortage'     => null,
+                ]);
+            $order_details = $this->order_detailModel::where('invoice_id', $id)
                 ->update(['invoice_id' => null]);
             if ($invoices) {
                 $quantitycolumn = $this->product_column_mappingModel::where('product_column', 'quantity')->where('is_deleted', 0)->pluck('invoice_column');

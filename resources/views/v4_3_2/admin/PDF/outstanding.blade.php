@@ -160,8 +160,15 @@
             </td>
         </tr>
     </table>
-
-    <div class="report-title">Garden Outstanding Report</div>
+  
+    @php
+        if ($gardenNames->count() === 1) {
+            $name = $gardenNames[0];
+        } else {
+            $name = $gardenNames->implode('-');
+        }
+    @endphp
+    <div class="report-title">{{ $name }} -  Outstanding Report</div>
 
     @foreach ($list as $invoice)
         <div class="invoice-box">
@@ -191,10 +198,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($invoice['details']) > 0)
-                        @foreach ($invoice['details'] as $detail)
+                    @foreach ($invoice['details'] as $detail)
+                        @if ($detail['receipt_number'])
                             <tr>
-                                <td>{{ \Carbon\Carbon::parse($detail['datetime'])->format('d-M-y') }}</td>
+                                <td>
+                                    {{ $detail['datetime'] ? \Carbon\Carbon::parse($detail['datetime'])->format('d-M-Y') : '-' }}
+                                </td>
                                 <td>{{ $detail['receipt_number'] ?? '-' }}</td>
                                 <td><small>{{ $detail['transaction_id'] ?? '-' }}</small></td>
                                 <td>{{ $detail['paid_by'] ?? '-' }}</td>
@@ -202,12 +211,12 @@
                                 <td class=" blue-text">{{ $detail['paid_amount'] ?? '-' }}</td>
                                 <td class="text-right pending-text">{{ $detail['pending_amount'] ?? '-' }}</td>
                             </tr>
-                        @endforeach
-                    @else
-                        <tr>
-                            <td colspan="7" class="text-center">No payments available</td>
-                        </tr>
-                    @endif
+                        @else
+                            <tr>
+                                <td colspan="7" class="text-center">No payments available</td>
+                            </tr>
+                        @endif
+                    @endforeach
                 </tbody>
             </table>
         </div>

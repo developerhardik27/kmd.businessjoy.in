@@ -347,6 +347,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/AddNewbrokerpurchase', 'create')->name('admin.brokerpurchaseform')->middleware('checkPermission:teamodule,brokerpurchase,add');
                 Route::get('/Editbrokerpurchase/{id}', 'edit')->name('admin.brokerpurchaseupdateform')->middleware('checkPermission:teamodule,brokerpurchase,edit');
                 Route::post('/storeInvoiceSession', 'storeInvoiceSession')->name('admin.storeInvoiceSession')->middleware('checkPermission:teamodule,brokerpurchase,show');
+                Route::post('/lot_no_storeInvoiceSession', 'lot_no_storeInvoiceSession')->name('admin.lot_no_storeInvoiceSession')->middleware('checkPermission:teamodule,brokerpurchase,show');
             });
             $brokeragebillController = getadminversion('brokeragebillController');
             Route::controller($brokeragebillController)->group(function () {

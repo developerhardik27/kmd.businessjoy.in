@@ -310,8 +310,6 @@
                 let gardenId = $(this).data('id');
                 $('#garden_id').val(gardenId);
                 $('#pdfDateModal').modal('show');
-
-
             });
             $('#pdfDateForm').on('submit', function(e) {
                 e.preventDefault();

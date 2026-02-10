@@ -192,6 +192,108 @@ class brokerPurchaseController extends commonController
         // Continue your invoice creation here
         return $this->successresponse(200, 'message', 'invoice created data you get properly', 'data', $maindata);
     }
+    public function lot_no_createInvoice(Request $request)
+    {
+        // dd($request->all());
+        if ($this->rp['teamodule']['brokerpurchase']['add'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $data = $request->all();
+        $buyerParties = $request->buyer_parties;
+        $companyIds = $request->company_ids;
+        $invoice_no = $request->invoice_no;
+
+        if (is_string($invoice_no)) {
+            $invoice_no = explode(',', $invoice_no);
+        }
+
+
+        // dd($invoice_no);
+        // $data1 = $this->brokerpurchaseModel
+        //     ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
+        //     ->join('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+
+        //     ->join('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+        //     ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+
+        //     ->join('order_details', function ($join) {
+        //         $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
+        //             ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+        //     })
+        //     ->join('orders', 'orders.id', '=', 'order_details.order_id')
+        //     ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+        //     ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+
+        //     ->select(
+        //         'broker_purchases.*',
+        //         'order_details.bags as No_Of_Pkags',
+        //         'order_details.invoice_no as Invoice_no',
+        //         'order_details.net_kg as Net_Weight_Kgs',
+        //         'order_details.rate as Rate_per_kg',
+        //         'order_details.kg as Net_Oty_Per_Pkg',
+        //         'grades.grade as Grade',
+        //         'gardens.garden_name as Garden',
+        //         'companymasters.company_name',
+        //         'companymasters.id  as companymaster_id',
+        //         'orders.id as order_id',
+        //         'orders.discount',
+        //         'orders.buyer_party as buyer_id',
+        //         'orders.transport as transport_id',
+        //         'buyer.name as buyer_name',
+        //         'transporter.name as transport_name'
+        //     )
+        //     ->whereIn('broker_purchases.id', $invoice_no)
+        //     ->where('broker_purchases.is_deleted', 0)
+        //     ->whereIn('companymasters.id', $companyIds)
+        //     ->whereIn('orders.buyer_party', $buyerParties)
+        //     ->get();
+
+
+        $data1 = $this->order_detailModel
+            ::join('grades', 'grades.id', '=', 'order_details.grade')
+            ->join('gardens', 'gardens.id', '=', 'order_details.garden_id')
+            ->join('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->join('orders', 'orders.id', '=', 'order_details.order_id')
+            ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+            ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->select(
+                'order_details.bags as No_Of_Pkags',
+                'order_details.invoice_no as Invoice_no',
+                'order_details.net_kg as Net_Weight_Kgs',
+                'order_details.rate as Rate_per_kg',
+                'order_details.kg as Net_Oty_Per_Pkg',
+                'grades.grade as Grade',
+                'gardens.garden_name as Garden',
+                'companymasters.company_name',
+                'companymasters.id as companymaster_id',
+                'orders.id as order_id',
+                'orders.discount',
+                'orders.buyer_party as buyer_id',
+                'orders.transport as transport_id',
+                'buyer.name as buyer_name',
+                'transporter.name as transport_name'
+            )
+            ->whereIn('order_details.invoice_no', $invoice_no)
+            ->where('order_details.is_deleted', 0)
+            ->where('companymasters.id', $companyIds)
+            ->where('orders.buyer_party', $buyerParties)
+            ->get();
+
+        $maindata = [
+            'maindata' => [
+                'companymaster_id' => $companyIds,
+                'buyer_id' => $buyerParties,
+                'invoice_no' => $invoice_no,
+            ],
+            "line_items" => $data1,
+        ];
+
+        //   dd($maindata);
+        // Continue your invoice creation here
+        return $this->successresponse(200, 'message', 'invoice created data you get properly', 'data', $maindata);
+    }
 
     public function index(Request $request)
     {
@@ -214,13 +316,7 @@ class brokerPurchaseController extends commonController
             ->join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
             ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
-            ->leftJoin('invoices', function ($join) {
-                $join->on('invoices.customer_id', '=', 'orders.buyer_party')
-                    ->on('invoices.company_details_id', '=', 'companymasters.id')
-                    ->where('invoices.is_deleted', 0);
-            })
-
-
+            ->where('broker_purchases.source','purchase')
             ->where('broker_purchases.is_deleted', 0);
 
         $filters = [
@@ -255,7 +351,7 @@ class brokerPurchaseController extends commonController
 
         $brokerpurchase = $brokerpurchase
             ->select(
-               
+
                 'broker_purchases.*',
                 'grades.grade as grade_name',
                 'gardens.garden_name as garden_name',
@@ -311,6 +407,7 @@ class brokerPurchaseController extends commonController
             'net_kg' => $request->net_kg,
             'rate' => $request->rate,
             'created_by' => $request->user_id,
+            'source'          => 'purchase'
         ]);
         if ($create) {
             return $this->successresponse(200, 'message', 'Broker Purchase succesfully Created');

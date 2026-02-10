@@ -298,8 +298,15 @@ class companymasterController extends commonController
         if ($this->rp['teamodule']['garden']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $garden = $this->gardenModel::join('company_garden', 'company_garden.garden_id', '=', 'gardens.id')->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')->where("gardens.is_deleted", 0)->select('gardens.*','companymasters.company_name')->get();
- 
+        $garden = $this->gardenModel::leftJoin('company_garden','company_garden.garden_id','=','gardens.id')
+            ->leftJoin('companymasters','companymasters.id','=','company_garden.company_id')
+            ->where('gardens.is_deleted', 0)
+            ->select(
+                'gardens.*',
+                'companymasters.company_name'
+            )
+            ->get();
+
         if ($garden->isEmpty()) {
             return DataTables::of($garden)
                 ->with([

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class partyController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $partyModel, $gradeModel;
+    public $userId, $companyId, $masterdbname, $rp, $partyModel, $gradeModel, $order_detailModel, $company_gardenModel, $orderModel;
 
     public function __construct(Request $request)
     {
@@ -31,6 +31,9 @@ class partyController extends commonController
 
         $this->partyModel = $this->getmodel('party');
         $this->gradeModel = $this->getmodel('grade');
+        $this->orderModel = $this->getmodel('order');
+        $this->order_detailModel = $this->getmodel('order_detail');
+        $this->company_gardenModel = $this->getmodel('company_garden');
     }
     public function partyindex()
     {
@@ -149,9 +152,9 @@ class partyController extends commonController
         if ($this->rp['teamodule']['party']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-         $party = $this->partyModel::find($id);
-        
-      
+        $party = $this->partyModel::find($id);
+
+
         if ($this->rp['teamodule']['grade']['alldata'] != 1) {
             if ($party->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -165,7 +168,7 @@ class partyController extends commonController
     public function partydetailspdf($id)
     {
         // $party = $this->partyModel::find($id);
-         $party = $this->partyModel::leftJoin($this->masterdbname . '.country as c', 'partys.country_id', '=', 'c.id')
+        $party = $this->partyModel::leftJoin($this->masterdbname . '.country as c', 'partys.country_id', '=', 'c.id')
             ->leftJoin($this->masterdbname . '.state as s', 'partys.state_id', '=', 's.id')
             ->leftJoin($this->masterdbname . '.city as ci', 'partys.city_id', '=', 'ci.id')
             ->select(
@@ -175,7 +178,7 @@ class partyController extends commonController
                 'ci.city_name'
             )
             ->where('partys.id', $id)
-            ->first(); 
+            ->first();
         if (!$party) {
             return $this->successresponse(500, 'message', 'party not found !');
         }
@@ -385,5 +388,67 @@ class partyController extends commonController
         );
 
         return $this->successresponse(200, 'message', 'Garde succesfully deleted');
+    }
+    public function company_buyer(Request $request)
+    {
+        $garden = $this->company_gardenModel::where('company_id', $request->companymaster_id)
+            ->pluck('garden_id');
+
+        $order_id = $this->order_detailModel::whereIn('garden_id', $garden)->pluck('order_id');
+
+        $get_buyer_id = $this->orderModel::whereIn('id', $order_id)->pluck('buyer_party');
+
+        $party = $this->partyModel::where("is_deleted", 0)
+            ->whereIn('id', $get_buyer_id)
+            ->get();
+        if ($party->isEmpty()) {
+            return DataTables::of($party)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+        return DataTables::of($party)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
+    public function invoice_no(Request $request)
+    {
+        //dd($request->all());
+        $get_purchase = $this->order_detailModel
+            ::leftJoin('broker_purchases', function ($join) {
+                $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+            })
+            ->whereIn('order_details.order_id', function ($query) use ($request) {
+                $query->select('id')
+                    ->from('orders')
+                    ->where('buyer_party', $request->buyer_id);
+            })
+            // Only include if broker_purchase.invoice_id is null OR no broker_purchase exists
+            ->where(function ($query) {
+                $query->whereNull('broker_purchases.invoice_id')
+                    ->orWhereNull('broker_purchases.id');
+            })
+            ->select(
+                'order_details.*',
+                'broker_purchases.invoice_id as broker_invoice_id'
+            )
+            ->get();
+        if ($get_purchase->isEmpty()) {
+            return DataTables::of($get_purchase)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+        return DataTables::of($get_purchase)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
     }
 }

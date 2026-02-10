@@ -30,14 +30,14 @@ class brokerPurchaseController extends Controller
         }
         return view($this->version . '.admin.brokerpurchase.brokerpurchase', ["search" => $search]);
     }
-    public function create()
+    public function create(Request $request)
     {
         request()->merge([
             'company_id' => session('company_id'),
             'user_id' => session('user_id')
         ]);
         $ordercontroller = "App\\Http\\Controllers\\" . $this->version . "\\api\\ordercontroller";
-        $jsonorderdetails = app($ordercontroller)->index();
+        $jsonorderdetails = app($ordercontroller)->index($request);
         $orderdetailscontent = $jsonorderdetails->getContent();
         $orderdetails = json_decode($orderdetailscontent);
 
@@ -54,6 +54,12 @@ class brokerPurchaseController extends Controller
     {
         session()->flash('invoice_data', $request->data);
         //session(['invoice_data' => $request->data]);
+        return response()->json(['status' => 200]);
+    }
+    public function lot_no_storeInvoiceSession(Request $request)
+    {
+        session()->flash('lot_no_invoice_data', $request->data);
+        // session(['lot_no_invoice_data' => $request->data]);
         return response()->json(['status' => 200]);
     }
 }

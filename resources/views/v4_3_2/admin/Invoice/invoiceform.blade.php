@@ -45,6 +45,7 @@
                 <div class="col-sm-4 mb-3">
                     <input type="hidden" name="country_id" id="country" class="form-control" value="" />
                     <input type="hidden" name="sampleIds" id="sampleIds" class="form-control" value="" />
+                    <input type="hidden" name="invoice_data" id="invoice_data" class="form-control" value="" />
                     <input type="hidden" name="user_id" id="created_by" class="form-control" value="{{ $user_id }}" />
                     <input type="hidden" name="company_id" id="company_id" class="form-control"
                         value="{{ $company_id }}" />
@@ -383,7 +384,10 @@
         const API_TOKEN = "{{ session()->get('api_token') }}";
         const COMPANY_ID = "{{ session()->get('company_id') }}";
         const USER_ID = "{{ session()->get('user_id') }}";
-        let invoice_data = @json(session('invoice_data'));
+        // let invoice_data = @json(session('invoice_data'));
+        // console.log("this sample invoce data" ,invoice_data);
+        // let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
+        // console.log("this loat not data" ,lot_no_invoice_data);
         let allColumnData = [];
         let allColumnNames = []; // all column name 
         let hiddencolumn = 0; // hidden columns 
@@ -492,12 +496,12 @@
                                     <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
                                         <input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}" disabled>
                                     </td>`;
-                                } else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') && columnName != 'Sorting') {
+                                } else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') && columnName != 'shortage') {
                                     return `
                                     <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
                                         <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 disabled>
                                     </td>`;
-                                }else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') &&  columnName == 'Sorting') {
+                                }else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') &&  columnName == 'shortage') {
                                     return `
                                     <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
                                         <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 >
@@ -533,9 +537,71 @@
                             $('.currentcurrencysymbol').text(currentcurrencysymbol);
                         });
             } else {
-                customers();
-                transports();
-                companymaster();
+                 $("#action").addClass('d-none');
+                $(".newdivautomaticcolspan").addClass('d-none');
+                let productdetails = lot_no_invoice_data.line_items;
+                console.log(lot_no_invoice_data.maindata.invoice_no);
+                $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
+                customers(lot_no_invoice_data.line_items[0].buyer_id);
+                transports(lot_no_invoice_data.line_items[0].transport_id);
+                console.log('lot_no_invoice_data.maindata.companymaster_id',lot_no_invoice_data.maindata.companymaster_id)
+                companymaster(lot_no_invoice_data.maindata.companymaster_id);
+                 const targetRow = $('#add_new_div');
+                        let dynamicidcount = 1; // Initialize outside the loop
+                        $.each(productdetails, function (key, value) {
+                            // Assuming `targetRow` is defined elsewhere
+                            targetRow.append(`
+                            <tr class="iteam_row_${dynamicidcount}" data-inventory="${value.id || null}">
+                                ${allColumnData.map(columnData => {
+                                var columnName = columnData.column_name.replace(/\s+/g, '_');
+                             
+                                if (columnData.is_hide === 1) hiddencolumn++; // Increment hiddencolumn conditionally
+                                if (columnData.column_type === 'time') {
+                                    return `
+                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
+                                        <input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}" disabled>
+                                    </td>`;
+                                } else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') && columnName != 'shortage') {
+                                    return `
+                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
+                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 disabled>
+                                    </td>`;
+                                }else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') &&  columnName == 'shortage') {
+                                    return `
+                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
+                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 >
+                                    </td>`;
+                                }
+                                
+                                 else if (columnData.column_type === 'longtext') {
+                                    return `
+                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
+                                        <textarea name="${columnName}_${dynamicidcount}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" rows="1">${value[columnName] || `${columnData.default_value || ''}`}</textarea>
+                                    </td>`;
+                                } else {
+                                    return `
+                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
+                                        <input type="text" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}" disabled>
+                                    </td>`;
+                                }
+                            }).join('')}
+                                    <td><input type="number" step="any" value="${value.amount || ''}" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
+                                    <td>
+                                        <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
+                                        <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
+                                    </td>
+                                   
+                                </tr>
+                            `);
+                            managetooltip();
+                            addname = dynamicidcount;
+                            dynamiccalculaton(`#Amount_${addname}`);
+                            dynamicidcount++; // Increment dynamicidcount for the next row
+                            currentcurrency = $('#currency option:selected').data('currency');
+                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
+                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
+                        });
+              
             }
         }
         function transports(transportid = 0) {
@@ -878,6 +944,20 @@
 
         }
         $('document').ready(function() {
+            let invoice_data = @json(session('invoice_data'));
+            let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
+        // If either data is missing or empty, redirect with alert
+            if (!invoice_data || invoice_data.length === 0 || !lot_no_invoice_data || lot_no_invoice_data.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Data Found!',
+                    text: 'Invoice data or Lot No data is missing.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Redirect after alert
+                    window.location.href = "{{ url('admin/invoice') }}";
+                });
+            }
             getformula();
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
@@ -1775,6 +1855,7 @@
                 companymaster_id: $('#companymaster_id').val(),
                 transport_id: $('#transport_id').val(),
                 sampleIds : $('#sampleIds').val(),
+                invoice_data : $('#invoice_data').val(),
                 HSN: $('#HSN').val(),
                 Description: $('#Description').val(),
                 bank_account: $('#acc_details').val(),

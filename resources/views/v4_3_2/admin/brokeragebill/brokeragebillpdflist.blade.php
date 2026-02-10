@@ -89,9 +89,9 @@
     </div>
 @endsection
 @section('table-content')
-    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create PDF" class="btn btn-sm btn-primary"
+    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report" class="btn btn-sm btn-primary"
         id="pdfBtn">
-        <span id="pdf-data">Generate PDF</span>
+        <span id="pdf-data">Generate Report</span>
     </button>
     <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
@@ -344,13 +344,15 @@
                             d.filter_garden = $('#filter_garden').val();
                         },
                         dataSrc: function(json) {
+                              $("#pdfBtn").removeClass('d-none');
                             if (json.message) {
                                 Toast.fire({
                                     icon: "error",
                                     title: json.message || 'Something went wrong!'
                                 })
+                                $("#pdfBtn").addClass('d-none');
                             }
-
+                           
                             global_response = json;
 
                             return json.data;

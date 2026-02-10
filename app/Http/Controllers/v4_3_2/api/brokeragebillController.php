@@ -149,7 +149,6 @@ class brokeragebillController extends commonController
     }
     public function brokeragebillpdflist(Request $request)
     {
-
         if ($this->rp['teamodule']['brokeragebill']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
@@ -192,7 +191,7 @@ class brokeragebillController extends commonController
                 'broker_bill_payment_details.pending_amount'
             )
             ->get();
-      
+       
         if ($list->isEmpty()) {
             return DataTables::of($list)
                 ->with([
@@ -358,6 +357,7 @@ class brokeragebillController extends commonController
             )
             ->whereBetween('broker_purchases.brokerage_date', [$request->from_date, $request->to_date])
             ->get();
+
         if ($usedInvoices->isEmpty()) {
             return $this->successresponse(500, 'message', 'Brokrage not genrated selected date');
         }

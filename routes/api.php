@@ -521,6 +521,8 @@ Route::middleware(['checkToken'])->group(function () {
     $partyController = getversion('partyController');
     Route::controller($partyController)->group(function () {
         Route::get('/buyer', 'buyerindex')->name('buyer.index');
+        Route::get('/company-buyer', 'company_buyer')->name('company_buyer.index');
+        Route::get('/invoice-no', 'invoice_no')->name('invoice_no.index');
         Route::get('/transport', 'transportindex')->name('transport.index');
         Route::get('/party', 'partyindex')->name('party.index');
         Route::post('/party/insert', 'partystore')->name('party.store');
@@ -547,6 +549,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/brokerpurchase/update/{id}', 'update')->name('brokerpurchase.update');
         Route::put('/brokerpurchase/delete/{id}', 'destroy')->name('brokerpurchase.delete');
         Route::get('/brokerpurchase/createInvoice', 'createInvoice')->name('brokerpurchase.createInvoice');
+        Route::get('/brokerpurchase/lot_no_createInvoice', 'lot_no_createInvoice')->name('brokerpurchase.lot_no_createInvoice');
     });
     $brokeragebillController = getversion('brokeragebillController');
     Route::controller($brokeragebillController)->group(function () {

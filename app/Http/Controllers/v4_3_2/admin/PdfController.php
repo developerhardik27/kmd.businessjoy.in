@@ -19,9 +19,10 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\v4_3_2\api\commonController;
 use Dompdf\Options;
 
-class PdfController extends Controller
+class PdfController extends commonController
 {
    public $version, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
    public function __construct()
@@ -145,25 +146,34 @@ class PdfController extends Controller
       $usedInvoices = $this->brokerpurchaseModel
          ::where('broker_purchases.is_deleted', 0)
          ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->whereBetween(
+            'broker_purchases.brokerage_date',
+            [$invoice->from_date, $invoice->to_date]
+         )
+
          ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
          ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+
          ->join('order_details', function ($join) {
             $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
                ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
          })
+
          ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
          ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+
          ->join('orders', 'orders.id', '=', 'order_details.order_id')
          ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
          ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+
          ->leftJoin('invoices', function ($join) {
             $join->on('invoices.company_details_id', '=', 'companymasters.id')
                ->on('invoices.customer_id', '=', 'orders.buyer_party')
-               ->where('invoices.is_deleted', '=', 0);
+               ->whereRaw(
+                  'FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\', \'\'))'
+               )
+               ->where('invoices.is_deleted', 0);
          })
-         ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
-
-
          ->select(
             'broker_purchases.*',
             'gardens.garden_name as garden_name',
@@ -172,10 +182,10 @@ class PdfController extends Controller
             'buyer.name as buyer_name',
             'invoices.inv_no',
             'invoices.inv_date',
-
+            'invoices.sample_ids',
          )
          ->get();
-
+      // dd($usedInvoices);
       $data = [
          "mainCompanyData" => $mainCompanyData,
          "gardenCompanyData" => $gardenCompanyData,
@@ -1007,7 +1017,7 @@ class PdfController extends Controller
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderreport', ["order" => $order])->setPaper('a4', 'portrait');
 
       $name = 'Order-Report.pdf';
-      // return view($this->version . '.admin.paymentpaidreciept', $data);
+      // return view($this->version . '.admin.PDF.orderreport', ["order" => $order]);
       return $pdf->download('order_report_' . date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream($name);
    }
@@ -1015,7 +1025,8 @@ class PdfController extends Controller
    public function outstanding(Request $request)
    {
       $list = $this->brokerbillinvoiceModel
-          ::leftJoin('broker_bill_payment_details', 'broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
+         ::leftJoin('broker_bill_payment_details', 'broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
+         ->join('gardens', 'gardens.id', '=', 'broker_bill_invoice.garden_id')
          ->where('broker_bill_invoice.is_deleted', 0);
       $filters = [
          'filter_payment_status' => 'broker_bill_invoice.status',
@@ -1048,7 +1059,7 @@ class PdfController extends Controller
             'broker_bill_invoice.status',
             'broker_bill_invoice.from_date',
             'broker_bill_invoice.to_date',
-
+            'gardens.garden_name as garden_name',
             'broker_bill_payment_details.receipt_number',
             'broker_bill_payment_details.transaction_id',
             'broker_bill_payment_details.datetime',
@@ -1071,6 +1082,7 @@ class PdfController extends Controller
                'status'        => $first->status,
                'from_date'     => $first->from_date,
                'to_date'       => $first->to_date,
+               'garden_name'  => $first->garden_name,
                'details' => $rows->map(function ($item) {
                   return [
                      'receipt_number' => $item->receipt_number,
@@ -1098,13 +1110,18 @@ class PdfController extends Controller
          'margin_bottom' => 0,
          'margin_left' => 0,
       ];
+      $gardenNames = $list->pluck('garden_name')->unique()->values();
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.outstanding', ["list" => $list])->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.outstanding', ["list" => $list, 'gardenNames' => $gardenNames])->setPaper('a4', 'portrait');
 
-      $name = 'Garden Outstanding.pdf';
-      // return view($this->version . '.admin.paymentpaidreciept', $data);
-      //return $pdf->download('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->download('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      if ($gardenNames->count() === 1) {
+         $name = $gardenNames[0];
+      } else {
+         $name = $gardenNames->implode('-');
+      }
+
+      //return view($this->version . '.admin.PDF.outstanding', ["list" => $list]);
+      return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream($name);
    }
 }

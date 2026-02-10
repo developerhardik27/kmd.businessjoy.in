@@ -42,19 +42,66 @@
     </style>
 @endsection
 
-@if (session('user_permissions.invoicemodule.invoice.add') == '1')
-    @section('addnew')
-        {{ route('admin.addinvoice') }}
-    @endsection
-    @section('addnewbutton')
-        <button class="btn btn-sm btn-primary">
+
+@section('table-content')
+    @if (session('user_permissions.invoicemodule.invoice.add') == '1')
+        <button class="btn btn-primary btn-sm d-block float-lg-right generate-invoice my-xl-n5">
             <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">+ Create
                 New</span>
         </button>
-    @endsection
-@endif
+    @endif
+    <div class="modal fade" id="generateinvoiceModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form id="generateinvoiceForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Generate Invoice</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
 
-@section('table-content')
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                                placeholder="token" required />
+                            <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
+                            <input type="hidden" value="{{ session('company_id') }}" class="form-control"
+                                name="company_id">
+                        </div>
+                        <div class=" col-sm-11 mb-3">
+                            <label for="companymaster_id">Company</label><span style="color:red;">*</span>
+                            <select class="form-control select2" id="companymaster_id" name="companymaster_id" required>
+                                <option selected="" disabled=""> Select Company</option>
+                            </select>
+                            <span class="error-msg" id="error-companymaster_id" style="color: red"></span>
+                        </div>
+                        <div class=" col-sm-11 mb-3">
+                            <label for="buyer_id">buyer</label><span style="color:red;">*</span>
+                            <select class="form-control select2" id="buyer_id" name="buyer_id" required>
+                                <option selected="" disabled=""> Select buyer</option>
+                            </select>
+                            <span class="error-msg" id="error-buyer" style="color: red"></span>
+                        </div>
+
+                        <div class="col-sm-11 mb-3">
+                            <label for="invoice_no">invoice-no/lot</label><span style="color:red;">*</span>
+                            <select class="form-control select2" id="invoice_no" name="invoice_no" multiple>
+
+                            </select>
+                            <span class="error-msg" id="error-invoice_no" style="color: red"></span>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Generate</button>
+                        <button type="button" class="btn btn-secondary" id="modalcancelbtn"
+                            data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
@@ -89,8 +136,8 @@
                         <div class="payment_details">
                             <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
                                 required />
-                            <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
-                                required />
+                            <input type="hidden" name="company_id" class="form-control"
+                                value="{{ session('company_id') }}" required />
                             <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                                 placeholder="token" required />
                             <input type="hidden" name="inv_id" id="inv_id">
@@ -181,6 +228,215 @@
                 });
             @endif
 
+            const API_TOKEN = "{{ session()->get('api_token') }}";
+            const COMPANY_ID = "{{ session()->get('company_id') }}";
+            const USER_ID = "{{ session()->get('user_id') }}";
+            // When the modal's close button or cancel button is clicked
+
+            $("#modalcancelbtn").on('click', function() {
+                $('#generateinvoiceForm')[0].reset();
+                $('#companymaster_id, #buyer_id, #invoice_no').val(null).trigger(
+                    'change'); // reset Select2 visually
+                $('#generateinvoiceModal').modal('hide');
+                $('#companymaster_id').empty().append('<option selected disabled>Select Company</option>');
+            });
+            $('#generateinvoiceForm').on('submit', function(e) {
+                e.preventDefault(); // prevent normal form submission
+                loadershow();
+                var formData = {
+                    company_ids: $('#companymaster_id').val(),
+                    buyer_parties: $('#buyer_id').val(),
+                    invoice_no: $('#invoice_no').val(),
+                    user_id: "{{ session()->get('user_id') }}",
+                    company_id: "{{ session()->get('company_id') }}",
+                    token: "{{ session()->get('api_token') }}",
+                    _token: "{{ csrf_token() }}"
+                };
+
+                $.ajax({
+                    url: "{{ route('brokerpurchase.lot_no_createInvoice') }}", // your route
+                    type: "GET", // or POST if you are creating data
+                    data: formData,
+                    success: function(response) {
+                        if (response.status === 200) {
+                            // store session and redirect
+                            $.post("{{ route('admin.lot_no_storeInvoiceSession') }}", {
+                                _token: "{{ csrf_token() }}",
+                                data: response.data
+                            }, function() {
+                                window.location.href =
+                                    "{{ route('admin.addinvoice') }}";
+                            });
+
+                            // Reset checkboxes or selections if needed
+                            $('.purchase-checkbox').prop('checked', false);
+
+                            // Reload data or reset form
+                            $('#generateinvoiceForm')[0].reset();
+                            $('#companymaster_id, #buyer_id, #invoice_no').val(null).trigger(
+                                'change');
+                            $('#generateinvoiceModal').modal('hide');
+                            loaddata();
+                        } else {
+                            loaderhide();
+                            Toast.fire({
+                                icon: 'error',
+                                title: response.message || 'Something went wrong'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        loaderhide();
+                        console.log(xhr.responseText);
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'AJAX request failed'
+                        });
+                    }
+                });
+            });
+
+
+            function companymaster() {
+                loadershow();
+                $('#companymaster_id').empty().append('<option selected disabled>Select company</option>');
+                $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
+
+                ajaxRequest('GET', "{{ route('companymaster.index') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID,
+                }).done(function(response) {
+                    if (response.status == 200 && response.data.length > 0) {
+                        $.each(response.data, function(key, value) {
+                            const companyDetails = [value.name, value.mobile_1, value.email].filter(
+                                Boolean).join(' - ');
+                            $('#companymaster_id').append(`
+                    <option data-gstno='${value.gst_no}' value='${value.id}'>${companyDetails}</option>
+                `);
+                        });
+                    } else {
+                        $('#companymaster_id').append(`<option disabled>No Data found</option>`);
+                    }
+                }).fail(function(xhr) {
+                    handleAjaxError(xhr);
+                }).always(function() {
+                    loaderhide();
+                });
+            }
+
+            function buyer_ids(companymaster_id) {
+                loadershow();
+                $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
+
+                ajaxRequest('GET', "{{ route('company_buyer.index') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID,
+                    companymaster_id: companymaster_id,
+                }).done(function(response) {
+                    if (response.status == 200 && response.data.length > 0) {
+                        $.each(response.data, function(key, value) {
+                            const buyerDetails = [value.name, value.mobile_1, value.email].filter(
+                                Boolean).join(' - ');
+                            $('#buyer_id').append(`
+                    <option data-gstno='${value.gst_no}' value='${value.id}'>${buyerDetails}</option>
+                `);
+                        });
+                    } else {
+                        $('#buyer_id').append(`<option disabled>No Data found</option>`);
+                    }
+                }).fail(function(xhr) {
+                    handleAjaxError(xhr);
+                }).always(function() {
+                    loaderhide();
+                });
+            }
+
+            function invoice_no(buyer_id, preSelectedInvoices = []) {
+                let company_ids = $('#companymaster_id').val();
+                loadershow();
+
+                $('#invoice_no').empty(); // clear previous options
+
+                ajaxRequest('GET', "{{ route('invoice_no.index') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID,
+                    buyer_id: buyer_id,
+                    company_ids: company_ids,
+                }).done(function(response) {
+                    if (response.status == 200 && response.data.length > 0) {
+                        $.each(response.data, function(key, value) {
+                            const invoiceDetails =
+                                `Invoice No: ${value.invoice_no} - Order No: ${value.order_id}`;
+                            $('#invoice_no').append(`
+                    <option value='${value.invoice_no}' data-order-id='${value.order_id}'>
+                        ${invoiceDetails}
+                    </option>
+                `);
+                        });
+
+                        // Automatically pre-select invoices if provided
+                        if (preSelectedInvoices.length > 0) {
+                            $('#invoice_no').val(preSelectedInvoices).trigger('change');
+                        }
+
+                    } else {
+                        $('#invoice_no').append(`<option disabled>No Data found</option>`);
+                    }
+                }).fail(function(xhr) {
+                    handleAjaxError(xhr);
+                }).always(function() {
+                    loaderhide();
+                });
+            }
+
+            // --- Event listeners ---
+
+            $('#companymaster_id').on('change', function() {
+                var companymaster_id = $(this).val();
+
+                // Reset downstream dropdowns
+                $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
+
+                if (companymaster_id == 'add_companymaster_id') {
+                    $('#exampleModalScrollable').modal('show');
+                    return;
+                }
+
+                buyer_ids(companymaster_id);
+            });
+
+            $('#buyer_id').on('change', function() {
+                var buyer_id = $(this).val();
+
+                // Example: fetch pre-selected invoices for this buyer from hidden input or API
+                // Suppose you have a CSV string: "21,22"
+                let preSelectedInvoices = $('#hidden_invoice_ids').val(); // e.g. "21,22"
+                preSelectedInvoices = preSelectedInvoices ? preSelectedInvoices.split(',') : [];
+
+                invoice_no(buyer_id, preSelectedInvoices);
+            });
+
+            $('#invoice_no').on('change', function() {
+                var selectedInvoice = $(this).val();
+                var orderId = $(this).find('option:selected').data('order-id');
+                console.log('Selected Invoice:', selectedInvoice, 'Order ID:', orderId);
+            });
+
+            // --- Initialize Select2 ---
+            $('#companymaster_id, #buyer_id, #invoice_no').select2({
+                placeholder: "Select",
+                width: '100%',
+                search: true,
+            });
+
+            $(document).on("click", ".generate-invoice", function() {
+                companymaster();
+                $('#generateinvoiceModal').modal('show');
+
+            });
             let table = '';
 
             var global_response = '';
@@ -215,11 +471,13 @@
                             }
 
                             global_response = json;
-                          
+
 
                             return json.data;
                         },
                         complete: function() {
+                            companymaster();
+
                             loaderhide();
                         },
                         error: function(xhr) {
@@ -425,13 +683,13 @@
                                 @endif
                                 // if(row.company_details_id != global_response.company_details_id) {
                                 // actionBtns += `
-                                //     <span>
-                                //         <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Update Company Details"
-                                //             class="update-company-details-btn btn btn-outline-primary btn-rounded btn-sm my-0">
-                                //             <i class="ri-file-edit-line"></i>
-                                //         </button>
-                                //     </span>
-                                // `;
+                            //     <span>
+                            //         <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Update Company Details"
+                            //             class="update-company-details-btn btn btn-outline-primary btn-rounded btn-sm my-0">
+                            //             <i class="ri-file-edit-line"></i>
+                            //         </button>
+                            //     </span>
+                            // `;
                                 // }
 
                                 @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
@@ -549,7 +807,7 @@
                                 loaderhide();
                                 console.log(xhr
                                     .responseText
-                                    ); // Log the full error response for debugging
+                                ); // Log the full error response for debugging
                                 handleAjaxError(xhr);
                             }
                         });
@@ -867,7 +1125,7 @@
                                         icon: "success",
                                         title: "Company details successfully updated"
                                     });
-                                    $(row).hide(); 
+                                    $(row).hide();
                                 } else {
                                     Toast.fire({
                                         icon: "error",
@@ -878,10 +1136,11 @@
                                 loaderhide();
                             },
                             error: function(xhr, status,
-                            error) { // If calling API request error
+                                error) { // If calling API request error
                                 loaderhide();
                                 console.log(xhr
-                                .responseText); // Log the full error response for debugging
+                                    .responseText
+                                ); // Log the full error response for debugging
                                 handleAjaxError(xhr);
                             }
                         });
