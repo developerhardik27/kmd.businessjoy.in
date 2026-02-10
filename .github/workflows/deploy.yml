@@ -20,4 +20,4 @@ jobs:
           username: ${{ secrets.STAGING_USERNAME }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: | 
-            cd ~/htdocs/staging.businessjoy.in && ./.scripts/deploy.sh
+            cd ~/htdocs/kmd.businessjoy.in && ./.scripts/deploy.sh
