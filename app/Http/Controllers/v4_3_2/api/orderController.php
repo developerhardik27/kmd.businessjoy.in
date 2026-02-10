@@ -216,6 +216,7 @@ class orderController extends commonController
                 'net_kg'     => $row['net_kg'],
                 'rate'       => $row['rate'],
                 'amount'     => $row['amount'],
+                'created_by' => $request->user_id,
             ]);
         }
         if ($create) {
