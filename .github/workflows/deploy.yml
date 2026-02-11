@@ -3,21 +3,49 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main  # Replace with your branch name
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: staging   # ⚠️ make sure this matches your Environment name exactly
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Debug Environment
+        run: |
+          echo "Running on branch: $GITHUB_REF"
+          echo "Environment: staging"
+
+      - name: Debug Secrets
+        run: |
+          if [ -z "${{ secrets.HOST }}" ]; then
+            echo "❌ HOST is EMPTY"
+          else
+            echo "✅ HOST is SET"
+          fi
+
+          if [ -z "${{ secrets.STAGING_USERNAME }}" ]; then
+            echo "❌ USERNAME is EMPTY"
+          else
+            echo "✅ USERNAME is SET"
+          fi
+
+          if [ -z "${{ secrets.STAGING_SSH_PRIVATE_KEY }}" ]; then
+            echo "❌ SSH KEY is EMPTY"
+          else
+            echo "✅ SSH KEY is SET"
+          fi
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.STAGING_USERNAME }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
-          script: | 
-               cd ~/htdocs/kmd.businessjoy.in && ./.scripts/deploy.sh
+          port: 22
+          script: |
+            cd ~/htdocs/kmd.businessjoy.in
+            ./.scripts/deploy.sh
