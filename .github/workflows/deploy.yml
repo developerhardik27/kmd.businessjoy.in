@@ -8,34 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: main
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Debug Environment
-        run: |
-          echo "Running on branch: $GITHUB_REF"
-          echo "Environment: staging"
-
-      - name: Debug Secrets
-        run: |
-          if [ -z "${{ secrets.HOST }}" ]; then
-            echo "❌ HOST is EMPTY"
-          else
-            echo "✅ HOST is SET"
-          fi
-
-          if [ -z "${{ secrets.STAGING_USERNAME }}" ]; then
-            echo "❌ USERNAME is EMPTY"
-          else
-            echo "✅ USERNAME is SET"
-          fi
-
-          if [ -z "${{ secrets.STAGING_SSH_PRIVATE_KEY }}" ]; then
-            echo "❌ SSH KEY is EMPTY"
-          else
-            echo "✅ SSH KEY is SET"
-          fi
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
@@ -44,4 +20,4 @@ jobs:
           username: ${{ secrets.STAGING_USERNAME }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: | 
-               cd ~/htdocs/kmd.businessjoy.in && ./.scripts/deploy.sh
+            cd ~/htdocs/kmd.businessjoy.in && ./.scripts/deploy.sh
