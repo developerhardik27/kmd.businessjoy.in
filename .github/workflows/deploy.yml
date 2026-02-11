@@ -3,17 +3,15 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main
+      - main  # Replace with your branch name
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: staging   # ⚠️ make sure this matches your Environment name exactly
-
+    environment: main
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v2
       - name: Debug Environment
         run: |
           echo "Running on branch: $GITHUB_REF"
@@ -40,12 +38,10 @@ jobs:
           fi
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.STAGING_USERNAME }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            cd ~/htdocs/kmd.businessjoy.in
-            ./.scripts/deploy.sh
+          script: | 
+               cd ~/htdocs/kmd.businessjoy.in && ./.scripts/deploy.sh
