@@ -95,10 +95,14 @@ class InvoiceController extends Controller
 
     public function create()
     {
+        $search = '';
         request()->merge([
             'company_id' => session('company_id'),
             'user_id' => session('user_id')
         ]);
+        $invoice_data = session::get('invoice_data');
+        $lot_no_invoice_data = session::get('lot_no_invoice_data');
+
         $company_id = Session::get('company_id');
         $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
         $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
@@ -123,6 +127,11 @@ class InvoiceController extends Controller
         }
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.Invoice.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+        }
+
+        if (empty($invoice_data) && empty($lot_no_invoice_data)) {
+            return redirect()->route('admin.invoice')
+                ->with("message", "Please create an invoice using a sample purchase or an invoice number/lot first. You cannot create an invoice directly.");
         }
         return view($this->version . '.admin.Invoice.invoiceform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id')]);
     }

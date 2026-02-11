@@ -38,6 +38,11 @@
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
+
+        .select2-results__options {
+            max-height: 150px !important;
+            overflow-y: auto !important;
+        }
     </style>
 @endsection
 @section('advancefilter')
@@ -344,7 +349,7 @@
                             d.filter_garden = $('#filter_garden').val();
                         },
                         dataSrc: function(json) {
-                              $("#pdfBtn").removeClass('d-none');
+                            $("#pdfBtn").removeClass('d-none');
                             if (json.message) {
                                 Toast.fire({
                                     icon: "error",
@@ -352,7 +357,7 @@
                                 })
                                 $("#pdfBtn").addClass('d-none');
                             }
-                           
+
                             global_response = json;
 
                             return json.data;

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\File;
 
 class companyController extends commonController
 {
-    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $blog_settingModel, $user_permissionModel, $newdbname, $masterdbname, $lead_settingModel, $companymasterModel;
+    public $userId, $companyId, $rp, $user, $invoice_other_settingModel, $quotation_other_settingModel, $logistic_settingModel, $blog_settingModel, $user_permissionModel, $newdbname, $masterdbname, $lead_settingModel, $companymasterModel, $tbl_invoice_columnsModel, $tbl_invoice_formulasModel;
     public function __construct(Request $request)
     {
         $this->companyId = $request->company_id;
@@ -42,6 +42,8 @@ class companyController extends commonController
         $this->blog_settingModel = $this->getmodel('blog_setting');
         $this->lead_settingModel = $this->getmodel('lead_setting');
         $this->companymasterModel = $this->getmodel('companymaster');
+        $this->tbl_invoice_columnsModel = $this->getmodel('tbl_invoice_column');
+        $this->tbl_invoice_formulasModel = $this->getmodel('tbl_invoice_formula');
     }
 
     // for using pdf 
@@ -73,7 +75,7 @@ class companyController extends commonController
 
     public function companydetailspdf($id)
     {
-       
+
         $companydetails = $this->companymasterModel::leftJoin($this->masterdbname . '.country as c', 'companymasters.country_id', '=', 'c.id')
             ->leftJoin($this->masterdbname . '.state as s', 'companymasters.state_id', '=', 's.id')
             ->leftJoin($this->masterdbname . '.city as ci', 'companymasters.city_id', '=', 'ci.id')
@@ -85,7 +87,7 @@ class companyController extends commonController
             )
             ->where('companymasters.id', $id)
             ->get(); // single record expected
-      
+
         if ($companydetails->isEmpty()) {
             return $this->successresponse(404, 'companydetails', 'No Records Found');
         }
@@ -235,7 +237,7 @@ class companyController extends commonController
      * Store a newly created resource in storage.
      */
 
-      public function store(Request $request)
+    public function store(Request $request)
     {
         // validate incoming request data
         $validator = Validator::make($request->all(), [
@@ -300,7 +302,7 @@ class companyController extends commonController
                 if (app()->environment('testing')) {
                     $this->newdbname = "kmd_businessjoy_testing_company";
                 }
-            }  else {
+            } else {
                 // For any other host, provide a default
                 $this->newdbname = 'kmd_businessjoy_' . $modifiedname . '_' . Str::lower(Str::random(3));
                 if (app()->environment('testing')) {
@@ -359,7 +361,21 @@ class companyController extends commonController
                 Artisan::call('migrate', [
                     '--path' => $path,
                     '--database' => $this->newdbname,
-                   	'--force' => true,
+                    '--force' => true,
+                ]);
+            }
+
+            // dd($this->newdbname);
+            $sedderpaths = [
+                'Database\\Seeders\\individual\\InvoiceColumnsSeeder',
+                'Database\\Seeders\\individual\\InvoiceformulasSeeder'
+            ];
+
+            foreach ($sedderpaths as $seederClass) {
+                Artisan::call('db:seed', [
+                    '--class' => $seederClass,
+                    '--database' => $this->newdbname,
+                    '--force' => true,
                 ]);
             }
 
@@ -591,6 +607,15 @@ class companyController extends commonController
                             $userrp = $this->user_permissionModel::create([  // create user permission
                                 'user_id' => $userid,
                                 'rp' => $rpjson,
+                                'created_by' => $this->userId
+                            ]);
+                          
+                            $tbl_invoice_formulas = $this->tbl_invoice_formulasModel::query()->update([
+                                'company_id' => $company_id,
+                                'created_by' => $this->userId
+                            ]);
+                            $tbl_invoice_columns = $this->tbl_invoice_columnsModel::query()->update([
+                                'company_id' => $company_id,
                                 'created_by' => $this->userId
                             ]);
 

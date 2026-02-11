@@ -29,7 +29,7 @@
                     <span class="error-msg" id="error-garden_id" style="color: red"></span>
 
                 </div>
-                <div class="col-sm-12 mt-3">
+                <div class="col-sm-12 mt-3 table-responsive">
                     <table id="broker_purchases_table" class="table table-bordered">
                         <thead>
                             <tr>
@@ -122,9 +122,9 @@
             $('#garden_id').on('change', function() {
                 let garden_id = $(this).val();
                 if (edit_id) {
-                    getOtherDatanotnull(garden_id);
+                    editotherdata(garden_id);
                 } else {
-                    getOtherData(garden_id);
+                    addotherdata(garden_id);
                 }
 
 
@@ -135,7 +135,7 @@
                 return dateStr.split(' ')[0]; // YYYY-MM-DD
             }
             //this for edit time load data
-            function getOtherDatanotnull(garden_id) {
+            function editotherdata(garden_id) {
                 loadershow();
                 let token = "{{ session('api_token') }}";
                 let company_id = "{{ session('company_id') }}";
@@ -230,7 +230,7 @@
                 });
             }
             // this for add time load data
-            function getOtherData(garden_id) {
+            function addotherdata(garden_id) {
                 loadershow();
                 let token = "{{ session('api_token') }}";
                 let company_id = "{{ session('company_id') }}";

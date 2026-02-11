@@ -221,12 +221,13 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
 
-            @if (Session::has('message'))
+            let message = "{{ session('message') }}";
+            if (message) {
                 Toast.fire({
-                    icon: "error",
-                    title: 'You have not any column for download this invoice'
+                    icon: 'error',
+                    title: message
                 });
-            @endif
+            }
 
             const API_TOKEN = "{{ session()->get('api_token') }}";
             const COMPANY_ID = "{{ session()->get('company_id') }}";

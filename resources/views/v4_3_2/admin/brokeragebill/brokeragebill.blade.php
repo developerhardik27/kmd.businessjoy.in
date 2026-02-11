@@ -392,7 +392,7 @@
                             <tr>
                                 <td>${id ?? '-'}</td>
                                 <td>${item.inv_no ?? '-'}</td>
-                                <td>${item.inv_date ?? '-'}</td>
+                                <td>${item.inv_date ? new Date(item.inv_date).toISOString().split('T')[0] : '-'}</td>
                                 <td>${item.amount ?? '-'}</td>
                                 <td>${item.brokerage_date ?? '-'}</td>
                                 <td>${item.brokerage ? item.brokerage+"(%)": "0"}</td>

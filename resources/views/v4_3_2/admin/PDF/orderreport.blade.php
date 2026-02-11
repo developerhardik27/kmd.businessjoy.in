@@ -2,7 +2,7 @@
 function formatINR($amount)
 {
     if (!$amount) {
-        return '-';
+        return '0';
     }
     $explrestunits = '';
     $amount = round($amount);

@@ -10,7 +10,7 @@ use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\landing\LandingPageController;
 use App\Http\Controllers\v4_3_2\admin\HrController;
 
-Route::get('checkphp', function () {});
+// login page on / 
 Route::redirect('/', '/admin/login/');
 // Define a function to generate the controller class name based on the session value
 if (!function_exists('getadminversion')) {
@@ -26,12 +26,6 @@ if (!function_exists('getadminversion')) {
         }
     }
 }
-
-
-Route::get('/', function () {
-    return view('admin.login');
-});
-
 Route::get('/become-a-partner', function () {
     return view('become-a-partner-form');
 })->withoutMiddleware([CheckSession::class]);
@@ -93,7 +87,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::post('/setpassword/{token}', 'post_set_password')->name('admin.post_setpassword')->withoutMiddleware([CheckSession::class]);
             });
         });
-
+    
         Route::group(['middleware' => 'admin.auth'], function () {
 
             Route::get('/superadminloginfromanyuser/{userId}', [AdminLoginController::class, 'authenticate'])->name('admin.superadminloginfromanyuser');

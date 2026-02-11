@@ -576,7 +576,7 @@
                                         <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
                                             <a href="{{ route('admin.invoice') }}">
                                                 <i class="ri-file-text-line"></i>
-                                                <span>Invoice List</span>
+                                                <span>Sample Invoice List</span>
                                             </a>
                                         </li>
                                     @endif
