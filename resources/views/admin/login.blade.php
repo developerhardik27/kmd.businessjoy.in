@@ -63,7 +63,7 @@
             <form id="loginform">
                 @csrf
                 <img src="{{ asset('admin/images/KMD Logo1.png') }}" width="150px" height="150px" alt="logo">
-                <h2>Sign In</h2>
+                <h2>Sign Inn</h2>
 
                 <span class="error-msg" id="unauthorized" style="color: red">
                     <b>{{ Session::get('unauthorized') }}</b>
