@@ -210,6 +210,7 @@ class versionupdateController extends commonController
                                     Artisan::call('migrate', [
                                         '--path' => $path,
                                         '--database' => $company->dbname,
+                                        '--force' => true,
                                     ]);
                                 } catch (Exception $e) {
                                     Log::error($e);
