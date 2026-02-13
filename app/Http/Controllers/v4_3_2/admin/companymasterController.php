@@ -62,10 +62,10 @@ class companymasterController extends Controller
         } else {
             $search = '';
         }
-        return view($this->version . '.admin.bank_master.bank_master', ["search" => $search]);
+        return view($this->version . '.admin.Bank_master.bank_master', ["search" => $search]);
     }
      public function bank_masteredit($id)
     {
-        return view($this->version . '.admin.bank_master.bank_masterupdateform', ['edit_id' => $id]);
+        return view($this->version . '.admin.Bank_master.bank_masterupdateform', ['edit_id' => $id]);
     }
 }
