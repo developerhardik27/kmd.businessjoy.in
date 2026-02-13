@@ -437,7 +437,7 @@ class PdfController extends commonController
       $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
       $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
-      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
+      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companymasterController')->bankdetailspdf($invoice->account_id);
 
       // this get form data is product data
       $jsonproductContent = $jsonproductdata->getContent();
@@ -679,8 +679,7 @@ class PdfController extends commonController
       $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
       $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
-      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\bankdetailsController')->bankdetailspdf($invoice->account_id);
-
+      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companymasterController')->bankdetailspdf($invoice->account_id);
       // this get form data is product data
       $jsonproductContent = $jsonproductdata->getContent();
 

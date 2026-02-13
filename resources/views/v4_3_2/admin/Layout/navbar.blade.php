@@ -271,11 +271,11 @@
                                             href="#">Menu<i class="ri-arrow-down-s-line"></i></a>
                                     @endif
                                     <div class="iq-sub-dropdown">
-                                        @if (Session::has('invoice') && Session::get('invoice') == 'yes')
+                                        {{-- @if (Session::has('invoice') && Session::get('invoice') == 'yes')
                                             <a class="iq-sub-card changemenu " href="#" data-value="invoice">
                                                 <i class="ri-file-list-3-line"></i> Invoice
                                             </a>
-                                        @endif
+                                        @endif --}}
                                         @if (Session::has('quotation') && Session::get('quotation') == 'yes')
                                             <a class="iq-sub-card changemenu " href="#"
                                                 data-value="quotation"><i class="ri ri-clipboard-line"></i>

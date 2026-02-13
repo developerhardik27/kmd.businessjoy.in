@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 class brokeragebillController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $brokerbillinvoiceModel;
+    public $version, $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $brokerbillinvoiceModel;
 
     public function __construct(Request $request)
     {
@@ -28,6 +28,7 @@ class brokeragebillController extends commonController
         if (empty($user_rp)) {
             $this->customerrorresponse();
         }
+        $this->version = 'v4_3_2';
 
         $this->rp = json_decode($user_rp, true);
 
@@ -191,7 +192,7 @@ class brokeragebillController extends commonController
                 'broker_bill_payment_details.pending_amount'
             )
             ->get();
-       
+
         if ($list->isEmpty()) {
             return DataTables::of($list)
                 ->with([
@@ -315,6 +316,15 @@ class brokeragebillController extends commonController
 
     public function brokeragebillpdf(Request $request)
     {
+
+        $company_id = $request->company_id;
+        $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
+        $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
+        $bdetailscontent = $jsonbankdetails->getContent();
+        $bdetails = json_decode($bdetailscontent);
+        if ($bdetails->status != 200) {
+            return $this->successresponse(500, 'message', 'No bank details are available for your company. Please add bank details to continue.');
+        }
 
         $dbname = company::find($request->company_id);
         $mainCompanyData = company_detail::where('company_details.id', $dbname->company_details_id)

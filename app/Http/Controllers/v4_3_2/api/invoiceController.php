@@ -788,7 +788,7 @@ class invoiceController extends commonController
      */
     public function update(Request $request, string $id)
     {
-
+        
         return $this->executeTransaction(function () use ($request, $id) {
 
             if ($this->rp['invoicemodule']['invoice']['edit'] != 1) {

@@ -228,6 +228,9 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('broker_pendingpayment/{id}', 'pendingpayment')->name('broker_paymentdetails.pendingpayment');
         Route::put('broker_deletepayment/{id}', 'destroy')->name('broker_paymentdetails.deletepayment');
         Route::put('/broker_paymentdetail_status/{id}', 'broker_paymentdetail_status')->name('broker_paymentdetail_.status');
+        Route::get('/broker_totalinvoice', 'totalInvoice')->name('brokrage.totalinvoice');
+        Route::get('/broker_status_list', 'status_list')->name('brokrage.status_list');
+        Route::get('/broker_chart', 'monthlyInvoiceChart')->name('brokrage.chart');
     });
 
     // supplier route
@@ -517,6 +520,13 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/garden/edit/{id}', 'gardenedit')->name('garden.edit');
         Route::put('/garden/update/{id}', 'gardenupdate')->name('garden.update');
         Route::put('/garden/delete/{id}', 'gardendestroy')->name('garden.delete');
+
+        Route::get('/bank_detailslist', 'bank_detailslist')->name('bank_detail.list');
+        Route::get('/bank_detail', 'bank_detailindex')->name('bank_detail.index');
+        Route::post('/bank_detail/insert', 'bank_detailstore')->name('bank_detail.store');
+        Route::get('/bank_detail/edit/{id}', 'bank_detailedit')->name('bank_detail.edit');
+        Route::put('/bank_detail/update/{id}', 'bank_detailupdate')->name('bank_detail.update');
+        Route::put('/bank_detail/delete/{id}', 'bank_detaildestroy')->name('bank_detail.delete');
     });
     $partyController = getversion('partyController');
     Route::controller($partyController)->group(function () {
@@ -570,10 +580,12 @@ Route::middleware(['checkToken'])->group(function () {
     Route::controller($orderController)->group(function () {
 
         Route::get('/order', 'index')->name('order.index');
+        Route::get('/totalorder', 'totalorder')->name('order.totalorder');
         Route::post('/order/insert', 'store')->name('order.store');
         Route::get('/order/edit/{id}', 'edit')->name('order.edit');
         Route::put('/order/update/{id}', 'update')->name('order.update');
         Route::put('/order/delete/{id}', 'destroy')->name('order.delete');
+        Route::get('/orderchart', 'orderChart')->name('order.chart');
     });
     // api_authorization  route
     $apiauthorizationController = getversion('apiauthorizationController');

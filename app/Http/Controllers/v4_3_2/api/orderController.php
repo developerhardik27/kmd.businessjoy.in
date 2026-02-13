@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\v4_3_2\api;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
-use App\Http\Controllers\v4_3_2\api\commonController;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\v4_3_2\api\commonController;
 
 class orderController extends commonController
 {
@@ -369,5 +370,56 @@ class orderController extends commonController
         ]);
 
         return $this->successresponse(200, 'message', 'order succesfully deleted');
+    }
+    public function  totalorder()
+    {
+        if ($this->rp['invoicemodule']['invoicedashboard']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $order = $this->orderModel::where('is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['invoicedashboard']['alldata'] != 1) {
+            $order->where('created_by', $this->userId);
+        }
+
+        $order = $order->count();
+
+        return $this->successresponse(200, 'order', $order);
+    }
+    public function orderChart(Request $request)
+    {
+        $month = $request->input('month');
+
+        $query = $this->orderModel::where('is_deleted', 0)
+            ->whereYear('created_at', now()->year); // ✅ Only current year
+
+        if ($month && strtolower($month) !== 'all') {
+            // Specific month of current year
+            $data = $query
+                ->select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('COUNT(id) as total_orders'),
+                    DB::raw('SUM(totalNetKg) as total_kg'),
+                    DB::raw('SUM(finalAmount) as total_amount')
+                )
+                ->whereMonth('created_at', $month)
+                ->groupBy(DB::raw('MONTH(created_at)'))
+                ->orderBy('month', 'ASC')
+                ->get();
+        } else {
+            // All months of current year
+            $data = $query
+                ->select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('COUNT(id) as total_orders'),
+                    DB::raw('SUM(totalNetKg) as total_kg'),
+                    DB::raw('SUM(finalAmount) as total_amount')
+                )
+                ->groupBy(DB::raw('MONTH(created_at)'))
+                ->orderBy('month', 'ASC')
+                ->get();
+        }
+        return response()->json($data);
     }
 }

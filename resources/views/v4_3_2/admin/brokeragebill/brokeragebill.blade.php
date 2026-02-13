@@ -115,7 +115,13 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
-
+            let message = "{{ session('message') }}";
+            if (message) {
+                Toast.fire({
+                    icon: 'error',
+                    title: message
+                });
+            }
             var global_response = '';
 
             // function for  get brokerpurchases data and set it into datatable
@@ -328,6 +334,16 @@
                             });
                             $('#pdfDateForm')[0].reset()
                             $('#pdfDateModal').modal('hide');
+
+                        } else if (response.status == 500) {
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                            $('#pdfDateForm')[0].reset()
+                            $('#pdfDateModal').modal('hide');
+                            window.location.href = "{{ route('admin.addbank') }}";
 
                         } else {
                             Toast.fire({

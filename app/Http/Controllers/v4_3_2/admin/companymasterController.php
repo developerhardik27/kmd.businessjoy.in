@@ -55,4 +55,17 @@ class companymasterController extends Controller
     {
         return view($this->version . '.admin.garden.gardenupdateform', ['edit_id' => $id]);
     }
+      public function bank_masterindex(Request $request)
+    {
+        if (isset($request->search)) {
+            $search = $request->search;
+        } else {
+            $search = '';
+        }
+        return view($this->version . '.admin.bank_master.bank_master', ["search" => $search]);
+    }
+     public function bank_masteredit($id)
+    {
+        return view($this->version . '.admin.bank_master.bank_masterupdateform', ['edit_id' => $id]);
+    }
 }

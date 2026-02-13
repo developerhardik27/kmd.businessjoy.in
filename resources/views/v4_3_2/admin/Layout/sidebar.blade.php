@@ -505,7 +505,14 @@
                                             </a>
                                         </li>
                                     @endif
-
+                                    @if (session('user_permissions.teamodule.garden.show') == '1')
+                                        <li class="{{ request()->routeIs('admin.bank_master') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.bank_master') }}">
+                                                <i class="ri-bank-line"></i>
+                                                Bank Master
+                                            </a>
+                                        </li>
+                                    @endif
                                     @if (session('user_permissions.teamodule.garden.show') == '1')
                                         <li class="{{ request()->routeIs('admin.garden') ? 'active' : '' }}">
                                             <a href="{{ route('admin.garden') }}">

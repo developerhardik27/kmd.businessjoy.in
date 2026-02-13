@@ -193,7 +193,7 @@ class AdminLoginController extends Controller
                 session(['menu' => 'lead']);
             }
             if ($this->hasDashboardPermission($responseData['permissions'], 'leadmodule')) {
-                $menus[] = 'lead';
+                // $menus[] = 'lead';
             }
         }
 
@@ -214,7 +214,7 @@ class AdminLoginController extends Controller
             }
 
             if ($this->hasDashboardPermission($responseData['permissions'], 'adminmodule') && $user['company_id'] == 1) {
-                $menus[] = 'admin';
+                // $menus[] = 'admin';
             }
         }
 
@@ -234,7 +234,7 @@ class AdminLoginController extends Controller
                 session(['menu' => 'reminder']);
             }
             if ($this->hasDashboardPermission($responseData['permissions'], 'remindermodule')) {
-                $menus[] = 'reminder';
+                // $menus[] = 'reminder';
             }
         }
 
@@ -264,7 +264,7 @@ class AdminLoginController extends Controller
             if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'blog', 'account'])))) {
                 session(['menu' => 'logistic']);
             }
-            $menus[] = 'logistic';
+            // $menus[] = 'logistic';
         }
 
         if ($this->hasPermission($responseData['permissions'], "developermodule")) {
@@ -274,7 +274,7 @@ class AdminLoginController extends Controller
                 session(['menu' => 'developer']);
             }
             if ($this->hasDashboardPermission($responseData['permissions'], 'developermodule')) {
-                $menus[] = 'developer';
+                // $menus[] = 'developer';
             }
         }
         if ($this->hasPermission($responseData['permissions'], "hrmodule")) {
@@ -283,15 +283,17 @@ class AdminLoginController extends Controller
             if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'developer'])))) {
                 session(['menu' => 'hr']);
             }
-            $menus[] = 'hr';
+            // $menus[] = 'hr';
         }
         if ($this->hasPermission($responseData['permissions'], "teamodule")) {
             session(['tea' => "yes"]);
             $allmenus[] = 'tea';
             if (!(Session::has('menu') && (in_array(Session::get('menu'), ['invoice', 'lead', 'quotation', 'customersupport', 'admin', 'inventory', 'reminder', 'developer','hr'])))) {
-                session(['menu' => 'tea']);
+                session(['menu' => 'BrokerInvoice']);
+                session(['menu' => 'Order']);
             }
-            $menus[] = 'tea';
+            $menus[] = 'Order';
+            $menus[] = 'BrokerInvoice';
         }
 
         session([

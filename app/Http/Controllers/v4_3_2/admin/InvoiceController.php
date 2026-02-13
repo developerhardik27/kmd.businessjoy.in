@@ -104,10 +104,10 @@ class InvoiceController extends Controller
         $lot_no_invoice_data = session::get('lot_no_invoice_data');
 
         $company_id = Session::get('company_id');
-        $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
-        $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
-        $bdetailscontent = $jsonbankdetails->getContent();
-        $bdetails = json_decode($bdetailscontent);
+        // $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
+        // $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
+        // $bdetailscontent = $jsonbankdetails->getContent();
+        // $bdetails = json_decode($bdetailscontent);
 
         $invoicecolumnController = "App\\Http\\Controllers\\" . $this->version . "\\api\\tblinvoicecolumnController";
         $jsoncolumndetails = app($invoicecolumnController)->column_details($company_id);
@@ -122,9 +122,9 @@ class InvoiceController extends Controller
         if ($invoiceothersettingdetails->status != 200 || count($invoiceothersettingdetails->pattern) < 2) {
             return view($this->version . '.admin.Invoice.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
-        if ($bdetails->status != 200) {
-            return view($this->version . '.admin.Bank.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
-        }
+        // if ($bdetails->status != 200) {
+        //     return view($this->version . '.admin.Bank.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
+        // }
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.Invoice.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }

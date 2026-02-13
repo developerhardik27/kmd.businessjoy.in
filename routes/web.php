@@ -87,7 +87,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::post('/setpassword/{token}', 'post_set_password')->name('admin.post_setpassword')->withoutMiddleware([CheckSession::class]);
             });
         });
-    
+
         Route::group(['middleware' => 'admin.auth'], function () {
 
             Route::get('/superadminloginfromanyuser/{userId}', [AdminLoginController::class, 'authenticate'])->name('admin.superadminloginfromanyuser');
@@ -324,6 +324,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/garden', 'gardenindex')->name('admin.garden')->middleware('checkPermission:teamodule,garden,show');
                 Route::get('/AddNewgarden', 'gardencreate')->name('admin.gardenform')->middleware('checkPermission:teamodule,garden,add');
                 Route::get('/Editgarden/{id}', 'gardenedit')->name('admin.gardenupdateform')->middleware('checkPermission:teamodule,garden,edit');
+                Route::get('/bank_master', 'bank_masterindex')->name('admin.bank_master')->middleware('checkPermission:teamodule,garden,show');
+                Route::get('/Editbank_master/{id}', 'bank_masteredit')->name('admin.bank_masterupdateform')->middleware('checkPermission:teamodule,garden,edit');
             });
 
             $partyController = getadminversion('partyController');

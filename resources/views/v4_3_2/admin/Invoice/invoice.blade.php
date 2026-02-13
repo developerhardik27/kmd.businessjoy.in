@@ -253,7 +253,23 @@
                     token: "{{ session()->get('api_token') }}",
                     _token: "{{ csrf_token() }}"
                 };
+               for (var key in formData) {
+                if (formData[key] === null || formData[key] === undefined || formData[key] === '') {
 
+                    // Make field name readable
+                    var fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                    Toast.fire({
+                        icon: 'error',
+                        title: fieldName + " is required"
+                    });
+
+                    loaderhide();
+                    return false;
+                }
+            }
+
+              
                 $.ajax({
                     url: "{{ route('brokerpurchase.lot_no_createInvoice') }}", // your route
                     type: "GET", // or POST if you are creating data

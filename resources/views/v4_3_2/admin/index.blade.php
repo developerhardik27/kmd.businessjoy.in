@@ -18,10 +18,26 @@
         .iq-edit-profile.nav-pills .show>.nav-link {
             color: var(--iq-white) !important;
         }
+
+        #Order-chart {
+            min-height: 400px;
+            /* keep chart height */
+        }
+
+        .no-data-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #6c757d;
+        }
     </style>
 @endsection
 
 @section('page-content')
+
     <div id="content-page" class="content-page">
         <div class="container-fluid">
             <div class="row">
@@ -37,9 +53,13 @@
                                         @foreach (session('allmenu') as $val)
                                             <li data-dashboard="{{ $val }}"
                                                 class="col-md-{{ ceil(12 / count(session('allmenu'))) }} p-0 dynamicdashboard">
+
                                                 <a class="nav-link {{ $val == session('menu') ? 'active' : '' }}"
                                                     data-toggle="pill" href="#{{ $val }}dashboard">
-                                                    <span>{{ ucfirst($val) }}</span>
+                                                    <span>
+                                                        {{ $val == 'BrokerInvoice' ? 'Brokrage Bill' : ucfirst($val) }}
+                                                    </span>
+
                                                 </a>
                                             </li>
                                         @endforeach
@@ -53,6 +73,7 @@
                 <div class="col-lg-12">
                     <div class="iq-edit-list-data">
                         <div class="tab-content">
+                            {{-- {{ dd(session('allmenu')) }} --}}
                             <div class="tab-pane fade @if (session('menu') == 'admin') active show @endif"
                                 id="admindashboard" role="tabpanel">
                                 <div class="container-fluid">
@@ -76,7 +97,7 @@
 
                                 </div>
                             </div>
-                            <div class="tab-pane fade @if (session('menu') == 'invoice') active show @endif"
+                            <div class="tab-pane fade @if (session('menu') == 'tea') active show @endif"
                                 id="invoicedashboard" role="tabpanel">
                                 <div class="container-fluid">
                                     {{-- <p>Invoice Dashboard</p> --}}
@@ -237,6 +258,237 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade @if (session('menu') == 'BrokerInvoice') active show @endif"
+                                id="BrokerInvoicedashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>BrokerInvoice Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-7">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Brokrage Bill Status Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div id="BrokerInvoice-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-5">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height"
+                                                style="background: transparent;">
+                                                <div class="iq-card-body rounded p-0"
+                                                    style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
+                                                    <div class="iq-caption">
+                                                        <h1 id="total_bro_inv">0</h1>
+                                                        <p>Brokrage Bill</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Monthly Brokrage Bill</h4>
+                                                    </div>
+                                                    <div class="float-right my-1">
+                                                        <select name="BrokerInvoicesbymonths" id="BrokerInvoicesbymonths"
+                                                            class="float-right form-control m-0 p-0">
+                                                            <option disabled>Select Month</option>
+                                                            <option value="all">Select All</option>
+                                                            <option value="current" selected>Current Month</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <ul class="suggestions-lists m-0 p-0">
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Paid Brokrage Bill"
+                                                                        class="btn btn-success btn-sm"
+                                                                        id='BrokerInvoicepaiddata'>
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        PAID
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-success">
+                                                                <span id="BrokerInvoicepaid">0</span>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Part Payment Brokrage Bill"
+                                                                        class="btn btn-info btn-sm"
+                                                                        id='BrokerInvoicepartpaymentdata'>
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        Part Payment
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-info">
+                                                                <span id="BrokerInvoicepartpayment">0</span>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6>
+                                                                    <button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Pending Brokrage Bill"
+                                                                        class="btn btn-secondary btn-sm"
+                                                                        id="BrokerInvoicependingdata">
+                                                                        <span>
+                                                                            <i class="ri-list-check"></i>
+                                                                        </span>
+                                                                        PENDING
+                                                                    </button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-secondary">
+                                                                <span id="BrokerInvoicepending">0</span>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Canceled Brokrage Bill"
+                                                                        class="btn btn-danger btn-sm"
+                                                                        id="BrokerInvoicecanceldata"><span><i
+                                                                                class="ri-list-check"></i></span>CANCEL</button>
+                                                                </h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-danger"><span
+                                                                    id="BrokerInvoicecancel">0</span></div>
+                                                        </li>
+                                                        <li class="d-flex mb-4 align-items-center">
+                                                            <div class="media-support-info ml-3">
+                                                                <h6><button data-toggle="tooltip" data-placement="bottom"
+                                                                        data-original-title="View Overdue Brokrage Bill"
+                                                                        class="btn btn-warning btn-sm"
+                                                                        id="BrokerInvoiceduedata"><span><i
+                                                                                class="ri-list-check"></i></span>OVER
+                                                                        DUE</button></h6>
+                                                            </div>
+                                                            <div class="profile-icon iq-bg-warning"><span
+                                                                    id="BrokerInvoicedue">0</span></div>
+                                                        </li>
+
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title"><span
+                                                                id="BrokerInvoice_status_title"></span>
+                                                            Brokrage Bill
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+                                                    <div class="table-responsive scrollable-table" style="width: 100%">
+                                                        <table class="table mb-0  table-borderless w-100" width="100%"
+                                                            style="text-align: center">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Brokrage Bill No</th>
+                                                                    <th scope="col">Date</th>
+                                                                    <th scope="col" class="text-right">Amount</th>
+                                                                    <th scope="col" class="text-center">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="BrokerInvoicedata">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade @if (session('menu') == 'Order') active show @endif"
+                                id="Orderdashboard" role="tabpanel">
+                                <div class="container-fluid">
+                                    {{-- <p>Order Dashboard</p> --}}
+                                    <div class="row">
+                                        <div class="col-md-12 col-lg-12">
+                                            <div
+                                                class="iq-card iq-card-block iq-card-stretch iq-card-height overflow-hidden">
+                                                <div class="iq-card-header d-flex justify-content-between">
+                                                    <div class="iq-header-title">
+                                                        <h4 class="card-title">Order Status Chart</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="iq-card-body">
+
+                                                    <div class="row mb-4 align-items-center">
+                                                        <div class="col-md-3 col-sm-12">
+                                                          
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-12">
+                                                            <select id="monthSelect" class="form-control shadow-sm">
+                                                                <option value="all">All Months</option>
+                                                                <option value="1">January</option>
+                                                                <option value="2">February</option>
+                                                                <option value="3">March</option>
+                                                                <option value="4">April</option>
+                                                                <option value="5">May</option>
+                                                                <option value="6">June</option>
+                                                                <option value="7">July</option>
+                                                                <option value="8">August</option>
+                                                                <option value="9">September</option>
+                                                                <option value="10">October</option>
+                                                                <option value="11">November</option>
+                                                                <option value="12">December</option>
+                                                            </select>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Chart Area -->
+                                                    <div class="card shadow-sm border-0">
+                                                        <div class="card-body">
+                                                            <div id="Order-chart" style="min-height: 350px;"></div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        {{-- <div class="col-md-6 col-lg-5">
+                                            <div class="iq-card iq-card-block iq-card-stretch iq-card-height"
+                                                style="background: transparent;">
+                                                <div class="iq-card-body rounded p-0"
+                                                    style="background: url( {{ asset('admin/images/page-img/01.png') }} ) no-repeat;    background-size: cover; height: 415px;">
+                                                    <div class="iq-caption">
+                                                        <h1 id="total_order">0</h1>
+                                                        <p>Order</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> --}}
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -953,7 +1205,6 @@
                             $('#invoicecancel').text(cancel.length)
                             invoicecanceldata = response.cancel;
                         }
-
                         if (response.due) {
                             due = response.due;
                             $('#invoicedue').text(due.length)
@@ -1298,7 +1549,7 @@
                 lastMonths = lastMonths.reverse(); // Reverse to show from the oldest to the newest
 
                 $.each(lastMonths, function(key, month) {
-                    $('#invoicesbymonths , #quotationsbymonths').append(`
+                    $('#invoicesbymonths ,#BrokerInvoicesbymonths, #quotationsbymonths').append(`
                         <option value="${month.number}">${month.name}</option>
                     `);
                 });
@@ -2434,7 +2685,8 @@
                 fetchAndDrawDailySlowPagesChart();
                 loaderhide();
             }
-
+                  //developermodule end
+                  // admin Dashboard start
             function fetchAdminDashboardData() {
                 $.ajax({
                     url: "{{ route('admindeshbord') }}", // Replace this with your Laravel backend endpoint
@@ -2519,13 +2771,559 @@
                 fetchAdminDashboardData();
                 loaderhide();
             }
-            //developermodule end
+            // Admin Dashboard End
+         
 
+
+      
+                // Order Dashboard start
+               function totalorderCount() {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('order.totalorder') }}",
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}"
+                    },
+                    success: function(response) {
+                        $('#total_order').text(response.order);
+                    }
+                });
+            }
+
+
+
+            function fetchOrderChart(month = 'all') {
+                $.ajax({
+                    url: "{{ route('order.chart') }}",
+                    method: "GET",
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        month
+                    },
+                    success: function(data) {
+                        if (!data || !data.length) {
+                            $('#Order-chart').html(`
+                                    <div class="no-data-message">
+                                        No data available
+                                    </div>
+                                `);
+                            return;
+                        }
+
+                        let categories = [];
+                        let totalOrders = [];
+                        let totalKg = [];
+                        let totalAmount = [];
+
+                        const hasBuyer = data[0].hasOwnProperty('buyer_party');
+                        const hasMonth = data[0].hasOwnProperty('month');
+
+                        if (hasMonth && !hasBuyer) {
+                            categories = data.map(d => getMonthName(d.month));
+                        } else if (hasBuyer && !hasMonth) {
+                            categories = data.map(d => d.buyer_party); // map ID → name if needed
+                        } else if (hasBuyer && hasMonth) {
+                            categories = data.map(d => `${d.buyer_party} - ${getMonthName(d.month)}`);
+                        } else {
+                            categories = ['Summary'];
+                        }
+
+                        totalOrders = data.map(d => Number(d.total_orders) || 0);
+                        totalKg = data.map(d => Number(d.total_kg) || 0);
+                        totalAmount = data.map(d => Number(d.total_amount) || 0);
+
+                        Highcharts.chart('Order-chart', {
+                            chart: {
+                                zoomType: 'xy'
+                            },
+                            title: {
+                                text: ' '
+                            },
+                            xAxis: [{
+                                categories,
+                                crosshair: true
+                            }],
+                            yAxis: [{ // Primary Y axis for Orders
+                                    labels: {
+                                        format: '{value}',
+                                        style: {
+                                            color: '#fbc647'
+                                        }
+                                    },
+                                    title: {
+                                        text: 'Total Orders',
+                                        style: {
+                                            color: '#fbc647'
+                                        }
+                                    }
+                                },
+                                {
+                                    title: {
+                                        text: 'Amount (₹)',
+                                        style: {
+                                            color: '#827af3'
+                                        }
+                                    },
+                                    labels: {
+                                        formatter: function() {
+                                            return '₹ ' + Number(this.value)
+                                                .toLocaleString('en-IN');
+                                        },
+                                        style: {
+                                            color: '#827af3'
+                                        }
+                                    },
+                                    opposite: true
+                                }
+
+                            ],
+                            tooltip: {
+                                shared: true,
+                                formatter: function() {
+                                    let s = '<b>' + this.x + '</b>';
+
+                                    this.points.forEach(point => {
+                                        if (point.series.name === 'Total Amount') {
+                                            s += '<br/>' + point.series.name +
+                                                ': ₹ ' +
+                                                Number(point.y).toLocaleString(
+                                                    'en-IN');
+                                        } else {
+                                            s += '<br/>' + point.series.name +
+                                                ': ' +
+                                                point.y.toLocaleString('en-IN');
+                                        }
+                                    });
+
+                                    return s;
+                                }
+                            },
+
+                            series: [{
+                                    name: 'Total Orders',
+                                    type: 'column',
+                                    data: totalOrders,
+                                    color: '#fbc647',
+                                    tooltip: {
+                                        valueSuffix: ' orders'
+                                    }
+                                },
+                                {
+                                    name: 'Total Amount',
+                                    type: 'spline',
+                                    yAxis: 1,
+                                    data: totalAmount,
+                                    color: '#28a745',
+                                    tooltip: {
+                                        valuePrefix: '₹'
+                                    }
+                                }
+                            ],
+                            credits: {
+                                enabled: false
+                            }
+                        });
+                    },
+                    error: function(err) {
+                        console.error('Error fetching chart data', err);
+                        $('#Order-chart').html('<p>Error loading data.</p>');
+                    }
+                });
+            }
+
+            // Helper
+
+            $('#monthSelect').on('change', function() {
+                let selectedMonth = $(this).val() || 'all';
+                fetchOrderChart(selectedMonth);
+            });
+            $('#monthSelect').select2({
+                placeholder: "Select Month",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Initial load (optional)
+
+
+            function Orderdashboard() {
+                fetchOrderChart('all');
+                totalorderCount();
+            }
+            // Order Dashboard End
+
+            // Broker Bill Dashboard start
+            function totalBrokerInvoiceCount() {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('brokrage.totalinvoice') }}",
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}"
+                    },
+                    success: function(response) {
+                        $('#total_bro_inv').text(response.invoice);
+                    }
+                });
+            }
+
+            function Brokerinvoice(month = null) {
+                invoicemonth = 'current';
+                if (month) {
+                    invoicemonth = month;
+                }
+
+                // get all invoice
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('brokrage.status_list') }}",
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: "{{ session()->get('company_id') }}",
+                        invoicemonth: invoicemonth,
+                    },
+                    success: function(response) {
+
+                        BrokerInvoicepartpaymentdata = BrokerInvoicepaiddata =
+                            BrokerInvoicependingdata =
+                            BrokerInvoicecanceldata = BrokerInvoiceduedata = '';
+
+                        $('#BrokerInvoicepartpayment').text(0);
+                        $('#BrokerInvoicepaid').text(0);
+                        $('#BrokerInvoicepending').text(0);
+                        $('#BrokerInvoicecancel').text(0);
+                        $('#BrokerInvoicedue').text(0);
+
+
+                        if (response == '') {
+                            $('#BrokerInvoicedata').html(
+                                "<tr><td colspan='4' class='text-center'>No Data Found</td></tr>");
+                        }
+
+                        if (response.part_payment) {
+                            partpayment = response.part_payment;
+                            $('#BrokerInvoicepartpayment').text(partpayment.length);
+                            BrokerInvoicepartpaymentdata = response.part_payment;
+
+                        }
+                        if (response.paid) {
+                            paid = response.paid;
+                            $('#BrokerInvoicepaid').text(paid.length);
+                            BrokerInvoicepaiddata = response.paid;
+                        }
+                        if (response.pending) {
+                            pending = response.pending;
+                            $('#BrokerInvoicepending').text(pending.length);
+                            BrokerInvoicependingdata = response.pending;
+                            Brokerpendingd();
+                        }
+
+                        if (response.cancel) {
+                            cancel = response.cancel;
+                            $('#BrokerInvoicecancel').text(cancel.length)
+                            BrokerInvoicecanceldata = response.cancel;
+                        }
+
+                        if (response.due) {
+                            due = response.due;
+                            $('#BrokerInvoicedue').text(due.length)
+                            BrokerInvoiceduedata = response.due;
+
+                        }
+                        if (response.status == 500) {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                            loaderhide();
+                        }
+                    }
+                });
+            }
+
+            function Brokerpendingd() {
+                $('#BrokerInvoicedata').html('');
+                $('#BrokerInvoice_status_title').text('Pending');
+                if (BrokerInvoicependingdata != '') {
+
+                    $.each(BrokerInvoicependingdata, function(key, value) {
+
+                        $('#BrokerInvoicedata').append(` 
+                            <tr>
+                                <td>${value.invoice_no}</td>
+                                <td>${value.inv_date_formatted}</td>
+                                <td class="text-right">${value.grand_total}</td>
+                                <td class="text-center">
+                                    <div class="badge badge-pill iq-bg-secondary">${value.status}</div>
+                                </td>                                        
+                            </tr>
+                        `);
+                    });
+                } else {
+                    $('#BrokerInvoicedata').append(`
+                        <tr>
+                            <td colspan=4'>No data Found</td>
+                        </tr>
+                    `);
+                }
+            }
+
+            function Brokerpartpaymentd() {
+                $('#BrokerInvoicedata').html('');
+                $('#BrokerInvoice_status_title').text('Part Payment');
+                if (BrokerInvoicepartpaymentdata != '') {
+                    $.each(BrokerInvoicepartpaymentdata, function(key, value) {
+                        $('#BrokerInvoicedata').append(` 
+                            <tr>
+                                <td>${value.invoice_no}</td>
+                                <td>${value.inv_date_formatted}</td>
+                                <td class="text-right">${value.grand_total}</td>
+                                <td class="text-center">
+                                    <div class="badge badge-pill iq-bg-success">${(value.status).replace('_',' ')}</div>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    $('#BrokerInvoicedata').append(`
+                        <tr>
+                            <td colspan=4>still not any Brokrage Bill status part payment in this month </td>
+                        </tr>
+                    `);
+                }
+
+            }
+
+            function Brokerpaidd() {
+                $('#BrokerInvoicedata').html('');
+                $('#BrokerInvoice_status_title').text('Paid');
+                if (BrokerInvoicepaiddata != '') {
+                    $.each(BrokerInvoicepaiddata, function(key, value) {
+                        $('#BrokerInvoicedata').append(` 
+                            <tr>
+                                <td>${value.invoice_no}</td>
+                                <td>${value.inv_date_formatted}</td>
+                                <td class="text-right">${value.grand_total}</td>
+                                <td class="text-center">
+                                    <div class="badge badge-pill iq-bg-success">${value.status}</div>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    $('#BrokerInvoicedata').append(`
+                        <tr>
+                            <td colspan=4>still not any Brokrage Bill paid in this month </td>
+                        </tr>
+                    `)
+                }
+
+            }
+
+
+
+            // cancled BrokerInvoices
+            function Brokercanceld() {
+                $('#BrokerInvoicedata').html('');
+                $('#BrokerInvoice_status_title').text('Cancel');
+                if (BrokerInvoicecanceldata != '') {
+                    $.each(BrokerInvoicecanceldata, function(key, value) {
+                        $('#BrokerInvoicedata').append(`
+                            <tr>
+                                <td>${value.invoice_no}</td>
+                                <td>${value.inv_date_formatted}</td>                                        
+                                <td class="text-right">${value.grand_total}</td>
+                                <td class="text-center">
+                                    <div class="badge badge-pill iq-bg-warning">${value.status}</div>
+                                </td>                                      
+                            </tr>
+                        `);
+                    });
+                } else {
+                    $('#BrokerInvoicedata').append(`
+                        <tr>
+                            <td colspan=4>still not any Brokrage Bill cancel in this month</td>
+                        </tr>
+                    `);
+                }
+            }
+
+            // overdue BrokerInvoices
+            function Brokerdued() {
+                $('#BrokerInvoicedata').html('');
+                $('#BrokerInvoice_status_title').text('Over due');
+                if (BrokerInvoiceduedata != '') {
+                    $.each(BrokerInvoiceduedata, function(key, value) {
+                        $('#BrokerInvoicedata').append(`
+                            <tr>
+                                <td>${value.invoice_no}</td>
+                                <td>${value.inv_date_formatted}</td>                                        
+                                <td class="text-right">${value.grand_total}</td>
+                                <td class="text-center">
+                                    <div class="badge badge-pill iq-bg-warning">${value.status}</div>
+                                </td>                                      
+                            </tr>
+                        `);
+                    });
+                } else {
+                    $('#BrokerInvoicedata').append(`
+                        <tr>
+                            <td colspan=4>still not any Brokrage Bill overdue in this month</td>
+                        </tr>
+                    `);
+                }
+            }
+
+            function fetchDataAndDrawBrokerInvoiceChart() {
+                $.ajax({
+                    url: "{{ route('brokrage.chart') }}", // Replace this with your Laravel backend endpoint
+                    method: 'GET',
+                    data: {
+                        user_id: "{{ session()->get('user_id') }}",
+                        token: "{{ session()->get('api_token') }}",
+                        company_id: " {{ session()->get('company_id') }} "
+                    },
+                    success: function(invoicesData) {
+                        // Ensure invoicesData is an array of objects with the expected properties
+                        if (Array.isArray(invoicesData) && invoicesData.length > 0 && invoicesData[
+                                0]
+                            .hasOwnProperty('month') && invoicesData[0].hasOwnProperty(
+                                'total_invoices') && invoicesData[0].hasOwnProperty('paid_invoices')
+                        ) {
+
+                            // Sort invoicesData by month (ascending order)
+                            invoicesData.sort((a, b) => a.month - b.month);
+
+                            const xAxisCategories = invoicesData.map(item => getMonthName(item
+                                .month));
+
+                            // Extract data for total and paid invoices, rainfall, and temperature
+                            const totalInvoicesData = invoicesData.map(item => parseInt(item
+                                .total_invoices));
+                            const paidInvoicesData = invoicesData.map(item => parseInt(item
+                                .paid_invoices));
+
+                            // Chart configuration for displaying monthly invoice counts, paid invoices, rainfall, and temperature with month names
+                            Highcharts.chart("BrokerInvoice-chart", {
+                                chart: {
+                                    type: "spline",
+                                },
+                                title: {
+                                    text: "Monthly Data"
+                                },
+                                xAxis: {
+                                    categories: xAxisCategories,
+                                    crosshair: true
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: "Values"
+                                    }
+                                },
+                                series: [{
+                                    name: "Total Invoices",
+                                    data: totalInvoicesData,
+                                    color: "#fbc647",
+                                    type: "column"
+                                }, {
+                                    name: "Paid Invoices",
+                                    data: paidInvoicesData,
+                                    color: "#827af3",
+                                    type: "spline",
+
+                                }],
+                                credits: {
+                                    enabled: false
+                                },
+                            });
+                        } else {
+
+                            document.getElementById("BrokerInvoice-chart").innerHTML =
+                                '<p>You have no invoices to display.</p>';
+
+                            Highcharts.chart("BrokerInvoice-chart", {
+                                credits: {
+                                    enabled: false
+                                },
+                                chart: {
+                                    type: "spline",
+                                },
+                                title: {
+                                    text: "You have no invoices"
+                                },
+                                xAxis: {
+                                    crosshair: true
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: "Values"
+                                    }
+                                },
+                                series: [{
+                                    name: "Invoices",
+                                    color: "#827af3",
+                                    type: "spline",
+
+                                }]
+                            });
+                            console.error('Invalid data format received:', invoicesData);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+
+            $('#BrokerInvoicepartpaymentdata').on('click', function() {
+                Brokerpartpaymentd();
+            });
+            $('#BrokerInvoicepaiddata').on('click', function() {
+                Brokerpaidd();
+            });
+            $('#BrokerInvoicependingdata').on('click', function() {
+                Brokerpendingd();
+            });
+            $('#BrokerInvoicecanceldata').on('click', function() {
+                Brokercanceld();
+            });
+            $('#BrokerInvoiceduedata').on('click', function() {
+                Brokerdued();
+            });
+
+            $('#BrokerInvoicesbymonths').on('change', function() {
+                Brokerinvoice($(this).val());
+            });
+
+            function BrokerInvoicedashboard() {
+                // // Call the function to fetch invoice data and draw the initial chart
+                fetchDataAndDrawBrokerInvoiceChart();
+                totalBrokerInvoiceCount(); // call totalBrokerInvoiceCount function 
+
+                Brokerinvoice(); // call Brokerinvoice function 
+
+                Brokerpendingd();
+
+                loaderhide();
+            }
+            // Broker Bill Dashboard End 
             @if (session('menu') == 'admin')
                 admindashboard();
             @endif
-            @if (session('menu') == 'invoice')
+            @if (session('menu') == 'tea')
                 invoicedashboard();
+            @endif
+            @if (session('menu') == 'Order')
+                Orderdashboard();
+            @endif
+            @if (session('menu') == 'BrokerInvoice')
+                BrokerInvoicedashboard();
             @endif
             @if (session('menu') == 'quotation')
                 quotationdashboard();

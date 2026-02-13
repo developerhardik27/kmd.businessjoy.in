@@ -73,17 +73,23 @@
 
 
 @push('ajax')
-    @isset($message)
+    {{-- @isset($message)
         <script>
             $('document').ready(function() {
                 // if  company has not any bank account so user will be redirect here when he click on create invoice link
                 alert('You have not any bank account. Please first add bank account!');
             });
         </script>
-    @endisset
+    @endisset --}}
     <script>
         $('document').ready(function() {
-
+            let message = "{{ session('message') }}";
+            if (message) {
+                Toast.fire({
+                    icon: 'error',
+                    title: message
+                });
+            }
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found

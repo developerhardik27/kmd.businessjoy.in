@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\v4_3_2\api;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class brokragebillpaymentController extends commonController
 {
@@ -267,4 +268,65 @@ class brokragebillpaymentController extends commonController
 
         return $this->successresponse(200, 'message', 'Payment details successfully deleted.');
     }
+
+    public function totalInvoice()
+    {
+        if ($this->rp['invoicemodule']['invoicedashboard']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $invoices = $this->broker_bill_invoiceModel::where('is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['invoicedashboard']['alldata'] != 1) {
+            $invoices->where('created_by', $this->userId);
+        }
+
+        $invoices = $invoices->count();
+
+        return $this->successresponse(200, 'invoice', $invoices);
+    }
+     public function status_list(Request $request)
+    {
+
+        if ($this->rp['invoicemodule']['invoicedashboard']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $invoices = $this->broker_bill_invoiceModel::whereYear('invoice_date', Carbon::now()->year)
+            ->where('is_deleted', 0)
+            ->select('broker_bill_invoice.*', DB::raw("DATE_FORMAT(broker_bill_invoice.invoice_date, '%d-%m-%Y') as inv_date_formatted"));
+
+        if ($request->invoicemonth == 'current') {
+            $invoices->whereMonth('invoice_date', Carbon::now()->month);
+        } elseif ($request->invoicemonth != 'all') {
+            $invoices->whereMonth('invoice_date', $request->invoicemonth);
+        }
+
+        if ($this->rp['invoicemodule']['invoicedashboard']['alldata'] != 1) {
+            $invoices->where('created_by', $this->userId);
+        }
+
+
+        $invoices = $invoices->get();
+      
+        $groupedInvoices = $invoices->groupBy('status');
+        return $groupedInvoices;
+    }
+    public function monthlyInvoiceChart(Request $request)
+    {
+        if ($this->rp['invoicemodule']['invoicedashboard']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        $invoices = $this->broker_bill_invoiceModel::select(DB::raw("MONTH(invoice_date) as month, COUNT(*) as total_invoices, SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_invoices"))
+            ->where('is_deleted', 0);
+
+        if ($this->rp['invoicemodule']['invoicedashboard']['alldata'] != 1) {
+            $invoices->where('created_by', $this->userId);
+        }
+
+        $invoices = $invoices->groupBy(DB::raw("MONTH(invoice_date)"))->get();
+
+        return response()->json($invoices);
+    }
+
 }

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class companymasterController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $companymasterModel, $gardenModel, $companygardenModel;
+    public $userId, $companyId, $masterdbname, $rp, $companymasterModel, $gardenModel, $companygardenModel, $bank_detail_masterModel;
 
     public function __construct(Request $request)
     {
@@ -32,6 +32,7 @@ class companymasterController extends commonController
         $this->companymasterModel = $this->getmodel('companymaster');
         $this->gardenModel = $this->getmodel('garden');
         $this->companygardenModel = $this->getmodel('company_garden');
+        $this->bank_detail_masterModel = $this->getmodel('bank_detail_master');
     }
     public function index()
     {
@@ -476,5 +477,157 @@ class companymasterController extends commonController
         );
         $this->companygardenModel::where('garden_id', $id)->delete();
         return $this->successresponse(200, 'message', 'garden succesfully deleted');
+    }
+    // this in create invoice list time show dropdown list 
+    public function bank_detailindex(Request $request)
+    {
+        // dd($request->all());
+        $bank = $this->bank_detail_masterModel::where('is_active', 1)->where('companymaster_id', $request->companymaster_id)
+            ->where('is_deleted', 0)
+            ->get();
+
+        if ($bank->isEmpty()) {
+            return $this->successresponse(404, 'bank', 'No Records Found');
+        }
+        return $this->successresponse(200, 'bank', $bank);
+    }
+    // this bank details list page api
+    public function bank_detailslist()
+    {
+
+        // dd($request->all());
+        $bank = $this->bank_detail_masterModel
+            ::select(
+                'bank_detail_master.*',
+                'companymasters.company_name',
+                 DB::raw("DATE_FORMAT(bank_detail_master.created_at, '%d-%m-%Y %h:%i %p') as created_at_formatted")
+            )
+            ->join('companymasters', 'companymasters.id', '=', 'bank_detail_master.companymaster_id')
+            ->where('bank_detail_master.is_active', 1)
+            ->where('bank_detail_master.is_deleted', 0)
+            ->get();
+
+
+        if ($bank->isEmpty()) {
+            return DataTables::of($bank)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+        return DataTables::of($bank)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
+
+
+    public function bank_detailstore(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'bank_companymaster_id' => 'required|string|max:255',
+            'holder_name'           => 'required|string|max:255',
+            'account_number'        => 'required|string|max:50',
+            'swift_code'            => 'nullable|string|max:20',
+            'ifsc_code'             => 'required|string|max:20',
+            'bank_name'             => 'required|string|max:255',
+            'branch_name'           => 'nullable|string|max:255',
+            'user_id'               => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        $insertData = [
+            'companymaster_id' => $data['bank_companymaster_id'],
+            'holder_name'      => $data['holder_name'],
+            'account_no'   => $data['account_number'],
+            'swift_code'       => $data['swift_code'] ?? null,
+            'ifsc_code'        => $data['ifsc_code'],
+            'bank_name'        => $data['bank_name'],
+            'branch_name'      => $data['branch_name'] ?? null,
+            'created_by'       => $data['user_id'],
+        ];
+
+        // Insert and get ID
+        $insertId = $this->bank_detail_masterModel::insertGetId($insertData);
+
+        if ($insertId) {
+            return $this->successresponse(200, 'message', 'bank Details succesfully added', 'insertId', $insertId);
+        } else {
+            return $this->successresponse(500, 'message', 'bank Details not succesfully added !');
+        }
+    }
+    public function bankdetailspdf(string $id)
+    {
+        $bankdetailres = $this->bank_detail_masterModel::where('id', $id);
+
+        $bankdetail = $bankdetailres->get();
+
+        if ($bankdetail->isEmpty()) {
+            return $this->successresponse(404, 'bankdetail', 'No Records Found');
+        }
+
+        if ($this->rp['invoicemodule']['bank']['view'] != 1 && $this->rp['reportmodule']['report']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        return $this->successresponse(200, 'bankdetail', $bankdetail);
+    }
+     public function bank_detailupdate(Request $request, string $id)
+    {
+
+        if ($this->rp['invoicemodule']['bank']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $bankdetail = $this->bank_detail_masterModel::find($id);
+
+
+        if (!$bankdetail) {
+            return $this->successresponse(404, 'message', 'No Such bank Found!');
+        }
+
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            if ($bankdetail->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', "You are Unauthorized!");
+            }
+        }
+
+        $bankdetail->update([
+            'is_active' => $request->status
+        ]);
+
+        return $this->successresponse(200, 'message', 'status succesfully updated');
+    }
+     public function bank_detaildestroy(Request $request, string $id)
+    {
+
+        if ($this->rp['invoicemodule']['bank']['delete'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $bankdetail = $this->bank_detail_masterModel::find($id);
+
+        if (!$bankdetail) {
+            return $this->successresponse(404, 'message', 'No Such bank Found!');
+        }
+
+        if ($this->rp['invoicemodule']['bank']['alldata'] != 1) {
+            if ($bankdetail->created_by != $this->userId) {
+                return $this->successresponse(500, 'message', "You are Unauthorized!");
+            }
+        }
+
+        $bankdetail->update([
+            'is_deleted' => 1
+        ]);
+
+        return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
     }
 }
