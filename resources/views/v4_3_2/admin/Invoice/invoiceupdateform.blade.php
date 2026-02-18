@@ -975,7 +975,7 @@
                         $('#currency').val(invdetails.currency_id);
                         $('#acc_details').val(invdetails.account_id);
                         if ((invdetails.cgst === null || invdetails.cgst === 0) &&
-                            (invdetails.sgst === null || invdetails.sgst === 0) &&
+                            (invdetails.sgst === null || invdetails.sgst === 0) && (invdetails.igst === null || invdetails.igst === 0) &&
                             (invdetails.gst === null || invdetails.gst === 0)) {
                             $('#type').val(2);
                             $('#sgstline,#cgstline ,#igstline,#gstline').hide();
@@ -989,6 +989,7 @@
                         const gstsettings = JSON.parse(invdetails.gstsettings);
                         sgst = parseFloat(gstsettings.sgst);
                         cgst = parseFloat(gstsettings.cgst);
+                        igst = parseFloat(gstsettings.igst);
                         gst = parseFloat(gstsettings.gst);
                        
                         // companymaster_id = 21;
@@ -996,13 +997,13 @@
                        if (company_state_id === buyer_state_id) {
                             // Intra-state
                             igst = 0;
-                            totalgstpercentage = sgst + cgst;
+                            totalgstpercentage = sgst + cgst + igst;
                         } else {
                             // Inter-state
-                            igst = sgst + cgst; // assign total as IGST
+                            // igst = sgst + cgst; // assign total as IGST
                             sgst = 0;
                             cgst = 0;
-                            totalgstpercentage = igst;
+                            totalgstpercentage = igst + sgst + cgst ;
                         }
 
                         if (sgst % 1 === 0) { // Checks if sgst is an integer
@@ -1011,7 +1012,7 @@
                             $('#sgstpercentage').text(`(${sgst} %)`);
                         }
                         
-                        if (igst % 1 === 0) { // Checks if sgst is an integer
+                        if (igst % 1 === 0) { // Checks if igst is an integer
                             $('#igstpercentage').text(`(${igst}.00 %)`);
                         } else {
                             $('#igstpercentage').text(`(${igst} %)`);

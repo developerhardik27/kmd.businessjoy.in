@@ -394,6 +394,7 @@ class invoiceController extends commonController
                 "total_amount" => 'required|numeric',
                 "sgst" => 'nullable|numeric',
                 "cgst" => 'nullable|numeric',
+                "igst" => 'nullable|numeric',
                 "gst" => 'nullable|numeric',
                 "currency" => 'required|numeric',
                 "tax_type" => 'required|numeric',
@@ -597,6 +598,7 @@ class invoiceController extends commonController
                         } else { // if sepereate gst 
                             $invoicerec['sgst'] = $data['sgst'];
                             $invoicerec['cgst'] = $data['cgst'];
+                            $invoicerec['igst'] = $data['igst'];
                         }
                     }
 

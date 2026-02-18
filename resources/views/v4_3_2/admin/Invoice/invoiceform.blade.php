@@ -1013,7 +1013,7 @@
                         $('#cgst').val(cgstvalue);
                         $('#igst').val(igstvalue);
                     } else {
-                        $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
+                        $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue)+ parseFloat(igstvalue));
                     }
                     var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue) + parseFloat(igstvalue) ;
                     grandtotalval = Math.round(totalval)
@@ -1184,18 +1184,19 @@
                     customer_dropdown = othersettingdata['customer_dropdown'];
                     sgst = othersettingdata['sgst'];
                     cgst = othersettingdata['cgst'];
+                    igst = othersettingdata['igst'];
                     gst = othersettingdata['gst'];
                    
                     if (company_state_id === buyer_state_id) {
-                     // Intra-state: SGST + CGST
+                  
                         igst = 0;
-                        totalgstpercentage = sgst + cgst;
+                        totalgstpercentage = sgst + cgst + igst;
                     } else {
                         // Inter-state: IGST only
-                        igst = sgst + cgst; // or assign appropriate IGST value
+                        // igst = sgst + cgst; // or assign appropriate IGST value
                         sgst = 0;
                         cgst = 0;
-                        totalgstpercentage = igst;
+                        totalgstpercentage = igst + sgst + cgst;
                     }
                     manualinvnumber = othersettingdata['invoice_number'];
                     manualinvdate = othersettingdata['invoice_date'];
