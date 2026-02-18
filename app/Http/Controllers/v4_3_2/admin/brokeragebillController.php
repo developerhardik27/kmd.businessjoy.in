@@ -37,7 +37,7 @@ class brokeragebillController extends Controller
             'user_id' => session('user_id')
         ]);
         $brokerPurchaseController = "App\\Http\\Controllers\\" . $this->version . "\\api\\brokerPurchaseController";
-        $jsonbrokerpurchasedetails = app($brokerPurchaseController)->index($request);
+        $jsonbrokerpurchasedetails = app($brokerPurchaseController)->list_sample($request);
         $brokerpurchasedetailscontent = $jsonbrokerpurchasedetails->getContent();
         $brokerpurchasedetails = json_decode($brokerpurchasedetailscontent);
 

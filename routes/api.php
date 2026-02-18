@@ -551,6 +551,7 @@ Route::middleware(['checkToken'])->group(function () {
     $brokerpurchaseController = getversion('brokerPurchaseController');
     Route::controller($brokerpurchaseController)->group(function () {
         Route::get('/brokerpurchase', 'index')->name('brokerpurchase.index');
+        Route::get('/list_sample', 'list_sample')->name('brokerpurchase.list_sample');
         Route::get('/brokerpurchase/getGardens', 'getGardens')->name('brokerpurchase.getGardens');
         Route::get('/brokerpurchase/get-invoices', 'getInvoices')->name('brokerpurchase.getInvoices');
         Route::get('/brokerpurchase/get-update-invoices', 'getupdateInvoices')->name('brokerpurchase.getupdateInvoices');

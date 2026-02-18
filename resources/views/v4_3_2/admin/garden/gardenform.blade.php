@@ -52,7 +52,8 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="country">Select Country</label>
+                    <label for="country">Select Country</label><span class="withoutgstspan"
+                                        style="color:red;">*</span>
                     <select class="form-control requiredinput" name='country' id="country">
                         <option selected="" disabled="">Select your Country</option>
                     </select>
@@ -60,7 +61,8 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="state">Select State</label>
+                    <label for="state">Select State</label><span class="withoutgstspan"
+                                        style="color:red;">*</span>
                     <select class="form-control requiredinput" name='state' id="state">
                         <option selected="" disabled="">Select your State</option>
                     </select>
@@ -68,7 +70,8 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="city">Select City</label>
+                    <label for="city">Select City</label><span class="withoutgstspan"
+                                        style="color:red;">*</span>
                     <select class="form-control requiredinput" name='city' id="city">
                         <option selected="" disabled="">Select your City</option>
                     </select>

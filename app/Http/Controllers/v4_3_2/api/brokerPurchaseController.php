@@ -380,6 +380,90 @@ class brokerPurchaseController extends commonController
             ])
             ->make(true);
     }
+     public function list_sample(Request $request)
+    {
+        if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        // $brokerpurchase = $this->brokerpurchaseModel::where('is_deleted', 0)->get();
+        // if ($brokerpurchase->isEmpty()) {
+        //     return $this->successresponse(404, 'message', 'No Data Found');
+        // }
+        $brokerpurchase = $this->brokerpurchaseModel
+            ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
+            ->join('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+            ->join('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+            ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->join('order_details', function ($join) {
+                $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
+                    ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+            })
+            ->join('orders', 'orders.id', '=', 'order_details.order_id')
+            ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+            ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->where('broker_purchases.is_deleted', 0);
+
+        $filters = [
+            'filter_company'      => 'companymasters.id',
+            'filter_buyer'        => 'orders.buyer_party',
+            'filter_garden'       => 'broker_purchases.garden_id',
+            'filter_grade'        => 'broker_purchases.grade',
+            'filter_net_kg_from'  => 'broker_purchases.net_kg',
+            'filter_net_kg_to'    => 'broker_purchases.net_kg',
+            'filter_bags_from'    => 'broker_purchases.bags',
+            'filter_bags_to'      => 'broker_purchases.bags',
+            'filter_from_date'    => 'broker_purchases.created_at',
+            'filter_to_date'      => 'broker_purchases.created_at',
+        ];
+
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                if ($requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to') {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $brokerpurchase->where($column, $operator, $value);
+                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $brokerpurchase->whereDate($column, $operator, $value);
+                } else {
+
+                    $brokerpurchase->whereIn($column, $value);
+                }
+            }
+        }
+
+        $brokerpurchase = $brokerpurchase
+            ->select(
+
+                'broker_purchases.*',
+                'grades.grade as grade_name',
+                'gardens.garden_name as garden_name',
+                'companymasters.company_name',
+                'companymasters.id as company_id',
+                'orders.id as order_id',
+                'orders.buyer_party',
+                'orders.transport',
+                'buyer.name as buyer_name',
+                'transporter.name as transport_name'
+            )
+            ->get();
+        // dd($brokerpurchase);
+        if ($brokerpurchase->isEmpty()) {
+            return DataTables::of($brokerpurchase)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($brokerpurchase)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
     public function store(Request $request)
     {
         if ($this->rp['teamodule']['brokerpurchase']['add'] != 1) {
