@@ -517,6 +517,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/companymaster/delete/{id}', 'destroy')->name('companymaster.delete');
         Route::get('/garden', 'gardenindex')->name('garden.index');
         Route::get('/gardenassign', 'gardenassign')->name('garden.gardenassign');
+        Route::get('/Editgardenload', 'editgardenload')->name('garden.editgardenload');
         Route::get('/gardennotassign', 'gardennotassign')->name('garden.gardennotassign');
         Route::post('/garden/insert', 'gardenstore')->name('garden.store');
         Route::get('/garden/edit/{id}', 'gardenedit')->name('garden.edit');

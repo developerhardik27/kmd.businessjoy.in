@@ -98,7 +98,7 @@
                             </div>
                             <div class="col-sm-12">
                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
-                                    id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
+                                    id="modalcancelbtn" class="btn btn-secondary float-right">Cancel</button>
                                 <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details"
                                     class="btn iq-bg-danger float-right mr-2">Reset</button>
                                 <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save Details"
@@ -1144,7 +1144,10 @@
             }
 
             getformula();
-           
+              $("#modalcancelbtn").on('click', function() {
+                $('#bankdetailform')[0].reset();
+                $('#bankDetailModal').modal('hide');
+            });
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found

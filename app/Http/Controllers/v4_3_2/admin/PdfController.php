@@ -24,40 +24,29 @@ use Dompdf\Options;
 
 class PdfController extends commonController
 {
-   public $version, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
+   public $version,$masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
    public function __construct()
    {
       if (session_status() !== PHP_SESSION_ACTIVE)
          session_start();
       if (isset($_SESSION['folder_name'])) {
          $this->version = $_SESSION['folder_name'];
-
-         $this->invoiceModel = 'App\\Models\\' . $this->version . "\\invoice";
-         $this->paymentdetailsModel = 'App\\Models\\' . $this->version . "\\payment_details";
-         $this->quotationModel = 'App\\Models\\' . $this->version . "\\quotation";
-         $this->consignor_copyModel = 'App\\Models\\' . $this->version . "\\consignor_copy";
-         $this->brokerpurchaseModel = 'App\\Models\\' . $this->version . "\\broker_purchase";
-         $this->bank_detailsModel = 'App\\Models\\' . $this->version . "\\bank_detail";
-         $this->broker_bill_invoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
-         $this->broker_payment_detailsModel = 'App\\Models\\' . $this->version . "\\broker_bill_payment_detail";
-         $this->company_gardenModel = 'App\\Models\\' . $this->version . "\\company_garden";
-         $this->orderModel = 'App\\Models\\' . $this->version . "\\order";
-         $this->order_detailModel = 'App\\Models\\' . $this->version . "\\order_detail";
-         $this->brokerbillinvoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
       } else {
-         $this->invoiceModel = 'App\\Models\\v4_3_2\\invoice';
-         $this->paymentdetailsModel = 'App\\Models\\v4_3_2\\payment_details';
-         $this->quotationModel = 'App\\Models\\v4_3_2\\quotation';
-         $this->consignor_copyModel = 'App\\Models\\v4_3_2\\consignor_copy';
-         $this->brokerpurchaseModel = 'App\\Models\\v4_3_2\\broker_purchase';
-         $this->bank_detailsModel = 'App\\Models\\v4_3_2\\bank_detail';
-         $this->broker_bill_invoiceModel = 'App\\Models\\v4_3_2\\broker_bill_invoice';
-         $this->broker_payment_detailsModel = 'App\\Models\\v4_3_2\\broker_bill_payment_detail';
-         $this->company_gardenModel = 'App\\Models\\v4_3_2\\company_garden';
-         $this->orderModel = 'App\\Models\\v4_3_2\\order';
-         $this->order_detailModel = 'App\\Models\\v4_3_2\\order_detail';
-         $this->brokerbillinvoiceModel = 'App\\Models\\v4_3_2\\broker_bill_invoice';
+         $this->version = "v4_3_2";
       }
+      $this->invoiceModel = 'App\\Models\\' . $this->version . "\\invoice";
+      $this->paymentdetailsModel = 'App\\Models\\' . $this->version . "\\payment_details";
+      $this->quotationModel = 'App\\Models\\' . $this->version . "\\quotation";
+      $this->consignor_copyModel = 'App\\Models\\' . $this->version . "\\consignor_copy";
+      $this->brokerpurchaseModel = 'App\\Models\\' . $this->version . "\\broker_purchase";
+      $this->bank_detailsModel = 'App\\Models\\' . $this->version . "\\bank_detail";
+      $this->broker_bill_invoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
+      $this->broker_payment_detailsModel = 'App\\Models\\' . $this->version . "\\broker_bill_payment_detail";
+      $this->company_gardenModel = 'App\\Models\\' . $this->version . "\\company_garden";
+      $this->orderModel = 'App\\Models\\' . $this->version . "\\order";
+      $this->order_detailModel = 'App\\Models\\' . $this->version . "\\order_detail";
+      $this->brokerbillinvoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
+      $this->masterdbname = DB::connection()->getDatabaseName();
    }
 
 
@@ -134,14 +123,19 @@ class PdfController extends commonController
             $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id')
                ->where('broker_bill_invoice.is_deleted', 0);
          })
-
+            ->leftjoin($this->masterdbname . '.country', 'companymasters.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftjoin($this->masterdbname . '.state', 'companymasters.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftjoin($this->masterdbname . '.city', 'companymasters.city_id', '=', $this->masterdbname . '.city.id')
          ->select(
             'company_garden.company_id as garden_company_id',
             'companymasters.*',
             'broker_bill_invoice.id as invoice_id',
+            'country.country_name as country_name',
+            'state.state_name as state_name',
+            'city.city_name as city_name'
          )
          ->first();
-
+      // dd($gardenCompanyData);
       $bank_details  = $this->bank_detailsModel::first();
 
       $usedInvoices = $this->brokerpurchaseModel

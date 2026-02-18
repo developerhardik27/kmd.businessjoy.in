@@ -448,12 +448,13 @@
                 selectedGardenIds = selectedGardenIds.map(String);
 
                 $.ajax({
-                    url: "{{ route('garden.index') }}",
+                    url: "{{ route('garden.editgardenload') }}",
                     type: "GET",
                     data: {
                         user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
-                        token: "{{ session()->get('api_token') }}"
+                        token: "{{ session()->get('api_token') }}",
+                        companymaster_id : edit_id
                     },
                     success: function(response) {
 

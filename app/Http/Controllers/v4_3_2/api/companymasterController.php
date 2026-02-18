@@ -588,6 +588,64 @@ class companymasterController extends commonController
             ])
             ->make(true);
     }
+
+    public function editgardenload(Request $request)
+    {
+        if ($this->rp['teamodule']['garden']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        $garden = $this->gardenModel
+            ::where('gardens.is_deleted', 0)
+            ->where(function ($query) use ($request) {
+
+                // Assigned to this company
+                $query->whereExists(function ($sub) use ($request) {
+                    $sub->select(DB::raw(1))
+                        ->from('company_garden')
+                        ->whereColumn('company_garden.garden_id', 'gardens.id')
+                        ->where('company_garden.company_id', $request->companymaster_id);
+                })
+
+                    // OR Not assigned to any company
+                    ->orWhereNotExists(function ($sub) {
+                        $sub->select(DB::raw(1))
+                            ->from('company_garden')
+                            ->whereColumn('company_garden.garden_id', 'gardens.id');
+                    });
+            })
+            ->get();
+
+        // dd($garden);
+
+
+
+        // $assign_garden_based_company = $this->companygardenModel::where('company_id', $request->companymaster_id)->value('garden_id');
+        // this garden 
+        // $garden = $this->gardenModel::leftJoin('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
+        //     ->Join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+        //     ->where('gardens.is_deleted', 0)
+        //     ->select(
+        //         'gardens.*',
+        //         'companymasters.company_name'
+        //     )
+        //     ->get();
+        // dd($garden);
+
+        // this company assign and other all not assgin show 
+        if ($garden->isEmpty()) {
+            return DataTables::of($garden)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+        return DataTables::of($garden)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
     // this in create invoice list time show dropdown list 
     public function bank_detailindex(Request $request)
     {

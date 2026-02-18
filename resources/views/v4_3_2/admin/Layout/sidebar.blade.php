@@ -327,6 +327,14 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (session('user_permissions.invoicemodule.bank.show') == '1')
+                                <li class="{{ request()->routeIs('admin.bank') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.bank') }}" class="iq-waves-effect">
+                                        <i class="ri-bank-line"></i>
+                                        <span>Bank Details</span>
+                                    </a>
+                                </li>
+                            @endif
                             @if (session('user_permissions.adminmodule.user.show') == '1')
                                 <li class="{{ request()->routeIs('admin.user') ? 'active' : '' }}">
                                     <a href="{{ route('admin.user') }}" class="iq-waves-effect">
@@ -496,7 +504,7 @@
                                 </a>
 
                                 <ul id="masterinfo" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
-                                     @if (session('user_permissions.teamodule.garden.show') == '1')
+                                    @if (session('user_permissions.teamodule.garden.show') == '1')
                                         <li class="{{ request()->routeIs('admin.garden') ? 'active' : '' }}">
                                             <a href="{{ route('admin.garden') }}">
                                                 <i class="ri-plant-line"></i>
@@ -520,7 +528,7 @@
                                             </a>
                                         </li>
                                     @endif --}}
-                                   
+
 
                                     @if (session('user_permissions.teamodule.teadashboard.show') == '1')
                                         <li class="{{ request()->routeIs('admin.party') ? 'active' : '' }}">
