@@ -225,7 +225,7 @@ class invoiceController extends commonController
             ->get();
 
         $invoiceothersettings = $this->invoice_other_settingModel::first();
-
+        // dd($invoiceothersettings);
         if ($invoice->isEmpty()) {
             return $this->successresponse(404, 'invoice', 'No Records Found');
         }
@@ -245,7 +245,7 @@ class invoiceController extends commonController
      */
     public function inv_list(Request $request)
     {
-
+        // dd($request);
         if ($this->rp['invoicemodule']['invoice']['view'] != 1) {
             return response()->json([
                 'status' => 500,
@@ -260,14 +260,38 @@ class invoiceController extends commonController
             ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
             ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', $this->masterdbname . '.state.id')
             ->leftJoin($this->masterdbname . '.city', 'partys.city_id', '=', $this->masterdbname . '.city.id')
+            ->leftjoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
             ->leftJoin('payment_details', function ($join) {
                 $join->on('invoices.id', '=', 'payment_details.inv_id')
                     ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
             })
-            ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id')
+            ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id');
+        $filters = [
+            'filter_company'      => 'invoices.company_details_id',
+            'filter_buyer'        => 'invoices.customer_id',
+            'filter_payment_status'       => 'invoices.status',
+        ];
+
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                if ($requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to') {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $invoiceres->where($column, $operator, $value);
+                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $invoiceres->whereDate($column, $operator, $value);
+                } else {
+
+                    $invoiceres->where($column, $value);
+                }
+            }
+        }
+        $invoiceres = $invoiceres
             ->select(
                 'invoices.*',
-                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y %h:%i:%s %p') as inv_date_formatted"),
+                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
                 'payment_details.id as paymentid',
                 'payment_details.part_payment',
                 'payment_details.pending_amount',
@@ -277,7 +301,8 @@ class invoiceController extends commonController
                 'country_details.currency',
                 'country_details.currency_symbol',
                 'state.state_name',
-                'city.city_name'
+                'city.city_name',
+                'companymasters.company_name as garden_company_name'
             )
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
@@ -289,7 +314,7 @@ class invoiceController extends commonController
         $totalcount = $invoiceres->get()->count(); // count total record
 
         $invoice = $invoiceres->get();
-
+        // dd($invoice);
         if ($invoice->isEmpty()) {
             return DataTables::of($invoice)
                 ->with([
@@ -362,6 +387,8 @@ class invoiceController extends commonController
                 "sample_ids" => 'nullable',
                 'inv_number' => 'required',
                 'invoice_date' => 'required',
+                'consignment_date' => 'required',
+                'consignment_number' => 'required',
                 'HSN' => 'nullable',
                 'Description' => 'nullable',
                 "total_amount" => 'required|numeric',
@@ -529,6 +556,8 @@ class invoiceController extends commonController
                         'inv_no' => $inv_no,
                         'customer_id' => $data['customer'],
                         'transport_id' => $data['transport_id'],
+                        'consignment_date' => $data['consignment_date'],
+                        'consignment_number' => $data['consignment_number'],
                         'sample_ids' => json_encode($ids),
                         'HSN' => $data['HSN'],
                         'Description' => $data['Description'],
@@ -601,8 +630,8 @@ class invoiceController extends commonController
                             ]);
 
                         foreach ($itemdata as $row) {
-                            $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->where('is_deleted',0)->value('id');
-                            $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->where('is_deleted',0)->value('id');
+                            $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->where('is_deleted', 0)->value('id');
+                            $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->where('is_deleted', 0)->value('id');
                             $user_id = $data['user_id'];
 
                             // Check if broker purchase already exists for this invoice_no
@@ -618,6 +647,7 @@ class invoiceController extends commonController
                                     'shortage'     => $row['shortage'],
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
+                                    'invoice_grand_total' => $row['amount'],
                                     'invoice_id'   => $invoice,
                                     'created_by'   => $user_id,
                                 ]);
@@ -634,6 +664,7 @@ class invoiceController extends commonController
                                     'shortage'     => $row['shortage'],
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
+                                    'invoice_grand_total' => $row['amount'],
                                     'invoice_id'   => $invoice,
                                     'source'       => 'invoice',
                                     'brokerage'    => null,
@@ -712,6 +743,7 @@ class invoiceController extends commonController
                                             'shortage' => $item->shortage,
                                             'net_kg' => $item->Net_Weight_Kgs,
                                             'final_net_kg' => $item->shortage + $item->Net_Weight_Kgs,
+                                            'invoice_grand_total' => $item->amount,
                                         ]);
                                 }
                             }
@@ -766,7 +798,7 @@ class invoiceController extends commonController
     public function edit(string $id)
     {
         $invdetails = $this->invoiceModel::where('id', $id)
-            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%Y-%m-%d %H:%i') as inv_date_formatted"))
+            ->select('invoices.*', DB::raw("DATE_FORMAT(invoices.inv_date, '%Y-%m-%d') as inv_date_formatted"), DB::raw("DATE_FORMAT(invoices.consignment_date, '%Y-%m-%d') as consignment_date_formatted"))
             ->first();
         $productdetails = DB::connection('dynamic_connection')->table('mng_col')
             ->leftJoin('inventory', 'mng_col.inventory_product_id', 'inventory.product_id')
@@ -788,7 +820,7 @@ class invoiceController extends commonController
      */
     public function update(Request $request, string $id)
     {
-        
+
         return $this->executeTransaction(function () use ($request, $id) {
 
             if ($this->rp['invoicemodule']['invoice']['edit'] != 1) {
@@ -796,7 +828,7 @@ class invoiceController extends commonController
             }
 
             $data = $request->data; // invoice data
-
+            // dd($data);
             // validate incoming request data
             $validator = Validator::make($data, [
                 "bank_account" => 'required',
@@ -805,11 +837,14 @@ class invoiceController extends commonController
                 'transport_id' => 'required',
                 'inv_number' => 'required',
                 'invoice_date' => 'required',
+                'consignment_date' => 'required',
+                'consignment_number' => 'required',
                 'HSN' => 'nullable',
                 'Description' => 'nullable',
                 "total_amount" => 'required|numeric',
                 "sgst" => 'nullable|numeric',
                 "cgst" => 'nullable|numeric',
+                "igst" => 'nullable|numeric',
                 "gst" => 'nullable|numeric',
                 "currency" => 'required|numeric',
                 "tax_type" => 'required|numeric',
@@ -985,6 +1020,8 @@ class invoiceController extends commonController
                     'customer_id' => $data['customer'],
                     'company_details_id' => $data['companymaster_id'],
                     'transport_id' => $data['transport_id'],
+                    'consignment_date' => $data['consignment_date'],
+                    'consignment_number' => $data['consignment_number'],
                     'HSN' => $data['HSN'],
                     'Description' => $data['Description'],
                     'notes' => $data['notes'],
@@ -1017,6 +1054,7 @@ class invoiceController extends commonController
                     } else {
                         $invoicerec['sgst'] = $data['sgst'];
                         $invoicerec['cgst'] = $data['cgst'];
+                        $invoicerec['igst'] = $data['igst'];
                     }
                 }
 

@@ -31,6 +31,7 @@ class PdfController extends commonController
          session_start();
       if (isset($_SESSION['folder_name'])) {
          $this->version = $_SESSION['folder_name'];
+
          $this->invoiceModel = 'App\\Models\\' . $this->version . "\\invoice";
          $this->paymentdetailsModel = 'App\\Models\\' . $this->version . "\\payment_details";
          $this->quotationModel = 'App\\Models\\' . $this->version . "\\quotation";
@@ -179,10 +180,14 @@ class PdfController extends commonController
             'gardens.garden_name as garden_name',
             'grades.grade as grade',
             'orders.buyer_party',
+            'orders.discount',
             'buyer.name as buyer_name',
             'invoices.inv_no',
             'invoices.inv_date',
+            DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date"),
             'invoices.sample_ids',
+            'invoices.consignment_number',
+            'invoices.consignment_date',
          )
          ->get();
       // dd($usedInvoices);
@@ -279,9 +284,12 @@ class PdfController extends commonController
             'gardens.garden_name as garden_name',
             'grades.grade as grade',
             'orders.buyer_party',
+            'orders.discount',
             'buyer.name as buyer_name',
             'invoices.inv_no',
             'invoices.inv_date',
+            'invoices.consignment_number',
+            'invoices.consignment_date',
          )
          ->get();
 
@@ -355,6 +363,7 @@ class PdfController extends commonController
          ->first();
       $bank_details  = $this->bank_detailsModel::first();
       $paymentdetail = $this->broker_payment_detailsModel::where('id', $id)->where('is_deleted', 0)->get();
+      // dd($invoice->from_date, $invoice->to_date);
       $usedInvoices = $this->brokerpurchaseModel
          ::where('broker_purchases.is_deleted', 0)
          ->where('broker_purchases.garden_id', $invoice->garden_id)
@@ -372,17 +381,22 @@ class PdfController extends commonController
          ->leftJoin('invoices', function ($join) {
             $join->on('invoices.company_details_id', '=', 'companymasters.id')
                ->on('invoices.customer_id', '=', 'orders.buyer_party')
+               ->on('invoices.id', '=', 'broker_purchases.invoice_id')
                ->where('invoices.is_deleted', '=', 0);
          })
+         ->where('broker_purchases.brokerbill_no', '=', $paymentdetail[0]->inv_id)
          ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
          ->select(
             'broker_purchases.*',
             'gardens.garden_name as garden_name',
             'grades.grade as grade',
             'orders.buyer_party',
+            'orders.discount',
             'buyer.name as buyer_name',
             'invoices.inv_no',
             'invoices.inv_date',
+            'invoices.consignment_number',
+            'invoices.consignment_date',
          )
          ->get();
 
@@ -394,7 +408,7 @@ class PdfController extends commonController
          "invoice" => $invoice,
          'paymentdetail' => $paymentdetail,
       ];
-
+      //  dd($data);
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
@@ -964,6 +978,7 @@ class PdfController extends commonController
       $order = $order
          ->select(
             'orders.id as order_id',
+            'orders.created_at as order_date',
             'buyer.name as buyer_name',
             'transport.name as transport_name',
             'orders.*',
@@ -974,22 +989,26 @@ class PdfController extends commonController
          ->get()
          ->groupBy('order_id')
          ->map(function ($details, $orderId) {
-            // Map each order to an 'auto-tuple' style array
+
             $first = $details->first();
+
             return [
                'id' => $orderId,
                'buyer_name' => $first->buyer_name,
                'transport_name' => $first->transport_name,
                'discount' => $first->discount,
+               'order_date' => $first->order_date,
                'totalNetKg' => $first->totalNetKg,
                'credit_days' => $first->credit_days,
                'final_amount' => $first->finalAmount,
-               'details' => $details->map(function ($item) {
+
+               'details' => $details->map(function ($item) use ($first) {
                   return [
                      'garden_name' => $item->garden_name,
                      'grade_name' => $item->grade_name,
                      'invoice_no' => $item->invoice_no,
                      'bags' => $item->bags,
+                     'order_discount' => $first->discount,
                      'kg' => $item->kg,
                      'net_kg' => $item->net_kg,
                      'rate' => $item->rate,
@@ -998,6 +1017,7 @@ class PdfController extends commonController
                })->toArray()
             ];
          })
+
          ->values();
       // dd($order);
       if ($order->isEmpty()) {
@@ -1054,6 +1074,8 @@ class PdfController extends commonController
             'broker_bill_invoice.invoice_date',
             'broker_bill_invoice.totalamount',
             'broker_bill_invoice.igst',
+            'broker_bill_invoice.cgst',
+            'broker_bill_invoice.sgst',
             'broker_bill_invoice.grand_total',
             'broker_bill_invoice.status',
             'broker_bill_invoice.from_date',
@@ -1077,6 +1099,8 @@ class PdfController extends commonController
                'invoice_date'  => $first->invoice_date,
                'totalamount'  => $first->totalamount,
                'igst'          => $first->igst,
+               'cgst'          => $first->cgst,
+               'sgst'          => $first->sgst,
                'grand_total'   => $first->grand_total,
                'status'        => $first->status,
                'from_date'     => $first->from_date,
@@ -1106,7 +1130,7 @@ class PdfController extends commonController
          'isHtml5ParserEnabled' => true,
          'isRemoteEnabled' => true,
       ];
-      
+
       $gardenNames = $list->pluck('garden_name')->unique()->values();
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.outstanding', ["list" => $list, 'gardenNames' => $gardenNames])->setPaper('a4', 'portrait');
@@ -1119,6 +1143,94 @@ class PdfController extends commonController
 
       //return view($this->version . '.admin.PDF.outstanding', ["list" => $list]);
       // return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream($name.'-Garden_Outstanding_'. date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+   }
+
+   public function leger(Request $request)
+   {
+      $userId = $request->user_id;
+
+      $invoices = $this->invoiceModel
+         ::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
+         ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+         ->select(
+            'invoices.*',
+            DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
+            DB::raw("CONCAT_WS(' ', partys.name) as customer"),
+            'companymasters.company_name as garden_company_name'
+         )
+         ->where('invoices.created_by', $userId)
+         ->where('invoices.is_deleted', 0);
+      $filters = [
+         'filter_company'      => 'invoices.company_details_id',
+         'filter_buyer'        => 'invoices.customer_id',
+         'filter_payment_status'       => 'invoices.status',
+      ];
+
+      foreach ($filters as $requestKey => $column) {
+         $value = $request->$requestKey;
+
+         if (isset($value)) {
+            if ($requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to') {
+               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+               $invoices->where($column, $operator, $value);
+            } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+               $invoices->whereDate($column, $operator, $value);
+            } else {
+               $invoices->where($column, $value);
+            }
+         }
+      }
+      $invoices = $invoices->orderBy('invoices.inv_date', 'desc')->get();
+
+      $invoiceIds = $invoices->pluck('id');
+
+      $payments = $this->paymentdetailsModel
+         ::whereIn('inv_id', $invoiceIds)
+         ->where('is_deleted', 0)
+         ->orderBy('datetime', 'asc') // optional if you have payment_date
+         ->get()
+         ->groupBy('inv_id');
+
+      $invoices->transform(function ($invoice) use ($payments) {
+         $invoice->payment_details = $payments[$invoice->id] ?? collect();
+         return $invoice;
+      });
+
+      $grouped = $invoices->groupBy('customer_id')
+         ->map(function ($customerInvoices) {
+
+            return [
+               'customer_id'   => $customerInvoices->first()->customer_id,
+               'customer_name' => $customerInvoices->first()->customer,
+
+               'companies' => $customerInvoices->groupBy('company_details_id')
+                  ->map(function ($companyInvoices) {
+
+                     return [
+                        'company_id'   => $companyInvoices->first()->company_details_id,
+                        'company_name' => $companyInvoices->first()->garden_company_name,
+                        'invoices'     => $companyInvoices->values()
+                     ];
+                  })->values()
+
+            ];
+         })->values();
+      if ($grouped->isEmpty()) {
+         return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+      // dd($grouped);
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.ledger', ["ledger" => $grouped])->setPaper('a4', 'portrait');
+
+      // return view($this->version . '.admin.PDF.ledger', ["ledger" => $grouped]);
+      // return $pdf->download('Leger' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('Leger' . date('Y-m-d_H-i-s') . '.pdf');
    }
 }

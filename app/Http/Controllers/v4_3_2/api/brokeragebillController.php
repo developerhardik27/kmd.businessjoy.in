@@ -80,6 +80,9 @@ class brokeragebillController extends commonController
                 'grades.grade',
                 'invoices.inv_no',
                 'invoices.inv_date',
+                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date"),
+                DB::raw("DATE_FORMAT(broker_purchases.brokerage_date, '%d-%m-%Y') as brokerage_date"),
+                // DB::raw("DATE_FORMAT(broker_bill_invoice.to_date, '%d-%m-%Y') as to_date"),
                 'mc.Net_Weight_Kgs',
                 'mc.shortage',
                 'mc.amount',
@@ -158,6 +161,7 @@ class brokeragebillController extends commonController
                 $join->on('broker_bill_invoice.id', '=', 'broker_bill_payment_details.inv_id')
                     ->whereRaw('broker_bill_payment_details.id = (SELECT id FROM broker_bill_payment_details WHERE inv_id = broker_bill_invoice.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
             })
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'broker_bill_invoice.garden_company_id')
             ->where('broker_bill_invoice.is_deleted', 0);
 
         $filters = [
@@ -184,24 +188,28 @@ class brokeragebillController extends commonController
                 }
             }
         }
-        $list = $list
+        $data = $list
             ->select(
                 'broker_bill_invoice.*',
+                DB::raw("DATE_FORMAT(broker_bill_invoice.invoice_date, '%d-%m-%Y') as invoice_date"),
+                DB::raw("DATE_FORMAT(broker_bill_invoice.from_date, '%d-%m-%Y') as from_date"),
+                DB::raw("DATE_FORMAT(broker_bill_invoice.to_date, '%d-%m-%Y') as to_date"),
                 'broker_bill_payment_details.id as paymentid',
                 'broker_bill_payment_details.part_payment',
-                'broker_bill_payment_details.pending_amount'
+                'broker_bill_payment_details.pending_amount',
+                'companymasters.company_name'
             )
             ->get();
-
-        if ($list->isEmpty()) {
-            return DataTables::of($list)
+        // dd($data);
+        if ($data->isEmpty()) {
+            return DataTables::of($data)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
                 ])
                 ->make(true);
         }
-        return DataTables::of($list)
+        return DataTables::of($data)
             ->with([
                 'status' => 200,
             ])
@@ -227,7 +235,7 @@ class brokeragebillController extends commonController
             ->where('broker_purchases.brokerage', '!=', 0)
             ->groupBy('broker_purchases.garden_id', 'gardens.garden_name', 'broker_bill_invoice.garden_id')
             ->get();
-
+        // dd($brokerpurchase);
         if ($brokerpurchase->isEmpty()) {
             return DataTables::of($brokerpurchase)
                 ->with([
@@ -248,19 +256,53 @@ class brokeragebillController extends commonController
         if ($this->rp['teamodule']['brokeragebill']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+        $data = $request->all();
+        $rules = [
+            'user_id' => 'required|integer',
+            'form_type' => 'required|in:add,edit',
+            'rows' => 'required|array|min:1',
+        ];
+        if ($data['form_type'] === 'edit') {
+            $rules['rows.*.brokerage'] = 'required|numeric|min:0|max:100';
+            $rules['rows.*.brokerage_date'] = 'required|date';
+        } else {
+            $rules['rows.*.brokerage'] = 'nullable|numeric|min:0|max:100';
+            $rules['rows.*.brokerage_date'] = 'nullable|date';
+        }
+
+        $validator = Validator::make($data, $rules, [
+            'rows.*.brokerage.required' => 'Brokerage is required.',
+            'rows.*.brokerage.numeric' => 'Brokerage must be a number.',
+            'rows.*.brokerage.min' => 'Brokerage must be at least 0.',
+            'rows.*.brokerage.max' => 'Brokerage must not be greater than 100.',
+            'rows.*.brokerage_date.required' => 'Brokerage date is required.',
+            'rows.*.brokerage_date.date' => 'Brokerage date must be a valid date.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
         $updated = false;
 
         foreach ($request->rows as $row) {
 
-            if ($row['brokerage'] === null) {
-                continue;
+            // if ($request->form_type === 'add' && $row['brokerage'] === null) {
+            //     continue;
+            // }
+            if ($request->form_type === 'add') {
+                $brokerage = $row['brokerage'] ?? null;
+                $brokerage_date = $row['brokerage'] ?? null ? $row['brokerage_date'] : null;
+            } else {
+                // edit mode: all required, already validated
+                $brokerage = $row['brokerage'];
+                $brokerage_date = $row['brokerage_date'];
             }
-
             $result = $this->brokerpurchaseModel
                 ::where('id', $row['id'])
                 ->update([
-                    'brokerage'      => $row['brokerage'],
-                    'brokerage_date' => $row['brokerage_date'],
+                    'brokerage'      => $brokerage,
+                    'brokerage_date' => $brokerage_date,
                     'updated_by'     => $request->user_id,
                 ]);
 
@@ -274,6 +316,7 @@ class brokeragebillController extends commonController
         }
         return $this->successresponse(500, 'message', 'No brokerage data to update');
     }
+
     public function edit($id)
     {
         if ($this->rp['teamodule']['brokeragebill']['edit'] != 1) {
@@ -303,7 +346,7 @@ class brokeragebillController extends commonController
             }
         }
         if (!$brokerpurchase) {
-            return $this->successresponse(500, 'message', 'Broker Purchase not found !');
+            return $this->successresponse(500, 'message', 'Commission Bill not found !');
         }
         $brokerpurchase->update(
             [
@@ -311,7 +354,7 @@ class brokeragebillController extends commonController
             ]
         );
 
-        return $this->successresponse(200, 'message', 'Broker Purchase succesfully deleted');
+        return $this->successresponse(200, 'message', 'Commission Bill succesfully deleted');
     }
 
     public function brokeragebillpdf(Request $request)
@@ -380,11 +423,23 @@ class brokeragebillController extends commonController
         $totalAmount = 0;
         $linedata = $data['usedInvoices'];
         foreach ($linedata as $invoice) {
-            $brokrage = $invoice['net_kg'] * $invoice['rate'] * $invoice['brokerage'] / 100;
+            $brokrage = $invoice['invoice_grand_total'] * $invoice['brokerage'] / 100;
             $totalAmount += $brokrage;
         }
-        $igst = $totalAmount * 18 / 100;
-        $grandTotal = round($totalAmount - $igst);
+        $company_state_id = $data['mainCompanyData']['state_id'];
+        $garden_company_state_id  = $data['gardenCompanyData']['state_id'];
+        $igst = $cgst = $sgst = 0;
+
+        if ($company_state_id === $garden_company_state_id) {
+            $cgst = $totalAmount * 2.5 / 100;
+            $sgst = $totalAmount * 2.5 / 100;
+            $igst = 0;
+        } else {
+            $igst = $totalAmount * 5 / 100;
+            $cgst = 0;
+            $sgst = 0;
+        }
+        $grandTotal = round($totalAmount + $igst + $cgst + $sgst);
         $garden_id = $data['usedInvoices'][0]['garden_id'];
         $company_id = $data['mainCompanyData']['company_id'];
         $garden_company_id  = $data['gardenCompanyData']['id'];
@@ -408,6 +463,8 @@ class brokeragebillController extends commonController
             'garden_company_id' => $garden_company_id,
             'totalamount' => $totalAmount,
             'igst' => $igst,
+            'sgst' => $sgst,
+            'cgst' => $cgst,
             'grand_total' => $grandTotal,
             'status' => "pending",
             'invoice_date' => $today->format('Y-m-d'),
@@ -431,9 +488,9 @@ class brokeragebillController extends commonController
         }
 
         if ($create) {
-            return $this->successresponse(200, 'message', 'Broker Bill Pdf  succesfully Created');
+            return $this->successresponse(200, 'message', 'Commission Bill Pdf  succesfully Created');
         } else {
-            return $this->successresponse(500, 'message', 'Broker Bill Pdf not succesfully Created !');
+            return $this->successresponse(500, 'message', 'Commission Bill Pdf not succesfully Created !');
         }
     }
     public function getpanddingpayment($id)

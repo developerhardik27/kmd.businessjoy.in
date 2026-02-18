@@ -3,10 +3,10 @@
 @endphp
 @extends($folder . '.admin.Layout.mastertable')
 @section('page_title')
-    {{ config('app.name') }} - Broker Bill Invoice List
+    {{ config('app.name') }} - Commission Bill Invoice List
 @endsection
 @section('table_title')
-    Broker Bill Invoice List
+    Commission Bill Invoice List
 @endsection
 
 @section('style')
@@ -102,6 +102,7 @@
         <thead>
             <tr>
                 <th>Id</th>
+                <th>Company Name</th>
                 <th>Invoice No </th>
                 <th>Invoice Date </th>
                 <th>Total Amount</th>
@@ -385,6 +386,13 @@
                             name: 'id'
                         },
                         {
+                            data: 'company_name',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'company_name'
+                        },
+                        {
                             data: 'invoice_no',
                             orderable: true,
                             searchable: true,
@@ -599,7 +607,10 @@
 
             }
 
-
+            $("#paymentmodal").on("shown.bs.modal", function() {
+                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+                $('#payment_date').val(today);
+            });
             let params;
             $('#pdfBtn').on('click', function() {
                 params = table.ajax.params();

@@ -82,6 +82,7 @@ class orderController extends commonController
                 'buyer.name as buyer_name',
                 'transport.name as transport_name',
                 'orders.*',
+                DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
                 'order_details.*',
                 'gardens.garden_name as garden_name',
                 'grades.grade as grade_name'
@@ -99,6 +100,7 @@ class orderController extends commonController
                     'totalNetKg' => $first->totalNetKg,
                     'credit_days' => $first->credit_days,
                     'final_amount' => $first->finalAmount,
+                    'order_date' => $first->order_date,
                     'details' => $details->map(function ($item) {
                         return [
                             'garden_name' => $item->garden_name,

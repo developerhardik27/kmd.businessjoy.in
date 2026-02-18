@@ -410,9 +410,9 @@ class brokerPurchaseController extends commonController
             'source'          => 'purchase'
         ]);
         if ($create) {
-            return $this->successresponse(200, 'message', 'Broker Purchase succesfully Created');
+            return $this->successresponse(200, 'message', 'Sample Purchase succesfully Created');
         } else {
-            return $this->successresponse(500, 'message', 'Broker Purchase not succesfully Created !');
+            return $this->successresponse(500, 'message', 'Sample Purchase not succesfully Created !');
         }
     }
     public function edit($id)
@@ -427,7 +427,7 @@ class brokerPurchaseController extends commonController
             }
         }
         if (!$brokerpurchase) {
-            return $this->successresponse(500, 'message', 'Broker Purchase not found !');
+            return $this->successresponse(500, 'message', 'Sample Purchase not found !');
         }
         return $this->successresponse(200, 'brokerpurchase', $brokerpurchase);
     }
@@ -451,7 +451,7 @@ class brokerPurchaseController extends commonController
             }
         }
         if (!$find_data) {
-            return response()->json(['status' => 'error', 'message' => 'Broker Purchase not found'], 404);
+            return response()->json(['status' => 'error', 'message' => 'Sample Purchase not found'], 404);
         }
         $data = $request->all();
         $validator = Validator::make($data, [
@@ -478,9 +478,9 @@ class brokerPurchaseController extends commonController
         ]);
 
         if ($update) {
-            return $this->successresponse(200, 'message', 'Broker Purchase succesfully update');
+            return $this->successresponse(200, 'message', 'Sample Purchase succesfully update');
         } else {
-            return $this->successresponse(500, 'message', 'Broker Purchase not succesfully update !');
+            return $this->successresponse(500, 'message', 'Sample Purchase not succesfully update !');
         }
     }
     public function destroy($id)
@@ -495,7 +495,7 @@ class brokerPurchaseController extends commonController
             }
         }
         if (!$brokerpurchase) {
-            return $this->successresponse(500, 'message', 'Broker Purchase not found !');
+            return $this->successresponse(500, 'message', 'Sample Purchase not found !');
         }
         $brokerpurchase->update(
             [
@@ -503,6 +503,6 @@ class brokerPurchaseController extends commonController
             ]
         );
 
-        return $this->successresponse(200, 'message', 'Broker Purchase succesfully deleted');
+        return $this->successresponse(200, 'message', 'Sample Purchase succesfully deleted');
     }
 }

@@ -169,12 +169,11 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Buyer party</th>
-                <th>transport</th>
-                <th>credit days</th>
-                <th>discount (%)</th>
-                <th>totalNetKg</th>
+                <th>Order Date</th>
+                <th>Buyer</th>
                 <th>finalAmount</th>
+                <th>totalNetKg</th>
+                <th>credit days</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -510,7 +509,6 @@
                             }
 
                             global_response = json;
-
                             return json.data;
 
                         },
@@ -537,33 +535,18 @@
                             name: 'id'
                         },
                         {
+                            data: 'order_date',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'order_date'
+                        },
+                        {
                             data: 'buyer_name',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
                             name: 'buyer_name'
-                        },
-                        {
-                            data: 'transport_name',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'transport_name'
-                        },
-
-                        {
-                            data: 'credit_days',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'credit_days'
-                        },
-                        {
-                            data: 'discount',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'discount'
                         },
                         {
                             data: 'totalNetKg',
@@ -578,6 +561,13 @@
                             searchable: true,
                             defaultContent: '-',
                             name: 'final_amount'
+                        },
+                        {
+                            data: 'credit_days',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'credit_days'
                         },
                         {
                             data: 'id',
@@ -739,8 +729,9 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <h5>Order Details</h5>
+                <div class="p-2 border-none">
+                    <h5>Order Details</h5>
+                </div>
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>

@@ -164,10 +164,16 @@
 
                 <div class="col-sm-4 mb-3">
                     <label for="acc_details">Bank Account </label><span style="color:red;">*</span>
-                    <select class="form-control" id="acc_details" name="acc_details" required>
+                    <select class="form-control" id="acc_details" name="acc_details" >
                         <option selected="" disabled="">Select Account</option>
                     </select>
                     <span class="error-msg" id="error-bank_account" style="color: red"></span>
+                </div>
+                  <div class="col-sm-4 mb-3" id="inv_number_div">
+                    <label for="inv_number">Invoice Number</label><span style="color:red;">*</span>
+                    <input type="text" name="inv_number" id="inv_number" class="form-control"
+                        placeholder="Invoice Number">
+                    <span class="error-msg" id="error-inv_number" style="color: red"></span>
                 </div>
                 <div class="col-sm-4 mb-3" id="inv_date_div">
                     <label for="invoice_date">Invoice Date</label><span style="color:red;">*</span>
@@ -176,10 +182,15 @@
                 </div>
                 
                 <div class="col-sm-4 mb-3" id="inv_number_div">
-                    <label for="inv_number">Invoice Number</label><span style="color:red;">*</span>
-                    <input type="text" name="inv_number" id="inv_number" class="form-control"
-                        placeholder="Invoice Number">
-                    <span class="error-msg" id="error-inv_number" style="color: red"></span>
+                    <label for="consignment_number">Consignment Number</label><span style="color:red;">*</span>
+                    <input type="text" name="consignment_number" id="consignment_number" class="form-control"
+                        placeholder="Consignment Number">
+                    <span class="error-msg" id="error-consignment_number" style="color: red"></span>
+                </div>
+                 <div class="col-sm-4 mb-3" id="inv_date_div">
+                    <label for="consignment_date">Consignment Date</label><span style="color:red;">*</span>
+                    <input type="date" class="form-control" id="consignment_date" name="consignment_date">
+                    <span class="error-msg" id="error-consignment_date" style="color: red"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
                     <label for="HSN">HSN Code</label><span style="color:red;">*</span>
@@ -240,6 +251,15 @@
                             </b>
                             <input class="disableinput" type="number" step="any" name="total_amount"
                                 id="totalamount" readonly required>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="igstline" class="text-right" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
+                    <th class="automaticcolspan">igst <span id="igstpercentage"></span></th>
+                    <td>
+                        <div class="d-flex justify-content-between">
+                            <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number"
+                                step="any" name="igst" id="igst" readonly required>
                         </div>
                     </td>
                 </tr>
@@ -474,7 +494,7 @@
         let lrdata = [];
         let lrcolumnlinks = [];
         let customer_dropdown = [];
-        let sgst, cgst, gst, currentcurrency, currentcurrencysymbol;
+        let sgst, cgst, igst, gst, currentcurrency, currentcurrencysymbol,buyer_state_id,company_state_id;
         function getcolumn()
         {
         // fetch users own columnname and set it into table  
@@ -782,11 +802,14 @@
                         const customerDetails = [value.name, value.mobile_1, value.email]
                             .filter(Boolean).join(' - ');
                         $('#customer').append(`
-                                <option  data-gstno='${value.gst_no}' value='${value.id}'>${customerDetails}</option>
+                                <option  data-gstno='${value.gst_no}' value='${value.id}' data-state_id = '${value.state_id}'>${customerDetails}</option>
                             `);
                     });
                     $('#customer').val(customerid);
                     $('#customer').select2(); // search bar in customer list
+                    var selectedOption = $('#customer').find('option:selected'); // get selected option
+                    buyer_state_id = selectedOption.data('state_id'); // retrieve data-state_id
+                    
                     if(customerid){ $('#customer').prop('disabled', true);}
                     if (customerid !=0) { 
                         // get customer data if its new added from add new customerform
@@ -854,15 +877,18 @@
                 if (response.status == 200 && response.data != '') {
                     // You can update your HTML with the data here if needed
                     $.each(response.data, function(key, value) {
-                        const companymaster_idDetails = [value.name, value.mobile_1, value.email]
+                        const companymaster_idDetails = [value.company_name, value.mobile_1, value.email]
                             .filter(Boolean).join(' - ');
                         $('#companymaster_id').append(`
-                                <option  data-gstno='${value.gst_no}' value='${value.id}'>${companymaster_idDetails}</option>
+                                <option  data-gstno='${value.gst_no}' value='${value.id}' data-state_id = '${value.state_id}'>${companymaster_idDetails}</option>
                             `);
                     });
                     $('#companymaster_id').val(companymaster_id);
                     $('#companymaster_id').select2(); // search bar in companymaster_id list
-                     if(companymaster_id){ $('#companymaster_id').prop('disabled', true);}
+                    var selectedOption = $('#companymaster_id').find('option:selected'); // get selected option
+                    company_state_id = selectedOption.data('state_id');
+
+                    if(companymaster_id){ $('#companymaster_id').prop('disabled', true);}
                     if (companymaster_id !=0) {
                          // get companymaster_id data if its new added from add new companymaster_idform
                         var selectedOption = $('#companymaster_id').find('option:selected');
@@ -978,15 +1004,18 @@
                 if ($('#type').val() == 1) {
                     var sgstvalue = ((total * sgst) / 100);
                     var cgstvalue = ((total * cgst) / 100);
+                    var igstvalue = ((total * igst) / 100);
                     sgstvalue = sgstvalue.toFixed(2);
                     cgstvalue = cgstvalue.toFixed(2);
+                    igstvalue = igstvalue.toFixed(2);
                     if (gst == 0) {
                         $('#sgst').val(sgstvalue);
                         $('#cgst').val(cgstvalue);
+                        $('#igst').val(igstvalue);
                     } else {
                         $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue));
                     }
-                    var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue);
+                    var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue) + parseFloat(igstvalue) ;
                     grandtotalval = Math.round(totalval)
                     if (grandtotalval >= totalval) {
                         roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2);
@@ -1058,6 +1087,14 @@
                                         '-'; // Add '-' between account no and branch name if both are present
                                 }
                                 bankdetails += value.branch_name;
+                               
+                            }
+                             if (value.holder_name != null) {
+                                if (bankdetails.length > 0) {
+                                    bankdetails +=
+                                        '-'; // Add '-' between account no and holder  name if both are present
+                                }
+                                bankdetails += value.holder_name;
                             }
                             $('#acc_details').append(
                                 `<option ${countrecords === 1 ? 'selected' : ''} value='${value.id}'>${bankdetails}</option>`
@@ -1148,13 +1185,30 @@
                     sgst = othersettingdata['sgst'];
                     cgst = othersettingdata['cgst'];
                     gst = othersettingdata['gst'];
+                   
+                    if (company_state_id === buyer_state_id) {
+                     // Intra-state: SGST + CGST
+                        igst = 0;
+                        totalgstpercentage = sgst + cgst;
+                    } else {
+                        // Inter-state: IGST only
+                        igst = sgst + cgst; // or assign appropriate IGST value
+                        sgst = 0;
+                        cgst = 0;
+                        totalgstpercentage = igst;
+                    }
                     manualinvnumber = othersettingdata['invoice_number'];
                     manualinvdate = othersettingdata['invoice_date'];
-                    totalgstpercentage = sgst + cgst;
+                    totalgstpercentage = sgst + cgst + igst;
                     if (sgst % 1 === 0) { // Checks if sgst is an integer
                         $('#sgstpercentage').text(`(${sgst}.00 %)`);
                     } else {
                         $('#sgstpercentage').text(`(${sgst} %)`);
+                    }
+                     if (igst) { // Checks if sgst is an integer
+                        $('#igstpercentage').text(`(${igst}.00 %)`);
+                    } else {
+                        $('#igstpercentage').text(`(${igst} %)`);
                     }
                     if (cgst % 1 === 0) { // Checks if cgst is an integer
                         $('#cgstpercentage').text(`(${cgst}.00 %)`);
@@ -1167,7 +1221,7 @@
                         $('#gstpercentage').text(`(${totalgstpercentage} %)`);
                     }
                     if (gst != 0) {
-                        $('#sgstline,#cgstline').hide();
+                        $('#sgstline,#cgstline,#igstline').hide();
                     } else {
                         $('#gstline').hide();
                     }
@@ -1379,6 +1433,7 @@
                     // You can update your HTML with the data here if needed
                     if (response.status == 200 && response.party != '') {
                         var countryid = response.party.country_id
+                       
                         if (countryid != null) {
                             $('#country').val(countryid);
                             $('#currency').val(countryid);
@@ -1467,7 +1522,8 @@
                         // You can update your HTML with the data here if needed
                         if (response.status === 200 && response.data && response.data.length) {
                             console.log('response', response);
-                            var countryid = response.party.country_id
+                            var countryid = response.companymaster.country_id
+                           
                             if (countryid != null) {
                                 $('#country').val(countryid);
                                 $('#currency').val(countryid);
@@ -1674,7 +1730,7 @@
         // call function for gst or without gst counting
         $('#type').on('change', function() {
             if ($(this).val() == 2) {
-                $('#sgstline,#cgstline,#gstline').hide();
+                $('#sgstline,#cgstline,#igstline,#gstline').hide();
                 var totalval = $('#totalamount').val();
                 grandtotalval = Math.round($('#totalamount').val());
                 if (grandtotalval >= totalval) {
@@ -1697,16 +1753,16 @@
                 if (gst != 0) {
                     $('#gst').val(0);
                 } else {
-                    $('#sgstline,#cgstline').val(0);
+                    $('#sgstline,#cgstline,#igstline').val(0);
                 }
                 $('#gst').val(0);
             } else {
                 if (gst != 0) {
-                    $('#sgstline,#cgstline').hide();
+                    $('#sgstline,#cgstline,#igstline').hide();
                     $('#gstline').show();
 
                 } else {
-                    $('#sgstline,#cgstline').show();
+                    $('#sgstline,#cgstline,#igstline').show();
                     $('#gstline').hide();
                 }
                 dynamiccalculaton();
@@ -1976,6 +2032,8 @@
                 bank_account: $('#acc_details').val(),
                 invoice_date: $('#invoice_date').val(),
                 inv_number: $('#inv_number').val(),
+                consignment_date: $('#consignment_date').val(),
+                consignment_number: $('#consignment_number').val(),
                 currency: $('#currency').val(),
                 customer: $('#customer').val(),
                 total_amount: $('#totalamount').val(),
@@ -1985,6 +2043,7 @@
                 gstsettings: {
                     sgst: sgst,
                     cgst: cgst,
+                    igst: igst,
                     gst: gst
                 },
                 ...getGSTValues()
@@ -1995,7 +2054,8 @@
             if (gst === 0) {
                 return {
                     sgst: $('#sgst').val(),
-                    cgst: $('#cgst').val()
+                    cgst: $('#cgst').val(),
+                    igst: $('#igst').val(),
                 };
             } else {
                 return {

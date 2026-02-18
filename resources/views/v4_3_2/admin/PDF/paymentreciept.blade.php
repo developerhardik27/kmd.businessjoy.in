@@ -1,11 +1,11 @@
 @php
-	$invdata = $data['invdata'];
-	$productscolumn = $data['productscolumn'];
-	$othersettings = $data['othersettings'];
-	$companydetails = $data['companydetails'];
-	$transportdetails = $data['transportdetails'];
-	$products= $data['products'];
-	$payment = $data['paymentdetail'];
+    $invdata = $data['invdata'];
+    $productscolumn = $data['productscolumn'];
+    $othersettings = $data['othersettings'];
+    $companydetails = $data['companydetails'];
+    $transportdetails = $data['transportdetails'];
+    $products = $data['products'];
+    $payment = $data['paymentdetail'];
     $words = Number::spell($invdata['grand_total']); // convert total amount to words
 
     $total;
@@ -13,14 +13,14 @@
     $sign = '';
     $withgst = false;
 
-    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
+    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || ($invdata['cgst'] > 0 && $invdata['igst'] > 0)) {
         $withgst = true; // if invoice created with gst
     }
 
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
-    } elseif ($invdata['sgst'] != 0 && $invdata['cgst'] != 0) {
-        $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'];
+    } elseif ($invdata['sgst'] != 0 && $invdata['cgst'] != 0 && $invdata['igst'] != 0) {
+        $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'] + $invdata['igst'];
     } else {
         $total = $invdata['total'];
     }
@@ -83,7 +83,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }} - Payment Reciept</title>
-    <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css') }}">
     <style>
         .bottom-border-input {
             border: none;
@@ -203,9 +203,9 @@
 </head>
 
 <body>
-     {{-- {{ dd($payment) }} --}}
+    {{-- {{ dd($othersettings) }} --}}
     <header>
-       
+
         <div style="float: right">
             Receipt | {{ $companydetails['company_name'] }}
         </div>
@@ -235,17 +235,17 @@
                     <span style="display: block">
                         TAX INVOICE
                     </span>
-                 
-                        <span>GSTIN No: @isset($companydetails['gst_no'])
-                                {{ $companydetails['gst_no'] }}
-                            @endisset
-                        </span>
-                 
+
+                    <span>GSTIN No: @isset($companydetails['gst_no'])
+                            {{ $companydetails['gst_no'] }}
+                        @endisset
+                    </span>
+
                     {{-- @isset($companydetails['transporter_id'])
                         <span>Transporter ID: {{ $companydetails['transporter_id'] }} </span>
                     @endisset --}}
                 </td>
-                <td style="vertical-align: top">
+                <td style="vertical-align: top; width: 34%;">
                     <table id="pdtable">
                         @if (count($payment) == 1)
                             <tr>
@@ -273,7 +273,7 @@
                                 <td><b>Receipt #</b></td>
                                 <td style="text-align: right;">{{ $payment[0]['receipt_number'] }}</td>
                             </tr>
-                        @endif    
+                        @endif
                         <tr>
                             <td><b>Invoice #</b></td>
                             <td style="text-align: right;">{{ $invdata['inv_no'] }}</td>
@@ -287,7 +287,7 @@
                                     @endisset
                                 </td>
                             </tr>
-                        @endif 
+                        @endif
                     </table>
                 </td>
             </tr>
@@ -329,7 +329,8 @@
                     <span class="default">{{ $invdata['mobile_1'] }}</span>
                 </td>
                 <td colspan="2" style="vertical-align: top">
-                    <span class="default textblue firstrow cname" style="display:block;" id="">Transporter</span>
+                    <span class="default textblue firstrow cname" style="display:block;"
+                        id="">Transporter</span>
                     @if (isset($transportdetails['name']))
                         <span class="default" style="display:block;">
                             @isset($transportdetails['name'])
@@ -359,17 +360,15 @@
                     <span class="default"style="display:block;">{{ $transportdetails['email'] }}</span>
                     <span class="default">{{ $transportdetails['mobile_1'] }}</span>
                 </td>
-                
+
             </tr>
         </table>
         @if (count($payment) > 1)
-            <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="w-100"
-                width="100">
+            <table style="table-layout:fixed;" id="data" cellspacing=0 cellpadding=0 class="w-100" width="100">
                 <tbody>
                     <tr>
                         <td id="data" colspan="3">
-                            <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border"
-                                width="100">
+                            <table id="data" cellspacing=0 cellpadding=0 class="horizontal-border" width="100">
                                 <tr>
                                     <th>Date</th>
                                     <th>Method</th>
@@ -457,48 +456,51 @@
                 width="100%">
                 <tbody>
                     <tr class="removepadding">
-                        <td style="text-align: right;"
-                            class="left removetdborder  ">
+                        <td style="text-align: right;" class="left removetdborder  ">
                             Subtotal
                         </td>
-                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol" id="subtotal">
+                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol"
+                            id="subtotal">
                             {{ Number::currency($invdata['total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
                     @if ($othersettings['gst'] == 0)
-                        @if ($invdata['sgst'] > 0)
-                            <tr class="removepadding">
-                                <td style="text-align: right;"
-                                    class="left removetdborder removepadding">
-                                    SGST({{ $othersettings['sgst'] }}%)
-                                </td>
-                                <td style="text-align: right;width:20% !important;" class="currencysymbol removetdborder removepadding"
-                                    id="sgst">
-                                    {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($invdata['cgst'] > 0)
-                            <tr class="removepadding">
-                                <td style="text-align: right;"
-                                    class="left removetdborder removepadding">
-                                    CGST({{ $othersettings['cgst'] }}%)
-                                </td>
-                                <td style="text-align: right;width:20% !important;" class="currencysymbol removetdborder removepadding"
-                                    id="cgst">
-                                    {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
-                                </td>
-                            </tr>
-                        @endif
+
+                        <tr class="removepadding">
+                            <td style="text-align: right;" class="left removetdborder removepadding">
+                                IGST({{ $othersettings['igst'] }}%)
+                            </td>
+                            <td style="text-align: right;width:20% !important;"
+                                class="currencysymbol removetdborder removepadding" id="igst">
+                                {{ Number::currency($invdata['igst'] ?? 0, in: $invdata['currency']) }}
+                            </td>
+                        </tr>
+                        <tr class="removepadding">
+                            <td style="text-align: right;" class="left removetdborder removepadding">
+                                SGST({{ $othersettings['sgst'] }}%)
+                            </td>
+                            <td style="text-align: right;width:20% !important;"
+                                class="currencysymbol removetdborder removepadding" id="sgst">
+                                {{ Number::currency($invdata['sgst'] ?? 0, in: $invdata['currency']) }}
+                            </td>
+                        </tr>
+                        <tr class="removepadding">
+                            <td style="text-align: right;" class="left removetdborder removepadding">
+                                CGST({{ $othersettings['cgst'] }}%)
+                            </td>
+                            <td style="text-align: right;width:20% !important;"
+                                class="currencysymbol removetdborder removepadding" id="cgst">
+                                {{ Number::currency($invdata['cgst'] ?? 0, in: $invdata['currency']) }}
+                            </td>
+                        </tr>
                     @else
                         @if ($invdata['gst'] > 0)
                             <tr class="removepadding">
-                                <td style="text-align: right;"
-                                    class="left removetdborder removepadding">
+                                <td style="text-align: right;" class="left removetdborder removepadding">
                                     GST({{ $othersettings['sgst'] + $othersettings['cgst'] }}%)
                                 </td>
-                                <td style="text-align: right;width:20% !important;" class="currencysymbol removetdborder removepadding"
-                                    id="gst">
+                                <td style="text-align: right;width:20% !important;"
+                                    class="currencysymbol removetdborder removepadding" id="gst">
                                     {{ Number::currency($invdata['gst'], in: $invdata['currency']) }}
                                 </td>
                             </tr>
@@ -506,11 +508,11 @@
                     @endif
                     @unless ($roundof == 0)
                         <tr class="removepadding" style="font-size:15px;text-align: right;">
-                            <td
-                                class="left removetdborder removepadding">
+                            <td class="left removetdborder removepadding">
                                 Round of
                             </td>
-                            <td style="text-align: right;width:20% !important;" class="right currencysymbol  removepadding">
+                            <td style="text-align: right;width:20% !important;"
+                                class="right currencysymbol  removepadding">
                                 {{ $sign }} {{ Number::currency($roundof, in: $invdata['currency']) }}
                             </td>
                         </tr>
@@ -519,7 +521,8 @@
                         <td class="left removetdborder">
                             <b>Total</b>
                         </td>
-                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
+                        <td style="text-align: right;width:20% !important;"
+                            class="right removetdborder currencysymbol">
                             {{ Number::currency($invdata['grand_total'], in: $invdata['currency']) }}
                         </td>
                     </tr>
@@ -527,7 +530,8 @@
                         <td class="left removetdborder">
                             <b>Amount Received</b>
                         </td>
-                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
+                        <td style="text-align: right;width:20% !important;"
+                            class="right removetdborder currencysymbol">
                             {{ Number::currency($payment[0]['paid_amount'], in: $invdata['currency']) }}
                         </td>
                     </tr>
@@ -535,7 +539,8 @@
                         <td class="left removetdborder">
                             <b>TDS Amount</b>
                         </td>
-                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
+                        <td style="text-align: right;width:20% !important;"
+                            class="right removetdborder currencysymbol">
                             {{ Number::currency($payment[0]['tds_amount'], in: $invdata['currency']) }}
                         </td>
                     </tr>
@@ -543,7 +548,8 @@
                         <td class="left removetdborder">
                             <b>Paid Amount</b>
                         </td>
-                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
+                        <td style="text-align: right;width:20% !important;"
+                            class="right removetdborder currencysymbol">
                             {{ Number::currency($payment[0]['amount'] - $payment[0]['pending_amount'], in: $invdata['currency']) }}
                         </td>
                     </tr>
@@ -551,7 +557,8 @@
                         <td class="left removetdborder">
                             <b>Pending Amount</b>
                         </td>
-                        <td style="text-align: right;width:20% !important;" class="right removetdborder currencysymbol">
+                        <td style="text-align: right;width:20% !important;"
+                            class="right removetdborder currencysymbol">
                             <b>{{ Number::currency($payment[0]['pending_amount'], in: $invdata['currency']) }}</b>
                         </td>
                     </tr>

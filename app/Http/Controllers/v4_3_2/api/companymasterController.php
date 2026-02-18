@@ -68,8 +68,7 @@ class companymasterController extends commonController
                 'companymasters.is_deleted',
                 'companymasters.created_at',
                 'companymasters.updated_at',
-
-                DB::raw('GROUP_CONCAT(gardens.garden_name SEPARATOR ", ") as garden_names')
+                DB::raw('GROUP_CONCAT(DISTINCT gardens.garden_name SEPARATOR ", ") as garden_names')
             )
             ->where('companymasters.is_deleted', 0)
             ->groupBy(
@@ -80,38 +79,91 @@ class companymasterController extends commonController
                 'companymasters.mobile_1',
                 'companymasters.mobile_2',
                 'companymasters.country_id',
-                'country.country_name',
-                'state.state_name',
-                'city.city_name',
                 'companymasters.state_id',
                 'companymasters.city_id',
                 'companymasters.pincode',
                 'companymasters.address',
                 'companymasters.gst_no',
                 'companymasters.pan',
+                'country.country_name',
+                'state.state_name',
+                'city.city_name',
                 'companymasters.created_by',
                 'companymasters.updated_by',
                 'companymasters.is_active',
                 'companymasters.is_deleted',
                 'companymasters.created_at',
                 'companymasters.updated_at'
-            )
-            ->get();
+            );
 
-        if ($companymaster->isEmpty()) {
-            return DataTables::of($companymaster)
+        $data = $companymaster->get();
+
+        if ($data->isEmpty()) {
+            return DataTables::of([])
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
                 ])
                 ->make(true);
         }
-        return DataTables::of($companymaster)
+        $companyIds = $data->pluck('id')->toArray();
+
+        $banks = $this->bank_detail_masterModel::whereIn('companymaster_id', $companyIds)
+            ->where('is_deleted', 0)
+            ->get()
+            ->groupBy('companymaster_id');
+
+        $final = [];
+
+        foreach ($data as $row) {
+
+            $companyId = $row->id;
+
+            $final[$companyId] = [
+                'id' => $row->id,
+                'company_name' => $row->company_name,
+                'email' => $row->email,
+                'contact_person_name' => $row->contact_person_name,
+                'mobile_1' => $row->mobile_1,
+                'mobile_2' => $row->mobile_2,
+                'country_id' => $row->country_id,
+                'state_id' => $row->state_id,
+                'city_id' => $row->city_id,
+                'pincode' => $row->pincode,
+                'address' => $row->address,
+                'gst_no' => $row->gst_no,
+                'pan' => $row->pan,
+                'country_name' => $row->country_name,
+                'state_name' => $row->state_name,
+                'city_name' => $row->city_name,
+                'garden_names' => $row->garden_names,
+                'bank_details' => []
+            ];
+
+            if (isset($banks[$companyId])) {
+                foreach ($banks[$companyId] as $bank) {
+                    $final[$companyId]['bank_details'][] = [
+                        'id' => $bank->id,
+                        'bank_name' => $bank->bank_name,
+                        'account_no' => $bank->account_no,
+                        'ifsc_code' => $bank->ifsc_code,
+                        'holder_name' => $bank->holder_name,
+                        'swift_code' => $bank->swift_code,
+                        'branch_name' => $bank->branch_name,
+                    ];
+                }
+            }
+        }
+
+        $final = array_values($final);
+
+        return DataTables::of($final)
             ->with([
                 'status' => 200,
             ])
             ->make(true);
     }
+
     public function store(Request $request)
     {
         if ($this->rp['teamodule']['companymaster']['add'] != 1) {
@@ -125,9 +177,9 @@ class companymasterController extends commonController
             'contact_person_name' => 'nullable|string|max:255',
             'mobile_1'            => 'nullable|numeric|digits_between:10,15',
             'mobile_2'            => 'nullable|numeric|digits_between:10,15',
-            'country'             => 'nullable|integer|exists:country,id',
-            'state'               => 'nullable|integer|exists:state,id',
-            'city'                => 'nullable|integer|exists:city,id',
+            'country'             => 'required|integer|exists:country,id',
+            'state'               => 'required|integer|exists:state,id',
+            'city'                => 'required|integer|exists:city,id',
             'pincode'             => 'nullable|digits_between:4,8',
             'address'             => 'nullable|string',
             'gst_no'              => 'nullable|string|max:20',
@@ -218,9 +270,9 @@ class companymasterController extends commonController
             'contact_person_name' => 'nullable|string|max:255',
             'mobile_1'            => 'nullable|numeric|digits_between:10,15',
             'mobile_2'            => 'nullable|numeric|digits_between:10,15',
-            'country'             => 'nullable|integer|exists:country,id',
-            'state'               => 'nullable|integer|exists:state,id',
-            'city'                => 'nullable|integer|exists:city,id',
+            'country'             => 'required|integer|exists:country,id',
+            'state'               => 'required|integer|exists:state,id',
+            'city'                => 'required|integer|exists:city,id',
             'pincode'             => 'nullable|digits_between:4,8',
             'address'             => 'nullable|string',
             'gst_no'              => 'nullable|string|max:20',
@@ -478,6 +530,64 @@ class companymasterController extends commonController
         $this->companygardenModel::where('garden_id', $id)->delete();
         return $this->successresponse(200, 'message', 'garden succesfully deleted');
     }
+
+    public function gardenassign()
+    {
+        if ($this->rp['teamodule']['garden']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $garden = $this->gardenModel
+            ::leftJoin('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
+            ->where('gardens.is_deleted', 0)
+            ->whereNull('company_garden.garden_id')
+            ->select('gardens.*')
+            ->get();
+
+        if ($garden->isEmpty()) {
+            return DataTables::of($garden)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($garden)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
+
+    public function gardennotassign()
+    {
+        if ($this->rp['teamodule']['garden']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        $garden = $this->gardenModel::leftJoin('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('gardens.is_deleted', 0)
+            ->select(
+                'gardens.*',
+                'companymasters.company_name'
+            )
+            ->get();
+
+        if ($garden->isEmpty()) {
+            return DataTables::of($garden)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+        return DataTables::of($garden)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
     // this in create invoice list time show dropdown list 
     public function bank_detailindex(Request $request)
     {
@@ -500,7 +610,7 @@ class companymasterController extends commonController
             ::select(
                 'bank_detail_master.*',
                 'companymasters.company_name',
-                 DB::raw("DATE_FORMAT(bank_detail_master.created_at, '%d-%m-%Y %h:%i %p') as created_at_formatted")
+                DB::raw("DATE_FORMAT(bank_detail_master.created_at, '%d-%m-%Y %h:%i %p') as created_at_formatted")
             )
             ->join('companymasters', 'companymasters.id', '=', 'bank_detail_master.companymaster_id')
             ->where('bank_detail_master.is_active', 1)
@@ -579,7 +689,7 @@ class companymasterController extends commonController
 
         return $this->successresponse(200, 'bankdetail', $bankdetail);
     }
-     public function bank_detailupdate(Request $request, string $id)
+    public function bank_detailupdate(Request $request, string $id)
     {
 
         if ($this->rp['invoicemodule']['bank']['edit'] != 1) {
@@ -605,7 +715,7 @@ class companymasterController extends commonController
 
         return $this->successresponse(200, 'message', 'status succesfully updated');
     }
-     public function bank_detaildestroy(Request $request, string $id)
+    public function bank_detaildestroy(Request $request, string $id)
     {
 
         if ($this->rp['invoicemodule']['bank']['delete'] != 1) {

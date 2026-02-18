@@ -219,7 +219,7 @@
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-text-line" data-toggle="tooltip"
                                                 data-placement="bottom"
-                                                data-original-title="Invoice List"></i>
+                                                data-original-title="Sample Purchase Invoice List"></i>
                                         </a>
                                     </li>
                                 @endif
@@ -229,7 +229,7 @@
                                         <a href="{{ route('admin.brokeragebill') }}"
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-paper-line" data-toggle="tooltip"
-                                                data-placement="bottom" data-original-title="Broker Bill List"></i>
+                                                data-placement="bottom" data-original-title="Commission Bill List"></i>
                                         </a>
                                     </li>
                                 @endif

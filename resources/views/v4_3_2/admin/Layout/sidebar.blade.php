@@ -496,7 +496,14 @@
                                 </a>
 
                                 <ul id="masterinfo" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
-
+                                     @if (session('user_permissions.teamodule.garden.show') == '1')
+                                        <li class="{{ request()->routeIs('admin.garden') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.garden') }}">
+                                                <i class="ri-plant-line"></i>
+                                                Garden
+                                            </a>
+                                        </li>
+                                    @endif
                                     @if (session('user_permissions.teamodule.companymaster.show') == '1')
                                         <li class="{{ request()->routeIs('admin.companymaster') ? 'active' : '' }}">
                                             <a href="{{ route('admin.companymaster') }}">
@@ -505,22 +512,15 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (session('user_permissions.teamodule.garden.show') == '1')
+                                    {{-- @if (session('user_permissions.teamodule.garden.show') == '1')
                                         <li class="{{ request()->routeIs('admin.bank_master') ? 'active' : '' }}">
                                             <a href="{{ route('admin.bank_master') }}">
                                                 <i class="ri-bank-line"></i>
                                                 Bank Master
                                             </a>
                                         </li>
-                                    @endif
-                                    @if (session('user_permissions.teamodule.garden.show') == '1')
-                                        <li class="{{ request()->routeIs('admin.garden') ? 'active' : '' }}">
-                                            <a href="{{ route('admin.garden') }}">
-                                                <i class="ri-plant-line"></i>
-                                                Garden
-                                            </a>
-                                        </li>
-                                    @endif
+                                    @endif --}}
+                                   
 
                                     @if (session('user_permissions.teamodule.teadashboard.show') == '1')
                                         <li class="{{ request()->routeIs('admin.party') ? 'active' : '' }}">
@@ -598,7 +598,7 @@
                                     aria-expanded="{{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'true' : 'false' }}">
 
                                     <i class="ri-file-paper-line"></i>
-                                    <span>Broker Bill</span>
+                                    <span>Commission Bill</span>
                                     <i class="ri-arrow-right-s-line iq-arrow-right"></i>
                                 </a>
 
@@ -611,7 +611,7 @@
                                         <li class="{{ request()->routeIs('admin.brokeragebill') ? 'active' : '' }}">
                                             <a href="{{ route('admin.brokeragebill') }}">
                                                 <i class="ri-file-paper-line"></i>
-                                                <span>Broker Bill</span>
+                                                <span>Commission Bill</span>
                                             </a>
                                         </li>
                                     @endif
@@ -622,7 +622,7 @@
                                             class="{{ request()->routeIs('admin.brokeragebillpdflist') ? 'active' : '' }}">
                                             <a href="{{ route('admin.brokeragebillpdflist') }}">
                                                 <i class="ri-file-text-line"></i>
-                                                <span>Broker Bill Invoice List</span>
+                                                <span>Commission Bill Invoice List</span>
                                             </a>
                                         </li>
                                     @endif

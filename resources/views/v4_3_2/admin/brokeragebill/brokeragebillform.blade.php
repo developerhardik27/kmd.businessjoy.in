@@ -3,10 +3,10 @@
 @endphp
 @extends($folder . '.admin.Layout.masterlayout')
 @section('page_title')
-    {{ config('app.name') }} - Add New Broker Bill
+    {{ config('app.name') }} - Add New Commission Bill
 @endsection
 @section('title')
-    Broker Bill
+    Commission Bill
 @endsection
 
 
@@ -21,7 +21,7 @@
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ session('company_id') }}" class="form-control" name="company_id">
                     <input type="hidden" class="form-control requiredinput" name="grade" id="grade">
-
+                    <input type="hidden" name="form_type" id="form_type" value="">
                     <label for="garden_id">Select Garden</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name="garden_id" id="garden_id">
                         <option selected disabled>Select your garden</option>
@@ -37,7 +37,7 @@
                                 <th>Invoive Date</th>
                                 <th>Invoive Amount</th>
                                 <th>Brokerage Date</th>
-                                <th>Brokerage</th>
+                                <th>Brokerage (%)</th>
                                 <th>Brokerage Amount</th>
                             </tr>
                         </thead>
@@ -140,7 +140,7 @@
                 let token = "{{ session('api_token') }}";
                 let company_id = "{{ session('company_id') }}";
                 let user_id = "{{ session('user_id') }}";
-
+                $('#form_type').val('edit');
                 $('#broker_purchases_table tbody').empty(); // Clear previous rows
 
                 $.ajax({
@@ -175,21 +175,21 @@
                                         <input type="text"
                                             name="rows[${index}][inv_no]"
                                             value="${item.inv_no ?? ''}"
-                                            class="form-control" ${item.inv_no ?? 'disabled'}>
+                                            class="form-control" ${item.inv_no ?? 'disabled'} disabled>
                                     </td>
 
                                     <td>
                                         <input type="date"
                                             name="rows[${index}][inv_date]"
                                             value="${formatDateForInput(item.inv_date)}"
-                                            class="form-control">
+                                            class="form-control" disabled>
                                     </td>
 
                                     <td>
                                         <input type="text"
                                             name="rows[${index}][amount]"
                                             value="${item.amount ?? ''}"
-                                            class="form-control amount" ${item.amount ?? 'disabled'}>
+                                            class="form-control amount" ${item.amount ?? 'disabled'} disabled>
                                     </td>
 
                                    <td>
@@ -197,6 +197,7 @@
                                             name="rows[${index}][brokerage_date]"
                                             value="${item.brokerage_date ? item.brokerage_date : new Date().toISOString().split('T')[0]}"
                                             class="form-control">
+                                             <span class="error-msg" id="error-brokerage_date_${index}" style="color:red"></span>
                                     </td>
 
                                     <td>
@@ -204,6 +205,7 @@
                                             name="rows[${index}][brokerage]"
                                             value="${item.brokerage ?? ''}"
                                             class="form-control brokerage">
+                                             <span class="error-msg" id="error-brokerage_${index}" style="color:red"></span>
                                     </td>
 
                                     <td>
@@ -235,9 +237,8 @@
                 let token = "{{ session('api_token') }}";
                 let company_id = "{{ session('company_id') }}";
                 let user_id = "{{ session('user_id') }}";
-
+                $('#form_type').val('add');
                 $('#broker_purchases_table tbody').empty(); // Clear previous rows
-
                 $.ajax({
                     type: 'GET',
                     url: "{{ route('brokeragebill.getOtherDatanull') }}",
@@ -292,6 +293,7 @@
                                             name="rows[${index}][brokerage_date]"
                                             value="${item.brokerage_date ? item.brokerage_date : new Date().toISOString().split('T')[0]}"
                                             class="form-control">
+                                             <span class="error-msg" id="error-brokerage_date_${index}" style="color:red"></span>
                                     </td>
 
                                     <td>
@@ -299,6 +301,7 @@
                                             name="rows[${index}][brokerage]"
                                             value="${item.brokerage ?? ''}"
                                             class="form-control brokerage">
+                                          <span class="error-msg" id="error-brokerage_${index}" style="color:red"></span>
                                     </td>
 
                                     <td>
@@ -382,7 +385,76 @@
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
+                        $('.error-msg').text('');
+
+                        if (xhr.status === 422) {
+
+                            let response = xhr.responseJSON;
+
+                            if (!response || !response.errors) {
+                                return;
+                            }
+
+                            let errors = response.errors;
+                            let firstErrorElement = null;
+
+                            $.each(errors, function(key, value) {
+
+                                let errorElement = null;
+                                let inputElement = null;
+
+                                // For dynamic rows (rows.0.brokerage)
+                                if (key.startsWith('rows.')) {
+
+                                    let parts = key.split('.');
+                                    let rowIndex = parts[1]; // 0
+                                    let field = parts[2]; // brokerage
+
+                                    errorElement = $('#error-' + field + '_' +
+                                        rowIndex);
+                                    inputElement = $('[name="rows[' + rowIndex + '][' +
+                                        field + ']"]');
+
+                                } else {
+                                    errorElement = $('#error-' + key);
+                                    inputElement = $('[name="' + key + '"]');
+                                }
+
+                                if (errorElement.length) {
+                                    errorElement.text(value[0]);
+                                }
+
+                                if (inputElement.length) {
+                                    // inputElement.addClass('is-invalid');
+                                }
+
+                                if (!firstErrorElement && errorElement.length) {
+                                    firstErrorElement = errorElement;
+                                }
+                            });
+
+                            // Scroll to first error
+                            if (firstErrorElement) {
+                                $('html, body').animate({
+                                    scrollTop: firstErrorElement.offset().top - 120
+                                }, 600);
+                            }
+
+                            return;
+                        }
+
+                        // For other server errors (500, 401, etc.)
+                        let errorMessage = "Something went wrong";
+
+                        try {
+                            let responseJSON = JSON.parse(xhr.responseText);
+                            errorMessage = responseJSON.message || errorMessage;
+                        } catch (e) {}
+
+                        Toast.fire({
+                            icon: "error",
+                            title: errorMessage
+                        });
                     }
                 });
             });

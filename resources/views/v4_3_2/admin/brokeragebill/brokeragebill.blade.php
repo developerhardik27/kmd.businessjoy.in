@@ -3,10 +3,10 @@
 @endphp
 @extends($folder . '.admin.Layout.mastertable')
 @section('page_title')
-    {{ config('app.name') }} - Broker Bill
+    {{ config('app.name') }} - Commission Bill
 @endsection
 @section('table_title')
-    Broker Bill
+    Commission Bill
 @endsection
 
 @section('style')
@@ -45,7 +45,7 @@
         {{ route('admin.brokeragebillform') }}
     @endsection
     @section('addnewbutton')
-        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New brokerage bill"
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Commission Bill"
             class="btn btn-sm btn-primary">
             <span class="">+ New</span>
         </button>
@@ -87,12 +87,12 @@
                             <input type="hidden" name="garden_id" id="garden_id" class="form-control" value="">
                         </div>
                         <div class="form-group">
-                            <label>From Date</label>
+                            <label>Brokerage From Date</label>
                             <input type="date" name="from_date" id="from_date" class="form-control" required>
                         </div>
 
                         <div class="form-group">
-                            <label>To Date</label>
+                            <label>Brokerage To Date</label>
                             <input type="date" name="to_date" id="to_date" class="form-control" required>
                         </div>
                     </div>
@@ -220,7 +220,7 @@
                                         .replace(
                                             '__id__', data);
                                     actionBtns += `
-                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Broker Bill">
+                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Commission Bill">
                                             <a href=${editUrl}>
                                                 <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
                                                     <i class="ri-edit-fill"></i>
@@ -250,7 +250,7 @@
                                         "{{ route('brokeragebill.brokeragebillpdf', '__gardenId__') }}"
                                         .replace('__gardenId__', data);
                                     actionBtns += `
-                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create Broker Bill PDF">
+                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create Commission Bill PDF">
                                             <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf" data-id ="${data}">
                                                     <i class="ri-file-add-line"></i>
                                             </button>
@@ -360,7 +360,6 @@
                     }
                 })
             });
-
             $(document).on("click", ".view-btn", function() {
                 let garden_id = $(this).data('view');
 
@@ -399,8 +398,9 @@
                         `);
                         let id = 1;
                         response.data.forEach(function(item, index) {
+                            console.log(item);
                             // Only show garden name for first row\
-                            let totalbrokrage = ((item.net_kg ?? 0) * (item.rate ?? 0) *
+                            let totalbrokrage = ((item.invoice_grand_total ?? 0) *
                                 (item.brokerage ?? 0)) / 100;
                             $('#viewmodaltitle').text(item.garden_name + `- Details`);
                             $('#viewmodaltitle').addClass('font-weight-bold');
@@ -408,7 +408,7 @@
                             <tr>
                                 <td>${id ?? '-'}</td>
                                 <td>${item.inv_no ?? '-'}</td>
-                                <td>${item.inv_date ? new Date(item.inv_date).toISOString().split('T')[0] : '-'}</td>
+                                <td>${item.inv_date ?? '-'}</td>
                                 <td>${item.amount ?? '-'}</td>
                                 <td>${item.brokerage_date ?? '-'}</td>
                                 <td>${item.brokerage ? item.brokerage+"(%)": "0"}</td>

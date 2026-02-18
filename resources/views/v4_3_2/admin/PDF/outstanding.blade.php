@@ -207,22 +207,24 @@
           <div class="invoice-box">
               <div class="invoice-header clearfix">
                   <span class="invoice-no">Invoice #{{ $invoice['invoice_no'] ?? '-' }}</span>
-                  <span class="grand-total">Total Amount: {{ formatINR($invoice['grand_total'] ?? 0)}}</span>
+                  {{-- <span class="grand-total">Total Amount: {{ formatINR($invoice['grand_total'] ?? 0)}}</span> --}}
               </div>
 
               <div class="invoice-meta">
-                  <strong>Date:</strong> {{ $invoice['invoice_date'] ?? '-' }} &nbsp;|&nbsp;
-                  <strong>IGST:</strong> {{ $invoice['igst'] ?? '-' }} &nbsp;|&nbsp;
+                  <strong>Invoice Date:</strong> {{ $invoice['invoice_date']? \Carbon\Carbon::parse($invoice['invoice_date'])->format('d-m-Y') : '-' }} &nbsp;|&nbsp;
+                  <strong>IGST:</strong> {{ $invoice['igst'] ?? '0.00' }} &nbsp;|&nbsp;
+                  <strong>CGST:</strong> {{ $invoice['cgst'] ?? '0.00' }} &nbsp;|&nbsp;
+                  <strong>SGST:</strong> {{ $invoice['sgst'] ?? '0.00' }} &nbsp;|&nbsp;
                   <strong>Status:</strong> <span
                       style="text-transform: uppercase">{{ $invoice['status'] ?? '-' }}</span>
                   &nbsp;|&nbsp;
-                  <strong>Period:</strong> {{ $invoice['from_date'] ?? '-' }} to {{ $invoice['to_date'] ?? '-' }}
+                  <strong>Period:</strong> {{ $invoice['from_date'] ? \Carbon\Carbon::parse($invoice['from_date'])->format('d-m-Y') : '-' }} to {{ $invoice['to_date'] ? \Carbon\Carbon::parse($invoice['to_date'])->format('d-m-Y') : '-' }}
               </div>
 
               <table class="payment-table">
                   <thead>
                       <tr>
-                          <th>Date</th>
+                          <th>Payment Date</th>
                           <th>Receipt No.</th>
                           <th>Transaction ID</th>
                           <th>Paid By</th>
@@ -236,14 +238,15 @@
                           @if ($detail['receipt_number'])
                               <tr>
                                   <td>
-                                      {{ $detail['datetime'] ? \Carbon\Carbon::parse($detail['datetime'])->format('d-M-Y') : '-' }}
+                                      {{ $detail['datetime'] ? \Carbon\Carbon::parse($detail['datetime'])->format('d-m-Y') : '-' }}
                                   </td>
                                   <td>{{ $detail['receipt_number'] ?? '-' }}</td>
                                   <td><small>{{ $detail['transaction_id'] ?? '-' }}</small></td>
                                   <td>{{ $detail['paid_by'] ?? '-' }}</td>
                                   <td>{{ $detail['paid_type'] ?? '-' }}</td>
                                   <td class=" blue-text">{{ formatINR($detail['paid_amount'] ?? 0) }}</td>
-                                  <td class="text-right pending-text">{{ formatINR($detail['pending_amount'] ?? 0) }}</td>
+                                  <td class="text-right pending-text">{{ formatINR($detail['pending_amount'] ?? 0) }}
+                                  </td>
                               </tr>
                           @else
                               <tr>
@@ -252,6 +255,10 @@
                           @endif
                       @endforeach
                   </tbody>
+                  <tr style="font-size: 12px">
+                      <td colspan="6" style="text-align: right"><b>Total Outstanding</b></td>
+                      <td class="text-right"> <b>{{ formatINR($invoice['grand_total'] ?? 0) }}</b></td>
+                  </tr>
               </table>
           </div>
       @endforeach

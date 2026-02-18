@@ -471,7 +471,7 @@
                                     </tr>
                                     <tr>
                                         <td>Bill Date</td>
-                                        <td>{{ $data['invoice']['invoice_date'] }}</td>
+                                        <td>{{ $data['invoice']['invoice_date'] ? \Carbon\Carbon::parse($data['invoice']['invoice_date'])->format('d-m-Y') : '-'}}</td>
                                     </tr>
 
                                 </table>
@@ -485,11 +485,11 @@
                             <b>
                                 Bill Of commission form
                                 @isset($data['invoice']['from_date'])
-                                    {{ $data['invoice']['from_date'] }}
+                                    {{ $data['invoice']['from_date'] ? \Carbon\Carbon::parse( $data['invoice']['from_date'])->format('d-m-Y') : '-' }}
                                 @endisset
                                 to
                                 @isset($data['invoice']['to_date'])
-                                    {{ $data['invoice']['to_date'] }}
+                                    {{  $data['invoice']['to_date'] ? \Carbon\Carbon::parse( $data['invoice']['to_date'])->format('d-m-Y') : '-'  }}
                                 @endisset
                             </b>
 
@@ -500,38 +500,57 @@
                     width="100%">
                     <thead>
                         <tr class="bgblue">
-                            <th style="width:4%;text-align:center;">ID</th>
-                            <th style="width:12%;text-align:center;">Buyer</th>
+                            <th style="width:3%;text-align:center;">ID</th>
+                            <th style="width:14%;text-align:center;">Buyer</th>
                             <th style="width:10%;text-align:center;">Inv No</th>
                             <th style="width:10%;text-align:center;">Inv Date</th>
+                            <th style="width:12%;text-align:center;">C/N NO.& Date</th>
                             <th style="width:6%;text-align:center;">Pkgs</th>
-                            <th style="width:8%;text-align:center;">Kgs</th>
-                            <th style="width:10%;text-align:center;">Shortage</th>
                             <th style="width:10%;text-align:center;">Net Weight Kg</th>
+                            <th style="width:5%;text-align:center;">CD %</th>
                             <th style="width:10%;text-align:center;">Amount</th>
                             <th style="width:10%;text-align:center;">Comm</th>
                         </tr>
                     </thead>
                     @php
+                        // dd($data['usedInvoices']);
                         $usedInvoices = $data['usedInvoices'] ?? [];
                         $maxRows = 10;
-
+                        $companyStateId = $data['mainCompanyData']['state_id'] ?? null;
+                        $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
+                        //  $companyStateId = 20;
+                        // $buyerStateId = 21;
+                        $cgst_per = 2.5;
+                        $sgst_per = 2.5;
+                        $igst_per = 5;
+                        $cgst = 0;
+                        $sgst = 0;
+                        $igst = 0;
                         $totalBags = 0;
                         $totalAmount = 0;
                         $totalCommission = 0;
                         $rowCount = count($usedInvoices);
                         foreach ($usedInvoices as $row) {
-                            $amount = ($row->net_kg ?? 0) * ($row->rate ?? 0);
+                            $amount = $row->invoice_grand_total ?? 0;
                             $commission = ($amount * ($row->brokerage ?? 0)) / 100;
 
                             $totalBags += $row->bags ?? 0;
                             $totalAmount += $amount;
                             $totalCommission += $commission;
                         }
+                        if ($companyStateId && $buyerStateId) {
+                            if ($companyStateId == $buyerStateId) {
+                                $cgst = ($totalCommission * $cgst_per) / 100;
+                                $sgst = ($totalCommission * $sgst_per) / 100;
+                                $igst_per = 0;
+                            } else {
+                                $cgst_per = 0;
+                                $sgst_per = 0;
+                                $igst = ($totalCommission * 5) / 100;
+                            }
+                        }
 
-                        $igst = ($totalCommission * 18) / 100;
-                        $grandTotal = $totalCommission - $igst;
-
+                        $grandTotal = $totalCommission + $cgst + $sgst + $igst;
                         $roundedTotal = round($grandTotal);
                         $roundOff = $roundedTotal - $grandTotal;
                     @endphp
@@ -544,16 +563,18 @@
                                 <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
                                 <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
                                 <td style="text-align:center;">
-                                    {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('Y-m-d') : '-' }}
+                                    {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('d-m-Y') : '-' }}
+                                </td>
+                                <td style="text-align:center;">{{ $row->consignment_number }} &
+                                    {{ $row->consignment_date ? \Carbon\Carbon::parse($row->consignment_date)->format('d-m-Y') : '-' }}
                                 </td>
                                 <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
                                 <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
-                                <td style="text-align:center;">{{ number_format($row->shortage ?? 0, 2) }}</td>
-                                <td style="text-align:center;">{{ number_format($row->final_net_kg ?? 0, 2) }}</td>
+                                <td style="text-align:center;">{{ number_format($row->discount ?? 0, 0) }}</td>
                                 <td style="text-align:center;">
-                                    {{ number_format(($row->net_kg ?? 0) * ($row->rate ?? 0), 2) }}</td>
+                                    {{ number_format($row->invoice_grand_total, 2) }}</td>
                                 <td style="text-align:center;">
-                                    {{ number_format((($row->net_kg ?? 0) * ($row->rate ?? 0) * ($row->brokerage ?? 0)) / 100, 2) }}
+                                    {{ number_format((($row->invoice_grand_total ?? 0) * ($row->brokerage ?? 0)) / 100, 2) }}
                                 </td>
                             </tr>
                         @empty
@@ -580,11 +601,11 @@
 
                         @if (!empty($usedInvoices) && count($usedInvoices) > 0)
                             <tr style="font-weight:bold; background:#f2f2f2;">
-                                <td colspan="4" style="text-align:right;">TOTAL</td>
+                                <td colspan="5" style="text-align:right;">TOTAL</td>
                                 <td style="text-align:center;">
                                     {{ $totalBags }}
                                 </td>
-                                <td colspan="3"></td>
+                                <td colspan="2"></td>
 
                                 <td style="text-align:center;">
                                     {{ number_format($totalAmount, 2) }}
@@ -611,7 +632,7 @@
                         </tr>
                         <tr style="font-size:15px;text-align: right">
                             <td colspan="12" style="text-align: right" class="left removeborder ">
-                                IGST(18%)
+                                IGST({{ $igst_per }}%)
                             </td>
                             <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
                                 ₹{{ number_format($igst, 2) }}
@@ -619,18 +640,18 @@
                         </tr>
                         <tr style="font-size:15px;text-align: right">
                             <td colspan="12" style="text-align: right" class="left removeborder ">
-                                SGST(0%)
+                                SGST({{ $sgst_per }}%)
                             </td>
                             <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
-                                ₹{{ number_format(0, 2) }}
+                                ₹{{ number_format($sgst, 2) }}
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
                             <td colspan="12" style="text-align: right" class="left removeborder ">
-                                CGST(0%)
+                                CGST({{ $cgst_per }}%)
                             </td>
                             <td style="text-align: right;width: 20%;" class=" currencysymbol" id="cgst">
-                                ₹{{ number_format(0, 2) }}
+                                ₹{{ number_format($cgst, 2) }}
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
@@ -647,7 +668,7 @@
                                 <b>Total</b>
                             </td>
                             <td style="width: %;" class="right currencysymbol text-right">
-                                ₹{{ number_format($grandTotal, 2) }}
+                                ₹{{ number_format($roundedTotal, 2) }}
                             </td>
                         </tr>
                         <tr class="removeborder">

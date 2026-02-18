@@ -23,7 +23,7 @@ function formatINR($amount)
     } else {
         $formatted = $amount;
     }
-    return  $formatted;
+    return $formatted;
 }
 ?>
 <!DOCTYPE html>
@@ -100,7 +100,7 @@ function formatINR($amount)
             background: #f4f7f9;
             padding: 8px;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 12px;
             page-break-inside: avoid;
         }
 
@@ -201,7 +201,7 @@ function formatINR($amount)
         <div class="invoice-box">
             <div class="invoice-header clearfix">
                 <span class="invoice-no">Buyer Name #{{ $orders['buyer_name'] ?? '-' }}</span>
-                <span class="grand-total">Final Amount #{{ formatINR($orders['final_amount'] ?? 0) }}</span>
+                <span class="grand-total">Order Id  #{{ $orders['id'] ?? '-' }}</span>
             </div>
 
             <div class="invoice-meta">
@@ -209,12 +209,14 @@ function formatINR($amount)
                 <strong>Discount:</strong> {{ $orders['discount'] ?? '-' }} &nbsp;|&nbsp;
                 <strong>Transport Name:</strong> <span
                     style="text-transform: uppercase">{{ $orders['transport_name'] ?? '-' }}</span> &nbsp;|&nbsp;
-                <strong>Total Net KG:</strong> {{ $orders['totalNetKg'] ?? '-' }}
+                <strong>Total Net KG:</strong> {{ $orders['totalNetKg'] ?? '-' }} &nbsp;|&nbsp;
+                <strong>Order Date:</strong> {{ $orders['order_date'] ? \Carbon\Carbon::parse($orders['order_date'])->format('d-m-Y') : '-'}}
             </div>
 
             <table class="payment-table">
                 <thead>
                     <tr>
+                        {{-- <th>Order Date</th> --}}
                         <th>Garden Name</th>
                         <th>Grade Name</th>
                         <th>Invoice No</th>
@@ -222,12 +224,15 @@ function formatINR($amount)
                         <th>KG</th>
                         <th>Net KG</th>
                         <th>Rate</th>
+                        <th>Discount</th>
                         <th>Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($orders['details'] as $detail)
+                        {{ $discount_amt = (($detail['amount'] ?? 0) * ($detail['order_discount'] ?? 0)) / 100 }}
                         <tr>
+                            {{-- <td>{{ $detail['order_date'] ? \Carbon\Carbon::parse($detail['order_date'])->format('d-m-Y') : '-' }}</td> --}}
                             <td>{{ $detail['garden_name'] ?? '-' }}</td>
                             <td>{{ $detail['grade_name'] ?? '-' }}</td>
                             <td>{{ $detail['invoice_no'] ?? '-' }}</td>
@@ -235,11 +240,20 @@ function formatINR($amount)
                             <td>{{ $detail['kg'] ?? '-' }}</td>
                             <td>{{ $detail['net_kg'] ?? '-' }}</td>
                             <td>{{ $detail['rate'] ?? '-' }}</td>
-                            <td>{{ formatINR($detail['amount']?? 0)}}</td>
+                            <td>{{ formatINR($discount_amt) }}</td>
+                            <td>{{ formatINR(($detail['amount'] ?? 0) - ($discount_amt ?? 0)) }}</td>
                         </tr>
                     @endforeach
+                    <tr style="font-size: 12px">
+                        <td colspan="8" style="text-align: right"><b>Final Amount</b></td>
+                        <td> <b>{{ formatINR($orders['final_amount'] ?? 0) }}</b></td>
+                    </tr>
                 </tbody>
             </table>
+             {{-- <div class="invoice-header clearfix">
+                    <span class="invoice-no">Buyer Name #{{ $orders['buyer_name'] ?? '-' }}</span>
+                    <span class="grand-total">Final Amount   {{ formatINR($orders['final_amount'] ?? 0) }}</span>
+                </div> --}}
         </div>
     @endforeach
 

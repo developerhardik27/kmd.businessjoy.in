@@ -273,46 +273,114 @@
                 });
 
             }
-            $(document).on("click", ".view-btn", function() {
-                $('#details').html('');
-                var data = $(this).data('view');
-                $.each(global_response.data, function(key, company) {
-                    if (company.id == data) {
+           $(document).on("click", ".view-btn", function () {
+    // Make modal extra large
+    $("#exampleModalScrollable .modal-dialog").addClass('modal-xl');
+    
+    // Clear previous content
+    $('#details').html('');
 
-                        $('#details').append(`
+    var data = $(this).data('view');
+
+    $.each(global_response.data, function (key, company) {
+        if (company.id == data) {
+
+            // Build bank details table
+            let bankHtml = '';
+            if (company.bank_details && company.bank_details.length > 0) {
+                bankHtml += `
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr><th colspan="4" class="text-center bg-white"><b>Bank Details</b></th></tr>
+                            <tr>
+                                <th>Bank Name</th>
+                                <th>Holder Name</th>
+                                <th>Account No</th>
+                                <th>IFSC Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                $.each(company.bank_details, function (i, bank) {
+                    bankHtml += `
                         <tr>
-                            <th>Id</th>
+                            <td>${bank.bank_name || '-'}</td>
+                            <td>${bank.holder_name || '-'}</td>
+                            <td>${bank.account_no || '-'}</td>
+                            <td>${bank.ifsc_code || '-'}</td>
+                        </tr>
+                    `;
+                });
+                bankHtml += `</tbody></table>`;
+            } else {
+                bankHtml = `
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr><th colspan="4" class="text-center bg-white"><b>Bank Details</b></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No Bank Details Available</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Build company details table
+            let companyHtml = `
+                <table class="table table-bordered table-striped mb-0">
+                    <tbody>
+                        <tr>
+                            <th width="30%">Id</th>
                             <td>${company.id || '-'}</td>
                         </tr>
                         <tr>
                             <th>Company Name</th>
-                            <td>${company.company_name|| '-'}</td>
+                            <td>${company.company_name || '-'}</td>
                         </tr>
-                         <tr>
+                        <tr>
                             <th>Email</th>
-                            <td>${company.email|| '-'}</td>
+                            <td>${company.email || '-'}</td>
                         </tr>
                         <tr>
                             <th>Contact Person Name</th>
-                            <td>${company.contact_person_name|| '-'}</td>
+                            <td>${company.contact_person_name || '-'}</td>
                         </tr>
                         <tr>
                             <th>Gardens</th>
-                            <td>${company.garden_names|| '-'}</td>
+                            <td>${company.garden_names || '-'}</td>
                         </tr>
-                         <tr>
+                        <tr>
                             <th>Mobile</th>
-                            <td>${company.mobile_1 +' / ' + company.mobile_2|| '-'}</td>
+                            <td>
+                                ${company.mobile_1 || ''}
+                                ${company.mobile_1 && company.mobile_2 ? ' / ' : ''}
+                                ${company.mobile_2 || '-'}
+                            </td>
                         </tr>
-                         <tr>
+                        <tr>
                             <th>Address</th>
-                            <td>${company.address + ', ' + company.pincode +', '+ company.city_name +', '+ company.state_name +', '+ company.country_name || '-'}</td>
+                            <td>
+                                ${company.address || ''} 
+                                ${company.pincode ? ', ' + company.pincode : ''} 
+                                ${company.city_name ? ', ' + company.city_name : ''} 
+                                ${company.state_name ? ', ' + company.state_name : ''} 
+                                ${company.country_name ? ', ' + company.country_name : ''}
+                            </td>
                         </tr>
-                    `);
-                    }
-                });
-            });
-            //call data function for load companymaster data
+                        <tr>
+                            <td colspan="2" style="padding: 0;">${bankHtml}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            $('#details').html(companyHtml);
+        }
+    });
+});
+ //call data function for load companymaster data
             loaddata();
 
             // record delete 

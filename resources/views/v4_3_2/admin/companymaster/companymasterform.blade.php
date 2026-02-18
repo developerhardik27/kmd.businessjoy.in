@@ -436,7 +436,7 @@
                 selectedGardenIds = selectedGardenIds.map(String);
 
                 $.ajax({
-                    url: "{{ route('garden.index') }}",
+                    url: "{{ route('garden.gardenassign') }}",
                     type: "GET",
                     data: {
                         user_id: "{{ session()->get('user_id') }}",

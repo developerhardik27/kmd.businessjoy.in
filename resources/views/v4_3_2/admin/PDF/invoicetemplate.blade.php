@@ -7,14 +7,14 @@
     $sign = '';
     $withgst = false;
 
-    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
+    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0 || $invdata['igst']) {
         $withgst = true;
     }
 
     if ($invdata['gst'] != 0) {
         $total = $invdata['total'] + $invdata['gst'];
     } else {
-        $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'];
+        $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'] + $invdata['igst'];
     }
 
     if ($invdata['grand_total'] > $total) {
@@ -32,7 +32,7 @@
     }
 
     $othersettings = json_decode($othersettings['gstsettings'], true);
-
+  
     $blankrows = $invoiceothersettings['no_of_blank_row'];
     $showgodname = $invoiceothersettings['god_name_show/hide'];
     $loopnumber = 0; // array for alignment column type text or longtext
@@ -617,7 +617,16 @@
                             </td>
                         </tr>
                         @if ($othersettings['gst'] == 0)
-                            @if ($invdata['sgst'] > 0)
+                                 <tr style="font-size:15px;text-align: right">
+                                    <td colspan="{{ $colspan }}" style="text-align: right"
+                                        class="left removeborder ">
+                                        IGST({{ $othersettings['igst'] }}%)
+                                    </td>
+                                    <td style="text-align: right ;width: {{ $amountColumnWidth }}%;"
+                                        class="currencysymbol" id="igst">
+                                        {{ Number::currency($invdata['igst'] ?? 0, in: $invdata['currency']) }}
+                                    </td>
+                                </tr>
                                 <tr style="font-size:15px;text-align: right">
                                     <td colspan="{{ $colspan }}" style="text-align: right"
                                         class="left removeborder ">
@@ -625,11 +634,11 @@
                                     </td>
                                     <td style="text-align: right ;width: {{ $amountColumnWidth }}%;"
                                         class="currencysymbol" id="sgst">
-                                        {{ Number::currency($invdata['sgst'], in: $invdata['currency']) }}
+                                        {{ Number::currency($invdata['sgst'] ?? 0, in: $invdata['currency']) }}
                                     </td>
                                 </tr>
-                            @endif
-                            @if ($invdata['cgst'] > 0)
+                         
+                          
                                 <tr style="font-size:15px;text-align: right">
                                     <td colspan="{{ $colspan }}" style="text-align: right"
                                         class="left removeborder ">
@@ -637,10 +646,10 @@
                                     </td>
                                     <td style="text-align: right;width: {{ $amountColumnWidth }}%;"
                                         class=" currencysymbol" id="cgst">
-                                        {{ Number::currency($invdata['cgst'], in: $invdata['currency']) }}
+                                        {{ Number::currency($invdata['cgst'] ?? 0, in: $invdata['currency']) }}
                                     </td>
                                 </tr>
-                            @endif
+                         
                         @else
                             @if ($invdata['gst'] > 0)
                                 <tr style="font-size:15px;text-align: right">
