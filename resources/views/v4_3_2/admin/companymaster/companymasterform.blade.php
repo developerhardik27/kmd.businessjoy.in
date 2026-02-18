@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="country">Select Country</label>
+                    <label for="country">Select Country</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput country" name='country' id="country" data-target="state">
                         <option selected="" disabled="">Select your Country</option>
                     </select>
@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="state">Select State</label>
+                    <label for="state">Select State</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput state" name='state' id="state" data-target="city">
                         <option selected="" disabled="">Select your State</option>
                     </select>
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="city">Select City</label>
+                    <label for="city">Select City</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name='city' id="city">
                         <option selected="" disabled="">Select your City</option>
                     </select>
@@ -144,7 +144,7 @@
                                     <input type="hidden" value="{{ session('company_id') }}" class="form-control"
                                         name="company_id">
 
-                                    <label for="garden_name">garden name</label><span class="withoutgstspan"
+                                    <label for="garden_name">garden name</label><span  
                                         style="color:red;">*</span>
                                     <input type="text" id="garden_name" class="form-control withoutgstinput"
                                         name='garden_name' placeholder="garden  Name">
@@ -177,7 +177,7 @@
                                 </div>
 
                                 <div class="col-sm-6 mb-2">
-                                    <label for="country">Select Country</label><span class="withoutgstspan"
+                                    <label for="country">Select Country</label><span  
                                         style="color:red;">*</span>
                                     <select class="form-control requiredinput country" name='country' id="modal_country"
                                         data-target="modal_state">
@@ -187,7 +187,7 @@
                                 </div>
 
                                 <div class="col-sm-6 mb-2">
-                                    <label for="state">Select State</label><span class="withoutgstspan"
+                                    <label for="state">Select State</label><span  
                                         style="color:red;">*</span>
                                     <select class="form-control requiredinput state" name='state' id="modal_state"
                                         data-target="modal_city">
@@ -197,7 +197,7 @@
                                 </div>
 
                                 <div class="col-sm-6 mb-2">
-                                    <label for="city">Select City</label><span class="withoutgstspan"
+                                    <label for="city">Select City</label><span  
                                         style="color:red;">*</span>
                                     <select class="form-control requiredinput" name='city' id="modal_city">
                                         <option selected="" disabled="">Select your City</option>
@@ -260,21 +260,7 @@
             // response status == 422 that means api has not got valid or required data
 
             // companymaster form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
-            $('.withgstspan').hide();
-            $('#company_name').on('change keyup', function() {
-                var val = $(this).val();
-                if (val != '') {
-                    $('.withgstspan').show();
-                    $('.withoutgstspan').hide();
-                    $('.withgstinput').attr('required', true);
-                    $('.withoutgstinput').removeAttr('required');
-                } else {
-                    $('.withgstspan').hide();
-                    $('.withoutgstspan').show();
-                    $('.withoutgstinput').attr('required', true);
-                    $('.withgstinput').removeAttr('required');
-                }
-            });
+           
             let country;
 
             function renderSelectBox(data, type, subtype = null) {
