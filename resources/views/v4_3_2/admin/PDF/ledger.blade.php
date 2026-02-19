@@ -190,9 +190,9 @@ function formatINR($amount)
                                         $due -= $payment['paid_amount'] ?? 0;
                                     }
                                 @endphp
-                                <td style="text-align: right;">
+                                <td style="text-align: right;  background: #f9f9f9;">
                                     <strong>Due:</strong>
-                                    <span class="{{ $due > 0 ? 'pending-box' : 'credit' }}">
+                                    <span class="{{ $due > 0 ? 'pending-box' : 'credit' }}"  style="text-align: right;  background: #f9f9f9;">
                                         {{ formatINR($due) }}
                                     </span>
                                 </td>
@@ -216,7 +216,7 @@ function formatINR($amount)
                                 <td>Invoice Balance</td>
                                 <td class="text-right font-bold">{{ formatINR($invoice['grand_total']) }}</td>
                                 <td class="text-right"><b>0.00</b></td>
-                                <td class="text-right ">{{ formatINR($invoice['grand_total']) }}</td>
+                                <td class="text-right "><b>{{ formatINR($invoice['grand_total']) }}</b></td>
                             </tr>
 
                             {{-- Payments --}}
@@ -230,9 +230,9 @@ function formatINR($amount)
                                             {{ $payment['paid_by'] }}</small>
                                     </td>
                                     <td class="text-right"><b>0.00</b></td>
-                                    <td class="text-right">{{ formatINR($payment['paid_amount']) }}</td>
+                                    <td class="text-right"><b>{{ formatINR($payment['paid_amount']) }}</b></td>
                                     <td class="text-right">
-                                        {{ formatINR($payment['pending_amount']) ?? 0.0 }}</td>
+                                        <b>{{ formatINR($payment['pending_amount']) ?? 0.0 }}</b></td>
                                 </tr>
                                 @if ($payment['pending_amount'] == 0)
                                     <tr>

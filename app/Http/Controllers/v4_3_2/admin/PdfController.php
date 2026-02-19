@@ -24,7 +24,7 @@ use Dompdf\Options;
 
 class PdfController extends commonController
 {
-   public $version,$masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
+   public $version, $masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
    public function __construct()
    {
       if (session_status() !== PHP_SESSION_ACTIVE)
@@ -123,9 +123,9 @@ class PdfController extends commonController
             $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id')
                ->where('broker_bill_invoice.is_deleted', 0);
          })
-            ->leftjoin($this->masterdbname . '.country', 'companymasters.country_id', '=', $this->masterdbname . '.country.id')
-            ->leftjoin($this->masterdbname . '.state', 'companymasters.state_id', '=', $this->masterdbname . '.state.id')
-            ->leftjoin($this->masterdbname . '.city', 'companymasters.city_id', '=', $this->masterdbname . '.city.id')
+         ->leftjoin($this->masterdbname . '.country', 'companymasters.country_id', '=', $this->masterdbname . '.country.id')
+         ->leftjoin($this->masterdbname . '.state', 'companymasters.state_id', '=', $this->masterdbname . '.state.id')
+         ->leftjoin($this->masterdbname . '.city', 'companymasters.city_id', '=', $this->masterdbname . '.city.id')
          ->select(
             'company_garden.company_id as garden_company_id',
             'companymasters.*',
@@ -1040,6 +1040,8 @@ class PdfController extends commonController
       $list = $this->brokerbillinvoiceModel
          ::leftJoin('broker_bill_payment_details', 'broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
          ->join('gardens', 'gardens.id', '=', 'broker_bill_invoice.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'broker_bill_invoice.garden_company_id')
+         ->where('broker_bill_payment_details.is_deleted', 0)
          ->where('broker_bill_invoice.is_deleted', 0);
       $filters = [
          'filter_payment_status' => 'broker_bill_invoice.status',
@@ -1081,7 +1083,8 @@ class PdfController extends commonController
             'broker_bill_payment_details.paid_by',
             'broker_bill_payment_details.paid_type',
             'broker_bill_payment_details.paid_amount',
-            'broker_bill_payment_details.pending_amount'
+            'broker_bill_payment_details.pending_amount',
+            'companymasters.company_name'
          )
          ->get()
          ->groupBy('invoice_id')
@@ -1100,6 +1103,7 @@ class PdfController extends commonController
                'from_date'     => $first->from_date,
                'to_date'       => $first->to_date,
                'garden_name'  => $first->garden_name,
+               'company_name'  => $first->company_name,
                'details' => $rows->map(function ($item) {
                   return [
                      'receipt_number' => $item->receipt_number,
@@ -1137,7 +1141,8 @@ class PdfController extends commonController
 
       //return view($this->version . '.admin.PDF.outstanding', ["list" => $list]);
       // return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      // return $pdf->stream($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
    }
 
    public function leger(Request $request)
@@ -1224,7 +1229,7 @@ class PdfController extends commonController
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.ledger', ["ledger" => $grouped])->setPaper('a4', 'portrait');
 
       // return view($this->version . '.admin.PDF.ledger', ["ledger" => $grouped]);
-      // return $pdf->download('Leger' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream('Leger' . date('Y-m-d_H-i-s') . '.pdf');
+      // return $pdf->download('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
    }
 }
