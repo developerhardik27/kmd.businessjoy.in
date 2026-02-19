@@ -95,7 +95,7 @@
         .invoice-box {
             margin-bottom: 35px;
             border: 1px solid #e0e0e0;
-            padding: 15px;
+            /* padding: 15px; */
             border-radius: 4px;
             page-break-inside: avoid;
         }
