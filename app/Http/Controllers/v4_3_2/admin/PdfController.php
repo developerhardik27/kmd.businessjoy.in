@@ -1038,10 +1038,12 @@ class PdfController extends commonController
    public function outstanding(Request $request)
    {
       $list = $this->brokerbillinvoiceModel
-         ::leftJoin('broker_bill_payment_details', 'broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
+         ::leftJoin('broker_bill_payment_details', function ($join) {
+            $join->on('broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
+               ->where('broker_bill_payment_details.is_deleted', 0);
+         })
          ->join('gardens', 'gardens.id', '=', 'broker_bill_invoice.garden_id')
          ->leftJoin('companymasters', 'companymasters.id', '=', 'broker_bill_invoice.garden_company_id')
-         ->where('broker_bill_payment_details.is_deleted', 0)
          ->where('broker_bill_invoice.is_deleted', 0);
       $filters = [
          'filter_payment_status' => 'broker_bill_invoice.status',
