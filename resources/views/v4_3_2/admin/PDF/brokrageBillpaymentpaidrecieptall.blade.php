@@ -416,9 +416,9 @@
                     $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
                     //  $companyStateId = 21;
                     // $buyerStateId = 21;
-                    $cgst_per = 2.5;
-                    $sgst_per = 2.5;
-                    $igst_per = 5;
+                    $cgst_per = 9;
+                    $sgst_per = 9;
+                    $igst_per = 18;
                     $cgst = 0;
                     $sgst = 0;
                     $igst = 0;
@@ -442,7 +442,7 @@
                         } else {
                             $cgst_per = 0;
                             $sgst_per = 0;
-                            $igst = ($totalCommission * 5) / 100;
+                            $igst = ($totalCommission * 18) / 100;
                         }
                     }
 
@@ -472,8 +472,8 @@
                                 {{ $row->consignment_date ? \Carbon\Carbon::parse($row->consignment_date)->format('d-m-Y') : '-' }}
                             </td>
                             <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
-                            <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
-                            <td style="text-align:center;">{{ number_format($row->discount ?? 0, 0) }}</td>
+                            <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 3) }}</td>
+                            <td style="text-align:center;">{{ number_format($row->discount ?? 0, 2) }}</td>
                             <td style="text-align:center;">
                                 {{ number_format($row->invoice_grand_total, 2) }}</td>
                             <td style="text-align:center;">

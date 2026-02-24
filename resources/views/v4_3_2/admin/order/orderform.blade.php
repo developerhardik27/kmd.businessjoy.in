@@ -35,6 +35,92 @@
         .select2-container {
             width: 100% !important;
         }
+
+        @media (max-width: 768px) {
+
+            #purchaseTable thead {
+                display: none;
+            }
+
+            #purchaseTable,
+            #purchaseTable tbody,
+            #purchaseTable tr,
+            #purchaseTable td {
+                display: block;
+                width: 100%;
+            }
+
+            #purchaseTable tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                padding: 10px;
+                background: #f9f9f9;
+                border-radius: 8px;
+            }
+
+            #purchaseTable td {
+                position: relative;
+                border: none;
+                border-bottom: 1px solid #eee;
+                padding-top: 30px;
+                text-align: right;
+            }
+
+            #purchaseTable td:last-child {
+                border-bottom: 0;
+            }
+
+            #purchaseTable td:last-child .btn {
+                width: 100%;
+            }
+
+            #purchaseTable td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                top: 0px;
+                width: 100%;
+                font-weight: bold;
+                text-align: left;
+            }
+
+            /* Special rows fix */
+            #addnewbtnrow td,
+            #totalRow td,
+            #discountrow td,
+            #finalamtrow td {
+                display: block;
+                padding: 10px;
+                text-align: center !important;
+            }
+
+            /* Bottom save bar */
+            #savebtn {
+                background: white;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                padding: 10px;
+                box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+
+                display: flex;
+                justify-content: space-between;
+            }
+
+            #savebtn button {
+                /* width: 32%; */
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 576px) {
+            #savebtn button {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
     </style>
     <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
@@ -60,7 +146,7 @@
                     <span class="error-msg" id="error-buyer_party" style="color:red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
-                    <label for="transport">Transport</label><span style="color:red;">*</span>
+                    <label for="transport">Transport</label>
                     <select class="form-control requiredinput" name="transport" id="transport">
                         <option value="" selected disabled>Select Transport</option>
                     </select>
@@ -85,7 +171,7 @@
                         id="discount" placeholder="Discount">
                     <span class="error-msg" id="error-discount" style="color:red"></span>
                 </div>
-                <div id="table" class="table-editable w-100 " style="overflow-x:auto">
+                <div id="table" class="table-editable w-100 table-responsive" style="overflow-x:auto">
                     <table class="table table-bordered table-striped text-center" id="purchaseTable">
                         <thead>
                             <tr>
@@ -116,13 +202,13 @@
                                 <td class="text-center"><strong id="totalAmount">0.00</strong></td>
                             </tr>
 
-                            <tr>
-                                <td colspan="7" class="text-right"><strong>Discount Amount</strong></td>
+                            <tr id="discountrow">
+                                <td colspan="7" style="text-align: right"><strong>Discount Amount</strong></td>
                                 <td class="text-center"><strong id="discountAmount">0.00</strong></td>
                             </tr>
 
-                            <tr>
-                                <td colspan="7" class="text-right"><strong>Final Amount</strong></td>
+                            <tr id="finalamtrow">
+                                <td colspan="7" style="text-align: right"><strong>Final Amount</strong></td>
                                 <td class="text-center"><strong id="finalAmount">0.00</strong></td>
                             </tr>
 
@@ -131,7 +217,7 @@
 
                     </table>
                 </div>
-                <div class="col-sm-12 mt-3">
+                <div class="col-sm-12 mt-3" id="savebtn">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
                     <button type="reset" data-toggle="tooltip" data-placement="bottom"
@@ -582,7 +668,7 @@
                 row++;
                 let newRow = `
                     <tr id='row_${row}' class='recordRow'>
-                        <td>
+                        <td data-label="Garden">
                             <select class="form-control garden-select requiredinput" name="garden_id[]">
                                 ${gardens}
                             </select>
@@ -590,47 +676,47 @@
 
                         </td>
         
-                        <td>
+                        <td data-label="Invoice No / Lot No">
                             <input type="text" class="form-control requiredinput" name="invoice_no[]"
                                 placeholder="Enter Invoice No">
                             <span class="error-msg" id="error-invoice_no_${row}" style="color:red"></span>
                         </td>
         
-                        <td>
+                        <td data-label="Grade">
                             <select class="form-control grade-select requiredinput" name="grade[]">
                                 ${grades}
                             </select>
                         </td>
         
-                        <td>
+                        <td data-label="Bags">
                             <input type="number" class="form-control bags calculationfield" name="bags[]"
                                 placeholder="Enter No of Bags">
                                 <span class="error-msg" id="error-bags_${row}" style="color:red"></span>
                         </td>
         
-                        <td>
+                        <td data-label="Kg">
                             <input type="number" step="0.01" class="form-control kg calculationfield" name="kg[]"
                                 placeholder="Enter no of Kg">
                                 <span class="error-msg" id="error-kg_${row}" style="color:red"></span>
                         </td>
         
-                        <td>
+                        <td data-label="Net Kg">
                             <input type="number" step="0.01" class="form-control net-kg" name="net_kg[]"disabled
                                 placeholder="Enter no of net kg">
 
                         </td>
         
-                        <td>
+                        <td  data-label="Rate / Kg">
                             <input type="number" step="0.01" class="form-control rate calculationfield" name="rate[]"
                                 placeholder="Enter per kg rate">
                                 <span class="error-msg" id="error-rate_${row}" style="color:red"></span>
                         </td>
         
-                        <td>
+                        <td  data-label="Amount">
                             <input type="number" class="form-control amount" name="amt[]" disabled
                                 placeholder="0">
                         </td>
-                        <td>
+                        <td data-label="Action">
                             <button type="button" class="btn btn-danger remove-row"><i class="ri-delete-bin-line"></i></button>
                         </td>
                     </tr>

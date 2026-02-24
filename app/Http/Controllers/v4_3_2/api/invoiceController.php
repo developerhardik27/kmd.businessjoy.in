@@ -16,7 +16,7 @@ class invoiceController extends commonController
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
         $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel, $order_detailModel, $gradesModel, $gardenModel;
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel, $order_detailModel, $gradesModel, $gardenModel, $companygardenModel;
 
     public function __construct(Request $request)
     {
@@ -50,6 +50,7 @@ class invoiceController extends commonController
         $this->order_detailModel = $this->getmodel('order_detail');
         $this->gardenModel = $this->getmodel('garden');
         $this->gradesModel = $this->getmodel('grade');
+        $this->companygardenModel = $this->getmodel('company_garden');
     }
 
 
@@ -261,11 +262,17 @@ class invoiceController extends commonController
             ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', $this->masterdbname . '.state.id')
             ->leftJoin($this->masterdbname . '.city', 'partys.city_id', '=', $this->masterdbname . '.city.id')
             ->leftjoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+            ->leftJoin('broker_purchases', 'invoices.id', '=', 'broker_purchases.invoice_id')
             ->leftJoin('payment_details', function ($join) {
                 $join->on('invoices.id', '=', 'payment_details.inv_id')
                     ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
             })
+            ->leftJoin('mng_col as mc', function ($join) {
+                $join->on('mc.invoice_id', '=', 'invoices.id')
+                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+            })
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id');
+
         $filters = [
             'filter_company'      => 'invoices.company_details_id',
             'filter_buyer'        => 'invoices.customer_id',
@@ -302,7 +309,11 @@ class invoiceController extends commonController
                 'country_details.currency_symbol',
                 'state.state_name',
                 'city.city_name',
-                'companymasters.company_name as garden_company_name'
+                'companymasters.company_name as garden_company_name',
+                'companymasters.brokerage as brokerage',
+                'broker_purchases.brokerbill_no',
+                'broker_purchases.garden_id',
+                'mc.amount as line_total',
             )
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
@@ -383,7 +394,7 @@ class invoiceController extends commonController
                 "bank_account" => 'required',
                 "customer" => 'required',
                 'companymaster_id' => 'required',
-                'transport_id' => 'required',
+                'transport_id' => 'nullable',
                 "sample_ids" => 'nullable',
                 'inv_number' => 'required',
                 'invoice_date' => 'required',
@@ -556,7 +567,7 @@ class invoiceController extends commonController
                     $invoicerec = [
                         'inv_no' => $inv_no,
                         'customer_id' => $data['customer'],
-                        'transport_id' => $data['transport_id'],
+                        'transport_id' => $data['transport_id'] ?? null,
                         'consignment_date' => $data['consignment_date'],
                         'consignment_number' => $data['consignment_number'],
                         'sample_ids' => json_encode($ids),
@@ -612,16 +623,35 @@ class invoiceController extends commonController
 
                     $invoice = $this->invoiceModel::insertGetId($invoicerec);
                     if (!empty($ids)) {
+                     
                         $ids = explode(',', $ids);
+                      
+                        $brokerPurchases = $this->brokerpurchaseModel
+                            ::whereIn('id', $ids)
+                            ->get();
+                        
+                        foreach ($brokerPurchases as $purchase) {
 
-                        $updateinvoiceid = $this->brokerpurchaseModel::whereIn('id', $ids)
-                            ->update([
-                                "invoice_id" => $invoice,
+                   
+                            $company_id = $this->companygardenModel
+                                ::where('garden_id', $purchase->garden_id)
+                                ->value('company_id');
+
+                
+                            $brokerage = $this->companymastersModel
+                                ::where('id', $company_id)
+                                ->value('brokerage');
+
+                           
+                            $purchase->update([
+                                'invoice_id' => $invoice,
+                                'brokerage'  => $brokerage ?? 0,
                             ]);
+                        }
                     }
                     $invoice_lot_no = $data['invoice_data'];
                     $id = [];
-
+                    // dd($invoice_lot_no);
                     if (!empty($invoice_lot_no)) {
                         $invoice_lot_no = explode(',', $invoice_lot_no);
 
@@ -634,12 +664,18 @@ class invoiceController extends commonController
                         foreach ($itemdata as $row) {
                             $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->where('is_deleted', 0)->value('id');
                             $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->where('is_deleted', 0)->value('id');
+
+                            $comapany_id = $this->companygardenModel::where('garden_id', $garden_id)->value('company_id');
+
+                            $get_borkrage = $this->companymastersModel::where('id', $comapany_id)->value('brokerage');
+                            // dd($get_borkrage);
                             $user_id = $data['user_id'];
 
                             // Check if broker purchase already exists for this invoice_no
                             $existing = $this->brokerpurchaseModel::where('invoice_no', $row['Invoice_no'])->first();
 
                             if ($existing) {
+                                //  dd($get_borkrage);
                                 // Update existing
                                 $existing->update([
                                     'garden_id'    => $garden_id,
@@ -650,6 +686,7 @@ class invoiceController extends commonController
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
                                     'invoice_grand_total' => $row['amount'],
+                                    'brokerage' => $get_borkrage,
                                     'invoice_id'   => $invoice,
                                     'created_by'   => $user_id,
                                 ]);
@@ -657,6 +694,7 @@ class invoiceController extends commonController
                                 $id[] = $existing->id;
                             } else {
                                 // Create new
+                                //  dd($get_borkrage);
                                 $new = $this->brokerpurchaseModel::create([
                                     'garden_id'    => $garden_id,
                                     'invoice_no'   => $row['Invoice_no'],
@@ -669,7 +707,7 @@ class invoiceController extends commonController
                                     'invoice_grand_total' => $row['amount'],
                                     'invoice_id'   => $invoice,
                                     'source'       => 'invoice',
-                                    'brokerage'    => null,
+                                    'brokerage' => $get_borkrage,
                                     'created_by'   => $user_id,
                                 ]);
 

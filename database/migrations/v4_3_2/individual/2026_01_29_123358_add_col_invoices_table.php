@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->integer('transport_id')->default(0)->after('customer_id');
+            $table->integer('transport_id')->after('customer_id');
             $table->text('HSN')->nullable()->after('transport_id');
             $table->text('Description')->nullable()->after('HSN');
         });

@@ -424,74 +424,77 @@
                                         </tr>
                                     @endif
                                 </table>
+                                  @if(isset($transportdetails))
                                 <table width="100%">
                                     <tr class="bgblue">
                                         <th class="font-weight-bold  bgblue" style="padding-left:10px">
                                             Transporter
                                         </th>
                                     </tr>
+                                  
                                     @if (isset($transportdetails['name']))
-                                        <tr class="font-weight-bold">
-                                            <td class="textblue" style="padding-left:10px">
-                                                @isset($transportdetails['name'])
-                                                    {{ $transportdetails['name'] }}
+                                            <tr class="font-weight-bold">
+                                                <td class="textblue" style="padding-left:10px">
+                                                    @isset($transportdetails['name'])
+                                                        {{ $transportdetails['name'] }}
+                                                    @endisset
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if ($transportdetails['address'])
+                                            <tr>
+                                                <td style="padding-left:10px">
+                                                    {{ $transportdetails['address'] }}
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        <tr>
+                                            <td style="padding-left:10px">
+                                                @isset($transportdetails['city_name'])
+                                                    {{ $transportdetails['city_name'] }},
+                                                @endisset
+                                                @isset($transportdetails['state_name'])
+                                                    {{ $transportdetails['state_name'] }},
+                                                @endisset
+                                                @isset($transportdetails['pincode'])
+                                                    {{ $transportdetails['pincode'] }}
                                                 @endisset
                                             </td>
                                         </tr>
-                                    @endif
-                                    @if ($transportdetails['address'])
                                         <tr>
                                             <td style="padding-left:10px">
-                                                {{ $transportdetails['address'] }}
+                                                {{ $transportdetails['email'] }}
                                             </td>
                                         </tr>
-                                    @endif
-                                    <tr>
-                                        <td style="padding-left:10px">
-                                            @isset($transportdetails['city_name'])
-                                                {{ $transportdetails['city_name'] }},
-                                            @endisset
-                                            @isset($transportdetails['state_name'])
-                                                {{ $transportdetails['state_name'] }},
-                                            @endisset
-                                            @isset($transportdetails['pincode'])
-                                                {{ $transportdetails['pincode'] }}
-                                            @endisset
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding-left:10px">
-                                            {{ $transportdetails['email'] }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding-left:10px">
-                                            {{ $transportdetails['mobile_1'] }} @if ($transportdetails['mobile_2'] != null && $transportdetails['mobile_2'] != '')
-                                                / {{ $transportdetails['mobile_2'] }}
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @if (isset($transportdetails['gst_no']))
                                         <tr>
                                             <td style="padding-left:10px">
-                                                <b>GSTIN No: @isset($transportdetails['gst_no'])
-                                                        {{ $transportdetails['gst_no'] }}
-                                                    @endisset
-                                                </b>
+                                                {{ $transportdetails['mobile_1'] }} @if ($transportdetails['mobile_2'] != null && $transportdetails['mobile_2'] != '')
+                                                    / {{ $transportdetails['mobile_2'] }}
+                                                @endif
                                             </td>
                                         </tr>
-                                    @endif
-                                    @if (isset($transportdetails['pan']))
-                                        <tr>
-                                            <td style="padding-left:10px">
-                                                <b>Pan No: @isset($transportdetails['pan'])
-                                                        {{ $transportdetails['pan'] }}
-                                                    @endisset
-                                                </b>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </table>
+                                        @if (isset($transportdetails['gst_no']))
+                                            <tr>
+                                                <td style="padding-left:10px">
+                                                    <b>GSTIN No: @isset($transportdetails['gst_no'])
+                                                            {{ $transportdetails['gst_no'] }}
+                                                        @endisset
+                                                    </b>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if (isset($transportdetails['pan']))
+                                            <tr>
+                                                <td style="padding-left:10px">
+                                                    <b>Pan No: @isset($transportdetails['pan'])
+                                                            {{ $transportdetails['pan'] }}
+                                                        @endisset
+                                                    </b>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    </table>
+                                 @endif
                             </td>
                         </tr>
                     </tbody>

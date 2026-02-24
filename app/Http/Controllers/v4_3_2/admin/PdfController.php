@@ -137,14 +137,14 @@ class PdfController extends commonController
          ->first();
       // dd($gardenCompanyData);
       $bank_details  = $this->bank_detailsModel::first();
-
+      // dd($invoice);
       $usedInvoices = $this->brokerpurchaseModel
          ::where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.garden_id', $invoice->garden_id)
-         ->whereBetween(
-            'broker_purchases.brokerage_date',
-            [$invoice->from_date, $invoice->to_date]
-         )
+         ->where('broker_purchases.brokerbill_no', $invoice->id)
+         // ->whereBetween(
+         //    'broker_purchases.brokerage_date',
+         //    [$invoice->from_date, $invoice->to_date]
+         // )
 
          ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
          ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
@@ -159,11 +159,12 @@ class PdfController extends commonController
 
          ->join('orders', 'orders.id', '=', 'order_details.order_id')
          ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-         ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+         ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
 
          ->leftJoin('invoices', function ($join) {
             $join->on('invoices.company_details_id', '=', 'companymasters.id')
                ->on('invoices.customer_id', '=', 'orders.buyer_party')
+               ->on('invoices.id','=','broker_purchases.invoice_id')
                ->whereRaw(
                   'FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\', \'\'))'
                )
@@ -254,7 +255,7 @@ class PdfController extends commonController
       $paymentdetail = $this->broker_payment_detailsModel::where('inv_id', $id)->where('is_deleted', 0)->get();
       $usedInvoices = $this->brokerpurchaseModel
          ::where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->where('broker_purchases.brokerbill_no', $invoice->id)
          ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
          ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
          ->join('order_details', function ($join) {
@@ -265,13 +266,14 @@ class PdfController extends commonController
          ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
          ->join('orders', 'orders.id', '=', 'order_details.order_id')
          ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-         ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+         ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
          ->leftJoin('invoices', function ($join) {
             $join->on('invoices.company_details_id', '=', 'companymasters.id')
                ->on('invoices.customer_id', '=', 'orders.buyer_party')
+               ->on('invoices.id','=','broker_purchases.invoice_id')
                ->where('invoices.is_deleted', '=', 0);
          })
-         ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
+         // ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
 
          ->select(
             'broker_purchases.*',
@@ -286,7 +288,7 @@ class PdfController extends commonController
             'invoices.consignment_date',
          )
          ->get();
-
+   // dd($usedInvoices);
       $data = [
          "mainCompanyData" => $mainCompanyData,
          "gardenCompanyData" => $gardenCompanyData,
@@ -360,7 +362,7 @@ class PdfController extends commonController
       // dd($invoice->from_date, $invoice->to_date);
       $usedInvoices = $this->brokerpurchaseModel
          ::where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.garden_id', $invoice->garden_id)
+         ->where('broker_purchases.brokerbill_no', $invoice->id)
          ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
          ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
          ->join('order_details', function ($join) {
@@ -371,7 +373,7 @@ class PdfController extends commonController
          ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
          ->join('orders', 'orders.id', '=', 'order_details.order_id')
          ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-         ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+         ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
          ->leftJoin('invoices', function ($join) {
             $join->on('invoices.company_details_id', '=', 'companymasters.id')
                ->on('invoices.customer_id', '=', 'orders.buyer_party')
@@ -379,7 +381,7 @@ class PdfController extends commonController
                ->where('invoices.is_deleted', '=', 0);
          })
          ->where('broker_purchases.brokerbill_no', '=', $paymentdetail[0]->inv_id)
-         ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
+         // ->whereBetween('broker_purchases.brokerage_date', [$invoice->from_date, $invoice->to_date])
          ->select(
             'broker_purchases.*',
             'gardens.garden_name as garden_name',
@@ -505,7 +507,7 @@ class PdfController extends commonController
          'invoiceothersettings' => $productdata['invoiceothersettings'],
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
-         'transportdetails' => $transportdata['party'],
+         'transportdetails' => $transportdata['party'] ?? null,
          'bankdetails' => $bankdetailsdata['bankdetail'][0],
          'paymentdetail' => $paymentdetail
       ];
@@ -744,7 +746,7 @@ class PdfController extends commonController
          'invoiceothersettings' => $productdata['invoiceothersettings'],
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
-         'transportdetails' => $transportdata['party'],
+         'transportdetails' => $transportdata['party'] ?? null,
          'bankdetails' => $bankdetailsdata['bankdetail'][0]
       ];
 

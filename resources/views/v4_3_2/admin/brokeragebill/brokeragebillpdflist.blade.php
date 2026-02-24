@@ -106,8 +106,8 @@
                 <th>Invoice No </th>
                 <th>Invoice Date </th>
                 <th>Total Amount</th>
-                <th>Created Date (From)</th>
-                <th>Created Date (To)</th>
+                {{-- <th>Created Date (From)</th>
+                <th>Created Date (To)</th> --}}
                 <th>Status</th>
                 <th>Invoice</th>
                 <th>Payment</th>
@@ -302,10 +302,10 @@
                             placeholder: 'Select Garden',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
-                    } else if (response.status == 500) {
+                    } else if (getGardenDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
-                            title: response.message
+                            title: getGardenDataresponse.message
                         });
                     } else {
                         $('#filter_garden').val('');
@@ -413,20 +413,20 @@
                             defaultContent: '-',
                             name: 'totalamount'
                         },
-                        {
-                            data: 'from_date',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'from_date'
-                        },
-                        {
-                            data: 'to_date',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'to_date'
-                        },
+                        // {
+                        //     data: 'from_date',
+                        //     orderable: true,
+                        //     searchable: true,
+                        //     defaultContent: '-',
+                        //     name: 'from_date'
+                        // },
+                        // {
+                        //     data: 'to_date',
+                        //     orderable: true,
+                        //     searchable: true,
+                        //     defaultContent: '-',
+                        //     name: 'to_date'
+                        // },
                         {
                             data: 'status',
                             name: 'status',

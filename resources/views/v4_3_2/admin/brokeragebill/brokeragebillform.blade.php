@@ -201,7 +201,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="number"
+                                        <input type="decimal"
                                             name="rows[${index}][brokerage]"
                                             value="${item.brokerage ?? ''}"
                                             class="form-control brokerage">
@@ -297,7 +297,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="number"
+                                        <input type="decimal"
                                             name="rows[${index}][brokerage]"
                                             value="${item.brokerage ?? ''}"
                                             class="form-control brokerage">

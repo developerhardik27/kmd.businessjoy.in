@@ -157,8 +157,8 @@
                                 `<option value='${value.id}'> ${value.country_name}</option>`
                             )
                         });
-                        country_id = "{{ session('user')['country_id'] }}";
-                        $('#country').val(country_id);
+                        // country_id = "{{ session('user')['country_id'] }}";
+                        // $('#country').val(country_id);
                         loadstate();
                     } else {
                         $('#country').append(`<option> No Data Found</option>`);
@@ -203,8 +203,8 @@
                                 )
                             });
                             if (id == 0) {
-                                state_id = "{{ session('user')['state_id'] }}";
-                                $('#state').val(state_id);
+                                // state_id = "{{ session('user')['state_id'] }}";
+                                // $('#state').val(state_id);
                                 loadcity();
                             }
                         } else {
@@ -250,7 +250,7 @@
                                 )
                             });
                             if (id == 0) {
-                                $('#city').val("{{ session('user')['city_id'] }}");
+                                // $('#city').val("{{ session('user')['city_id'] }}");
                             }
                         } else {
                             $('#city').append(`<option> No Data Found</option>`);

@@ -179,6 +179,7 @@ class partyController extends commonController
             )
             ->where('partys.id', $id)
             ->first();
+      
         if (!$party) {
             return $this->successresponse(500, 'message', 'party not found !');
         }

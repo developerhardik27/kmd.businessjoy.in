@@ -142,7 +142,7 @@
                 <div class="col-sm-4 mb-3">
                     <label for="transport_id">Transport</label><span style="color:red;">*</span>
 
-                    <select class="form-control select2" id="transport_id" name="transport_id" required>
+                    <select class="form-control select2" id="transport_id" name="transport_id" >
                         <option selected="" disabled=""> Select Transport</option>
                     </select>
                     <span class="error-msg" id="error-transport_id" style="color: red"></span>
@@ -195,7 +195,7 @@
                 <div class="col-sm-4 mb-3">
                     <label for="HSN">HSN Code</label><span style="color:red;">*</span>
                     <input type="text" name="HSN" id="HSN" class="form-control"
-                        placeholder="HSN Code">
+                        placeholder="HSN Code"  value="090240" >
                     <span class="error-msg" id="error-HSN" style="color: red"></span>
                 </div>
                   <div class="col-sm-4 mb-3">
@@ -495,80 +495,95 @@
         let lrcolumnlinks = [];
         let customer_dropdown = [];
         let sgst, cgst, igst, gst, currentcurrency, currentcurrencysymbol,buyer_state_id,company_state_id;
-        function getcolumn()
-        {
-        // fetch users own columnname and set it into table  
-            ajaxRequest('GET', "{{ route('invoice.columnname') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-                allColumnData = response.columnname; //store all column data for use globally in entire page
+
+        function ajaxPromise(method, url, data = {}) {
+            return new Promise((resolve, reject) => {
+                ajaxRequest(method, url, data)
+                    .done(resolve)
+                    .fail(reject);
+            });
+        }
+        async function getcolumn() {
+        try {
+                const response = await ajaxPromise('GET', "{{ route('invoice.columnname') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                });
+
+                allColumnData = response.columnname;
                 hiddencolumn = allColumnData.filter(col => col.is_hide === 1).length;
-                //  if(allColumnData.length > 6){  
-                //      $('.producttable').css('width',allColumnData.length * 200 + 'px');
-                //  }
+
                 if (response.status == 200 && response.columnname != '') {
-                    // You can update your HTML with the data here if needed
+
+                    allColumnNames = [];
+
                     $.each(response.columnname, function(key, value) {
                         $.each(value, function(innerKey, innerValue) {
                             if (innerKey === 'column_name') {
-                                allColumnNames.push(innerValue); // store column name
+                                allColumnNames.push(innerValue);
                             }
                         });
                     });
                     $('#columnname').prepend(`
-                        ${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
-                            <th>Amount</th>
-                            <th>Move</th>
-                            <th id="action">Action</th>
+                        ${allColumnData.map(columnName =>
+                            `<th style="width:${columnName.column_width}%; ${columnName.is_hide ? 'display:none;' : ''}">
+                              ${columnName.column_name === "shortage" ? columnName.column_name + " (kg)" : columnName.column_name}
+                            </th>`).join('')}
+                        <th>Amount</th>
+                        <th>Move</th>
+                        <th id="action">Action</th>
                     `);
+
                     managetooltip();
+
                 } else if (response.status == 500) {
                     Toast.fire({
                         icon: "error",
                         title: response.message
                     });
-                    
                 } else {
-                    $('#columnname').append(` 
+                    $('#columnname').append(`
                         <th>Name</th>
                         <th>Description</th>
                         <th>Quantity</th>
                     `);
                 }
-                $('.automaticcolspan').attr('colspan', allColumnNames.length -
-                    hiddencolumn); // set autocolspan for title (subtotal,gst,total etc.. )
-                $('.newdivautomaticcolspan').attr('colspan', allColumnNames.length - hiddencolumn +
-                    3); // set autocolspan for add new button row
-                    
-                setdata();
-            }).fail(function(xhr) {
-                
+
+                $('.automaticcolspan').attr('colspan', allColumnNames.length - hiddencolumn);
+                $('.newdivautomaticcolspan').attr('colspan', allColumnNames.length - hiddencolumn + 3);
+
+                await setdata();
+
+            } catch (xhr) {
                 handleAjaxError(xhr);
-            });
+            }
         }
-        function getformula()
-        {
-            ajaxRequest('GET', "{{ route('invoiceformula.index') }}", {
+    
+        async function getformula() {
+            try {
+                const response = await ajaxPromise('GET', "{{ route('invoiceformula.index') }}", {
                     token: API_TOKEN,
                     company_id: COMPANY_ID,
                     user_id: USER_ID
-                }).done(function (response) {
-                    if (response.status == 200 && response.invoiceformula != '') {
-                        formula = response.invoiceformula;
-                    } else if (response.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    }
-                    getcolumn();
-                }).fail(function (xhr) {
-                    handleAjaxError(xhr);
                 });
+
+                if (response.status == 200 && response.invoiceformula != '') {
+                    formula = response.invoiceformula;
+                } else if (response.status == 500) {
+                    Toast.fire({
+                        icon: "error",
+                        title: response.message
+                    });
+                }
+
+                await getcolumn(); // wait next
+
+            } catch (xhr) {
+                handleAjaxError(xhr);
+            }
         }
-        function setdata() {
+        async  function setdata() {
             if (invoice_data) {
                 $("#action").addClass('d-none');
                 $(".newdivautomaticcolspan").addClass('d-none');
@@ -577,10 +592,11 @@
                 $("#sampleIds").val(invoice_data.maindata.sampleIds.join(','));
                 $("#bank_companymaster_id").val(invoice_data.maindata.companymaster_id[0]);
                 companymaster_id = invoice_data.maindata.companymaster_id[0]; 
-                customers(invoice_data.line_items[0].buyer_id);
-                transports(invoice_data.line_items[0].transport_id);
-                companymaster(invoice_data.maindata.companymaster_id[0]);
-                  loadBankDetails();
+                await customers(invoice_data.line_items[0].buyer_id);
+                await transports(invoice_data.line_items[0].transport_id);
+                await companymaster(invoice_data.maindata.companymaster_id[0]);
+                await  loadBankDetails();
+                await getoverduedays();
                  const targetRow = $('#add_new_div');
                         let dynamicidcount = 1; // Initialize outside the loop
                         $.each(productdetails, function (key, value) {
@@ -628,7 +644,6 @@
                                    
                                 </tr>
                             `);
-                            managetooltip();
                             addname = dynamicidcount;
                             dynamiccalculaton(`#Amount_${addname}`);
                             dynamicidcount++; // Increment dynamicidcount for the next row
@@ -637,19 +652,23 @@
                             $('.currentcurrencysymbol').text(currentcurrencysymbol);
                         });
                       
-            } else {
+            }
+            else {
                  $("#action").addClass('d-none');
                 $(".newdivautomaticcolspan").addClass('d-none');
                 let productdetails = lot_no_invoice_data.line_items;
+                 console.log("this companyater id",lot_no_invoice_data.line_items[0].transport_id);
+
                 console.log(lot_no_invoice_data.maindata.invoice_no);
                 $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
                  $("#bank_companymaster_id").val(lot_no_invoice_data.maindata.companymaster_id);
-                  companymaster_id = lot_no_invoice_data.maindata.companymaster_id; 
-                customers(lot_no_invoice_data.line_items[0].buyer_id);
-                transports(lot_no_invoice_data.line_items[0].transport_id);
-                console.log('lot_no_invoice_data.maindata.companymaster_id',lot_no_invoice_data.maindata.companymaster_id)
-                companymaster(lot_no_invoice_data.maindata.companymaster_id);
-                loadBankDetails();      
+                companymaster_id = lot_no_invoice_data.maindata.companymaster_id; 
+                console.log("this transport no",lot_no_invoice_data.line_items[0].transport_id);
+                await customers(lot_no_invoice_data.line_items[0].buyer_id);
+                await  transports(lot_no_invoice_data.line_items[0].transport_id);
+                await  companymaster(lot_no_invoice_data.maindata.companymaster_id);
+                await  loadBankDetails();  
+                await getoverduedays();    
                  const targetRow = $('#add_new_div');
                         let dynamicidcount = 1; // Initialize outside the loop
                         $.each(productdetails, function (key, value) {
@@ -697,6 +716,7 @@
                                    
                                 </tr>
                             `);
+                           
                             managetooltip();
                             addname = dynamicidcount;
                             dynamiccalculaton(`#Amount_${addname}`);
@@ -708,242 +728,155 @@
                     
             }
         }
-        function transports(transportid = 0) {
+        async function transports(transportid = 0) {
+        try {
             $('#transport_id').html(`
-                <option selected="" value=0 disabled=""> Select transport</option>
+                <option selected value=0 disabled>Select transport</option>
             `);
-            ajaxRequest('GET', "{{ route('transport.index') }}", {
+
+            const response = await ajaxPromise('GET', "{{ route('transport.index') }}", {
                 token: API_TOKEN,
                 company_id: COMPANY_ID,
-                user_id: USER_ID,
-            }).done(function(response) {
-                if (response.status == 200 && response.data != '') {
-
-                    // You can update your HTML with the data here if needed
-                    $.each(response.data, function(key, value) {
-                        const transportDetails = [value.name, value.mobile_1, value.email]
-                            .filter(Boolean).join(' - ');
-
-                        $('#transport_id').append(`
-                                <option  data-gstno='${value.gst_no}' value='${value.id}'>${transportDetails}</option>
-                            `);
-                    });
-                    $('#transport_id').val(transportid);
-                    $('#transport_id').select2(); // search bar in transport list
-                    if(transportid){ $('#transport_id').prop('disabled', true);}
-                    if (transportid !=
-                        0) { // get transport data if its new added from add new transportform
-                        loadershow();
-                        var selectedOption = $('#transport').find('option:selected');
-
-                        let transportSearchUrl = "{{ route('party.search', '__transportId__') }}"
-                            .replace('__transportId__', transportid);
-
-                        ajaxRequest('GET', transportSearchUrl, {
-                            token: API_TOKEN,
-                            company_id: COMPANY_ID,
-                            user_id: USER_ID
-                        }).done(function(response) {
-                            // You can update your HTML with the data here if needed
-                            if (response.status === 200 && response.data && response.data.length) {
-
-                                var countryid = response.party.country_id
-                                if (countryid != null) {
-                                    $('#country').val(countryid);
-                                    $('#currency').val(countryid);
-                                    currentcurrency = $('#currency option:selected').data(
-                                        'currency');
-                                    currentcurrencysymbol = $('#currency option:selected').data(
-                                        'symbol');
-                                    $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                                }
-
-                            } else if (response.status == 500) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: response.message
-                                });
-                            }
-                            loaderhide();
-                        }).fail(function(xhr) {
-                            loaderhide();
-                            handleAjaxError(xhr);
-                        });
-                    }
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                } else {
-                    $('#transport').append(`<option disabled '>No Data found </option>`);
-                }
-                loaderhide();
-            }).fail(function(xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
+                user_id: USER_ID
             });
 
+            if (response.status == 200 && response.data != '') {
 
-        };
+                $.each(response.data, function(key, value) {
+                    const transportDetails = [value.name, value.mobile_1, value.email]
+                        .filter(Boolean).join(' - ');
 
-        function customers(customerid = 0) {
-            $('#customer').html(`
-                <option selected="" value=0 disabled=""> Select Buyer</option>
-            `);
-            ajaxRequest('GET', "{{ route('buyer.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID,
-            }).done(function(response) {
-                if (response.status == 200 && response.party != '') {
-                    // You can update your HTML with the data here if needed
+                    $('#transport_id').append(`
+                        <option data-gstno='${value.gst_no}' value='${value.id}'>
+                            ${transportDetails}
+                        </option>
+                    `);
+                });
+
+                $('#transport_id').val(transportid);
+                $('#transport_id').select2();
+
+                if (transportid) {
+                    $('#transport_id').prop('disabled', true);
+                }
+
+            } else if (response.status == 500) {
+                Toast.fire({
+                    icon: "error",
+                    title: response.message
+                });
+            }
+
+        } catch (xhr) {
+            handleAjaxError(xhr);
+        }
+    }
+
+        async function customers(customerid = 0) {
+            try {
+                $('#customer').html(`
+                    <option selected value=0 disabled>Select Buyer</option>
+                `);
+
+                const response = await ajaxPromise('GET', "{{ route('buyer.index') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                });
+
+                if (response.status == 200 && response.data != '') {
+                    console.log("customers");
                     $.each(response.data, function(key, value) {
                         const customerDetails = [value.name, value.mobile_1, value.email]
                             .filter(Boolean).join(' - ');
+
                         $('#customer').append(`
-                                <option  data-gstno='${value.gst_no}' value='${value.id}' data-state_id = '${value.state_id}'>${customerDetails}</option>
-                            `);
+                            <option data-gstno='${value.gst_no}'
+                                    value='${value.id}'
+                                    data-state_id='${value.state_id}'>
+                                ${customerDetails}
+                            </option>
+                        `);
                     });
+
                     $('#customer').val(customerid);
-                    $('#customer').select2(); // search bar in customer list
                     var selectedOption = $('#customer').find('option:selected'); // get selected option
-                    buyer_state_id = selectedOption.data('state_id'); // retrieve data-state_id
-                    
-                    if(customerid){ $('#customer').prop('disabled', true);}
-                    if (customerid !=0) { 
-                        // get customer data if its new added from add new customerform
-                        loadershow();
-                        var selectedOption = $('#customer').find('option:selected');
-                        let customerSearchUrl = "{{ route('party.search', '__customerId__') }}"
-                            .replace('__customerId__', customerid);
-                        ajaxRequest('GET', customerSearchUrl, {
-                            token: API_TOKEN,
-                            company_id: COMPANY_ID,
-                            user_id: USER_ID
-                        }).done(function(response) {
-                            // You can update your HTML with the data here if needed
-                            if (response.status === 200 && response.data && response.data.length) {
+                    buyer_state_id = selectedOption.data('state_id');
+                    $('#customer').select2();
 
-                                var countryid = response.party.country_id
-                                if (countryid != null) {
-                                    $('#country').val(countryid);
-                                    $('#currency').val(countryid);
-                                    currentcurrency = $('#currency option:selected').data(
-                                        'currency');
-                                    currentcurrencysymbol = $('#currency option:selected').data(
-                                        'symbol');
-                                    $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                                }
-
-                            } else if (response.status == 500) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: response.message
-                                });
-                            }
-                            loaderhide();
-                        }).fail(function(xhr) {
-                            loaderhide();
-                            handleAjaxError(xhr);
-                        });
+                    if (customerid) {
+                        $('#customer').prop('disabled', true);
                     }
+
                 } else if (response.status == 500) {
                     Toast.fire({
                         icon: "error",
                         title: response.message
                     });
-                } else {
-                    $('#customer').append(`<option disabled '>No Data found </option>`);
                 }
-                loaderhide();
-            }).fail(function(xhr) {
-                loaderhide();
+
+            } catch (xhr) {
                 handleAjaxError(xhr);
-            });
+            }
+        }
 
+        async function companymaster(companymaster_id = 0) {
+            try {
+                $('#companymaster_id').html(`
+                    <option selected value=0 disabled>Select Companymaster</option>
+                `);
 
-        };
+                const response = await ajaxPromise('GET', "{{ route('companymaster.index') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                });
 
-        function companymaster(companymaster_id = 0) {
-            $('#companymaster_id').html(`
-                <option selected="" value=0 disabled=""> Select Companymaster</option>
-            `);
-            ajaxRequest('GET', "{{ route('companymaster.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID,
-            }).done(function(response) {
                 if (response.status == 200 && response.data != '') {
-                    // You can update your HTML with the data here if needed
+                    console.log("companymaster");
                     $.each(response.data, function(key, value) {
-                        const companymaster_idDetails = [value.company_name, value.mobile_1, value.email]
+                        const details = [value.company_name, value.mobile_1, value.email]
                             .filter(Boolean).join(' - ');
-                        $('#companymaster_id').append(`
-                                <option  data-gstno='${value.gst_no}' value='${value.id}' data-state_id = '${value.state_id}'>${companymaster_idDetails}</option>
-                            `);
-                    });
-                    $('#companymaster_id').val(companymaster_id);
-                    $('#companymaster_id').select2(); // search bar in companymaster_id list
-                    var selectedOption = $('#companymaster_id').find('option:selected'); // get selected option
-                    company_state_id = selectedOption.data('state_id');
 
-                    if(companymaster_id){ $('#companymaster_id').prop('disabled', true);}
-                    if (companymaster_id !=0) {
-                         // get companymaster_id data if its new added from add new companymaster_idform
-                        var selectedOption = $('#companymaster_id').find('option:selected');
-                        let companymaster_idSearchUrl = "{{ route('companymaster.search', '__companymaster_idId__') }}"
-                            .replace('__companymaster_idId__', companymaster_id);
-                        ajaxRequest('GET', companymaster_idSearchUrl, {
-                            token: API_TOKEN,
-                            company_id: COMPANY_ID,
-                            user_id: USER_ID
-                        }).done(function(response) {
-                            // You can update your HTML with the data here if needed
-                            if (response.status === 200 && response.data && response.data.length) {
-                                var countryid = response.party.country_id
-                                if (countryid != null) {
-                                    $('#country').val(countryid);
-                                    $('#currency').val(countryid);
-                                    currentcurrency = $('#currency option:selected').data(
-                                        'currency');
-                                    currentcurrencysymbol = $('#currency option:selected').data(
-                                        'symbol');
-                                    $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                                }
-                            } else if (response.status == 500) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: response.message
-                                });
-                            }
-                        }).fail(function(xhr) {
-                            handleAjaxError(xhr);
-                        });
+                        $('#companymaster_id').append(`
+                            <option data-gstno='${value.gst_no}'
+                                    value='${value.id}'
+                                    data-state_id='${value.state_id}'>
+                                ${details}
+                            </option>
+                        `);
+                    });
+
+                    $('#companymaster_id').val(companymaster_id);
+                    $('#companymaster_id').select2();
+                var selectedOption = $('#companymaster_id').find('option:selected'); // get selected option
+                    company_state_id = selectedOption.data('state_id');
+                    if (companymaster_id) {
+                        $('#companymaster_id').prop('disabled', true);
                     }
+
+                
+
                 } else if (response.status == 500) {
                     Toast.fire({
                         icon: "error",
                         title: response.message
                     });
-                } else {
-                    $('#companymaster_id').append(`<option disabled '>No Data found </option>`);
                 }
-              
-            }).fail(function(xhr) {
+
+            } catch (xhr) {
                 handleAjaxError(xhr);
-            });
-        };
-        
+            }
+        } 
         function managetooltip() {
             $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
             // Reinitialize tooltips
             $('body').find('[data-toggle="tooltip"]').tooltip();
         };
         function dynamiccalculaton(targetdata) {
-           
+            
             var editid = $(targetdata).data('id');
-           
+            
             var rowData = {};
             $.each(allColumnNames, function(key, value) {
                 var modifiedValue = value.replace(/\s+/g, '_');
@@ -954,11 +887,11 @@
             });
             
             var iteam_data = new Array();
-              
+                
             iteam_data.push(rowData);
 
             function performCalculation(operation, value1, value2) {
-               
+                
                 switch (operation) {
                     case '*':
                         return value1 * value2;
@@ -980,18 +913,18 @@
             var results = {};
 
             formula.forEach(function(formula) {
-               
+                
                 var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
                 var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
-             
+                
                 outputvalue = performCalculation(formula.operation, value1, value2)
-                iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
+                iteam_data[0][formula.output_column] = outputvalue.toFixed(3);
                 if(formula.output_column == "Net Weight Kgs"){
                     formula.output_column = formula.output_column.replace(/\s+/g, '_');
                 }
-                results[formula.output_column] = outputvalue.toFixed(2);
+                results[formula.output_column] = outputvalue.toFixed(3);
                 console.log(formula.output_column,results[formula.output_column]);
-                $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
+                $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(3));
 
             });
             var total = 0;
@@ -1056,67 +989,124 @@
             }
 
         }
-          function loadBankDetails(){
-             $('#acc_details').empty();
-            // account data fetch and set account detials dropdown
-                ajaxRequest('GET', "{{ route('bank_detail.index') }}", {
+        async function loadBankDetails() {
+            try {
+                $('#acc_details').empty();
+
+                const response = await ajaxPromise('GET', "{{ route('bank_detail.index') }}", {
                     token: API_TOKEN,
                     company_id: COMPANY_ID,
                     user_id: USER_ID,
-                    companymaster_id: companymaster_id,
-                }).done(function(response) {
-                    $('#acc_details').html(`<option value="">Select Bank</option>`);
-
-                    $('#acc_details').append(`
-                                <option value='add_new'>Add New Bank </option>
-                            `);
-                    if (response.status == 200 && response.bank != '') {
-                        var countrecords = Object.keys(response.bank).length;
-                        // You can update your HTML with the data here if needed
-                    
-                        $.each(response.bank, function(key, value) {
-                        
-                            var bankdetails = '';
-                            if (value.account_no != null) {
-                                bankdetails += value.account_no;
-                            }
-
-                            if (value.branch_name != null) {
-                                if (bankdetails.length > 0) {
-                                    bankdetails +=
-                                        '-'; // Add '-' between account no and branch name if both are present
-                                }
-                                bankdetails += value.branch_name;
-                               
-                            }
-                             if (value.holder_name != null) {
-                                if (bankdetails.length > 0) {
-                                    bankdetails +=
-                                        '-'; // Add '-' between account no and holder  name if both are present
-                                }
-                                bankdetails += value.holder_name;
-                            }
-                            $('#acc_details').append(
-                                `<option ${countrecords === 1 ? 'selected' : ''} value='${value.id}'>${bankdetails}</option>`
-                            );
-                        });
-                    } else if (response.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                        
-                    } else {
-                        $('#acc_details').append(
-                            `<option disabled '>No Data found </option>`
-                        );
-                    }
-                }).fail(function(xhr) {
-                    
-                    handleAjaxError(xhr);
+                    companymaster_id: companymaster_id
                 });
+
+                $('#acc_details').html(`<option value="">Select Bank</option>`);
+                $('#acc_details').append(`<option value='add_new'>Add New Bank</option>`);
+
+                if (response.status == 200 && response.bank != '') {
+
+                    $.each(response.bank, function(key, value) {
+                        let bankdetails = '';
+
+                        if (value.account_no) bankdetails += value.account_no;
+                        if (value.branch_name) bankdetails += (bankdetails ? '-' : '') + value.branch_name;
+                        if (value.holder_name) bankdetails += (bankdetails ? '-' : '') + value.holder_name;
+
+                        $('#acc_details').append(`
+                            <option value='${value.id}'>${bankdetails}</option>
+                        `);
+                    });
+
+                } else if (response.status == 500) {
+                    Toast.fire({
+                        icon: "error",
+                        title: response.message
+                    });
+                }
+
+            } catch (xhr) {
+                handleAjaxError(xhr);
             }
-           
+        }   
+        async function getoverduedays() {
+            try {
+                const response = await ajaxPromise('GET', "{{ route('getoverduedays.index') }}", {
+                    token: API_TOKEN,
+                    company_id: COMPANY_ID,
+                    user_id: USER_ID
+                });
+
+                if (response.status == 200 && response.overdueday != '') {
+
+                    console.log("getoverduedays");
+                    var othersettingdata = response.overdueday[0];
+
+                    customer_dropdown = othersettingdata['customer_dropdown'];
+                    sgst = othersettingdata['sgst'];
+                    cgst = othersettingdata['cgst'];
+                    igst = othersettingdata['igst'];
+                    gst = othersettingdata['gst'];
+                    console.log(company_state_id,buyer_state_id);
+                    if (company_state_id === buyer_state_id) {
+                        igst = 0;
+                    } else {
+                        sgst = 0;
+                        cgst = 0;
+                    }
+                    manualinvnumber = othersettingdata['invoice_number'];
+                    manualinvdate = othersettingdata['invoice_date'];
+
+                    totalgstpercentage = sgst + cgst + igst;
+                    if (sgst % 1 === 0) { // Checks if sgst is an integer
+                        $('#sgstpercentage').text(`(${sgst}.00 %)`);
+                    } else {
+                        $('#sgstpercentage').text(`(${sgst} %)`);
+                    }
+                    if (igst) { // Checks if sgst is an integer
+                        $('#igstpercentage').text(`(${igst}.00 %)`);
+                    } else {
+                        $('#igstpercentage').text(`(${igst} %)`);
+                    }
+                    if (cgst % 1 === 0) { // Checks if cgst is an integer
+                        $('#cgstpercentage').text(`(${cgst}.00 %)`);
+                    } else {
+                        $('#cgstpercentage').text(`(${cgst} %)`);
+                    }
+                    if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
+                        $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
+                    } else {
+                        $('#gstpercentage').text(`(${totalgstpercentage} %)`);
+                    }
+                    if (gst != 0) {
+                        $('#sgstline,#cgstline,#igstline').hide();
+                    } else {
+                        $('#gstline').hide();
+                    }
+                    if (manualinvnumber == 0) {
+                        $('#inv_number_div').hide();
+                    }
+
+                    if (manualinvdate == 0) {
+                        $('#inv_date_div').hide();
+                    }
+                                
+                    dynamiccalculaton();
+
+                } else if (response.status == 500) {
+                    Toast.fire({
+                        icon: "error",
+                        title: response.message
+                    });
+                }
+
+            } catch (xhr) {
+                handleAjaxError(xhr);
+            }
+        }
+
+        $(document).ready(async function () {
+            await getformula();
+        });
         $('document').ready(function() {
             // let invoice_data = @json(session('invoice_data'));
             // let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
@@ -1143,7 +1133,6 @@
                 });
             }
 
-            getformula();
               $("#modalcancelbtn").on('click', function() {
                 $('#bankdetailform')[0].reset();
                 $('#bankDetailModal').modal('hide');
@@ -1177,78 +1166,7 @@
                 }
             });
             // fetch other settings like gst and inv number and inv date
-            ajaxRequest('GET', "{{ route('getoverduedays.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-                if (response.status == 200 && response.overdueday != '') {
-                    var othersettingdata = response.overdueday[0];
-                    customer_dropdown = othersettingdata['customer_dropdown'];
-                    sgst = othersettingdata['sgst'];
-                    cgst = othersettingdata['cgst'];
-                    igst = othersettingdata['igst'];
-                    gst = othersettingdata['gst'];
-                   
-                    if (company_state_id === buyer_state_id) {
-                  
-                        igst = 0;
-                        totalgstpercentage = sgst + cgst + igst;
-                    } else {
-                        // Inter-state: IGST only
-                        // igst = sgst + cgst; // or assign appropriate IGST value
-                        sgst = 0;
-                        cgst = 0;
-                        totalgstpercentage = igst + sgst + cgst;
-                    }
-                    manualinvnumber = othersettingdata['invoice_number'];
-                    manualinvdate = othersettingdata['invoice_date'];
-                    totalgstpercentage = sgst + cgst + igst;
-                    if (sgst % 1 === 0) { // Checks if sgst is an integer
-                        $('#sgstpercentage').text(`(${sgst}.00 %)`);
-                    } else {
-                        $('#sgstpercentage').text(`(${sgst} %)`);
-                    }
-                     if (igst) { // Checks if sgst is an integer
-                        $('#igstpercentage').text(`(${igst}.00 %)`);
-                    } else {
-                        $('#igstpercentage').text(`(${igst} %)`);
-                    }
-                    if (cgst % 1 === 0) { // Checks if cgst is an integer
-                        $('#cgstpercentage').text(`(${cgst}.00 %)`);
-                    } else {
-                        $('#cgstpercentage').text(`(${cgst} %)`);
-                    }
-                    if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
-                        $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
-                    } else {
-                        $('#gstpercentage').text(`(${totalgstpercentage} %)`);
-                    }
-                    if (gst != 0) {
-                        $('#sgstline,#cgstline,#igstline').hide();
-                    } else {
-                        $('#gstline').hide();
-                    }
-
-                    if (manualinvnumber == 0) {
-                        $('#inv_number_div').hide();
-                    }
-
-                    if (manualinvdate == 0) {
-                        $('#inv_date_div').hide();
-                    }
-
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                }
-                
-            }).fail(function(xhr) {
-                
-                handleAjaxError(xhr);
-            });
+           
             // fetch product columns link  
             ajaxRequest('GET', "{{ route('productcolumnmapping.index') }}", {
                 token: API_TOKEN,
@@ -2031,7 +1949,7 @@
                 transport_id: $('#transport_id').val(),
                 sampleIds : $('#sampleIds').val(),
                 invoice_data : $('#invoice_data').val(),
-                HSN: $('#HSN').val(),
+                HSN:  $('#HSN').val(),
                 Description: $('#Description').val(),
                 bank_account: $('#acc_details').val(),
                 invoice_date: $('#invoice_date').val(),

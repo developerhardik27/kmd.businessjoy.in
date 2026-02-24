@@ -322,6 +322,7 @@
                     <span class="default"style="display:block;">{{ $invdata['email'] }}</span>
                     <span class="default">{{ $invdata['mobile_1'] }}</span>
                 </td>
+                @if(isset($transportdetails))
                 <td colspan="2" style="vertical-align: top">
                     <span class="default textblue firstrow cname" style="display:block;"
                         id="">Transporter</span>
@@ -354,7 +355,7 @@
                     <span class="default"style="display:block;">{{ $transportdetails['email'] }}</span>
                     <span class="default">{{ $transportdetails['mobile_1'] }}</span>
                 </td>
-
+                @endif
             </tr>
         </table>
         @if (count($payment) > 1)

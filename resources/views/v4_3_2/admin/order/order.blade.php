@@ -352,10 +352,10 @@
                             placeholder: 'Select transport',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
-                    } else if (response.status == 500) {
+                    } else if (gettransportDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
-                            title: response.message
+                            title: gettransportDataresponse.message
                         });
                     } else {
                         $('#filter_transport').val('');
@@ -382,10 +382,10 @@
                             placeholder: 'Select Buyer',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
-                    } else if (response.status == 500) {
+                    } else if (getBuyerDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
-                            title: response.message
+                            title: getBuyerDataresponse.message
                         });
                     } else {
                         $('#filter_buyer').val('');
@@ -413,10 +413,10 @@
                             placeholder: 'Select Garden',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
-                    } else if (response.status == 500) {
+                    } else if (getGardenDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
-                            title: response.message
+                            title: getGardenDataresponse.message
                         });
                     } else {
                         $('#filter_garden').val('');
@@ -444,10 +444,10 @@
                             placeholder: 'Select Grade',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
-                    } else if (response.status == 500) {
+                    } else if (getGradeDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
-                            title: response.message
+                            title: getGradeDataresponse.message
                         });
                     } else {
                         $('#filter_grade').val('');

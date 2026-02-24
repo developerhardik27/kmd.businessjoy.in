@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class brokerPurchaseController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $orderModel;
+    public $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $orderModel, $companygardenModel, $companymasterModel;
 
     public function __construct(Request $request)
     {
@@ -33,6 +33,8 @@ class brokerPurchaseController extends commonController
         $this->orderModel = $this->getmodel('order');
         $this->order_detailModel = $this->getmodel('order_detail');
         $this->gradenModel = $this->getmodel('graden');
+        $this->companymasterModel = $this->getmodel('companymaster');
+        $this->companygardenModel = $this->getmodel('company_garden');
     }
     public function getGardens()
     {
@@ -104,11 +106,11 @@ class brokerPurchaseController extends commonController
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-
+        $invoiceNos = is_array($request->invoice_nos) ? $request->invoice_nos: explode(',', $request->invoice_nos);
         $order = $this->order_detailModel
             ::join('grades', 'grades.id', '=', 'order_details.grade')
             ->where('order_details.is_deleted', 0)
-            ->where('order_details.invoice_no', $request->invoice_no)
+            ->whereIn('order_details.invoice_no', $invoiceNos)
             ->select(
                 'order_details.id as order_id',
                 'order_details.garden_id',
@@ -257,7 +259,7 @@ class brokerPurchaseController extends commonController
             ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-            ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
             ->select(
                 'order_details.bags as No_Of_Pkags',
                 'order_details.invoice_no as Invoice_no',
@@ -316,7 +318,7 @@ class brokerPurchaseController extends commonController
             ->join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
             ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
-            ->where('broker_purchases.source','purchase')
+            ->where('broker_purchases.source', 'purchase')
             ->where('broker_purchases.is_deleted', 0);
 
         $filters = [
@@ -380,7 +382,7 @@ class brokerPurchaseController extends commonController
             ])
             ->make(true);
     }
-     public function list_sample(Request $request)
+    public function list_sample(Request $request)
     {
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -466,37 +468,66 @@ class brokerPurchaseController extends commonController
     }
     public function store(Request $request)
     {
+        // Check permission
         if ($this->rp['teamodule']['brokerpurchase']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $data = $request->all();
 
-        $validator = Validator::make($data, [
-            'garden_id'  => 'required|string|max:255',
-            'invoice_no' => 'required|string|max:255',
-            'grade' => 'required|string|max:255',
-            'bags' => 'required|string|max:255',
-            'rate' => 'nullable|string|max:255',
-            'net_kg' => 'required|nullable|numeric',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errorresponse(422, $validator->messages());
+        $details = $request->details;
+        if (!$details || !is_array($details) || count($details) === 0) {
+            return $this->errorresponse(422, ['details' => 'No invoice details provided']);
         }
-        $create = $this->brokerpurchaseModel::create([
-            'garden_id' => $request->garden_id,
-            'invoice_no' => $request->invoice_no,
-            'grade' => $request->grade,
-            'bags' => $request->bags,
-            'net_kg' => $request->net_kg,
-            'rate' => $request->rate,
-            'created_by' => $request->user_id,
-            'source'          => 'purchase'
-        ]);
-        if ($create) {
-            return $this->successresponse(200, 'message', 'Sample Purchase succesfully Created');
+
+        // Get company brokerage
+        $company_id_from_garden = $this->companygardenModel::where('garden_id', $request->garden_id)->value('company_id');
+        $brokerage = $this->companymasterModel::where('id', $company_id_from_garden)->value('brokerage');
+
+        $successCount = 0;
+        $errors = [];
+
+        foreach ($details as $index => $detail) {
+
+            // Validate each invoice detail
+            $validator = Validator::make($detail, [
+                'invoice_no' => 'required|string|max:255',
+                'grade_name' => 'required|string|max:255',
+                'bags'       => 'required|numeric',
+                'net_kg'     => 'required|numeric',
+                'rate'       => 'nullable|numeric',
+            ]);
+
+            if ($validator->fails()) {
+                $errors[$index] = $validator->messages();
+                continue; // skip this detail
+            }
+
+            // Store each invoice
+            $create = $this->brokerpurchaseModel::create([
+                'garden_id'  => $request->garden_id,
+                'invoice_no' => $detail['invoice_no'],
+                'grade'      => $detail['garde'], // match your DB field
+                'bags'       => $detail['bags'],
+                'net_kg'     => $detail['net_kg'],
+                'rate'       => $detail['rate'] ?? null,
+                'created_by' => $request->user_id,
+                'brokerage'  => $brokerage,
+                'source'     => 'purchase',
+            ]);
+
+            if ($create) {
+                $successCount++;
+            } else {
+                $errors[$index] = ['Failed to save invoice ' . $detail['invoice_no']];
+            }
+        }
+
+        // Prepare response
+        if ($successCount === count($details)) {
+            return $this->successresponse(200, 'message', 'All Sample Purchases successfully created');
+        } elseif ($successCount > 0) {
+            return $this->successresponse(207, 'message', "$successCount of " . count($details) . " records created successfully", ['errors' => $errors]);
         } else {
-            return $this->successresponse(500, 'message', 'Sample Purchase not succesfully Created !');
+            return $this->errorresponse(500, 'message', 'Failed to create Sample Purchases', ['errors' => $errors]);
         }
     }
     public function edit($id)

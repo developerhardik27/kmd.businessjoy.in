@@ -172,7 +172,7 @@
                     data: {
                         ...commonData(),
                         garden_id: garden_id,
-                        invoice_no: invoice_no
+                        invoice_nos: invoice_no
                     },
                     success: function(response) {
                         if (response.status === 200 && response.data.length > 0) {

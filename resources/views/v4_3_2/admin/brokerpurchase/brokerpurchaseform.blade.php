@@ -20,7 +20,7 @@
                         placeholder="token" required />
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ session('company_id') }}" class="form-control" name="company_id">
-                    <input type="hidden" class="form-control requiredinput" name="grade" id="grade">
+                    {{-- <input type="hidden" class="form-control requiredinput" name="grade" id="grade"> --}}
 
                     <label for="garden_id">Select Garden</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name="garden_id" id="garden_id">
@@ -31,32 +31,28 @@
                 </div>
                 <div class="col-sm-6 mb-2">
                     <label for="invoice_no">Select Invoice/Lot No</label><span style="color:red;">*</span>
-                    <select class="form-control requiredinput" name="invoice_no" id="invoice_no">
-                        <option selected disabled>Select Invoice/Lot No</option>
+                    <select class="form-control requiredinput" name="invoice_no[]" id="invoice_no" multiple>
+
                     </select>
                     <span class="error-msg" id="error-invoice_no" style="color: red"></span>
                 </div>
-                <div class="col-sm-6 mb-2">
-                    <label for="grade">Grade</label>
+                <div class="col-sm-12 mt-4">
+                    <table class="table table-bordered" id="invoice-details-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice No</th>
+                                <th>Grade</th>
+                                <th>No of Bags</th>
+                                <th>Net Weight (kg)</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- AJAX will populate rows here -->
+                        </tbody>
+                    </table>
+                </div>
 
-                    <input type="text" class="form-control requiredinput" name="grade_name" id="grade_name"
-                        placeholder="Enter grade" readonly>
-                    <span class="error-msg" id="error-grade" style="color: red"></span>
-                </div>
-                <div class="col-sm-6 mb-2">
-                    <label for="bags">No Of Bages</label>
-                    <input type="text" class="form-control requiredinput" name="bags" id="bags"
-                        placeholder="Enter bags" readonly>
-                    <span class="error-msg" id="error-bags" style="color: red"></span>
-                </div>
-                <div class="col-sm-6 mb-2">
-                    <label for="net_kg">Net Weight</label>
-                    <input type="text" class="form-control requiredinput" name="net_kg" id="net_kg"
-                        placeholder="Enter Net Weight" readonly>
-                    <span class="error-msg" id="error-net_kg" style="color: red"></span>
-                </div>
-                <input type="hidden" class="form-control requiredinput" name="rate" id="rate"
-                    placeholder="Enter Rate" readonly>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -149,9 +145,9 @@
                     },
                     success: function(response) {
                         $('#invoice_no').empty();
-                        $('#invoice_no').append(
-                            '<option disabled selected>Select your invoice no</option>'
-                        );
+                        // $('#invoice_no').append(
+                        //     '<option disabled selected>Select your invoice no</option>'
+                        // );
 
                         if (response.status === 200 && response.data.length > 0) {
                             $.each(response.data, function(index, item) {
@@ -160,9 +156,9 @@
                                 );
                             });
                             $('#invoice_no').select2({
-                                placeholder: "Select invoice no",
+                                placeholder: "Select invoice(s)",
                                 width: '100%',
-                                search: true,
+                                allowClear: true
                             });
                         } else {
                             $('#invoice_no').append(
@@ -177,16 +173,22 @@
                     }
                 });
             }
-
+            $('#invoice_no').select2({
+                placeholder: "Select invoice(s)",
+                width: '100%',
+                allowClear: true
+            });
             $('#invoice_no').on('change', function() {
-                let invoice_no = $(this).val();
                 let garden_id = $('#garden_id').val();
-                loadOrderDetails(garden_id, invoice_no);
+                let invoice_nos = $(this).val(); // this is now an array
+                if (invoice_nos && invoice_nos.length > 0) {
+                    loadMultipleOrderDetails(garden_id, invoice_nos);
+                } else {
+                    $('#invoice-details-table tbody').empty(); // clear table
+                }
             });
 
-
-
-            function loadOrderDetails(garden_id, invoice_no) {
+            function loadMultipleOrderDetails(garden_id, invoice_nos) {
                 let token = "{{ session('api_token') }}";
                 let company_id = "{{ session('company_id') }}";
                 let user_id = "{{ session('user_id') }}";
@@ -198,26 +200,40 @@
                     url: "{{ route('brokerpurchase.getOtherDetails') }}",
                     data: {
                         garden_id: garden_id,
-                        invoice_no: invoice_no,
+                        invoice_nos: invoice_nos, // send array
                         company_id: company_id,
                         user_id: user_id,
                         token: token
                     },
                     success: function(response) {
-                        if (response.status === 200) {
-                            let data = response.data[0];
-                            $('#grade').val(data.grade_id);
-                            $('#grade_name').val(data.grade_name);
-                            $('#bags').val(data.bags);
-                            $('#net_kg').val(data.net_kg);
+                        $('#invoice-details-table tbody').empty();
 
-                            $('#rate').val(data.rate);
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
+                        if (response.status === 200 && response.data.length > 0) {
+                            $.each(response.data, function(index, item) {
+                                console.log(item);
+                                $('#invoice-details-table tbody').append(`
+                        <tr>
+                            <td>${item.invoice_no}</td>
+                            <td>${item.grade_name}</td>
+                            <td>${item.bags}</td>
+                            <td>${item.net_kg}</td>
+                            <td>${item.rate}</td>
+                        </tr>
+                    `);
+                                $('#brokerpurchaseform').append(`
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][invoice_no]" value="${item.invoice_no}">
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][grade_name]" value="${item.grade_name}">
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][garde]" value="${item.grade_id}">
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][bags]" value="${item.bags}">
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][net_kg]" value="${item.net_kg}">
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][rate]" value="${item.rate}">
+                        `);
                             });
+                        } else {
+                            $('#invoice-details-table tbody').append(
+                                '<tr><td colspan="5" class="text-center">No data found</td></tr>');
                         }
+
                         loaderhide();
                     },
                     error: function(xhr) {
@@ -226,7 +242,6 @@
                     }
                 });
             }
-
 
 
             $('#cancelbtn').on('click', function() {

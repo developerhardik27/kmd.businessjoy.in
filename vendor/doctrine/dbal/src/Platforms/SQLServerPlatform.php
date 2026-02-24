@@ -38,6 +38,7 @@ use function is_string;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
+use function str_contains;
 use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
@@ -1306,7 +1307,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $length = $column['length'] ?? null;
 
-        if (! isset($column['fixed'])) {
+        if (empty($column['fixed'])) {
             return sprintf('VARCHAR(%d)', $length ?? 255);
         }
 
@@ -1559,12 +1560,14 @@ class SQLServerPlatform extends AbstractPlatform
             'smalldatetime'    => Types::DATETIME_MUTABLE,
             'smallint'         => Types::SMALLINT,
             'smallmoney'       => Types::INTEGER,
+            'sysname'          => Types::STRING,
             'text'             => Types::TEXT,
             'time'             => Types::TIME_MUTABLE,
             'tinyint'          => Types::SMALLINT,
             'uniqueidentifier' => Types::GUID,
             'varbinary'        => Types::BINARY,
             'varchar'          => Types::STRING,
+            'xml'              => Types::TEXT,
         ];
     }
 
@@ -1775,11 +1778,17 @@ class SQLServerPlatform extends AbstractPlatform
 
     protected function getCommentOnTableSQL(string $tableName, ?string $comment): string
     {
+        if (str_contains($tableName, '.')) {
+            [$schemaName, $tableName] = explode('.', $tableName);
+        } else {
+            $schemaName = 'dbo';
+        }
+
         return $this->getAddExtendedPropertySQL(
             'MS_Description',
             $comment,
             'SCHEMA',
-            $this->quoteStringLiteral('dbo'),
+            $this->quoteStringLiteral($schemaName),
             'TABLE',
             $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
         );

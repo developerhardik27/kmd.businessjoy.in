@@ -359,7 +359,7 @@ class brokeragebillController extends commonController
 
     public function brokeragebillpdf(Request $request)
     {
-
+        // dd($request->all());
         $company_id = $request->company_id;
         $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
         $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
@@ -408,9 +408,9 @@ class brokeragebillController extends commonController
                 'gardens.garden_name as garden_name',
                 'grades.grade as grade'
             )
-            ->whereBetween('broker_purchases.brokerage_date', [$request->from_date, $request->to_date])
+            ->where('broker_purchases.invoice_id', $request->invoice_id)
             ->get();
-
+        // dd($usedInvoices);
         if ($usedInvoices->isEmpty()) {
             return $this->successresponse(500, 'message', 'Brokrage not genrated selected date');
         }
@@ -431,11 +431,11 @@ class brokeragebillController extends commonController
         $igst = $cgst = $sgst = 0;
 
         if ($company_state_id === $garden_company_state_id) {
-            $cgst = $totalAmount * 2.5 / 100;
-            $sgst = $totalAmount * 2.5 / 100;
+            $cgst = $totalAmount * 9 / 100;
+            $sgst = $totalAmount * 9 / 100;
             $igst = 0;
         } else {
-            $igst = $totalAmount * 5 / 100;
+            $igst = $totalAmount * 18 / 100;
             $cgst = 0;
             $sgst = 0;
         }
@@ -469,21 +469,25 @@ class brokeragebillController extends commonController
             'status' => "pending",
             'invoice_date' => $today->format('Y-m-d'),
             'created_by' => $request->user_id,
-            'from_date' => $request->from_date,
-            'to_date' => $request->to_date,
+            'from_date' => Carbon::yesterday()->format('Y-m-d'),
+            'to_date'   => Carbon::tomorrow()->format('Y-m-d'),
         ]);
         $create = $this->brokerbillinvoiceModel
             ::where('id', $data->id)
             ->update([
-                'invoice_no'   => "KMD/{$data->id}/{$financialYear}",
+                'invoice_no'   => "KMD/{$financialYear}/{$data->id}",
             ]);
 
-
+        $brokrage_per = $request->brokerage;
+       
         foreach ($linedata as $invoice) {
-            $brokrage = $invoice->id;  // use ->id for model instance
-
-            $update =  $this->brokerpurchaseModel::where('id', $brokrage)->update([
+            $brokrage_invoice = $invoice->id;  // use ->id for model instance
+            //  dd($brokrage_invoice);
+            //  dd($brokrage_per);
+            $update =  $this->brokerpurchaseModel::where('id', $brokrage_invoice)->update([
                 'brokerbill_no' => $data->id,
+                'brokerage' => $brokrage_per,
+                'brokerage_date' => $today->format('Y-m-d'),
             ]);
         }
 

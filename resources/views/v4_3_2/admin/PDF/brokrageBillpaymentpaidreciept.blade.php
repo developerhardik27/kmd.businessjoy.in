@@ -415,9 +415,9 @@
                     $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
                     //  $companyStateId = 20;
                     // $buyerStateId = 21;
-                    $cgst_per = 2.5;
-                    $sgst_per = 2.5;
-                    $igst_per = 5;
+                    $cgst_per = 9;
+                    $sgst_per = 9;
+                    $igst_per = 18;
                     $cgst = 0;
                     $sgst = 0;
                     $igst = 0;
@@ -441,7 +441,7 @@
                         } else {
                             $cgst_per = 0;
                             $sgst_per = 0;
-                            $igst = ($totalCommission * 5) / 100;
+                            $igst = ($totalCommission * 18) / 100;
                         }
                     }
 

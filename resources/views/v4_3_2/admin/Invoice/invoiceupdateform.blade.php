@@ -116,10 +116,10 @@
                     <input type="date" class="form-control" id="consignment_date" name="consignment_date">
                     <span class="error-msg" id="error-consignment_date" style="color: red"></span>
                 </div>
-                     <div class="col-sm-4 mb-3">
+                <div class="col-sm-4 mb-3">
                     <label for="HSN">HSN Code</label><span style="color:red;">*</span>
                     <input type="text" name="HSN" id="HSN" class="form-control"
-                        placeholder="HSN Code">
+                        placeholder="HSN Code"  value="" >
                     <span class="error-msg" id="error-HSN" style="color: red"></span>
                 </div>
                   <div class="col-sm-4 mb-3">
@@ -575,7 +575,7 @@
                         });
 
                         $('#columnname').prepend(
-                            `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">${columnName.column_name}</th>`).join('')} 
+                            `${allColumnData.map(columnName => `<th style="width: ${columnName.column_width}%; ${columnName.is_hide ? 'display: none;' : ''}">  ${columnName.column_name === "shortage" ? columnName.column_name + " (kg)" : columnName.column_name}</th>`).join('')} 
                                                                 <th>Amount</th>
                                                                 <th>Move</th>
                                                             `
@@ -991,20 +991,20 @@
                         cgst = parseFloat(gstsettings.cgst);
                         igst = parseFloat(gstsettings.igst);
                         gst = parseFloat(gstsettings.gst);
-                       
+                         totalgstpercentage = igst + sgst + cgst ;
                         // companymaster_id = 21;
-                        // buyer_state_id = 22;
-                       if (company_state_id === buyer_state_id) {
-                            // Intra-state
-                            igst = 0;
-                            totalgstpercentage = sgst + cgst + igst;
-                        } else {
-                            // Inter-state
-                            // igst = sgst + cgst; // assign total as IGST
-                            sgst = 0;
-                            cgst = 0;
-                            totalgstpercentage = igst + sgst + cgst ;
-                        }
+                    //     // buyer_state_id = 22;
+                    //    if (company_state_id === buyer_state_id) {
+                    //         // Intra-state
+                    //         igst = 0;
+                    //         totalgstpercentage = sgst + cgst + igst;
+                    //     } else {
+                    //         // Inter-state
+                    //         // igst = sgst + cgst; // assign total as IGST
+                    //         sgst = 0;
+                    //         cgst = 0;
+                    //         totalgstpercentage = igst + sgst + cgst ;
+                    //     }
 
                         if (sgst % 1 === 0) { // Checks if sgst is an integer
                             $('#sgstpercentage').text(`(${sgst}.00 %)`);
@@ -1576,11 +1576,11 @@
                         outputvalue = performCalculation(formula.operation, value1, value2)
                         // formula.output_column = formula.output_column.replace(/\s+/g, '_');
                         console.log("formula.output_column ",formula.output_column);
-                        iteam_data[0][formula.output_column] = outputvalue.toFixed(2);
+                        iteam_data[0][formula.output_column] = outputvalue.toFixed(3);
                         console.log("iteam_data[0][formula.output_column] ",iteam_data[0][formula.output_column]);
                         console.log("iteam_data ",iteam_data);
-                        results[formula.output_column] = outputvalue.toFixed(2);
-                        $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(2));
+                        results[formula.output_column] = outputvalue.toFixed(3);
+                        $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(3));
                     });
                     var total = 0;
                     $('input.changeprice').each(function () {
@@ -1914,7 +1914,7 @@
                     var  transport_id = $('#transport_id').val();
                     var  consignment_date = $('#consignment_date').val();
                     var  consignment_number = $('#consignment_number').val();
-                    var HSN = $('#HSN').val();
+                    var HSN =  $('#HSN').val();
                     var Description = $('#Description').val();
                     var account = $('#acc_details').val();
                     var invoice_date = $('#invoice_date').val();

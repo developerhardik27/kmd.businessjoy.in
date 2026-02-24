@@ -179,6 +179,53 @@
             </form>
         </div>
     </div>
+    <div class="modal fade" id="pdfDateModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form id="pdfDateForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Generate PDF</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
+                                placeholder="token" required />
+                            <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
+                            <input type="hidden" value="{{ session('company_id') }}" class="form-control"
+                                name="company_id">
+                            <input type="hidden" name="garden_id" id="garden_id" class="form-control" value="">
+                            <input type="hidden" name="invoice_id" id="invoice_id" class="form-control" value="">
+                            {{-- <input type="hidden" name="line_total" id="line_total" class="form-control" value=""> --}}
+                            <input type="hidden" name="company_details_id" id="company_details_id" class="form-control"
+                                value="">
+                        </div>
+                          <div class="form-group">
+                            <label>Invoice total</label>
+                            <input type="number" name="line_total" id="line_total" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Brokerage (%)</label>
+                            <input type="number" name="brokerage" id="brokerage" step="0.01" min="0" max="100" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>brokrageAmount</label>
+                            <input type="number" name="brokrageAmount" step="0.01" min="0"  id="brokrageAmount" class="form-control"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Generate</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
@@ -419,7 +466,7 @@
                             placeholder: 'Select Company',
                             allowClear: true
                         });
-                    } else if (response.status == 500) {
+                    } else if (getCompanyDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
                             title: response.message
@@ -449,7 +496,7 @@
                             placeholder: 'Select Buyer',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
-                    } else if (response.status == 500) {
+                    } else if (getBuyerDataresponse.status == 500) {
                         Toast.fire({
                             icon: "error",
                             title: response.message
@@ -978,9 +1025,37 @@
                                         </span>
                                     `;
                                 @endif
+                                if (row.brokerbill_no) {
+                                    @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                        let generatePdfUrl =
+                                            "{{ route('brokragbill.generatebrokragebillpdf', '__gardenId__') }}"
+                                            .replace('__gardenId__', row.brokerbill_no);
+                                        actionBtns += `                                             
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Pdf">
+                                            <a href=${generatePdfUrl} target='_blank' id='pdf'>
+                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
+                                            </a>
+                                        </span>
+                                    `;
+                                    @endif
+                                } else {
+                                    @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                        let storePdfUrl =
+                                            "{{ route('brokeragebill.brokeragebillpdf', '__gardenId__') }}"
+                                            .replace('__gardenId__', row.garden_id);
+                                        actionBtns += `
+                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create Commission Bill PDF">
+                                            <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf" data-id ="${row.garden_id}" data-company_details_id ="${row.company_details_id}" data-line_total = '${row.line_total}' data-brokerage='${row.brokerage}' data-invoice_id ='${row.id}'>
+                                                    <i class="ri-file-add-line"></i>
+                                            </button>
+                                        </span>
+                                    `;
+                                    @endif
+                                }
 
                                 return actionBtns;
                             }
+
                         }
                     ],
 
@@ -1033,8 +1108,79 @@
                 });
 
             }
+
+
             //call data function for load customer data
+            $(document).on("click", ".generate-pdf", function() {
+                let gardenId = $(this).data('id');
+                let company_details_id = $(this).data('company_details_id');
+                let line_total = $(this).data('line_total');
+                let brokerage = $(this).data('brokerage');
+                let invoice_id = $(this).data('invoice_id');
+                $('#garden_id').val(gardenId);
+                $('#company_details_id').val(company_details_id);
+                $('#line_total').val(line_total);
+                $('#brokerage').val(brokerage);
+                $('#invoice_id').val(invoice_id);
+                let brokrageAmount = line_total * brokerage / 100;
+               
+                $('#brokrageAmount').val(brokrageAmount);
+                $('#pdfDateModal').modal('show');
+            });
+            $('#pdfDateForm').on('submit', function(e) {
+                e.preventDefault();
+                let formdata = $(this).serialize();
+                loadershow();
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('brokeragebill.brokeragebillpdf') }}",
+                    data: formdata,
+                    success: function(response) {
+                        if (response.status == 200) {
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+                            $('#pdfDateForm')[0].reset()
+                            $('#pdfDateModal').modal('hide');
+
+                        } else if (response.status == 500) {
+                            // You can perform additional actions, such as showing a success message or redirecting the user
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                            $('#pdfDateForm')[0].reset()
+                            $('#pdfDateModal').modal('hide');
+                            window.location.href = "{{ route('admin.addbank') }}";
+
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                            $('#pdfDateForm')[0].reset()
+                        }
+                        loaderhide();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        loaderhide();
+                    }
+                })
+            });
+
             loaddata();
+
+           $('#brokerage').on('input', calculateBrokerage);
+           calculateBrokerage();
+            function calculateBrokerage() {
+                let brokarge_per = $('#brokerage').val();
+                let line_total_amt = $('#line_total').val();
+                let borkragecal_amount = line_total_amt * brokarge_per / 100;
+               $('#brokrageAmount').val(borkragecal_amount.toFixed(2));
+            }
             let params;
             $('#pdfBtn').on('click', function() {
                 params = table.ajax.params();

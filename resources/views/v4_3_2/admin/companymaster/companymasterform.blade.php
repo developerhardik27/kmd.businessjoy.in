@@ -107,7 +107,12 @@
                     </select>
                     <span class="error-msg" id="error-garden_id" style="color:red"></span>
                 </div>
-
+                <div class="col-sm-6 mb-2">
+                    <label for="brokerage">Brokerage</label><span style="color:red;">*</span>
+                    <input type="text" id="brokerage" class="form-control" name='brokerage' id=""
+                        placeholder="Brokerage Number">
+                    <span class="error-msg" id="error-brokerage" style="color: red"></span>
+                </div>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -290,9 +295,9 @@
                             country = response.country;
                             // You can update your HTML with the data here if needed
                             renderSelectBox(country, 'country', type);
-                            country_id = "{{ session('user')['country_id'] }}";
+                            // country_id = "{{ session('user')['country_id'] }}";
 
-                            $(`#${type|| 'country'}`).val(country_id);
+                            // $(`#${type|| 'country'}`).val(country_id);
                             loadstate(0, type ? 'modal_state' : null);
                         } else {
                             $('#country').append(`<option> No Data Found</option>`);
@@ -339,8 +344,8 @@
 
                             renderSelectBox(state, 'state', type);
                             if (id == 0) {
-                                state_id = "{{ session('user')['state_id'] }}";
-                                $(`#${type|| 'state'}`).val(state_id);
+                                // state_id = "{{ session('user')['state_id'] }}";
+                                // $(`#${type|| 'state'}`).val(state_id);
                                 loadcity(0, type ? 'modal_city' : null);
                             }
                         } else {
@@ -385,7 +390,7 @@
                             let city = response.city;
                             renderSelectBox(city, 'city', type);
                             if (id == 0) {
-                                $(`#${type|| 'city'}`).val("{{ session('user')['city_id'] }}");
+                                // $(`#${type|| 'city'}`).val("{{ session('user')['city_id'] }}");
                             }
                         } else {
                             $(`#${type|| 'city'}`).append(`<option> No Data Found</option>`);

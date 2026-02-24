@@ -173,6 +173,7 @@ class companymasterController extends commonController
 
         $validator = Validator::make($data, [
             'company_name'        => 'required|string|max:255',
+            'brokerage'        => 'required|numeric|max:100',
             'email'               => 'nullable|email|max:255',
             'contact_person_name' => 'nullable|string|max:255',
             'mobile_1'            => 'nullable|numeric|digits_between:10,15',
@@ -194,6 +195,7 @@ class companymasterController extends commonController
             'garden_id.array'       => 'Invalid garden selection.',
             'garden_id.min'         => 'Select at least one garden.',
             'garden_id.*.integer'   => 'Invalid garden ID.',
+            'brokerage.max' => 'Enter a brokerage value between 0 and 100!',
         ]);
 
         if ($validator->fails()) {
@@ -201,6 +203,7 @@ class companymasterController extends commonController
         }
         $create = $this->companymasterModel::create([
             'company_name' => $request->company_name,
+            'brokerage' => $request->brokerage,
             'email' => $request->email,
             'contact_person_name' => $request->contact_person_name,
             'mobile_1' => $request->mobile_1,
@@ -266,6 +269,7 @@ class companymasterController extends commonController
 
         $validator = Validator::make($data, [
             'company_name'        => 'required|string|max:255',
+            'brokerage'        => 'required|numeric|max:100',
             'email'               => 'nullable|email|max:255',
             'contact_person_name' => 'nullable|string|max:255',
             'mobile_1'            => 'nullable|numeric|digits_between:10,15',
@@ -287,6 +291,7 @@ class companymasterController extends commonController
             'garden_id.array'       => 'Invalid garden selection.',
             'garden_id.min'         => 'Select at least one garden.',
             'garden_id.*.integer'   => 'Invalid garden ID.',
+            'brokerage.max' => 'Enter a brokerage value between 0 and 100!',
         ]);
 
         if ($validator->fails()) {
@@ -294,6 +299,7 @@ class companymasterController extends commonController
         }
         $update = $this->companymasterModel::where('id', $id)->update([
             'company_name' => $request->company_name,
+            'brokerage' => $request->brokerage,
             'email' => $request->email,
             'contact_person_name' => $request->contact_person_name,
             'mobile_1' => $request->mobile_1,

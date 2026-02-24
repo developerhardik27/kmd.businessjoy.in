@@ -112,7 +112,12 @@
                     </select>
                     <span class="error-msg" id="error-garden_id" style="color:red"></span>
                 </div>
-
+                  <div class="col-sm-6 mb-2">
+                    <label for="brokerage">Brokerage</label><span style="color:red;">*</span>
+                    <input type="text" id="brokerage" class="form-control" name='brokerage' id=""
+                        placeholder="Brokerage Number">
+                    <span class="error-msg" id="error-brokerage" style="color: red"></span>
+                </div>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -335,6 +340,7 @@
                         $('#address').val(data.address);
                         $('#gst_no').val(data.gst_no);
                         $('#pan').val(data.pan);
+                        $('#brokerage').val(data.brokerage);
                         let savedCountry = data.country_id;
                         let savedState = data.state_id;
                         let savedCity = data.city_id;

@@ -479,7 +479,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <table cellspacing="0" cellpadding="0" width="100%" class="border-left-right">
+                {{-- <table cellspacing="0" cellpadding="0" width="100%" class="border-left-right">
                     <tr>
                         <td style="padding-left:10px; ">
                             <b>
@@ -495,7 +495,7 @@
 
                         </td>
                     </tr>
-                </table>
+                </table> --}}
                 <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class="horizontal-border border data"
                     width="100%">
                     <thead>
@@ -520,9 +520,9 @@
                         $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
                         //  $companyStateId = 20;
                         // $buyerStateId = 21;
-                        $cgst_per = 2.5;
-                        $sgst_per = 2.5;
-                        $igst_per = 5;
+                        $cgst_per = 9;
+                        $sgst_per = 9;
+                        $igst_per = 18;
                         $cgst = 0;
                         $sgst = 0;
                         $igst = 0;
@@ -546,7 +546,7 @@
                             } else {
                                 $cgst_per = 0;
                                 $sgst_per = 0;
-                                $igst = ($totalCommission * 5) / 100;
+                                $igst = ($totalCommission * 18) / 100;
                             }
                         }
 
@@ -569,8 +569,8 @@
                                     {{ $row->consignment_date ? \Carbon\Carbon::parse($row->consignment_date)->format('d-m-Y') : '-' }}
                                 </td>
                                 <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
-                                <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
-                                <td style="text-align:center;">{{ number_format($row->discount ?? 0, 0) }}</td>
+                                <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 3) }}</td>
+                                <td style="text-align:center;">{{ number_format($row->discount ?? 0, 2) }}</td>
                                 <td style="text-align:center;">
                                     {{ number_format($row->invoice_grand_total, 2) }}</td>
                                 <td style="text-align:center;">
@@ -700,7 +700,30 @@
                         </td>
                     </tr>
                 </table>
-
+                    <table width='100%' class="maintable" cellspacing=0 cellpadding=0>
+                <tr>
+                    <td colspan="2">
+                        <div style="display: inline-block;">
+                            For : {{ $data['mainCompanyData']['name'] }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="display: inline-block;">
+                            <img @if ($data['mainCompanyData']['pr_sign_img'] != '') src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}" @endif
+                                class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div style="display: inline-block;">
+                            Signature
+                        </div>
+                    </td>
+                </tr>
+            </table>
                 <div class="mt-1" style="font-size: 12px" id="footer">
                     <span class="float-left">
                         <small>This is a computer-generated document. No signature is required.</small>

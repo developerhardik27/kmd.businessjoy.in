@@ -39,7 +39,7 @@ class orderController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
-            ->join('partys as transport', 'transport.id', 'orders.transport')
+            ->leftjoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
             ->join('grades', 'grades.id', 'order_details.grade')
@@ -143,7 +143,7 @@ class orderController extends commonController
 
         $validator = Validator::make($data, [
             'buyer_party'    => 'required|integer',
-            'transport'      => 'required|integer',
+            'transport'      => 'nullable|integer',
             'credit_days'    => 'required|string|in:CD,15,30,45,60,90',
             'discount'       => 'nullable|numeric|min:0|max:100',
             'totalNetKg'     => 'required|numeric|min:0',
@@ -175,17 +175,17 @@ class orderController extends commonController
                     $errors["rows.$index.invoice_no"] = ['This invoice number already exists in the system.'];
                 }
             }
-            if (!isset($row['bags']) || $row['bags'] < 1) {
-                $errors["rows.$index.bags"] = ['Enter Bags greater than 1!'];
+            if (!isset($row['bags']) || $row['bags'] < 0) {
+                $errors["rows.$index.bags"] = ['Enter Bags cannot be negative!'];
             }
-            if (!isset($row['kg']) || $row['kg'] < 1) {
-                $errors["rows.$index.kg"] = ['Enter kg greater than 1!'];
+            if (!isset($row['kg']) || $row['kg'] < 0) {
+                $errors["rows.$index.kg"] = ['Enter kg cannot be negative!'];
             }
             if (!isset($row['net_kg']) || $row['net_kg'] < 0) {
                 $errors["rows.$index.net_kg"] = ['Net kg cannot be negative!'];
             }
-            if (!isset($row['rate']) || $row['rate'] < 1) {
-                $errors["rows.$index.rate"] = ['Enter rate greater than 1!'];
+            if (!isset($row['rate']) || $row['rate'] < 0) {
+                $errors["rows.$index.rate"] = ['Enter rate cannot be negative!'];
             }
             if (!isset($row['amount']) || $row['amount'] < 0) {
                 $errors["rows.$index.amount"] = ['Amount cannot be negative!'];
@@ -257,7 +257,7 @@ class orderController extends commonController
 
         $validator = Validator::make($data, [
             'buyer_party'    => 'required|integer',
-            'transport'      => 'required|integer',
+            'transport'      => 'nullable|integer',
             'credit_days'    => 'required|string|in:CD,15,30,45,60,90',
             'discount'       => 'nullable|numeric|min:0|max:100',
             'totalNetKg'     => 'required|numeric|min:0',
@@ -290,17 +290,17 @@ class orderController extends commonController
                     $errors["rows.$index.invoice_no"] = ['This invoice number already exists in the system.'];
                 }
             }
-            if (!isset($row['bags']) || $row['bags'] < 1) {
-                $errors["rows.$index.bags"] = ['Enter Bags greater than 1!'];
+            if (!isset($row['bags']) || $row['bags'] < 0) {
+                $errors["rows.$index.bags"] = ['Enter Bags cannot be negative!'];
             }
-            if (!isset($row['kg']) || $row['kg'] < 1) {
-                $errors["rows.$index.kg"] = ['Enter kg greater than 1!'];
+            if (!isset($row['kg']) || $row['kg'] < 0) {
+                $errors["rows.$index.kg"] = ['Enter kg cannot be negative!'];
             }
             if (!isset($row['net_kg']) || $row['net_kg'] < 0) {
                 $errors["rows.$index.net_kg"] = ['Net kg cannot be negative!'];
             }
-            if (!isset($row['rate']) || $row['rate'] < 1) {
-                $errors["rows.$index.rate"] = ['Enter rate greater than 1!'];
+            if (!isset($row['rate']) || $row['rate'] < 0) {
+                $errors["rows.$index.rate"] = ['Enter rate cannot be negative!'];
             }
             if (!isset($row['amount']) || $row['amount'] < 0) {
                 $errors["rows.$index.amount"] = ['Amount cannot be negative!'];
