@@ -100,6 +100,7 @@
     }
 
     function handleAjaxError(xhr) {
+         console.log("xhr",xhr);
         if (xhr.status === 422) {
             let errors = xhr.responseJSON.errors;
             let firstErrorElement = null;
@@ -147,7 +148,9 @@
 
 
     function handleModalAjaxError(xhr) {
+        console.log("xhr",xhr);
         if (xhr.status === 422) {
+            
             var errors = xhr.responseJSON.errors;
             let firstErrorElement = null;
 

@@ -522,7 +522,7 @@
                 }
             }
 
-            initialize();
+            // initialize();
             const API_TOKEN = "{{ session()->get('api_token') }}";
             const COMPANY_ID = "{{ session()->get('company_id') }}";
             const USER_ID = "{{ session()->get('user_id') }}";
@@ -579,15 +579,7 @@
                                     "{{ route('admin.addinvoice') }}";
                             });
 
-                            // Reset checkboxes or selections if needed
-                            $('.purchase-checkbox').prop('checked', false);
-
-                            // Reload data or reset form
-                            $('#generateinvoiceForm')[0].reset();
-                            $('#companymaster_id, #buyer_id, #invoice_no').val(null).trigger(
-                                'change');
-                            $('#generateinvoiceModal').modal('hide');
-                            loaddata();
+                          
                         } else {
                             loaderhide();
                             Toast.fire({
@@ -638,6 +630,7 @@
             }
 
             function buyer_ids(companymaster_id) {
+                companymaster_id = $('#companymaster_id').val();
                 loadershow();
                 $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
 
@@ -716,7 +709,7 @@
                     $('#exampleModalScrollable').modal('show');
                     return;
                 }
-
+                
                 buyer_ids(companymaster_id);
             });
 
@@ -1144,6 +1137,7 @@
                             });
                             $('#pdfDateForm')[0].reset()
                             $('#pdfDateModal').modal('hide');
+                            table.draw();
 
                         } else if (response.status == 500) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
@@ -1153,7 +1147,7 @@
                             });
                             $('#pdfDateForm')[0].reset()
                             $('#pdfDateModal').modal('hide');
-                            window.location.href = "{{ route('admin.addbank') }}";
+                            // window.location.href = "{{ route('admin.addbank') }}";
 
                         } else {
                             Toast.fire({

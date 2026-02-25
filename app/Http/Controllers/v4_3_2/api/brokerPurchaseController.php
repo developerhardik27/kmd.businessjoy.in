@@ -106,7 +106,7 @@ class brokerPurchaseController extends commonController
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $invoiceNos = is_array($request->invoice_nos) ? $request->invoice_nos: explode(',', $request->invoice_nos);
+        $invoiceNos = is_array($request->invoice_nos) ? $request->invoice_nos : explode(',', $request->invoice_nos);
         $order = $this->order_detailModel
             ::join('grades', 'grades.id', '=', 'order_details.grade')
             ->where('order_details.is_deleted', 0)
@@ -196,60 +196,34 @@ class brokerPurchaseController extends commonController
     }
     public function lot_no_createInvoice(Request $request)
     {
-        // dd($request->all());
+       
         if ($this->rp['teamodule']['brokerpurchase']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        $data = $request->all();
+      
         $buyerParties = $request->buyer_parties;
-        $companyIds = $request->company_ids;
-        $invoice_no = $request->invoice_no;
+        $companyIds   = $request->company_ids;
+        $invoice_no   = $request->invoice_no;
 
+
+       
         if (is_string($invoice_no)) {
             $invoice_no = explode(',', $invoice_no);
         }
+        $invoice_no = (array) $invoice_no;
 
+     
+        if (is_string($companyIds)) {
+            $companyIds = explode(',', $companyIds);
+        }
+        $companyIds = (array) $companyIds;
 
-        // dd($invoice_no);
-        // $data1 = $this->brokerpurchaseModel
-        //     ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
-        //     ->join('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
-
-        //     ->join('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-        //     ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-
-        //     ->join('order_details', function ($join) {
-        //         $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
-        //             ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
-        //     })
-        //     ->join('orders', 'orders.id', '=', 'order_details.order_id')
-        //     ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-        //     ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
-
-        //     ->select(
-        //         'broker_purchases.*',
-        //         'order_details.bags as No_Of_Pkags',
-        //         'order_details.invoice_no as Invoice_no',
-        //         'order_details.net_kg as Net_Weight_Kgs',
-        //         'order_details.rate as Rate_per_kg',
-        //         'order_details.kg as Net_Oty_Per_Pkg',
-        //         'grades.grade as Grade',
-        //         'gardens.garden_name as Garden',
-        //         'companymasters.company_name',
-        //         'companymasters.id  as companymaster_id',
-        //         'orders.id as order_id',
-        //         'orders.discount',
-        //         'orders.buyer_party as buyer_id',
-        //         'orders.transport as transport_id',
-        //         'buyer.name as buyer_name',
-        //         'transporter.name as transport_name'
-        //     )
-        //     ->whereIn('broker_purchases.id', $invoice_no)
-        //     ->where('broker_purchases.is_deleted', 0)
-        //     ->whereIn('companymasters.id', $companyIds)
-        //     ->whereIn('orders.buyer_party', $buyerParties)
-        //     ->get();
+       
+        if (is_string($buyerParties)) {
+            $buyerParties = explode(',', $buyerParties);
+        }
+        $buyerParties = (array) $buyerParties;
 
 
         $data1 = $this->order_detailModel
@@ -259,7 +233,8 @@ class brokerPurchaseController extends commonController
             ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-            ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+
             ->select(
                 'order_details.bags as No_Of_Pkags',
                 'order_details.invoice_no as Invoice_no',
@@ -277,26 +252,30 @@ class brokerPurchaseController extends commonController
                 'buyer.name as buyer_name',
                 'transporter.name as transport_name'
             )
+
             ->whereIn('order_details.invoice_no', $invoice_no)
             ->where('order_details.is_deleted', 0)
-            ->where('companymasters.id', $companyIds)
-            ->where('orders.buyer_party', $buyerParties)
             ->get();
 
         $maindata = [
             'maindata' => [
                 'companymaster_id' => $companyIds,
-                'buyer_id' => $buyerParties,
-                'invoice_no' => $invoice_no,
+                'buyer_id'         => $buyerParties,
+                'invoice_no'       => $invoice_no,
             ],
-            "line_items" => $data1,
+            'line_items' => $data1
         ];
 
-        //   dd($maindata);
-        // Continue your invoice creation here
-        return $this->successresponse(200, 'message', 'invoice created data you get properly', 'data', $maindata);
-    }
 
+
+        return $this->successresponse(
+            200,
+            'message',
+            'Invoice created data fetched successfully',
+            'data',
+            $maindata
+        );
+    }
     public function index(Request $request)
     {
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {

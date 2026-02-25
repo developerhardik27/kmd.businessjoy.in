@@ -135,6 +135,7 @@ class orderController extends commonController
     }
     public function store(Request $request)
     {
+        // dd($request->all());
         if ($this->rp['teamodule']['order']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }

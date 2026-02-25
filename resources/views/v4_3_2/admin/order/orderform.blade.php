@@ -690,13 +690,13 @@
         
                         <td data-label="Bags">
                             <input type="number" class="form-control bags calculationfield" name="bags[]"
-                                placeholder="Enter No of Bags">
+                                placeholder="Enter No of Bags" value="0" min="0">
                                 <span class="error-msg" id="error-bags_${row}" style="color:red"></span>
                         </td>
         
                         <td data-label="Kg">
                             <input type="number" step="0.01" class="form-control kg calculationfield" name="kg[]"
-                                placeholder="Enter no of Kg">
+                                placeholder="Enter no of Kg" value="0" min="0">
                                 <span class="error-msg" id="error-kg_${row}" style="color:red"></span>
                         </td>
         
@@ -708,7 +708,7 @@
         
                         <td  data-label="Rate / Kg">
                             <input type="number" step="0.01" class="form-control rate calculationfield" name="rate[]"
-                                placeholder="Enter per kg rate">
+                                placeholder="Enter per kg rate" value="0" min="0">
                                 <span class="error-msg" id="error-rate_${row}" style="color:red"></span>
                         </td>
         

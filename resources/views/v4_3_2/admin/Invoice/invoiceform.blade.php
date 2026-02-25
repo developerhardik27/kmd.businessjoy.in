@@ -657,7 +657,8 @@
                  $("#action").addClass('d-none');
                 $(".newdivautomaticcolspan").addClass('d-none');
                 let productdetails = lot_no_invoice_data.line_items;
-                 console.log("this companyater id",lot_no_invoice_data.line_items[0].transport_id);
+                   console.log("this loat not data 2" ,productdetails);
+                //  console.log("this companyater id",lot_no_invoice_data.line_items[0].transport_id);
 
                 console.log(lot_no_invoice_data.maindata.invoice_no);
                 $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
