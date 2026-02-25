@@ -40,7 +40,17 @@ class partyController extends commonController
         if ($this->rp['teamodule']['party']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $party = $this->partyModel::where("is_deleted", 0)->get();
+        $party = $this->partyModel::leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', 'country.id')
+            ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', 'state.id')
+            ->leftJoin($this->masterdbname . '.city', 'partys.city_id', '=', 'city.id')
+            ->where('partys.is_deleted', 0)
+            ->select(
+                'partys.*',
+                'country.country_name',
+                'state.state_name',
+                'city.city_name',
+            )
+            ->get();
         if ($party->isEmpty()) {
             return DataTables::of($party)
                 ->with([
@@ -179,7 +189,7 @@ class partyController extends commonController
             )
             ->where('partys.id', $id)
             ->first();
-      
+
         if (!$party) {
             return $this->successresponse(500, 'message', 'party not found !');
         }

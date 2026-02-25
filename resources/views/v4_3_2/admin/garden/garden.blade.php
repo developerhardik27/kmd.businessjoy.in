@@ -301,7 +301,19 @@
                         </tr>
                          <tr>
                             <th>Address</th>
-                            <td>${garden.address|| '-'}</td>
+                            <td>
+                                 ${
+                                    [
+                                    garden.address,
+                                    garden.pincode,
+                                    garden.city_name,
+                                    garden.state_name,
+                                    garden.country_name
+                                    ]
+                                    .filter(Boolean) // removes null, undefined, empty string
+                                    .join(', ')
+                                }
+                            </td>
                         </tr>
                     `);
                     }

@@ -302,7 +302,17 @@
                         </tr>
                          <tr>
                             <th>Address</th>
-                            <td>${party.address|| '-'}</td>
+                            <td>${
+                                    [
+                                    party.address,
+                                    party.pincode,
+                                    party.city_name,
+                                    party.state_name,
+                                    party.country_name
+                                    ]
+                                    .filter(Boolean) // removes null, undefined, empty string
+                                    .join(', ')
+                                }</td>
                         </tr>
                          <tr>
                             <th>Party Type</th>

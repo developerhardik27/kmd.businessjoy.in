@@ -359,10 +359,16 @@ class companymasterController extends commonController
         }
         $garden = $this->gardenModel::leftJoin('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->leftJoin($this->masterdbname . '.country', 'gardens.country_id', '=', 'country.id')
+            ->leftJoin($this->masterdbname . '.state', 'gardens.state_id', '=', 'state.id')
+            ->leftJoin($this->masterdbname . '.city', 'gardens.city_id', '=', 'city.id')
             ->where('gardens.is_deleted', 0)
             ->select(
                 'gardens.*',
-                'companymasters.company_name'
+                'companymasters.company_name',
+                'country.country_name',
+                'state.state_name',
+                'city.city_name',
             )
             ->get();
 
@@ -490,8 +496,8 @@ class companymasterController extends commonController
             return $this->errorresponse(422, $validator->messages());
         }
         $exists = $this->gardenModel::where('garden_name', $request->garden_name)
-            ->where('id', '!=', $id) 
-            ->where('is_deleted',0)
+            ->where('id', '!=', $id)
+            ->where('is_deleted', 0)
             ->exists();
         if ($exists) {
             return $this->errorresponse(422, ['garden_name' => ['This garden name has already been taken.']]);

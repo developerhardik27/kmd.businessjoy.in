@@ -169,7 +169,7 @@
                             defaultContent: '-',
                             name: 'mobile_1'
                         },
-                       
+
                         {
                             data: 'address',
                             orderable: true,
@@ -273,22 +273,22 @@
                 });
 
             }
-           $(document).on("click", ".view-btn", function () {
-    // Make modal extra large
-    $("#exampleModalScrollable .modal-dialog").addClass('modal-xl');
-    
-    // Clear previous content
-    $('#details').html('');
+            $(document).on("click", ".view-btn", function() {
+                // Make modal extra large
+                $("#exampleModalScrollable .modal-dialog").addClass('modal-xl');
 
-    var data = $(this).data('view');
+                // Clear previous content
+                $('#details').html('');
 
-    $.each(global_response.data, function (key, company) {
-        if (company.id == data) {
+                var data = $(this).data('view');
 
-            // Build bank details table
-            let bankHtml = '';
-            if (company.bank_details && company.bank_details.length > 0) {
-                bankHtml += `
+                $.each(global_response.data, function(key, company) {
+                    if (company.id == data) {
+
+                        // Build bank details table
+                        let bankHtml = '';
+                        if (company.bank_details && company.bank_details.length > 0) {
+                            bankHtml += `
                     <table class="table table-bordered table-sm mb-0">
                         <thead class="table-light">
                             <tr><th colspan="4" class="text-center bg-white"><b>Bank Details</b></th></tr>
@@ -301,8 +301,8 @@
                         </thead>
                         <tbody>
                 `;
-                $.each(company.bank_details, function (i, bank) {
-                    bankHtml += `
+                            $.each(company.bank_details, function(i, bank) {
+                                bankHtml += `
                         <tr>
                             <td>${bank.bank_name || '-'}</td>
                             <td>${bank.holder_name || '-'}</td>
@@ -310,10 +310,10 @@
                             <td>${bank.ifsc_code || '-'}</td>
                         </tr>
                     `;
-                });
-                bankHtml += `</tbody></table>`;
-            } else {
-                bankHtml = `
+                            });
+                            bankHtml += `</tbody></table>`;
+                        } else {
+                            bankHtml = `
                     <table class="table table-bordered table-sm mb-0">
                         <thead class="table-light">
                             <tr><th colspan="4" class="text-center bg-white"><b>Bank Details</b></th></tr>
@@ -325,10 +325,10 @@
                         </tbody>
                     </table>
                 `;
-            }
+                        }
 
-            // Build company details table
-            let companyHtml = `
+                        // Build company details table
+                        let companyHtml = `
                 <table class="table table-bordered table-striped mb-0">
                     <tbody>
                         <tr>
@@ -362,11 +362,17 @@
                         <tr>
                             <th>Address</th>
                             <td>
-                                ${company.address || ''} 
-                                ${company.pincode ? ', ' + company.pincode : ''} 
-                                ${company.city_name ? ', ' + company.city_name : ''} 
-                                ${company.state_name ? ', ' + company.state_name : ''} 
-                                ${company.country_name ? ', ' + company.country_name : ''}
+                                 ${
+                                    [
+                                    company.address,
+                                    company.pincode,
+                                    company.city_name,
+                                    company.state_name,
+                                    company.country_name
+                                    ]
+                                    .filter(Boolean) // removes null, undefined, empty string
+                                    .join(', ')
+                                }
                             </td>
                         </tr>
                         <tr>
@@ -376,11 +382,11 @@
                 </table>
             `;
 
-            $('#details').html(companyHtml);
-        }
-    });
-});
- //call data function for load companymaster data
+                        $('#details').html(companyHtml);
+                    }
+                });
+            });
+            //call data function for load companymaster data
             loaddata();
 
             // record delete 
