@@ -50,8 +50,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="country">Select Country</label><span   
-                                        style="color:red;">*</span>
+                    <label for="country">Select Country</label>
                     <select class="form-control requiredinput" name='country' id="country">
                         <option selected="" disabled="">Select your Country</option>
                     </select>
@@ -59,8 +58,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="state">Select State</label><span   
-                                        style="color:red;">*</span>
+                    <label for="state">Select State</label>
                     <select class="form-control requiredinput" name='state' id="state">
                         <option selected="" disabled="">Select your State</option>
                     </select>
@@ -68,8 +66,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="city">Select City</label><span   
-                                        style="color:red;">*</span>
+                    <label for="city">Select City</label>
                     <select class="form-control requiredinput" name='city' id="city">
                         <option selected="" disabled="">Select your City</option>
                     </select>
