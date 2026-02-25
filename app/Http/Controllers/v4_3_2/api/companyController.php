@@ -609,7 +609,7 @@ class companyController extends commonController
                                 'rp' => $rpjson,
                                 'created_by' => $this->userId
                             ]);
-                          
+
                             $tbl_invoice_formulas = $this->tbl_invoice_formulasModel::query()->update([
                                 'company_id' => $company_id,
                                 'created_by' => $this->userId
@@ -896,8 +896,9 @@ class companyController extends commonController
         $this->invoice_other_settingModel::create([  // default invoice other settings insert
             'overdue_day' => 45,
             'year_start' => date('Y-m-d', strtotime(date('Y') . '-04-01')),
-            'sgst' => 9,
-            'cgst' => 9,
+            'sgst' => 2.5,
+            'cgst' => 2.5,
+            'igst' => 5,
             'gst' => 0,
             'customer_id' => 1,
             'current_customer_id' => 1,

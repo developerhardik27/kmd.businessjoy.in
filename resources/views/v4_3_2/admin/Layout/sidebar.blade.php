@@ -599,7 +599,7 @@
                                 </ul>
                             </li>
 
-                            <li
+                            {{-- <li
                                 class="{{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'active' : '' }}">
 
                                 <a href="#brokerbillinfo" class="iq-waves-effect collapsed" data-toggle="collapse"
@@ -614,7 +614,6 @@
                                     class="iq-submenu collapse {{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'show' : '' }}"
                                     data-parent="#iq-sidebar-toggle">
 
-                                    {{-- Broker Bill --}}
                                     @if (session('user_permissions.teamodule.brokeragebill.show') == '1')
                                         <li class="{{ request()->routeIs('admin.brokeragebill') ? 'active' : '' }}">
                                             <a href="{{ route('admin.brokeragebill') }}">
@@ -624,7 +623,6 @@
                                         </li>
                                     @endif
 
-                                    {{-- Broker Bill Pdf List --}}
                                     @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
                                         <li
                                             class="{{ request()->routeIs('admin.brokeragebillpdflist') ? 'active' : '' }}">
@@ -636,7 +634,15 @@
                                     @endif
 
                                 </ul>
-                            </li>
+                            </li> --}}
+                            @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                <li class="{{ request()->routeIs('admin.brokeragebillpdflist') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.brokeragebillpdflist') }}">
+                                        <i class="ri-file-text-line"></i>
+                                        <span>Commission Bill Invoice List</span>
+                                    </a>
+                                </li>
+                            @endif
                         @elseif (Session::has('menu') && Session::get('menu') == 'Customer support')
                             @if (session('user_permissions.customersupportmodule.customersupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.customersupport') ? 'active' : '' }}">

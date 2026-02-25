@@ -256,7 +256,16 @@ class invoiceController extends commonController
                 'recordsFiltered' => 0
             ]);
         }
-
+        $check_data = $this->invoiceModel::where('is_deleted',0)->get();
+          if ($check_data->isEmpty()) {
+            return DataTables::of($check_data)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    
+                ])
+                ->make(true);
+        }
         $invoiceres = $this->invoiceModel::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
             ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
             ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', $this->masterdbname . '.state.id')
