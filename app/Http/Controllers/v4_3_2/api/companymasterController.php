@@ -409,7 +409,7 @@ class companymasterController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         }
-        $exists = $this->gardenModel::where('garden_name', $request->garden_name)->exists();
+        $exists = $this->gardenModel::where('garden_name', $request->garden_name)->where('is_deleted', 0)->exists();
         if ($exists) {
             return $this->errorresponse(422, ['garden_name' => ['This garden name has already been taken.']]);
         }
@@ -489,7 +489,10 @@ class companymasterController extends commonController
         if ($validator->fails()) {
             return $this->errorresponse(422, $validator->messages());
         }
-        $exists = $this->gardenModel::where('garden_name', $request->garden_name)->exists();
+        $exists = $this->gardenModel::where('garden_name', $request->garden_name)
+            ->where('id', '!=', $id) 
+            ->where('is_deleted',0)
+            ->exists();
         if ($exists) {
             return $this->errorresponse(422, ['garden_name' => ['This garden name has already been taken.']]);
         }
