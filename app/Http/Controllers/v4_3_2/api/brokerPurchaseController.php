@@ -296,7 +296,7 @@ class brokerPurchaseController extends commonController
             })
             ->join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-            ->join('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
             ->where('broker_purchases.source', 'purchase')
             ->where('broker_purchases.is_deleted', 0);
 
