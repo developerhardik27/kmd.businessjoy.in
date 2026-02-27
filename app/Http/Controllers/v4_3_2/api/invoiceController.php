@@ -256,54 +256,88 @@ class invoiceController extends commonController
                 'recordsFiltered' => 0
             ]);
         }
-        $check_data = $this->invoiceModel::where('is_deleted',0)->get();
-          if ($check_data->isEmpty()) {
+        $check_data = $this->invoiceModel::where('is_deleted', 0)->get();
+        if ($check_data->isEmpty()) {
             return DataTables::of($check_data)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
-                    
+
                 ])
                 ->make(true);
         }
+        // 1️⃣ Subquery for line totals
+        $lineTotalSub = DB::connection('dynamic_connection')->table('mng_col')
+            ->select(
+                'invoice_id',
+                DB::raw("SUM(amount) as line_total")
+            )
+            ->groupBy('invoice_id');
+
+        // -------------------
+        // 2️⃣ Subquery for garden IDs from broker_purchases
+        $gardenSub = DB::connection('dynamic_connection')->table('broker_purchases')
+            ->select(
+                'invoice_id',
+                DB::raw("GROUP_CONCAT(DISTINCT garden_id ORDER BY garden_id SEPARATOR ',') as garden_ids"),
+                DB::raw("GROUP_CONCAT(DISTINCT brokerbill_no ORDER BY id SEPARATOR ',') as brokerbill_no") // optional
+            )
+            ->groupBy('invoice_id');
+
+        // -------------------
+        // 3️⃣ Main Invoice Query
         $invoiceres = $this->invoiceModel::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
             ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
             ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', $this->masterdbname . '.state.id')
             ->leftJoin($this->masterdbname . '.city', 'partys.city_id', '=', $this->masterdbname . '.city.id')
-            ->leftjoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
-            ->leftJoin('broker_purchases', 'invoices.id', '=', 'broker_purchases.invoice_id')
+            ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+
+            // Latest payment_details
             ->leftJoin('payment_details', function ($join) {
                 $join->on('invoices.id', '=', 'payment_details.inv_id')
-                    ->whereRaw('payment_details.id = (SELECT id FROM payment_details WHERE inv_id = invoices.id and is_deleted = 0 ORDER BY id DESC LIMIT 1)');
+                    ->whereRaw('payment_details.id = (
+                SELECT id FROM payment_details 
+                WHERE inv_id = invoices.id 
+                AND is_deleted = 0 
+                ORDER BY id DESC 
+                LIMIT 1
+            )');
             })
-            ->leftJoin('mng_col as mc', function ($join) {
-                $join->on('mc.invoice_id', '=', 'invoices.id')
-                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+
+            // Join aggregated line totals
+            ->leftJoinSub($lineTotalSub, 'mc_totals', function ($join) {
+                $join->on('mc_totals.invoice_id', '=', 'invoices.id');
             })
+
+            // Join aggregated garden IDs
+            ->leftJoinSub($gardenSub, 'broker_totals', function ($join) {
+                $join->on('broker_totals.invoice_id', '=', 'invoices.id');
+            })
+
             ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id');
 
+        // -------------------
+        // 4️⃣ Filters
         $filters = [
-            'filter_company'      => 'invoices.company_details_id',
-            'filter_buyer'        => 'invoices.customer_id',
-            'filter_payment_status'       => 'invoices.status',
+            'filter_company'        => 'invoices.company_details_id',
+            'filter_buyer'          => 'invoices.customer_id',
+            'filter_payment_status' => 'invoices.status',
         ];
 
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey;
-
             if (isset($value)) {
-                if ($requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to') {
-                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
-                    $invoiceres->where($column, $operator, $value);
-                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
                     $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                     $invoiceres->whereDate($column, $operator, $value);
                 } else {
-
                     $invoiceres->where($column, $value);
                 }
             }
         }
+
+        // -------------------
+        // 5️⃣ Final Select
         $invoiceres = $invoiceres
             ->select(
                 'invoices.*',
@@ -312,7 +346,7 @@ class invoiceController extends commonController
                 'payment_details.part_payment',
                 'payment_details.pending_amount',
                 'partys.address',
-                DB::raw("CONCAT_WS(' ', partys.name)as customer"),
+                DB::raw("CONCAT_WS(' ', partys.name) as customer"),
                 'country.country_name',
                 'country_details.currency',
                 'country_details.currency_symbol',
@@ -320,19 +354,27 @@ class invoiceController extends commonController
                 'city.city_name',
                 'companymasters.company_name as garden_company_name',
                 'companymasters.brokerage as brokerage',
-                'broker_purchases.brokerbill_no',
-                'broker_purchases.garden_id',
-                'mc.amount as line_total',
+
+                // Aggregated fields
+                'mc_totals.line_total',
+                'broker_totals.garden_ids',
+                'broker_totals.brokerbill_no'
             )
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
 
+        // -------------------
+        // 6️⃣ User Restriction
         if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
             $invoiceres->where('invoices.created_by', $this->userId);
         }
 
-        $totalcount = $invoiceres->get()->count(); // count total record
+        // -------------------
+        // 7️⃣ Count
+        $totalcount = (clone $invoiceres)->count();
 
+        // -------------------
+        // 8️⃣ Get Final Data
         $invoice = $invoiceres->get();
         // dd($invoice);
         if ($invoice->isEmpty()) {
@@ -632,26 +674,26 @@ class invoiceController extends commonController
 
                     $invoice = $this->invoiceModel::insertGetId($invoicerec);
                     if (!empty($ids)) {
-                     
+
                         $ids = explode(',', $ids);
-                      
+
                         $brokerPurchases = $this->brokerpurchaseModel
                             ::whereIn('id', $ids)
                             ->get();
-                        
+
                         foreach ($brokerPurchases as $purchase) {
 
-                   
+
                             $company_id = $this->companygardenModel
                                 ::where('garden_id', $purchase->garden_id)
                                 ->value('company_id');
 
-                
+
                             $brokerage = $this->companymastersModel
                                 ::where('id', $company_id)
                                 ->value('brokerage');
 
-                           
+
                             $purchase->update([
                                 'invoice_id' => $invoice,
                                 'brokerage'  => $brokerage ?? 0,
@@ -697,7 +739,7 @@ class invoiceController extends commonController
                                     'invoice_grand_total' => $row['amount'],
                                     'brokerage' => $get_borkrage,
                                     'invoice_id'   => $invoice,
-                                    'created_by'   => $user_id,
+                                    'updated_by'   => $user_id,
                                 ]);
 
                                 $id[] = $existing->id;

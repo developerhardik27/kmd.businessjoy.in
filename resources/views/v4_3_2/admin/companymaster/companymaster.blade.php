@@ -52,6 +52,84 @@
     @endsection
 @endif
 @section('table-content')
+    <div class="modal fade" id="bankDetailModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-ls" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Bank Details</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="bankdetailform" name="bankdetailform">
+                        @csrf
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm-6 mb-2">
+                                    <input type="hidden" name="user_id" class="form-control"
+                                        value="{{ session('user_id') }}" placeholder="user_id" required />
+                                    <input type="hidden" name="token" class="form-control"
+                                        value="{{ session('api_token') }}" placeholder="token" required />
+                                    <input type="hidden" name="company_id" class="form-control"
+                                        value="{{ session('company_id') }}" placeholder="company_id" required />
+                                    <input type="hidden" name="bank_companymaster_id" id="bank_companymaster_id"
+                                        class="form-control" value="" placeholder="bank_companymaster_id" required />
+                                    <label for="name">Holder Name</label><span style="color:red;">*</span>
+                                    <input id="name" type="text" name="holder_name" class="form-control"
+                                        placeholder="Holder Name"  />
+                                    <span class="modal-error-msg" id="modal-error-holder_name" style="color: red"></span>
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="account_number">Account Number</label><span style="color:red;">*</span>
+                                    <input type="text" name="account_number" class="form-control" id="account_number"
+                                        value="" placeholder="Account Number"  />
+                                    <span class="modal-error-msg" id="modal-error-account_number"
+                                        style="color: red"></span>
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="swift_code">Swift Code</label>
+                                    <input type="text" name="swift_code" class="form-control" id="swift_code"
+                                        value="" placeholder="Swift Code" />
+                                    <span class="modal-error-msg" id="modal-error-swift_code" style="color: red"></span>
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="ifsc_code">IFSC Code</label><span style="color:red;">*</span>
+                                    <input type="text" id="ifsc_code" name="ifsc_code" class="form-control"
+                                        placeholder="IFSC Code"  />
+                                    <span class="modal-error-msg" id="modal-error-ifsc_code" style="color: red"></span>
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
+                                    <input type="text" id="bank_name" name="bank_name" class="form-control"
+                                        placeholder="Bank Name"  />
+                                    <span class="modal-error-msg" id="modal-error-bank_name" style="color: red"></span>
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="branch_name">Branch Name</label>
+                                    <input type="text" id="branch_name" name="branch_name" class="form-control"
+                                        placeholder="Branch Name" />
+                                    <span class="modal-error-msg" id="modal-error-branch_name"
+                                        style="color: red"></span>
+                                </div>
+                                <div class="col-sm-12">
+                                    <button type="button" data-toggle="tooltip" data-placement="bottom"
+                                        data-original-title="Cancel" id="modalcancelbtn"
+                                        class="btn btn-secondary float-right">Cancel</button>
+                                    <button type="reset" data-toggle="tooltip" data-placement="bottom"
+                                        data-original-title="Reset Details"
+                                        class="btn iq-bg-danger float-right mr-2">Reset</button>
+                                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
+                                        data-original-title="Save Details"
+                                        class="btn btn-primary float-right my-0">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
@@ -193,6 +271,17 @@
                                         </span>
                                     `;
                                 @endif
+                                actionBtns += `   
+                                    <span data-toggle="tooltip" data-placement="bottom" title="Add Bank">
+                                        <button type="button" 
+                                            class="btn btn-info btn-rounded btn-sm my-0 addBankBtn"
+                                            data-id="${data}"
+                                            data-toggle="modal"
+                                            data-target="#bankDetailModal">
+                                            Add Bank
+                                        </button>
+                                    </span>
+                                `;
                                 @if (session('user_permissions.teamodule.companymaster.edit') == '1')
                                     let editUrl =
                                         `{{ route('admin.companymasterupdateform', '__id__') }}`
@@ -273,6 +362,63 @@
                 });
 
             }
+            $(document).on('click', '.addBankBtn', function() {
+                let companyId = $(this).data('id');
+
+                $('#bankdetailform #bank_companymaster_id').val(companyId);
+
+                // Optional: Reset form
+                $('#bankdetailform')[0].reset();
+            });
+            $('#modalcancelbtn').on('click', function() {
+                $('#bankdetailform')[0].reset();
+                $('#bank_companymaster_id').val('');
+                $('#bankDetailModal').modal('hide');
+            });
+            $('#bankdetailform').submit(function(event) {
+                event.preventDefault();
+                loadershow();
+                $('.error-msg').text(''); // clear previous errors
+
+                const formdata = $(this).serialize();
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('bank_detail.store') }}",
+                    data: formdata,
+                    success: function(response) {
+
+                        if (response.status == 200) {
+
+                            // Reset form
+                            $('#bankdetailform')[0].reset();
+
+                            // Hide modal
+                            $('#bankDetailModal').modal('hide');
+
+                            table.draw();
+
+                            Toast.fire({
+                                icon: "success",
+                                title: response.message
+                            });
+
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                        }
+
+                        loaderhide();
+                    },
+
+                    error: function(xhr) {
+                        loaderhide();
+                        handleModalAjaxError(xhr);
+                    }
+                });
+            });
             $(document).on("click", ".view-btn", function() {
                 // Make modal extra large
                 $("#exampleModalScrollable .modal-dialog").addClass('modal-xl');

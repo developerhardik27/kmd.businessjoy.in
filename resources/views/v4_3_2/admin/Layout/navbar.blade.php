@@ -226,10 +226,10 @@
                                 @if (session('user_permissions.teamodule.brokeragebill.show') == '1')
                                     <li>
                                         {{-- {{ route('admin.brokeragebill') }} --}}
-                                        <a href="{{ route('admin.brokeragebill') }}"
+                                        <a href="{{ route('admin.brokeragebillpdflist') }}"
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-paper-line" data-toggle="tooltip"
-                                                data-placement="bottom" data-original-title="Commission Bill List"></i>
+                                                data-placement="bottom" data-original-title="Commission Bill Invoice List"></i>
                                         </a>
                                     </li>
                                 @endif

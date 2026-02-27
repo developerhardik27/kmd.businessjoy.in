@@ -162,7 +162,7 @@
                         </div>
 
                         <div class="col-sm-11 mb-3">
-                            <label for="invoice_no">invoice-no/lot</label><span style="color:red;">*</span>
+                            <label for="invoice_no">invoice/lot no</label><span style="color:red;">*</span>
                             <select class="form-control select2" id="invoice_no" name="invoice_no" multiple>
 
                             </select>
@@ -198,23 +198,25 @@
                             <input type="hidden" value="{{ session('company_id') }}" class="form-control"
                                 name="company_id">
                             <input type="hidden" name="garden_id" id="garden_id" class="form-control" value="">
-                            <input type="hidden" name="invoice_id" id="invoice_id" class="form-control" value="">
+                            <input type="hidden" name="invoice_id" id="invoice_id" class="form-control"
+                                value="">
                             {{-- <input type="hidden" name="line_total" id="line_total" class="form-control" value=""> --}}
                             <input type="hidden" name="company_details_id" id="company_details_id" class="form-control"
                                 value="">
                         </div>
-                          <div class="form-group">
+                        <div class="form-group">
                             <label>Invoice total</label>
-                            <input type="number" name="line_total" id="line_total" class="form-control" required>
+                            <input type="number" name="line_total" id="line_total" class="form-control" readonly>
                         </div>
                         <div class="form-group">
                             <label>Brokerage (%)</label>
-                            <input type="number" name="brokerage" id="brokerage" step="0.01" min="0" max="100" class="form-control" required>
+                            <input type="number" name="brokerage" id="brokerage" step="0.01" min="0"
+                                max="100" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label>brokrageAmount</label>
-                            <input type="number" name="brokrageAmount" step="0.01" min="0"  id="brokrageAmount" class="form-control"
-                                required>
+                            <input type="number" name="brokrageAmount" step="0.01" min="0"
+                                id="brokrageAmount" class="form-control" readonly>
                         </div>
                     </div>
 
@@ -229,6 +231,7 @@
     <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
+                <td>ID</td>
                 <th>Invoice ID</th>
                 <th>Invoice Date</th>
                 <th>Company Name</th>
@@ -522,7 +525,7 @@
                 }
             }
 
-            // initialize();
+            initialize();
             const API_TOKEN = "{{ session()->get('api_token') }}";
             const COMPANY_ID = "{{ session()->get('company_id') }}";
             const USER_ID = "{{ session()->get('user_id') }}";
@@ -537,6 +540,40 @@
             });
             $('#generateinvoiceForm').on('submit', function(e) {
                 e.preventDefault(); // prevent normal form submission
+                let selectedOptions = $('#invoice_no option:selected');
+
+                if (selectedOptions.length == 0) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Please select at least one Invoice'
+                    });
+                    loaderhide();
+                    return false;
+                }
+
+                // ✅ Get first transport id
+                let firstTransportId = $(selectedOptions[0]).data('tranport_id');
+                let sameTransport = true;
+
+                selectedOptions.each(function() {
+                    let currentTransportId = $(this).data('tranport_id');
+
+                    if (currentTransportId != firstTransportId) {
+                        sameTransport = false;
+                        return false; // break loop
+                    }
+                });
+
+                if (!sameTransport) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Selected invoices must have the same Transport'
+                    });
+                    loaderhide();
+                    return false;
+                }
+
+
                 loadershow();
                 var formData = {
                     company_ids: $('#companymaster_id').val(),
@@ -579,7 +616,7 @@
                                     "{{ route('admin.addinvoice') }}";
                             });
 
-                          
+
                         } else {
                             loaderhide();
                             Toast.fire({
@@ -674,9 +711,9 @@
                     if (response.status == 200 && response.data.length > 0) {
                         $.each(response.data, function(key, value) {
                             const invoiceDetails =
-                                `Invoice No: ${value.invoice_no} - Order No: ${value.order_id}`;
+                                `invoice/lot no: ${value.invoice_no} - Order No: ${value.order_id} - Transport ${value.tranport_name}`;
                             $('#invoice_no').append(`
-                    <option value='${value.invoice_no}' data-order-id='${value.order_id}'>
+                    <option value='${value.invoice_no}' data-order-id='${value.order_id}' data-tranport_id='${value.tranport_id}'>
                         ${invoiceDetails}
                     </option>
                 `);
@@ -709,7 +746,7 @@
                     $('#exampleModalScrollable').modal('show');
                     return;
                 }
-                
+
                 buyer_ids(companymaster_id);
             });
 
@@ -806,7 +843,13 @@
                         search: search
                     },
                     columns: [
-
+                          {
+                            data: 'id',
+                            name: 'id',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-'
+                        },
                         {
                             data: 'inv_no',
                             name: 'inv_no',
@@ -1038,7 +1081,7 @@
                                             .replace('__gardenId__', row.garden_id);
                                         actionBtns += `
                                         <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create Commission Bill PDF">
-                                            <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf" data-id ="${row.garden_id}" data-company_details_id ="${row.company_details_id}" data-line_total = '${row.line_total}' data-brokerage='${row.brokerage}' data-invoice_id ='${row.id}'>
+                                            <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf" data-id ="${row.garden_ids}" data-company_details_id ="${row.company_details_id}" data-line_total = '${row.line_total}' data-brokerage='${row.brokerage}' data-invoice_id ='${row.id}'>
                                                     <i class="ri-file-add-line"></i>
                                             </button>
                                         </span>
@@ -1116,7 +1159,7 @@
                 $('#brokerage').val(brokerage);
                 $('#invoice_id').val(invoice_id);
                 let brokrageAmount = line_total * brokerage / 100;
-               
+
                 $('#brokrageAmount').val(brokrageAmount);
                 $('#pdfDateModal').modal('show');
             });
@@ -1167,13 +1210,14 @@
 
             loaddata();
 
-           $('#brokerage').on('input', calculateBrokerage);
-           calculateBrokerage();
+            $('#brokerage').on('input', calculateBrokerage);
+            calculateBrokerage();
+
             function calculateBrokerage() {
                 let brokarge_per = $('#brokerage').val();
                 let line_total_amt = $('#line_total').val();
                 let borkragecal_amount = line_total_amt * brokarge_per / 100;
-               $('#brokrageAmount').val(borkragecal_amount.toFixed(2));
+                $('#brokrageAmount').val(borkragecal_amount.toFixed(2));
             }
             let params;
             $('#pdfBtn').on('click', function() {

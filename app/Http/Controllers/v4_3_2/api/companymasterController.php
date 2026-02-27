@@ -187,6 +187,13 @@ class companymasterController extends commonController
             'pan'                 => 'nullable|string|max:20',
             'garden_id'           => 'required|array|min:1',
             'garden_id.*'         => 'integer',
+            'holder_name'           => 'required|string|max:255',
+            'account_number'        => 'required|string|max:50',
+            'swift_code'            => 'nullable|string|max:20',
+            'ifsc_code'             => 'required|string|max:20',
+            'bank_name'             => 'required|string|max:255',
+            'branch_name'           => 'nullable|string|max:255',
+            'user_id'               => 'required|integer',
         ], [
             'company_name.required' => 'Company name is required.',
             'company_name.string'   => 'Company name must be a string.',
@@ -218,6 +225,25 @@ class companymasterController extends commonController
             'created_by' => $request->user_id,
 
         ]);
+
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+        // dd($request->all());
+        $insertData = [
+            'companymaster_id' => $create->id,
+            'holder_name'      => $request->holder_name,
+            'account_no'   => $request->account_number,
+            'swift_code'       => $request->swift_code ?? null,
+            'ifsc_code'        => $request->ifsc_code,
+            'bank_name'        => $request->bank_name ,
+            'branch_name'      => $request->branch_name ?? null,
+            'created_by'       => $request->user_id,
+        ];
+
+        // Insert and get ID
+        $insertId = $this->bank_detail_masterModel::insertGetId($insertData);
         if ($create  && $request->has('garden_id')) {
             $insertData = [];
             foreach ($request->garden_id as $gardenId) {
@@ -567,7 +593,6 @@ class companymasterController extends commonController
                 ])
                 ->make(true);
         }
-
         return DataTables::of($garden)
             ->with([
                 'status' => 200,
@@ -580,7 +605,7 @@ class companymasterController extends commonController
         if ($this->rp['teamodule']['garden']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
-        $garden = $this->gardenModel::leftJoin('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
+        $garden = $this->gardenModel::Join('company_garden', 'company_garden.garden_id', '=', 'gardens.id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->where('gardens.is_deleted', 0)
             ->select(
@@ -588,7 +613,6 @@ class companymasterController extends commonController
                 'companymasters.company_name'
             )
             ->get();
-
         if ($garden->isEmpty()) {
             return DataTables::of($garden)
                 ->with([

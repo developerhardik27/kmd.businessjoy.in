@@ -66,7 +66,7 @@
                       <span class="error-msg" id="error-companymaster_id" style="color: red"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
-                    <label for="transport_id">Transport</label><span style="color:red;">*</span>
+                    <label for="transport_id">Transport</label>
 
                     <select class="form-control select2" id="transport_id" name="transport_id" required>
                         <option selected="" disabled=""> Select Transport</option>
@@ -969,7 +969,12 @@
                         $('#Description').val(invdetails.Description);
                         customers(invdetails.customer_id);
                         companymaster(invdetails.company_details_id);
-                        transports(invdetails.transport_id);
+                       if (invdetails.transport_id) {
+                            transports(invdetails.transport_id);
+                        } else {
+                            $('#transport_id').html(`<option selected value=0 disabled>Transport not Selected In Order</option>`);
+                           $('#transport_id').prop('disabled', true);
+                        }
                         loadBankDetails(invdetails.account_id);
                         $('#payment').val(invdetails.payment_type);
                         $('#currency').val(invdetails.currency_id);

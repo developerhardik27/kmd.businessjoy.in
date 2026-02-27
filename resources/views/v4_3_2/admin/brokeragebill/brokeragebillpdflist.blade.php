@@ -54,7 +54,7 @@
     </div>
 @endsection
 @section('sidebar-filters')
-    <div class="col-12">
+    {{-- <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h6>Garden</h6>
@@ -64,6 +64,22 @@
                     <div class="col-12 mb-1">
                         <label for="filter_garden" class="form-label mt-1">Garden</label>
                         <select name="filter_garden" class="filter form-control w-100 select2" id="filter_garden" multiple>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6>Company</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_company" class="form-label mt-1">Company</label>
+                        <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
                         </select>
                     </div>
                 </div>
@@ -218,12 +234,38 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
             let getgardenname = [];
+            let getcompanyname  = [];
             var global_response = '';
             $('#filter_payment_status').select2({
                 placeholder: "Select Payment Status",
                 allowClear: true,
                 width: '100%' // ensures it uses full width
             });
+
+            function getCompanyData() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('companymaster.index') }}",
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            loaderhide();
+                            resolve(response);
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            handleAjaxError(xhr);
+                            reject(xhr);
+                        }
+                    });
+                });
+            }
 
             function getGardenData() {
                 return new Promise((resolve, reject) => {
@@ -261,7 +303,7 @@
                         });
 
                         // Trigger change event to ensure multiselect UI updates
-                        $(' #filter_garden')
+                        $('#filter_company, #filter_garden')
                             .trigger('change');
 
                         loaddata();
@@ -281,9 +323,10 @@
                 try {
                     // Perform AJAX calls concurrently
                     const [
-                        getGardenDataresponse
+                        getGardenDataresponse, getCompanyDataresponse
                     ] = await Promise.all([
                         getGardenData(),
+                        getCompanyData(),
                     ]);
                     // this getGardenData response
                     if (getGardenDataresponse.status == 200 && getGardenDataresponse.data != '') {
@@ -312,6 +355,36 @@
                         $('#filter_garden').select2({
                             search: true,
                             placeholder: 'No garden found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
+                    }
+                    // this getBuyerData response
+                    if (getCompanyDataresponse.status == 200 && getCompanyDataresponse.data != '') {
+                        // You can update your HTML with the data here if needed     
+                        $.each(getCompanyDataresponse.data, function(key, value) {
+                            var companyId = value.id;
+                            var optionValue = value.company_name;
+                            getcompanyname.push(optionValue);
+                            $('#filter_company').append(
+                                `<option value="${companyId}">${optionValue}</option>`
+                            );
+                        });
+                        $('#filter_company').val('');
+                        $('#filter_company').select2({
+                            search: true,
+                            placeholder: 'Select Company',
+                            allowClear: true
+                        });
+                    } else if (getCompanyDataresponse.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    } else {
+                        $('#filter_company').val('');
+                        $('#filter_company').select2({
+                            search: true,
+                            placeholder: 'No company found',
                             allowClear: true // Optional: adds "clear" (x) button
                         });
                     }
@@ -348,6 +421,7 @@
                             d.token = "{{ session()->get('api_token') }}";
                             d.filter_payment_status = $('#filter_payment_status').val();
                             d.filter_garden = $('#filter_garden').val();
+                            d.filter_company = $('#filter_company').val();
                         },
                         dataSrc: function(json) {
                             $("#pdfBtn").removeClass('d-none');
@@ -407,11 +481,11 @@
                             name: 'invoice_date'
                         },
                         {
-                            data: 'totalamount',
+                            data: 'grand_total',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            name: 'totalamount'
+                            name: 'grand_total'
                         },
                         // {
                         //     data: 'from_date',
@@ -1120,6 +1194,7 @@
             //remove filtres
             $('.removefilters').on('click', function() {
                 $('#filter_payment_status').val(null).trigger('change');
+                $('#filter_company').val(null).trigger('change');
                 $('#filter_garden').val(null).trigger('change');
                 table.draw();
                 hideOffCanvass(); // close OffCanvass

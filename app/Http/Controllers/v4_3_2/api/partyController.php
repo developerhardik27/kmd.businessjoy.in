@@ -428,25 +428,42 @@ class partyController extends commonController
     }
     public function invoice_no(Request $request)
     {
-        //dd($request->all());
+        // dd($request->all());
         $get_purchase = $this->order_detailModel
             ::leftJoin('broker_purchases', function ($join) {
-                $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+                $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no')
+                    ->where('broker_purchases.is_deleted', 0);
             })
+
+            ->where('order_details.is_deleted', 0)
+            ->leftJoin('orders', 'order_details.order_id', '=', 'orders.id')
+            ->leftJoin('partys', 'orders.transport', '=', 'partys.id')
             ->whereIn('order_details.order_id', function ($query) use ($request) {
                 $query->select('id')
                     ->from('orders')
                     ->where('buyer_party', $request->buyer_id);
             })
+
+            // ✅ Filter by company_ids using company_garden table
+            ->whereIn('order_details.garden_id', function ($query) use ($request) {
+                $query->select('garden_id')
+                    ->from('company_garden')
+                    ->where('company_id', $request->company_ids);
+            })
+
             // Only include if broker_purchase.invoice_id is null OR no broker_purchase exists
             ->where(function ($query) {
                 $query->whereNull('broker_purchases.invoice_id')
                     ->orWhereNull('broker_purchases.id');
             })
+
             ->select(
                 'order_details.*',
-                'broker_purchases.invoice_id as broker_invoice_id'
+                'broker_purchases.invoice_id as broker_invoice_id',
+                'partys.id as tranport_id',
+                'partys.name as tranport_name',
             )
+
             ->get();
         if ($get_purchase->isEmpty()) {
             return DataTables::of($get_purchase)

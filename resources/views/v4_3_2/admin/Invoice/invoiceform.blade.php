@@ -64,37 +64,37 @@
                                 <label for="name">Holder Name</label><span style="color:red;">*</span>
                                 <input id="name" type="text" name="holder_name" class="form-control" placeholder="Holder Name"
                                     required />
-                                <span class="modal-error-msg" id="#modal-error-holder_name" style="color: red"></span>
+                                <span class="modal-error-msg" id="modal-error-holder_name" style="color: red"></span>
                             </div>
                             <div class="col-sm-6 mb-2">
                                 <label for="account_number">Account Number</label><span style="color:red;">*</span>
                                 <input type="text" name="account_number" class="form-control" id="account_number" value=""
                                     placeholder="Account Number" required />
-                                <span class="modal-error-msg" id="#modal-error-account_number" style="color: red"></span>
+                                <span class="modal-error-msg" id="modal-error-account_number" style="color: red"></span>
                             </div>
                             <div class="col-sm-6 mb-2">
                                 <label for="swift_code">Swift Code</label>
                                 <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
                                     placeholder="Swift Code" />
-                                <span class="modal-error-msg" id="#modal-error-swift_code" style="color: red"></span>
+                                <span class="modal-error-msg" id="modal-error-swift_code" style="color: red"></span>
                             </div>
                             <div class="col-sm-6 mb-2">
                                 <label for="ifsc_code">IFSC Code</label><span style="color:red;">*</span>
                                 <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" placeholder="IFSC Code"
                                     required />
-                                <span class="modal-error-msg" id="#modal-error-ifsc_code" style="color: red"></span>
+                                <span class="modal-error-msg" id="modal-error-ifsc_code" style="color: red"></span>
                             </div>
                             <div class="col-sm-6 mb-2">
                                 <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
                                 <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
                                     required />
-                                <span class="modal-error-msg" id="#modal-error-bank_name" style="color: red"></span>
+                                <span class="modal-error-msg" id="modal-error-bank_name" style="color: red"></span>
                             </div>
                             <div class="col-sm-6 mb-2">
                                 <label for="branch_name">Branch Name</label>
                                 <input type="text" id="branch_name" name="branch_name" class="form-control"
                                     placeholder="Branch Name" />
-                                <span class="modal-error-msg" id="#modal-error-branch_name" style="color: red"></span>
+                                <span class="modal-error-msg" id="modal-error-branch_name" style="color: red"></span>
                             </div>
                             <div class="col-sm-12">
                                 <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
@@ -664,7 +664,7 @@
                 $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
                  $("#bank_companymaster_id").val(lot_no_invoice_data.maindata.companymaster_id);
                 companymaster_id = lot_no_invoice_data.maindata.companymaster_id; 
-                console.log("this transport no",lot_no_invoice_data.line_items[0].transport_id);
+               
                 await customers(lot_no_invoice_data.line_items[0].buyer_id);
                 await  transports(lot_no_invoice_data.line_items[0].transport_id);
                 await  companymaster(lot_no_invoice_data.maindata.companymaster_id);
@@ -1220,7 +1220,7 @@
             });
            $(document).on('change', '#acc_details', function () {
                 if ($(this).val() === 'add_new') {
-                    $('#bankDetailModal').modal('show');
+                    $('#c').modal('show');
 
                     // Reset dropdown back to default (optional)
                     $(this).val('');
@@ -2161,36 +2161,7 @@
 
                 error: function(xhr) {
                     loaderhide();
-
-                    if (xhr.status === 422) {
-
-                        var errors = xhr.responseJSON.errors;
-                        var errorcontainer;
-
-                        $.each(errors, function(key, value) {
-                            $('#error-' + key).text(value[0]);
-                            errorcontainer = '#error-' + key;
-                        });
-
-                        // Scroll to first error inside modal
-                        $('.modal-body').animate({
-                            scrollTop: $(errorcontainer).position().top
-                        }, 800);
-
-                    } else {
-
-                        var errorMessage = "An error occurred";
-
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || errorMessage;
-                        } catch (e) {}
-
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
-                    }
+                    handleModalAjaxError(xhr);
                 }
             });
         });

@@ -15,6 +15,14 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
+                <div class="card-header col-sm-12 mb-2" id="">
+                    <h5 class="mb-0">
+                        <button type="button" class="btn text-primary" data-toggle="collapse" data-target="#basicdetails"
+                            aria-expanded="true" aria-controls="basicdetails">
+                            Company Details
+                        </button>
+                    </h5>
+                </div>
                 <div class="col-sm-6 mb-2">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
@@ -113,6 +121,50 @@
                         placeholder="Brokerage Number">
                     <span class="error-msg" id="error-brokerage" style="color: red"></span>
                 </div>
+                <div class="card-header col-sm-12 mb-2" id="basicdetailsheading">
+                    <h5 class="mb-0">
+                        <button type="button" class="btn text-primary" data-toggle="collapse" data-target="#basicdetails"
+                            aria-expanded="true" aria-controls="basicdetails">
+                            Bank Details
+                        </button>
+                    </h5>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="name">Holder Name</label><span style="color:red;">*</span>
+                    <input id="name" type="text" name="holder_name" class="form-control"
+                        placeholder="Holder Name"  />
+                    <span class="error-msg" id="error-holder_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="account_number">Account Number</label><span style="color:red;">*</span>
+                    <input type="text" name="account_number" class="form-control" id="account_number" value=""
+                        placeholder="Account Number"  />
+                    <span class="error-msg" id="error-account_number" style="color: red"></span>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="swift_code">Swift Code</label>
+                    <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
+                        placeholder="Swift Code" />
+                    <span class="error-msg" id="error-swift_code" style="color: red"></span>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="ifsc_code">IFSC Code</label><span style="color:red;">*</span>
+                    <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" placeholder="IFSC Code"
+                         />
+                    <span class="error-msg" id="error-ifsc_code" style="color: red"></span>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
+                    <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
+                         />
+                    <span class="error-msg" id="error-bank_name" style="color: red"></span>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="branch_name">Branch Name</label>
+                    <input type="text" id="branch_name" name="branch_name" class="form-control"
+                        placeholder="Branch Name" />
+                    <span class="error-msg" id="error-branch_name" style="color: red"></span>
+                </div>
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -149,8 +201,7 @@
                                     <input type="hidden" value="{{ session('company_id') }}" class="form-control"
                                         name="company_id">
 
-                                    <label for="garden_name">garden name</label><span  
-                                        style="color:red;">*</span>
+                                    <label for="garden_name">garden name</label><span style="color:red;">*</span>
                                     <input type="text" id="garden_name" class="form-control withoutgstinput"
                                         name='garden_name' placeholder="garden  Name">
                                     <span class="modal-error-msg" id="modal-error-garden_name" style="color: red"></span>
@@ -262,7 +313,7 @@
             // response status == 422 that means api has not got valid or required data
 
             // companymaster form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
-           
+
             let country;
 
             function renderSelectBox(data, type, subtype = null) {

@@ -524,7 +524,7 @@
 
             async function fetchGardens() {
                 try {
-                    const response = await ajaxRequest("GET", "{{ route('garden.index') }}", {
+                    const response = await ajaxRequest("GET", "{{ route('garden.gardennotassign') }}", {
                         user_id: "{{ session()->get('user_id') }}",
                         company_id: "{{ session()->get('company_id') }}",
                         token: "{{ session()->get('api_token') }}"

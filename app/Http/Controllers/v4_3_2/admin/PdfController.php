@@ -24,7 +24,7 @@ use Dompdf\Options;
 
 class PdfController extends commonController
 {
-   public $version, $masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel;
+   public $version, $masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel, $companymasterModel;
    public function __construct()
    {
       if (session_status() !== PHP_SESSION_ACTIVE)
@@ -46,6 +46,8 @@ class PdfController extends commonController
       $this->orderModel = 'App\\Models\\' . $this->version . "\\order";
       $this->order_detailModel = 'App\\Models\\' . $this->version . "\\order_detail";
       $this->brokerbillinvoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
+      $this->companymasterModel = 'App\\Models\\' . $this->version . "\\companymaster";
+
       $this->masterdbname = DB::connection()->getDatabaseName();
    }
 
@@ -114,22 +116,13 @@ class PdfController extends commonController
       DB::reconnect('dynamic_connection');
       $invoice = $this->broker_bill_invoiceModel::findOrFail($id);
 
-      $gardenCompanyData = $this->brokerpurchaseModel
-         ::where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.garden_id', $invoice->garden_id)
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->leftJoin('broker_bill_invoice', function ($join) {
-            $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id')
-               ->where('broker_bill_invoice.is_deleted', 0);
-         })
+      $gardenCompanyData = $this->companymasterModel
+         ::where('companymasters.is_deleted', 0)->where('companymasters.id', $invoice->garden_company_id)
          ->leftjoin($this->masterdbname . '.country', 'companymasters.country_id', '=', $this->masterdbname . '.country.id')
          ->leftjoin($this->masterdbname . '.state', 'companymasters.state_id', '=', $this->masterdbname . '.state.id')
          ->leftjoin($this->masterdbname . '.city', 'companymasters.city_id', '=', $this->masterdbname . '.city.id')
          ->select(
-            'company_garden.company_id as garden_company_id',
             'companymasters.*',
-            'broker_bill_invoice.id as invoice_id',
             'country.country_name as country_name',
             'state.state_name as state_name',
             'city.city_name as city_name'
@@ -226,19 +219,16 @@ class PdfController extends commonController
       DB::purge('dynamic_connection');
       DB::reconnect('dynamic_connection');
       $invoice = $this->broker_bill_invoiceModel::findOrFail($id);
-      $gardenCompanyData = $this->brokerpurchaseModel
-         ::where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.garden_id', $invoice->garden_id)
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->leftJoin('broker_bill_invoice', function ($join) {
-            $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id');
-         })
+      $gardenCompanyData = $this->companymasterModel
+         ::where('companymasters.is_deleted', 0)->where('companymasters.id', $invoice->garden_company_id)
+         ->leftjoin($this->masterdbname . '.country', 'companymasters.country_id', '=', $this->masterdbname . '.country.id')
+         ->leftjoin($this->masterdbname . '.state', 'companymasters.state_id', '=', $this->masterdbname . '.state.id')
+         ->leftjoin($this->masterdbname . '.city', 'companymasters.city_id', '=', $this->masterdbname . '.city.id')
          ->select(
-            'company_garden.company_id as garden_company_id',
             'companymasters.*',
-            'broker_bill_invoice.invoice_no as  Bill_no',
-            'broker_bill_invoice.invoice_date as  Bill_date',
+            'country.country_name as country_name',
+            'state.state_name as state_name',
+            'city.city_name as city_name'
          )
          ->first();
       $bank_details  = $this->bank_detailsModel::first();
@@ -331,19 +321,16 @@ class PdfController extends commonController
 
       $invoice = $this->broker_bill_invoiceModel::findOrFail($paymentdetail->inv_id);
 
-      $gardenCompanyData = $this->brokerpurchaseModel
-         ::where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.garden_id', $invoice->garden_id)
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->leftJoin('broker_bill_invoice', function ($join) {
-            $join->on('broker_bill_invoice.garden_id', '=', 'broker_purchases.garden_id');
-         })
+      $gardenCompanyData = $this->companymasterModel
+         ::where('companymasters.is_deleted', 0)->where('companymasters.id', $invoice->garden_company_id)
+         ->leftjoin($this->masterdbname . '.country', 'companymasters.country_id', '=', $this->masterdbname . '.country.id')
+         ->leftjoin($this->masterdbname . '.state', 'companymasters.state_id', '=', $this->masterdbname . '.state.id')
+         ->leftjoin($this->masterdbname . '.city', 'companymasters.city_id', '=', $this->masterdbname . '.city.id')
          ->select(
-            'company_garden.company_id as garden_company_id',
             'companymasters.*',
-            'broker_bill_invoice.invoice_no as  Bill_no',
-            'broker_bill_invoice.invoice_date as  Bill_date',
+            'country.country_name as country_name',
+            'state.state_name as state_name',
+            'city.city_name as city_name'
          )
          ->first();
       $bank_details  = $this->bank_detailsModel::first();
@@ -1039,20 +1026,36 @@ class PdfController extends commonController
       $filters = [
          'filter_payment_status' => 'broker_bill_invoice.status',
          'filter_garden' => 'broker_bill_invoice.garden_id',
+         'filter_company' => 'broker_bill_invoice.garden_company_id',
       ];
+
       foreach ($filters as $requestKey => $column) {
+
          $value = $request->$requestKey;
 
-         if (isset($value)) {
-            if ($requestKey == 'filter_credit_days_from' || $requestKey == 'filter_credit_days_to' || $requestKey == 'filter_final_amount_from' || $requestKey == 'filter_final_amount_to') {
+         if (isset($value) && $value !== '') {
+
+            if (
+               $requestKey == 'filter_credit_days_from' ||
+               $requestKey == 'filter_credit_days_to' ||
+               $requestKey == 'filter_final_amount_from' ||
+               $requestKey == 'filter_final_amount_to'
+            ) {
+
                $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                $list->where($column, $operator, $value);
             } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+
                $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                $list->whereDate($column, $operator, $value);
             } else {
 
-               $list->whereIn($column, $value);
+               // ✅ FIX: handle single or array value
+               if (is_array($value)) {
+                  $list->whereIn($column, $value);
+               } else {
+                  $list->where($column, $value);
+               }
             }
          }
       }

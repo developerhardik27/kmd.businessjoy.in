@@ -44,6 +44,15 @@ class brokerPurchaseController extends commonController
         $gardens = $this->order_detailModel
             ::join('gardens', 'gardens.id', '=', 'order_details.garden_id')
             ->where('order_details.is_deleted', 0)
+
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('broker_purchases')
+                    ->whereColumn('broker_purchases.garden_id', 'order_details.garden_id')
+                    ->whereColumn('broker_purchases.invoice_no', 'order_details.invoice_no')
+                    ->where('broker_purchases.is_deleted', 0);
+            })
+
             ->select(
                 'gardens.id as garden_id',
                 'gardens.garden_name as garden_name'
@@ -51,7 +60,7 @@ class brokerPurchaseController extends commonController
             ->distinct()
             ->orderBy('gardens.garden_name', 'ASC')
             ->get();
-
+        // dd($gardens);
         return $this->successresponse(200, 'data', $gardens);
     }
     public function getupdateInvoices(Request $request)
@@ -196,30 +205,30 @@ class brokerPurchaseController extends commonController
     }
     public function lot_no_createInvoice(Request $request)
     {
-       
+
         if ($this->rp['teamodule']['brokerpurchase']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-      
+
         $buyerParties = $request->buyer_parties;
         $companyIds   = $request->company_ids;
         $invoice_no   = $request->invoice_no;
 
 
-       
+
         if (is_string($invoice_no)) {
             $invoice_no = explode(',', $invoice_no);
         }
         $invoice_no = (array) $invoice_no;
 
-     
+
         if (is_string($companyIds)) {
             $companyIds = explode(',', $companyIds);
         }
         $companyIds = (array) $companyIds;
 
-       
+
         if (is_string($buyerParties)) {
             $buyerParties = explode(',', $buyerParties);
         }

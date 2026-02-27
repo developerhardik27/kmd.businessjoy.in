@@ -167,6 +167,7 @@ class brokeragebillController extends commonController
         $filters = [
             'filter_payment_status' => 'broker_bill_invoice.status',
             'filter_garden' => 'broker_bill_invoice.garden_id',
+            'filter_company' => 'broker_bill_invoice.garden_company_id',
         ];
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey ?? null;
@@ -387,10 +388,11 @@ class brokeragebillController extends commonController
         // Establish connection to the dynamic database
         DB::purge('dynamic_connection');
         DB::reconnect('dynamic_connection');
-
+        $garden_id_array = explode(",",$request->garden_id);
+        // dd($garden_id_array[0]);
         $gardenCompanyData = $this->brokerpurchaseModel
             ::where('broker_purchases.is_deleted', 0)
-            ->where('broker_purchases.garden_id', $request->garden_id)
+            ->where('broker_purchases.garden_id', $garden_id_array[0])
             ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->select(
@@ -400,7 +402,7 @@ class brokeragebillController extends commonController
             ->first();
         $usedInvoices = $this->brokerpurchaseModel
             ::where('broker_purchases.is_deleted', 0)
-            ->where('broker_purchases.garden_id', $request->garden_id)
+            ->whereIn('broker_purchases.garden_id', [$request->garden_id])
             ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
             ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
             ->select(
@@ -422,14 +424,15 @@ class brokeragebillController extends commonController
 
         $totalAmount = 0;
         $linedata = $data['usedInvoices'];
-        foreach ($linedata as $invoice) {
-            $brokrage = $invoice['invoice_grand_total'] * $invoice['brokerage'] / 100;
-            $totalAmount += $brokrage;
-        }
+      
+       
+        $brokrage = $request->line_total * $request->brokerage / 100;
+        $totalAmount = $totalAmount + $brokrage;
+          
         $company_state_id = $data['mainCompanyData']['state_id'];
         $garden_company_state_id  = $data['gardenCompanyData']['state_id'];
         $igst = $cgst = $sgst = 0;
-
+        
         if ($company_state_id === $garden_company_state_id) {
             $cgst = $totalAmount * 9 / 100;
             $sgst = $totalAmount * 9 / 100;
@@ -439,8 +442,9 @@ class brokeragebillController extends commonController
             $cgst = 0;
             $sgst = 0;
         }
+       
         $grandTotal = round($totalAmount + $igst + $cgst + $sgst);
-        $garden_id = $data['usedInvoices'][0]['garden_id'];
+        // dd($grandTotal);
         $company_id = $data['mainCompanyData']['company_id'];
         $garden_company_id  = $data['gardenCompanyData']['id'];
         $pandding_Amt = 0;
@@ -456,9 +460,9 @@ class brokeragebillController extends commonController
         }
 
         $financialYear = $fyStart . '-' . $fyEnd;
-
+    
         $data = $this->brokerbillinvoiceModel::create([
-            'garden_id' => $garden_id,
+            'garden_id' => 0,
             'company_id' => $company_id,
             'garden_company_id' => $garden_company_id,
             'totalamount' => $totalAmount,
@@ -481,10 +485,10 @@ class brokeragebillController extends commonController
         $brokrage_per = $request->brokerage;
        
         foreach ($linedata as $invoice) {
-            $brokrage_invoice = $invoice->id;  // use ->id for model instance
+            $brokrage_invoice = $invoice->invoice_id;  // use ->id for model instance
             //  dd($brokrage_invoice);
             //  dd($brokrage_per);
-            $update =  $this->brokerpurchaseModel::where('id', $brokrage_invoice)->update([
+            $update =  $this->brokerpurchaseModel::where('invoice_id', $brokrage_invoice)->update([
                 'brokerbill_no' => $data->id,
                 'brokerage' => $brokrage_per,
                 'brokerage_date' => $today->format('Y-m-d'),
