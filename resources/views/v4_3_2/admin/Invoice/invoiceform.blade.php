@@ -1220,7 +1220,7 @@
             });
            $(document).on('change', '#acc_details', function () {
                 if ($(this).val() === 'add_new') {
-                    $('#c').modal('show');
+                    $('#bankDetailModal').modal('show');
 
                     // Reset dropdown back to default (optional)
                     $(this).val('');
