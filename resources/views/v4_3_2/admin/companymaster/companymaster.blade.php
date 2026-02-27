@@ -272,13 +272,13 @@
                                     `;
                                 @endif
                                 actionBtns += `   
-                                    <span data-toggle="tooltip" data-placement="bottom" title="Add Bank">
+                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Add Bank">
                                         <button type="button" 
                                             class="btn btn-info btn-rounded btn-sm my-0 addBankBtn"
                                             data-id="${data}"
                                             data-toggle="modal"
                                             data-target="#bankDetailModal">
-                                            Add Bank
+                                            <i class="ri-bank-line"></i>
                                         </button>
                                     </span>
                                 `;
