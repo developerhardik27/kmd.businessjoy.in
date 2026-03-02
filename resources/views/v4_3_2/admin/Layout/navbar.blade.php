@@ -5,10 +5,10 @@
                     <div class="top-logo">
                         <a href="" class="logo">
                             <div class="iq-light-logo">
-                                <img src="{{ asset('admin/images/KMD Logo1.png') }}" class="img-fluid" alt="">
+                                <img src="{{ asset('uploads/' . session('company_logo')) }}" class="img-fluid" alt="">
                             </div>
                             <div class="iq-dark-logo">
-                                <img src="{{ asset('admin/images/KMD Logo1.png') }}" class="img-fluid" alt="">
+                                <img src="{{ asset('uploads/' . session('company_logo')) }}" class="img-fluid" alt="">
                             </div>
                             {{-- <span>Business Joy</span> --}}
                         </a>

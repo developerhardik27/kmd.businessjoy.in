@@ -3,6 +3,7 @@
     <div id="loader-container" class="loader-container">
         <img id="loader" class="loader-img" src="{{ asset('admin/images/BusinessJoyLoader.gif') }}" alt="Loader">
     </div>
+    {{-- {{dd(session()->all())}} --}}
     <!-- loader END -->
     <!-- Wrapper Start -->
     <div class="wrapper blurred-content">
@@ -12,9 +13,8 @@
                 <a href="{{ route('admin.index') }}">
                     <div class="iq-light-logo">
                         <div class="iq-light-logo d-flex align-items-center">
-                            <img id="sidebar-logo-img" src="{{ asset('admin/images/KMD Logo1.png') }} "
-                                class="img-fluid" alt="">
-                            <img id="sidebar-logo-img2" src="{{ asset('admin/images/KMD Logo1.png') }} "
+                          <img id="sidebar-logo-img" src="{{ asset('uploads/' . session('company_logo')) }}" alt="Company Logo" class="img-fluid" alt="">
+                            <img id="sidebar-logo-img2" src="{{ asset('uploads/' . session('company_logo')) }}"
                                 class="img-fluid" alt="" style="width:70px; height: 70px;">
 
                         </div>
