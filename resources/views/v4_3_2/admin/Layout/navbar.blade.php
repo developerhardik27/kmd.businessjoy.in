@@ -4,13 +4,18 @@
                 <div class="iq-sidebar-logo">
                     <div class="top-logo">
                         <a href="" class="logo">
-                            <div class="iq-light-logo">
-                                <img src="{{ asset('uploads/' . session('company_logo')) }}" class="img-fluid" alt="">
-                            </div>
-                            <div class="iq-dark-logo">
-                                <img src="{{ asset('uploads/' . session('company_logo')) }}" class="img-fluid" alt="">
-                            </div>
-                            {{-- <span>Business Joy</span> --}}
+                            @if (session('company_logo') && file_exists(public_path('uploads/' . session('company_logo'))))
+                                <div class="iq-light-logo">
+                                    <img src="{{ asset('uploads/' . session('company_logo')) }}" class="img-fluid"
+                                        alt="">
+                                </div>
+                                <div class="iq-dark-logo">
+                                    <img src="{{ asset('uploads/' . session('company_logo')) }}" class="img-fluid"
+                                        alt="">
+                                </div>
+                            @else
+                                <span>{{ session('company_name') }}</span>
+                            @endif
                         </a>
                     </div>
                 </div>
@@ -200,7 +205,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                
+
                                 @if (session('user_permissions.teamodule.brokerpurchase.show') == '1')
                                     <li>
                                         {{-- {{ route('admin.brokerpurchase') }} --}}
@@ -212,7 +217,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                 @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                @if (session('user_permissions.invoicemodule.invoice.view') == '1')
                                     <li>
                                         {{-- {{ route('admin.invoice') }} --}}
                                         <a href="{{ route('admin.invoice') }}"
@@ -229,7 +234,8 @@
                                         <a href="{{ route('admin.brokeragebillpdflist') }}"
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-paper-line" data-toggle="tooltip"
-                                                data-placement="bottom" data-original-title="Commission Bill Invoice List"></i>
+                                                data-placement="bottom"
+                                                data-original-title="Commission Bill Invoice List"></i>
                                         </a>
                                     </li>
                                 @endif

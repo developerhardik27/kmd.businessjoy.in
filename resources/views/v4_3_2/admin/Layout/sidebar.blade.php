@@ -13,10 +13,15 @@
                 <a href="{{ route('admin.index') }}">
                     <div class="iq-light-logo">
                         <div class="iq-light-logo d-flex align-items-center">
-                          <img id="sidebar-logo-img" src="{{ asset('uploads/' . session('company_logo')) }}" alt="Company Logo" class="img-fluid" alt="">
-                            <img id="sidebar-logo-img2" src="{{ asset('uploads/' . session('company_logo')) }}"
-                                class="img-fluid" alt="" style="width:70px; height: 70px;">
-
+                            @if (session('company_logo') && file_exists(public_path('uploads/' . session('company_logo'))))
+                                <img id="sidebar-logo-img" src="{{ asset('uploads/' . session('company_logo')) }}"
+                                    alt="{{ session('company_name') }}" class="img-fluid">
+                                <img id="sidebar-logo-img2" src="{{ asset('uploads/' . session('company_logo')) }}"
+                                    alt="{{ session('company_name') }}" class="img-fluid"
+                                    style="width:70px; height:70px;">
+                            @else
+                                <span>{{ session('company_name') }}</span>
+                            @endif
                         </div>
                     </div>
                     {{-- <span>Business Joy</span> --}}

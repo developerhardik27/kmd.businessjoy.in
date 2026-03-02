@@ -151,6 +151,7 @@ class AdminLoginController extends Controller
             'company_city_id' => $companyDetails['city_id'],
             'company_gst_no' => $companyDetails['gst_no'],
             'company_logo' => $companyDetails['img'],
+            'company_name' => $companyDetails['company_name'],
             'name' => $user['name'],
             'loggedby' => $responseData['loggedby'],
             // other session data if needed
@@ -754,6 +755,7 @@ class AdminLoginController extends Controller
                     'state_id' => $company_details->state_id,
                     'city_id' => $company_details->city_id,
                     'img' => $company_details->img,
+                    'company_name'=> $company_details->name,
                 ],
                 'api_token' => $api_token,
                 'permissions' => $permissions,
