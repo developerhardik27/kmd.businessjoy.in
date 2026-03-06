@@ -131,7 +131,6 @@
                 });
             }
 
-            // show country data in dropdown and set defautl value according to logged in user
             $.ajax({
                 type: 'GET',
                 url: "{{ route('country.index') }}",
@@ -141,24 +140,28 @@
                 success: function(response) {
 
                     if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
+
                         $.each(response.country, function(key, value) {
-                            $('#country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
+
+                            // Only add India (ID = 101)
+                            if (value.id == 101) {
+                                $('#country').append(
+                                    `<option value='${value.id}' selected> ${value.country_name}</option>`
+                                );
+                            }
+
                         });
-                        // country_id = "{{ session('user')['country_id'] }}";
-                        // $('#country').val(country_id);
+
                         loadstate();
                     } else {
                         $('#country').append(`<option> No Data Found</option>`);
                     }
+
                     loaderhide();
                 },
-                error: function(xhr, status, error) { // if calling api request error 
+                error: function(xhr, status, error) {
                     loaderhide();
-                    console.log(xhr
-                        .responseText); // Log the full error response for debugging
+                    console.log(xhr.responseText);
                     handleAjaxError(xhr);
                 }
             });

@@ -103,12 +103,25 @@ class InvoiceController extends Controller
         $invoice_data = session::get('invoice_data');
         $lot_no_invoice_data = session::get('lot_no_invoice_data');
 
-        $company_id = Session::get('company_id');
-        // $bankdetailsController = "App\\Http\\Controllers\\" . $this->version . "\\api\\bankdetailsController";
-        // $jsonbankdetails = app($bankdetailsController)->bank_details($company_id);
-        // $bdetailscontent = $jsonbankdetails->getContent();
-        // $bdetails = json_decode($bdetailscontent);
+        $data = $invoice_data ?: $lot_no_invoice_data; 
+        $invoice_numbers = [];
 
+        if (!empty($data['line_items'])) {
+            foreach ($data['line_items'] as $item) {
+                if (isset($item['Invoice_no'])) {
+                    $invoice_numbers[] = $item['Invoice_no'];
+                }
+            }
+        }
+
+        
+       
+        $company_id = Session::get('company_id');
+        $invoiceController = "App\\Http\\Controllers\\" . $this->version . "\\api\\invoiceController";
+        $jsoncompanygardenassigndetails = app($invoiceController)->companygardenassig($invoice_numbers);
+        $companygardenassigncontent = $jsoncompanygardenassigndetails->getContent();
+        $companygardenassigndetails = json_decode($companygardenassigncontent);
+      
         $invoicecolumnController = "App\\Http\\Controllers\\" . $this->version . "\\api\\tblinvoicecolumnController";
         $jsoncolumndetails = app($invoicecolumnController)->column_details($company_id);
         $columncontent = $jsoncolumndetails->getContent();
@@ -122,9 +135,10 @@ class InvoiceController extends Controller
         if ($invoiceothersettingdetails->status != 200 || count($invoiceothersettingdetails->pattern) < 2) {
             return view($this->version . '.admin.Invoice.othersettings', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }
-        // if ($bdetails->status != 200) {
-        //     return view($this->version . '.admin.Bank.bankform', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
-        // }
+        if ($companygardenassigndetails->status != 200) {
+           return redirect()->route('admin.companymaster')
+                ->with("message", $companygardenassigndetails->message);
+        }
         if ($columndetails->status != 200) {
             return view($this->version . '.admin.Invoice.managecolumn', ['user_id' => Session::get('user_id'), 'company_id' => Session::get('company_id'), 'message' => 'yes']);
         }

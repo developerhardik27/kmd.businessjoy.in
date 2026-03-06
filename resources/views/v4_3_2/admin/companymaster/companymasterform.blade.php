@@ -123,8 +123,8 @@
                 </div>
                 <div class="card-header col-sm-12 mb-2" id="basicdetailsheading">
                     <h5 class="mb-0">
-                        <button type="button" class="btn text-primary" data-toggle="collapse" data-target="#basicdetails"
-                            aria-expanded="true" aria-controls="basicdetails">
+                        <button type="button" class="btn text-primary" data-toggle="collapse"
+                            data-target="#basicdetails" aria-expanded="true" aria-controls="basicdetails">
                             Bank Details
                         </button>
                     </h5>
@@ -132,13 +132,13 @@
                 <div class="col-sm-6 mb-2">
                     <label for="name">Holder Name</label><span style="color:red;">*</span>
                     <input id="name" type="text" name="holder_name" class="form-control"
-                        placeholder="Holder Name"  />
+                        placeholder="Holder Name" />
                     <span class="error-msg" id="error-holder_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
                     <label for="account_number">Account Number</label><span style="color:red;">*</span>
                     <input type="text" name="account_number" class="form-control" id="account_number" value=""
-                        placeholder="Account Number"  />
+                        placeholder="Account Number" />
                     <span class="error-msg" id="error-account_number" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
@@ -149,14 +149,14 @@
                 </div>
                 <div class="col-sm-6 mb-2">
                     <label for="ifsc_code">IFSC Code</label><span style="color:red;">*</span>
-                    <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" placeholder="IFSC Code"
-                         />
+                    <input type="text" id="ifsc_code" name="ifsc_code" class="form-control"
+                        placeholder="IFSC Code" />
                     <span class="error-msg" id="error-ifsc_code" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
                     <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
-                    <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
-                         />
+                    <input type="text" id="bank_name" name="bank_name" class="form-control"
+                        placeholder="Bank Name" />
                     <span class="error-msg" id="error-bank_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
@@ -341,12 +341,14 @@
                     success: function(response) {
                         if (response.status == 200 && response.country != '') {
                             country = response.country;
-                            // You can update your HTML with the data here if needed
+                            country = response.country.filter(item => item.id == 101);
                             renderSelectBox(country, 'country', type);
                             // country_id = "{{ session('user')['country_id'] }}";
 
-                            // $(`#${type|| 'country'}`).val(country_id);
-                            loadstate(0, type ? 'modal_state' : null);
+                             $(`#${type || 'country'}`).val(101);
+
+                            loadstate(101, type ? 'modal_state' : null);
+
                         } else {
                             $('#country').append(`<option> No Data Found</option>`);
                         }

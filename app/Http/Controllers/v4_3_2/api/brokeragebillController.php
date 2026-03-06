@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 class brokeragebillController extends commonController
 {
-    public $version, $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $brokerbillinvoiceModel;
+    public $version, $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $brokerbillinvoiceModel, $companymasterModel;
 
     public function __construct(Request $request)
     {
@@ -38,6 +38,7 @@ class brokeragebillController extends commonController
         $this->order_detailModel = $this->getmodel('order_detail');
         $this->gradenModel = $this->getmodel('graden');
         $this->brokerbillinvoiceModel = $this->getmodel('broker_bill_invoice');
+        $this->companymasterModel = $this->getmodel('companymaster');
     }
     public function getGardens()
     {
@@ -388,7 +389,7 @@ class brokeragebillController extends commonController
         // Establish connection to the dynamic database
         DB::purge('dynamic_connection');
         DB::reconnect('dynamic_connection');
-        $garden_id_array = explode(",",$request->garden_id);
+        $garden_id_array = explode(",", $request->garden_id);
         // dd($garden_id_array[0]);
         $gardenCompanyData = $this->brokerpurchaseModel
             ::where('broker_purchases.is_deleted', 0)
@@ -424,15 +425,15 @@ class brokeragebillController extends commonController
 
         $totalAmount = 0;
         $linedata = $data['usedInvoices'];
-      
-       
+
+
         $brokrage = $request->line_total * $request->brokerage / 100;
         $totalAmount = $totalAmount + $brokrage;
-          
+
         $company_state_id = $data['mainCompanyData']['state_id'];
         $garden_company_state_id  = $data['gardenCompanyData']['state_id'];
         $igst = $cgst = $sgst = 0;
-        
+
         if ($company_state_id === $garden_company_state_id) {
             $cgst = $totalAmount * 9 / 100;
             $sgst = $totalAmount * 9 / 100;
@@ -442,9 +443,9 @@ class brokeragebillController extends commonController
             $cgst = 0;
             $sgst = 0;
         }
-       
+
         $grandTotal = round($totalAmount + $igst + $cgst + $sgst);
-        // dd($grandTotal);
+
         $company_id = $data['mainCompanyData']['company_id'];
         $garden_company_id  = $data['gardenCompanyData']['id'];
         $pandding_Amt = 0;
@@ -460,7 +461,7 @@ class brokeragebillController extends commonController
         }
 
         $financialYear = $fyStart . '-' . $fyEnd;
-    
+
         $data = $this->brokerbillinvoiceModel::create([
             'garden_id' => 0,
             'company_id' => $company_id,
@@ -483,7 +484,7 @@ class brokeragebillController extends commonController
             ]);
 
         $brokrage_per = $request->brokerage;
-       
+
         foreach ($linedata as $invoice) {
             $brokrage_invoice = $invoice->invoice_id;  // use ->id for model instance
             //  dd($brokrage_invoice);
@@ -500,6 +501,36 @@ class brokeragebillController extends commonController
         } else {
             return $this->successresponse(500, 'message', 'Commission Bill Pdf not succesfully Created !');
         }
+    }
+    public function brokeragebillpdfdelete(Request $request, $id)
+    {
+        // Get broker bill invoice
+        $company_brokrage = $this->brokerbillinvoiceModel::find($id);
+       
+        // Get company details
+        $garden_company_details = $this->companymasterModel
+            ::where('id', $company_brokrage->garden_company_id)
+            ->first();
+       
+        if ($garden_company_details) {
+    
+            // Update broker purchase
+            $this->brokerpurchaseModel
+                ::where('brokerbill_no', $id)
+                ->update([
+                    "brokerbill_no" => null,
+                    "brokerage" => $garden_company_details->brokerage
+                ]);
+        }
+
+
+        $this->brokerbillinvoiceModel
+            ::where('id', $id)
+            ->update([
+                'is_deleted' => 1
+            ]);
+
+        return $this->successresponse(200, 'message', 'Commission Bill Invoice succesfully deleted');
     }
     public function getpanddingpayment($id)
     {

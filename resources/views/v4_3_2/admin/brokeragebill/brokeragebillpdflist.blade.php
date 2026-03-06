@@ -3,10 +3,10 @@
 @endphp
 @extends($folder . '.admin.Layout.mastertable')
 @section('page_title')
-    {{ config('app.name') }} - Commission Bill Invoice List
+    {{ config('app.name') }} - Commission Bill
 @endsection
 @section('table_title')
-    Commission Bill Invoice List
+    Commission Bill 
 @endsection
 
 @section('style')
@@ -126,6 +126,7 @@
                 <th>Created Date (To)</th> --}}
                 <th>Status</th>
                 <th>Invoice</th>
+                <th>Action</th>
                 <th>Payment</th>
             </tr>
         </thead>
@@ -234,7 +235,7 @@
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
             let getgardenname = [];
-            let getcompanyname  = [];
+            let getcompanyname = [];
             var global_response = '';
             $('#filter_payment_status').select2({
                 placeholder: "Select Payment Status",
@@ -566,6 +567,23 @@
                                     `;
                                 @endif
 
+                                return actionBtns;
+                            }
+                        },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = ''
+                                actionBtns += `
+                                         <span>
+                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Invoice" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                <i class="ri-delete-bin-fill"></i>
+                                            </button>
+                                        </span>
+                                    `;
                                 return actionBtns;
                             }
                         },
@@ -1136,7 +1154,7 @@
                         // Success callback
                         loadershow();
                         let brokerpurchaseDeleteUrl =
-                            "{{ route('brokerpurchase.delete', '__deleteId__') }}"
+                            "{{ route('brokeragebill.brokeragebillpdfdelete', '__deleteId__') }}"
                             .replace(
                                 '__deleteId__', deleteid);
                         $.ajax({

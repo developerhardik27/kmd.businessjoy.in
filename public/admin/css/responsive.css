@@ -23,124 +23,62 @@ NOTE: This file contains the styling for responsive Template.
 	.chat-sidebar-name span{font-size: 12px;}
 
 }
-@media(min-width:1300px) {
-	/* for on hover logo change */
-	#sidebar-logo-img2 { display: none; }
-	.iq-sidebar:hover  #sidebar-logo-img{display: none;}
-	.iq-sidebar:hover  #sidebar-logo-img2{display: block;}
+
+@media (min-width: 1300px) {
+
+    /* Always full width — remove 80px collapsed state */
+    body.sidebar-main-active .iq-sidebar,
+    body.sidebar-main-active .iq-sidebar:hover,
+    body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-logo {
+        width: 220px !important;
+    }
+
+    /* Always show menu title span, hide icon — no hover needed */
+    body.sidebar-main-active .iq-sidebar-menu .iq-menu .iq-menu-title span,
+    body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title span {
+        display: block !important;
+    }
+    body.sidebar-main-active .iq-sidebar-menu .iq-menu .iq-menu-title i,
+    body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title i {
+        display: none !important;
+    }
+
+    /* Always show span text in menu links */
+    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a span,
+    body.sidebar-main-active .iq-sidebar-logo a span,
+    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a .badge {
+        opacity: 1 !important;
+        display: inline-block !important;
+    }
+
+    /* Always show arrow icons */
+    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a .iq-arrow-right {
+        opacity: 1 !important;
+    }
+
+    /* Always show submenu link text at correct size */
+    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu li a {
+        font-size: 14px !important;
+        padding: 15px 20px !important;
+    }
+
+    /* Always correct submenu-data indent */
+    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu.iq-submenu-data li a {
+        padding-left: 50px !important;
+    }
+
+    /* Fix navbar and content margins for 260px sidebar */
+    body.sidebar-main-active.right-column-fixed .iq-top-navbar {
+        width: calc(100% - 280px) !important;
+    }
+    body.sidebar-main-active.right-column-fixed .content-page,
+    body.sidebar-main-active.right-column-fixed .iq-footer {
+        margin-left: 220px !important;
+    }
 	
-	body.icon-with-text .iq-sidebar-logo a{margin: 0 auto;}
-	.iq-sidebar-menu .iq-menu .iq-menu-title i { display: none; }
-	body.sidebar-main .iq-sidebar-menu .iq-menu .iq-menu-title i { font-size: 20px; display: block; }
-	body.sidebar-main .iq-sidebar-menu .iq-menu .iq-menu-title i { display: block; }
-	body.sidebar-main .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title i { display: none; transition: all 0.45s ease 0s; }
-	body.sidebar-main .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title span { display: block; transition: all 0.45s ease 0s; }
-	body.sidebar-main .iq-sidebar-menu .iq-menu .iq-menu-title span { display: none; }
-	.sidebar-main .iq-sidebar:hover  .iq-submenu { opacity: 1; height: auto; }
-	body.top-tab-horizontal .iq-menu-bt { display: none; }
-	.sidebar-main .iq-sidebar .iq-submenu li a { font-size: 0; }
-	.sidebar-main .iq-sidebar:hover  .iq-submenu li a { font-size: 14px; }
-	body.sidebar-main-active .iq-sidebar-menu .iq-menu .iq-menu-title i { font-size: 20px; display: block; }
-	body.sidebar-main-active .iq-sidebar-menu .iq-menu .iq-menu-title span { display: none; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title span{ display: block; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title i{display: none !important;}
-	body.sidebar-main-active .iq-sidebar .iq-menu-bt-sidebar{display: none;}
-	body.sidebar-main-active .iq-sidebar { width: 80px; }
-	body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a .iq-arrow-right { opacity: 0; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu li a .iq-arrow-right { opacity: 1; }
-	body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a span, body.sidebar-main-active .iq-sidebar-logo a span, body.sidebar-main-active .iq-sidebar-menu .iq-menu li a .badge { opacity: 0; display: none; }
-	body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu li a { font-size: 0; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu li ul.iq-submenu li a { font-size: 14px; padding: 15px 20px; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-menu li.menu-open > a { border-radius: 8px 8px 0 0; }
-	body.sidebar-main-active .iq-sidebar:hover, body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-logo { width: 260px; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu li a span, body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-logo a span, body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu li a .badge, body.sidebar-main-active .iq-sidebar:hover .iq-menu-bt { opacity: 1; display: inline-block; }
-	.iq-right-fixed { position: fixed; left: auto; right: 0; top: 0; width: 320px; background: var(--iq-card-bg); z-index: 99; height: 100%; }
-	body.sidebar-main-active.right-column-fixed .iq-top-navbar { width: calc(100% - 140px); }
-	body.sidebar-main-active.right-column-fixed .content-page, body.sidebar-main-active.right-column-fixed .iq-footer { margin-left: 80px;  }
-	body.sidebar-main-active.right-column-fixed .iq-top-navbar.fixed-header { width: calc(100% - 400px); }
-	body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu.iq-submenu-data li a { padding-left: 15px; }
-	body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu li ul.iq-submenu.iq-submenu-data li a { padding-left: 50px; }
+	 #sidebar-logo-img,.iq-menu-bt-sidebar{display: none;}
+	
 
-
-	/* Horizontal Menu Page */
-	body.iq-page-menu-horizontal .iq-top-navbar { width: auto; left: 30px; }
-	body.iq-page-menu-horizontal .iq-top-navbar.fixed-header { left: 0; }
-	body.iq-page-menu-horizontal .iq-sidebar-menu .iq-menu li a[aria-expanded="true"]{ color: var(--iq-primary); background: transparent;}
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li a { padding: 28px 30px 28px 0; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li:last-child a { padding-right: 0; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li { position: relative; }
-	.iq-page-menu-horizontal .content-page { margin-left: 0; }
-	.iq-page-menu-horizontal .iq-footer { margin-left: 0; }
-	.iq-page-menu-horizontal .iq-top-navbar .iq-sidebar-logo .top-logo { display: block; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li ul { display: block; position: absolute; top: 100%; padding: 0; min-width: 200px; background: var(--iq-white); z-index: 9; box-shadow: 0px 0px 12px 0px rgba(55, 73, 72, 0.06); transition: all 0.45s ease 0s; -webkit-transition: all 0.45s ease 0s; -moz-transition: all 0.45s ease 0s; -o-transition: all 0.45s ease 0s; transform: scale(1, 0); -webkit-transform: scale(1, 0); -moz-transform: scale(1, 0); -o-transform: scale(1, 0); -webkit-transform-origin: 0 0 0; -moz-transform-origin: 0 0 0; -o-transform-origin: 0 0 0; transform-origin: 0 0 0; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li ul #sidebar-scrollbar { height: 50vh; }
-	.iq-menu-horizontal .iq-sidebar-menu li.active > a, .iq-menu-horizontal .iq-sidebar-menu li:hover >a { color: var(--iq-primary); background: transparent; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li.active .iq-submenu li.active>a { background-color: transparent; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li.active { margin: 0; }
-	.iq-menu-horizontal .iq-sidebar-menu li:hover > .iq-submenu { display: block; transition: all 0.45s ease 0s; -webkit-transition: all 0.45s ease 0s; -moz-transition: all 0.45s ease 0s; -o-transition: all 0.45s ease 0s; transform: scale(1, 1); -webkit-transform: scale(1, 1); -moz-transform: scale(1, 1); -o-transform: scale(1, 1); }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li.menu-open .iq-arrow-right, .iq-menu-horizontal .iq-sidebar-menu .iq-menu li:hover .iq-arrow-right { transform: rotate(90deg); }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li li .iq-arrow-right, .iq-menu-horizontal .iq-sidebar-menu .iq-menu li:hover li .iq-arrow-right { transform: rotate(0deg); }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li li a .iq-arrow-right { transform: rotate(0); }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li ul li a { padding: 12px 15px; }
-	.iq-menu-horizontal .iq-sidebar-menu li > .iq-submenu.iq-submenu-data { opacity: 0; visibility: hidden; left: 100%; top: 0; transition: transform 0.2s; transform: translateX(-50px); }
-	.iq-menu-horizontal .iq-sidebar-menu li:hover > .iq-submenu.iq-submenu-data { opacity: 1; visibility: visible; transition: all 0.45s ease 0s; transform: translateX(0); }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li a:hover, .iq-menu-horizontal .iq-sidebar-menu .iq-menu li.active>a, .iq-menu-horizontal .iq-sidebar-menu .iq-menu li.menu-open>a { background: transparent !important; }
-	.iq-menu-horizontal .iq-sidebar-menu .iq-menu li>a::before { display: none; }
-
-	/* top-tab-horizontal */
-	.top-tab-horizontal .iq-top-navbar .iq-sidebar-logo .top-logo { display: block; }
-	.top-tab-horizontal .iq-sidebar-logo { padding: 0; display: block; }
-	.top-tab-horizontal .content-page { padding: 90px 15px 0; width: 100%; margin-left: 0; }
-	.top-tab-horizontal .iq-footer { margin-left: 0; }
-	.tab-menu-horizontal { background: var(--iq-primary) !important;  margin-top: 75px; transition: all 0.45s ease 0s; position: fixed; top: 0; left: 0; right: 0; z-index: 9; }
-	body.top-tab-horizontal .tab-menu-horizontal.menu-down { top: -60px; transition: all 0.45s ease 0s; opacity: 0; }
-	body.top-tab-horizontal .tab-menu-horizontal.menu-up { top: 0; opacity: 1; transition: all 0.45s ease 0s; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li > ul.iq-submenu { display: block; position: absolute; top: 150%; background: var(--iq-white); min-width: 260px; z-index: 9; padding: 0; opacity: 0; visibility: hidden; box-shadow: 0px 0px 12px 0px rgba(55, 73, 72, 0.06); transition: all 0.45s ease 0s; border-radius: 0 0 8px 8px; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu > li:hover > ul.iq-submenu { opacity: 1; visibility: visible; top: 100%; transition: all 0.45s ease 0s; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li > ul.iq-submenu#ui-elements { height: 350px; overflow-y: scroll; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li > ul.iq-submenu ul.iq-submenu-data { left: 130%; top: 0; padding: 0; opacity: 0; visibility: hidden; display: block; transition: all 0.45s ease 0s; border-radius: 0 8px 8px 8px; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li > ul.iq-submenu li:hover ul.iq-submenu-data { left: 100%; opacity: 1; visibility: visible; transition: all 0.45s ease 0s; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu > li { padding: 10px 0; margin: 0; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li.active { margin: 0; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li.active .iq-submenu li.active>a { background-color: transparent; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu > li > a {background: transparent; border-radius: 8px; padding: 10px 20px; color: var(--iq-white); transition: all 0.5s ease-out 0s; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu li a[aria-expanded="true"] { background: transparent; }
-	.iq-menu-horizontal-tab .iq-sidebar-menu .iq-menu > li:hover > a { color: var(--iq-primary); background: var(--iq-light-primary); transition: all 0.5s ease-out 0s; }
-	body.top-tab-horizontal .iq-top-navbar .top-menu { border-radius: 0; margin-bottom: 0; padding: 0; min-height: 73px; position: fixed; top: 0; left: 0; width: 100%; display: inline-block; z-index: 99; background: var(--iq-white); -webkit-box-shadow: 0px 0px 25px 0px rgba(45, 69, 95, 0.1); -moz-box-shadow: 0px 0px 25px 0px rgba(45, 69, 95, 0.1); box-shadow: 0px 0px 25px 0px rgba(45, 69, 95, 0.1); }
-	body.top-tab-horizontal .iq-top-navbar { position: static; box-shadow: none; }
-
-	/* two sidebar */
-	body.two-sidebar .iq-top-navbar { width: calc(100% - 375px); }
-	body.two-sidebar .iq-top-navbar.fixed-header { width: calc(100% - 320px); }
-	body.two-sidebar.sidebar-main .iq-top-navbar { width: calc(100% - 115px); }
-	body.two-sidebar.sidebar-main .iq-top-navbar.fixed-header { width: calc(100% - 60px); }
-
-	/* sidebar icon with text  */
-	body.icon-with-text .iq-sidebar { width: 150px; overflow: unset; }
-	body.icon-with-text .iq-sidebar #sidebar-scrollbar { overflow: unset !important; }
-	body.icon-with-text .content-page { margin-left: 150px; }
-	body.icon-with-text.sidebar-main .iq-sidebar { width: 80px; }
-	body.icon-with-text.sidebar-main .iq-sidebar:hover, body.icon-with-text.sidebar-main .iq-sidebar:hover .iq-sidebar-logo { width: 180px; }
-	body.icon-with-text.sidebar-main .iq-sidebar-logo { width: 80px; }
-	body.icon-with-text.sidebar-main .content-page, body.icon-with-text.sidebar-main .iq-footer { margin-left: 80px; }
-	body.icon-with-text .iq-sidebar-logo { width: 150px; position: relative; overflow: hidden; height: 74px; z-index: 9; flex-direction: column; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu > li > a { display: flex; flex-direction: column; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li > a > i { margin: 0 0 10px }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li li > a > i { margin: 0 10px 0 0; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li ul { background: var(--iq-blue-light); position: absolute; display: block; top: 0; left: 100%; padding: 0; min-width: 200px; opacity: 0; visibility: hidden; transition: transform 0.2s; transform: translateX(50px); }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li:hover > ul { opacity: 1; visibility: visible; transition: all 0.45s ease 0s; transform: translateX(0); }
-	body.icon-with-text .iq-sidebar.sidebar-dark .iq-sidebar-menu .iq-menu li ul li a { padding-left: 15px; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li a { padding: 15px; }
-	body.icon-with-text .iq-footer { margin-left: 150px; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li a .iq-arrow-right { position: absolute; left: auto; right: 0; top: 27px; font-size: 12px; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu .iq-submenu li a .iq-arrow-right { top: 15px; }
-	body.icon-with-text .iq-sidebar-menu .iq-menu li a[aria-expanded="true"] .iq-arrow-right, body.icon-with-text .iq-sidebar-menu .iq-menu li.menu-open .iq-arrow-right, body.icon-with-text .iq-sidebar-menu .iq-menu li.active .iq-arrow-right { transform: rotate(0deg); }
-	body.icon-with-text .iq-top-navbar { width: calc(100% - 210px); }
-	body.icon-with-text .iq-top-navbar.fixed-header { width: calc(100% - 150px); }
-
-	.navbar-left{
-		margin: 0px;
-	}
 }
 @media(max-width:1399px) {
 	.animation-card .an-img .bodymovin { margin-bottom: -28px; }

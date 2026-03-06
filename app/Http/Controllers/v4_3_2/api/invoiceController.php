@@ -53,7 +53,41 @@ class invoiceController extends commonController
         $this->companygardenModel = $this->getmodel('company_garden');
     }
 
+    public function companygardenassig(array $ids)
+    {
 
+        $get_garden_ids = $this->order_detailModel::whereIn('invoice_no', $ids)
+            ->pluck('garden_id');
+
+        // $get_garden_ids = [0 => '54', 1 => '45', 2 => '99'];
+        $company_garden_map = $this->companygardenModel::whereIn('garden_id', $get_garden_ids)
+            ->pluck('company_id', 'garden_id'); // key = garden_id, value = company_id
+
+
+        $result = [];
+        $unassigned_gardens = [];
+
+        foreach ($get_garden_ids as $garden_id) {
+            if (isset($company_garden_map[$garden_id])) {
+                $result[$garden_id] = $company_garden_map[$garden_id];
+            } else {
+                $unassigned_gardens[] = $garden_id; // track unassigned gardens
+            }
+        }
+        // If any garden is not assigned, return an error
+        if (!empty($unassigned_gardens)) {
+            
+            $get_garden_names = $this->gardenModel::whereIn('id', $unassigned_gardens)
+                ->pluck('garden_name'); 
+            $unassigned_gardens_str = implode(', ', $get_garden_names->toArray());
+            $message = 'Some gardens are not assigned to any company. Unassigned gardens: '
+                . $unassigned_gardens_str;
+            return $this->successresponse(200, 'message', $message);
+        }
+
+      
+        return $this->successresponse(200, 'result', $result);
+    }
     public function totalInvoice()
     {
 
@@ -267,10 +301,11 @@ class invoiceController extends commonController
                 ->make(true);
         }
         // 1️⃣ Subquery for line totals
-        $lineTotalSub = DB::connection('dynamic_connection')->table('mng_col')
+        $lineTotalSub = DB::connection('dynamic_connection')
+            ->table('mng_col')
             ->select(
                 'invoice_id',
-                DB::raw("SUM(amount) as line_total")
+                DB::raw("ROUND(SUM(amount)) as line_total")
             )
             ->groupBy('invoice_id');
 
@@ -449,8 +484,8 @@ class invoiceController extends commonController
                 "sample_ids" => 'nullable',
                 'inv_number' => 'required',
                 'invoice_date' => 'required',
-                'consignment_date' => 'required',
-                'consignment_number' => 'required',
+                'consignment_date' => 'nullable',
+                'consignment_number' => 'nullable',
                 'HSN' => 'nullable',
                 'Description' => 'nullable',
                 "total_amount" => 'required|numeric',
@@ -928,8 +963,8 @@ class invoiceController extends commonController
                 'transport_id' => 'required',
                 'inv_number' => 'required',
                 'invoice_date' => 'required',
-                'consignment_date' => 'required',
-                'consignment_number' => 'required',
+                'consignment_date' => 'nullable',
+                'consignment_number' => 'nullable',
                 'HSN' => 'nullable',
                 'Description' => 'nullable',
                 "total_amount" => 'required|numeric',

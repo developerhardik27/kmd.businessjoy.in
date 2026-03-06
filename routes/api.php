@@ -579,6 +579,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/brokeragebill/delete/{id}', 'destroy')->name('brokeragebill.delete');
         Route::post('/brokeragebillpdf/insert', 'brokeragebillpdf')->name('brokeragebill.brokeragebillpdf');
         Route::get('/brokeragebill/getpanddingpayment/{id}', 'getpanddingpayment')->name('brokeragebill.getpanddingpayment');
+        Route::put('/brokeragebillpdf/delete/{id}', 'brokeragebillpdfdelete')->name('brokeragebill.brokeragebillpdfdelete');
     });
     $orderController = getversion('orderController');
     Route::controller($orderController)->group(function () {

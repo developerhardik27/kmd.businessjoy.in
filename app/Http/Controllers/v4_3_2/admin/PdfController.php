@@ -24,7 +24,7 @@ use Dompdf\Options;
 
 class PdfController extends commonController
 {
-   public $version, $masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel, $companymasterModel;
+   public $version, $masterdbname, $invoiceModel, $paymentdetailsModel, $quotationModel, $consignor_copyModel, $brokerpurchaseModel, $bank_detailsModel, $broker_bill_invoiceModel, $broker_payment_detailsModel, $company_gardenModel, $orderModel, $order_detailModel, $brokerbillinvoiceModel, $companymasterModel, $partyModel;
    public function __construct()
    {
       if (session_status() !== PHP_SESSION_ACTIVE)
@@ -47,6 +47,7 @@ class PdfController extends commonController
       $this->order_detailModel = 'App\\Models\\' . $this->version . "\\order_detail";
       $this->brokerbillinvoiceModel = 'App\\Models\\' . $this->version . "\\broker_bill_invoice";
       $this->companymasterModel = 'App\\Models\\' . $this->version . "\\companymaster";
+      $this->partyModel = 'App\\Models\\' . $this->version . "\\party";
 
       $this->masterdbname = DB::connection()->getDatabaseName();
    }
@@ -164,6 +165,7 @@ class PdfController extends commonController
             'invoices.sample_ids',
             'invoices.consignment_number',
             'invoices.consignment_date',
+            'companymasters.company_name',
          )
          ->where('broker_purchases.is_deleted', 0)
          ->where('broker_purchases.brokerbill_no', $invoice->id)
@@ -193,7 +195,7 @@ class PdfController extends commonController
          $companyname = $data['mainCompanyData']['name'];
       }
       $gardencompanyname = $data['gardenCompanyData']['company_name'];
-      // return view($this->version . '.admin.PDF.invoicetemplate', $data);
+      // return view($this->version . '.admin.PDF.brokragebilltemplate', $data);
       $pdfname = $gardencompanyname . ' ' . $companyname . ' ' . date('d-M-y') . '.pdf';
 
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.brokragebilltemplate', ["data" => $data])->setPaper('a4', 'portrait');
@@ -914,84 +916,117 @@ class PdfController extends commonController
 
 
       $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
-         ->join('partys as transport', 'transport.id', 'orders.transport')
+         ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
          ->join('order_details', 'order_details.order_id', 'orders.id')
          ->join('gardens', 'gardens.id', 'order_details.garden_id')
          ->join('grades', 'grades.id', 'order_details.grade')
-         ->where("orders.is_deleted", 0);
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->where('orders.is_deleted', 0);
+
       $filters = [
-         'filter_transport'      => 'orders.transport',
-         'filter_buyer'        => 'orders.buyer_party',
-         'filter_garden'       => 'order_details.garden_id',
-         'filter_grade'        => 'order_details.grade',
+         'filter_transport'         => 'orders.transport',
+         'filter_buyer'             => 'orders.buyer_party',
+         'filter_garden'            => 'order_details.garden_id',
+         'filter_grade'             => 'order_details.grade',
          'filter_credit_days_from'  => 'orders.credit_days',
          'filter_credit_days_to'    => 'orders.credit_days',
-         'filter_final_amount_from'    => 'orders.finalAmount',
-         'filter_final_amount_to'      => 'orders.finalAmount',
+         'filter_final_amount_from' => 'orders.finalAmount',
+         'filter_final_amount_to'   => 'orders.finalAmount',
+         'filter_date_from'         => 'orders.created_at',
+         'filter_date_to'           => 'orders.created_at',
       ];
-      foreach ($filters as $requestKey => $column) {
-         $value = $request->$requestKey;
 
-         if (isset($value)) {
-            if ($requestKey == 'filter_credit_days_from' || $requestKey == 'filter_credit_days_to' || $requestKey == 'filter_final_amount_from' || $requestKey == 'filter_final_amount_to') {
-               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+      foreach ($filters as $requestKey => $column) {
+         $value = $request->$requestKey ?? null;
+
+         if ($value !== null) {
+
+            if ($requestKey === 'filter_company') {
+               $order->whereIn('company_garden.company_id', (array) $value);
+            } elseif (in_array($requestKey, [
+               'filter_credit_days_from',
+               'filter_credit_days_to',
+               'filter_final_amount_from',
+               'filter_final_amount_to',
+            ])) {
+               $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                $order->where($column, $operator, $value);
-            } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
-               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+            } elseif (in_array($requestKey, [
+               'filter_date_from',
+               'filter_date_to',
+            ])) {
+               $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                $order->whereDate($column, $operator, $value);
             } else {
-
-               $order->whereIn($column, $value);
+               $order->whereIn($column, (array) $value);
             }
          }
       }
 
-
       $order = $order
          ->select(
             'orders.id as order_id',
-            'orders.created_at as order_date',
             'buyer.name as buyer_name',
             'transport.name as transport_name',
             'orders.*',
+            DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
             'order_details.*',
             'gardens.garden_name as garden_name',
-            'grades.grade as grade_name'
+            'grades.grade as grade_name',
+            'companymasters.id as company_id',
+            'companymasters.company_name as company_name'
          )
          ->get()
          ->groupBy('order_id')
          ->map(function ($details, $orderId) {
-
             $first = $details->first();
-
             return [
-               'id' => $orderId,
-               'buyer_name' => $first->buyer_name,
+               'id'             => $orderId,
+               'buyer_name'     => $first->buyer_name,
                'transport_name' => $first->transport_name,
-               'discount' => $first->discount,
-               'order_date' => $first->order_date,
-               'totalNetKg' => $first->totalNetKg,
-               'credit_days' => $first->credit_days,
-               'final_amount' => $first->finalAmount,
+               'discount'       => $first->discount,
+               'totalNetKg'     => $first->totalNetKg,
+               'credit_days'    => $first->credit_days,
+               'final_amount'   => $first->finalAmount,
+               'order_date'     => $first->order_date,
 
-               'details' => $details->map(function ($item) use ($first) {
+               'company_names'  => $details
+                  ->filter(fn($item) => !empty($item->company_name))
+                  ->pluck('company_name', 'company_id')
+                  ->values()
+                  ->implode(', '),
+
+               'garden_names'   => $details
+                  ->filter(fn($item) => !empty($item->garden_name))
+                  ->pluck('garden_name', 'garden_id')
+                  ->values()
+                  ->implode(', '),
+
+               'invoice_nos'    => $details
+                  ->filter(fn($item) => !empty($item->invoice_no))
+                  ->pluck('invoice_no')
+                  ->unique()
+                  ->values()
+                  ->implode(', '),
+
+               'details' => $details->map(function ($item) use ($first) { // ← fix: use ($first)
                   return [
-                     'garden_name' => $item->garden_name,
-                     'grade_name' => $item->grade_name,
-                     'invoice_no' => $item->invoice_no,
-                     'bags' => $item->bags,
-                     'order_discount' => $first->discount,
-                     'kg' => $item->kg,
-                     'net_kg' => $item->net_kg,
-                     'rate' => $item->rate,
-                     'amount' => $item->amount,
+                     'garden_name'    => $item->garden_name,
+                     'grade_name'     => $item->grade_name,
+                     'invoice_no'     => $item->invoice_no,
+                     'order_discount' => $first->discount,  // ← now accessible
+                     'bags'           => $item->bags,
+                     'kg'             => $item->kg,
+                     'net_kg'         => $item->net_kg,
+                     'rate'           => $item->rate,
+                     'amount'         => $item->amount,
+                     'company_name'   => $item->company_name ?? null,
                   ];
                })->toArray()
             ];
          })
-
          ->values();
-      // dd($order);
       if ($order->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }
@@ -1020,7 +1055,8 @@ class PdfController extends commonController
             $join->on('broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
                ->where('broker_bill_payment_details.is_deleted', 0);
          })
-         ->join('gardens', 'gardens.id', '=', 'broker_bill_invoice.garden_id')
+         ->leftJoin('company_garden', 'company_garden.company_id', '=', 'broker_bill_invoice.garden_company_id')
+         ->leftJoin('gardens', 'gardens.id', '=', 'company_garden.garden_id')
          ->leftJoin('companymasters', 'companymasters.id', '=', 'broker_bill_invoice.garden_company_id')
          ->where('broker_bill_invoice.is_deleted', 0);
       $filters = [
@@ -1114,7 +1150,7 @@ class PdfController extends commonController
             ];
          })
          ->values();
-
+      // dd($list);
       if ($list->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }
@@ -1227,5 +1263,67 @@ class PdfController extends commonController
       // return view($this->version . '.admin.PDF.ledger', ["ledger" => $grouped]);
       // return $pdf->download('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
+   }
+
+   public function orderpdf($id)
+   {
+      $order = $this->orderModel::find($id);
+      $order_details = $this->order_detailModel::where('order_details.order_id', $id)
+         ->leftJoin('gardens', 'gardens.id', '=', 'order_details.garden_id')
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->leftJoin('grades', 'grades.id', '=', 'order_details.grade')
+         ->select(
+            'order_details.*',
+            'gardens.garden_name',
+            'grades.grade as grade_name',
+            'companymasters.id as company_id',
+            'companymasters.company_name'
+         )
+         ->orderBy('order_details.id', 'desc')
+         ->get();
+      $buyer_details = $this->partyModel::where('partys.id', $order->buyer_party)
+         ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
+         ->leftJoin($this->masterdbname . '.state',   'partys.state_id',   '=', $this->masterdbname . '.state.id')
+         ->leftJoin($this->masterdbname . '.city',    'partys.city_id',    '=', $this->masterdbname . '.city.id')
+         ->select(
+            'partys.*',
+            $this->masterdbname . '.country.country_name as country_name',
+            $this->masterdbname . '.state.state_name as state_name',
+            $this->masterdbname . '.city.city_name as city_name'
+         )
+         ->first();
+
+      if ($order->transport) {
+         $transport_details = $this->partyModel::where('partys.id', $order->transport)
+            ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftJoin($this->masterdbname . '.state',   'partys.state_id',   '=', $this->masterdbname . '.state.id')
+            ->leftJoin($this->masterdbname . '.city',    'partys.city_id',    '=', $this->masterdbname . '.city.id')
+            ->select(
+               'partys.*',
+               $this->masterdbname . '.country.country_name as country_name',
+               $this->masterdbname . '.state.state_name as state_name',
+               $this->masterdbname . '.city.city_name as city_name'
+            )
+            ->first();
+      } else {
+         $transport_details = null;
+      }
+      $order = [
+         'order' => $order,
+         'order_details' => $order_details,
+         'buyer_details' => $buyer_details,
+         'transport_details' => $transport_details
+      ];
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderpdf', ["order" => $order])->setPaper('a4', 'portrait');
+      //return view($this->version . '.admin.PDF.orderpdf', ["order" => $order]);
+      // return $pdf->download('orderpdf - '.$id. date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('orderpdf - ' . $id . date('Y-m-d_H-i-s') . '.pdf');
    }
 }

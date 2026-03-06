@@ -440,6 +440,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/orderreport', 'orderreport')->name('brokragbill.orderreport')->middleware('checkPermission:teamodule,teadashboard,show');
                 Route::get('/outstanding', 'outstanding')->name('brokragbill.outstanding')->middleware('checkPermission:teamodule,teadashboard,show');
                 Route::get('/ledger', 'leger')->name('invoice.leger')->middleware('checkPermission:teamodule,teadashboard,show');
+                Route::get('/orderpdf/{id}', 'orderpdf')->name('admin.orderpdf')->middleware('checkPermission:teamodule,teadashboard,show');
             });
 
             Route::controller(AmazonController::class)->group(function () {

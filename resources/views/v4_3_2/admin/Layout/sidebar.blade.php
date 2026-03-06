@@ -565,7 +565,7 @@
                                 </li>
                             @endif
 
-                            <li
+                            {{-- <li
                                 class="{{ request()->routeIs('admin.brokerpurchase', 'admin.invoice') ? 'active' : '' }}">
 
                                 <a href="#samplepurchaseinfo" class="iq-waves-effect collapsed"
@@ -581,7 +581,6 @@
                                     class="iq-submenu collapse {{ request()->routeIs('admin.brokerpurchase', 'admin.invoice') ? 'show' : '' }}"
                                     data-parent="#iq-sidebar-toggle">
 
-                                    {{-- Sample Purchase --}}
                                     @if (session('user_permissions.teamodule.brokerpurchase.show') == '1')
                                         <li class="{{ request()->routeIs('admin.brokerpurchase') ? 'active' : '' }}">
                                             <a href="{{ route('admin.brokerpurchase') }}">
@@ -591,7 +590,7 @@
                                         </li>
                                     @endif
 
-                                    {{-- Invoice List --}}
+                                   
                                     @if (session('user_permissions.invoicemodule.invoice.view') == '1')
                                         <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
                                             <a href="{{ route('admin.invoice') }}">
@@ -602,7 +601,23 @@
                                     @endif
 
                                 </ul>
-                            </li>
+                            </li> --}}
+                            @if (session('user_permissions.teamodule.brokerpurchase.show') == '1')
+                                <li class="{{ request()->routeIs('admin.brokerpurchase') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.brokerpurchase') }}" class="iq-waves-effect">
+                                        <i class="ri-file-list-line"></i>
+                                        <span>Sample Purchase</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                <li class="{{ request()->routeIs('admin.invoice') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.invoice') }}" class="iq-waves-effect">
+                                        <i class="ri-file-text-line"></i>
+                                        <span>Invoice</span>
+                                    </a>
+                                </li>
+                            @endif
 
                             {{-- <li
                                 class="{{ request()->routeIs('admin.brokeragebill', 'admin.brokeragebillpdflist') ? 'active' : '' }}">
@@ -642,9 +657,9 @@
                             </li> --}}
                             @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
                                 <li class="{{ request()->routeIs('admin.brokeragebillpdflist') ? 'active' : '' }}">
-                                    <a href="{{ route('admin.brokeragebillpdflist') }}">
-                                        <i class="ri-file-text-line"></i>
-                                        <span>Commission Bill Invoice List</span>
+                                    <a href="{{ route('admin.brokeragebillpdflist') }}" class="iq-waves-effect">
+                                        <i class="ri-file-paper-line"></i>
+                                        <span>Commission Bill </span>
                                     </a>
                                 </li>
                             @endif

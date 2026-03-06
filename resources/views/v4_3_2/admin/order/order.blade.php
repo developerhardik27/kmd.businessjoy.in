@@ -63,6 +63,42 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
+                <h6>Order Date</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 mb-1">
+                        <label for="filter_date_from">From</label>
+                        <input type="date" class="form-control filter" name="filter_date_from" id="filter_date_from"
+                            placeholder="From Date">
+                    </div>
+                    <div class="col-6 mb-1">
+                        <label for="filter_date_to">To</label>
+                        <input type="date" class="form-control filter" name="filter_date_to" id="filter_date_to"
+                            placeholder="To Date">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Company</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-1">
+                            <label for="filter_company" class="form-label mt-1">Company</label>
+                            <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> --}}
+
+        <div class="card">
+            <div class="card-header">
                 <h6>Final Amount</h6>
             </div>
             <div class="card-body">
@@ -161,8 +197,8 @@
     </div>
 @endsection
 @section('table-content')
-    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report" class="btn btn-sm btn-primary"
-        id="pdfBtn">
+    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report"
+        class="btn btn-sm btn-primary" id="pdfBtn">
         <span id="pdf-data">Generate Report</span>
     </button>
     <table id="data" class="table display table-bordered table-striped w-100">
@@ -170,10 +206,15 @@
             <tr>
                 <th>Id</th>
                 <th>Order Date</th>
+                <th>Company Name</th>
+                <th>Gardens</th>
                 <th>Buyer</th>
-                <th>finalAmount</th>
+                <th>Invoice No</th>
                 <th>totalNetKg</th>
+                <th>Order Pdf</th>
+                <th>finalAmount</th>
                 <th>credit days</th>
+
                 <th>Action</th>
             </tr>
         </thead>
@@ -195,6 +236,7 @@
             let getgardenname = [];
             let getbuyername = [];
             let getgradename = [];
+            let getcompanyname = [];
             var global_response = '';
 
             function getBuyerData() {
@@ -297,6 +339,32 @@
                 });
             }
 
+            function getCompanyData() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('companymaster.index') }}",
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            loaderhide();
+                            resolve(response);
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            handleAjaxError(xhr);
+                            reject(xhr);
+                        }
+                    });
+                });
+            }
+
+
             function loadFilters() {
                 return new Promise((resolve, reject) => {
                     var filterData = JSON.parse(sessionStorage.getItem('filterData'));
@@ -308,7 +376,7 @@
                         });
 
                         // Trigger change event to ensure multiselect UI updates
-                        $('#filter_transport, #filter_buyer, #filter_garden, #filter_grade')
+                        $('#filter_company,#filter_transport, #filter_buyer, #filter_garden, #filter_grade')
                             .trigger('change');
 
                         loaddata();
@@ -327,14 +395,47 @@
             async function initialize() {
                 try {
                     // Perform AJAX calls concurrently
-                    const [gettransportDataresponse, getBuyerDataresponse, getGardenDataresponse,
+                    const [getCompanyDataresponse, gettransportDataresponse, getBuyerDataresponse,
+                        getGardenDataresponse,
                         getGradeDataresponse
                     ] = await Promise.all([
+                        getCompanyData(),
                         gettransportData(),
                         getBuyerData(),
                         getGardenData(),
                         getGradeData()
                     ]);
+                    // this getBuyerData response
+                    if (getCompanyDataresponse.status == 200 && getCompanyDataresponse.data != '') {
+                        // You can update your HTML with the data here if needed     
+                        $.each(getCompanyDataresponse.data, function(key, value) {
+                            var companyId = value.id;
+                            var optionValue = value.company_name;
+                            getcompanyname.push(optionValue);
+                            $('#filter_company').append(
+                                `<option value="${companyId}">${optionValue}</option>`
+                            );
+                        });
+                        $('#filter_company').val('');
+                        $('#filter_company').select2({
+                            search: true,
+                            placeholder: 'Select Company',
+                            allowClear: true
+                        });
+                    } else if (getCompanyDataresponse.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    } else {
+                        $('#filter_company').val('');
+                        $('#filter_company').select2({
+                            search: true,
+                            placeholder: 'No company found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
+                    }
+
                     // this getCompanyData response 
                     if (gettransportDataresponse.status == 200 && gettransportDataresponse.data != '') {
                         // You can update your HTML with the data here if needed     
@@ -493,10 +594,13 @@
                             d.filter_credit_days_to = $('#filter_credit_days_to').val();
                             d.filter_final_amount_from = $('#filter_final_amount_from').val();
                             d.filter_final_amount_to = $('#filter_final_amount_to').val();
+                            d.filter_date_from = $('#filter_date_from').val();
+                            d.filter_date_to = $('#filter_date_to').val();
                             d.filter_transport = $('#filter_transport').val();
                             d.filter_buyer = $('#filter_buyer').val();
                             d.filter_garden = $('#filter_garden').val();
                             d.filter_grade = $('#filter_grade').val();
+                            d.filter_company = $('#filter_company').val();
                         },
                         dataSrc: function(json) {
                             $("#pdfBtn").removeClass('d-none');
@@ -542,11 +646,32 @@
                             name: 'order_date'
                         },
                         {
+                            data: 'company_names',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'company_names'
+                        },
+                        {
+                            data: 'garden_names',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'garden_names'
+                        },
+                        {
                             data: 'buyer_name',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
                             name: 'buyer_name'
+                        },
+                        {
+                            data: 'invoice_nos',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'invoice_nos'
                         },
                         {
                             data: 'totalNetKg',
@@ -555,6 +680,30 @@
                             defaultContent: '-',
                             name: 'totalNetKg'
                         },
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                let actionBtns = '';
+                                @if (session('user_permissions.teamodule.teadashboard.view') == '1')
+                                    let generatePdfUrl =
+                                        `{{ route('admin.orderpdf', '__id__') }}`
+                                        .replace(
+                                            '__id__', data);
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Pdf">
+                                            <a href=${generatePdfUrl} target='_blank' id='pdf'>
+                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
+                                            </a>
+                                        </span>
+                                    `;
+                                @endif
+                                return actionBtns;
+                            }
+                        },
+
                         {
                             data: 'final_amount',
                             orderable: true,
@@ -672,11 +821,14 @@
                 params.filter_buyer = $('#filter_buyer').val();
                 params.filter_transport = $('#filter_transport').val();
                 params.filter_garden = $('#filter_garden').val();
+                params.filter_company = $('#filter_company').val();
                 params.filter_grade = $('#filter_grade').val();
                 params.filter_credit_days_from = $('#filter_credit_days_from').val();
                 params.filter_credit_days_to = $('#filter_credit_days_to').val();
                 params.filter_final_amount_from = $('#filter_final_amount_from').val();
                 params.filter_final_amount_to = $('#filter_final_amount_to').val();
+                params.filter_date_from = $('#filter_date_from').val();
+                params.filter_date_to = $('#filter_date_to').val();
                 let queryString = $.param(params);
 
 
@@ -848,6 +1000,7 @@
             //remove filtres
             $('.removefilters').on('click', function() {
                 $('#filter_transport').val(null).trigger('change');
+                $('#filter_company').val(null).trigger('change');
                 $('#filter_buyer').val(null).trigger('change');
                 $('#filter_garden').val(null).trigger('change');
                 $('#filter_grade').val(null).trigger('change');
@@ -855,6 +1008,8 @@
                 $('#filter_credit_days_to').val('');
                 $('#filter_final_amount_from').val('');
                 $('#filter_final_amount_to').val('');
+                $('#filter_date_to').val('');
+                $('#filter_date_from').val('');
                 table.draw();
                 hideOffCanvass(); // close OffCanvass
             });

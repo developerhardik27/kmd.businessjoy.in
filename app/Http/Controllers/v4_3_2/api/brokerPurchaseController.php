@@ -295,20 +295,19 @@ class brokerPurchaseController extends commonController
         //     return $this->successresponse(404, 'message', 'No Data Found');
         // }
         $brokerpurchase = $this->brokerpurchaseModel
-            ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
-            ->join('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
-            ->join('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-            ->join('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-            ->join('order_details', function ($join) {
+            ::leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+            ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->leftJoin('order_details', function ($join) {
                 $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
                     ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
             })
-            ->join('orders', 'orders.id', '=', 'order_details.order_id')
-            ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-            ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
+            ->leftJoin('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+            ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
             ->where('broker_purchases.source', 'purchase')
             ->where('broker_purchases.is_deleted', 0);
-
         $filters = [
             'filter_company'      => 'companymasters.id',
             'filter_buyer'        => 'orders.buyer_party',

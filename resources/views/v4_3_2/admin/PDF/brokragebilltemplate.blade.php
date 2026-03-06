@@ -258,6 +258,11 @@
         .vertical-align-custom {
             vertical-align: start !important;
         }
+
+        .logo-center {
+            text-align: center;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -398,7 +403,10 @@
 
                                 </table>
                             </td>
-                            <td style="width: 10%;"></td>
+                            <td style="width:10%; text-align:center; vertical-align:top; padding-top:0px;">
+                                <img src="{{ public_path('admin/images/maa.png') }}" width="60" height="60"
+                                    alt="Logo">
+                            </td>
                             <td style="width: 40%;padding:0;text-align: center;vertical-align:top"
                                 @class(['vertical-align-custom' => $isVerticalAlign])>
                                 {{-- <table width="100%">
@@ -471,7 +479,8 @@
                                     </tr>
                                     <tr>
                                         <td>Bill Date</td>
-                                        <td>{{ $data['invoice']['invoice_date'] ? \Carbon\Carbon::parse($data['invoice']['invoice_date'])->format('d-m-Y') : '-'}}</td>
+                                        <td>{{ $data['invoice']['invoice_date'] ? \Carbon\Carbon::parse($data['invoice']['invoice_date'])->format('d-m-Y') : '-' }}
+                                        </td>
                                     </tr>
 
                                 </table>
@@ -500,14 +509,15 @@
                     width="100%">
                     <thead>
                         <tr class="bgblue">
-                            <th style="width:3%;text-align:center;">ID</th>
+                            <th style="width:4%;text-align:center;">ID</th>
+                            <th style="width:8%;text-align:center;">Garden</th>
                             <th style="width:14%;text-align:center;">Buyer</th>
                             <th style="width:10%;text-align:center;">Inv No</th>
-                            <th style="width:10%;text-align:center;">Inv Date</th>
-                            <th style="width:12%;text-align:center;">C/N NO.& Date</th>
+                            <th style="width:9%;text-align:center;">Inv Date</th>
+                            <th style="width:11%;text-align:center;">C/N NO.& Date</th>
                             <th style="width:6%;text-align:center;">Pkgs</th>
-                            <th style="width:10%;text-align:center;">Net Weight Kg</th>
-                            <th style="width:5%;text-align:center;">CD %</th>
+                            <th style="width:12%;text-align:center;">Net Weight Kg</th>
+                            <th style="width:6%;text-align:center;">CD %</th>
                             <th style="width:10%;text-align:center;">Amount</th>
                             <th style="width:10%;text-align:center;">Comm</th>
                         </tr>
@@ -529,11 +539,12 @@
                         $totalBags = 0;
                         $totalAmount = 0;
                         $totalCommission = 0;
+                        $totalnetkg = 0;
                         $rowCount = count($usedInvoices);
                         foreach ($usedInvoices as $row) {
                             $amount = $row->invoice_grand_total ?? 0;
                             $commission = ($amount * ($row->brokerage ?? 0)) / 100;
-
+                            $totalnetkg += $row->net_kg ?? 0;
                             $totalBags += $row->bags ?? 0;
                             $totalAmount += $amount;
                             $totalCommission += $commission;
@@ -560,6 +571,7 @@
                         @forelse ($usedInvoices as $key => $row)
                             <tr>
                                 <td style="text-align:center;">{{ $key + 1 }}</td>
+                                <td style="text-align:center;">{{ $row->garden_name ?? '-' }}</td>
                                 <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
                                 <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
                                 <td style="text-align:center;">
@@ -595,18 +607,22 @@
                                 <td style="text-align:center;"> </td>
                                 <td style="text-align:center;"> </td>
                                 <td style="text-align:center;"> </td>
+                                <td style="text-align:center;"> </td>
                             </tr>
                             }
                         @endfor
 
                         @if (!empty($usedInvoices) && count($usedInvoices) > 0)
                             <tr style="font-weight:bold; background:#f2f2f2;">
-                                <td colspan="5" style="text-align:right;">TOTAL</td>
+                                <td colspan="6" style="text-align:right;">TOTAL</td>
                                 <td style="text-align:center;">
                                     {{ $totalBags }}
                                 </td>
-                                <td colspan="2"></td>
+                                <td style="text-align:center;">
+                                    {{ number_format($totalnetkg, 2) }}
+                                </td>
 
+                                <td></td>
                                 <td style="text-align:center;">
                                     {{ number_format($totalAmount, 2) }}
                                 </td>
@@ -622,7 +638,7 @@
                     width="100%">
                     <tbody>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="12" class="text-right left removeborder">
+                            <td colspan="13" class="text-right left removeborder">
                                 Subtotal
                             </td>
                             <td style="width:15%;" class="right removeborder currencysymbol text-right"
@@ -631,7 +647,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="12" style="text-align: right" class="left removeborder ">
+                            <td colspan="13" style="text-align: right" class="left removeborder ">
                                 IGST({{ $igst_per }}%)
                             </td>
                             <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
@@ -639,7 +655,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="12" style="text-align: right" class="left removeborder ">
+                            <td colspan="13" style="text-align: right" class="left removeborder ">
                                 SGST({{ $sgst_per }}%)
                             </td>
                             <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
@@ -647,7 +663,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="12" style="text-align: right" class="left removeborder ">
+                            <td colspan="13" style="text-align: right" class="left removeborder ">
                                 CGST({{ $cgst_per }}%)
                             </td>
                             <td style="text-align: right;width: 20%;" class=" currencysymbol" id="cgst">
@@ -655,7 +671,7 @@
                             </td>
                         </tr>
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="12" class="text-right left removeborder">
+                            <td colspan="13" class="text-right left removeborder">
                                 Round of
                             </td>
                             <td style="width: 20%;" class="right currencysymbol text-right">
@@ -664,7 +680,7 @@
                         </tr>
 
                         <tr style="font-size:15px;text-align: right">
-                            <td colspan="12" class="text-right left removeborder">
+                            <td colspan="13" class="text-right left removeborder">
                                 <b>Total</b>
                             </td>
                             <td style="width: %;" class="right currencysymbol text-right">
@@ -672,7 +688,7 @@
                             </td>
                         </tr>
                         <tr class="removeborder">
-                            <td colspan="13" class="text-right"
+                            <td colspan="14" class="text-right"
                                 style="width: %;vertical-align: middle; text-align: right;font-style:italic;border-bottom:transparent;text-transform:uppercase;">
                                 <strong>{{ strtoupper(numberToWords($roundedTotal)) }} ONLY</strong>
                             </td>
@@ -682,13 +698,13 @@
 
                 <table class="horizontal-border border">
                     <tr>
-                        <td colspan="3" class="bgblue  bgspecial"
+                        <td colspan="4" class="bgblue  bgspecial"
                             style="vertical-align: middle; text-align: center;font-style:italic">
                             <strong>THANK YOU FOR YOUR BUSINESS!</strong>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="3" style="vertical-align: top;border-bottom:1px solid black;">
+                        <td colspan="4" style="vertical-align: top;border-bottom:1px solid black;">
                             @isset($invdata['notes'])
                                 <span style="margin-top: 0"><b>Notes :- </b></span><br>
                                 <div>{!! nl2br(e($invdata['notes'])) !!} </div>
@@ -700,33 +716,31 @@
                         </td>
                     </tr>
                 </table>
-                    <table width='100%' class="maintable" cellspacing=0 cellpadding=0>
-                <tr>
-                    <td colspan="2">
-                        <div style="display: inline-block;">
-                            For : {{ $data['mainCompanyData']['name'] }}
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div style="display: inline-block;">
-                            <img @if ($data['mainCompanyData']['pr_sign_img'] != '') src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}" @endif
-                                class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <div style="display: inline-block;">
-                            Signature
-                        </div>
-                    </td>
-                </tr>
-            </table>
+                <table width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td style="text-align:right;">
+
+                            <div style="display:inline-block; text-align:right;">
+
+                                <strong>For : {{ $data['mainCompanyData']['name'] }}</strong>
+                                <br><br>
+
+                                {{-- @if ($data['mainCompanyData']['pr_sign_img'] != '')
+                                    <img src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}"
+                                        style="max-width:150px; display:block; margin-left:auto;">
+                                @endif
+
+                                <br>
+                                <strong>Signature</strong> --}}
+
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
                 <div class="mt-1" style="font-size: 12px" id="footer">
                     <span class="float-left">
-                        <small>This is a computer-generated document. No signature is required.</small>
+                        <small>This is system generated invoice. Signature is not required.</small>
                     </span>
                     <span class="float-right">
                         <small>{{ date('d-M-Y, h:i A') }}</small>

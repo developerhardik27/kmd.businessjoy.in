@@ -224,7 +224,7 @@
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-text-line" data-toggle="tooltip"
                                                 data-placement="bottom"
-                                                data-original-title="Sample Purchase Invoice List"></i>
+                                                data-original-title=" Invoice List"></i>
                                         </a>
                                     </li>
                                 @endif
@@ -235,7 +235,7 @@
                                             class="nav-link router-link-exact-active router-link-active">
                                             <i class="ri-file-paper-line" data-toggle="tooltip"
                                                 data-placement="bottom"
-                                                data-original-title="Commission Bill Invoice List"></i>
+                                                data-original-title="Commission Bill List"></i>
                                         </a>
                                     </li>
                                 @endif

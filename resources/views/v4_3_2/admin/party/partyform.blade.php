@@ -21,9 +21,8 @@
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ session('company_id') }}" class="form-control" name="company_id">
 
-                    <label for="name">Name</label><span  style="color:red;">*</span>
-                    <input type="text" id="name" class="form-control" name='name'
-                        placeholder=" Name" >
+                    <label for="name">Name</label><span style="color:red;">*</span>
+                    <input type="text" id="name" class="form-control" name='name' placeholder=" Name">
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
@@ -102,7 +101,7 @@
                     <span class="error-msg" id="error-pan" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
-                    <label for="party_type">Select type</label><span  style="color:red;">*</span>
+                    <label for="party_type">Select type</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name='party_type' id="party_type">
                         <option selected="" disabled="">Select your party type</option>
                         <option value = "Transport">Transport</option>
@@ -150,9 +149,11 @@
                     if (response.status == 200 && response.country != '') {
                         // You can update your HTML with the data here if needed
                         $.each(response.country, function(key, value) {
-                            $('#country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
+                            if (value.id == 101) {
+                                $('#country').append(
+                                    `<option value='${value.id}' selected> ${value.country_name}</option>`
+                                );
+                            }
                         });
                         // country_id = "{{ session('user')['country_id'] }}";
                         // $('#country').val(country_id);

@@ -1208,7 +1208,7 @@
                 })
             });
 
-            loaddata();
+            // loaddata();
 
             $('#brokerage').on('input', calculateBrokerage);
             calculateBrokerage();

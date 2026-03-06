@@ -38,12 +38,15 @@ class orderController extends commonController
         if ($this->rp['teamodule']['order']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
         $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
-            ->leftjoin('partys as transport', 'transport.id', 'orders.transport')
+            ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
             ->join('grades', 'grades.id', 'order_details.grade')
-            ->where("orders.is_deleted", 0);
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('orders.is_deleted', 0);
 
         $filters = [
             'filter_transport'         => 'orders.transport',
@@ -54,24 +57,40 @@ class orderController extends commonController
             'filter_credit_days_to'    => 'orders.credit_days',
             'filter_final_amount_from' => 'orders.finalAmount',
             'filter_final_amount_to'   => 'orders.finalAmount',
+            'filter_date_from'         => 'orders.created_at',
+            'filter_date_to'           => 'orders.created_at',
         ];
+
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey ?? null;
 
             if ($value !== null) {
-                if (in_array($requestKey, [
+
+                // ── Company filter: via company_garden ──
+                if ($requestKey === 'filter_company') {
+                    $order->whereIn('company_garden.company_id', (array) $value);
+
+                    // ── Numeric range ──
+                } elseif (in_array($requestKey, [
                     'filter_credit_days_from',
                     'filter_credit_days_to',
                     'filter_final_amount_from',
-                    'filter_final_amount_to'
+                    'filter_final_amount_to',
                 ])) {
-                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->where($column, $operator, $value);
-                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
-                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+
+                    // ── Date range ──
+                } elseif (in_array($requestKey, [
+                    'filter_date_from',
+                    'filter_date_to',
+                ])) {
+                    $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->whereDate($column, $operator, $value);
+
+                    // ── Array/whereIn ──
                 } else {
-                    $order->whereIn($column, (array)$value);
+                    $order->whereIn($column, (array) $value);
                 }
             }
         }
@@ -85,48 +104,69 @@ class orderController extends commonController
                 DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
                 'order_details.*',
                 'gardens.garden_name as garden_name',
-                'grades.grade as grade_name'
+                'grades.grade as grade_name',
+                'companymasters.id as company_id',
+                'companymasters.company_name as company_name'
             )
             ->get()
             ->groupBy('order_id')
             ->map(function ($details, $orderId) {
-                // Map each order to an 'auto-tuple' style array
                 $first = $details->first();
                 return [
-                    'id' => $orderId,
-                    'buyer_name' => $first->buyer_name,
+                    'id'             => $orderId,
+                    'buyer_name'     => $first->buyer_name,
                     'transport_name' => $first->transport_name,
-                    'discount' => $first->discount,
-                    'totalNetKg' => $first->totalNetKg,
-                    'credit_days' => $first->credit_days,
-                    'final_amount' => $first->finalAmount,
-                    'order_date' => $first->order_date,
+                    'discount'       => $first->discount,
+                    'totalNetKg'     => $first->totalNetKg,
+                    'credit_days'    => $first->credit_days,
+                    'final_amount'   => $first->finalAmount,
+                    'order_date'     => $first->order_date,
+
+                    // All unique company names across all detail rows of this order
+                    'company_names'  => $details
+                        ->filter(fn($item) => !empty($item->company_name))
+                        ->pluck('company_name', 'company_id')
+                        ->values()
+                        ->implode(', '),
+                    'garden_names'   => $details
+                        ->filter(fn($item) => !empty($item->garden_name))
+                        ->pluck('garden_name', 'garden_id')
+                        ->values()
+                        ->implode(', '),
+
+                    // All unique invoice numbers
+                    'invoice_nos'    => $details
+                        ->filter(fn($item) => !empty($item->invoice_no))
+                        ->pluck('invoice_no')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
                     'details' => $details->map(function ($item) {
                         return [
-                            'garden_name' => $item->garden_name,
-                            'grade_name' => $item->grade_name,
-                            'invoice_no' => $item->invoice_no,
-                            'bags' => $item->bags,
-                            'kg' => $item->kg,
-                            'net_kg' => $item->net_kg,
-                            'rate' => $item->rate,
-                            'amount' => $item->amount,
+                            'garden_name'  => $item->garden_name,
+                            'grade_name'   => $item->grade_name,
+                            'invoice_no'   => $item->invoice_no,
+                            'bags'         => $item->bags,
+                            'kg'           => $item->kg,
+                            'net_kg'       => $item->net_kg,
+                            'rate'         => $item->rate,
+                            'amount'       => $item->amount,
+                            'company_name' => $item->company_name ?? null,
                         ];
                     })->toArray()
                 ];
             })
             ->values();
 
-        // return $orderData;
-
         if ($orderData->isEmpty()) {
             return DataTables::of($orderData)
                 ->with([
-                    'status' => 404,
+                    'status'  => 404,
                     'message' => 'No Data Found',
                 ])
                 ->make(true);
         }
+
         return DataTables::of($orderData)
             ->with([
                 'status' => 200,

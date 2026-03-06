@@ -410,7 +410,7 @@
                     </tr>
                 </thead>
                 @php
-                   $usedInvoices = $data['usedInvoices'] ?? [];
+                    $usedInvoices = $data['usedInvoices'] ?? [];
                     $maxRows = 10;
                     $companyStateId = $companydetails['state_id'] ?? null;
                     $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
@@ -576,27 +576,25 @@
                 </tbody>
             </table>
         @endif
-        <table width='100%' class="maintable" cellspacing=0 cellpadding=0>
+        <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
-                <td colspan="2">
-                    <div style="display: inline-block;">
-                        For : {{ $companydetails['name'] }}
+                <td style="text-align:right;">
+
+                    <div style="display:inline-block; text-align:right;">
+
+                        <strong>For : {{ $data['mainCompanyData']['name'] }}</strong>
+                        <br><br>
+
+                        @if ($data['mainCompanyData']['pr_sign_img'] != '')
+                            <img src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}"
+                                style="max-width:150px; display:block; margin-left:auto;">
+                        @endif
+
+                        <br>
+                        <strong>Signature</strong>
+
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div style="display: inline-block;">
-                        <img @if ($companydetails['pr_sign_img'] != '') src="{{ public_path('uploads/' . $companydetails['pr_sign_img']) }}" @endif
-                            class="rounded mt-auto mx-auto d-block" alt="signature" style="max-width: 150px">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div style="display: inline-block;">
-                        Signature
-                    </div>
+
                 </td>
             </tr>
         </table>

@@ -217,6 +217,7 @@ function formatINR($amount)
                 <thead>
                     <tr>
                         {{-- <th>Order Date</th> --}}
+                        <th>Company Name</th>
                         <th>Garden Name</th>
                         <th>Grade Name</th>
                         <th>Invoice No</th>
@@ -233,6 +234,7 @@ function formatINR($amount)
                         {{ $discount_amt = (($detail['amount'] ?? 0) * ($detail['order_discount'] ?? 0)) / 100 }}
                         <tr>
                             {{-- <td>{{ $detail['order_date'] ? \Carbon\Carbon::parse($detail['order_date'])->format('d-m-Y') : '-' }}</td> --}}
+                            <td>{{ $detail['company_name'] ?? '-' }}</td>
                             <td>{{ $detail['garden_name'] ?? '-' }}</td>
                             <td>{{ $detail['grade_name'] ?? '-' }}</td>
                             <td>{{ $detail['invoice_no'] ?? '-' }}</td>
@@ -245,7 +247,7 @@ function formatINR($amount)
                         </tr>
                     @endforeach
                     <tr style="font-size: 12px">
-                        <td colspan="8" style="text-align: right"><b>Final Amount</b></td>
+                        <td colspan="9" style="text-align: right"><b>Final Amount</b></td>
                         <td> <b>{{ formatINR($orders['final_amount'] ?? 0) }}</b></td>
                     </tr>
                 </tbody>

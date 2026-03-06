@@ -10,100 +10,349 @@
 @endsection
 
 @section('style')
-    <style>
-        .disableinput {
-            border: none;
-        }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        /* For select2 dropdown, override the default select2 styles for disabled items */
-        .select2-results__option[aria-disabled="true"] {
-            color: red !important;
-        }
+:root {
+    --c-bg:        #f0f2f7;
+    --c-white:     #ffffff;
+    --c-border:    #dde3ef;
+    --c-primary:   #3b5bdb;
+    --c-primary-h: #2f4ac3;
+    --c-primary-s: rgba(59,91,219,.08);
+    --c-danger:    #e03131;
+    --c-danger-s:  #fff0f0;
+    --c-warn:      #e67700;
+    --c-warn-s:    #fff8e7;
+    --c-text:      #1a1d2e;
+    --c-muted:     #6b7280;
+    --c-light:     #f8f9fc;
+    --radius:      10px;
+    --radius-sm:   7px;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
+    --shadow-md:   0 4px 20px rgba(59,91,219,.12);
+    --font:        'Inter', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { font-family: var(--font) !important; background: var(--c-bg) !important; }
 
-        table input.form-control {
-            width: auto;
-            min-width: 100%;
-        }
+/* ─── Section Cards ─── */
+.inv-section {
+    background: var(--c-white);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 18px; overflow: hidden;
+}
+.inv-section-head {
+    padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--c-border);
+    background: linear-gradient(90deg, #f5f7ff 0%, var(--c-white) 100%);
+}
+.inv-section-head .ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--c-primary-s); color: var(--c-primary);
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.inv-section-head h6 { margin: 0; font-size: 13px; font-weight: 700; color: var(--c-text); }
+.inv-section-body { padding: 20px; }
 
-        table textarea.form-control {
-            width: auto;
-            min-width: 100%;
-        }
+/* ─── Form controls ─── */
+.f-label {
+    display: block; font-size: 11.5px; font-weight: 600;
+    color: var(--c-muted); text-transform: uppercase;
+    letter-spacing: .055em; margin-bottom: 5px;
+}
+.f-label .req { color: var(--c-danger); }
+.f-ctrl {
+    width: 100%; background: var(--c-light);
+    border: 1.5px solid var(--c-border); border-radius: var(--radius-sm);
+    padding: 8px 12px; font-size: 13px; color: var(--c-text);
+    font-family: var(--font); transition: border .15s, box-shadow .15s, background .15s; outline: none;
+}
+.f-ctrl:focus { border-color: var(--c-primary); background: #fff; box-shadow: 0 0 0 3px var(--c-primary-s); }
+.f-ctrl[disabled], .f-ctrl:disabled { background: #f4f5f8 !important; cursor: default; color: var(--c-text); }
+textarea.f-ctrl { resize: vertical; min-height: 70px; }
+.f-err { font-size: 11px; color: var(--c-danger); margin-top: 3px; display: block; }
 
-        .select2-container {
-            width: 100% !important;
-        }
-    </style>
-    <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
+/* Select2 */
+.select2-container { width: 100% !important; }
+.select2-container--default .select2-selection--single {
+    height: 37px !important; border: 1.5px solid var(--c-border) !important;
+    border-radius: var(--radius-sm) !important; background: var(--c-light) !important;
+    display: flex; align-items: center;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 35px !important; font-size: 13px; color: var(--c-text) !important; padding-left: 12px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 35px !important; }
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: var(--c-primary) !important; box-shadow: 0 0 0 3px var(--c-primary-s) !important;
+}
+.select2-results__option[aria-disabled="true"] { color: var(--c-danger) !important; }
+
+/* ─── LINE ITEMS WRAPPER ─── */
+.li-wrap {
+    background: var(--c-white); border: 1px solid var(--c-border);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    margin-bottom: 18px; overflow: hidden;
+}
+
+/* Top bar */
+.li-topbar {
+    padding: 14px 20px; display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    border-bottom: 1px solid var(--c-border);
+    background: linear-gradient(90deg, #eef1fd 0%, var(--c-white) 100%);
+}
+.li-topbar-left { display: flex; align-items: center; gap: 10px; }
+.li-topbar-left .ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--c-primary); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.li-topbar-left h6 { margin: 0; font-size: 13px; font-weight: 700; color: var(--c-text); }
+.li-count-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 9px;
+    background: var(--c-primary); color: #fff; border-radius: 20px;
+}
+
+/* Quick-add bar */
+.li-quickbar {
+    padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap; background: var(--c-light); border-bottom: 1px solid var(--c-border);
+}
+.btn-add-row {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: var(--radius-sm);
+    background: var(--c-primary); color: #fff; border: none;
+    font-size: 12.5px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; white-space: nowrap;
+    transition: background .15s, box-shadow .15s, transform .1s;
+    box-shadow: 0 2px 8px rgba(59,91,219,.2);
+}
+.btn-add-row:hover { background: var(--c-primary-h); transform: translateY(-1px); }
+.quickbar-sep { width: 1px; height: 28px; background: var(--c-border); flex-shrink: 0; }
+.quickbar-label { font-size: 11.5px; font-weight: 600; color: var(--c-muted); white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
+.quickbar-sel { min-width: 180px; max-width: 240px; flex: 1; }
+
+/* Items list */
+.li-list { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Empty state */
+.li-empty { text-align: center; padding: 48px 20px; color: var(--c-muted); }
+.li-empty-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--c-primary-s); color: var(--c-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin: 0 auto 12px;
+}
+.li-empty p { font-size: 13px; margin: 0; }
+
+/* ── Item card ── */
+.li-item-card {
+    border: 1.5px solid var(--c-border); border-radius: var(--radius);
+    background: var(--c-white); overflow: hidden;
+    transition: border-color .15s, box-shadow .15s;
+    animation: cardIn .2s ease both;
+}
+@keyframes cardIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+.li-item-card:hover { border-color: #b8c4f5; box-shadow: 0 2px 10px rgba(59,91,219,.09); }
+
+/* Card header */
+.li-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px; background: #f7f8fd; border-bottom: 1px solid var(--c-border);
+}
+.li-card-num { display: flex; align-items: center; gap: 8px; }
+.li-card-num .num-badge {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--c-primary); color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+.li-card-num p { margin: 0; font-size: 12px; font-weight: 600; color: var(--c-muted); }
+.li-card-actions { display: flex; align-items: center; gap: 5px; }
+.btn-card {
+    width: 28px; height: 28px; border-radius: 6px; border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer; transition: background .13s, transform .1s;
+}
+.btn-card:hover { transform: scale(1.1); }
+.btn-card-up, .btn-card-dn { background: #f1f3f9; color: var(--c-muted); }
+.btn-card-up:hover, .btn-card-dn:hover { background: #e2e6f4; }
+.btn-card-dup { background: #eef1fd; color: var(--c-primary); }
+.btn-card-dup:hover { background: #d9e0fb; }
+.btn-card-del { background: var(--c-danger-s); color: var(--c-danger); }
+.btn-card-del:hover { background: #ffd5d5; }
+
+/* Card body — responsive field grid */
+.li-card-body { padding: 14px; }
+
+.li-field-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px 14px;
+    align-items: end;
+}
+/* no last-child rule needed — Amount is explicitly placed via inline style */
+
+/* Amount input full width inside its cell */
+.li-field-grid .amount-wrap {
+    width: 100%;
+    position: relative;
+}
+.li-field-grid .amount-wrap .sym {
+    position: absolute;
+    left: 11px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px; color: var(--c-primary);
+    font-weight: 700; pointer-events: none;
+}
+.li-field-grid .amount-wrap input.f-ctrl {
+    width: 100% !important;
+    padding-left: 26px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    color: var(--c-primary) !important;
+    background: #eef1fd !important;
+    border-color: #c5cff5 !important;
+}
+.li-field-grid .amount-wrap input.f-ctrl:focus {
+    border-color: var(--c-primary) !important;
+    background: #fff !important;
+}
+
+.li-card-body .f-label { font-size: 10.5px; margin-bottom: 4px; }
+.li-card-body .f-ctrl  { font-size: 12.5px; padding: 7px 10px; }
+
+/* responsive cols */
+@media (max-width: 1200px) { .li-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+@media (max-width: 800px)  { .li-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 600px)  { .li-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+/* Amount row */
+.li-amount-row {
+    display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+    padding: 10px 14px; border-top: 1px dashed var(--c-border); background: #fafbff;
+    flex-wrap: wrap;
+}
+.amount-label { font-size: 12px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .05em; }
+.amount-wrap { position: relative; }
+.amount-wrap .sym {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    font-size: 12px; color: var(--c-primary); font-weight: 700; pointer-events: none;
+}
+
+.amount-wrap input.f-ctrl:focus { border-color: var(--c-primary) !important; background: #fff !important; }
+
+/* ── remove old separate amount row styles ── */
+.li-amount-row { display: none !important; }  /* safety hide if still in DOM */
+
+/* ─── Totals ─── */
+.li-totals { border-top: 2px solid var(--c-border); background: #f8f9fd; padding: 20px; }
+.totals-inner { max-width: 380px; margin-left: auto; }
+.t-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; border-bottom: 1px dashed var(--c-border);
+}
+.t-row:last-child { border-bottom: none; }
+.t-row.grand { border-top: 2px solid var(--c-primary); border-bottom: none; margin-top: 8px; padding-top: 14px; }
+.t-label { font-size: 12.5px; font-weight: 500; color: var(--c-muted); display: flex; align-items: center; gap: 7px; }
+.t-badge { font-size: 10px; font-weight: 700; background: var(--c-warn-s); color: var(--c-warn); border-radius: 4px; padding: 1px 6px; }
+.t-row.grand .t-label { font-size: 14px; font-weight: 700; color: var(--c-text); }
+.t-val { font-size: 13px; font-weight: 700; color: var(--c-text); display: flex; align-items: center; gap: 5px; }
+.t-sym { font-size: 11px; font-weight: 400; color: var(--c-muted); }
+.t-row.grand .t-val { font-size: 18px; color: var(--c-primary); }
+.t-val input.disableinput {
+    border: none !important; background: transparent !important;
+    font-family: var(--font); font-weight: 700; font-size: 13px;
+    color: var(--c-text); text-align: right; width: 120px; padding: 0; outline: none;
+}
+.t-row.grand .t-val input.disableinput { font-size: 18px; color: var(--c-primary); }
+
+/* ─── Footer buttons ─── */
+.inv-footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.btn-f {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 20px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600; border: none;
+    cursor: pointer; font-family: var(--font); transition: background .15s, transform .1s;
+}
+.btn-f:hover { transform: translateY(-1px); }
+.btn-f-primary { background: var(--c-primary); color: #fff; box-shadow: 0 2px 10px rgba(59,91,219,.25); }
+.btn-f-primary:hover { background: var(--c-primary-h); }
+.btn-f-reset  { background: var(--c-danger-s); color: var(--c-danger); }
+.btn-f-cancel { background: #edf0f7; color: var(--c-muted); }
+.btn-f-cancel:hover { background: #e2e6ef; }
+
+/* Modal */
+.modal-content { border-radius: var(--radius) !important; border: none !important; box-shadow: 0 20px 60px rgba(0,0,0,.15) !important; font-family: var(--font); }
+.modal-header  { background: linear-gradient(90deg,#f0f3ff,#fff); border-bottom: 1px solid var(--c-border) !important; border-radius: var(--radius) var(--radius) 0 0 !important; padding: 16px 22px !important; }
+.modal-title   { font-weight: 700 !important; font-size: 14px !important; }
+
+@media(max-width:600px){
+    .li-topbar, .li-quickbar { flex-direction: column; align-items: flex-start; }
+    .quickbar-sep { display: none; }
+    .li-field-grid { grid-template-columns: 1fr 1fr; }
+    .li-amount-row { justify-content: flex-start; }
+}
+</style>
+<link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
 
 @section('form-content')
+
+{{-- Bank Modal --}}
 <div class="modal fade" id="bankDetailModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-ls" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Bank Details</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title"><i class="ri-bank-line mr-2"></i>Add Bank Details</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <div class="modal-body">
-                <form id="bankdetailform" name="bankdetailform">
+            <div class="modal-body p-4">
+                <form id="bankdetailform">
                     @csrf
-                    <div class="form-group">
-                        <div class="form-row">
-                            <div class="col-sm-6 mb-2">
-                                <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                                    placeholder="user_id" required />
-                                <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                                    placeholder="token" required />
-                                <input type="hidden" name="company_id" class="form-control" value="{{ $company_id }}"
-                                    placeholder="company_id" required />
-                                <input type="hidden" name="bank_companymaster_id" id="bank_companymaster_id" class="form-control" value=""
-                                placeholder="bank_companymaster_id" required />
-                                <label for="name">Holder Name</label><span style="color:red;">*</span>
-                                <input id="name" type="text" name="holder_name" class="form-control" placeholder="Holder Name"
-                                    required />
-                                <span class="modal-error-msg" id="modal-error-holder_name" style="color: red"></span>
-                            </div>
-                            <div class="col-sm-6 mb-2">
-                                <label for="account_number">Account Number</label><span style="color:red;">*</span>
-                                <input type="text" name="account_number" class="form-control" id="account_number" value=""
-                                    placeholder="Account Number" required />
-                                <span class="modal-error-msg" id="modal-error-account_number" style="color: red"></span>
-                            </div>
-                            <div class="col-sm-6 mb-2">
-                                <label for="swift_code">Swift Code</label>
-                                <input type="text" name="swift_code" class="form-control" id="swift_code" value=""
-                                    placeholder="Swift Code" />
-                                <span class="modal-error-msg" id="modal-error-swift_code" style="color: red"></span>
-                            </div>
-                            <div class="col-sm-6 mb-2">
-                                <label for="ifsc_code">IFSC Code</label><span style="color:red;">*</span>
-                                <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" placeholder="IFSC Code"
-                                    required />
-                                <span class="modal-error-msg" id="modal-error-ifsc_code" style="color: red"></span>
-                            </div>
-                            <div class="col-sm-6 mb-2">
-                                <label for="bank_name">Bank Name</label><span style="color:red;">*</span>
-                                <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="Bank Name"
-                                    required />
-                                <span class="modal-error-msg" id="modal-error-bank_name" style="color: red"></span>
-                            </div>
-                            <div class="col-sm-6 mb-2">
-                                <label for="branch_name">Branch Name</label>
-                                <input type="text" id="branch_name" name="branch_name" class="form-control"
-                                    placeholder="Branch Name" />
-                                <span class="modal-error-msg" id="modal-error-branch_name" style="color: red"></span>
-                            </div>
-                            <div class="col-sm-12">
-                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
-                                    id="modalcancelbtn" class="btn btn-secondary float-right">Cancel</button>
-                                <button type="reset" data-toggle="tooltip" data-placement="bottom" data-original-title="Reset Details"
-                                    class="btn iq-bg-danger float-right mr-2">Reset</button>
-                                <button type="submit" data-toggle="tooltip" data-placement="bottom" data-original-title="Save Details"
-                                    class="btn btn-primary float-right my-0">Save</button>
-                            </div>
+                    <input type="hidden" name="user_id"               value="{{ session('user_id') }}">
+                    <input type="hidden" name="token"                 value="{{ session('api_token') }}">
+                    <input type="hidden" name="company_id"            value="{{ $company_id }}">
+                    <input type="hidden" name="bank_companymaster_id" id="bank_companymaster_id" value="">
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Holder Name <span class="req">*</span></label>
+                            <input id="name" type="text" name="holder_name" class="f-ctrl" placeholder="Holder Name" required>
+                            <span class="modal-error-msg f-err" id="modal-error-holder_name"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Account Number <span class="req">*</span></label>
+                            <input type="text" name="account_number" id="account_number" class="f-ctrl" placeholder="Account Number" required>
+                            <span class="modal-error-msg f-err" id="modal-error-account_number"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Swift Code</label>
+                            <input type="text" name="swift_code" id="swift_code" class="f-ctrl" placeholder="Swift Code">
+                            <span class="modal-error-msg f-err" id="modal-error-swift_code"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">IFSC Code <span class="req">*</span></label>
+                            <input type="text" id="ifsc_code" name="ifsc_code" class="f-ctrl" placeholder="IFSC Code" required>
+                            <span class="modal-error-msg f-err" id="modal-error-ifsc_code"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Bank Name <span class="req">*</span></label>
+                            <input type="text" id="bank_name" name="bank_name" class="f-ctrl" placeholder="Bank Name" required>
+                            <span class="modal-error-msg f-err" id="modal-error-bank_name"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Branch Name</label>
+                            <input type="text" id="branch_name" name="branch_name" class="f-ctrl" placeholder="Branch Name">
+                            <span class="modal-error-msg f-err" id="modal-error-branch_name"></span>
+                        </div>
+                        <div class="col-12 mt-2 d-flex justify-content-end" style="gap:8px">
+                            <button type="submit" class="btn-f btn-f-primary"><i class="ri-save-line"></i> Save</button>
+                            <button type="reset"  class="btn-f btn-f-reset"><i class="ri-refresh-line"></i> Reset</button>
+                            <button type="button" id="modalcancelbtn" class="btn-f btn-f-cancel">Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -112,2133 +361,929 @@
     </div>
 </div>
 
-    <form id="invoiceform" name="invoiceform">
-        @csrf
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-4 mb-3">
-                    <input type="hidden" name="country_id" id="country" class="form-control" value="" />
-                    <input type="hidden" name="sampleIds" id="sampleIds" class="form-control" value="" />
-                    <input type="hidden" name="invoice_data" id="invoice_data" class="form-control" value="" />
-                    <input type="hidden" name="user_id" id="created_by" class="form-control" value="{{ $user_id }}" />
-                    <input type="hidden" name="company_id" id="company_id" class="form-control"
-                        value="{{ $company_id }}" />
-                    
+{{-- Main Form --}}
+<form id="invoiceform">
+    @csrf
+    <input type="hidden" name="country_id"   id="country">
+    <input type="hidden" name="sampleIds"    id="sampleIds">
+    <input type="hidden" name="invoice_data" id="invoice_data">
+    <input type="hidden" name="user_id"      id="created_by" value="{{ $user_id }}">
+    <input type="hidden" name="company_id"   id="company_id" value="{{ $company_id }}">
+    <input type="hidden" name="currency"     id="currency"   value="101">
+    @unless(session('company_gst_no') && session('company_gst_no') != '')
+        <input type="hidden" id="type" name="type" value="2">
+    @endunless
 
-                    <label for="customer">Buyer</label><span style="color:red;">*</span>
+    {{-- Parties --}}
+    <div class="inv-section">
+        <div class="inv-section-head">
+            <div class="ico"><i class="ri-user-3-line"></i></div>
+            <h6>Party Details</h6>
+        </div>
+        <div class="inv-section-body">
+            <div class="row">
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">Buyer <span class="req">*</span></label>
                     <select class="form-control select2" id="customer" name="customer" required>
-                        <option selected="" disabled=""> Select Buyer</option>
-                    
+                        <option selected disabled>Select Buyer</option>
                     </select>
-                    <span class="error-msg" id="error-customer" style="color: red"></span>
+                    <span class="f-err" id="error-customer"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
-                    <label for="companymaster_id">Companymaster</label><span style="color:red;">*</span>
+                    <label class="f-label">Companymaster <span class="req">*</span></label>
                     <select class="form-control select2" id="companymaster_id" name="companymaster_id" required>
-                        <option selected="" disabled=""> Select companymaster</option>
+                        <option selected disabled>Select Companymaster</option>
                     </select>
-                      <span class="error-msg" id="error-companymaster_id" style="color: red"></span>
+                    <span class="f-err" id="error-companymaster_id"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
-                    <label for="transport_id">Transport</label><span style="color:red;">*</span>
-
-                    <select class="form-control select2" id="transport_id" name="transport_id" >
-                        <option selected="" disabled=""> Select Transport</option>
+                    <label class="f-label">Transport</label>
+                    <select class="form-control select2" id="transport_id" name="transport_id">
+                        <option selected disabled>Select Transport</option>
                     </select>
-                    <span class="error-msg" id="error-transport_id" style="color: red"></span>
-                </div>
-                <input type="hidden" name="currency" id="currency" class="form-control" value="101" />
-                @if (session('company_gst_no') && session('company_gst_no') != '')
-                    <div class="col-sm-4 mb-3">
-                        <label for="type">Tax-Type</label><span style="color:red;">*</span>
-                        <select class="form-control" id="type" name="type" required>
-                            <option disabled="">Select Type</option>
-                            <option value="1" selected>GST</option>
-                            <option value="2">Without GST</option>
-                        </select>
-                        <span class="error-msg" id="error-tax_type" style="color: red"></span>
-                    </div>
-                @else
-                    <input type="hidden" id="type" name="type" value="2">
-                @endif
-
-                <div class="col-sm-4 mb-3">
-                    <label for="acc_details">Bank Account </label><span style="color:red;">*</span>
-                    <select class="form-control" id="acc_details" name="acc_details" >
-                        <option selected="" disabled="">Select Account</option>
-                    </select>
-                    <span class="error-msg" id="error-bank_account" style="color: red"></span>
-                </div>
-                  <div class="col-sm-4 mb-3" id="inv_number_div">
-                    <label for="inv_number">Invoice Number</label><span style="color:red;">*</span>
-                    <input type="text" name="inv_number" id="inv_number" class="form-control"
-                        placeholder="Invoice Number">
-                    <span class="error-msg" id="error-inv_number" style="color: red"></span>
-                </div>
-                <div class="col-sm-4 mb-3" id="inv_date_div">
-                    <label for="invoice_date">Invoice Date</label><span style="color:red;">*</span>
-                    <input type="date" class="form-control" id="invoice_date" name="invoice_date">
-                    <span class="error-msg" id="error-invoice_date" style="color: red"></span>
-                </div>
-                
-                <div class="col-sm-4 mb-3" id="inv_number_div">
-                    <label for="consignment_number">Consignment Number</label><span style="color:red;">*</span>
-                    <input type="text" name="consignment_number" id="consignment_number" class="form-control"
-                        placeholder="Consignment Number">
-                    <span class="error-msg" id="error-consignment_number" style="color: red"></span>
-                </div>
-                 <div class="col-sm-4 mb-3" id="inv_date_div">
-                    <label for="consignment_date">Consignment Date</label><span style="color:red;">*</span>
-                    <input type="date" class="form-control" id="consignment_date" name="consignment_date">
-                    <span class="error-msg" id="error-consignment_date" style="color: red"></span>
-                </div>
-                <div class="col-sm-4 mb-3">
-                    <label for="HSN">HSN Code</label><span style="color:red;">*</span>
-                    <input type="text" name="HSN" id="HSN" class="form-control"
-                        placeholder="HSN Code"  value="090240" >
-                    <span class="error-msg" id="error-HSN" style="color: red"></span>
-                </div>
-                  <div class="col-sm-4 mb-3">
-                    <label for="Description">Description</label><span style="color:red;">*</span>
-                    <input type="text" name="Description" id="Description" class="form-control"
-                        placeholder="Description">
-                    <span class="error-msg" id="error-Description" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div id="table" class="table-editable" style="overflow-x:auto">
-
-            <table id="data" class="table table-bordered  table-striped text-center producttable">
-                <thead>
-                    <tr id="columnname" style="text-transform: uppercase">
-
-
-                    </tr>
-                </thead>
-                <tbody id="add_new_div">
-                </tbody>
-                <tr>
-                    <th class="newdivautomaticcolspan">
-                        <div style="display:flex;justify-content: center;">
-                            <span class="add_div mb-3 mr-2">
-                                <button type="button" data-toggle="tooltip" data-placement="bottom"
-                                    data-original-title="Add New Row" class="btn btn-sm iq-bg-success">
-                                    <i class="ri-add-fill">
-                                        <span class="pl-1"> Add New Item </span>
-                                    </i>
-                                </button>
-                            </span>
-                            <span id="productdiv" class="mb-3 mr-2">
-                                <select class="form-control select2" id="product" name="product">
-
-                                </select>
-                            </span>
-                            <span id="lrdiv" class="mb-3 mr-2" style="width: 200px">
-                                <select class="form-control select2" id="lr" name="lr" class="mb-3 mr-2">
-
-                                </select>
-                            </span>
-
-                        </div>
-                    </th>
-                </tr>
-                <tr class="text-right">
-                    <th class="automaticcolspan">Sub total</th>
-                    <td id="">
-                        <div class="d-flex justify-content-between">
-                            <b>
-                                <span class="currentcurrencysymbol"></span>
-                            </b>
-                            <input class="disableinput" type="number" step="any" name="total_amount"
-                                id="totalamount" readonly required>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="igstline" class="text-right" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
-                    <th class="automaticcolspan">igst <span id="igstpercentage"></span></th>
-                    <td>
-                        <div class="d-flex justify-content-between">
-                            <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number"
-                                step="any" name="igst" id="igst" readonly required>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="sgstline" class="text-right" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
-                    <th class="automaticcolspan">SGST <span id="sgstpercentage"></span></th>
-                    <td>
-                        <div class="d-flex justify-content-between">
-                            <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number"
-                                step="any" name="sgst" id="sgst" readonly required>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="cgstline" class="text-right" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
-                    <th class="automaticcolspan">CGST <span id="cgstpercentage"></span></th>
-                    <td>
-                        <div class="d-flex justify-content-between">
-                            <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number"
-                                step="any" name="cgst" id="cgst" readonly required>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="gstline" class="text-right" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
-                    <th class="automaticcolspan">Total GST <span id="gstpercentage"></span></th>
-                    <td>
-                        <div class="d-flex justify-content-between">
-                            <b><span class="currentcurrencysymbol"></span></b> <input class="disableinput" type="number"
-                                step="any" name="gst" id="gst" readonly required>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="roundoffline" class="text-right">
-                    <th class="automaticcolspan">Roundoff</th>
-                    <td>
-                        <div class="d-flex justify-content-between">
-                            <b>
-                                <span class="currentcurrencysymbol"></span>
-                            </b>
-                            <input class="disableinput" type="text" name="roundoff" id="roundoff" readonly required>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="grandtotalline" class="text-right">
-                    <th class="automaticcolspan font-weight-bold">Total</th>
-                    <td>
-                        <div class="d-flex justify-content-between">
-                            <b>
-                                <span class="currentcurrencysymbol"></span>
-                            </b>
-                            <input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal"
-                                readonly required>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
-                    <label for="notes">Notes</label>
-                    <textarea class="form-control" name="notes" id="notes" rows="2"></textarea>
-                    <span class="error-msg" id="error-notes" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col-sm-12">
-                    <button id="cancelbtn" type="button" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Cancel" class="btn btn-secondary btn-rounded float-right">Cancel</button>
-                    <button type="reset" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Reset Details" class="btn iq-bg-danger float-right mr-2">Reset</button>
-                    <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Submit Details" class="btn btn-primary float-right my-0">Submit</button>
-                </div>
-            </div>
-        </div>
-    </form>
-
-
-    {{-- for add new customer direct from invoiceform --}}
-    <div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog"
-        aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalScrollableTitle">Add New Customer</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table id="details" width='100%'
-                        class="table table-bordered table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-striped">
-                        <form id="customerform">
-                            @csrf
-                            <div class="form-group">
-                                <div class="form-row">
-                                    <div class="col-sm-6 mb-2">
-                                        <input type="hidden" name="token" class="form-control"
-                                            value="{{ session('api_token') }}" placeholder="token" required />
-                                        <input type="hidden" value="{{ $user_id }}" class="form-control"
-                                            name="user_id">
-                                        <input type="hidden" value="{{ $company_id }}" class="form-control"
-                                            name="company_id">
-                                        <label for="firstname">FirstName</label><span class="withoutgstspan"
-                                            style="color:red;">*</span>
-                                        <input type="text" class="form-control withoutgstinput" id="firstname"
-                                            name='firstname' placeholder="First name" required>
-                                        <span class="modal-error-msg" id="modal-error-firstname"
-                                            style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="lastname">LastName</label>
-                                        {{-- <span style="color:red;">*</span> --}}
-                                        <input type="text" class="form-control" id="lastname" name='lastname'
-                                            placeholder="Last name">
-                                        <span class="modal-error-msg" id="modal-error-lastname"
-                                            style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="company_name">Company Name</label>
-                                        <span class="withgstspan" style="color:red;">*</span>
-                                        <input type="text" class="form-control withgstiput" id="company_name"
-                                            name='company_name' id="" placeholder="Company name">
-                                        <span class="modal-error-msg" id="modal-error-company_name"
-                                            style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="gst_number">GST Number</label>
-                                        {{-- <span class="withgstspan" style="color:red;">*</span> --}}
-                                        <input type="text" class="form-control" name='gst_number' id="gst_number"
-                                            placeholder="GST Number">
-                                        <span class="modal-error-msg" id="modal-error-gst_number"
-                                            style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="modal_email">Email</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <input type="email" class="form-control requiredinput" name="email"
-                                            id="modal_email" placeholder="Enter Email" />
-                                        <span class="modal-error-msg" id="modal-error-email" style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="modal_exampleInputphone">Contact Number</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <input type="tel" class="form-control requiredinput" name='contact_number'
-                                            id="modal_exampleInputphone" placeholder="0123456789">
-                                        <span class="modal-error-msg" id="modal-error-contact_number"
-                                            style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="modal_country">Select Country</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <select class="form-control requiredinput" name='country' id="modal_country">
-                                            <option selected="" disabled="">Select your Country</option>
-                                        </select>
-                                        <span class="modal-error-msg" id="modal-error-country" style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="modal_state">Select State</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <select class="form-control requiredinput" name='state' id="modal_state">
-                                            <option selected="" disabled="">Select your State</option>
-                                        </select>
-                                        <span class="modal-error-msg" id="modal-error-state" style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="modal_city">Select City</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <select class="form-control requiredinput" name='city' id="modal_city">
-                                            <option selected="" disabled="">Select your City</option>
-                                        </select>
-                                        <span class="modal-error-msg" id="modal-error-city" style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="modal_pincode">Pincode</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <input type="text" id="modal_pincode" name='pincode'
-                                            class="form-control requiredinput" placeholder="Pin Code">
-                                        <span class="modal-error-msg" id="modal-error-pincode" style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="house_no_building_name">House no./ Building Name</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <textarea class="form-control requiredinput" name='house_no_building_name' id="house_no_building_name"
-                                            rows="2" placeholder="e.g. 2nd floor/ 04 ABC Appartment"></textarea>
-                                        <span class="modal-error-msg" id="modal-error-house_no_building_name"
-                                            style="color: red"></span>
-                                    </div>
-                                    <div class="col-sm-6 mb-2">
-                                        <label for="road_name_area_colony">Road Name/Area/Colony</label>
-                                        {{-- <span class="requiredinputspan" style="color:red;">*</span> --}}
-                                        <textarea class="form-control requiredinput" name='road_name_area_colony' id="road_name_area_colony" rows="2"
-                                            placeholder="e.g. sardar patel road, jagatpur"></textarea>
-                                        <span class="modal-error-msg" id="modal-error-road_name_area_colony"
-                                            style="color: red"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary" id="modal_submitBtn">Save</button>
-                                <button id="modal_resetbtn" type="reset" class="btn iq-bg-danger mr-2">Reset</button>
-                                <button id="modal_cancelBtn" type="btn" class="btn btn-secondary">Cancel</button>
-                            </div>
-                        </form>
-                    </table>
+                    <span class="f-err" id="error-transport_id"></span>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Invoice Info --}}
+    <div class="inv-section">
+        <div class="inv-section-head">
+            <div class="ico"><i class="ri-file-text-line"></i></div>
+            <h6>Invoice Information</h6>
+        </div>
+        <div class="inv-section-body">
+            <div class="row">
+                @if (session('company_gst_no') && session('company_gst_no') != '')
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">Tax Type <span class="req">*</span></label>
+                    <select class="f-ctrl" id="type" name="type" required>
+                        <option disabled>Select Type</option>
+                        <option value="1" selected>GST</option>
+                        <option value="2">Without GST</option>
+                    </select>
+                    <span class="f-err" id="error-tax_type"></span>
+                </div>
+                @endif
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">Bank Account <span class="req">*</span></label>
+                    <select class="f-ctrl" id="acc_details" name="acc_details">
+                        <option selected disabled>Select Account</option>
+                    </select>
+                    <span class="f-err" id="error-bank_account"></span>
+                </div>
+                <div class="col-sm-4 mb-3" id="inv_number_div">
+                    <label class="f-label">Invoice Number <span class="req">*</span></label>
+                    <input type="text" name="inv_number" id="inv_number" class="f-ctrl" placeholder="e.g. INV-2024-001">
+                    <span class="f-err" id="error-inv_number"></span>
+                </div>
+                <div class="col-sm-4 mb-3" id="inv_date_div">
+                    <label class="f-label">Invoice Date <span class="req">*</span></label>
+                    <input type="date" class="f-ctrl" id="invoice_date" name="invoice_date">
+                    <span class="f-err" id="error-invoice_date"></span>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">Consignment Number</label>
+                    <input type="text" name="consignment_number" id="consignment_number" class="f-ctrl" placeholder="Consignment Number">
+                    <span class="f-err" id="error-consignment_number"></span>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">Consignment Date</label>
+                    <input type="date" class="f-ctrl" id="consignment_date" name="consignment_date">
+                    <span class="f-err" id="error-consignment_date"></span>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">HSN Code <span class="req">*</span></label>
+                    <input type="text" name="HSN" id="HSN" class="f-ctrl" placeholder="HSN Code" value="090240">
+                    <span class="f-err" id="error-HSN"></span>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <label class="f-label">Description <span class="req">*</span></label>
+                    <input type="text" name="Description" id="Description" class="f-ctrl" placeholder="Description" value="Black Tea">
+                    <span class="f-err" id="error-Description"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Line Items --}}
+    <div class="li-wrap">
+        <div class="li-topbar">
+            <div class="li-topbar-left">
+                <div class="ico"><i class="ri-list-check-2"></i></div>
+                <h6>Line Items</h6>
+                <span class="li-count-badge" id="li-count">0</span>
+            </div>
+        </div>
+        {{-- <div class="li-quickbar">
+            <span class="add_div">
+                <button type="button" class="btn-add-row">
+                    <i class="ri-add-circle-line"></i> Add New Item
+                </button>
+            </span>
+            <div class="quickbar-sep"></div>
+            <span class="quickbar-label">Product:</span>
+            <div class="quickbar-sel" id="productdiv">
+                <select class="form-control select2" id="product" name="product"></select>
+            </div>
+            <div class="quickbar-sep"></div>
+            <span class="quickbar-label">LR:</span>
+            <div class="quickbar-sel" id="lrdiv">
+                <select class="form-control select2" id="lr" name="lr"></select>
+            </div>
+        </div> --}}
+
+        <div class="li-list" id="li-list">
+            <div id="li-empty" class="li-empty">
+                <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
+                <p><strong>No items yet.</strong> Use the buttons above to add items.</p>
+            </div>
+        </div>
+
+        {{-- Totals --}}
+        <div class="li-totals">
+            <div class="totals-inner">
+                <div class="t-row">
+                    <span class="t-label">Subtotal</span>
+                    <span class="t-val"><span class="t-sym currentcurrencysymbol"></span><input class="disableinput" type="number" step="any" name="total_amount" id="totalamount" readonly></span>
+                </div>
+                <div id="igstline" class="t-row" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
+                    <span class="t-label">IGST <span class="t-badge" id="igstpercentage"></span></span>
+                    <span class="t-val"><span class="t-sym currentcurrencysymbol"></span><input class="disableinput" type="number" step="any" name="igst" id="igst" readonly></span>
+                </div>
+                <div id="sgstline" class="t-row" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
+                    <span class="t-label">SGST <span class="t-badge" id="sgstpercentage"></span></span>
+                    <span class="t-val"><span class="t-sym currentcurrencysymbol"></span><input class="disableinput" type="number" step="any" name="sgst" id="sgst" readonly></span>
+                </div>
+                <div id="cgstline" class="t-row" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
+                    <span class="t-label">CGST <span class="t-badge" id="cgstpercentage"></span></span>
+                    <span class="t-val"><span class="t-sym currentcurrencysymbol"></span><input class="disableinput" type="number" step="any" name="cgst" id="cgst" readonly></span>
+                </div>
+                <div id="gstline" class="t-row" @style(['display:none' => !session('company_gst_no') && session('company_gst_no') == ''])>
+                    <span class="t-label">Total GST <span class="t-badge" id="gstpercentage"></span></span>
+                    <span class="t-val"><span class="t-sym currentcurrencysymbol"></span><input class="disableinput" type="number" step="any" name="gst" id="gst" readonly></span>
+                </div>
+                <div id="roundoffline" class="t-row">
+                    <span class="t-label">Roundoff</span>
+                    <span class="t-val"><input class="disableinput" type="number" step="any" name="roundoff" id="roundoff" readonly></span>
+                </div>
+                <div id="grandtotalline" class="t-row grand">
+                    <span class="t-label">Grand Total</span>
+                    <span class="t-val"><span class="t-sym currentcurrencysymbol"></span><input class="disableinput" type="number" step="any" name="grandtotal" id="grandtotal" readonly></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Notes & Submit --}}
+    <div class="inv-section">
+        <div class="inv-section-body">
+            <div class="mb-4">
+                <label class="f-label">Notes</label>
+                <textarea class="f-ctrl" name="notes" id="notes" rows="3" placeholder="Additional notes…"></textarea>
+                <span class="f-err" id="error-notes"></span>
+            </div>
+            <div class="inv-footer">
+                <button id="cancelbtn" type="button" class="btn-f btn-f-cancel"><i class="ri-close-line"></i> Cancel</button>
+                <button type="reset"                 class="btn-f btn-f-reset"><i class="ri-refresh-line"></i> Reset</button>
+                <button type="submit"                class="btn-f btn-f-primary"><i class="ri-send-plane-line"></i> Submit Invoice</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{{-- Add Customer Modal --}}
+<div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Customer</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="customerform">
+                    @csrf
+                    <input type="hidden" name="token"      value="{{ session('api_token') }}">
+                    <input type="hidden" name="user_id"    value="{{ $user_id }}">
+                    <input type="hidden" name="company_id" value="{{ $company_id }}">
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">First Name <span class="withoutgstspan req">*</span></label>
+                            <input type="text" class="f-ctrl withoutgstinput" id="firstname" name="firstname" placeholder="First Name" required>
+                            <span class="modal-error-msg f-err" id="modal-error-firstname"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Last Name</label>
+                            <input type="text" class="f-ctrl" id="lastname" name="lastname" placeholder="Last Name">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Company Name <span class="withgstspan req" style="display:none">*</span></label>
+                            <input type="text" class="f-ctrl withgstiput" id="company_name" name="company_name" placeholder="Company Name">
+                            <span class="modal-error-msg f-err" id="modal-error-company_name"></span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">GST Number</label>
+                            <input type="text" class="f-ctrl" name="gst_number" id="gst_number" placeholder="GST Number">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Email</label>
+                            <input type="email" class="f-ctrl" name="email" id="modal_email" placeholder="Email">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Contact Number</label>
+                            <input type="tel" class="f-ctrl" name="contact_number" id="modal_exampleInputphone" placeholder="0123456789">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Country</label>
+                            <select class="f-ctrl" name="country" id="modal_country"><option selected disabled>Select Country</option></select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">State</label>
+                            <select class="f-ctrl" name="state" id="modal_state"><option selected disabled>Select State</option></select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">City</label>
+                            <select class="f-ctrl" name="city" id="modal_city"><option selected disabled>Select City</option></select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Pincode</label>
+                            <input type="text" class="f-ctrl" id="modal_pincode" name="pincode" placeholder="Pin Code">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">House No. / Building</label>
+                            <textarea class="f-ctrl" name="house_no_building_name" id="house_no_building_name" rows="2" placeholder="e.g. 2nd floor / 04 ABC Apts"></textarea>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="f-label">Road / Area / Colony</label>
+                            <textarea class="f-ctrl" name="road_name_area_colony" id="road_name_area_colony" rows="2" placeholder="Sardar Patel Road, Jagatpur"></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2" style="gap:8px">
+                        <button type="submit" id="modal_submitBtn" class="btn-f btn-f-primary"><i class="ri-save-line"></i> Save</button>
+                        <button id="modal_resetbtn" type="reset" class="btn-f btn-f-reset"><i class="ri-refresh-line"></i> Reset</button>
+                        <button id="modal_cancelBtn" type="button" class="btn-f btn-f-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('ajax')
-    <script src="{{ asset('admin/js/select2.min.js') }}"></script>
-    <script>
-        const API_TOKEN = "{{ session()->get('api_token') }}";
-        const COMPANY_ID = "{{ session()->get('company_id') }}";
-        const USER_ID = "{{ session()->get('user_id') }}";
-        let companymaster_id ;
-        let invoice_data = @json(session('invoice_data'));
-        console.log("this sample invoce data" ,invoice_data);
-      
-        let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
-       
-        console.log("this loat not data" ,lot_no_invoice_data);
-        let allColumnData = [];
-        let allColumnNames = []; // all column name 
-        let hiddencolumn = 0; // hidden columns 
-        let formula = []; // formula
-        let productcolumnlinks = []; // product column links 
-        let productdata = [];
-        let lrdata = [];
-        let lrcolumnlinks = [];
-        let customer_dropdown = [];
-        let sgst, cgst, igst, gst, currentcurrency, currentcurrencysymbol,buyer_state_id,company_state_id;
+<script src="{{ asset('admin/js/select2.min.js') }}"></script>
+<script>
+const API_TOKEN  = "{{ session()->get('api_token') }}";
+const COMPANY_ID = "{{ session()->get('company_id') }}";
+const USER_ID    = "{{ session()->get('user_id') }}";
 
-        function ajaxPromise(method, url, data = {}) {
-            return new Promise((resolve, reject) => {
-                ajaxRequest(method, url, data)
-                    .done(resolve)
-                    .fail(reject);
+let companymaster_id;
+let invoice_data        = @json(session('invoice_data'));
+let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
+let allColumnData  = [];
+let allColumnNames = [];
+let hiddencolumn   = 0;
+let formula        = [];
+let productcolumnlinks = [];
+let productdata    = [];
+let lrdata         = [];
+let lrcolumnlinks  = [];
+let sgst, cgst, igst, gst;
+let currentcurrency, currentcurrencysymbol;
+let buyer_state_id, company_state_id;
+let addname = 0;
+
+/* helpers */
+function ajaxPromise(m, url, data={}) {
+    return new Promise((res,rej) => ajaxRequest(m,url,data).done(res).fail(rej));
+}
+function updateCurrencySymbol() {
+    currentcurrency       = $('#currency option:selected').data('currency');
+    currentcurrencysymbol = $('#currency option:selected').data('symbol');
+    $('.currentcurrencysymbol').text(currentcurrencysymbol || '');
+}
+function updateRowCount() {
+    const n = $('#li-list .li-item-card').length;
+    $('#li-count').text(n);
+    n === 0 ? $('#li-empty').show() : $('#li-empty').hide();
+}
+function managetooltip() { $('[data-toggle="tooltip"]').tooltip('dispose').tooltip(); }
+
+function applyRoundoff(totalval) {
+    totalval = parseFloat(parseFloat(totalval).toFixed(2)) || 0;
+    const grand = Math.round(totalval);
+    const diff  = parseFloat((grand - totalval).toFixed(2));
+    $('#grandtotal').val(grand);
+
+    $('#roundoff').val(diff === 0 ? '0.00' : diff.toFixed(2));
+}
+
+/* ── Columns ── */
+async function getcolumn() {
+    try {
+        const r = await ajaxPromise('GET', "{{ route('invoice.columnname') }}", {
+            token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID
+        });
+        allColumnData  = r.columnname || [];
+        hiddencolumn   = allColumnData.filter(c => c.is_hide === 1).length;
+        allColumnNames = allColumnData.map(c => c.column_name);
+        await setdata();
+    } catch(e) { handleAjaxError(e); }
+}
+async function getformula() {
+    try {
+        const r = await ajaxPromise('GET', "{{ route('invoiceformula.index') }}", {
+            token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID
+        });
+        if (r.status == 200) formula = r.invoiceformula || [];
+        await getcolumn();
+    } catch(e) { handleAjaxError(e); }
+}
+
+/* ── Build item card HTML ── */
+function buildCard(rowId, values, inventoryId, isLocked, showAction) {
+    // Build all dynamic column fields
+    let fieldsHtml = allColumnData.map(col => {
+        const cn     = col.column_name.replace(/\s+/g, '_');
+        const val    = (values[cn] !== undefined && values[cn] !== null) ? values[cn] : (col.default_value || '');
+        const hidden = col.is_hide === 1;
+        const lock   = (isLocked && cn !== 'shortage') ? 'disabled' : '';
+
+        // hidden columns → submit as hidden input only
+        if (hidden) {
+            return `<input type="hidden" name="${cn}_${rowId}" id="${cn}_${rowId}" value="${val}" data-oldproduct-id="${values.id||''}">`;
+        }
+
+        const lbl = col.column_name === 'shortage'
+            ? `${col.column_name} <small>(kg)</small>`
+            : col.column_name;
+
+        let ctrl = '';
+        if (col.column_type === 'time') {
+            ctrl = `<input type="time" name="${cn}_${rowId}" id="${cn}_${rowId}"
+                        value="${val}" data-oldproduct-id="${values.id||''}"
+                        class="f-ctrl iteam_${cn}" ${lock}>`;
+        } else if (['number','percentage','decimal'].includes(col.column_type)) {
+            ctrl = `<input type="number" step="any" min="0"
+                        name="${cn}_${rowId}" id="${cn}_${rowId}"
+                        value="${val}" data-id="${rowId}" data-oldproduct-id="${values.id||''}"
+                        class="f-ctrl iteam_${cn} counttotal calculation" ${lock}>`;
+        } else if (col.column_type === 'longtext') {
+            ctrl = `<textarea name="${cn}_${rowId}" id="${cn}_${rowId}"
+                        data-oldproduct-id="${values.id||''}"
+                        class="f-ctrl iteam_${cn}" rows="2" ${lock}>${val}</textarea>`;
+        } else {
+            ctrl = `<input type="text"
+                        name="${cn}_${rowId}" id="${cn}_${rowId}"
+                        value="${val}" placeholder="${col.column_name}"
+                        data-oldproduct-id="${values.id||''}"
+                        class="f-ctrl iteam_${cn}" ${lock}>`;
+        }
+
+        return `<div><label class="f-label">${lbl}</label>${ctrl}</div>`;
+    }).join('');
+
+    // Action buttons
+    const moveBtns = `
+        <button type="button" data-toggle="tooltip" data-original-title="Move Up"
+            class="btn-card btn-card-up table-up"><i class="fa fa-long-arrow-up"></i></button>
+        <button type="button" data-toggle="tooltip" data-original-title="Move Down"
+            class="btn-card btn-card-dn table-down"><i class="fa fa-long-arrow-down"></i></button>`;
+
+    const editBtns = showAction ? `
+        <button type="button" data-toggle="tooltip" data-original-title="Duplicate"
+            class="btn-card btn-card-dup duplicate-row" data-id="${rowId}"><i class="ri-align-bottom"></i></button>
+        <button type="button" data-toggle="tooltip" data-original-title="Delete"
+            class="btn-card btn-card-del remove-row" data-id="${rowId}"><i class="ri-delete-bin-2-line"></i></button>` : '';
+
+    const amountVal = values.amount || '';
+    const currSym   = currentcurrencysymbol || '';
+
+    // ── Amount always LAST in grid, after all dynamic fields ──
+    const amountField = `
+    <div style="grid-column:6; grid-row:1;">
+            <label class="f-label">Amount <span style="color:var(--c-danger)">*</span></label>
+            <div class="amount-wrap">
+                <span class="sym currentcurrencysymbol">${currSym}</span>
+                <input type="number" step="any" min="0"
+                    name="Amount_${rowId}" id="Amount_${rowId}"
+                    value="${amountVal}" data-id="${rowId}"
+                    data-oldproduct-id="${values.id||''}"
+                    class="f-ctrl iteam_Amount changeprice calculation"
+                    placeholder="0.00" required>
+            </div>
+        </div>`;
+
+    return `<div class="li-item-card iteam_row_${rowId}" data-inventory="${inventoryId}">
+        <div class="li-card-head">
+            <div class="li-card-num">
+                <span class="num-badge card-row-num"></span>
+                <p class="card-row-label">Item</p>
+            </div>
+            <div class="li-card-actions">${moveBtns}${editBtns}</div>
+        </div>
+        <div class="li-card-body">
+            <div class="li-field-grid" style="display:grid">${fieldsHtml}${amountField}</div>
+        </div>
+    </div>`;
+}
+
+function renumberCards() {
+    $('#li-list .li-item-card').each(function(i) {
+        $(this).find('.card-row-num').text(i + 1);
+        $(this).find('.card-row-label').text(`Item ${i + 1}`);
+    });
+}
+
+/* ── setdata (load from session) ── */
+async function setdata() {
+    let productdetails;
+    if (invoice_data) {
+        productdetails   = invoice_data.line_items;
+        $("#sampleIds").val(invoice_data.maindata.sampleIds.join(','));
+        $("#bank_companymaster_id").val(invoice_data.maindata.companymaster_id[0]);
+        companymaster_id = invoice_data.maindata.companymaster_id[0];
+        await customers(invoice_data.line_items[0].buyer_id);
+        await transports(invoice_data.line_items[0].transport_id);
+        await companymaster(invoice_data.maindata.companymaster_id[0]);
+    } else {
+        productdetails   = lot_no_invoice_data.line_items;
+        $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
+        $("#bank_companymaster_id").val(lot_no_invoice_data.maindata.companymaster_id);
+        companymaster_id = lot_no_invoice_data.maindata.companymaster_id;
+        await customers(lot_no_invoice_data.line_items[0].buyer_id);
+        await transports(lot_no_invoice_data.line_items[0].transport_id);
+        await companymaster(lot_no_invoice_data.maindata.companymaster_id);
+    }
+    await loadBankDetails();
+    await getoverduedays();
+
+    $.each(productdetails, function(k, v) {
+        addname++;
+        $('#li-empty').before(buildCard(addname, v, v.id || null, true, false));
+        dynamiccalculaton(`#Amount_${addname}`);
+        updateCurrencySymbol();
+    });
+    renumberCards();
+    updateRowCount();
+    managetooltip();
+}
+
+/* ── Dropdowns ── */
+async function transports(tid = 0) {
+    try {
+        $('#transport_id').html(`<option selected value=0 disabled>Select transport</option>`);
+        const r = await ajaxPromise('GET', "{{ route('transport.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID });
+        if (r.status == 200 && r.data != '') {
+            $.each(r.data, function(k,v) {
+                $('#transport_id').append(`<option data-gstno="${v.gst_no}" value="${v.id}">${[v.name,v.mobile_1,v.email].filter(Boolean).join(' - ')}</option>`);
             });
+            $('#transport_id').val(tid).select2();
+            if (tid) $('#transport_id').prop('disabled', true);
         }
-        async function getcolumn() {
-        try {
-                const response = await ajaxPromise('GET', "{{ route('invoice.columnname') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID
-                });
-
-                allColumnData = response.columnname;
-                hiddencolumn = allColumnData.filter(col => col.is_hide === 1).length;
-
-                if (response.status == 200 && response.columnname != '') {
-
-                    allColumnNames = [];
-
-                    $.each(response.columnname, function(key, value) {
-                        $.each(value, function(innerKey, innerValue) {
-                            if (innerKey === 'column_name') {
-                                allColumnNames.push(innerValue);
-                            }
-                        });
-                    });
-                    $('#columnname').prepend(`
-                        ${allColumnData.map(columnName =>
-                            `<th style="width:${columnName.column_width}%; ${columnName.is_hide ? 'display:none;' : ''}">
-                              ${columnName.column_name === "shortage" ? columnName.column_name + " (kg)" : columnName.column_name}
-                            </th>`).join('')}
-                        <th>Amount</th>
-                        <th>Move</th>
-                        <th id="action">Action</th>
-                    `);
-
-                    managetooltip();
-
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                } else {
-                    $('#columnname').append(`
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                    `);
-                }
-
-                $('.automaticcolspan').attr('colspan', allColumnNames.length - hiddencolumn);
-                $('.newdivautomaticcolspan').attr('colspan', allColumnNames.length - hiddencolumn + 3);
-
-                await setdata();
-
-            } catch (xhr) {
-                handleAjaxError(xhr);
-            }
-        }
-    
-        async function getformula() {
-            try {
-                const response = await ajaxPromise('GET', "{{ route('invoiceformula.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID
-                });
-
-                if (response.status == 200 && response.invoiceformula != '') {
-                    formula = response.invoiceformula;
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                }
-
-                await getcolumn(); // wait next
-
-            } catch (xhr) {
-                handleAjaxError(xhr);
-            }
-        }
-        async  function setdata() {
-            if (invoice_data) {
-                $("#action").addClass('d-none');
-                $(".newdivautomaticcolspan").addClass('d-none');
-                let productdetails = invoice_data.line_items;
-                console.log(invoice_data.maindata.sampleIds);
-                $("#sampleIds").val(invoice_data.maindata.sampleIds.join(','));
-                $("#bank_companymaster_id").val(invoice_data.maindata.companymaster_id[0]);
-                companymaster_id = invoice_data.maindata.companymaster_id[0]; 
-                await customers(invoice_data.line_items[0].buyer_id);
-                await transports(invoice_data.line_items[0].transport_id);
-                await companymaster(invoice_data.maindata.companymaster_id[0]);
-                await  loadBankDetails();
-                await getoverduedays();
-                 const targetRow = $('#add_new_div');
-                        let dynamicidcount = 1; // Initialize outside the loop
-                        $.each(productdetails, function (key, value) {
-                            // Assuming `targetRow` is defined elsewhere
-                            targetRow.append(`
-                            <tr class="iteam_row_${dynamicidcount}" data-inventory="${value.id || null}">
-                                ${allColumnData.map(columnData => {
-                                var columnName = columnData.column_name.replace(/\s+/g, '_');
-                             
-                                if (columnData.is_hide === 1) hiddencolumn++; // Increment hiddencolumn conditionally
-                                if (columnData.column_type === 'time') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}" disabled>
-                                    </td>`;
-                                } else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') && columnName != 'shortage') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 disabled>
-                                    </td>`;
-                                }else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') &&  columnName == 'shortage') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 >
-                                    </td>`;
-                                }
-                                
-                                 else if (columnData.column_type === 'longtext') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <textarea name="${columnName}_${dynamicidcount}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" rows="1">${value[columnName] || `${columnData.default_value || ''}`}</textarea>
-                                    </td>`;
-                                } else {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="text" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}" disabled>
-                                    </td>`;
-                                }
-                            }).join('')}
-                                    <td><input type="number" step="any" value="${value.amount || ''}" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
-                                    <td>
-                                        <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
-                                        <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
-                                    </td>
-                                   
-                                </tr>
-                            `);
-                            addname = dynamicidcount;
-                            dynamiccalculaton(`#Amount_${addname}`);
-                            dynamicidcount++; // Increment dynamicidcount for the next row
-                            currentcurrency = $('#currency option:selected').data('currency');
-                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                        });
-                      
-            }
-            else {
-                 $("#action").addClass('d-none');
-                $(".newdivautomaticcolspan").addClass('d-none');
-                let productdetails = lot_no_invoice_data.line_items;
-                   console.log("this loat not data 2" ,productdetails);
-                //  console.log("this companyater id",lot_no_invoice_data.line_items[0].transport_id);
-
-                console.log(lot_no_invoice_data.maindata.invoice_no);
-                $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
-                 $("#bank_companymaster_id").val(lot_no_invoice_data.maindata.companymaster_id);
-                companymaster_id = lot_no_invoice_data.maindata.companymaster_id; 
-               
-                await customers(lot_no_invoice_data.line_items[0].buyer_id);
-                await  transports(lot_no_invoice_data.line_items[0].transport_id);
-                await  companymaster(lot_no_invoice_data.maindata.companymaster_id);
-                await  loadBankDetails();  
-                await getoverduedays();    
-                 const targetRow = $('#add_new_div');
-                        let dynamicidcount = 1; // Initialize outside the loop
-                        $.each(productdetails, function (key, value) {
-                            // Assuming `targetRow` is defined elsewhere
-                            targetRow.append(`
-                            <tr class="iteam_row_${dynamicidcount}" data-inventory="${value.id || null}">
-                                ${allColumnData.map(columnData => {
-                                var columnName = columnData.column_name.replace(/\s+/g, '_');
-                             
-                                if (columnData.is_hide === 1) hiddencolumn++; // Increment hiddencolumn conditionally
-                                if (columnData.column_type === 'time') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="time" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}"  class="form-control iteam_${columnName}" disabled>
-                                    </td>`;
-                                } else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') && columnName != 'shortage') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 disabled>
-                                    </td>`;
-                                }else if ((columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') &&  columnName == 'shortage') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="number" step="any" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-id="${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName} counttotal calculation" min=0 >
-                                    </td>`;
-                                }
-                                
-                                 else if (columnData.column_type === 'longtext') {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <textarea name="${columnName}_${dynamicidcount}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" rows="1">${value[columnName] || `${columnData.default_value || ''}`}</textarea>
-                                    </td>`;
-                                } else {
-                                    return `
-                                    <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''}">
-                                        <input type="text" name="${columnName}_${dynamicidcount}" value="${value[columnName] || `${columnData.default_value || ''}`}" id="${columnName}_${dynamicidcount}" data-oldproduct-id="${value.id}" class="form-control iteam_${columnName}" placeholder="${columnData.column_name}" disabled>
-                                    </td>`;
-                                }
-                            }).join('')}
-                                    <td><input type="number" step="any" value="${value.amount || ''}" data-id="${dynamicidcount}" class="form-control iteam_Amount changeprice calculation" id="Amount_${dynamicidcount}" data-oldproduct-id="${value.id}" placeholder="Amount" name='Amount_${dynamicidcount}' min=0 required></td>
-                                    <td>
-                                        <span class="table-up"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a></span>
-                                        <span class="table-down"><a href="#!" class="indigo-text"><i class="fa fa-long-arrow-down" aria-hidden="true"></i></a></span>
-                                    </td>
-                                   
-                                </tr>
-                            `);
-                           
-                            managetooltip();
-                            addname = dynamicidcount;
-                            dynamiccalculaton(`#Amount_${addname}`);
-                            dynamicidcount++; // Increment dynamicidcount for the next row
-                            currentcurrency = $('#currency option:selected').data('currency');
-                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                        });
-                    
-            }
-        }
-        async function transports(transportid = 0) {
-        try {
-            $('#transport_id').html(`
-                <option selected value=0 disabled>Select transport</option>
-            `);
-
-            const response = await ajaxPromise('GET', "{{ route('transport.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
+    } catch(e) { handleAjaxError(e); }
+}
+async function customers(cid = 0) {
+    try {
+        $('#customer').html(`<option selected value=0 disabled>Select Buyer</option>`);
+        const r = await ajaxPromise('GET', "{{ route('buyer.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID });
+        if (r.status == 200 && r.data != '') {
+            $.each(r.data, function(k,v) {
+                $('#customer').append(`<option data-gstno="${v.gst_no}" value="${v.id}" data-state_id="${v.state_id}">${[v.name,v.mobile_1,v.email].filter(Boolean).join(' - ')}</option>`);
             });
-
-            if (response.status == 200 && response.data != '') {
-
-                $.each(response.data, function(key, value) {
-                    const transportDetails = [value.name, value.mobile_1, value.email]
-                        .filter(Boolean).join(' - ');
-
-                    $('#transport_id').append(`
-                        <option data-gstno='${value.gst_no}' value='${value.id}'>
-                            ${transportDetails}
-                        </option>
-                    `);
-                });
-
-                $('#transport_id').val(transportid);
-                $('#transport_id').select2();
-
-                if (transportid) {
-                    $('#transport_id').prop('disabled', true);
-                }
-
-            } else if (response.status == 500) {
-                Toast.fire({
-                    icon: "error",
-                    title: response.message
-                });
-            }
-
-        } catch (xhr) {
-            handleAjaxError(xhr);
+            $('#customer').val(cid);
+            buyer_state_id = $('#customer').find('option:selected').data('state_id');
+            $('#customer').select2();
+            if (cid) $('#customer').prop('disabled', true);
         }
+    } catch(e) { handleAjaxError(e); }
+}
+async function companymaster(mid = 0) {
+    try {
+        $('#companymaster_id').html(`<option selected value=0 disabled>Select Companymaster</option>`);
+        const r = await ajaxPromise('GET', "{{ route('companymaster.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID });
+        if (r.status == 200 && r.data != '') {
+            $.each(r.data, function(k,v) {
+                $('#companymaster_id').append(`<option data-gstno="${v.gst_no}" value="${v.id}" data-state_id="${v.state_id}">${[v.company_name,v.mobile_1,v.email].filter(Boolean).join(' - ')}</option>`);
+            });
+            $('#companymaster_id').val(mid).select2();
+            company_state_id = $('#companymaster_id').find('option:selected').data('state_id');
+            if (mid) $('#companymaster_id').prop('disabled', true);
+        }
+    } catch(e) { handleAjaxError(e); }
+}
+
+function dynamiccalculaton(target) {
+    // ── 1. Safely get row id ──────────────────────────────────────────
+    let editid = null;
+    try {
+        const $t = $(target);
+        editid = ($t && typeof $t.data === 'function') ? $t.data('id') : null;
+    } catch(e) { editid = null; }
+
+    // ── 2. Read row values into rowData (keyed by original column name)
+    const rowData = {};
+    if (editid) {
+        allColumnNames.forEach(colName => {
+            const cn = colName.replace(/\s+/g, '_');
+            const el = $(`#${cn}_${editid}`);
+            // Store under BOTH forms so formula lookup always hits
+            const val = parseFloat(el.val()) || 0;
+            rowData[colName] = val;          // "Net Weight"
+            rowData[cn]      = val;          // "Net_Weight"
+        });
     }
 
-        async function customers(customerid = 0) {
-            try {
-                $('#customer').html(`
-                    <option selected value=0 disabled>Select Buyer</option>
-                `);
+    // ── 3. Apply formulas in order (chain-safe: update rowData after each)
+    formula.forEach(f => {
+        // Resolve inputs using both key formats
+        const v1 = parseFloat(rowData[f.first_column]  ?? rowData[f.first_column.replace(/\s+/g,'_')]  ?? 0) || 0;
+        const v2 = parseFloat(rowData[f.second_column] ?? rowData[f.second_column.replace(/\s+/g,'_')] ?? 0) || 0;
 
-                const response = await ajaxPromise('GET', "{{ route('buyer.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID
-                });
-
-                if (response.status == 200 && response.data != '') {
-                    console.log("customers");
-                    $.each(response.data, function(key, value) {
-                        const customerDetails = [value.name, value.mobile_1, value.email]
-                            .filter(Boolean).join(' - ');
-
-                        $('#customer').append(`
-                            <option data-gstno='${value.gst_no}'
-                                    value='${value.id}'
-                                    data-state_id='${value.state_id}'>
-                                ${customerDetails}
-                            </option>
-                        `);
-                    });
-
-                    $('#customer').val(customerid);
-                    var selectedOption = $('#customer').find('option:selected'); // get selected option
-                    buyer_state_id = selectedOption.data('state_id');
-                    $('#customer').select2();
-
-                    if (customerid) {
-                        $('#customer').prop('disabled', true);
-                    }
-
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                }
-
-            } catch (xhr) {
-                handleAjaxError(xhr);
-            }
+        let result = 0;
+        switch (f.operation) {
+            case '+': result = v1 + v2; break;
+            case '-': result = v1 - v2; break;
+            case '*': result = v1 * v2; break;
+            case '/': result = v2 !== 0 ? v1 / v2 : 0; break; // ← guard div/0
+            default:  result = 0;
         }
 
-        async function companymaster(companymaster_id = 0) {
-            try {
-                $('#companymaster_id').html(`
-                    <option selected value=0 disabled>Select Companymaster</option>
-                `);
+        const out    = parseFloat(result.toFixed(3));
+        const outKey = f.output_column.replace(/\s+/g, '_');
 
-                const response = await ajaxPromise('GET', "{{ route('companymaster.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID
-                });
+        // ── Chain fix: write back into rowData immediately ──
+        rowData[f.output_column] = out;
+        rowData[outKey]          = out;
 
-                if (response.status == 200 && response.data != '') {
-                    console.log("companymaster");
-                    $.each(response.data, function(key, value) {
-                        const details = [value.company_name, value.mobile_1, value.email]
-                            .filter(Boolean).join(' - ');
+        if (editid) $(`#${outKey}_${editid}`).val(out);
+    });
 
-                        $('#companymaster_id').append(`
-                            <option data-gstno='${value.gst_no}'
-                                    value='${value.id}'
-                                    data-state_id='${value.state_id}'>
-                                ${details}
-                            </option>
-                        `);
-                    });
+    // ── 4. Sum all Amount fields ──────────────────────────────────────
+    let total = 0;
+    $('input.changeprice').each(function() {
+        const v = parseFloat($(this).val());
+        if (!isNaN(v)) total += v;
+    });
+    total = parseFloat(total.toFixed(2));
+    $('#totalamount').val(total);
 
-                    $('#companymaster_id').val(companymaster_id);
-                    $('#companymaster_id').select2();
-                var selectedOption = $('#companymaster_id').find('option:selected'); // get selected option
-                    company_state_id = selectedOption.data('state_id');
-                    if (companymaster_id) {
-                        $('#companymaster_id').prop('disabled', true);
-                    }
+    // ── 5. GST / grand total ──────────────────────────────────────────
+    if ($('#type').val() == 1) {
+        const sv = parseFloat(((total * (sgst || 0)) / 100).toFixed(2));
+        const cv = parseFloat(((total * (cgst || 0)) / 100).toFixed(2));
+        const iv = parseFloat(((total * (igst || 0)) / 100).toFixed(2));
 
-                
-
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                }
-
-            } catch (xhr) {
-                handleAjaxError(xhr);
-            }
-        } 
-        function managetooltip() {
-            $('body').find('[data-toggle="tooltip"]').tooltip('dispose');
-            // Reinitialize tooltips
-            $('body').find('[data-toggle="tooltip"]').tooltip();
-        };
-        function dynamiccalculaton(targetdata) {
-            
-            var editid = $(targetdata).data('id');
-            
-            var rowData = {};
-            $.each(allColumnNames, function(key, value) {
-                var modifiedValue = value.replace(/\s+/g, '_');
-                $(`table tr.iteam_row_${editid} td`).find(`input[type="number"]#${modifiedValue}_${editid}`).each(
-                    function() {
-                        rowData[value] = $(this).val();
-                    });
+        if (gst == 0) {
+            $('#sgst').val(sv);
+            $('#cgst').val(cv);
+            $('#igst').val(iv);
+        } else {
+            $('#gst').val((sv + cv + iv).toFixed(2));
+        }
+        applyRoundoff(total + sv + cv + iv);
+    } else {
+        // Without GST — zero out tax fields
+        $('#sgst,#cgst,#igst,#gst').val(0);
+        applyRoundoff(total);
+    }
+}
+/* ── Bank ── */
+async function loadBankDetails() {
+    try {
+        const $sel = $('#acc_details');
+        $sel.empty().append(`<option value="">Select Bank</option><option value="add_new">+ Add New Bank</option>`);
+        const r = await ajaxPromise('GET', "{{ route('bank_detail.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID, companymaster_id });
+        if (r.status == 200 && r.bank && r.bank.length > 0) {
+            const latestId = Math.max(...r.bank.map(b => b.id));
+            r.bank.forEach(b => {
+                const d = [b.account_no, b.branch_name, b.holder_name].filter(Boolean).join(' - ');
+                $sel.find('option[value="add_new"]').before(`<option value="${b.id}" ${b.id===latestId?'selected':''}>${d}</option>`);
             });
-            
-            var iteam_data = new Array();
-                
+        }
+    } catch(e) { handleAjaxError(e); }
+}
+
+/* ── GST settings ── */
+async function getoverduedays() {
+    try {
+        const r = await ajaxPromise('GET', "{{ route('getoverduedays.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID });
+        if (r.status == 200 && r.overdueday != '') {
+            const d = r.overdueday[0];
+            sgst=d.sgst; cgst=d.cgst; igst=d.igst; gst=d.gst;
+            if (company_state_id === buyer_state_id) { igst = 0; } else { sgst = 0; cgst = 0; }
+            const tg = sgst + cgst + igst;
+            $('#sgstpercentage').text(`${sgst%1===0?sgst+'.00':sgst} %`);
+            $('#igstpercentage').text(`${igst?igst+'.00':igst} %`);
+            $('#cgstpercentage').text(`${cgst%1===0?cgst+'.00':cgst} %`);
+            $('#gstpercentage').text(`${tg%1===0?tg+'.00':tg} %`);
+            if (gst != 0) { $('#sgstline,#cgstline,#igstline').hide(); } else { $('#gstline').hide(); }
+            if (d.invoice_number == 0) $('#inv_number_div').hide();
+            if (d.invoice_date   == 0) $('#inv_date_div').hide();
+            dynamiccalculaton({ data: () => null });
+        }
+    } catch(e) { handleAjaxError(e); }
+}
+
+$(document).ready(async function() { await getformula(); });
+
+$(function() {
+
+    if (performance.getEntriesByType("navigation")[0].type === "reload") {
+        Swal.fire({ icon:'warning', title:'Page Reloaded!', text:'Redirecting to invoice list.', confirmButtonText:'OK' })
+            .then(() => { window.location.href = "{{ url('admin/invoice') }}"; });
+    }
+
+    $(document).on('focus', '.calculation', function() { if ($(this).val() == '0') $(this).val(''); });
+    $(document).on('blur',  '.calculation', function() { if ($(this).val() === '') $(this).val('0'); });
+
+    $("#modalcancelbtn").on('click', () => { $('#bankdetailform')[0].reset(); $('#bankDetailModal').modal('hide'); });
+    $(document).on('change', '#acc_details', function() {
+        if ($(this).val() === 'add_new') { $('#bankDetailModal').modal('show'); $(this).val(''); }
+    });
+
+    $('#company_name').on('change keyup', function() {
+        const v = $(this).val();
+        if (v) { $('.withgstspan').show(); $('.withoutgstspan').hide(); $('.withgstinput').attr('required',true); $('.withoutgstinput').removeAttr('required'); }
+        else   { $('.withgstspan').hide(); $('.withoutgstspan').show(); $('.withoutgstinput').attr('required',true); $('.withgstinput').removeAttr('required'); }
+    });
+
+    ajaxRequest('GET', "{{ route('productcolumnmapping.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+        .done(r => { if (r.status==200&&r.productcolumnmapping!='') productcolumnlinks=r.productcolumnmapping; });
+    ajaxRequest('GET', "{{ route('lrcolumnmapping.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+        .done(r => { if (r.status==200&&r.lrcolumnmapping!='') lrcolumnlinks=r.lrcolumnmapping; });
+
+    /* Products */
+    ajaxRequest('GET', "{{ route('product.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+        .done(function(r) {
+            if (r.status==200&&r.product!='') {
+                productdata=r.product; let cnt=0;
+                $.each(r.product,function(k,v) {
+                    if (v.is_active==1) { cnt++;
+                        $('#product').append(`<option id="product_option_${v.id}" ${v.track_quantity==0?'disabled':''} value="${v.id}">${v.name}${v.track_quantity==0?' - inventory not tracked':''}</option>`);
+                    }
+                });
+                $('#product').val('').select2({placeholder:"Select Product",search:true});
+                if (cnt < 1) $('#productdiv').hide();
+            } else $('#productdiv').hide();
+        });
+
+    /* LR */
+    ajaxRequest('GET', "{{ route('consignorcopy.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+        .done(function(r) {
+            if (r.status==200&&r.data!='') {
+                lrdata=r.data; let cnt=0;
+                $.each(r.data,function(k,v) {
+                    cnt++;
+                    const d=[v.consignee,v.consignment_note_no,v.consignor,v.container_no,v.to_pay].filter(Boolean).join(' - ');
+                    $('#lr').append(`<option value="${v.id}">${d}</option>`);
+                });
+                $('#lr').val('').select2({placeholder:"Select LR",search:true});
+                if (cnt < 1) $('#lrdiv').hide();
+            } else $('#lrdiv').hide();
+        });
+
+    /* Currency */
+    ajaxRequest('GET', "{{ route('country.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+        .done(function(r) {
+            if (r.status==200&&r.country!='')
+                $.each(r.country,function(k,v) {
+                    $('#currency').append(`<option data-symbol="${v.currency_symbol}" data-currency="${v.currency}" value="${v.id}">${v.country_name} - ${v.currency_name} - ${v.currency} - ${v.currency_symbol}</option>`);
+                });
+        });
+
+    /* Customer change */
+    $('#customer').on('change', function() {
+        loadershow(); const cid=$(this).val();
+        if (cid=='add_customer') $('#exampleModalScrollable').modal('show');
+        ajaxRequest('GET', "{{ route('party.search','__id__') }}".replace('__id__',cid), { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+            .done(function(r) { if(r.status==200&&r.party){const c=r.party.country_id;if(c){$('#country').val(c);$('#currency').val(c);updateCurrencySymbol();}} loaderhide(); })
+            .fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+    });
+    /* Companymaster change */
+    $('#companymaster_id').on('change', function() {
+        loadershow(); const mid=$(this).val();
+        ajaxRequest('GET', "{{ route('companymaster.search','__id__') }}".replace('__id__',mid), { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })
+            .done(function(r) { if(r.status===200&&r.data&&r.data.length){const c=r.companymaster.country_id;if(c){$('#country').val(c);$('#currency').val(c);updateCurrencySymbol();}} loaderhide(); })
+            .fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+    });
+    $('#currency').on('change', updateCurrencySymbol);
+
+    /* ── Add blank row ── */
+    $('.add_div').on('click', function() {
+        addname++;
+        $('#li-empty').before(buildCard(addname, {}, null, false, true));
+        renumberCards(); updateRowCount(); managetooltip();
+        dynamiccalculaton(`#Amount_${addname}`);
+    });
+
+    /* ── Move up/down ── */
+    $(document).on('click', '.table-up', function() {
+        const $c = $(this).closest('.li-item-card'), $p = $c.prev('.li-item-card');
+        if ($p.length) { $p.before($c); renumberCards(); }
+    });
+    $(document).on('click', '.table-down', function() {
+        const $c = $(this).closest('.li-item-card'), $n = $c.next('.li-item-card');
+        if ($n.length) { $n.after($c); renumberCards(); }
+    });
+
+    /* ── Duplicate ── */
+    $(document).on('click', '.duplicate-row', function() {
+        const elem=$(this), id=elem.data('id');
+        showConfirmationDialog('Are you sure?','to add a duplicate row?','Yes, add','No, cancel','question', function() {
+            addname++;
+            const inv = $(`.iteam_row_${id}`).data('inventory');
+            const vals = {};
+            allColumnNames.forEach(cn => {
+                const key = cn.replace(/\s+/g,'_');
+                vals[key] = $(`#${key}_${id}`).val() || '';
+            });
+            vals['amount'] = $(`#Amount_${id}`).val() || '';
+            $(`.iteam_row_${id}`).after(buildCard(addname, vals, inv, false, true));
+            renumberCards(); updateRowCount(); managetooltip();
+            dynamiccalculaton(`#Amount_${addname}`);
+        });
+    });
+
+    /* ── Delete ── */
+    $(document).on('click', '.remove-row', function() {
+        const elem=$(this);
+        showConfirmationDialog('Are you sure?','to delete this item?','Yes, delete','No, cancel','question', function() {
+            elem.closest('.li-item-card').remove();
+            renumberCards(); updateRowCount(); managetooltip();
+            dynamiccalculaton({ data: () => null });
+        });
+    });
+
+    /* ── Calculation trigger ── */
+    $(document).on('keyup change', '.calculation', function() { dynamiccalculaton(this); });
+
+    /* ── GST type toggle ── */
+    $('#type').on('change', function() {
+        if ($(this).val() == 2) {
+            $('#sgstline,#cgstline,#igstline,#gstline').hide();
+            $('#gst,#sgst,#cgst,#igst').val(0);
+            applyRoundoff(parseFloat($('#totalamount').val()) || 0);
+        } else {
+            if (gst != 0) { $('#sgstline,#cgstline,#igstline').hide(); $('#gstline').show(); }
+            else          { $('#sgstline,#cgstline,#igstline').show(); $('#gstline').hide(); }
+            dynamiccalculaton({ data: () => null });
+        }
+    });
+
+    /* ── Product quick-add ── */
+    $('#product').on('change', function() {
+        const sel = $(this).val(); addname++;
+        if (productcolumnlinks.length > 1) {
+            $.each(productdata, function(k, v) {
+                if (v.id == sel) {
+                    const vals = {};
+                    productcolumnlinks.forEach(lnk => {
+                        const key = lnk.invoice_column.replace(/\s+/g,'_');
+                        vals[key] = v[lnk.product_column] || '';
+                    });
+                    $('#li-empty').before(buildCard(addname, vals, v.id, false, true));
+                    renumberCards(); updateRowCount(); managetooltip();
+                    dynamiccalculaton(`#Amount_${addname}`);
+                }
+            });
+        } else { Toast.fire({icon:"info",title:"Product column mapping required"}); }
+        $('#product').val('').select2({placeholder:"Select Product",search:true});
+    });
+
+    /* ── LR quick-add ── */
+    $('#lr').on('change', function() {
+        const sel = $(this).val(); addname++;
+        if (lrcolumnlinks.length > 0) {
+            $.each(lrdata, function(k, v) {
+                if (v.id == sel) {
+                    const vals = {};
+                    lrcolumnlinks.forEach(lnk => {
+                        const key = lnk.invoice_column.replace(/\s+/g,'_');
+                        vals[key] = v[lnk.lr_column] ?? '';
+                    });
+                    $('#li-empty').before(buildCard(addname, vals, v.id, false, true));
+                    renumberCards(); updateRowCount(); managetooltip();
+                    dynamiccalculaton(`#Amount_${addname}`);
+                }
+            });
+        } else { Toast.fire({icon:"info",title:"LR column mapping required"}); }
+        $('#lr').val('').trigger('change');
+    });
+
+    /* ── collectRowData ── */
+    function collectRowData() {
+        const iteam_data = [];
+        $('#li-list .li-item-card').each(function() {
+            const rowData = {};
+            const rowNumber = $(this).attr('class').match(/iteam_row_(\d+)/)[1];
+            const inv = $(this).data('inventory');
+            allColumnNames.forEach(cn => {
+                const key = cn.replace(/\s+/g,'_');
+                rowData[key] = $(this).find(`#${key}_${rowNumber}`).val() || '';
+            });
+            rowData['amount'] = $(this).find(`#Amount_${rowNumber}`).val();
+            rowData['inventoryproduct'] = inv;
             iteam_data.push(rowData);
-
-            function performCalculation(operation, value1, value2) {
-                
-                switch (operation) {
-                    case '*':
-                        return value1 * value2;
-                        break;
-                    case '/':
-                        return value1 / value2;
-                        break;
-                    case '+':
-                        return value1 + value2;
-                        break;
-                    case '-':
-                        return value1 - value2;
-                        break;
-                    default:
-                        return 0;
-                }
-            }
-
-            var results = {};
-
-            formula.forEach(function(formula) {
-                
-                var value1 = parseFloat(iteam_data[0][formula.first_column]) || 0;
-                var value2 = parseFloat(iteam_data[0][formula.second_column]) || 0;
-                
-                outputvalue = performCalculation(formula.operation, value1, value2)
-                iteam_data[0][formula.output_column] = outputvalue.toFixed(3);
-                if(formula.output_column == "Net Weight Kgs"){
-                    formula.output_column = formula.output_column.replace(/\s+/g, '_');
-                }
-                results[formula.output_column] = outputvalue.toFixed(3);
-                console.log(formula.output_column,results[formula.output_column]);
-                $(`#${formula.output_column}_${editid}`).val(outputvalue.toFixed(3));
-
-            });
-            var total = 0;
-            $('input.changeprice').each(function() {
-                total += parseFloat($(this).val());
-            });
-            total = total.toFixed(2);
-            if (!isNaN(total)) {
-                $('#totalamount').val(total);
-                if ($('#type').val() == 1) {
-                    var sgstvalue = ((total * sgst) / 100);
-                    var cgstvalue = ((total * cgst) / 100);
-                    var igstvalue = ((total * igst) / 100);
-                    sgstvalue = sgstvalue.toFixed(2);
-                    cgstvalue = cgstvalue.toFixed(2);
-                    igstvalue = igstvalue.toFixed(2);
-                    if (gst == 0) {
-                        $('#sgst').val(sgstvalue);
-                        $('#cgst').val(cgstvalue);
-                        $('#igst').val(igstvalue);
-                    } else {
-                        $('#gst').val(parseFloat(sgstvalue) + parseFloat(cgstvalue)+ parseFloat(igstvalue));
-                    }
-                    var totalval = parseFloat(total) + parseFloat(sgstvalue) + parseFloat(cgstvalue) + parseFloat(igstvalue) ;
-                    grandtotalval = Math.round(totalval)
-                    if (grandtotalval >= totalval) {
-                        roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2);
-                        if (roundoffval == 0) {
-                            $('#roundoff').val(`${roundoffval}`);
-                        } else {
-                            $('#roundoff').val(`+ ${roundoffval}`);
-                        }
-                    } else {
-                        roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2);
-                        if (roundoffval == 0) {
-                            $('#roundoff').val(`${roundoffval}`);
-                        } else {
-                            $('#roundoff').val(`- ${roundoffval}`);
-                        }
-                    }
-                    $('#grandtotal').val(grandtotalval);
-                } else {
-                    $('#grandtotal').val(Math.round(total));
-                    var totalval = parseFloat(total);
-                    grandtotalval = Math.round(totalval)
-                    if (grandtotalval >= totalval) {
-                        roundoffval = (parseFloat(grandtotalval) - parseFloat(totalval)).toFixed(2);
-                        if (roundoffval == 0) {
-                            $('#roundoff').val(`${roundoffval}`);
-                        } else {
-                            $('#roundoff').val(`+ ${roundoffval}`);
-                        }
-                    } else {
-                        roundoffval = (parseFloat(totalval) - parseFloat(grandtotalval)).toFixed(2);
-                        if (roundoffval == 0) {
-                            $('#roundoff').val(`${roundoffval}`);
-                        } else {
-                            $('#roundoff').val(`- ${roundoffval}`);
-                        }
-                    }
-                }
-            }
-
-        }
-        async function loadBankDetails() {
-            try {
-                $('#acc_details').empty();
-
-                const response = await ajaxPromise('GET', "{{ route('bank_detail.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID,
-                    companymaster_id: companymaster_id
-                });
-
-                $('#acc_details').html(`<option value="">Select Bank</option>`);
-                $('#acc_details').append(`<option value='add_new'>Add New Bank</option>`);
-
-                if (response.status == 200 && response.bank != '') {
-
-                    $.each(response.bank, function(key, value) {
-                        let bankdetails = '';
-
-                        if (value.account_no) bankdetails += value.account_no;
-                        if (value.branch_name) bankdetails += (bankdetails ? '-' : '') + value.branch_name;
-                        if (value.holder_name) bankdetails += (bankdetails ? '-' : '') + value.holder_name;
-
-                        $('#acc_details').append(`
-                            <option value='${value.id}'>${bankdetails}</option>
-                        `);
-                    });
-
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                }
-
-            } catch (xhr) {
-                handleAjaxError(xhr);
-            }
-        }   
-        async function getoverduedays() {
-            try {
-                const response = await ajaxPromise('GET', "{{ route('getoverduedays.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID
-                });
-
-                if (response.status == 200 && response.overdueday != '') {
-
-                    console.log("getoverduedays");
-                    var othersettingdata = response.overdueday[0];
-
-                    customer_dropdown = othersettingdata['customer_dropdown'];
-                    sgst = othersettingdata['sgst'];
-                    cgst = othersettingdata['cgst'];
-                    igst = othersettingdata['igst'];
-                    gst = othersettingdata['gst'];
-                    console.log(company_state_id,buyer_state_id);
-                    if (company_state_id === buyer_state_id) {
-                        igst = 0;
-                    } else {
-                        sgst = 0;
-                        cgst = 0;
-                    }
-                    manualinvnumber = othersettingdata['invoice_number'];
-                    manualinvdate = othersettingdata['invoice_date'];
-
-                    totalgstpercentage = sgst + cgst + igst;
-                    if (sgst % 1 === 0) { // Checks if sgst is an integer
-                        $('#sgstpercentage').text(`(${sgst}.00 %)`);
-                    } else {
-                        $('#sgstpercentage').text(`(${sgst} %)`);
-                    }
-                    if (igst) { // Checks if sgst is an integer
-                        $('#igstpercentage').text(`(${igst}.00 %)`);
-                    } else {
-                        $('#igstpercentage').text(`(${igst} %)`);
-                    }
-                    if (cgst % 1 === 0) { // Checks if cgst is an integer
-                        $('#cgstpercentage').text(`(${cgst}.00 %)`);
-                    } else {
-                        $('#cgstpercentage').text(`(${cgst} %)`);
-                    }
-                    if (totalgstpercentage % 1 === 0) { // Checks if gst is an integer
-                        $('#gstpercentage').text(`(${totalgstpercentage}.00 %)`);
-                    } else {
-                        $('#gstpercentage').text(`(${totalgstpercentage} %)`);
-                    }
-                    if (gst != 0) {
-                        $('#sgstline,#cgstline,#igstline').hide();
-                    } else {
-                        $('#gstline').hide();
-                    }
-                    if (manualinvnumber == 0) {
-                        $('#inv_number_div').hide();
-                    }
-
-                    if (manualinvdate == 0) {
-                        $('#inv_date_div').hide();
-                    }
-                                
-                    dynamiccalculaton();
-
-                } else if (response.status == 500) {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                }
-
-            } catch (xhr) {
-                handleAjaxError(xhr);
-            }
-        }
-
-        $(document).ready(async function () {
-            await getformula();
         });
-        $('document').ready(function() {
-            // let invoice_data = @json(session('invoice_data'));
-            // let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
-        // If either data is missing or empty, redirect with alert
-            // if (!invoice_data || invoice_data.length === 0 || !lot_no_invoice_data || lot_no_invoice_data.length === 0) {
-            //     Swal.fire({
-            //         icon: 'warning',
-            //         title: 'No Data Found!',
-            //         text: 'Invoice data or Lot No data is missing.',
-            //         confirmButtonText: 'OK'
-            //     }).then(() => {
-            //         // Redirect after alert
-            //         window.location.href = "{{ url('admin/invoice') }}";
-            //     });
-            // }
-           if (performance.getEntriesByType("navigation")[0].type === "reload") {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Page Reloaded!',
-                    text: 'You will be redirected to the invoice page.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = "{{ url('admin/invoice') }}";
-                });
-            }
-
-              $("#modalcancelbtn").on('click', function() {
-                $('#bankdetailform')[0].reset();
-                $('#bankDetailModal').modal('hide');
-            });
-            // companyId and userId both are required in every ajax request for all action *************
-            // response status == 200 that means response succesfully recieved
-            // response status == 500 that means database not found
-            // response status == 422 that means api has not got valid or required data
-            // customer form  -> dynamic required attribute (if enter company name then only company name required otherwise only firstname)
-            $('.withgstspan').hide();
-            // This will listen for any change event on the form's inputs.
-            $('#add_new_div').on('change', 'input, textarea', function() {
-                // Iterate through all the inputs and update their title attribute with their current value.
-                $('#add_new_div input, #add_new_div textarea').each(function() {
-                    var inputValue = $(this).val(); // Get the current value of the input/textarea
-                    $(this).attr('title', inputValue); // Set the title attribute with the value
-                });
-            });
-            $('#company_name').on('change keyup', function() {
-                var val = $(this).val();
-                if (val != '') {
-                    $('.withgstspan').show();
-                    $('.withoutgstspan').hide();
-                    $('.withgstinput').attr('required', true);
-                    $('.withoutgstinput').removeAttr('required');
-                } else {
-                    $('.withgstspan').hide();
-                    $('.withoutgstspan').show();
-                    $('.withoutgstinput').attr('required', true);
-                    $('.withgstinput').removeAttr('required');
-                }
-            });
-            // fetch other settings like gst and inv number and inv date
-           
-            // fetch product columns link  
-            ajaxRequest('GET', "{{ route('productcolumnmapping.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-                if (response.status == 200 && response.productcolumnmapping != '') {
-                    productcolumnlinks = response.productcolumnmapping;
-                }
-                // else if(response.status == 500){
-                //     Toast.fire({
-                //         icon: "error",
-                //         title: response.message
-                //     });
-                //        loaderhide();
-                // } 
-            }).fail(function(xhr) {
-                
-                handleAjaxError(xhr);
-            });
-
-            //  fetch lr columns link
-            ajaxRequest('GET', "{{ route('lrcolumnmapping.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-                if (response.status == 200 && response.lrcolumnmapping != '') {
-                    lrcolumnlinks = response.lrcolumnmapping;
-                }
-                // else if(response.status == 500){
-                //     Toast.fire({
-                //         icon: "error",
-                //         title: response.message
-                //     });
-                //        loaderhide();
-                // } 
-            }).fail(function(xhr) {
-                
-                handleAjaxError(xhr);
-            });
-
-            // Handle moving row up (editable-table)
-            const $tableID = $("#table");
-            $tableID.on("click", ".table-up", function() {
-                const $row = $(this).closest("tr"); // Use closest to get the closest ancestor
-                if ($row.index() !== 0) {
-                    $row.prev().before($row); // Move the row
-                }
-            });
-           $(document).on('change', '#acc_details', function () {
-                if ($(this).val() === 'add_new') {
-                    $('#bankDetailModal').modal('show');
-
-                    // Reset dropdown back to default (optional)
-                    $(this).val('');
-                }
-            });
-
-            // get product data 
-            ajaxRequest('GET', "{{ route('product.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-
-                if (response.status == 200 && response.product != '') {
-
-                    productdata = response.product;
-                    var productcount = 0;
-                    // You can update your HTML with the data here if needed
-                    $.each(response.product, function(key, value) {
-                        if (value.is_active == 1) {
-                            productcount++;
-                            $('#product').append(`
-                        <option id="product_option_${value.id}" ${value.track_quantity == 0 ? 'disabled' : ''} value='${value.id}'>${value.name} ${value.track_quantity == 0 ? ' - inventory not tracked' : ''}</option>
-                    `);
-                        }
-                    });
-                    $('#product').val('');
-                    $('#product').select2({
-                        placeholder: "Select Product",
-                        search: true,
-                    }); // search bar in product list 
-                    if (productcount < 1) {
-                        $('#productdiv').hide();
-                    }
-                } else {
-                    // Toast.fire({
-                    //     icon: "error",
-                    //     title: response.message
-                    // });  
-                    // $('#product').append(`<option disabled selected>No Product found</option>`);
-                    $('#productdiv').hide();
-                }
-                
-            }).fail(function(xhr) {
-                
-                handleAjaxError(xhr);
-            });
-
-            // get consigneecopy data 
-            ajaxRequest('GET', "{{ route('consignorcopy.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-
-                if (response.status == 200 && response.data != '') {
-                    lrdata = response.data;
-                    var consignorcopycount = 0;
-                    // You can update your HTML with the data here if needed
-                    $.each(response.data, function(key, value) {
-                        consignorcopycount++;
-                        const lrdetails = [value.consignee, value.consignment_note_no, value
-                            .consignor, value.container_no, value.to_pay
-                        ].filter(Boolean).join(' - ');
-                        $('#lr').append(`
-                    <option id="lr_option_${value.id}" value="${value.id}">
-                        ${lrdetails}
-                    </option>
-                `);
-                    });
-
-                    $('#lr').val('');
-                    $('#lr').select2({
-                        placeholder: "Select lr",
-                        search: true,
-                    }); // search bar in lr list 
-                    if (consignorcopycount < 1) {
-                        $('#lrdiv').hide();
-                    }
-                } else {
-                    // Toast.fire({
-                    //     icon: "error",
-                    //     title: response.message
-                    // });  
-                    // $('#lr').append(`<option disabled selected>No Product found</option>`);
-                    $('#lrdiv').hide();
-                }
-                
-            }).fail(function(xhr) {
-                
-                handleAjaxError(xhr);
-            });
-
-            // currency data fetch from country table and set currensy dropdown
-            ajaxRequest('GET', "{{ route('country.index') }}", {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-                if (response.status == 200 && response.country != '') {
-                    // You can update your HTML with the data here if needed
-                    $.each(response.country, function(key, value) {
-                        $('#currency').append(`
-                    <option data-symbol='${value.currency_symbol}' data-currency='${value.currency}' value='${value.id}'>${value.country_name} - ${value.currency_name} - ${value.currency} - ${value.currency_symbol} </option>
-                `);
-                    });
-                } else {
-                    $('#currency').append(`<option disabled '>No Data found </option>`);
-                }
-            }).fail(function(xhr) {
-                
-                handleAjaxError(xhr);
-            });
-
-            // fetch country id from selected customer and set input value for hidden file
-            $('#customer').on('change', function() {
-                loadershow();
-                var selectedOption = $(this).find('option:selected');
-
-                var customerid = $(this).val();
-                if (customerid == 'add_customer') {
-                    $('#exampleModalScrollable').modal('show');
-                }
-
-                customerSearchUrl = "{{ route('party.search', '__customerId__') }}".replace(
-                    '__customerId__', customerid);
-
-                ajaxRequest('GET', customerSearchUrl, {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID
-                }).done(function(response) {
-                    // You can update your HTML with the data here if needed
-                    if (response.status == 200 && response.party != '') {
-                        var countryid = response.party.country_id
-                       
-                        if (countryid != null) {
-                            $('#country').val(countryid);
-                            $('#currency').val(countryid);
-                            currentcurrency = $('#currency option:selected').data('currency');
-                            currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                            $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                        }
-
-                    } else if (response.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    }
-                    loaderhide();
-                }).fail(function(xhr) {
-                    loaderhide();
-                    handleAjaxError(xhr);
-                });
-
-            });
-
-            
-            $('#transport_id').on('change', function() {
-                    loadershow();
-                    var selectedOption = $(this).find('option:selected');
-
-                    var transport_id = $(this).val();
-                    if (transport_id == 'add_transport_id') {
-                        $('#exampleModalScrollable').modal('show');
-                    }
-
-                    transport_idSearchUrl = "{{ route('party.search', '__transport_id__') }}".replace(
-                        '__transport_id__', transport_id);
-
-                    ajaxRequest('GET', transport_idSearchUrl, {
-                        token: API_TOKEN,
-                        company_id: COMPANY_ID,
-                        user_id: USER_ID
-                    }).done(function(response) {
-                        // You can update your HTML with the data here if needed
-                        if (response.status === 200 && response.data && response.data.length) {
-
-                            var countryid = response.party.country_id
-                            if (countryid != null) {
-                                $('#country').val(countryid);
-                                $('#currency').val(countryid);
-                                currentcurrency = $('#currency option:selected').data(
-                                    'currency');
-                                currentcurrencysymbol = $('#currency option:selected').data(
-                                    'symbol');
-                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                            }
-
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    }).fail(function(xhr) {
-                        loaderhide();
-                        handleAjaxError(xhr);
-                    });
-
-                });
-
-            $('#companymaster_id').on('change', function() {
-                    loadershow();
-                    var selectedOption = $(this).find('option:selected');
-
-                    var companymaster_id = $(this).val();
-                    if (companymaster_id == 'add_companymaster_id') {
-                        $('#exampleModalScrollable').modal('show');
-                    }
-
-                    companymaster_idSearchUrl = "{{ route('companymaster.search', '__companymaster_id__') }}".replace(
-                        '__companymaster_id__', companymaster_id);
-                
-                ajaxRequest('GET', companymaster_idSearchUrl, {
-                        token: API_TOKEN,
-                        company_id: COMPANY_ID,
-                        user_id: USER_ID
-                    }).done(function(response) {
-                        // You can update your HTML with the data here if needed
-                        if (response.status === 200 && response.data && response.data.length) {
-                            console.log('response', response);
-                            var countryid = response.companymaster.country_id
-                           
-                            if (countryid != null) {
-                                $('#country').val(countryid);
-                                $('#currency').val(countryid);
-                                currentcurrency = $('#currency option:selected').data(
-                                    'currency');
-                                currentcurrencysymbol = $('#currency option:selected').data(
-                                    'symbol');
-                                $('.currentcurrencysymbol').text(currentcurrencysymbol);
-                            }
-
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    }).fail(function(xhr) {
-                        loaderhide();
-                        handleAjaxError(xhr);
-                    });
-
-                });
-
-            // append currency symbol according currency
-            $('#currency').on('change', function() {
-                currentcurrency = $('#currency option:selected').data('currency');
-                currentcurrencysymbol = $('#currency option:selected').data('symbol');
-                $('.currentcurrencysymbol').text(currentcurrencysymbol);
-            });
-
-            // call function to append row in table  on click add new button 
-            var addname = 0; // for use to this variable for give to dynamic name and id to input 
-            $('.add_div').on('click', function() {
-                addname++;
-                adddiv();
-            });
-
-                // function for add new row in table 
-            function adddiv() {
-                hiddencolumn = 0;
-                $('#add_new_div').append(
-                    `<tr class="iteam_row_${addname}" data-inventory="null">
-                                                                            ${allColumnData.map(columnData => {
-                        var columnName = columnData.column_name.replace(/\s+/g, '_');
-                        var inputcontent = null;
-                        (columnData.is_hide == 1) ? hiddencolumn++ : '';
-                        if (columnData.column_type === 'time') {
-                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} "><input type="time" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} "></td>`;
-                        } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
-                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} "><input type="number" step="any" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0></td>`;
-                        } else if (columnData.column_type === 'longtext') {
-                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} "><textarea name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1"> ${columnData.default_value || ''}</textarea></td>`;
-                        } else {
-                            return `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} "><input type="text" name="${columnName}_${addname}" value="${columnData.default_value || ''}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " placeholder="${columnData.column_name}"></td>`;
-                        }
-                    }).join('')
-                    }
-                        <td>
-                            <input type="number" step="any" data-id =${addname} id="Amount_${addname}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
-                        </td>   
-                        <td>
-                            <span class="table-up">
-                                <a href="#!" class="indigo-text">
-                                    <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
-                                </a>
-                            </span>
-                            <span class="table-down">
-                                <a href="#!" class="indigo-text">
-                                    <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
-                                </a>
-                            </span>
-                        </td>
-                        <td>
-                            <span class='duplicate-row' data-id = ${addname}> 
-                                <button type="button"  data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
-                                <i class="ri-align-bottom"></i>
-                                </button>
-                            </span>
-                            <span class='remove-row' data-id=${addname}>
-                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                <i class="ri-delete-bin-2-line"></i>
-                                </button>
-                            </span>
-                        </td>
-                    </tr>`
-                );
-                managetooltip();
-                dynamiccalculaton('#Amount_' + addname);
-            };
-
-
-
-        //call function duplicate row 
-        $(document).on('click', '.duplicate-row', function() {
-            var element = $(this);
-            showConfirmationDialog(
-                'Are you sure?', // Title
-                'to add duplicate column?', // Text
-                'Yes, add', // Confirm button text
-                'No, cancel', // Cancel button text
-                'question', // Icon type (question icon)
-                () => {
-                    var id = element.data('id');
-                    addname++;
-                    var inventoryproduct = $(this).closest('tr').data('inventory');
-                    duplicatediv(id, inventoryproduct);
-                    if ('#Amount_'.id != null || '#Amount_'.id != '') {
-                        dynamiccalculaton();
-                    }
-                    managetooltip();
-                }
-            );
-        });
-
-        // function for duplicate row
-         function duplicatediv(id, inventoryproduct) {
-                amountinput = $('#Amount_' + id);
-                var productid = amountinput.data('product');
-                $('#add_new_div').append(`
-                    <tr class="iteam_row_${addname}" data-inventory="${inventoryproduct}">
-                        ${allColumnData.map(columnData => {
-                    var columnName = columnData.column_name.replace(/\s+/g, '_');
-                    var inputcontent = null;
-                    if (columnData.column_type === 'time') {
-                        return `
-                            <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                <input type="time" name="${columnName}_${addname}" value="${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}" id='${columnName}_${addname}' class="form-control iteam_${columnName} ">
-                            </td>
-                        `;
-                    } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
-                        return `
-                            <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                <input type="number" step="any" name="${columnName}_${addname}" value="${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}" id='${columnName}_${addname}' data-id = ${addname} class="form-control iteam_${columnName} counttotal calculation"  min=0>
-                            </td>
-                        `;
-                    } else if (columnData.column_type === 'longtext') {
-                        return `
-                            <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " rows="1">${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}</textarea>
-                            </td>
-                        `;
-                    } else {
-                        return `
-                            <td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                <input type="text" name="${columnName}_${addname}" value="${$('#' + columnName + '_' + id).val() || `${columnData.default_value || ''}`}" id='${columnName}_${addname}' class="form-control iteam_${columnName} " placeholder="${columnData.column_name}">
-                            </td>
-                        `;
-                    }
-                }).join('')
-                    }
-                        <td>
-                            <input type="number" step="any" data-id = ${addname} id="Amount_${addname}" data-product="${productid || ''}" value="${$('#Amount' + '_' + id).val() || ''}" min=0 name="Amount_${addname}" class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
-                        </td>   
-                        <td>
-                            <span class="table-up">
-                                <a href="#!" class="indigo-text">
-                                    <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
-                                </a>
-                            </span>
-                            <span class="table-down">
-                                <a href="#!" class="indigo-text">
-                                    <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
-                                </a>
-                            </span>
-                        </td>
-                        <td>
-                            <span class='duplicate-row' data-id = ${addname}>
-                                <button type="button"  data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Row" class="btn iq-bg-primary btn-rounded btn-sm mx-0 my-1">
-                                <i class="ri-align-bottom"></i>
-                                </button>
-                            </span>
-                            <span class='remove-row' data-id=${addname}>
-                                <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                <i class="ri-delete-bin-2-line"></i>
-                                </button>
-                            </span>
-                        </td>
-                    </tr>
-                `);
-                managetooltip();
-            };
-
-           // delete row 
-        $(document).on('click', '.remove-row', function() {
-            var element = $(this);
-            showConfirmationDialog(
-                'Are you sure?', // Title
-                'to delete this?', // Text
-                'Yes, delete', // Confirm button text
-                'No, cancel', // Cancel button text
-                'question', // Icon type (question icon)
-                () => {
-                    var row = element.closest("tr");
-                    // Dispose of tooltips in the row to be removed
-                    managetooltip();
-                    // Remove the row
-                    row.remove();
-                    dynamiccalculaton(element);
-                }
-            );
-        });
-         
-        // call function for gst or without gst counting
-        $('#type').on('change', function() {
-            if ($(this).val() == 2) {
-                $('#sgstline,#cgstline,#igstline,#gstline').hide();
-                var totalval = $('#totalamount').val();
-                grandtotalval = Math.round($('#totalamount').val());
-                if (grandtotalval >= totalval) {
-                    var roundoffval = grandtotalval - totalval;
-                    if (roundoffval == 0) {
-                        $('#roundoff').val(`${roundoffval.toFixed(2)}`)
-                    } else {
-                        $('#roundoff').val(`+ ${roundoffval.toFixed(2)}`)
-                    }
-                } else {
-                    var roundoffval = totalval - grandtotalval;
-                    if (roundoffval == 0) {
-                        $('#roundoff').val(`${roundoffval.toFixed(2)}`)
-                    } else {
-                        $('#roundoff').val(`- ${roundoffval.toFixed(2)}`)
-                    }
-                }
-                $('#grandtotal').val(grandtotalval);
-
-                if (gst != 0) {
-                    $('#gst').val(0);
-                } else {
-                    $('#sgstline,#cgstline,#igstline').val(0);
-                }
-                $('#gst').val(0);
-            } else {
-                if (gst != 0) {
-                    $('#sgstline,#cgstline,#igstline').hide();
-                    $('#gstline').show();
-
-                } else {
-                    $('#sgstline,#cgstline,#igstline').show();
-                    $('#gstline').hide();
-                }
-                dynamiccalculaton();
-            }
-        })
-
-         $('#product').on('change', function () {
-            selectedproduct = $(this).val();
-            addname++;
-            
-            if (productcolumnlinks.length > 1) {
-                if (productdata != null) {
-                    $.each(productdata, function (key, value) {
-                        if (value.id == selectedproduct) {
-                            $('#add_new_div').append(
-                                `<tr class="iteam_row_${addname}" data-inventory="${value.id}">
-                                    ${allColumnData.map(columnData => {
-                                        var columnName = columnData.column_name.replace(/\s+/g, '_');
-                                        var inputcontent = null;
-
-                                        // Initialize productColumnValue as empty
-                                        let productColumnValue = '';
-
-                                        // Check if the column matches the invoice_column in productcolumnlinks
-                                        let matchingLink = productcolumnlinks.find(link => link.invoice_column === columnData.column_name);
-                                        if (matchingLink) {
-                                            // Get the product data column value from the matching link
-                                            productColumnValue = value[matchingLink.product_column] || '';  // Fallback to empty string if no value
-                                            text = '';
-                                            validation = '';
-                                            if (matchingLink.product_column == 'quantity') {
-                                                var text = `<p class="text-muted">Available Stock : ${value.available_stock}</p>`;
-                                                if (value.continue_selling == 0) {
-                                                    validation = `max="${value.available_stock}"`;
-                                                }
-                                            }
-                                        }
-
-                                        // Handle different column types and set the value accordingly
-                                        if (columnData.column_type === 'time') {
-                                            inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                            <input type="time" value="${productColumnValue || `${columnData.default_value || ''}`}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
-                                            class="form-control iteam_${columnName}">
-                                        </td>`;
-                                        } else if (columnData.column_type === 'number' || columnData.column_type === 'percentage' || columnData.column_type === 'decimal') {
-                                            inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                            <input type="number" value="${productColumnValue || `${columnData.default_value || ''}`}" step="any" name="${columnName}_${addname}" ${validation} id='${columnName}_${addname}' 
-                                            data-id=${addname} class="form-control iteam_${columnName} counttotal calculation" min=0>
-                                            ${text || ''}
-                                        </td>`;
-                                        } else if (columnData.column_type === 'longtext') {
-                                            inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                                <textarea name="${columnName}_${addname}" id='${columnName}_${addname}' class="form-control iteam_${columnName}" rows="1">${productColumnValue || `${columnData.default_value || ''}`}</textarea>
-                                            </td>`;
-                                        } else {
-                                            inputcontent = `<td class="invoicesubmit ${(columnData.is_hide === 1) ? 'd-none' : ''} ">
-                                            <input type="text" value="${productColumnValue || `${columnData.default_value || ''}`}" name="${columnName}_${addname}" id='${columnName}_${addname}' 
-                                            class="form-control iteam_${columnName}" placeholder="${columnData.column_name}">
-                                        </td>`;
-                                        }
-
-                                        return inputcontent;
-                                    }).join('')}
-                                    <td>
-                                        <input type="number" step="any" data-id=${addname} id="Amount_${addname}" data-product="${value.id}" min=0 name="Amount_${addname}" 
-                                        class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
-                                    </td>
-                                    <td>
-                                        <span class="table-up">
-                                            <a href="#!" class="indigo-text">
-                                                <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
-                                            </a>
-                                        </span>
-                                        <span class="table-down">
-                                            <a href="#!" class="indigo-text">
-                                                <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
-                                            </a>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class='remove-row' data-id=${addname}>
-                                            <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Row" class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                                <i class="ri-delete-bin-2-line"></i>
-                                            </button>
-                                        </span>
-                                    </td>
-                                </tr>`
-                            );
-                            managetooltip();
-                        }
-                    });
-                    dynamiccalculaton('#Amount_' + addname);
-                }
-
-            } else {
-                Toast.fire({
-                    icon: "info",
-                    title: "Product column mapping required to use product"
-                });
-            }
-            $('#product').val('');
-            $('#product').select2({
-                placeholder: "Select Product",
-                search: true,
-                
-            });  // search bar in product list 
-        });
-
-        $('#lr').on('change', function () {
-            let selectedlr = $(this).val();
-            addname++;
-            if (lrcolumnlinks.length > 0) {
-                if (lrdata != null) {
-                    $.each(lrdata, function (key, value) {
-                        if (value.id == selectedlr) {
-                            $('#add_new_div').append(
-                                `<tr class="iteam_row_${addname}" >
-                                    ${allColumnData.map(columnData => {
-                                        let columnName = columnData.column_name.replace(/\s+/g, '_');
-                                        let inputcontent = '';
-                                        let lrColumnValue = '';
-
-                                        // match LR column mapping
-                                        let matchingLink = lrcolumnlinks.find(
-                                            link => link.invoice_column === columnData.column_name
-                                        );
-
-                                        if (matchingLink) {
-                                            lrColumnValue = value[matchingLink.lr_column] ?? '';
-                                        }
-
-                                        if (columnData.column_type === 'number' ||
-                                            columnData.column_type === 'decimal' ||
-                                            columnData.column_type === 'percentage') {
-
-                                            inputcontent = `
-                                                <td class="invoicesubmit ${columnData.is_hide === 1 ? 'd-none' : ''}">
-                                                    <input type="number"
-                                                        step="any"   min="0" data-id="${addname}"value="${lrColumnValue !== undefined && lrColumnValue !== null
-                                                                                ? lrColumnValue
-                                                                                : (columnData.default_value ?? '')}"
-                                                        name="${columnName}_${addname}"
-                                                        id="${columnName}_${addname}"
-                                                        class="form-control iteam_${columnName} counttotal calculation">
-                                                </td>`;
-                                        }
-                                        else {
-                                            inputcontent = `
-                                                <td class="invoicesubmit ${columnData.is_hide === 1 ? 'd-none' : ''}">
-                                                    <input type="text"
-                                                        value="${lrColumnValue || columnData.default_value || ''}"
-                                                        name="${columnName}_${addname}"
-                                                        id="${columnName}_${addname}"
-                                                        class="form-control iteam_${columnName} calculation"
-                                                        placeholder="${columnData.column_name}">
-                                                </td>`;
-                                        }
-                                        return inputcontent;
-                                    }).join('')}
-                                    <td>
-                                        <input type="number" step="any" data-id=${addname} id="Amount_${addname}" data-product="${value.id}" min=0 name="Amount_${addname}" 
-                                        class="form-control iteam_Amount changeprice calculation" placeholder="Amount" required>
-                                    </td>
-                                    <td>
-                                        <span class="table-up">
-                                            <a href="#!" class="indigo-text">
-                                                <i class="fa fa-long-arrow-up"></i>
-                                            </a>
-                                        </span>
-                                        <span class="table-down">
-                                            <a href="#!" class="indigo-text">
-                                                <i class="fa fa-long-arrow-down"></i>
-                                            </a>
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span class="remove-row" data-id="${addname}">
-                                            <button type="button"
-                                                class="btn iq-bg-danger btn-rounded btn-sm mx-0 my-1">
-                                                <i class="ri-delete-bin-2-line"></i>
-                                            </button>
-                                        </span>
-                                    </td>
-                                </tr>`
-                            );
-                        }
-                    });
-                    
-                }
-            } else {
-                Toast.fire({
-                    icon: "info",
-                    title: "LR column mapping required"
-                });
-            }
-                
-            $('#lr').val('').trigger('change');
-        });
-            
-              
-           // submit invoice form 
-        $('#invoiceform').submit(function(event) {
-            event.preventDefault();
-            loadershow();
-            $('.error-msg').text('');
-            const iteam_data = collectRowData();
-            const invoiceDetails = collectInvoiceDetails();
-            ajaxRequest('POST', "{{ route('invoice.store') }}", {
-                data: invoiceDetails,
-                iteam_data,
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).done(function(response) {
-                if (response.status === 200) {
-                    Toast.fire({
-                        icon: "success",
-                        title: response.message
-                    });
-                    window.location = "{{ route('admin.invoice') }}";
-                } else {
-                    Toast.fire({
-                        icon: "error",
-                        title: response.message
-                    });
-                    loaderhide();
-                }
-            }).fail(function(xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            });
-        });
-
-        function collectRowData() {
-            const iteam_data = [];
-            $('tbody#add_new_div tr').each(function() {
-                const rowData = {};
-                const rowNumber = $(this).attr('class').match(/\d+/)[0];
-                const inventoryproduct = $(this).data('inventory'); // it would be product id or null
-
-                $.each(allColumnNames, function(key, columnName) {
-                    let columnNameWithUnderscores = columnName.replace(/\s+/g, '_');
-                   
-                    rowData[columnNameWithUnderscores] = $(this).find(
-                        `#${columnNameWithUnderscores}_${rowNumber}`).val();
-                }.bind(this));
-
-                rowData['amount'] = $(this).find(`#Amount_${rowNumber}`).val();
-                rowData['inventoryproduct'] = inventoryproduct; // add inventory product id
-                iteam_data.push(rowData);
-            });
-            return iteam_data;
-        }
-
-        function collectInvoiceDetails() {
-            return {
-                country_id: $('#country').val(),
-                user_id: $('#created_by').val(),
-                company_id: $('#company_id').val(),
-                companymaster_id: $('#companymaster_id').val(),
-                transport_id: $('#transport_id').val(),
-                sampleIds : $('#sampleIds').val(),
-                invoice_data : $('#invoice_data').val(),
-                HSN:  $('#HSN').val(),
-                Description: $('#Description').val(),
-                bank_account: $('#acc_details').val(),
-                invoice_date: $('#invoice_date').val(),
-                inv_number: $('#inv_number').val(),
-                consignment_date: $('#consignment_date').val(),
-                consignment_number: $('#consignment_number').val(),
-                currency: $('#currency').val(),
-                customer: $('#customer').val(),
-                total_amount: $('#totalamount').val(),
-                grandtotal: $('#grandtotal').val(),
-                tax_type: $('#type').val(),
-                notes: $('#notes').val(),
-                gstsettings: {
-                    sgst: sgst,
-                    cgst: cgst,
-                    igst: igst,
-                    gst: gst
-                },
-                ...getGSTValues()
-            };
-        }
-
-        function getGSTValues() {
-            if (gst === 0) {
-                return {
-                    sgst: $('#sgst').val(),
-                    cgst: $('#cgst').val(),
-                    igst: $('#igst').val(),
-                };
-            } else {
-                return {
-                    gst: $('#gst').val()
-                };
-            }
-        }
-
-        //check inv number will not duplicate (on manual inv number)
-        $('#inv_number').on('blur', function() {
-            $('.error-msg').text('');
-            const inv_number = $(this).val();
-
-            ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", {
-                inv_number,
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            }).fail(function(xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            });
-        });
-
-        // redirect invoice list page on click cancel button
-        $('#cancelbtn').on('click', function() {
-            loadershow();
-            window.location.href = "{{ route('admin.invoice') }}";
-        });
-
-        // dynamic calculation function 
-       // call dynamic calculation function on enter value in number input
-        $(document).on('keyup change', '.calculation', function() {
-            dynamiccalculaton(this);
-        });
-
-
-
-        // for add new customer 
-
-        // show country data in dropdown and set default value according logged in user
-        ajaxRequest('GET', "{{ route('country.index') }}", {
-            token: API_TOKEN,
-        }).done(function(response) {
-            if (response.status == 200 && response.country != '') {
-                // You can update your HTML with the data here if needed
-                $.each(response.country, function(key, value) {
-                    $('#modal_country').append(
-                        `<option value='${value.id}'> ${value.country_name}</option>`
-                    )
-                });
-                country_id = "{{ session('user')['country_id'] }}";
-                $('#modal_country').val(country_id);
-                loadstate();
-            } else {
-                $('#modal_country').append(`<option> No Data Found</option>`);
-            }
+        return iteam_data;
+    }
+
+    function collectInvoiceDetails() {
+        return {
+            country_id: $('#country').val(), user_id: $('#created_by').val(),
+            company_id: $('#company_id').val(), companymaster_id: $('#companymaster_id').val(),
+            transport_id: $('#transport_id').val(), sampleIds: $('#sampleIds').val(),
+            invoice_data: $('#invoice_data').val(), HSN: $('#HSN').val(),
+            Description: $('#Description').val(), bank_account: $('#acc_details').val(),
+            invoice_date: $('#invoice_date').val(), inv_number: $('#inv_number').val(),
+            consignment_date: $('#consignment_date').val(), consignment_number: $('#consignment_number').val(),
+            currency: $('#currency').val(), customer: $('#customer').val(),
+            total_amount: $('#totalamount').val(), grandtotal: $('#grandtotal').val(),
+            tax_type: $('#type').val(), notes: $('#notes').val(),
+            gstsettings: { sgst, cgst, igst, gst },
+            ...(gst === 0
+                ? { sgst: $('#sgst').val(), cgst: $('#cgst').val(), igst: $('#igst').val() }
+                : { gst: $('#gst').val() })
+        };
+    }
+
+    /* ── Submit ── */
+    $('#invoiceform').submit(function(e) {
+        e.preventDefault(); loadershow(); $('.f-err').text('');
+        ajaxRequest('POST', "{{ route('invoice.store') }}", {
+            data: collectInvoiceDetails(), iteam_data: collectRowData(),
+            token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID
+        }).done(function(r) {
+            if (r.status === 200) { Toast.fire({icon:"success",title:r.message}); window.location = "{{ route('admin.invoice') }}"; }
+            else { Toast.fire({icon:"error",title:r.message}); loaderhide(); }
+        }).fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+    });
+
+    $('#inv_number').on('blur', function() {
+        ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", { inv_number: $(this).val(), token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID })
+            .fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+    });
+
+    $('#cancelbtn').on('click', () => { loadershow(); window.location.href = "{{ route('admin.invoice') }}"; });
+
+    /* ── Customer modal location ── */
+    ajaxRequest('GET', "{{ route('country.index') }}", { token: API_TOKEN })
+        .done(function(r) {
+            if (r.status==200&&r.country!='') { $.each(r.country,function(k,v){ $('#modal_country').append(`<option value="${v.id}">${v.country_name}</option>`); }); $('#modal_country').val("{{ session('user')['country_id'] }}"); loadstate(); }
             loaderhide();
-        }).fail(function(xhr) {
+        }).fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+
+    $('#modal_country').on('change', function() { loadershow(); $('#modal_city').html(`<option selected disabled>Select your City</option>`); loadstate($(this).val()); });
+
+    function loadstate(id=0) {
+        $('#modal_state').html(`<option selected disabled>Select your State</option>`);
+        const url = id==0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','id') }}".replace('id',id);
+        ajaxRequest('GET', url, {token:API_TOKEN}).done(function(r) {
+            if (r.status==200&&r.state!='') { $.each(r.state,function(k,v){ $('#modal_state').append(`<option value="${v.id}">${v.state_name}</option>`); }); if(id==0){ $('#modal_state').val("{{ session('user')['state_id'] }}"); loadcity(); } }
             loaderhide();
-            handleAjaxError(xhr);
-        });
+        }).fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+    }
+    $('#modal_state').on('change', function() { loadershow(); loadcity($(this).val()); });
+    function loadcity(id=0) {
+        $('#modal_city').html(`<option selected disabled>Select your City</option>`);
+        const url = id==0 ? "{{ route('city.search', session('user')['state_id']) }}" : "{{ route('city.search','id') }}".replace('id',id);
+        ajaxRequest('GET', url, {token:API_TOKEN}).done(function(r) {
+            if (r.status==200&&r.city!='') { $.each(r.city,function(k,v){ $('#modal_city').append(`<option value="${v.id}">${v.city_name}</option>`); }); if(id==0) $('#modal_city').val("{{ session('user')['city_id'] }}"); }
+            loaderhide();
+        }).fail(xhr => { loaderhide(); handleAjaxError(xhr); });
+    }
 
-        // load state in dropdown when country change
-        $('#modal_country').on('change', function() {
-            loadershow();
-            $('#modal_city').html(`<option selected="" disabled="">Select your city</option>`);
-            var country_id = $(this).val();
-            loadstate(country_id);
+    /* Bank form */
+    $('#bankdetailform').submit(function(e) {
+        e.preventDefault(); loadershow(); $('.modal-error-msg').text('');
+        $.ajax({ type:'POST', url:"{{ route('bank_detail.store') }}", data:$(this).serialize(),
+            success:function(r) { if(r.status==200){ $('#bankdetailform')[0].reset(); $('#bankDetailModal').modal('hide'); loadBankDetails(); Toast.fire({icon:"success",title:r.message}); } else Toast.fire({icon:"error",title:r.message}); loaderhide(); },
+            error: xhr => { loaderhide(); handleModalAjaxError(xhr); }
         });
+    });
 
-        // load state in dropdown and select state according to user
-        function loadstate(id = 0) {
-            $('#modal_state').html(`<option selected="" disabled="">Select your State</option>`);
-            let stateSearchUrl = "{{ route('state.search', 'id') }}".replace('id', id);
-            var url = stateSearchUrl;
-            if (id == 0) {
-                url = "{{ route('state.search', session('user')['country_id']) }}";
+    /* Customer form */
+    $('#modal_cancelBtn').on('click', () => { $('#customerform')[0].reset(); $('#exampleModalScrollable').modal('hide'); $('#customer option:first').prop('selected',true); });
+    $('#customerform').submit(function(e) {
+        e.preventDefault(); loadershow(); $('.modal-error-msg').text('');
+        $.ajax({ type:'POST', url:"{{ route('customer.store') }}", data:$(this).serialize(),
+            success:function(r) {
+                if (r.status==200) { $('#customerform')[0].reset(); $('#exampleModalScrollable').modal('hide'); customers(r.customer_id); Toast.fire({icon:"success",title:r.message}); }
+                else Toast.fire({icon:"error",title:r.message});
+                loaderhide();
+            },
+            error:function(xhr) {
+                loaderhide();
+                if (xhr.status===422) {
+                    const errors=xhr.responseJSON.errors; let ec;
+                    $.each(errors,function(k,v){ $('#modal-error-'+k).text(v[0]); ec='#modal-error-'+k; });
+                    $('.modal-body').animate({scrollTop:$(ec).position().top},1000);
+                } else Toast.fire({icon:"error",title:(JSON.parse(xhr.responseText).message||"An error occurred")});
             }
-            ajaxRequest('GET', url, {
-                token: API_TOKEN,
-            }).done(function(response) {
-                if (response.status == 200 && response.state != '') {
-                    // You can update your HTML with the data here if needed
-                    $.each(response.state, function(key, value) {
-                        $('#modal_state').append(
-                            `<option value='${value.id}'> ${value.state_name}</option>`
-                        )
-                    });
-                    if (id == 0) {
-                        state_id = "{{ session('user')['state_id'] }}";
-                        $('#modal_state').val(state_id);
-                        loadcity();
-                    }
-                } else {
-                    $('#modal_state').append(`<option> No Data Found</option>`);
-                }
-                loaderhide();
-            }).fail(function(xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            });
-        }
-
-        // load city in dropdown when state select/change
-        $('#modal_state').on('change', function() {
-            loadershow();
-            var state_id = $(this).val();
-            loadcity(state_id);
         });
-
-        function loadcity(id = 0) {
-            $('#modal_city').html(`<option selected="" disabled="">Select your City</option>`);
-            citySearchUrl = "{{ route('city.search', 'id') }}".replace('id', id);
-            url = citySearchUrl;
-            if (id == 0) {
-                url = "{{ route('city.search', session('user')['state_id']) }}";
-            }
-
-            ajaxRequest('GET', url, {
-                token: API_TOKEN,
-            }).done(function(response) {
-                if (response.status == 200 && response.city != '') {
-                    // You can update your HTML with the data here if needed
-                    $.each(response.city, function(key, value) {
-                        $('#modal_city').append(
-                            `<option value='${value.id}'> ${value.city_name}</option>`
-                        )
-                    });
-                    if (id == 0) {
-                        $('#modal_city').val("{{ session('user')['city_id'] }}");
-                    }
-                } else {
-                    $('#modal_city').append(`<option> No Data Found</option>`);
-                }
-                loaderhide();
-            }).fail(function(xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            });
-        }
-        $('#bankdetailform').submit(function(event) {
-            event.preventDefault();
-            loadershow();
-            $('.error-msg').text(''); // clear previous errors
-
-            const formdata = $(this).serialize();
-
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('bank_detail.store') }}",
-                data: formdata,
-                success: function(response) {
-
-                    if (response.status == 200) {
-
-                        // Reset form
-                        $('#bankdetailform')[0].reset();
-
-                        // Hide modal
-                        $('#bankDetailModal').modal('hide');
-
-                        // Reload dropdown list
-                        loadBankDetails(); // create function from your ajaxRequest code
-
-                        Toast.fire({
-                            icon: "success",
-                            title: response.message
-                        });
-
-                    } else {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    }
-
-                    loaderhide();
-                },
-
-                error: function(xhr) {
-                    loaderhide();
-                    handleModalAjaxError(xhr);
-                }
-            });
-        });
-
-        // close pop up modal and reset new customer form
-        $('#modal_cancelBtn').on('click', function() {
-            $('#customerform')[0].reset();
-            $('#exampleModalScrollable').modal('hide');
-            $('#customer option:first').prop('selected', true);
-        })
-
-        // submit new customer  form
-        $('#customerform').submit(function(event) {
-            event.preventDefault();
-            loadershow();
-            $('.modal-error-msg').text('');
-            const formdata = $(this).serialize();
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('customer.store') }}",
-                data: formdata,
-                success: function(response) {
-                    // Handle the response from the server
-                    if (response.status == 200) {
-                        $('#customerform')[0].reset();
-                        $('#exampleModalScrollable').modal('hide');
-                        // You can perform additional actions, such as showing a success message or redirecting the user
-                        customers(response.customer_id);
-                        Toast.fire({
-                            icon: "success",
-                            title: response.message
-                        });
-
-                    } else if (response.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    } else {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    }
-                    loaderhide();
-                },
-                error: function(xhr, status, error) { // if calling api request error 
-                    loaderhide();
-                    console.log(xhr.responseText); // Log the full error response for debugging
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        var errorcontainer;
-                        $.each(errors, function(key, value) {
-                            $('#modal-error-' + key).text(value[0]);
-                            errorcontainer = '#modal-error-' + key;
-                        });
-                        $('.modal-body').animate({
-                            scrollTop: $(errorcontainer).position().top
-                        }, 1000);
-                    } else {
-                        var errorMessage = "";
-                        try {
-                            var responseJSON = JSON.parse(xhr.responseText);
-                            errorMessage = responseJSON.message || "An error occurred";
-                        } catch (e) {
-                            errorMessage = "An error occurred";
-                        }
-                        Toast.fire({
-                            icon: "error",
-                            title: errorMessage
-                        });
-                    }
-                }
-                });
-            });
-            
-        });
-        
-    </script>
+    });
+});
+</script>
 @endpush
