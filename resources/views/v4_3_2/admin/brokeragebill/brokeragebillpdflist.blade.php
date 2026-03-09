@@ -6,7 +6,7 @@
     {{ config('app.name') }} - Commission Bill
 @endsection
 @section('table_title')
-    Commission Bill 
+    Commission Bill
 @endsection
 
 @section('style')
@@ -54,7 +54,7 @@
     </div>
 @endsection
 @section('sidebar-filters')
-    {{-- <div class="col-12">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h6>Garden</h6>
@@ -69,7 +69,7 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
     <div class="col-12">
         <div class="card">
             <div class="card-header">
@@ -82,6 +82,25 @@
                         <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
                         </select>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h6>Order Date</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-6 mb-1">
+                    <label for="filter_date_from">From</label>
+                    <input type="date" class="form-control filter" name="filter_date_from" id="filter_date_from"
+                        placeholder="From Date">
+                </div>
+                <div class="col-6 mb-1">
+                    <label for="filter_date_to">To</label>
+                    <input type="date" class="form-control filter" name="filter_date_to" id="filter_date_to"
+                        placeholder="To Date">
                 </div>
             </div>
         </div>
@@ -118,9 +137,12 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Company Name</th>
-                <th>Invoice No </th>
                 <th>Invoice Date </th>
+                <th>Company Name</th>
+                <th>Garden Name</th>
+                <th>Invoice No </th>
+                <th>Total Net Kg</th>
+                <th>Brokrage (%)</th>
                 <th>Total Amount</th>
                 {{-- <th>Created Date (From)</th>
                 <th>Created Date (To)</th> --}}
@@ -423,6 +445,8 @@
                             d.filter_payment_status = $('#filter_payment_status').val();
                             d.filter_garden = $('#filter_garden').val();
                             d.filter_company = $('#filter_company').val();
+                            d.filter_date_from = $('#filter_date_from').val();
+                            d.filter_date_to = $('#filter_date_to').val();
                         },
                         dataSrc: function(json) {
                             $("#pdfBtn").removeClass('d-none');
@@ -461,11 +485,45 @@
                             name: 'id'
                         },
                         {
+                            data: 'invoice_date',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'invoice_date'
+                        },
+                        {
                             data: 'company_name',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            name: 'company_name'
+                            name: 'company_name',
+                            render: function(data, type, row) {
+                                if (!data) return '-';
+
+                                let maxLength = 15; // 15 characters
+                                let shortText = data.length > maxLength ? data.substring(0,
+                                    maxLength) + '...' : data;
+
+                                return '<span data-toggle="tooltip" data-original-title="' + data +
+                                    '">' + shortText + '</span>';
+                            }
+                        },
+                        {
+                            data: 'garden_names',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'garden_names',
+                            render: function(data, type, row) {
+                                if (!data) return '-';
+
+                                let maxLength = 15; // 15 characters
+                                let shortText = data.length > maxLength ? data.substring(0,
+                                    maxLength) + '...' : data;
+
+                                return '<span data-toggle="tooltip" data-original-title="' + data +
+                                    '">' + shortText + '</span>';
+                            }
                         },
                         {
                             data: 'invoice_no',
@@ -475,12 +533,20 @@
                             name: 'invoice_no'
                         },
                         {
-                            data: 'invoice_date',
+                            data: 'net_kg',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            name: 'invoice_date'
+                            name: 'net_kg'
                         },
+                        {
+                            data: 'brokerage',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'brokerage'
+                        },
+
                         {
                             data: 'grand_total',
                             orderable: true,
@@ -488,20 +554,6 @@
                             defaultContent: '-',
                             name: 'grand_total'
                         },
-                        // {
-                        //     data: 'from_date',
-                        //     orderable: true,
-                        //     searchable: true,
-                        //     defaultContent: '-',
-                        //     name: 'from_date'
-                        // },
-                        // {
-                        //     data: 'to_date',
-                        //     orderable: true,
-                        //     searchable: true,
-                        //     defaultContent: '-',
-                        //     name: 'to_date'
-                        // },
                         {
                             data: 'status',
                             name: 'status',
@@ -708,6 +760,9 @@
                 params = table.ajax.params();
                 params.filter_payment_status = $('#filter_payment_status').val();
                 params.filter_garden = $('#filter_garden').val();
+                params.filter_company = $('#filter_company').val();
+                params.filter_date_from = $('#filter_date_from').val();
+                params.filter_date_to = $('#filter_date_to').val();
                 let queryString = $.param(params);
 
 
@@ -1214,6 +1269,8 @@
                 $('#filter_payment_status').val(null).trigger('change');
                 $('#filter_company').val(null).trigger('change');
                 $('#filter_garden').val(null).trigger('change');
+                $('#filter_date_to').val('');
+                $('#filter_date_from').val('');
                 table.draw();
                 hideOffCanvass(); // close OffCanvass
             });

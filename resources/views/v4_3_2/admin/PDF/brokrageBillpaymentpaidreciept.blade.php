@@ -397,10 +397,10 @@
                 <thead>
                     <tr class="bgblue">
                         <th style="width:3%;text-align:center;">ID</th>
+                         <th style="width:8%;text-align:center;">Garden</th>
                         <th style="width:14%;text-align:center;">Buyer</th>
                         <th style="width:10%;text-align:center;">Inv No</th>
                         <th style="width:10%;text-align:center;">Inv Date</th>
-                        <th style="width:12%;text-align:center;">C/N NO.& Date</th>
                         <th style="width:6%;text-align:center;">Pkgs</th>
                         <th style="width:10%;text-align:center;">Net Weight Kg</th>
                         <th style="width:5%;text-align:center;">CD %</th>
@@ -462,13 +462,11 @@
                     @forelse ($usedInvoices as $key => $row)
                         <tr>
                             <td style="text-align:center;">{{ $key + 1 }}</td>
+                            <td style="text-align:center;">{{ $row->garden_name ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
                             <td style="text-align:center;">
                                 {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('d-m-Y') : '-' }}
-                            </td>
-                            <td style="text-align:center;">{{ $row->consignment_number }} &
-                                {{ $row->consignment_date ? \Carbon\Carbon::parse($row->consignment_date)->format('d-m-Y') : '-' }}
                             </td>
                             <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
                             <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
@@ -584,13 +582,13 @@
                         <strong>For : {{ $data['mainCompanyData']['name'] }}</strong>
                         <br><br>
 
-                        @if ($data['mainCompanyData']['pr_sign_img'] != '')
-                            <img src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}"
-                                style="max-width:150px; display:block; margin-left:auto;">
-                        @endif
+                        {{-- @if ($data['mainCompanyData']['pr_sign_img'] != '')
+                                    <img src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}"
+                                        style="max-width:150px; display:block; margin-left:auto;">
+                                @endif
 
-                        <br>
-                        <strong>Signature</strong>
+                                <br>
+                                <strong>Signature</strong> --}}
 
                     </div>
 
@@ -599,16 +597,14 @@
         </table>
     </div>
     <footer>
-        <div class="mt-1" style="font-size: 12px" id="footer">
-            <span class="float-left">
-                <small>This is a computer-generated document.
-                    @unless ($companydetails['pr_sign_img'])
-                        No signature is required.
-                    @endunless
-                </small>
-            </span>
-            <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
-        </div>
+         <div class="mt-1" style="font-size: 12px" id="footer">
+                    <span class="float-left">
+                        <small>This is system generated invoice. Signature is not required.</small>
+                    </span>
+                    <span class="float-right">
+                        <small>{{ date('d-M-Y, h:i A') }}</small>
+                    </span>
+                </div>
     </footer>
 </body>
 

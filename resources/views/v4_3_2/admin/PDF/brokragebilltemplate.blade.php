@@ -514,7 +514,6 @@
                             <th style="width:14%;text-align:center;">Buyer</th>
                             <th style="width:10%;text-align:center;">Inv No</th>
                             <th style="width:9%;text-align:center;">Inv Date</th>
-                            <th style="width:11%;text-align:center;">C/N NO.& Date</th>
                             <th style="width:6%;text-align:center;">Pkgs</th>
                             <th style="width:12%;text-align:center;">Net Weight Kg</th>
                             <th style="width:6%;text-align:center;">CD %</th>
@@ -577,9 +576,6 @@
                                 <td style="text-align:center;">
                                     {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('d-m-Y') : '-' }}
                                 </td>
-                                <td style="text-align:center;">{{ $row->consignment_number }} &
-                                    {{ $row->consignment_date ? \Carbon\Carbon::parse($row->consignment_date)->format('d-m-Y') : '-' }}
-                                </td>
                                 <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
                                 <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 3) }}</td>
                                 <td style="text-align:center;">{{ number_format($row->discount ?? 0, 2) }}</td>
@@ -607,14 +603,13 @@
                                 <td style="text-align:center;"> </td>
                                 <td style="text-align:center;"> </td>
                                 <td style="text-align:center;"> </td>
-                                <td style="text-align:center;"> </td>
                             </tr>
                             }
                         @endfor
 
                         @if (!empty($usedInvoices) && count($usedInvoices) > 0)
                             <tr style="font-weight:bold; background:#f2f2f2;">
-                                <td colspan="6" style="text-align:right;">TOTAL</td>
+                                <td colspan="5" style="text-align:right;">TOTAL</td>
                                 <td style="text-align:center;">
                                     {{ $totalBags }}
                                 </td>

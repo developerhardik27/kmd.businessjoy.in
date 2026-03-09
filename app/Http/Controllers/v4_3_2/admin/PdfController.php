@@ -940,11 +940,10 @@ class PdfController extends commonController
       foreach ($filters as $requestKey => $column) {
          $value = $request->$requestKey ?? null;
 
-         if ($value !== null) {
+         if ($value !== null && $value !== '') {
 
-            if ($requestKey === 'filter_company') {
-               $order->whereIn('company_garden.company_id', (array) $value);
-            } elseif (in_array($requestKey, [
+
+            if (in_array($requestKey, [
                'filter_credit_days_from',
                'filter_credit_days_to',
                'filter_final_amount_from',
@@ -952,10 +951,9 @@ class PdfController extends commonController
             ])) {
                $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                $order->where($column, $operator, $value);
-            } elseif (in_array($requestKey, [
-               'filter_date_from',
-               'filter_date_to',
-            ])) {
+
+               // ── Date range ──────────────────────────────────────────────────────────
+            } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
                $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                $order->whereDate($column, $operator, $value);
             } else {
@@ -963,8 +961,20 @@ class PdfController extends commonController
             }
          }
       }
+      if (!empty($request->filter_company) && $request->filter_company !== '') {
+         $companyIds = (array) $request->filter_company;
 
-      $order = $order
+         $order->whereExists(function ($query) use ($companyIds) {
+            $query->select(DB::raw(1))
+               ->from('order_details as od_sub')
+               ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+               ->whereColumn('od_sub.order_id', 'orders.id')   // ties subquery to the outer order
+               ->whereIn('cg_sub.company_id', $companyIds)
+               ->limit(1);
+         });
+      }
+
+      $orderData = $order
          ->select(
             'orders.id as order_id',
             'buyer.name as buyer_name',
@@ -991,18 +1001,21 @@ class PdfController extends commonController
                'final_amount'   => $first->finalAmount,
                'order_date'     => $first->order_date,
 
+               // All unique company names across ALL detail rows of this order
                'company_names'  => $details
                   ->filter(fn($item) => !empty($item->company_name))
                   ->pluck('company_name', 'company_id')
                   ->values()
                   ->implode(', '),
 
+               // All unique garden names across ALL detail rows of this order
                'garden_names'   => $details
                   ->filter(fn($item) => !empty($item->garden_name))
                   ->pluck('garden_name', 'garden_id')
                   ->values()
                   ->implode(', '),
 
+               // All unique invoice numbers
                'invoice_nos'    => $details
                   ->filter(fn($item) => !empty($item->invoice_no))
                   ->pluck('invoice_no')
@@ -1011,23 +1024,24 @@ class PdfController extends commonController
                   ->implode(', '),
 
                'details' => $details->map(function ($item) use ($first) { // ← fix: use ($first)
+                 
                   return [
-                     'garden_name'    => $item->garden_name,
-                     'grade_name'     => $item->grade_name,
-                     'invoice_no'     => $item->invoice_no,
+                     'garden_name'  => $item->garden_name,
+                     'grade_name'   => $item->grade_name,
+                     'invoice_no'   => $item->invoice_no,
                      'order_discount' => $first->discount,  // ← now accessible
-                     'bags'           => $item->bags,
-                     'kg'             => $item->kg,
-                     'net_kg'         => $item->net_kg,
-                     'rate'           => $item->rate,
-                     'amount'         => $item->amount,
-                     'company_name'   => $item->company_name ?? null,
+                     'bags'         => $item->bags,
+                     'kg'           => $item->kg,
+                     'net_kg'       => $item->net_kg,
+                     'rate'         => $item->rate,
+                     'amount'       => $item->amount,
+                     'company_name' => $item->company_name ?? null,
                   ];
-               })->toArray()
+               })->toArray(),
             ];
          })
          ->values();
-      if ($order->isEmpty()) {
+      if ($orderData->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }
 
@@ -1040,7 +1054,7 @@ class PdfController extends commonController
          'margin_left' => 0,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderreport', ["order" => $order])->setPaper('a4', 'portrait');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderreport', ["order" => $orderData])->setPaper('a4', 'portrait');
 
       $name = 'Order-Report.pdf';
       // return view($this->version . '.admin.PDF.orderreport', ["order" => $order]);
@@ -1056,37 +1070,33 @@ class PdfController extends commonController
                ->where('broker_bill_payment_details.is_deleted', 0);
          })
          ->leftJoin('company_garden', 'company_garden.company_id', '=', 'broker_bill_invoice.garden_company_id')
-         ->leftJoin('gardens', 'gardens.id', '=', 'company_garden.garden_id')
+         ->leftJoin('broker_purchases', function ($join) {
+            $join->on('broker_purchases.brokerbill_no', '=', 'broker_bill_invoice.id')
+               ->where('broker_purchases.is_deleted', 0);
+         })
+         ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
          ->leftJoin('companymasters', 'companymasters.id', '=', 'broker_bill_invoice.garden_company_id')
          ->where('broker_bill_invoice.is_deleted', 0);
+
+      // ── Standard column filters (garden excluded — it lives in broker_purchases) ──
       $filters = [
          'filter_payment_status' => 'broker_bill_invoice.status',
-         'filter_garden' => 'broker_bill_invoice.garden_id',
-         'filter_company' => 'broker_bill_invoice.garden_company_id',
+         'filter_company'        => 'broker_bill_invoice.garden_company_id',
+         'filter_date_from'      => 'broker_bill_invoice.created_at',
+         'filter_date_to'        => 'broker_bill_invoice.created_at',
       ];
 
       foreach ($filters as $requestKey => $column) {
-
          $value = $request->$requestKey;
 
          if (isset($value) && $value !== '') {
-
-            if (
-               $requestKey == 'filter_credit_days_from' ||
-               $requestKey == 'filter_credit_days_to' ||
-               $requestKey == 'filter_final_amount_from' ||
-               $requestKey == 'filter_final_amount_to'
-            ) {
-
+            if ($requestKey == 'filter_date_from' || $requestKey == 'filter_date_to') {
                $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                $list->where($column, $operator, $value);
-            } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
-
+            } elseif (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
                $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                $list->whereDate($column, $operator, $value);
             } else {
-
-               // ✅ FIX: handle single or array value
                if (is_array($value)) {
                   $list->whereIn($column, $value);
                } else {
@@ -1095,6 +1105,22 @@ class PdfController extends commonController
             }
          }
       }
+
+      // ── Garden filter — garden_id is in broker_purchases, not broker_bill_invoice ──
+      // Subquery: find all broker_bill_invoice.id values that have a matching
+      // broker_purchases row for the selected garden_id(s) via brokerbill_no.
+      if (!empty($request->filter_garden) && $request->filter_garden !== '') {
+         $gardenIds = (array) $request->filter_garden; // handles single value or array
+
+         $list->whereIn('broker_bill_invoice.id', function ($query) use ($gardenIds) {
+            $query->select('brokerbill_no')
+               ->from('broker_purchases')
+               ->whereIn('garden_id', $gardenIds)
+               ->where('is_deleted', 0)
+               ->whereNotNull('brokerbill_no');
+         });
+      }
+
       $list = $list
          ->select(
             'broker_bill_invoice.id as invoice_id',
@@ -1116,27 +1142,42 @@ class PdfController extends commonController
             'broker_bill_payment_details.paid_type',
             'broker_bill_payment_details.paid_amount',
             'broker_bill_payment_details.pending_amount',
-            'companymasters.company_name'
+            'companymasters.company_name',
+            DB::raw("(SELECT GROUP_CONCAT(DISTINCT invoice_no ORDER BY id SEPARATOR ', ')
+                      FROM broker_purchases
+                      WHERE brokerbill_no = broker_bill_invoice.id) as lot_no"),
+            DB::raw("(SELECT GROUP_CONCAT(DISTINCT g.garden_name ORDER BY bp.id SEPARATOR ', ')
+                      FROM broker_purchases bp
+                      LEFT JOIN gardens g ON g.id = bp.garden_id
+                      WHERE bp.brokerbill_no = broker_bill_invoice.id) as garden_names"),
+            DB::raw("(SELECT ROUND(SUM(net_kg), 2)
+                      FROM broker_purchases
+                      WHERE brokerbill_no = broker_bill_invoice.id) as net_kg"),
+            DB::raw("(SELECT GROUP_CONCAT(DISTINCT brokerage ORDER BY id SEPARATOR ', ')
+                      FROM broker_purchases
+                      WHERE brokerbill_no = broker_bill_invoice.id) as brokerage"),
          )
          ->get()
          ->groupBy('invoice_id')
          ->map(function ($rows, $invoiceId) {
             $first = $rows->first();
             return [
-               'id'            => $invoiceId,
-               'invoice_no'    => $first->invoice_no,
-               'invoice_date'  => $first->invoice_date,
+               'id'           => $invoiceId,
+               'invoice_no'   => $first->invoice_no,
+               'invoice_date' => $first->invoice_date,
                'totalamount'  => $first->totalamount,
-               'igst'          => $first->igst,
-               'cgst'          => $first->cgst,
-               'sgst'          => $first->sgst,
-               'grand_total'   => $first->grand_total,
-               'status'        => $first->status,
-               'from_date'     => $first->from_date,
-               'to_date'       => $first->to_date,
-               'garden_name'  => $first->garden_name,
-               'company_name'  => $first->company_name,
-               'details' => $rows->map(function ($item) {
+               'igst'         => $first->igst,
+               'cgst'         => $first->cgst,
+               'sgst'         => $first->sgst,
+               'grand_total'  => $first->grand_total,
+               'status'       => $first->status,
+               'from_date'    => $first->from_date,
+               'to_date'      => $first->to_date,
+               'garden_name'  => $first->garden_names,
+               'company_name' => $first->company_name,
+               'net_kg'       => $first->net_kg,
+               'brokerage'    => $first->brokerage,
+               'details'      => $rows->map(function ($item) {
                   return [
                      'receipt_number' => $item->receipt_number,
                      'transaction_id' => $item->transaction_id,
@@ -1146,7 +1187,7 @@ class PdfController extends commonController
                      'paid_amount'    => $item->paid_amount,
                      'pending_amount' => $item->pending_amount,
                   ];
-               })->toArray()
+               })->toArray(),
             ];
          })
          ->values();

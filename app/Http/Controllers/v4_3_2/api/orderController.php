@@ -39,6 +39,7 @@ class orderController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
+
         $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
@@ -64,14 +65,10 @@ class orderController extends commonController
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey ?? null;
 
-            if ($value !== null) {
+            if ($value !== null && $value !== '') {
 
-                // ── Company filter: via company_garden ──
-                if ($requestKey === 'filter_company') {
-                    $order->whereIn('company_garden.company_id', (array) $value);
-
-                    // ── Numeric range ──
-                } elseif (in_array($requestKey, [
+             
+                if (in_array($requestKey, [
                     'filter_credit_days_from',
                     'filter_credit_days_to',
                     'filter_final_amount_from',
@@ -80,19 +77,27 @@ class orderController extends commonController
                     $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->where($column, $operator, $value);
 
-                    // ── Date range ──
-                } elseif (in_array($requestKey, [
-                    'filter_date_from',
-                    'filter_date_to',
-                ])) {
+                    // ── Date range ──────────────────────────────────────────────────────────
+                } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
                     $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->whereDate($column, $operator, $value);
 
-                    // ── Array/whereIn ──
                 } else {
                     $order->whereIn($column, (array) $value);
                 }
             }
+        }
+        if (!empty($request->filter_company) && $request->filter_company !== '') {
+            $companyIds = (array) $request->filter_company;
+
+            $order->whereExists(function ($query) use ($companyIds) {
+                $query->select(DB::raw(1))
+                    ->from('order_details as od_sub')
+                    ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+                    ->whereColumn('od_sub.order_id', 'orders.id')   // ties subquery to the outer order
+                    ->whereIn('cg_sub.company_id', $companyIds)
+                    ->limit(1);
+            });
         }
 
         $orderData = $order
@@ -122,12 +127,14 @@ class orderController extends commonController
                     'final_amount'   => $first->finalAmount,
                     'order_date'     => $first->order_date,
 
-                    // All unique company names across all detail rows of this order
+                    // All unique company names across ALL detail rows of this order
                     'company_names'  => $details
                         ->filter(fn($item) => !empty($item->company_name))
                         ->pluck('company_name', 'company_id')
                         ->values()
                         ->implode(', '),
+
+                    // All unique garden names across ALL detail rows of this order
                     'garden_names'   => $details
                         ->filter(fn($item) => !empty($item->garden_name))
                         ->pluck('garden_name', 'garden_id')
@@ -141,6 +148,7 @@ class orderController extends commonController
                         ->unique()
                         ->values()
                         ->implode(', '),
+
                     'details' => $details->map(function ($item) {
                         return [
                             'garden_name'  => $item->garden_name,
@@ -153,7 +161,7 @@ class orderController extends commonController
                             'amount'       => $item->amount,
                             'company_name' => $item->company_name ?? null,
                         ];
-                    })->toArray()
+                    })->toArray(),
                 ];
             })
             ->values();

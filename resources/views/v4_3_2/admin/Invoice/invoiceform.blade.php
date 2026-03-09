@@ -440,7 +440,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 </div>
                 <div class="col-sm-4 mb-3" id="inv_date_div">
                     <label class="f-label">Invoice Date <span class="req">*</span></label>
-                    <input type="date" class="f-ctrl" id="invoice_date" name="invoice_date">
+                    <input type="date" class="f-ctrl date-input" data-error="error-invoice_date" id="invoice_date" name="invoice_date">
                     <span class="f-err" id="error-invoice_date"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
@@ -450,7 +450,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 </div>
                 <div class="col-sm-4 mb-3">
                     <label class="f-label">Consignment Date</label>
-                    <input type="date" class="f-ctrl" id="consignment_date" name="consignment_date">
+                    <input type="date" class="f-ctrl date-input" data-error="error-consignment_date" id="consignment_date" name="consignment_date">
                     <span class="f-err" id="error-consignment_date"></span>
                 </div>
                 <div class="col-sm-4 mb-3">

@@ -387,6 +387,7 @@ class invoiceController extends commonController
                 'country_details.currency_symbol',
                 'state.state_name',
                 'city.city_name',
+                'companymasters.id as garden_company_id',
                 'companymasters.company_name as garden_company_name',
                 'companymasters.brokerage as brokerage',
 

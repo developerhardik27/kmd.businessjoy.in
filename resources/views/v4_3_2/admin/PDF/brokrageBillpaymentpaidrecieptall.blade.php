@@ -397,24 +397,25 @@
                 width="100%">
                 <thead>
                     <tr class="bgblue">
-                        <th style="width:3%;text-align:center;">ID</th>
+                        <th style="width:4%;text-align:center;">ID</th>
+                        <th style="width:8%;text-align:center;">Garden</th>
                         <th style="width:14%;text-align:center;">Buyer</th>
                         <th style="width:10%;text-align:center;">Inv No</th>
-                        <th style="width:10%;text-align:center;">Inv Date</th>
-                        <th style="width:12%;text-align:center;">C/N NO.& Date</th>
+                        <th style="width:9%;text-align:center;">Inv Date</th>
                         <th style="width:6%;text-align:center;">Pkgs</th>
-                        <th style="width:10%;text-align:center;">Net Weight Kg</th>
-                        <th style="width:5%;text-align:center;">CD %</th>
+                        <th style="width:12%;text-align:center;">Net Weight Kg</th>
+                        <th style="width:6%;text-align:center;">CD %</th>
                         <th style="width:10%;text-align:center;">Amount</th>
                         <th style="width:10%;text-align:center;">Comm</th>
                     </tr>
                 </thead>
                 @php
+                    // dd($data['usedInvoices']);
                     $usedInvoices = $data['usedInvoices'] ?? [];
                     $maxRows = 10;
-                    $companyStateId = $companydetails['state_id'] ?? null;
+                    $companyStateId = $data['mainCompanyData']['state_id'] ?? null;
                     $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
-                    //  $companyStateId = 21;
+                    //  $companyStateId = 20;
                     // $buyerStateId = 21;
                     $cgst_per = 9;
                     $sgst_per = 9;
@@ -425,11 +426,12 @@
                     $totalBags = 0;
                     $totalAmount = 0;
                     $totalCommission = 0;
+                    $totalnetkg = 0;
                     $rowCount = count($usedInvoices);
                     foreach ($usedInvoices as $row) {
                         $amount = $row->invoice_grand_total ?? 0;
                         $commission = ($amount * ($row->brokerage ?? 0)) / 100;
-
+                        $totalnetkg += $row->net_kg ?? 0;
                         $totalBags += $row->bags ?? 0;
                         $totalAmount += $amount;
                         $totalCommission += $commission;
@@ -447,13 +449,6 @@
                     }
 
                     $grandTotal = $totalCommission + $cgst + $sgst + $igst;
-
-                    $paid_amount = $payment[0]['paid_amount'];
-                    $tds_amount = $payment[0]['tds_amount'];
-                    $paid_amounts = $payment[0]['amount'] - $payment[0]['pending_amount'];
-                    $pending_amount = $payment[0]['pending_amount'];
-                    $totalamount = $invdata['totalamount'];
-
                     $roundedTotal = round($grandTotal);
                     $roundOff = $roundedTotal - $grandTotal;
                 @endphp
@@ -463,14 +458,9 @@
                     @forelse ($usedInvoices as $key => $row)
                         <tr>
                             <td style="text-align:center;">{{ $key + 1 }}</td>
+                            <td style="text-align:center;">{{ $row->garden_name ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
-                            <td style="text-align:center;">
-                                {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('d-m-Y') : '-' }}
-                            </td>
-                            <td style="text-align:center;">{{ $row->consignment_number }} &
-                                {{ $row->consignment_date ? \Carbon\Carbon::parse($row->consignment_date)->format('d-m-Y') : '-' }}
-                            </td>
                             <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
                             <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 3) }}</td>
                             <td style="text-align:center;">{{ number_format($row->discount ?? 0, 2) }}</td>
@@ -485,6 +475,42 @@
                             <td colspan="6" style="text-align:center;">No records found</td>
                         </tr>
                     @endforelse
+                    @for ($i = $rowCount; $i < $maxRows; $i++)
+                        {
+                        <tr>
+                            <td style="text-align:center; color: white;"> - </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                            <td style="text-align:center;"> </td>
+                        </tr>
+                        }
+                    @endfor
+
+                    @if (!empty($usedInvoices) && count($usedInvoices) > 0)
+                        <tr style="font-weight:bold; background:#f2f2f2;">
+                            <td colspan="5" style="text-align:right;">TOTAL</td>
+                            <td style="text-align:center;">
+                                {{ $totalBags }}
+                            </td>
+                            <td style="text-align:center;">
+                                {{ number_format($totalnetkg, 2) }}
+                            </td>
+
+                            <td></td>
+                            <td style="text-align:center;">
+                                {{ number_format($totalAmount, 2) }}
+                            </td>
+                            <td style="text-align:center;">
+                                {{ number_format($totalCommission, 2) }}
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
             <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class=" data" width="100%">
@@ -585,13 +611,13 @@
                         <strong>For : {{ $data['mainCompanyData']['name'] }}</strong>
                         <br><br>
 
-                        @if ($data['mainCompanyData']['pr_sign_img'] != '')
-                            <img src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}"
-                                style="max-width:150px; display:block; margin-left:auto;">
-                        @endif
+                        {{-- @if ($data['mainCompanyData']['pr_sign_img'] != '')
+                                    <img src="{{ public_path('uploads/' . $data['mainCompanyData']['pr_sign_img']) }}"
+                                        style="max-width:150px; display:block; margin-left:auto;">
+                                @endif
 
-                        <br>
-                        <strong>Signature</strong>
+                                <br>
+                                <strong>Signature</strong> --}}
 
                     </div>
 
@@ -603,13 +629,11 @@
     <footer>
         <div class="mt-1" style="font-size: 12px" id="footer">
             <span class="float-left">
-                <small>This is a computer-generated document.
-                    @unless ($companydetails['pr_sign_img'])
-                        No signature is required.
-                    @endunless
-                </small>
+                <small>This is system generated invoice. Signature is not required.</small>
             </span>
-            <span class="float-right"><small>{{ date('d-M-Y, h:i A') }}</small></span>
+            <span class="float-right">
+                <small>{{ date('d-M-Y, h:i A') }}</small>
+            </span>
         </div>
     </footer>
 </body>

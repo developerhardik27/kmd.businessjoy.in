@@ -63,13 +63,57 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
+                <h6>Company</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_company" class="form-label mt-1">Company</label>
+                        <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h6>Garden</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 mb-1">
+                    <label for="filter_garden" class="form-label mt-1">Garden</label>
+                    <select name="filter_garden" class="filter form-control w-100 select2" id="filter_garden" multiple>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h6>Buyer</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 mb-1">
+                    <label for="filter_buyer" class="form-label mt-1">Buyer</label>
+                    <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
                 <h6>Order Date</h6>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-6 mb-1">
                         <label for="filter_date_from">From</label>
-                        <input type="date" class="form-control filter" name="filter_date_from" id="filter_date_from"
+                        <input type="date" class="form-control filter " name="filter_date_from" id="filter_date_from"
                             placeholder="From Date">
                     </div>
                     <div class="col-6 mb-1">
@@ -80,22 +124,7 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h6>Company</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 mb-1">
-                            <label for="filter_company" class="form-label mt-1">Company</label>
-                            <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
+
 
         <div class="card">
             <div class="card-header">
@@ -135,20 +164,7 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h6>Buyer</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_buyer" class="form-label mt-1">Buyer</label>
-                        <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer" multiple>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         <div class="card">
             <div class="card-header">
                 <h6>Transport</h6>
@@ -164,20 +180,7 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h6>Garden</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_garden" class="form-label mt-1">Garden</label>
-                        <select name="filter_garden" class="filter form-control w-100 select2" id="filter_garden" multiple>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <div class="card">
             <div class="card-header">
@@ -209,7 +212,7 @@
                 <th>Company Name</th>
                 <th>Gardens</th>
                 <th>Buyer</th>
-                <th>Invoice No</th>
+                <th>Invoice/Lot No</th>
                 <th>totalNetKg</th>
                 <th>Order Pdf</th>
                 <th>finalAmount</th>
@@ -650,14 +653,34 @@
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            name: 'company_names'
+                            name: 'company_names',
+                            render: function(data, type, row) {
+                                if (!data) return '-';
+
+                                let maxLength = 20; // 15 characters
+                                let shortText = data.length > maxLength ? data.substring(0,
+                                    maxLength) + '...' : data;
+
+                                return '<span data-toggle="tooltip" data-original-title="' + data +
+                                    '">' + shortText + '</span>';
+                            }
                         },
                         {
                             data: 'garden_names',
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            name: 'garden_names'
+                            name: 'garden_names',
+                            render: function(data, type, row) {
+                                if (!data) return '-';
+
+                                let maxLength = 20; // 15 characters
+                                let shortText = data.length > maxLength ? data.substring(0,
+                                    maxLength) + '...' : data;
+
+                                return '<span data-toggle="tooltip" data-original-title="' + data +
+                                    '">' + shortText + '</span>';
+                            }
                         },
                         {
                             data: 'buyer_name',
@@ -671,7 +694,17 @@
                             orderable: true,
                             searchable: true,
                             defaultContent: '-',
-                            name: 'invoice_nos'
+                            name: 'invoice_nos',
+                            render: function(data, type, row) {
+                                if (!data) return '-';
+
+                                let maxLength = 15; // 15 characters
+                                let shortText = data.length > maxLength ? data.substring(0,
+                                    maxLength) + '...' : data;
+
+                                return '<span data-toggle="tooltip" data-original-title="' + data +
+                                    '">' + shortText + '</span>';
+                            }
                         },
                         {
                             data: 'totalNetKg',
@@ -889,7 +922,7 @@
                         <tr>
                             <th>Garden Name</th>
                             <th>Grade Name</th>
-                            <th>Invoice No</th>
+                            <th>Invoice/Lot No</th>
                             <th>Bags</th>
                             <th>KG</th>
                             <th>Net KG</th>

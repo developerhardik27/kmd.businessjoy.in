@@ -211,6 +211,7 @@
             <div class="invoice-header clearfix">
                 {{-- <span class="invoice-no">Invoice #{{ $invoice['invoice_no'] ?? '-' }}</span> --}}
                 <span class="invoice-no">Company: {{ $invoice['company_name'] ?? '-' }}</span>
+                <span class="invoice-no" style="text-align:right">Gardens: {{ $invoice['garden_name'] ?? '-' }}</span>
             </div>
             <div class="invoice-header clearfix">
                 <span class="invoice-no">Invoice #{{ $invoice['invoice_no'] ?? '-' }}</span>
@@ -226,9 +227,11 @@
                 <strong>SGST:</strong> {{ $invoice['sgst'] ?? '0.00' }} &nbsp;|&nbsp;
                 <strong>Status:</strong> <span style="text-transform: uppercase">{{ $invoice['status'] ?? '-' }}</span>
                 &nbsp;|&nbsp;
-                <strong>Period:</strong>
+                {{-- <strong>Period:</strong>
                 {{ $invoice['from_date'] ? \Carbon\Carbon::parse($invoice['from_date'])->format('d-m-Y') : '-' }} to
-                {{ $invoice['to_date'] ? \Carbon\Carbon::parse($invoice['to_date'])->format('d-m-Y') : '-' }}
+                {{ $invoice['to_date'] ? \Carbon\Carbon::parse($invoice['to_date'])->format('d-m-Y') : '-' }} --}}
+                 <strong>Net Kg:</strong> {{ $invoice['net_kg'] ?? '0.00' }} &nbsp;|&nbsp;
+                 <strong>Brokerage:</strong> {{ $invoice['brokerage'] ?? '0.00' }} &nbsp;|&nbsp;
                 &nbsp;|&nbsp;<strong>Total Amount: </strong>{{ formatINR($invoice['grand_total']) }}
             </div>
 

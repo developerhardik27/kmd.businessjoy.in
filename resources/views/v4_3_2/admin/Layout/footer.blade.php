@@ -99,8 +99,136 @@
         });
     }
 
+
+    /**
+     * setupDateValidation()
+     *
+     * Validates native input[type="date"] elements.
+     * Rules:
+     *  - Day   : 1–31
+     *  - Month : 1–12
+     *  - Year  : exactly 4 digits AND must not exceed the current year
+     */
+    function setupDateValidation(inputSelector = 'input[type="date"]') {
+
+        const TODAY = new Date();
+        const MAX_YEAR = TODAY.getFullYear(); // always the current year e.g. 2026
+        const MAX_DATE = `${MAX_YEAR}-12-31`; // "2026-12-31"
+        const MIN_DATE = `1000-01-01`;
+
+        document.querySelectorAll(inputSelector).forEach(function(input) {
+
+            // ── Browser-level constraint ──────────────────────────────────────────
+            // Restricts the native date-picker spinner so it won't go past MAX_DATE.
+            input.setAttribute('min', MIN_DATE);
+            input.setAttribute('max', MAX_DATE);
+
+            // ── Inline error element (injected once, right after the input) ───────
+            let errorEl = input.nextElementSibling;
+            if (!errorEl || !errorEl.classList.contains('date-val-error')) {
+                errorEl = document.createElement('div');
+                errorEl.className = 'date-val-error';
+                errorEl.style.cssText = [
+                    'color:#dc3545',
+                    'font-size:12px',
+                    'margin-top:3px',
+                    'display:none',
+                ].join(';');
+                input.insertAdjacentElement('afterend', errorEl);
+            }
+
+            function showError(msg) {
+                errorEl.textContent = msg;
+                errorEl.style.display = 'block';
+                input.style.borderColor = '#dc3545';
+                input.style.boxShadow = '0 0 0 0.2rem rgba(220,53,69,.25)';
+            }
+
+            function clearError() {
+                errorEl.textContent = '';
+                errorEl.style.display = 'none';
+                input.style.borderColor = '';
+                input.style.boxShadow = '';
+            }
+
+            function validate() {
+                const value = input.value; // always "YYYY-MM-DD" or ""
+
+                // Empty → nothing to validate
+                if (!value) {
+                    clearError();
+                    return;
+                }
+
+                const parts = value.split('-');
+                const yearStr = parts[0] || '';
+                const month = parseInt(parts[1], 10);
+                const day = parseInt(parts[2], 10);
+                const year = parseInt(yearStr, 10);
+
+                // Wait until year is fully typed (4 chars) before validating
+                if (yearStr.length < 4) {
+                    clearError();
+                    return;
+                }
+
+                // ── Block 5+ digit years (browser freely allows "10000") ──────────
+                if (yearStr.length > 4) {
+                    showError('Year must be exactly 4 digits.');
+                    input.value = '';
+                    return;
+                }
+
+                // ── Year must not exceed current year ─────────────────────────────
+                if (year > MAX_YEAR) {
+                    showError(`Year cannot be above ${MAX_YEAR} (current year).`);
+                    input.value = '';
+                    return;
+                }
+
+                // ── Year lower bound ──────────────────────────────────────────────
+                if (year < 1000) {
+                    showError('Year must be at least 1000.');
+                    input.value = '';
+                    return;
+                }
+
+                // ── Month ─────────────────────────────────────────────────────────
+                if (isNaN(month) || month < 1 || month > 12) {
+                    showError('Month must be between 1 and 12.');
+                    input.value = '';
+                    return;
+                }
+
+                // ── Day ───────────────────────────────────────────────────────────
+                if (isNaN(day) || day < 1 || day > 31) {
+                    showError('Day must be between 1 and 31.');
+                    input.value = '';
+                    return;
+                }
+
+                // ── All valid ─────────────────────────────────────────────────────
+                clearError();
+            }
+
+            // 'input'  → fires on every keystroke / spinner click
+            // 'blur'   → catches paste and autofill
+            input.addEventListener('input', validate);
+            input.addEventListener('blur', validate);
+        });
+    }
+
+    // ── Run on page load ──────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+        setupDateValidation();
+
+        // For inputs inside modals or dynamically loaded content, call again:
+        // setupDateValidation('#myModal input[type="date"]');
+        // setupDateValidation('.sidebar-filters input[type="date"]');
+    });
+
     function handleAjaxError(xhr) {
-         console.log("xhr",xhr);
+        console.log("xhr", xhr);
         if (xhr.status === 422) {
             let errors = xhr.responseJSON.errors;
             let firstErrorElement = null;
@@ -148,9 +276,9 @@
 
 
     function handleModalAjaxError(xhr) {
-        console.log("xhr",xhr);
+        console.log("xhr", xhr);
         if (xhr.status === 422) {
-            
+
             var errors = xhr.responseJSON.errors;
             let firstErrorElement = null;
 

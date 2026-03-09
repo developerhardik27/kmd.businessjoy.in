@@ -16,65 +16,59 @@
             background: #1518b117 !important;
             border: 1px solid #e1ded9 !important;
         }
-
         .btn-info {
             background-color: #253566 !important;
             border-color: #253566 !important;
             color: white;
         }
-
         .btn-info:hover {
             background-color: #39519b !important;
             color: rgb(255, 255, 255);
         }
-
         .btn-success {
             background-color: #67d5a5d9 !important;
             border-color: var(--iq-success) !important;
             color: black !important;
         }
-
         .btn-success:hover {
             background-color: #16d07ffa !important;
             border-color: var(--iq-success) !important;
             color: rgb(250, 250, 250) !important;
         }
-
         .select2-results__options {
             max-height: 150px !important;
             overflow-y: auto !important;
         }
     </style>
 @endsection
+
 @section('advancefilter')
     <div class="col-sm-12 text-right px-4">
         @if (session('user_permissions.invoicemodule.invoice.add') == '1')
             <button class="btn btn-primary btn-sm generate-invoice">
-                <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">+
-                    Create
-                    New</span>
+                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">
+                    + Create New
+                </span>
             </button>
         @endif
     </div>
     <div class="col-sm-12 text-right px-4">
-        <button class="btn btn-sm btn-primary " data-toggle="tooltip" data-placement="bottom" data-original-title="Filters"
-            onclick="showOffCannvas()">
+        <button class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Filters" onclick="showOffCannvas()">
             <i class="ri-filter-line"></i>
         </button>
     </div>
 @endsection
+
 @section('sidebar-filters')
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h6>Buyer</h6>
-            </div>
+            <div class="card-header"><h6>Buyer</h6></div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 mb-1">
                         <label for="filter_buyer" class="form-label mt-1">Buyer</label>
-                        <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer">
-                        </select>
+                        <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer"></select>
                     </div>
                 </div>
             </div>
@@ -82,38 +76,31 @@
     </div>
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h6>Company</h6>
-            </div>
+            <div class="card-header"><h6>Company</h6></div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 mb-1">
                         <label for="filter_company" class="form-label mt-1">Company</label>
-                        <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
-                        </select>
+                        <select name="filter_company" class="filter form-control w-100 select2" id="filter_company"></select>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h6>Payment</h6>
-            </div>
+            <div class="card-header"><h6>Payment</h6></div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 mb-1">
                         <label for="filter_payment_status" class="form-label mt-1">Payment Status</label>
-                        <select name="filter_payment_status" class="filter form-control w-100 select2"
-                            id="filter_payment_status">
-                            <option value="">Select Payment Type </option>
-                            <option value="pending">Pending </option>
+                        <select name="filter_payment_status" class="filter form-control w-100 select2" id="filter_payment_status">
+                            <option value="">Select Payment Type</option>
+                            <option value="pending">Pending</option>
                             <option value="paid">Paid</option>
                             <option value="part_payment">Part Payment</option>
-                            <option value="cancel">Cancel </option>
-                            <option value="due"> Over Due</option>
+                            <option value="cancel">Cancel</option>
+                            <option value="due">Over Due</option>
                         </select>
                     </div>
                 </div>
@@ -123,103 +110,107 @@
 @endsection
 
 @section('table-content')
-    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report" class="btn btn-sm btn-primary"
-        id="pdfBtn">
-        <span id="pdf-data">Generate Report</span>
-    </button>
+
+    {{-- ── Top bar: Generate Report + Bulk Commission Bill button ─────────────── --}}
+    <div class="d-flex align-items-center mb-2" style="gap:8px;">
+        <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report"
+            class="btn btn-sm btn-primary" id="pdfBtn">
+            <span id="pdf-data">Generate Report</span>
+        </button>
+
+        {{-- Hidden until 1+ checkbox is ticked and all from same company --}}
+        <button id="bulkGeneratePdfBtn"
+            class="btn btn-sm btn-warning d-none"
+            data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Generate Commission Bill for selected invoices">
+            <i class="ri-file-add-line"></i> Generate Commission Bill
+            <span id="bulkSelectionCount" class="badge badge-light ml-1">0</span>
+        </button>
+    </div>
+
+    {{-- ── Generate Invoice Modal ──────────────────────────────────────────────── --}}
     <div class="modal fade" id="generateinvoiceModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <form id="generateinvoiceForm">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Generate Invoice</h5>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
-
                     <div class="modal-body">
                         <div class="form-group">
-                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                                placeholder="token" required />
-                            <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
-                            <input type="hidden" value="{{ session('company_id') }}" class="form-control"
-                                name="company_id">
+                            <input type="hidden" name="token"      value="{{ session('api_token') }}" required />
+                            <input type="hidden" name="user_id"    value="{{ session('user_id') }}">
+                            <input type="hidden" name="company_id" value="{{ session('company_id') }}">
                         </div>
-                        <div class=" col-sm-11 mb-3">
+                        <div class="col-sm-11 mb-3">
                             <label for="companymaster_id">Company</label><span style="color:red;">*</span>
                             <select class="form-control select2" id="companymaster_id" name="companymaster_id" required>
-                                <option selected="" disabled=""> Select Company</option>
+                                <option selected disabled>Select Company</option>
                             </select>
-                            <span class="error-msg" id="error-companymaster_id" style="color: red"></span>
+                            <span class="error-msg" id="error-companymaster_id" style="color:red;"></span>
                         </div>
-                        <div class=" col-sm-11 mb-3">
-                            <label for="buyer_id">buyer</label><span style="color:red;">*</span>
-                            <select class="form-control select2" id="buyer_id" name="buyer_id" required>
-                                <option selected="" disabled=""> Select buyer</option>
-                            </select>
-                            <span class="error-msg" id="error-buyer" style="color: red"></span>
-                        </div>
-
                         <div class="col-sm-11 mb-3">
-                            <label for="invoice_no">invoice/lot no</label><span style="color:red;">*</span>
-                            <select class="form-control select2" id="invoice_no" name="invoice_no" multiple>
-
+                            <label for="buyer_id">Buyer</label><span style="color:red;">*</span>
+                            <select class="form-control select2" id="buyer_id" name="buyer_id" required>
+                                <option selected disabled>Select buyer</option>
                             </select>
-                            <span class="error-msg" id="error-invoice_no" style="color: red"></span>
+                            <span class="error-msg" id="error-buyer" style="color:red;"></span>
+                        </div>
+                        <div class="col-sm-11 mb-3">
+                            <label for="invoice_no">Invoice / Lot No</label><span style="color:red;">*</span>
+                            <select class="form-control select2" id="invoice_no" name="invoice_no" multiple></select>
+                            <span class="error-msg" id="error-invoice_no" style="color:red;"></span>
                         </div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Generate</button>
-                        <button type="button" class="btn btn-secondary" id="modalcancelbtn"
-                            data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" id="modalcancelbtn" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
+    {{-- ── Commission Bill / PDF Modal ─────────────────────────────────────────── --}}
     <div class="modal fade" id="pdfDateModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <form id="pdfDateForm">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Generate PDF</h5>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
+                        <h5 class="modal-title">Generate Commission Bill PDF</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
-
                     <div class="modal-body">
-                        <div class="form-group">
-                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                                placeholder="token" required />
-                            <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
-                            <input type="hidden" value="{{ session('company_id') }}" class="form-control"
-                                name="company_id">
-                            <input type="hidden" name="garden_id" id="garden_id" class="form-control" value="">
-                            <input type="hidden" name="invoice_id" id="invoice_id" class="form-control"
-                                value="">
-                            {{-- <input type="hidden" name="line_total" id="line_total" class="form-control" value=""> --}}
-                            <input type="hidden" name="company_details_id" id="company_details_id" class="form-control"
-                                value="">
+                        {{-- Hidden system fields --}}
+                        <input type="hidden" name="token"              value="{{ session('api_token') }}" required />
+                        <input type="hidden" name="user_id"            value="{{ session('user_id') }}">
+                        <input type="hidden" name="company_id"         value="{{ session('company_id') }}">
+                        <input type="hidden" name="garden_id"          id="garden_id"          value="">
+                        <input type="hidden" name="invoice_id"         id="invoice_id"         value="">
+                        <input type="hidden" name="company_details_id" id="company_details_id" value="">
+
+                        {{-- Summary banner — shown only for bulk selections --}}
+                        <div id="pdfModalSummary" class="alert alert-info py-2 px-3 mb-3" style="font-size:13px; display:none;">
+                            <strong>Selected Invoice IDs:</strong> <span id="summaryInvoiceIds">-</span><br>
+                            <strong>No. of Invoices:</strong> <span id="summaryCount">-</span>
                         </div>
+
                         <div class="form-group">
-                            <label>Invoice total</label>
+                            <label>Invoice Total</label>
                             <input type="number" name="line_total" id="line_total" class="form-control" readonly>
                         </div>
                         <div class="form-group">
                             <label>Brokerage (%)</label>
-                            <input type="number" name="brokerage" id="brokerage" step="0.01" min="0"
-                                max="100" class="form-control" required>
+                            <input type="number" name="brokerage" id="brokerage" step="0.01" min="0" max="100"
+                                class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label>brokrageAmount</label>
-                            <input type="number" name="brokrageAmount" step="0.01" min="0"
-                                id="brokrageAmount" class="form-control" readonly>
+                            <label>Brokerage Amount</label>
+                            <input type="number" name="brokrageAmount" id="brokrageAmount" step="0.01" min="0"
+                                class="form-control" readonly>
                         </div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Generate</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -228,9 +219,12 @@
             </form>
         </div>
     </div>
+
+    {{-- ── DataTable ────────────────────────────────────────────────────────────── --}}
     <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
+                {{-- <th><input type="checkbox" id="selectAllCheckbox" disabled></th> --}}
                 <td>ID</td>
                 <th>Invoice ID</th>
                 <th>Invoice Date</th>
@@ -243,13 +237,11 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="tabledata">
-
-        </tbody>
+        <tbody id="tabledata"></tbody>
     </table>
 
-    <div class="modal fade" id="paymentmodal" tabindex="-1" role="dialog" aria-labelledby="viewpaymentmodalTitle"
-        aria-hidden="true">
+    {{-- ── Payment Modal ────────────────────────────────────────────────────────── --}}
+    <div class="modal fade" id="paymentmodal" tabindex="-1" role="dialog" aria-labelledby="viewpaymentmodalTitle" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -262,1447 +254,987 @@
                     <div class="modal-body">
                         @csrf
                         <div class="payment_details">
-                            <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                                required />
-                            <input type="hidden" name="company_id" class="form-control"
-                                value="{{ session('company_id') }}" required />
-                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                                placeholder="token" required />
-                            <input type="hidden" name="inv_id" id="inv_id">
+                            <input type="hidden" name="user_id"    value="{{ session('user_id') }}"   required />
+                            <input type="hidden" name="company_id" value="{{ session('company_id') }}" required />
+                            <input type="hidden" name="token"      value="{{ session('api_token') }}"  required />
+                            <input type="hidden" name="inv_id"     id="inv_id">
+
                             <label for="transid">Transaction ID</label>
-                            <input type="text" name="transid" class="form-control" id="transid"
-                                placeholder="Transaction id" />
-                            <p class="modal_error-msg mb-1" id="error-transid" style="color: red"></p>
+                            <input type="text" name="transid" class="form-control" id="transid" placeholder="Transaction id" />
+                            <p class="modal_error-msg mb-1" id="error-transid" style="color:red;"></p>
+
                             <label for="payment_date">Payment Date</label>
                             <input type="date" name="payment_date" class="form-control" id="payment_date" required />
-                            <p class="modal_error-msg mb-1" id="error-payment_date" style="color: red"></p>
+                            <p class="modal_error-msg mb-1" id="error-payment_date" style="color:red;"></p>
+
                             Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
-                            &nbsp;Received Amount :-&nbsp;<span class="mb-1 text-info"
-                                id="info-total_received_amount">0</span><br>
+                            &nbsp;Received Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_received_amount">0</span><br>
+
                             <label for="paidamount">New Amount</label>
-                            <input type="number" name="paidamount" class="form-control" id="paidamount"
-                                placeholder="New Amount" required />
-                            <p class="modal_error-msg mb-1" id="error-paidamount" style="color: red"></p>
+                            <input type="number" name="paidamount" class="form-control" id="paidamount" placeholder="New Amount" required />
+                            <p class="modal_error-msg mb-1" id="error-paidamount" style="color:red;"></p>
+
                             Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
+
                             <label for="paid_by">Paid By</label>
-                            <input type="text" name="paid_by" class="form-control" id="paid_by"
-                                placeholder="Who Paid Amount" />
-                            <p class="modal_error-msg mb-1" id="error-paid_by" style="color: red"></p>
+                            <input type="text" name="paid_by" class="form-control" id="paid_by" placeholder="Who Paid Amount" />
+                            <p class="modal_error-msg mb-1" id="error-paid_by" style="color:red;"></p>
+
                             <label for="payment_type">How They Paid</label>
                             <select class="form-control" name="payment_type" id="payment_type">
-                                <option selected="" disabled="">Select Payment Type</option>
+                                <option selected disabled>Select Payment Type</option>
                                 <option value="Online Payment">Online Payment</option>
                                 <option value="Cash">Cash</option>
                                 <option value="Check">Check</option>
                             </select>
-                            <p class="modal_error-msg mb-1" id="error-payment_type" style="color: red"></p>
+                            <p class="modal_error-msg mb-1" id="error-payment_type" style="color:red;"></p>
                         </div>
+
                         <div class="tds_details">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="tds_applicable"
-                                    id="tds_applicable">
-                                <label class="form-check-label" for="tds_applicable">
-                                    TDS Applicable
-                                </label>
-                                <p class="modal_error-msg mb-1" id="error-tds_applicable" style="color: red"></p>
+                                <input class="form-check-input" type="checkbox" value="1" name="tds_applicable" id="tds_applicable">
+                                <label class="form-check-label" for="tds_applicable">TDS Applicable</label>
+                                <p class="modal_error-msg mb-1" id="error-tds_applicable" style="color:red;"></p>
                             </div>
-                            <div class="tds_inputs" style="display: none">
+                            <div class="tds_inputs" style="display:none;">
                                 <hr>
                                 <label for="tds_amount">TDS Amount</label>
-                                <input type="number" name="tds_amount" class="form-control" id="tds_amount"
-                                    placeholder="TDS Amount" />
-                                <p class="modal_error-msg mb-1" id="error-tds_amount" style="color: red"></p>
+                                <input type="number" name="tds_amount" class="form-control" id="tds_amount" placeholder="TDS Amount" />
+                                <p class="modal_error-msg mb-1" id="error-tds_amount" style="color:red;"></p>
                                 Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
                                 <label for="challan_no">Challan No</label>
-                                <input type="text" name="challan_no" class="form-control" id="challan_no"
-                                    placeholder="Challan No" />
-                                <p class="modal_error-msg mb-1" id="error-challan_no" style="color: red"></p>
+                                <input type="text" name="challan_no" class="form-control" id="challan_no" placeholder="Challan No" />
+                                <p class="modal_error-msg mb-1" id="error-challan_no" style="color:red;"></p>
                                 <label for="status">Status</label>
                                 <select class="form-control" name="status" id="status">
-                                    <option selected="" disabled="">Select Status</option>
+                                    <option selected disabled>Select Status</option>
                                     <option value="Recorded">Recorded</option>
                                     <option value="Mapped to Challan">Mapped to Challan</option>
                                     <option value="Filed in Return">Filed in Return</option>
-                                    <option value="Reconciled (matches 26AS)"> Reconciled (matches 26AS)</option>
+                                    <option value="Reconciled (matches 26AS)">Reconciled (matches 26AS)</option>
                                 </select>
-                                <p class="modal_error-msg mb-1" id="error-status" style="color: red"></p>
+                                <p class="modal_error-msg mb-1" id="error-status" style="color:red;"></p>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="" class="btn btn-primary">Submit</button>
-                        <button type="reset" class="btn iq-bg-danger">Reset</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="reset"  class="btn iq-bg-danger">Reset</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('ajax')
-    <script>
-        let isEventBound = false;
-        $('document').ready(function() {
-            // companyId and userId both are required in every ajax request for all action *************
-            // response status == 200 that means response succesfully recieved
-            // response status == 500 that means database not found
-            // response status == 422 that means api has not got valid or required data
+<script>
+    let isEventBound = false;
 
-            let message = "{{ session('message') }}";
-            if (message) {
-                Toast.fire({
-                    icon: 'error',
-                    title: message
+    $('document').ready(function () {
+
+        let message = "{{ session('message') }}";
+        if (message) { Toast.fire({ icon: 'error', title: message }); }
+
+        let getbuyername    = [];
+        let getcompanyname  = [];
+        var global_response = '';
+
+        const API_TOKEN  = "{{ session()->get('api_token') }}";
+        const COMPANY_ID = "{{ session()->get('company_id') }}";
+        const USER_ID    = "{{ session()->get('user_id') }}";
+
+        // ────────────────────────────────────────────────────────────────────────────
+        // Sidebar filter selects
+        // ────────────────────────────────────────────────────────────────────────────
+        $('#filter_payment_status').select2({ placeholder: "Select Payment Status", allowClear: true, width: '100%' });
+
+        function getCompanyData() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'GET', url: "{{ route('companymaster.index') }}",
+                    data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
+                    success: function (r) { loaderhide(); resolve(r); },
+                    error  : function (xhr) { loaderhide(); handleAjaxError(xhr); reject(xhr); }
                 });
-            }
-            let getbuyername = [];
-            let getcompanyname = [];
-            var global_response = '';
-            $('#filter_payment_status').select2({
-                placeholder: "Select Payment Status",
-                allowClear: true,
-                width: '100%' // ensures it uses full width
             });
+        }
 
-            function getCompanyData() {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('companymaster.index') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            loaderhide();
-                            resolve(response);
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            handleAjaxError(xhr);
-                            reject(xhr);
-                        }
+        function getBuyerData() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'GET', url: "{{ route('buyer.index') }}",
+                    data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
+                    success: function (r) { loaderhide(); resolve(r); },
+                    error  : function (xhr) { loaderhide(); handleAjaxError(xhr); reject(xhr); }
+                });
+            });
+        }
+
+        function loadFilters() {
+            return new Promise(resolve => {
+                var fd = JSON.parse(sessionStorage.getItem('filterData'));
+                if (fd) {
+                    $.each(fd, function (k, v) { if (v != ' ') { $('#' + k).val(v); } });
+                    $('#filter_company, #filter_buyer').trigger('change');
+                    loaddata();
+                    sessionStorage.removeItem('filterData');
+                    loaderhide();
+                    resolve();
+                } else { resolve(); loaddata(); }
+            });
+        }
+
+        async function initialize() {
+            try {
+                const [companyRes, buyerRes] = await Promise.all([getCompanyData(), getBuyerData()]);
+
+                if (companyRes.status == 200 && companyRes.data != '') {
+                    $.each(companyRes.data, function (k, v) {
+                        getcompanyname.push(v.company_name);
+                        $('#filter_company').append(`<option value="${v.id}">${v.company_name}</option>`);
                     });
-                });
-            }
+                    $('#filter_company').val('').select2({ search: true, placeholder: 'Select Company', allowClear: true });
+                } else {
+                    $('#filter_company').val('').select2({ search: true, placeholder: 'No company found', allowClear: true });
+                }
 
-            function getBuyerData() {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('buyer.index') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            loaderhide();
-                            resolve(response);
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            handleAjaxError(xhr);
-                            reject(xhr);
-                        }
+                if (buyerRes.status == 200 && buyerRes.data != '') {
+                    $.each(buyerRes.data, function (k, v) {
+                        getbuyername.push(v.name);
+                        $('#filter_buyer').append(`<option value="${v.id}">${v.name}</option>`);
                     });
-                });
+                    $('#filter_buyer').val('').select2({ search: true, placeholder: 'Select Buyer', allowClear: true });
+                } else {
+                    $('#filter_buyer').val('').select2({ search: true, placeholder: 'No buyer found', allowClear: true });
+                }
+
+                loaderhide();
+                await loadFilters();
+            } catch (err) {
+                console.error('Init error:', err);
+                Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
+                loaderhide();
+            }
+        }
+
+        initialize();
+
+        // ────────────────────────────────────────────────────────────────────────────
+        // Generate Invoice modal
+        // ────────────────────────────────────────────────────────────────────────────
+        $("#modalcancelbtn").on('click', function () {
+            $('#generateinvoiceForm')[0].reset();
+            $('#companymaster_id, #buyer_id, #invoice_no').val(null).trigger('change');
+            $('#generateinvoiceModal').modal('hide');
+            $('#companymaster_id').empty().append('<option selected disabled>Select Company</option>');
+        });
+
+        $('#generateinvoiceForm').on('submit', function (e) {
+            e.preventDefault();
+            let selectedOptions = $('#invoice_no option:selected');
+
+            if (selectedOptions.length == 0) {
+                Toast.fire({ icon: 'error', title: 'Please select at least one Invoice' });
+                return false;
             }
 
-
-            function loadFilters() {
-                return new Promise((resolve, reject) => {
-                    var filterData = JSON.parse(sessionStorage.getItem('filterData'));
-                    if (filterData) {
-                        $.each(filterData, function(key, value) {
-                            if (value != ' ') {
-                                $('#' + key).val(value); // Removed `, true`
-                            }
-                        });
-
-                        // Trigger change event to ensure multiselect UI updates
-                        $('#filter_company, #filter_buyer')
-                            .trigger('change');
-
-                        loaddata();
-
-
-                        sessionStorage.removeItem('filterData');
-                        loaderhide();
-                        resolve(); // Resolve the promise here after all actions
-                    } else {
-                        // If no filter data, resolve immediately
-                        resolve();
-                        loaddata();
-                    }
-                });
+            let firstTransportId = $(selectedOptions[0]).data('tranport_id');
+            let sameTransport = true;
+            selectedOptions.each(function () {
+                if ($(this).data('tranport_id') != firstTransportId) { sameTransport = false; return false; }
+            });
+            if (!sameTransport) {
+                Toast.fire({ icon: 'error', title: 'Selected invoices must have the same Transport' });
+                return false;
             }
-            async function initialize() {
-                try {
-                    // Perform AJAX calls concurrently
-                    const [
-                        getCompanyDataresponse, getBuyerDataresponse
-                    ] = await Promise.all([
-                        getCompanyData(),
-                        getBuyerData(),
-                    ]);
-                    // this getBuyerData response
-                    if (getCompanyDataresponse.status == 200 && getCompanyDataresponse.data != '') {
-                        // You can update your HTML with the data here if needed     
-                        $.each(getCompanyDataresponse.data, function(key, value) {
-                            var companyId = value.id;
-                            var optionValue = value.company_name;
-                            getcompanyname.push(optionValue);
-                            $('#filter_company').append(
-                                `<option value="${companyId}">${optionValue}</option>`
-                            );
-                        });
-                        $('#filter_company').val('');
-                        $('#filter_company').select2({
-                            search: true,
-                            placeholder: 'Select Company',
-                            allowClear: true
-                        });
-                    } else if (getCompanyDataresponse.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    } else {
-                        $('#filter_company').val('');
-                        $('#filter_company').select2({
-                            search: true,
-                            placeholder: 'No company found',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
-                    }
-                    // this getBuyerData response
-                    if (getBuyerDataresponse.status == 200 && getBuyerDataresponse.data != '') {
-                        // You can update your HTML with the data here if needed     
-                        $.each(getBuyerDataresponse.data, function(key, value) {
-                            var buyerId = value.id;
-                            var optionValue = value.name;
-                            getbuyername.push(optionValue);
-                            $('#filter_buyer').append(
-                                `<option value="${buyerId}">${optionValue}</option>`
-                            );
-                        });
-                        $('#filter_buyer').val('');
-                        $('#filter_buyer').select2({
-                            search: true,
-                            placeholder: 'Select Buyer',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
-                    } else if (getBuyerDataresponse.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    } else {
-                        $('#filter_buyer').val('');
-                        $('#filter_buyer').select2({
-                            search: true,
-                            placeholder: 'No buyer found',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
-                    }
-                    loaderhide();
-                    await loadFilters();
 
-                } catch (error) {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: "error",
-                        title: "An error occurred while initializing"
-                    });
-                    loaderhide();
+            loadershow();
+            var formData = {
+                company_ids  : $('#companymaster_id').val(),
+                buyer_parties: $('#buyer_id').val(),
+                invoice_no   : $('#invoice_no').val(),
+                user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN,
+                _token: "{{ csrf_token() }}"
+            };
+            for (var key in formData) {
+                if (!formData[key]) {
+                    Toast.fire({ icon: 'error', title: key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase()) + ' is required' });
+                    loaderhide(); return false;
                 }
             }
 
-            initialize();
-            const API_TOKEN = "{{ session()->get('api_token') }}";
-            const COMPANY_ID = "{{ session()->get('company_id') }}";
-            const USER_ID = "{{ session()->get('user_id') }}";
-            // When the modal's close button or cancel button is clicked
-
-            $("#modalcancelbtn").on('click', function() {
-                $('#generateinvoiceForm')[0].reset();
-                $('#companymaster_id, #buyer_id, #invoice_no').val(null).trigger(
-                    'change'); // reset Select2 visually
-                $('#generateinvoiceModal').modal('hide');
-                $('#companymaster_id').empty().append('<option selected disabled>Select Company</option>');
-            });
-            $('#generateinvoiceForm').on('submit', function(e) {
-                e.preventDefault(); // prevent normal form submission
-                let selectedOptions = $('#invoice_no option:selected');
-
-                if (selectedOptions.length == 0) {
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Please select at least one Invoice'
-                    });
-                    loaderhide();
-                    return false;
-                }
-
-                // ✅ Get first transport id
-                let firstTransportId = $(selectedOptions[0]).data('tranport_id');
-                let sameTransport = true;
-
-                selectedOptions.each(function() {
-                    let currentTransportId = $(this).data('tranport_id');
-
-                    if (currentTransportId != firstTransportId) {
-                        sameTransport = false;
-                        return false; // break loop
-                    }
-                });
-
-                if (!sameTransport) {
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Selected invoices must have the same Transport'
-                    });
-                    loaderhide();
-                    return false;
-                }
-
-
-                loadershow();
-                var formData = {
-                    company_ids: $('#companymaster_id').val(),
-                    buyer_parties: $('#buyer_id').val(),
-                    invoice_no: $('#invoice_no').val(),
-                    user_id: "{{ session()->get('user_id') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    token: "{{ session()->get('api_token') }}",
-                    _token: "{{ csrf_token() }}"
-                };
-                for (var key in formData) {
-                    if (formData[key] === null || formData[key] === undefined || formData[key] === '') {
-
-                        // Make field name readable
-                        var fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-                        Toast.fire({
-                            icon: 'error',
-                            title: fieldName + " is required"
-                        });
-
-                        loaderhide();
-                        return false;
-                    }
-                }
-
-
-                $.ajax({
-                    url: "{{ route('brokerpurchase.lot_no_createInvoice') }}", // your route
-                    type: "GET", // or POST if you are creating data
-                    data: formData,
-                    success: function(response) {
-                        if (response.status === 200) {
-                            // store session and redirect
-                            $.post("{{ route('admin.lot_no_storeInvoiceSession') }}", {
-                                _token: "{{ csrf_token() }}",
-                                data: response.data
-                            }, function() {
-                                window.location.href =
-                                    "{{ route('admin.addinvoice') }}";
-                            });
-
-
-                        } else {
-                            loaderhide();
-                            Toast.fire({
-                                icon: 'error',
-                                title: response.message || 'Something went wrong'
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        loaderhide();
-                        console.log(xhr.responseText);
-                        Toast.fire({
-                            icon: 'error',
-                            title: 'AJAX request failed'
-                        });
-                    }
-                });
-            });
-
-
-            function companymaster() {
-                loadershow();
-                $('#companymaster_id').empty().append('<option selected disabled>Select company</option>');
-                $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
-
-                ajaxRequest('GET', "{{ route('companymaster.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID,
-                }).done(function(response) {
-                    if (response.status == 200 && response.data.length > 0) {
-                        $.each(response.data, function(key, value) {
-                            const companyDetails = [value.company_name, value.mobile_1, value.email]
-                                .filter(
-                                    Boolean).join(' - ');
-                            $('#companymaster_id').append(`
-                    <option data-gstno='${value.gst_no}' value='${value.id}'>${companyDetails}</option>
-                `);
-                        });
+            $.ajax({
+                url: "{{ route('brokerpurchase.lot_no_createInvoice') }}", type: 'GET', data: formData,
+                success: function (response) {
+                    if (response.status === 200) {
+                        $.post("{{ route('admin.lot_no_storeInvoiceSession') }}", {
+                            _token: "{{ csrf_token() }}", data: response.data
+                        }, function () { window.location.href = "{{ route('admin.addinvoice') }}"; });
                     } else {
-                        $('#companymaster_id').append(`<option disabled>No Data found</option>`);
-                    }
-                }).fail(function(xhr) {
-                    handleAjaxError(xhr);
-                }).always(function() {
-                    loaderhide();
-                });
-            }
-
-            function buyer_ids(companymaster_id) {
-                companymaster_id = $('#companymaster_id').val();
-                loadershow();
-                $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
-
-                ajaxRequest('GET', "{{ route('company_buyer.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID,
-                    companymaster_id: companymaster_id,
-                }).done(function(response) {
-                    if (response.status == 200 && response.data.length > 0) {
-                        $.each(response.data, function(key, value) {
-                            const buyerDetails = [value.name, value.mobile_1, value.email].filter(
-                                Boolean).join(' - ');
-                            $('#buyer_id').append(`
-                    <option data-gstno='${value.gst_no}' value='${value.id}'>${buyerDetails}</option>
-                `);
-                        });
-                    } else {
-                        $('#buyer_id').append(`<option disabled>No Data found</option>`);
-                    }
-                }).fail(function(xhr) {
-                    handleAjaxError(xhr);
-                }).always(function() {
-                    loaderhide();
-                });
-            }
-
-            function invoice_no(buyer_id, preSelectedInvoices = []) {
-                let company_ids = $('#companymaster_id').val();
-                loadershow();
-
-                $('#invoice_no').empty(); // clear previous options
-
-                ajaxRequest('GET', "{{ route('invoice_no.index') }}", {
-                    token: API_TOKEN,
-                    company_id: COMPANY_ID,
-                    user_id: USER_ID,
-                    buyer_id: buyer_id,
-                    company_ids: company_ids,
-                }).done(function(response) {
-                    if (response.status == 200 && response.data.length > 0) {
-                        $.each(response.data, function(key, value) {
-                            const invoiceDetails =
-                                `invoice/lot no: ${value.invoice_no} - Order No: ${value.order_id} - Transport ${value.tranport_name}`;
-                            $('#invoice_no').append(`
-                    <option value='${value.invoice_no}' data-order-id='${value.order_id}' data-tranport_id='${value.tranport_id}'>
-                        ${invoiceDetails}
-                    </option>
-                `);
-                        });
-
-                        // Automatically pre-select invoices if provided
-                        if (preSelectedInvoices.length > 0) {
-                            $('#invoice_no').val(preSelectedInvoices).trigger('change');
-                        }
-
-                    } else {
-                        $('#invoice_no').append(`<option disabled>No Data found</option>`);
-                    }
-                }).fail(function(xhr) {
-                    handleAjaxError(xhr);
-                }).always(function() {
-                    loaderhide();
-                });
-            }
-
-            // --- Event listeners ---
-
-            $('#companymaster_id').on('change', function() {
-                var companymaster_id = $(this).val();
-
-                // Reset downstream dropdowns
-                $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
-
-                if (companymaster_id == 'add_companymaster_id') {
-                    $('#exampleModalScrollable').modal('show');
-                    return;
-                }
-
-                buyer_ids(companymaster_id);
-            });
-
-            $('#buyer_id').on('change', function() {
-                var buyer_id = $(this).val();
-
-                // Example: fetch pre-selected invoices for this buyer from hidden input or API
-                // Suppose you have a CSV string: "21,22"
-                let preSelectedInvoices = $('#hidden_invoice_ids').val(); // e.g. "21,22"
-                preSelectedInvoices = preSelectedInvoices ? preSelectedInvoices.split(',') : [];
-
-                invoice_no(buyer_id, preSelectedInvoices);
-            });
-
-            $('#invoice_no').on('change', function() {
-                var selectedInvoice = $(this).val();
-                var orderId = $(this).find('option:selected').data('order-id');
-                console.log('Selected Invoice:', selectedInvoice, 'Order ID:', orderId);
-            });
-
-            // --- Initialize Select2 ---
-            $('#companymaster_id, #buyer_id, #invoice_no').select2({
-                placeholder: "Select",
-                width: '100%',
-                search: true,
-            });
-
-            $(document).on("click", ".generate-invoice", function() {
-                companymaster();
-                $('#generateinvoiceModal').modal('show');
-
-            });
-            let table = '';
-
-            var global_response = '';
-
-            var search = {!! json_encode($search) !!}
-
-            // function for  get invoice data and set it table
-            function loaddata() {
-                loadershow();
-                table = $('#data').DataTable({
-                    language: {
-                        lengthMenu: '_MENU_ &nbsp;Entries per page'
-                    },
-                    destroy: true, // allows re-initialization
-                    responsive: true,
-                    processing: true,
-                    serverSide: true,
-                    ajax: {
-                        type: "GET",
-                        url: "{{ route('invoice.inv_list') }}",
-                        data: function(d) {
-                            d.user_id = "{{ session()->get('user_id') }}";
-                            d.company_id = "{{ session()->get('company_id') }}";
-                            d.token = "{{ session()->get('api_token') }}";
-                            d.filter_payment_status = $('#filter_payment_status').val();
-                            d.filter_company = $('#filter_company').val();
-                            d.filter_buyer = $('#filter_buyer').val();
-                        },
-                        dataSrc: function(json) {
-                            $("#pdfBtn").removeClass('d-none');
-                            if (json.message) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: json.message || 'Something went wrong!'
-                                })
-                                $("#pdfBtn").addClass('d-none');
-                            }
-
-                            global_response = json;
-
-
-                            return json.data;
-                        },
-                        complete: function() {
-                            companymaster();
-
-                            loaderhide();
-                        },
-                        error: function(xhr) {
-                            global_response = '';
-                            console.log(xhr.responseText);
-                            Toast.fire({
-                                icon: "error",
-                                title: "Error loading data"
-                            });
-                        }
-                    },
-                    order: [
-                        [0, 'desc']
-                    ],
-                    search: {
-                        search: search
-                    },
-                    columns: [
-                          {
-                            data: 'id',
-                            name: 'id',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'inv_no',
-                            name: 'inv_no',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'inv_date_formatted',
-                            name: 'inv_date_formatted',
-                            orderable: false,
-                            searchable: true,
-                            defaultContent: '-',
-                        },
-                        {
-                            data: 'garden_company_name',
-                            name: 'garden_company_name',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'customer',
-                            name: 'customer',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'grand_total',
-                            name: 'grand_total',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                return `${row.currency_symbol} ${row.grand_total}`;
-                            }
-                        },
-                        {
-                            data: 'status',
-                            name: 'status',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                actions = '-';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
-                                    options = '';
-                                    if (row.part_payment == 1 && row.pending_amount != 0) {
-                                        options = ` 
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''}>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
-                                        `;
-                                    }
-                                    if (row.pending_amount == 0) {
-                                        options = `
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''}> Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
-                                        `;
-                                    }
-
-                                    if (row.part_payment != 1 && row.part_payment != 0) {
-                                        options = `
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled> Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
-                                        `;
-                                    }
-                                    actions = `  
-                                        <select data-status='${row.id}' data-original-value="${row.status}" class="status" id="status_${row.id}" name="" required >
-                                            ${options}
-                                            <option value='cancel' ${row.status == "cancel" ? 'selected' : ''}>Cancel</option>
-                                            <option value='due' ${row.status == "due" ? 'selected' : ''}>Over Due</option>
-                                        </select>
-                                    `;
-                                @endif
-
-                                return actions;
-
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                actions = '-';
-                                @if (session('user_permissions.invoicemodule.invoice.view') == '1')
-                                    let generateInvoicePdfUrl =
-                                        "{{ route('invoice.generatepdf', '__invoiceId__') }}"
-                                        .replace('__invoiceId__', row.id);
-                                    actions = `                                             
-                                        <span data-toggle="tooltip" data-placement="left" data-original-title="Download Invoice Pdf">
-                                            <a href=${generateInvoicePdfUrl} target='_blank' id='pdf'>
-                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
-                                            </a>
-                                        </span>
-                                    `;
-                                @endif
-
-                                return actions;
-
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                let generateInvoiceReceiptAllUrl =
-                                    "{{ route('invoice.generaterecieptll', '__invoiceId__') }}"
-                                    .replace('__invoiceId__', row.id);
-                                actions = '';
-                                if (row.status != 'paid') {
-                                    actions += `                                             
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id='${row.id}' class='btn btn-sm btn-primary m-0 paymentformmodal'>
-                                                <i class='ri-paypal-fill'></i>
-                                            </button>
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 1 && row.status == 'paid' && row
-                                    .pending_amount == 0) {
-                                    actions += `                                             
-                                        <span> 
-                                            <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
-                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-primary btn-rounded btn-sm m-0" >
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 1) {
-                                    actions += `                                             
-                                        <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                            <button  data-id='${row.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                <i class='ri-eye-fill'></i> 
-                                            </button> 
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 0 && row.status == 'paid') {
-                                    actions += `                                             
-                                        <span> 
-                                            <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
-                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt">
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
-                                        </span>
-                                        <span data-toggle="tooltip" data-placement="right" data-original-title="Delete Payment Entry">
-                                            <button data-id="${row.paymentid}" data-inv-id="${row.id}" class="btn btn-sm btn-outline-danger pay-del-btn">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </span>    
-                                    `;
-                                }
-                                return actions;
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            render: function(data, type, row) {
-                                let actionBtns = '';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
-                                    if (row.is_editable == 1) {
-                                        let invoiceEditUrl =
-                                            "{{ route('admin.editinvoice', '__invoiceId__') }}"
-                                            .replace('__invoiceId__', row.id);
-                                        actionBtns += `
-                                            <span>  
-                                                <a href=${invoiceEditUrl}>
-                                                    <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Invoice" class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                        <i class="ri-edit-fill"></i>
-                                                    </button>
-                                                </a>
-                                            </span>
-                                        `;
-                                    }
-                                @endif
-                                // if(row.company_details_id != global_response.company_details_id) {
-                                // actionBtns += `
-                            //     <span>
-                            //         <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" title="Update Company Details"
-                            //             class="update-company-details-btn btn btn-outline-primary btn-rounded btn-sm my-0">
-                            //             <i class="ri-file-edit-line"></i>
-                            //         </button>
-                            //     </span>
-                            // `;
-                                // }
-
-                                @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
-                                    actionBtns += `
-                                         <span>
-                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Invoice" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                <i class="ri-delete-bin-fill"></i>
-                                            </button>
-                                        </span>
-                                    `;
-                                @endif
-                                if (row.brokerbill_no) {
-                                    @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
-                                        let generatePdfUrl =
-                                            "{{ route('brokragbill.generatebrokragebillpdf', '__gardenId__') }}"
-                                            .replace('__gardenId__', row.brokerbill_no);
-                                        actionBtns += `                                             
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Pdf">
-                                            <a href=${generatePdfUrl} target='_blank' id='pdf'>
-                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
-                                            </a>
-                                        </span>
-                                    `;
-                                    @endif
-                                } else {
-                                    @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
-                                        let storePdfUrl =
-                                            "{{ route('brokeragebill.brokeragebillpdf', '__gardenId__') }}"
-                                            .replace('__gardenId__', row.garden_id);
-                                        actionBtns += `
-                                        <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Create Commission Bill PDF">
-                                            <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf" data-id ="${row.garden_ids}" data-company_details_id ="${row.company_details_id}" data-line_total = '${row.line_total}' data-brokerage='${row.brokerage}' data-invoice_id ='${row.id}'>
-                                                    <i class="ri-file-add-line"></i>
-                                            </button>
-                                        </span>
-                                    `;
-                                    @endif
-                                }
-
-                                return actionBtns;
-                            }
-
-                        }
-                    ],
-
-                    pagingType: "full_numbers",
-                    drawCallback: function(settings) {
-                        $('[data-toggle="tooltip"]').tooltip({
-                            boundary: 'window',
-                            offset: '0, 10' // Push tooltip slightly away from the button
-                        });
-
-                        // 👇 Jump to Page input injection
-                        if ($('#jumpToPageWrapper').length === 0) {
-                            let jumpHtml = `
-                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
-                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
-                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
-                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
-                                    </div>
-                                `;
-                            $(".dt-paging").after(jumpHtml);
-                        }
-
-
-                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
-                            function() {
-                                let table = $('#data').DataTable();
-                                // Check if table is initialized
-                                if ($.fn.DataTable.isDataTable('#data')) {
-                                    let page = parseInt($('#jumpToPage').val());
-                                    let totalPages = table.page.info().pages;
-
-                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
-                                        table.page(page - 1).draw('page');
-                                    } else {
-                                        Toast.fire({
-                                            icon: "error",
-                                            title: `Please enter a page number between 1 and ${totalPages}`
-                                        });
-                                    }
-                                } else {
-
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: `DataTable not yet initialized.`
-                                    });
-                                }
-                            }
-                        );
-                    }
-                });
-
-            }
-
-
-            //call data function for load customer data
-            $(document).on("click", ".generate-pdf", function() {
-                let gardenId = $(this).data('id');
-                let company_details_id = $(this).data('company_details_id');
-                let line_total = $(this).data('line_total');
-                let brokerage = $(this).data('brokerage');
-                let invoice_id = $(this).data('invoice_id');
-                $('#garden_id').val(gardenId);
-                $('#company_details_id').val(company_details_id);
-                $('#line_total').val(line_total);
-                $('#brokerage').val(brokerage);
-                $('#invoice_id').val(invoice_id);
-                let brokrageAmount = line_total * brokerage / 100;
-
-                $('#brokrageAmount').val(brokrageAmount);
-                $('#pdfDateModal').modal('show');
-            });
-            $('#pdfDateForm').on('submit', function(e) {
-                e.preventDefault();
-                let formdata = $(this).serialize();
-                loadershow();
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('brokeragebill.brokeragebillpdf') }}",
-                    data: formdata,
-                    success: function(response) {
-                        if (response.status == 200) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            $('#pdfDateForm')[0].reset()
-                            $('#pdfDateModal').modal('hide');
-                            table.draw();
-
-                        } else if (response.status == 500) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                            $('#pdfDateForm')[0].reset()
-                            $('#pdfDateModal').modal('hide');
-                            // window.location.href = "{{ route('admin.addbank') }}";
-
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                            $('#pdfDateForm')[0].reset()
-                        }
                         loaderhide();
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                        loaderhide();
+                        Toast.fire({ icon: 'error', title: response.message || 'Something went wrong' });
                     }
-                })
-            });
-
-            // loaddata();
-
-            $('#brokerage').on('input', calculateBrokerage);
-            calculateBrokerage();
-
-            function calculateBrokerage() {
-                let brokarge_per = $('#brokerage').val();
-                let line_total_amt = $('#line_total').val();
-                let borkragecal_amount = line_total_amt * brokarge_per / 100;
-                $('#brokrageAmount').val(borkragecal_amount.toFixed(2));
-            }
-            let params;
-            $('#pdfBtn').on('click', function() {
-                params = table.ajax.params();
-                params.filter_payment_status = $('#filter_payment_status').val();
-                params.filter_buyer = $('#filter_buyer').val();
-                params.filter_company = $('#filter_company').val();
-                let queryString = $.param(params);
-                let url = "{{ route('invoice.leger') }}" + "?" + queryString;
-                // Open PDF in new tab
-                loadershow();
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('invoice.leger') }}",
-                    data: params,
-                    success: function(response) {
-                        window.open(url, '_blank');
-                        loaderhide();
-                    },
-                    error: function(xhr) {
-                        loaderhide();
-                        handleAjaxError(xhr);
-                    }
-                });
-            });
-
-            // record delete 
-            $(document).on("click", ".del-btn", function() {
-                var deleteid = $(this).data('id');
-                var row = this;
-                let invoiceDeleteUrl = "{{ route('invoice.delete', '__deleteId__') }}".replace(
-                    '__deleteId__', deleteid);
-
-                showConfirmationDialog(
-                    'Are you sure?',
-                    'to delete this invoice?',
-                    'Yes, delete it',
-                    'No, cancel',
-                    'question',
-                    () => {
-                        loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: invoiceDeleteUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: " {{ session()->get('company_id') }} ",
-                                user_id: " {{ session()->get('user_id') }} "
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message
-                                    });
-                                    loaddata();
-                                } else if (response.status == 500) {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: "invoice not deleted."
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status,
-                                error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                handleAjaxError(xhr);
-                            }
-                        });
-                    }
-                );
-
-
-            });
-
-
-            //status change function
-            function statuschange(id, value) {
-                loadershow();
-                let invoiceStatusUrl = "{{ route('invoice.status', '__id__') }}".replace('__id__', id);
-                $.ajax({
-                    type: 'PUT',
-                    url: invoiceStatusUrl,
-                    data: {
-                        status: value,
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200) {
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            loaddata();
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: "Status not updated."
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        handleAjaxError(xhr);
-                    }
-                });
-            }
-
-            //call status change function
-            $(document).on("change", ".status", function() {
-                var element = $(this);
-                var oldstatus = element.data('original-value'); //get original invoice status value
-                var statusid = element.data('status'); // get invoice id
-                var status = element.val(); //get current value
-                showConfirmationDialog(
-                    'Are you sure?',
-                    'to change this record status ?',
-                    'Yes, change it',
-                    'No, cancel',
-                    'question',
-                    () => {
-                        loadershow();
-                        element.data('original-value', status); // set current value to original value
-                        statuschange(statusid, status);
-                        loaderhide(); // Success callback
-                    },
-                    () => {
-                        $('#status_' + statusid).val(oldstatus);
-                    }
-                );
-            });
-
-            // form reset every time when on click make payment button
-            $(document).on('click', '.paymentformmodal', function() {
-                $('#paymentform')[0].reset();
-                $('.tds_inputs').hide();
-                var invoiceid = $(this).data('id');
-                var amount = $(this).data('amount');
-                var totalreceivedamount = 0;
-                var pendingamount = 0;
-                $('#inv_id').val(invoiceid);
-                loadershow();
-                let pendingPaymentDetailsUrl =
-                    "{{ route('paymentdetails.pendingpayment', '__invoiceId__') }}".replace(
-                        '__invoiceId__',
-                        invoiceid);
-                $.ajax({
-                    type: 'GET',
-                    url: pendingPaymentDetailsUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            totalreceivedamount = amount - response.payment[0].pending_amount;
-                            $('#paidamount').val(response.payment[0].pending_amount);
-                            $('#paidamount').attr('max', response.payment[0].pending_amount);
-                            $('#info-total_amount').text(amount);
-                            $('#info-total_received_amount').text(totalreceivedamount);
-                            $('.info-pending_amount').text(pendingamount);
-                        } else {
-                            $('#paidamount').val(amount);
-                            $('#paidamount').attr('max', amount);
-                            $('#info-total_amount').text(amount);
-                            $('#info-total_received_amount').text(totalreceivedamount);
-                            $('.info-pending_amount').text(pendingamount);
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
-                    }
-                });
-
-            })
-
-            // payment details 
-            $(document).on('click', '.viewpayment', function() {
-                loadershow();
-                var invoiceId = $(this).data('id');
-                viewpayment(invoiceId);
-            })
-
-            function viewpayment(invoiceId) {
-                $('#details').html('');
-                let paymentDetailsSearchUrl = "{{ route('paymentdetails.search', '__invoiceId__') }}"
-                    .replace('__invoiceId__', invoiceId);
-                $.ajax({
-                    type: 'GET',
-                    url: paymentDetailsSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            $.each(response.paymentdetail, function(key, value) {
-                                let generateInvoiceReceiptUrl =
-                                    "{{ route('invoice.generatereciept', '__invoiceId__') }}"
-                                    .replace('__invoiceId__', value.id);
-
-                                let TDSDetails = '';
-                                if (value.tds_amount && value.tds_amount > 0) {
-                                    TDSDetails = ` 
-                                        <div><b>TDS Amount : </b> ${value.tds_amount}</div>
-                                        <div><b>Challan No : </b> ${value.challan_no}</div>
-                                        <div><b>TDS Status : </b> ${value.tds_status}</div>
-                                    `;
-                                }
-                                $('#details').append(`
-                                    <tr>
-                                        <td>
-                                            <div class="col-md-10 float-left">
-                                                <div><b>Payment date : </b> ${value.datetime}</div>
-                                                <div><b>Total Amount : </b> ${value.amount}</div>
-                                                <div><b>Paid Amount : </b> ${value.paid_amount}</div>
-                                                ${TDSDetails}
-                                                <div><b>Pending Amount: </b> ${value.pending_amount}</div>
-                                                <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
-                                            </div>    
-                                            <div class="col-md-2 float-right p-0">
-                                                <a href=${generateInvoiceReceiptUrl} target='_blank'>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >
-                                                        <i class='ri-download-cloud-fill'></i>
-                                                    </button>
-                                                </a>
-                                                <button data-id="${value.id}" data-inv-id="${invoiceId}" class="btn btn-sm btn-danger pay-del-btn float-right">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </div>    
-                                            
-                                        </td>
-                                    </tr>
-                                `)
-
-                            });
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            $('#details').html(`
-                                <tr>
-                                    <td>
-                                        No data Found
-                                    </td>
-                                </tr>
-                            `);
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
-                    }
-                });
-            }
-
-            // show today date as default payment date in modal when modal will open
-            $("#paymentmodal").on("shown.bs.modal", function() {
-                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-                $('#payment_date').val(today);
-            });
-
-            // reset payment details in modal when modal will close
-            $("#exampleModalScrollable").on("hidden.bs.modal", function() {
-                $('#details').html('');
-                $('#addfooterbutton').html('');
-            });
-
-            $('#paidamount, #tds_amount').on('change keyup', function() {
-                var paidamount = $('#paidamount').val() || 0;
-                var tdsamount = $('#tds_amount').val() || 0;
-                var totalamount = parseInt($('#info-total_amount').text()) || 0;
-                var totalreceived = parseInt($('#info-total_received_amount').text()) || 0;
-                var pendingamount = totalamount - totalreceived - paidamount - tdsamount;
-                $('.info-pending_amount').text(pendingamount);
-            });
-
-            $('#tds_applicable').on('change', function() {
-                let val = $(this).is(':checked');
-                $('.tds_inputs').hide();
-                if (val) {
-                    $('.tds_inputs').show();
-                }
-            });
-
-            // payment form submit 
-            $('#paymentform').submit(function(event) {
-                $('#modal_error-msg').text('');
-                event.preventDefault();
-                loadershow();
-                const formdata = $(this).serialize();
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('paymentdetails.store') }}",
-                    data: formdata,
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            loaddata();
-                            $('#paymentform')[0].reset();
-                            $('#paymentmodal').modal('hide');
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        handleAjaxError(xhr);
-                    }
-                });
-            });
-            $(document).on("click", ".update-company-details-btn", function() {
-                var invoiceid = $(this).data('id');
-                let companyDetailsUrl =
-                    "{{ route('invoice.updatecompanydetails', '__invoiceid__') }}".replace(
-                        '__invoiceid__', invoiceid);
-                var row = this;
-
-                showConfirmationDialog(
-                    'Are you sure?', // Title
-                    'to update company details?', // Text
-                    'Yes, update', // Confirm button text
-                    'No, cancel', // Cancel button text
-                    'question', // Icon type (question icon)
-                    () => {
-                        // Success callback
-                        loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: companyDetailsUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}",
-                                user_id: "{{ session()->get('user_id') }}",
-                                invoiceid: invoiceid
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: "Company details successfully updated"
-                                    });
-                                    $(row).hide();
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message ||
-                                            "Something went wrong!"
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status,
-                                error) { // If calling API request error
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                handleAjaxError(xhr);
-                            }
-                        });
-                    }
-                );
-            });
-
-
-            // delete invoice payment             
-            $(document).on("click", ".pay-del-btn", function() {
-                var deleteid = $(this).data('id');
-                var invId = $(this).data('inv-id');
-                let invPaymentDltUrl = "{{ route('paymentdetails.deletepayment', '__deleteId__') }}"
-                    .replace(
-                        '__deleteId__', deleteid);
-                var row = this;
-                showConfirmationDialog(
-                    'Are you sure?', // Title
-                    'to delete this payment record ?', // Text
-                    'Yes, delete', // Confirm button text
-                    'No, cancel', // Cancel button text
-                    'question', // Icon type (question icon)
-                    () => {
-                        // Success callback
-                        loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: invPaymentDltUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}",
-                                user_id: "{{ session()->get('user_id') }}",
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message ||
-                                            "succesfully deleted"
-                                    });
-                                    viewpayment(invId);
-                                    table.draw();
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message ||
-                                            "something went wrong!"
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status,
-                                error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                handleAjaxError(xhr);
-                            }
-                        });
-                    }
-                );
-            });
-            $('.applyfilters').on('click', function() {
-                table.draw();
-                hideOffCanvass(); // close OffCanvass
-            });
-
-            //remove filtres
-            $('.removefilters').on('click', function() {
-                $('#filter_payment_status').val(null).trigger('change');
-                $('#filter_company').val(null).trigger('change');
-                $('#filter_buyer').val(null).trigger('change');
-                table.draw();
-                hideOffCanvass(); // close OffCanvass
+                },
+                error: function (xhr) { loaderhide(); Toast.fire({ icon: 'error', title: 'AJAX request failed' }); }
             });
         });
-    </script>
+
+        function companymaster() {
+            loadershow();
+            $('#companymaster_id').empty().append('<option selected disabled>Select company</option>');
+            $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
+            ajaxRequest('GET', "{{ route('companymaster.index') }}", { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID })
+                .done(function (r) {
+                    if (r.status == 200 && r.data.length > 0) {
+                        $.each(r.data, function (k, v) {
+                            const d = [v.company_name, v.mobile_1, v.email].filter(Boolean).join(' - ');
+                            $('#companymaster_id').append(`<option data-gstno='${v.gst_no}' value='${v.id}'>${d}</option>`);
+                        });
+                    } else { $('#companymaster_id').append('<option disabled>No Data found</option>'); }
+                }).fail(xhr => handleAjaxError(xhr)).always(() => loaderhide());
+        }
+
+        function buyer_ids() {
+            loadershow();
+            $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
+            ajaxRequest('GET', "{{ route('company_buyer.index') }}", {
+                token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID,
+                companymaster_id: $('#companymaster_id').val()
+            }).done(function (r) {
+                if (r.status == 200 && r.data.length > 0) {
+                    $.each(r.data, function (k, v) {
+                        const d = [v.name, v.mobile_1, v.email].filter(Boolean).join(' - ');
+                        $('#buyer_id').append(`<option data-gstno='${v.gst_no}' value='${v.id}'>${d}</option>`);
+                    });
+                } else { $('#buyer_id').append('<option disabled>No Data found</option>'); }
+            }).fail(xhr => handleAjaxError(xhr)).always(() => loaderhide());
+        }
+
+        function invoice_no(buyer_id, pre = []) {
+            loadershow();
+            $('#invoice_no').empty();
+            ajaxRequest('GET', "{{ route('invoice_no.index') }}", {
+                token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID,
+                buyer_id: buyer_id, company_ids: $('#companymaster_id').val()
+            }).done(function (r) {
+                if (r.status == 200 && r.data.length > 0) {
+                    $.each(r.data, function (k, v) {
+                        $('#invoice_no').append(`
+                            <option value='${v.invoice_no}' data-order-id='${v.order_id}' data-tranport_id='${v.tranport_id}'>
+                                invoice/lot no: ${v.invoice_no} - Order No: ${v.order_id} - Transport ${v.tranport_name}
+                            </option>`);
+                    });
+                    if (pre.length > 0) { $('#invoice_no').val(pre).trigger('change'); }
+                } else { $('#invoice_no').append('<option disabled>No Data found</option>'); }
+            }).fail(xhr => handleAjaxError(xhr)).always(() => loaderhide());
+        }
+
+        $('#companymaster_id').on('change', function () {
+            $('#buyer_id').empty().append('<option selected disabled>Select buyer</option>');
+            if ($(this).val() == 'add_companymaster_id') { $('#exampleModalScrollable').modal('show'); return; }
+            buyer_ids();
+        });
+        $('#buyer_id').on('change', function () {
+            let pre = $('#hidden_invoice_ids').val();
+            invoice_no($(this).val(), pre ? pre.split(',') : []);
+        });
+
+        $('#companymaster_id, #buyer_id, #invoice_no').select2({ placeholder: "Select", width: '100%', search: true });
+
+        $(document).on("click", ".generate-invoice", function () { companymaster(); $('#generateinvoiceModal').modal('show'); });
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // CHECKBOX SELECTION — same-company validation + bulk button
+        // ════════════════════════════════════════════════════════════════════════════
+
+        $(document).on('change', '.invoice-checkbox', function () {
+            updateBulkGenerateBtn($(this));
+        });
+
+        $('#data').on('change', '#selectAllCheckbox', function () {
+            $('.invoice-checkbox').prop('checked', $(this).is(':checked'));
+            updateBulkGenerateBtn();
+        });
+
+        /**
+         * Validates same-company constraint and toggles the bulk button.
+         * @param {jQuery|undefined} changedCb  – the checkbox just toggled (to uncheck on mismatch)
+         */
+        function updateBulkGenerateBtn(changedCb) {
+            let checked = $('.invoice-checkbox:checked');
+
+            if (checked.length === 0) {
+                $('#bulkGeneratePdfBtn').addClass('d-none').removeData('selected-rows');
+                $('#bulkSelectionCount').text('0');
+                return;
+            }
+
+            // All selected rows must share the same company_details_id
+            let firstCdId  = checked.first().data('company-details-id');
+            let sameCompany = true;
+            checked.each(function () {
+                if ($(this).data('company-details-id') != firstCdId) { sameCompany = false; return false; }
+            });
+
+            if (!sameCompany) {
+                Toast.fire({ icon: 'error', title: 'Please select invoices from the same company only' });
+                if (changedCb) { changedCb.prop('checked', false); }
+                updateBulkGenerateBtn(); // re-evaluate
+                return;
+            }
+
+            let selectedRows = [];
+            checked.each(function () {
+                selectedRows.push({
+                    garden_ids        : $(this).data('garden-ids'),
+                    company_details_id: $(this).data('company-details-id'),
+                    line_total        : parseFloat($(this).data('line-total'))  || 0,
+                    brokerage         : parseFloat($(this).data('brokerage'))   || 0,
+                    invoice_id        : $(this).data('invoice-id'),
+                });
+            });
+
+            $('#bulkSelectionCount').text(selectedRows.length);
+            $('#bulkGeneratePdfBtn').removeClass('d-none').data('selected-rows', selectedRows);
+        }
+
+        // Bulk button → open pdfDateModal with combined totals
+        $(document).on('click', '#bulkGeneratePdfBtn', function () {
+            let selectedRows = $(this).data('selected-rows');
+            if (!selectedRows || selectedRows.length === 0) {
+                Toast.fire({ icon: 'error', title: 'No rows selected' });
+                return;
+            }
+
+            let allGardenIds       = selectedRows.map(r => r.garden_ids).join(',');
+            let allInvoiceIds      = selectedRows.map(r => r.invoice_id).join(',');
+            let totalLineTotal     = selectedRows.reduce((s, r) => s + r.line_total, 0);
+            let company_details_id = selectedRows[0].company_details_id;
+            let brokerage          = selectedRows[0].brokerage;
+
+            // Populate modal
+            $('#garden_id').val(allGardenIds);
+            $('#invoice_id').val(allInvoiceIds);
+            $('#company_details_id').val(company_details_id);
+            $('#line_total').val(totalLineTotal.toFixed(2));
+            $('#brokerage').val(brokerage);
+            $('#brokrageAmount').val((totalLineTotal * brokerage / 100).toFixed(2));
+
+            // Show summary info banner
+            $('#summaryInvoiceIds').text(allInvoiceIds);
+            $('#summaryCount').text(selectedRows.length);
+            $('#pdfModalSummary').show();
+
+            $('#pdfDateModal').modal('show');
+        });
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // SINGLE ROW: .generate-pdf button → open pdfDateModal
+        // ════════════════════════════════════════════════════════════════════════════
+        $(document).on("click", ".generate-pdf", function () {
+            let gardenId           = $(this).data('id');
+            let company_details_id = $(this).data('company_details_id');
+            let line_total         = parseFloat($(this).data('line_total'))  || 0;
+            let brokerage          = parseFloat($(this).data('brokerage'))   || 0;
+            let invoice_id         = $(this).data('invoice_id');
+
+            $('#garden_id').val(gardenId);
+            $('#company_details_id').val(company_details_id);
+            $('#invoice_id').val(invoice_id);
+            $('#line_total').val(line_total);
+            $('#brokerage').val(brokerage);
+            $('#brokrageAmount').val((line_total * brokerage / 100).toFixed(2));
+
+            // Hide the multi-invoice summary banner for single-row opens
+            $('#pdfModalSummary').hide();
+
+            $('#pdfDateModal').modal('show');
+        });
+
+        // Live brokerage recalculate
+        $('#brokerage').on('input', calculateBrokerage);
+        calculateBrokerage();
+        function calculateBrokerage() {
+            let pct   = parseFloat($('#brokerage').val())   || 0;
+            let total = parseFloat($('#line_total').val())  || 0;
+            $('#brokrageAmount').val((total * pct / 100).toFixed(2));
+        }
+
+        // pdfDateForm submit
+        $('#pdfDateForm').on('submit', function (e) {
+            e.preventDefault();
+            loadershow();
+            $.ajax({
+                type: 'POST',
+                url : "{{ route('brokeragebill.brokeragebillpdf') }}",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.status == 200) {
+                        Toast.fire({ icon: 'success', title: response.message });
+                        $('#pdfDateForm')[0].reset();
+                        $('#pdfDateModal').modal('hide');
+                        $('#pdfModalSummary').hide();
+                        // Reset checkboxes + hide bulk button
+                        $('.invoice-checkbox, #selectAllCheckbox').prop('checked', false);
+                        $('#bulkGeneratePdfBtn').addClass('d-none').removeData('selected-rows');
+                        $('#bulkSelectionCount').text('0');
+                        table.draw();
+                    } else if (response.status == 500) {
+                        Toast.fire({ icon: 'error', title: response.message });
+                        $('#pdfDateForm')[0].reset();
+                        $('#pdfDateModal').modal('hide');
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.message });
+                        $('#pdfDateForm')[0].reset();
+                    }
+                    loaderhide();
+                },
+                error: function (xhr) { console.log(xhr.responseText); loaderhide(); }
+            });
+        });
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // DATATABLE
+        // ════════════════════════════════════════════════════════════════════════════
+        let table  = '';
+        var search = {!! json_encode($search) !!};
+
+        function loaddata() {
+            loadershow();
+            table = $('#data').DataTable({
+                language  : { lengthMenu: '_MENU_ &nbsp;Entries per page' },
+                destroy   : true,
+                responsive: true,
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    type: 'GET',
+                    url : "{{ route('invoice.inv_list') }}",
+                    data: function (d) {
+                        d.user_id               = USER_ID;
+                        d.company_id            = COMPANY_ID;
+                        d.token                 = API_TOKEN;
+                        d.filter_payment_status = $('#filter_payment_status').val();
+                        d.filter_company        = $('#filter_company').val();
+                        d.filter_buyer          = $('#filter_buyer').val();
+                    },
+                    dataSrc: function (json) {
+                        $('#pdfBtn').removeClass('d-none');
+                        if (json.message) {
+                            Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
+                            $('#pdfBtn').addClass('d-none');
+                        }
+                        global_response = json;
+                        return json.data;
+                    },
+                    complete: function () { companymaster(); loaderhide(); },
+                    error   : function (xhr) {
+                        global_response = '';
+                        console.log(xhr.responseText);
+                        Toast.fire({ icon: 'error', title: 'Error loading data' });
+                    }
+                },
+                order : [[0, 'desc']],
+                search: { search: search },
+                columns: [
+
+                    // ── Col 0: Checkbox ────────────────────────────────────────────
+                    {
+                        data: null, orderable: false, searchable: false, defaultContent: '',
+                        render: function (data, type, row) {
+                            // Show checkbox only if no commission bill has been generated yet
+                            if (!row.brokerbill_no) {
+                                return `
+                                    <input type="checkbox"
+                                        class="invoice-checkbox"
+                                        data-invoice-id="${row.id}"
+                                        data-garden-company-id="${row.garden_company_id}"
+                                        data-garden-ids="${row.garden_ids}"
+                                        data-company-details-id="${row.company_details_id}"
+                                        data-line-total="${row.line_total}"
+                                        data-brokerage="${row.brokerage}">`;
+                            }
+                            return ''; // commission bill already exists — no checkbox
+                        }
+                    },
+
+                    // ── Col 1: ID ──────────────────────────────────────────────────
+                    { data: 'id',                  name: 'id',                  orderable: true,  searchable: true,  defaultContent: '-' },
+                    // ── Col 2: Invoice No ──────────────────────────────────────────
+                    { data: 'inv_no',              name: 'inv_no',              orderable: true,  searchable: true,  defaultContent: '-' },
+                    // ── Col 3: Invoice Date ────────────────────────────────────────
+                    { data: 'inv_date_formatted',  name: 'inv_date_formatted',  orderable: false, searchable: true,  defaultContent: '-' },
+                    // ── Col 4: Company ─────────────────────────────────────────────
+                    { data: 'garden_company_name', name: 'garden_company_name', orderable: true,  searchable: true,  defaultContent: '-' },
+                    // ── Col 5: Buyer ───────────────────────────────────────────────
+                    { data: 'customer',            name: 'customer',            orderable: true,  searchable: true,  defaultContent: '-' },
+                    // ── Col 6: Amount ──────────────────────────────────────────────
+                    {
+                        data: 'grand_total', name: 'grand_total', orderable: true, searchable: true, defaultContent: '-',
+                        render: function (data, type, row) { return `${row.currency_symbol} ${row.grand_total}`; }
+                    },
+
+                    // ── Col 7: Status ──────────────────────────────────────────────
+                    {
+                        data: 'status', name: 'status', orderable: true, searchable: true, defaultContent: '-',
+                        render: function (data, type, row) {
+                            let actions = '-';
+                            @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                let options = '';
+                                if (row.part_payment == 1 && row.pending_amount != 0) {
+                                    options = `
+                                        <option value='part_payment' ${row.status=="part_payment"?'selected':''}>Part Payment</option>
+                                        <option value='paid'         ${row.status=="paid"        ?'selected':''} disabled>Paid</option>
+                                        <option value='pending'      ${row.status=="pending"     ?'selected':''} disabled>Pending</option>`;
+                                }
+                                if (row.pending_amount == 0) {
+                                    options = `
+                                        <option value='part_payment' ${row.status=="part_payment"?'selected':''} disabled>Part Payment</option>
+                                        <option value='paid'         ${row.status=="paid"        ?'selected':''}>Paid</option>
+                                        <option value='pending'      ${row.status=="pending"     ?'selected':''} disabled>Pending</option>`;
+                                }
+                                if (row.part_payment != 1 && row.part_payment != 0) {
+                                    options = `
+                                        <option value='part_payment' ${row.status=="part_payment"?'selected':''} disabled>Part Payment</option>
+                                        <option value='paid'         ${row.status=="paid"        ?'selected':''} disabled>Paid</option>
+                                        <option value='pending'      ${row.status=="pending"     ?'selected':''}>Pending</option>`;
+                                }
+                                actions = `
+                                    <select data-status='${row.id}' data-original-value="${row.status}"
+                                        class="status" id="status_${row.id}" name="" required>
+                                        ${options}
+                                        <option value='cancel' ${row.status=="cancel"?'selected':''}>Cancel</option>
+                                        <option value='due'    ${row.status=="due"   ?'selected':''}>Over Due</option>
+                                    </select>`;
+                            @endif
+                            return actions;
+                        }
+                    },
+
+                    // ── Col 8: Invoice PDF Download ────────────────────────────────
+                    {
+                        data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
+                        render: function (data, type, row) {
+                            let actions = '-';
+                            @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                let url = "{{ route('invoice.generatepdf', '__invoiceId__') }}".replace('__invoiceId__', row.id);
+                                actions = `
+                                    <span data-toggle="tooltip" data-placement="left" data-original-title="Download Invoice Pdf">
+                                        <a href="${url}" target="_blank">
+                                            <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0">
+                                                <i class="ri-download-line"></i>
+                                            </button>
+                                        </a>
+                                    </span>`;
+                            @endif
+                            return actions;
+                        }
+                    },
+
+                    // ── Col 9: Payment ─────────────────────────────────────────────
+                    {
+                        data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
+                        render: function (data, type, row) {
+                            let receiptAllUrl = "{{ route('invoice.generaterecieptll', '__invoiceId__') }}".replace('__invoiceId__', row.id);
+                            let actions = '';
+
+                            if (row.status != 'paid') {
+                                actions += `
+                                    <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                        <button data-toggle="modal" data-target="#paymentmodal"
+                                            data-amount="${row.grand_total}" data-id="${row.id}"
+                                            class="btn btn-sm btn-primary m-0 paymentformmodal">
+                                            <i class="ri-paypal-fill"></i>
+                                        </button>
+                                    </span>`;
+                            }
+                            if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
+                                actions += `
+                                    <span>
+                                        <a href="${receiptAllUrl}" target="_blank">
+                                            <button data-toggle="tooltip" data-placement="bottom"
+                                                data-original-title="Download Combined Receipt"
+                                                class="reciept-btn btn btn-primary btn-rounded btn-sm m-0">
+                                                <i class="ri-download-line"></i>
+                                            </button>
+                                        </a>
+                                    </span>`;
+                            }
+                            if (row.part_payment == 1) {
+                                actions += `
+                                    <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept">
+                                        <button data-id="${row.id}" data-toggle="modal"
+                                            data-target="#exampleModalScrollable"
+                                            class="btn btn-sm btn-info my-0 viewpayment">
+                                            <i class="ri-eye-fill"></i>
+                                        </button>
+                                    </span>`;
+                            }
+                            if (row.part_payment == 0 && row.status == 'paid') {
+                                actions += `
+                                    <span>
+                                        <a href="${receiptAllUrl}" target="_blank">
+                                            <button class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0"
+                                                data-toggle="tooltip" data-placement="bottom"
+                                                data-original-title="Download Single Receipt">
+                                                <i class="ri-download-line"></i>
+                                            </button>
+                                        </a>
+                                    </span>
+                                    <span data-toggle="tooltip" data-placement="right" data-original-title="Delete Payment Entry">
+                                        <button data-id="${row.paymentid}" data-inv-id="${row.id}"
+                                            class="btn btn-sm btn-outline-danger pay-del-btn">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </span>`;
+                            }
+                            return actions;
+                        }
+                    },
+
+                    // ── Col 10: Action ─────────────────────────────────────────────
+                    // NOTE: brokerbill_no block REMOVED from here.
+                    // Commission bill is now handled ONLY via checkboxes (bulk) or
+                    // the per-row .generate-pdf button below.
+                    {
+                        data: 'id', name: 'id', orderable: false, searchable: false,
+                        render: function (data, type, row) {
+                            let actionBtns = '';
+
+                            // Edit button
+                            @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                                if (row.is_editable == 1) {
+                                    let editUrl = "{{ route('admin.editinvoice', '__invoiceId__') }}".replace('__invoiceId__', row.id);
+                                    actionBtns += `
+                                        <span>
+                                            <a href="${editUrl}">
+                                                <button type="button" data-id="${row.id}"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Edit Invoice"
+                                                    class="edit-btn btn btn-success btn-rounded btn-sm my-0">
+                                                    <i class="ri-edit-fill"></i>
+                                                </button>
+                                            </a>
+                                        </span>`;
+                                }
+                            @endif
+
+                            // Delete button
+                            @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
+                                actionBtns += `
+                                    <span>
+                                        <button type="button" data-id="${row.id}"
+                                            data-toggle="tooltip" data-placement="bottom"
+                                            data-original-title="Delete Invoice"
+                                            class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                            <i class="ri-delete-bin-fill"></i>
+                                        </button>
+                                    </span>`;
+                            @endif
+
+                            // Commission bill: Download if already generated; create button if not
+                            @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                if (row.brokerbill_no) {
+                                    // ★ Bill already exists → DOWNLOAD ONLY (no add/create btn)
+                                    let dlUrl = "{{ route('brokragbill.generatebrokragebillpdf', '__gardenId__') }}"
+                                                 .replace('__gardenId__', row.brokerbill_no);
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom"
+                                            data-original-title="Download Commission Bill PDF">
+                                            <a href="${dlUrl}" target="_blank">
+                                                <button type="button"
+                                                    class="download-btn btn btn-info btn-rounded btn-sm my-0">
+                                                    <i class="ri-download-line"></i>
+                                                </button>
+                                            </a>
+                                        </span>`;
+                                } else {
+                                    // ★ Not generated yet → single-row create button (opens pdfDateModal)
+                                    actionBtns += `
+                                        <span data-toggle="tooltip" data-placement="bottom"
+                                            data-original-title="Create Commission Bill PDF">
+                                            <button class="btn btn-info btn-rounded btn-sm my-0 generate-pdf"
+                                                data-id="${row.garden_ids}"
+                                                data-company_details_id="${row.company_details_id}"
+                                                data-line_total="${row.line_total}"
+                                                data-brokerage="${row.brokerage}"
+                                                data-invoice_id="${row.id}">
+                                                <i class="ri-file-add-line"></i>
+                                            </button>
+                                        </span>`;
+                                }
+                            @endif
+
+                            return actionBtns;
+                        }
+                    }
+                ],
+
+                pagingType  : "full_numbers",
+                drawCallback: function () {
+                    $('[data-toggle="tooltip"]').tooltip({ boundary: 'window', offset: '0, 10' });
+
+                    if ($('#jumpToPageWrapper').length === 0) {
+                        $(".dt-paging").after(`
+                            <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap:5px;">
+                                <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                                <input type="number" id="jumpToPage" min="1" class="dt-input" style="width:80px;" />
+                                <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                            </div>`);
+                    }
+
+                    $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn', function () {
+                        if ($.fn.DataTable.isDataTable('#data')) {
+                            let t     = $('#data').DataTable();
+                            let page  = parseInt($('#jumpToPage').val());
+                            let total = t.page.info().pages;
+                            if (!isNaN(page) && page > 0 && page <= total) {
+                                t.page(page - 1).draw('page');
+                            } else {
+                                Toast.fire({ icon: 'error', title: `Enter a page between 1 and ${total}` });
+                            }
+                        } else {
+                            Toast.fire({ icon: 'error', title: 'DataTable not yet initialized.' });
+                        }
+                    });
+                }
+            });
+        }
+
+        // ── Generate Report ───────────────────────────────────────────────────────
+        let params;
+        $('#pdfBtn').on('click', function () {
+            params = table.ajax.params();
+            params.filter_payment_status = $('#filter_payment_status').val();
+            params.filter_buyer          = $('#filter_buyer').val();
+            params.filter_company        = $('#filter_company').val();
+            let url = "{{ route('invoice.leger') }}" + '?' + $.param(params);
+            loadershow();
+            $.ajax({
+                type: 'GET', url: "{{ route('invoice.leger') }}", data: params,
+                success: function () { window.open(url, '_blank'); loaderhide(); },
+                error  : function (xhr) { loaderhide(); handleAjaxError(xhr); }
+            });
+        });
+
+        // ── Delete Invoice ────────────────────────────────────────────────────────
+        $(document).on("click", ".del-btn", function () {
+            let deleteid = $(this).data('id');
+            let url = "{{ route('invoice.delete', '__deleteId__') }}".replace('__deleteId__', deleteid);
+            showConfirmationDialog('Are you sure?', 'to delete this invoice?', 'Yes, delete it', 'No, cancel', 'question',
+                () => {
+                    loadershow();
+                    $.ajax({
+                        type: 'PUT', url: url,
+                        data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                        success: function (r) {
+                            Toast.fire({ icon: r.status==200?'success':'error', title: r.message || 'Invoice not deleted.' });
+                            if (r.status == 200) { loaddata(); }
+                            loaderhide();
+                        },
+                        error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+                    });
+                }
+            );
+        });
+
+        // ── Status Change ─────────────────────────────────────────────────────────
+        function statuschange(id, value) {
+            loadershow();
+            let url = "{{ route('invoice.status', '__id__') }}".replace('__id__', id);
+            $.ajax({
+                type: 'PUT', url: url,
+                data: { status: value, token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                success: function (r) {
+                    Toast.fire({ icon: r.status==200?'success':'error', title: r.message || 'Status not updated.' });
+                    if (r.status == 200) { loaddata(); }
+                    loaderhide();
+                },
+                error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+            });
+        }
+
+        $(document).on("change", ".status", function () {
+            let el = $(this), old = el.data('original-value'), sid = el.data('status'), val = el.val();
+            showConfirmationDialog('Are you sure?', 'to change this record status?', 'Yes, change it', 'No, cancel', 'question',
+                () => { loadershow(); el.data('original-value', val); statuschange(sid, val); loaderhide(); },
+                () => { $('#status_' + sid).val(old); }
+            );
+        });
+
+        // ── Payment Modal: open ───────────────────────────────────────────────────
+        $(document).on('click', '.paymentformmodal', function () {
+            $('#paymentform')[0].reset();
+            $('.tds_inputs').hide();
+            let invoiceid = $(this).data('id');
+            let amount    = $(this).data('amount');
+            $('#inv_id').val(invoiceid);
+            loadershow();
+            let url = "{{ route('paymentdetails.pendingpayment', '__invoiceId__') }}".replace('__invoiceId__', invoiceid);
+            $.ajax({
+                type: 'GET', url: url,
+                data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                success: function (r) {
+                    if (r.status == 200) {
+                        let recv = amount - r.payment[0].pending_amount;
+                        $('#paidamount').val(r.payment[0].pending_amount).attr('max', r.payment[0].pending_amount);
+                        $('#info-total_received_amount').text(recv);
+                    } else {
+                        $('#paidamount').val(amount).attr('max', amount);
+                        $('#info-total_received_amount').text(0);
+                    }
+                    $('#info-total_amount').text(amount);
+                    $('.info-pending_amount').text(0);
+                    loaderhide();
+                },
+                error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+            });
+        });
+
+        $("#paymentmodal").on("shown.bs.modal", function () {
+            $('#payment_date').val(new Date().toISOString().split('T')[0]);
+        });
+
+        // ── View Payment Details ──────────────────────────────────────────────────
+        $(document).on('click', '.viewpayment', function () {
+            loadershow();
+            viewpayment($(this).data('id'));
+        });
+
+        function viewpayment(invoiceId) {
+            $('#details').html('');
+            let url = "{{ route('paymentdetails.search', '__invoiceId__') }}".replace('__invoiceId__', invoiceId);
+            $.ajax({
+                type: 'GET', url: url,
+                data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                success: function (r) {
+                    if (r.status == 200) {
+                        $.each(r.paymentdetail, function (k, v) {
+                            let receiptUrl = "{{ route('invoice.generatereciept', '__invoiceId__') }}".replace('__invoiceId__', v.id);
+                            let tds = (v.tds_amount && v.tds_amount > 0)
+                                ? `<div><b>TDS Amount:</b> ${v.tds_amount}</div><div><b>Challan No:</b> ${v.challan_no}</div><div><b>TDS Status:</b> ${v.tds_status}</div>`
+                                : '';
+                            $('#details').append(`
+                                <tr><td>
+                                    <div class="col-md-10 float-left">
+                                        <div><b>Payment date:</b> ${v.datetime}</div>
+                                        <div><b>Total Amount:</b> ${v.amount}</div>
+                                        <div><b>Paid Amount:</b> ${v.paid_amount}</div>
+                                        ${tds}
+                                        <div><b>Pending Amount:</b> ${v.pending_amount}</div>
+                                        <div><b>Paid By:</b> ${v.paid_by ?? '-'}</div>
+                                    </div>
+                                    <div class="col-md-2 float-right p-0">
+                                        <a href="${receiptUrl}" target="_blank">
+                                            <button data-toggle="tooltip" data-placement="bottom"
+                                                data-original-title="Download Single Receipt"
+                                                class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0">
+                                                <i class="ri-download-cloud-fill"></i>
+                                            </button>
+                                        </a>
+                                        <button data-id="${v.id}" data-inv-id="${invoiceId}"
+                                            class="btn btn-sm btn-danger pay-del-btn float-right">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </td></tr>`);
+                        });
+                    } else {
+                        $('#details').html('<tr><td>No data Found</td></tr>');
+                        Toast.fire({ icon: 'error', title: r.message });
+                    }
+                    loaderhide();
+                },
+                error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+            });
+        }
+
+        $("#exampleModalScrollable").on("hidden.bs.modal", function () {
+            $('#details').html(''); $('#addfooterbutton').html('');
+        });
+
+        $('#paidamount, #tds_amount').on('change keyup', function () {
+            let paid  = parseFloat($('#paidamount').val()) || 0;
+            let tds   = parseFloat($('#tds_amount').val())  || 0;
+            let total = parseInt($('#info-total_amount').text()) || 0;
+            let recv  = parseInt($('#info-total_received_amount').text()) || 0;
+            $('.info-pending_amount').text(total - recv - paid - tds);
+        });
+
+        $('#tds_applicable').on('change', function () {
+            $('.tds_inputs').toggle($(this).is(':checked'));
+        });
+
+        // ── Payment Form Submit ───────────────────────────────────────────────────
+        $('#paymentform').submit(function (e) {
+            e.preventDefault();
+            loadershow();
+            $.ajax({
+                type: 'POST', url: "{{ route('paymentdetails.store') }}", data: $(this).serialize(),
+                success: function (r) {
+                    Toast.fire({ icon: r.status==200?'success':'error', title: r.message });
+                    if (r.status == 200) { loaddata(); $('#paymentform')[0].reset(); $('#paymentmodal').modal('hide'); }
+                    loaderhide();
+                },
+                error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+            });
+        });
+
+        // ── Update Company Details ────────────────────────────────────────────────
+        $(document).on("click", ".update-company-details-btn", function () {
+            let invoiceid = $(this).data('id');
+            let row = this;
+            let url = "{{ route('invoice.updatecompanydetails', '__invoiceid__') }}".replace('__invoiceid__', invoiceid);
+            showConfirmationDialog('Are you sure?', 'to update company details?', 'Yes, update', 'No, cancel', 'question',
+                () => {
+                    loadershow();
+                    $.ajax({
+                        type: 'PUT', url: url,
+                        data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID, invoiceid: invoiceid },
+                        success: function (r) {
+                            Toast.fire({ icon: r.status==200?'success':'error', title: r.status==200?'Company details successfully updated':r.message });
+                            if (r.status == 200) { $(row).hide(); }
+                            loaderhide();
+                        },
+                        error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+                    });
+                }
+            );
+        });
+
+        // ── Delete Payment Record ─────────────────────────────────────────────────
+        $(document).on("click", ".pay-del-btn", function () {
+            let deleteid = $(this).data('id');
+            let invId    = $(this).data('inv-id');
+            let url = "{{ route('paymentdetails.deletepayment', '__deleteId__') }}".replace('__deleteId__', deleteid);
+            showConfirmationDialog('Are you sure?', 'to delete this payment record?', 'Yes, delete', 'No, cancel', 'question',
+                () => {
+                    loadershow();
+                    $.ajax({
+                        type: 'PUT', url: url,
+                        data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                        success: function (r) {
+                            Toast.fire({ icon: r.status==200?'success':'error', title: r.message || (r.status==200?'Successfully deleted':'Something went wrong!') });
+                            if (r.status == 200) { viewpayment(invId); table.draw(); }
+                            loaderhide();
+                        },
+                        error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+                    });
+                }
+            );
+        });
+
+        // ── Sidebar filter buttons ────────────────────────────────────────────────
+        $('.applyfilters').on('click',  function () { table.draw(); hideOffCanvass(); });
+        $('.removefilters').on('click', function () {
+            $('#filter_payment_status, #filter_company, #filter_buyer').val(null).trigger('change');
+            table.draw();
+            hideOffCanvass();
+        });
+
+    });
+</script>
 @endpush
