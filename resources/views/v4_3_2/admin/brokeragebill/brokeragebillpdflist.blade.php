@@ -43,6 +43,63 @@
             max-height: 150px !important;
             overflow-y: auto !important;
         }
+        th,
+        td {
+            white-space: nowrap;
+        }
+
+        /* Column widths */
+
+        .w-id {
+            width: 4% !important;
+        }
+
+        .w-date {
+            width: 8% !important;
+        }
+
+        .w-company {
+            width: 30% !important;
+        }
+        table.dataTable thead>tr>th.dt-orderable-asc, table.dataTable thead>tr>th.dt-orderable-desc
+        {
+            padding-right:0px !important; 
+        }
+        .w-garden {
+            width: 30% !important;
+        }
+
+        .w-invoice {
+            width: 10% !important;
+        }
+
+        .w-kg {
+            width: 8% !important;
+        }
+
+        .w-broker {
+            width: 6% !important;
+        }
+
+        .w-amount {
+            width: 10% !important;
+        }
+
+        .w-status {
+            width: 6% !important;
+        }
+
+        .w-invoice-file {
+            width: 6% !important;
+        }
+
+        .w-action {
+            width: 6% !important;
+        }
+
+        .w-payment {
+            width: 6% !important;
+        }
     </style>
 @endsection
 @section('advancefilter')
@@ -136,20 +193,18 @@
     <table id="data" class="table display table-bordered table-striped w-100">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Invoice Date </th>
-                <th>Company Name</th>
-                <th>Garden Name</th>
-                <th>Invoice No </th>
-                <th>Total Net Kg</th>
-                <th>Brokrage (%)</th>
-                <th>Total Amount</th>
-                {{-- <th>Created Date (From)</th>
-                <th>Created Date (To)</th> --}}
-                <th>Status</th>
-                <th>Invoice</th>
-                <th>Action</th>
-                <th>Payment</th>
+                <th class="w-id">Id</th>
+                <th class="w-date">Invoice <br>  Date</th>
+                <th class="w-company">Company Name</th>
+                <th class="w-garden">Garden Name</th>
+                <th class="w-invoice">Invoice No</th>
+                <th class="w-kg">Total <br> Net Kg</th>
+                <th class="w-broker">Brokr <br>age (%)</th>
+                <th class="w-amount">Total <br> Amount</th>
+                <th class="w-status">Status</th>
+                <th class="w-invoice-file">Inv</th>
+                <th class="w-action">Action</th>
+                <th class="w-payment">Payment</th>
             </tr>
         </thead>
         <tbody id="tabledata">
@@ -172,8 +227,8 @@
                         <div class="payment_details">
                             <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
                                 required />
-                            <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}"
-                                required />
+                            <input type="hidden" name="company_id" class="form-control"
+                                value="{{ session('company_id') }}" required />
                             <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                                 placeholder="token" required />
                             <input type="hidden" name="inv_id" id="inv_id">
@@ -264,7 +319,7 @@
                 allowClear: true,
                 width: '100%' // ensures it uses full width
             });
-
+            
             function getCompanyData() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -500,7 +555,7 @@
                             render: function(data, type, row) {
                                 if (!data) return '-';
 
-                                let maxLength = 15; // 15 characters
+                                let maxLength = 50; // 15 characters
                                 let shortText = data.length > maxLength ? data.substring(0,
                                     maxLength) + '...' : data;
 
@@ -517,7 +572,7 @@
                             render: function(data, type, row) {
                                 if (!data) return '-';
 
-                                let maxLength = 15; // 15 characters
+                                let maxLength = 50; // 15 characters
                                 let shortText = data.length > maxLength ? data.substring(0,
                                     maxLength) + '...' : data;
 

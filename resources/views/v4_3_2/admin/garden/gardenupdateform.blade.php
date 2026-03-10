@@ -3,10 +3,10 @@
 @endphp
 @extends($folder . '.admin.Layout.masterlayout')
 @section('page_title')
-    {{ config('app.name') }} - Update garden 
+    {{ config('app.name') }} - Update garden
 @endsection
 @section('title')
-    Update garden 
+    Update garden
 @endsection
 
 
@@ -23,7 +23,7 @@
 
                     <label for="garden_name">garden name</label>
                     <input type="text" id="garden_name" class="form-control" name='garden_name'
-                        placeholder="company  Name" >
+                        placeholder="company  Name">
                     <span class="error-msg" id="error-garden_name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
@@ -62,7 +62,7 @@
                 <div class="col-sm-6 mb-2">
                     <label for="state">Select State</label>
                     <select class="form-control requiredinput" name='state' id="state">
-                        <option selected="" disabled="">Select your State</option>
+                        <option selected="" disabled="" value="">Select your State</option>
                     </select>
                     <span class="error-msg" id="error-state" style="color: red"></span>
                 </div>
@@ -70,7 +70,7 @@
                 <div class="col-sm-6 mb-2">
                     <label for="city">Select City</label>
                     <select class="form-control requiredinput" name='city' id="city">
-                        <option selected="" disabled="">Select your City</option>
+                        <option selected="" disabled="" value="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
@@ -108,8 +108,7 @@
                         data-original-title="Reset garden Details"
                         class="btn iq-bg-danger float-right mr-2">Reset</button>
                     <button type="submit" data-toggle="tooltip" data-placement="bottom"
-                        data-original-title="Save garden Details"
-                        class="btn btn-primary float-right my-0">Save</button>
+                        data-original-title="Save garden Details" class="btn btn-primary float-right my-0">Save</button>
                 </div>
             </div>
         </div>
@@ -163,9 +162,9 @@
                     user_id: " {{ session()->get('user_id') }} "
                 },
                 success: function(response) {
-                     if (response.status == 200) {
+                    if (response.status == 200) {
                         data = response.garden;
-                    
+
                         // You can update your HTML with the data here if needed
                         $('#garden_name').val(data.garden_name);
                         $('#email').val(data.email);
@@ -218,7 +217,11 @@
                                     `<option  value='${value.id}'> ${value.state_name}</option>`
                                 )
                             });
-                            $('#state').val(state);
+                            if (state == null) {
+                                $('#state').val('');
+                            } else {
+                                $('#state').val(state);
+                            }
                         } else {
                             $('#state').append(`<option disabled> No Data Found</option>`);
                         }
@@ -246,7 +249,12 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
-                            $('#city').val(city);
+                            if (city == null) {
+                                $('#city').val('');
+                            } else {
+                                $('#city').val(city);
+                            }
+
                         } else {
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }
@@ -332,7 +340,7 @@
             // subimt form
             $('#gardenupdateform').submit(function(event) {
                 event.preventDefault();
-               
+
                 loadershow();
                 $('.error-msg').text('');
                 const formdata = $(this).serialize();
@@ -342,7 +350,7 @@
                     data: formdata,
                     success: function(response) {
                         // Handle the response from the server
-                         if (response.status == 200) {
+                        if (response.status == 200) {
                             // You can perform additional actions, such as showing a success message or redirecting the user
                             Toast.fire({
                                 icon: "success",

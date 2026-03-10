@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="country">Select Country</label>
+                    <label for="country">Select Country</label><span class="" style="color:red;">*</span>
                     <select class="form-control requiredinput country" name='country' id="country" data-target="state">
                         <option selected="" disabled="">Select your Country</option>
                     </select>
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="state">Select State</label>
+                    <label for="state">Select State</label><span class="" style="color:red;">*</span>
                     <select class="form-control requiredinput state" name='state' id="state" data-target="city">
                         <option selected="" disabled="">Select your State</option>
                     </select>
@@ -116,7 +116,7 @@
                     <span class="error-msg" id="error-garden_id" style="color:red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
-                    <label for="brokerage">Brokerage</label><span style="color:red;">*</span>
+                    <label for="brokerage">Brokerage</label>
                     <input type="text" id="brokerage" class="form-control" name='brokerage' id=""
                         placeholder="Brokerage Number">
                     <span class="error-msg" id="error-brokerage" style="color: red"></span>

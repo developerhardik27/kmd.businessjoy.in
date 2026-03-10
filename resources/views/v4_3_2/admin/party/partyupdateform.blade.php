@@ -19,9 +19,8 @@
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ session('company_id') }}" class="form-control" name="company_id">
 
-                    <label for="name">Name</label><span  style="color:red;">*</span>
-                    <input type="text" id="name" class="form-control" name='name' placeholder="company  Name"
-                        >
+                    <label for="name">Name</label><span style="color:red;">*</span>
+                    <input type="text" id="name" class="form-control" name='name' placeholder="company  Name">
                     <span class="error-msg" id="error-name" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
@@ -50,7 +49,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="country">Select Country</label>
+                    <label for="country">Select Country</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name='country' id="country">
                         <option selected="" disabled="">Select your Country</option>
                     </select>
@@ -58,7 +57,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="state">Select State</label>
+                    <label for="state">Select State</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name='state' id="state">
                         <option selected="" disabled="">Select your State</option>
                     </select>
@@ -68,7 +67,7 @@
                 <div class="col-sm-6 mb-2">
                     <label for="city">Select City</label>
                     <select class="form-control requiredinput" name='city' id="city">
-                        <option selected="" disabled="">Select your City</option>
+                        <option selected="" disabled="" value="">Select your City</option>
                     </select>
                     <span class="error-msg" id="error-city" style="color: red"></span>
                 </div>
@@ -100,7 +99,7 @@
                     <span class="error-msg" id="error-pan" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
-                    <label for="party_type">Select type</label><span  style="color:red;">*</span>
+                    <label for="party_type">Select type</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name='party_type' id="party_type">
                         <option selected="" disabled="">Select your party type</option>
                         <option value = "Transport">Transport</option>
@@ -182,7 +181,7 @@
                         $('#gst_no').val(data.gst_no);
                         $('#pan').val(data.pan);
                         if (data.party_type != null) {
-                            $('#party_type').val(data.party_type); 
+                            $('#party_type').val(data.party_type);
                         }
                         country = data.country_id;
                         state = data.state_id;
@@ -254,7 +253,12 @@
                                     `<option value='${value.id}'> ${value.city_name}</option>`
                                 )
                             });
-                            $('#city').val(city);
+                            if (city == null) {
+                                $('#city').val('');
+                            } else {
+                                $('#city').val(city);
+                            }
+
                         } else {
                             $('#city').append(`<option disabled> No Data Found</option>`);
                         }

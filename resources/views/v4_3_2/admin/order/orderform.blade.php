@@ -356,12 +356,14 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                             <input type="tel" class="f-ctrl" name="mobile_2" id="p_mobile_2" placeholder="0123456789">
                         </div>
                         <div class="col-sm-6 mb-3">
-                            <label class="f-label">Country</label>
+                            <label class="f-label">Country <span class="req">*</span></label>
                             <select class="f-ctrl" name="country" id="p_country"><option selected disabled>Select Country</option></select>
+                            <span class="f-err" id="error-country"></span>
                         </div>
                         <div class="col-sm-6 mb-3">
-                            <label class="f-label">State</label>
+                            <label class="f-label">State  <span class="req">*</span></label>
                             <select class="f-ctrl" name="state" id="p_state"><option selected disabled>Select State</option></select>
+                            <span class="f-err" id="error-state"></span>
                         </div>
                         <div class="col-sm-6 mb-3">
                             <label class="f-label">City</label>

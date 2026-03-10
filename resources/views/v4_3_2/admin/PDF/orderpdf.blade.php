@@ -143,6 +143,13 @@
         .vertical-align-custom {
             vertical-align: start !important;
         }
+
+        .blank-row td {
+            height: 10px;
+            border-top: 1px solid #fff !important;
+            border-bottom: 1px solid #fff !important;
+            background: #fff;
+        }
     </style>
 </head>
 
@@ -156,6 +163,9 @@
                     <tbody>
                         <tr>
                             <td colspan="3" class="text-center bgblue">Order Pdf</td>
+                        </tr>
+                        <tr class="blank-row">
+                            <td colspan="3"></td>
                         </tr>
                         <tr>
                             {{-- Buyer --}}

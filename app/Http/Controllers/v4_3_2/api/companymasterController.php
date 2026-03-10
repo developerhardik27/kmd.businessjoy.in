@@ -170,17 +170,17 @@ class companymasterController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $data = $request->all();
-
+        
         $validator = Validator::make($data, [
             'company_name'        => 'required|string|max:255',
-            'brokerage'        => 'required|numeric|max:100',
+            'brokerage'        => 'nullable|numeric|max:100',
             'email'               => 'nullable|email|max:255',
             'contact_person_name' => 'nullable|string|max:255',
             'mobile_1'            => 'nullable|numeric|digits_between:10,15',
             'mobile_2'            => 'nullable|numeric|digits_between:10,15',
             'country'             => 'required|integer|exists:country,id',
             'state'               => 'required|integer|exists:state,id',
-            'city'                => 'required|integer|exists:city,id',
+            'city'                => 'nullable|integer|exists:city,id',
             'pincode'             => 'nullable|digits_between:4,8',
             'address'             => 'nullable|string',
             'gst_no'              => 'nullable|string|max:20',
@@ -210,7 +210,7 @@ class companymasterController extends commonController
         }
         $create = $this->companymasterModel::create([
             'company_name' => $request->company_name,
-            'brokerage' => $request->brokerage,
+            'brokerage' => $request->brokerage ?? 0,
             'email' => $request->email,
             'contact_person_name' => $request->contact_person_name,
             'mobile_1' => $request->mobile_1,
@@ -295,14 +295,14 @@ class companymasterController extends commonController
 
         $validator = Validator::make($data, [
             'company_name'        => 'required|string|max:255',
-            'brokerage'        => 'required|numeric|max:100',
+            'brokerage'        => 'nullable|numeric|max:100',
             'email'               => 'nullable|email|max:255',
             'contact_person_name' => 'nullable|string|max:255',
             'mobile_1'            => 'nullable|numeric|digits_between:10,15',
             'mobile_2'            => 'nullable|numeric|digits_between:10,15',
             'country'             => 'required|integer|exists:country,id',
             'state'               => 'required|integer|exists:state,id',
-            'city'                => 'required|integer|exists:city,id',
+            'city'                => 'nullable|integer|exists:city,id',
             'pincode'             => 'nullable|digits_between:4,8',
             'address'             => 'nullable|string',
             'gst_no'              => 'nullable|string|max:20',
