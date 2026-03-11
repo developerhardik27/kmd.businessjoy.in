@@ -419,7 +419,7 @@
                                                     aria-label="Select Homepage">
                                                     <option value="index">Dashboard</option>
                                                     <option value="welcome">Welcome </option>
-                                                    @if (Session::has('invoice') && Session::get('invoice') == 'yes')
+                                                    {{-- @if (Session::has('invoice') && Session::get('invoice') == 'yes')
                                                         <optgroup data-module="invoice" label="invoice">
                                                             @if (session('user_permissions.invoicemodule.invoice.add') == '1')
                                                                 <option value="addinvoice">Create Invoice </option>
@@ -437,8 +437,8 @@
                                                                 <option value="report">Report</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('quotation') && Session::get('quotation') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('quotation') && Session::get('quotation') == 'yes')
                                                         <optgroup data-module="quotation" label="quotation">
                                                             @if (session('user_permissions.quotationmodule.quotation.add') == '1')
                                                                 <option value="addquotation">Create Quotation</option>
@@ -450,22 +450,22 @@
                                                                 <option value="quotationcustomer">Customers</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('lead') && Session::get('lead') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('lead') && Session::get('lead') == 'yes')
                                                         <optgroup label="lead" data-module="lead">
                                                             @if (session('user_permissions.leadmodule.lead.show') == '1')
                                                                 <option value="lead">lead</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('customersupport') && Session::get('customersupport') == 'yes')
                                                         <optgroup label="customersupport" data-module="Customer support">
                                                             @if (session('user_permissions.customersupportmodule.customersupport.show') == '1')
                                                                 <option value="customersupport">Customer Support</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('admin') && Session::get('admin') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('admin') && Session::get('admin') == 'yes')
                                                         <optgroup label="admin" data-module="admin">
                                                             @if (session('user_permissions.adminmodule.company.show') == '1')
                                                                 <option value="company">Company</option>
@@ -477,12 +477,12 @@
                                                                 <option value="techsupport">Tech Support</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
+                                                    @endif --}}
                                                     {{-- @if (Session::has('account') && Session::get('account') == 'yes')
                                                     <optgroup label="account" data-module="account">
                                                     </optgroup>
                                                     @endif --}}
-                                                    @if (Session::has('inventory') && Session::get('inventory') == 'yes')
+                                                    {{-- @if (Session::has('inventory') && Session::get('inventory') == 'yes')
                                                         <optgroup label="inventory" data-module="inventory">
                                                             @if (session('user_permissions.inventorymodule.product.show') == '1')
                                                                 <option value="product">Products</option>
@@ -491,8 +491,8 @@
                                                                 <option value="purchase">Purchase</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('reminder') && Session::get('reminder') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('reminder') && Session::get('reminder') == 'yes')
                                                         <optgroup label="reminder" data-module="reminder">
                                                             @if (session('user_permissions.remindermodule.reminder.show') == '1')
                                                                 <option value="reminder">Reminder</option>
@@ -501,21 +501,21 @@
                                                                 <option value="remindercustomer">Reminder Customer</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('blog') && Session::get('blog') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('blog') && Session::get('blog') == 'yes')
                                                         <optgroup label="blog" data-module="blog">
                                                             @if (session('user_permissions.blogmodule.blog.show') == '1')
                                                                 <option value="blog">Blog</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
-                                                    @if (Session::has('hr') && Session::get('hr') == 'yes')
+                                                    @endif --}}
+                                                    {{-- @if (Session::has('hr') && Session::get('hr') == 'yes')
                                                         <optgroup label="hr" data-module="hr">
                                                             @if (session('user_permissions.hrmodule.employees.show') == '1')
                                                                 <option value="hr">Hr</option>
                                                             @endif
                                                         </optgroup>
-                                                    @endif
+                                                    @endif --}}
                                                     @if (Session::has('tea') && Session::get('tea') == 'yes')
                                                         <optgroup label="tea" data-module="tea">
                                                             @if (session('user_permissions.teamodule.companymaster.show') == '1')
