@@ -224,7 +224,7 @@
     <table id="data" class="table display table-bordered w-100 table-striped">
         <thead>
             <tr>
-                {{-- <th><input type="checkbox" id="selectAllCheckbox" disabled></th> --}}
+                <th><input type="checkbox" id="selectAllCheckbox" disabled></th>
                 <td>ID</td>
                 <th>Invoice ID</th>
                 <th>Invoice Date</th>
@@ -921,7 +921,7 @@
                                         </span>`;
                                 }
                             @endif
-
+                            if(!row.brokerbill_no){
                             // Delete button
                             @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
                                 actionBtns += `
@@ -934,7 +934,7 @@
                                         </button>
                                     </span>`;
                             @endif
-
+                            }
                             // Commission bill: Download if already generated; create button if not
                             @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
                                 if (row.brokerbill_no) {

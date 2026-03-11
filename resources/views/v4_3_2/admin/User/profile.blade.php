@@ -520,7 +520,7 @@
                                                         <optgroup label="tea" data-module="tea">
                                                             @if (session('user_permissions.teamodule.companymaster.show') == '1')
                                                                 @if (session('user_permissions.teamodule.companymaster.show') == '1')
-                                                                    <option value="companymaster">Company master</option>
+                                                                    <option value="companymaster">Company</option>
                                                                 @endif
                                                                 @if (session('user_permissions.teamodule.garden.show') == '1')
                                                                     <option value="garden">Garden</option>
@@ -530,6 +530,21 @@
                                                                 @endif
                                                                 @if (session('user_permissions.teamodule.grade.show') == '1')
                                                                     <option value="grade">Grade</option>
+                                                                @endif
+                                                                @if (session('user_permissions.teamodule.order.show') == '1')
+                                                                    <option value="order">Order</option>
+                                                                @endif
+                                                                @if (session('user_permissions.teamodule.order.add') == '1')
+                                                                    <option value="orderform">Order (new)</option>
+                                                                @endif
+                                                                @if (session('user_permissions.teamodule.brokerpurchase.show') == '1')
+                                                                    <option value="brokerpurchase">Sample Purchase</option>
+                                                                @endif
+                                                                @if (session('user_permissions.invoicemodule.invoice.view') == '1')
+                                                                    <option value="invoice">Invoice</option>
+                                                                @endif
+                                                                @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                                                                    <option value="brokeragebillpdflist">Commission Bill</option>
                                                                 @endif
                                                             @endif
                                                         </optgroup>

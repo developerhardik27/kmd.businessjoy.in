@@ -265,6 +265,42 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
     .quickbar-sep { display: none; }
     .li-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
+/* Desktop: pin Amount to column 6, row 1 */
+.li-field-grid .amount-cell {
+    grid-column: 6;
+    grid-row: 1;
+}
+
+/* Tablet 4-col: unpin and flow naturally */
+@media (max-width: 1200px) {
+    .li-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .li-field-grid .amount-cell { grid-column: unset; grid-row: unset; }
+}
+
+/* Small tablet 3-col */
+@media (max-width: 800px) {
+    .li-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* Mobile 2-col */
+@media (max-width: 600px) {
+    .li-topbar, .li-quickbar { flex-direction: column; align-items: flex-start; }
+    .quickbar-sep { display: none; }
+    .li-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .inv-section-body { padding: 14px; }
+    .li-list { padding: 10px; }
+    .li-card-body { padding: 10px; }
+    .li-totals { padding: 14px; }
+    .totals-inner { max-width: 100%; }
+    .btn-add-row { width: 100%; justify-content: center; }
+    .inv-footer { justify-content: stretch; }
+    .btn-f { flex: 1; justify-content: center; }
+}
+
+/* Small mobile 1-col */
+@media (max-width: 400px) {
+    .li-field-grid { grid-template-columns: repeat(1, minmax(0,1fr)); }
+}
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
@@ -699,7 +735,7 @@ function buildCard(rowId, values, inventoryId, isLocked, showAction) {
     const currSym   = currentcurrencysymbol || '';
 
     const amountField = `
-        <div style="grid-column:6; grid-row:1;">
+       <div class="amount-cell">
             <label class="f-label">Amount <span style="color:var(--c-danger)">*</span></label>
             <div class="amount-wrap">
                 <span class="sym currentcurrencysymbol">${currSym}</span>

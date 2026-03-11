@@ -43,6 +43,7 @@
             max-height: 150px !important;
             overflow-y: auto !important;
         }
+
         th,
         td {
             white-space: nowrap;
@@ -61,10 +62,12 @@
         .w-company {
             width: 30% !important;
         }
-        table.dataTable thead>tr>th.dt-orderable-asc, table.dataTable thead>tr>th.dt-orderable-desc
-        {
-            padding-right:0px !important; 
+
+        table.dataTable thead>tr>th.dt-orderable-asc,
+        table.dataTable thead>tr>th.dt-orderable-desc {
+            padding-right: 0px !important;
         }
+
         .w-garden {
             width: 30% !important;
         }
@@ -143,9 +146,25 @@
             </div>
         </div>
     </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6>Buyer</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-1">
+                        <label for="filter_buyer" class="form-label mt-1">Buyer</label>
+                        <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header">
-            <h6>Order Date</h6>
+            <h6>Date</h6>
         </div>
         <div class="card-body">
             <div class="row">
@@ -194,9 +213,10 @@
         <thead>
             <tr>
                 <th class="w-id">Id</th>
-                <th class="w-date">Invoice <br>  Date</th>
+                <th class="w-date">Invoice <br> Date</th>
                 <th class="w-company">Company Name</th>
                 <th class="w-garden">Garden Name</th>
+                <th class="w-garden">Buyer <br>Name</th>
                 <th class="w-invoice">Invoice No</th>
                 <th class="w-kg">Total <br> Net Kg</th>
                 <th class="w-broker">Brokr <br>age (%)</th>
@@ -313,13 +333,14 @@
             // response status == 422 that means api has not got valid or required data
             let getgardenname = [];
             let getcompanyname = [];
+            let getbuyername = [];
             var global_response = '';
             $('#filter_payment_status').select2({
                 placeholder: "Select Payment Status",
                 allowClear: true,
                 width: '100%' // ensures it uses full width
             });
-            
+
             function getCompanyData() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -344,7 +365,30 @@
                     });
                 });
             }
-
+             function getBuyerData() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('buyer.index') }}",
+                        data: {
+                            user_id: "{{ session()->get('user_id') }}",
+                            company_id: "{{ session()->get('company_id') }}",
+                            token: "{{ session()->get('api_token') }}"
+                        },
+                        success: function(response) {
+                            loaderhide();
+                            resolve(response);
+                        },
+                        error: function(xhr, status, error) { // if calling api request error 
+                            loaderhide();
+                            console.log(xhr
+                                .responseText); // Log the full error response for debugging
+                            handleAjaxError(xhr);
+                            reject(xhr);
+                        }
+                    });
+                });
+            }
             function getGardenData() {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -381,7 +425,7 @@
                         });
 
                         // Trigger change event to ensure multiselect UI updates
-                        $('#filter_company, #filter_garden')
+                        $('#filter_company,#filter_buyer, #filter_garden')
                             .trigger('change');
 
                         loaddata();
@@ -401,11 +445,41 @@
                 try {
                     // Perform AJAX calls concurrently
                     const [
-                        getGardenDataresponse, getCompanyDataresponse
+                        getGardenDataresponse, getCompanyDataresponse,getBuyerDataresponse
                     ] = await Promise.all([
                         getGardenData(),
                         getCompanyData(),
+                        getBuyerData(),
                     ]);
+                      if (getBuyerDataresponse.status == 200 && getBuyerDataresponse.data != '') {
+                        // You can update your HTML with the data here if needed     
+                        $.each(getBuyerDataresponse.data, function(key, value) {
+                            var buyerId = value.id;
+                            var optionValue = value.name;
+                            getbuyername.push(optionValue);
+                            $('#filter_buyer').append(
+                                `<option value="${buyerId}">${optionValue}</option>`
+                            );
+                        });
+                        $('#filter_buyer').val('');
+                        $('#filter_buyer').select2({
+                            search: true,
+                            placeholder: 'Select Buyer',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
+                    } else if (getBuyerDataresponse.status == 500) {
+                        Toast.fire({
+                            icon: "error",
+                            title: getBuyerDataresponse.message
+                        });
+                    } else {
+                        $('#filter_buyer').val('');
+                        $('#filter_buyer').select2({
+                            search: true,
+                            placeholder: 'No buyer found',
+                            allowClear: true // Optional: adds "clear" (x) button
+                        });
+                    }
                     // this getGardenData response
                     if (getGardenDataresponse.status == 200 && getGardenDataresponse.data != '') {
                         // You can update your HTML with the data here if needed     
@@ -500,6 +574,7 @@
                             d.filter_payment_status = $('#filter_payment_status').val();
                             d.filter_garden = $('#filter_garden').val();
                             d.filter_company = $('#filter_company').val();
+                            d.filter_buyer = $('#filter_buyer').val();
                             d.filter_date_from = $('#filter_date_from').val();
                             d.filter_date_to = $('#filter_date_to').val();
                         },
@@ -569,6 +644,23 @@
                             searchable: true,
                             defaultContent: '-',
                             name: 'garden_names',
+                            render: function(data, type, row) {
+                                if (!data) return '-';
+
+                                let maxLength = 50; // 15 characters
+                                let shortText = data.length > maxLength ? data.substring(0,
+                                    maxLength) + '...' : data;
+
+                                return '<span data-toggle="tooltip" data-original-title="' + data +
+                                    '">' + shortText + '</span>';
+                            }
+                        },
+                        {
+                            data: 'buyer_names',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'buyer_names',
                             render: function(data, type, row) {
                                 if (!data) return '-';
 
@@ -816,6 +908,7 @@
                 params.filter_payment_status = $('#filter_payment_status').val();
                 params.filter_garden = $('#filter_garden').val();
                 params.filter_company = $('#filter_company').val();
+                params.filter_buyer = $('#filter_buyer').val();
                 params.filter_date_from = $('#filter_date_from').val();
                 params.filter_date_to = $('#filter_date_to').val();
                 let queryString = $.param(params);
@@ -1323,6 +1416,7 @@
             $('.removefilters').on('click', function() {
                 $('#filter_payment_status').val(null).trigger('change');
                 $('#filter_company').val(null).trigger('change');
+                $('#filter_buyer').val(null).trigger('change');
                 $('#filter_garden').val(null).trigger('change');
                 $('#filter_date_to').val('');
                 $('#filter_date_from').val('');

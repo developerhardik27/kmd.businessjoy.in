@@ -216,6 +216,8 @@
             <div class="invoice-header clearfix">
                 <span class="invoice-no">Invoice #{{ $invoice['invoice_no'] ?? '-' }}</span>
                 {{-- <span class="grand-total">{{ $invoice['company_name'] ?? '-' }}</span> --}}
+                <span class="invoice-no" style="text-align:right">Buyers: {{ $invoice['buyer_names'] ?? '-' }}</span>
+
             </div>
 
             <div class="invoice-meta">

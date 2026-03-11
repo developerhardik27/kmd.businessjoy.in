@@ -179,6 +179,7 @@ class brokeragebillController extends commonController
             'filter_company'        => 'broker_bill_invoice.garden_company_id',
             'filter_date_from'      => 'broker_bill_invoice.created_at',
             'filter_date_to'        => 'broker_bill_invoice.created_at',
+
         ];
 
         foreach ($filters as $requestKey => $column) {
@@ -208,6 +209,19 @@ class brokeragebillController extends commonController
                     ->whereIn('garden_id', $gardenIds)
                     ->where('is_deleted', 0)
                     ->whereNotNull('brokerbill_no');
+            });
+        }
+        if (!empty($request->filter_buyer) && $request->filter_buyer !== '') {
+            $buyerIds = (array) $request->filter_buyer;
+
+            $list->whereIn('broker_bill_invoice.id', function ($query) use ($buyerIds) {
+                $query->select('bp.brokerbill_no')
+                    ->from('broker_purchases as bp')
+                    ->leftJoin('order_details as od', 'od.invoice_no', '=', 'bp.invoice_no')
+                    ->leftJoin('orders as o', 'o.id', '=', 'od.order_id')
+                    ->whereIn('o.buyer_party', $buyerIds)
+                    ->where('bp.is_deleted', 0)
+                    ->whereNotNull('bp.brokerbill_no');
             });
         }
 
@@ -248,6 +262,22 @@ class brokeragebillController extends commonController
                 DB::raw("(SELECT GROUP_CONCAT(DISTINCT brokerage ORDER BY id SEPARATOR ', ')
                       FROM broker_purchases
                       WHERE brokerbill_no = broker_bill_invoice.id) as brokerage"),
+                DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
+                    FROM broker_purchases bp
+                    LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                    LEFT JOIN orders o ON o.id = od.order_id
+                    LEFT JOIN partys p ON p.id = o.buyer_party
+                    WHERE bp.brokerbill_no = broker_bill_invoice.id
+                    AND bp.is_deleted = 0
+                ) as buyer_names"),
+                DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.id ORDER BY p.id SEPARATOR ',')
+                    FROM broker_purchases bp
+                    LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                    LEFT JOIN orders o ON o.id = od.order_id
+                    LEFT JOIN partys p ON p.id = o.buyer_party
+                    WHERE bp.brokerbill_no = broker_bill_invoice.id
+                    AND bp.is_deleted = 0
+                ) as buyer_ids"),
             )
             ->get();
 

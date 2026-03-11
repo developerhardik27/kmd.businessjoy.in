@@ -242,6 +242,65 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
     .li-topbar, .li-quickbar { flex-direction: column; align-items: flex-start; }
     .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
+/* ── Order row card body ── */
+.order-card-body .f-label { font-size: 10.5px; margin-bottom: 4px; }
+.order-card-body .f-ctrl  { font-size: 12.5px; padding: 7px 10px; }
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+    .order-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+}
+@media (max-width: 800px) {
+    .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 600px) {
+    .li-topbar   { flex-direction: column; align-items: flex-start; }
+    .li-quickbar { flex-direction: column; align-items: flex-start; }
+    .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .order-card-body  { padding: 10px; }
+    .li-list          { padding: 10px; gap: 8px; }
+    .inv-section-body { padding: 14px; }
+    .li-totals        { padding: 14px; }
+    .t-val            { font-size: 12px; }
+    .t-row.grand .t-val { font-size: 15px; }
+    .btn-add-row      { width: 100%; justify-content: center; }
+    .inv-footer       { justify-content: stretch; }
+    .btn-f            { flex: 1; justify-content: center; }
+}
+@media (max-width: 400px) {
+    .order-field-grid { grid-template-columns: repeat(1, minmax(0,1fr)); }
+    .order-card-head  { padding: 7px 10px; }
+}
+@media (max-width: 600px) {
+    .totals-inner { max-width: 100%; }
+    .t-label      { font-size: 11.5px; }
+}
+/* Desktop: pin Amount to column 6, row 1 */
+.order-field-grid .amount-cell {
+    grid-column: 6;
+    grid-row: 1;
+}
+
+/* Tablet: 4-col grid — let it flow normally */
+@media (max-width: 1200px) {
+    .order-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .order-field-grid .amount-cell { grid-column: unset; grid-row: unset; }
+}
+
+/* Small tablet: 3-col */
+@media (max-width: 800px) {
+    .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* Mobile: 2-col */
+@media (max-width: 600px) {
+    .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* Small mobile: 1-col */
+@media (max-width: 400px) {
+    .order-field-grid { grid-template-columns: repeat(1, minmax(0,1fr)); }
+}
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
@@ -456,7 +515,7 @@ $(document).ready(function () {
                             value="${val('rate', 0)}" placeholder="0.00" min="0">
                         <span class="f-err row-f-err err-rate"></span>
                     </div>
-                    <div class="amount-cell" style="grid-column:6; grid-row:1;">
+                    <div class="amount-cell">
                         <label class="f-label">Amount</label>
                         <input type="number" class="f-ctrl amount" name="amt[]"
                             value="${val('amount', 0)}" disabled placeholder="0.00">

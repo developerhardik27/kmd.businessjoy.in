@@ -919,7 +919,7 @@ class PdfController extends commonController
          ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
          ->join('order_details', 'order_details.order_id', 'orders.id')
          ->join('gardens', 'gardens.id', 'order_details.garden_id')
-         ->join('grades', 'grades.id', 'order_details.grade')
+         ->leftJoin('grades', 'grades.id', 'order_details.grade')
          ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
          ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
          ->where('orders.is_deleted', 0);
@@ -1002,9 +1002,8 @@ class PdfController extends commonController
                'order_date'     => $first->order_date,
 
                // All unique company names across ALL detail rows of this order
-               'company_names'  => $details
-                  ->filter(fn($item) => !empty($item->company_name))
-                  ->pluck('company_name', 'company_id')
+               'company_names' => $details
+                  ->map(fn($item) => $item->company_name ?? '  -  ')
                   ->values()
                   ->implode(', '),
 
@@ -1024,7 +1023,7 @@ class PdfController extends commonController
                   ->implode(', '),
 
                'details' => $details->map(function ($item) use ($first) { // ← fix: use ($first)
-                 
+
                   return [
                      'garden_name'  => $item->garden_name,
                      'grade_name'   => $item->grade_name,
@@ -1120,7 +1119,19 @@ class PdfController extends commonController
                ->whereNotNull('brokerbill_no');
          });
       }
+      if (!empty($request->filter_buyer) && $request->filter_buyer !== '') {
+         $buyerIds = (array) $request->filter_buyer;
 
+         $list->whereIn('broker_bill_invoice.id', function ($query) use ($buyerIds) {
+            $query->select('bp.brokerbill_no')
+               ->from('broker_purchases as bp')
+               ->leftJoin('order_details as od', 'od.invoice_no', '=', 'bp.invoice_no')
+               ->leftJoin('orders as o', 'o.id', '=', 'od.order_id')
+               ->whereIn('o.buyer_party', $buyerIds)
+               ->where('bp.is_deleted', 0)
+               ->whereNotNull('bp.brokerbill_no');
+         });
+      }
       $list = $list
          ->select(
             'broker_bill_invoice.id as invoice_id',
@@ -1156,6 +1167,22 @@ class PdfController extends commonController
             DB::raw("(SELECT GROUP_CONCAT(DISTINCT brokerage ORDER BY id SEPARATOR ', ')
                       FROM broker_purchases
                       WHERE brokerbill_no = broker_bill_invoice.id) as brokerage"),
+            DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
+                     FROM broker_purchases bp
+                     LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                     LEFT JOIN orders o ON o.id = od.order_id
+                     LEFT JOIN partys p ON p.id = o.buyer_party
+                     WHERE bp.brokerbill_no = broker_bill_invoice.id
+                     AND bp.is_deleted = 0
+                  ) as buyer_names"),
+            DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
+                     FROM broker_purchases bp
+                     LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                     LEFT JOIN orders o ON o.id = od.order_id
+                     LEFT JOIN partys p ON p.id = o.buyer_party
+                     WHERE bp.brokerbill_no = broker_bill_invoice.id
+                     AND bp.is_deleted = 0
+                  ) as buyer_names"),
          )
          ->get()
          ->groupBy('invoice_id')
@@ -1177,6 +1204,8 @@ class PdfController extends commonController
                'company_name' => $first->company_name,
                'net_kg'       => $first->net_kg,
                'brokerage'    => $first->brokerage,
+               'buyer_names' => $first->buyer_names,
+               'buyer_ids'   => $first->buyer_ids,
                'details'      => $rows->map(function ($item) {
                   return [
                      'receipt_number' => $item->receipt_number,

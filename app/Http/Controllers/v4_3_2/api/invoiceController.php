@@ -307,6 +307,7 @@ class invoiceController extends commonController
                 'invoice_id',
                 DB::raw("ROUND(SUM(amount)) as line_total")
             )
+             ->where('is_deleted', 0)
             ->groupBy('invoice_id');
 
         // -------------------

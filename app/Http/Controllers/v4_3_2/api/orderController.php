@@ -44,7 +44,7 @@ class orderController extends commonController
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
-            ->join('grades', 'grades.id', 'order_details.grade')
+            ->leftJoin('grades', 'grades.id', 'order_details.grade')
             ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->where('orders.is_deleted', 0);
