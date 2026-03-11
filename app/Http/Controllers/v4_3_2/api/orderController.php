@@ -67,7 +67,7 @@ class orderController extends commonController
 
             if ($value !== null && $value !== '') {
 
-             
+
                 if (in_array($requestKey, [
                     'filter_credit_days_from',
                     'filter_credit_days_to',
@@ -81,7 +81,6 @@ class orderController extends commonController
                 } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
                     $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->whereDate($column, $operator, $value);
-
                 } else {
                     $order->whereIn($column, (array) $value);
                 }
@@ -128,9 +127,8 @@ class orderController extends commonController
                     'order_date'     => $first->order_date,
 
                     // All unique company names across ALL detail rows of this order
-                    'company_names'  => $details
-                        ->filter(fn($item) => !empty($item->company_name))
-                        ->pluck('company_name', 'company_id')
+                    'company_names' => $details
+                        ->map(fn($item) => $item->company_name ?? '  -  ')
                         ->values()
                         ->implode(', '),
 
