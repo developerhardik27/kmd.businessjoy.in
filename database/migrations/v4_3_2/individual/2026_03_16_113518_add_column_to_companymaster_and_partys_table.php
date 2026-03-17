@@ -37,7 +37,7 @@ return new class extends Migration
 
         // Drop columns from partys
         Schema::table('partys', function (Blueprint $table) {
-            $table->dropColumn(['code', 'tmco', 'c']);
+            $table->dropColumn(['code', 'tmco', 'c','bill_to']);
         });
     }
 };
