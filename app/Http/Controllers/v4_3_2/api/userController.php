@@ -565,7 +565,9 @@ class userController extends commonController
                     'role_permissions' => $request->user_role_permission,
                     'pass_token' => $passwordtoken,
                     'company_id' => $this->companyId,
-                    'created_by' => $this->userId
+                    'created_by' => $this->userId,
+                    'default_module' => 'tea',
+                    'default_page' => 'order',
                 ];
 
                 $users = User::create($user); // insert user data
