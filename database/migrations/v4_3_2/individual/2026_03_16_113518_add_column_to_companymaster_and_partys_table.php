@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('code')->nullable()->default(null);
             $table->string('tmco')->nullable()->default(null);
             $table->string('c')->nullable()->default('0'); // string default 0
+            $table->string('bill_to')->nullable()->default(null); // string default 0
         });
     }
 

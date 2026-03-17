@@ -206,13 +206,6 @@ class PartyExcelController extends commonController
                         // ── Party import ──────────────────────────────────────────
                         $data = $this->preparePartyData($row, $states, $cities, $stateNames, $cityNames);
                         if ($data && !empty($data['name'])) {
-                            // Check for duplicate party by name
-                            $exists = $this->partyModel::where('name', $data['name'])->first();
-                            if ($exists) {
-                                \Log::info('Party skipped (duplicate): ' . $data['name']);
-                                $duplicates[] = ['row' => $index + 1, 'name' => $data['name'], 'type' => 'Party'];
-                                continue;
-                            }
                             $create = $this->partyModel::create($data);
                             if ($create) $imported++;
                         } else {
@@ -281,6 +274,7 @@ class PartyExcelController extends commonController
         return [
             'code'                => $this->getValue($row, 0),
             'name'                => $name,
+            'bill_to'             => $this->getValue($row, 2),
             'email'               => $this->getValue($row, 10),
             'gst_no'              => $this->getValue($row, 3),
             'tmco'                => $this->getValue($row, 4),
