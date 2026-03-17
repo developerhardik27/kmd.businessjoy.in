@@ -10,6 +10,10 @@ use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\landing\LandingPageController;
 use App\Http\Controllers\v4_3_2\admin\HrController;
 
+use App\Http\Controllers\PartyExcelController;
+
+Route::get('import-partys', [PartyExcelController::class, 'showForm']);
+Route::post('import-partys', [PartyExcelController::class, 'import']);
 // login page on / 
 Route::redirect('/', '/admin/login/');
 // Define a function to generate the controller class name based on the session value

@@ -13,5 +13,6 @@ class companymaster extends Model
     protected $table = 'companymasters';
 
     public $guarded = [];
+    
   
 }

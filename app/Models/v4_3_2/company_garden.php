@@ -11,6 +11,6 @@ class company_garden extends Model
     protected $connection = 'dynamic_connection';
 
     protected $table = 'company_garden';
-
+    public $timestamps = false; 
     public $guarded = [];
 }
