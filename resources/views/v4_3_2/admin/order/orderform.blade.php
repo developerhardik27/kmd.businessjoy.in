@@ -383,7 +383,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="partyModalLabel"><i class="ri-user-add-line mr-2"></i> Add New Party</h5>
-                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" id="modalcancelbtn"class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body p-4">
                 <form id="partyform">
@@ -664,6 +664,22 @@ $(document).ready(function () {
         $('#li-empty').before(card);
         updateRowCount();
         $('[data-toggle="tooltip"]').tooltip('dispose').tooltip();
+        
+        // Initialize Select2 for the new garden dropdown
+        $(`#row_${rowCount} .garden-select`).select2({
+            placeholder: 'Select Garden',
+            width: '100%',
+            allowClear: true,
+            search: true
+        });
+        
+        // Initialize Select2 for the new grade dropdown
+        $(`#row_${rowCount} .grade-select`).select2({
+            placeholder: 'Select Grade',
+            width: '100%',
+            allowClear: true,
+            search: true
+        });
     }
 
     /* ════════════════════════════════
@@ -741,17 +757,50 @@ $(document).ready(function () {
     ════════════════════════════════ */
     $(document).on('change', '#buyer_party, #transport', function () {
         const opt = $(this).find(':selected');
+
         if (opt.val() === 'add_new') {
-            partyType = opt.data('type');
-            if (partyType == 'Buyer') $('#buyer_party').val(''); else $('#transport').val('');
-            $('#partyModalLabel').text(`Add New - ${partyType}`);
+            // Determine party type
+            let partyType = opt.data('type');
+
+            // Clear the dropdown that triggered this to reset
+            if (partyType === 'Buyer') {
+                $('#buyer_party').val('');
+            } else {
+                $('#transport').val('');
+            }
+
+            // Update modal title and hidden party_type input
+            $('#partyModalLabel').text(`Add New  Party - ${partyType}`);
             $('#party_type').val(partyType);
+
+            // Load countries for modal (your existing function)
             loadPartyCountry();
+
+            // Show the modal
             $('#partyModal').modal('show');
+
+            // Clear dropdown selection after modal opens
             $(this).val('');
+
+            // --- NEW: handle Transport special logic ---
+            if (partyType === 'Transport') {
+                // Remove red asterisk from State
+                $('#p_state').prev('label').find('span.req').remove();
+
+                // Clear any previous error
+                $('#error-state').text('');
+
+                // Reset state & city dropdowns
+                $('#p_state, #p_city').val('').prop('selectedIndex', 0);
+            } else if (partyType === 'Buyer') {
+                // Add asterisk back for Buyer if missing
+                if ($('#p_state').prev('label').find('span.req').length === 0) {
+                    $('#p_state').prev('label').append('<span class="req">*</span>');
+                }
+            }
         }
     });
-    $('#modalcancelbtn').on('click', () => { $('#partyform')[0].reset(); $('#partyModal').modal('hide'); });
+    $('#modalcancelbtn').on('click', () => { $('#partyform')[0].reset(); $('#partyModal').modal('hide'); $('#error-state').text(''); $('#error-name').text(''); });
 
     $('#partyform').submit(function (e) {
         e.preventDefault(); loadershow(); $('.f-err').text('');
@@ -864,6 +913,14 @@ $(document).ready(function () {
                 });
                 $('.garden-select').filter(function () { return !$(this).val(); }).last().val(selectId);
             }
+            
+            // Initialize Select2 for garden dropdowns with search
+            $('.garden-select').select2({
+                placeholder: 'Select Garden',
+                width: '100%',
+                allowClear: true,
+                search: true
+            });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
@@ -876,6 +933,14 @@ $(document).ready(function () {
             const r = await ajaxRequest('GET', "{{ route('grade.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
             grades = '<option value="" selected disabled>Select Grade</option>';
             if (r.data && r.data.length) r.data.forEach(g => { grades += `<option value="${g.id}">${g.grade}</option>`; });
+            
+            // Initialize Select2 for grade dropdowns with search
+            $('.grade-select').select2({
+                placeholder: 'Select Grade',
+                width: '100%',
+                allowClear: true,
+                search: true
+            });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }

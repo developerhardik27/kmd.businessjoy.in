@@ -192,7 +192,7 @@
 
                         {{-- Summary banner — shown only for bulk selections --}}
                         <div id="pdfModalSummary" class="alert alert-info py-2 px-3 mb-3" style="font-size:13px; display:none;">
-                            <strong>Selected Invoice IDs:</strong> <span id="summaryInvoiceIds">-</span><br>
+                            <!-- <strong>Selected Invoice IDs:</strong> <span id="summaryInvoiceIds">-</span><br> -->
                             <strong>No. of Invoices:</strong> <span id="summaryCount">-</span>
                         </div>
 

@@ -281,7 +281,7 @@ class PartyExcelController extends commonController
             'c'                   => $this->getValue($row, 11),
             'address'             => trim($address1 . ' ' . $address2),
             'pincode'             => empty($pincode) ? null : $pincode,
-            'party_type'          => 'buyer',
+            'party_type'          => 'Buyer',
             'country_id'          => 101,
             'state_id'            => $stateId,
             'city_id'             => $cityId,

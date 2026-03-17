@@ -16,6 +16,15 @@
         <div class="form-group">
             <div class="form-row">
                 <div class="col-sm-6 mb-2">
+                    <label for="party_type">Select type</label><span style="color:red;">*</span>
+                    <select class="form-control requiredinput" name='party_type' id="party_type">
+                        <option selected="" disabled="">Select your party type</option>
+                        <option value = "Transport">Transport</option>
+                        <option value = "Buyer">Buyer </option>
+                    </select>
+                    <span class="error-msg" id="error-party_type" style="color: red"></span>
+                </div>
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
@@ -59,7 +68,7 @@
                 </div>
 
                 <div class="col-sm-6 mb-2">
-                    <label for="state">Select State</label><span style="color:red;">*</span>
+                    <label for="state">Select State</label>
                     <select class="form-control requiredinput" name='state' id="state">
                         <option selected="" disabled="">Select your State</option>
                     </select>
@@ -100,15 +109,7 @@
                         placeholder="PAN Number">
                     <span class="error-msg" id="error-pan" style="color: red"></span>
                 </div>
-                <div class="col-sm-6 mb-2">
-                    <label for="party_type">Select type</label><span style="color:red;">*</span>
-                    <select class="form-control requiredinput" name='party_type' id="party_type">
-                        <option selected="" disabled="">Select your party type</option>
-                        <option value = "Transport">Transport</option>
-                        <option value = "Buyer">Buyer </option>
-                    </select>
-                    <span class="error-msg" id="error-party_type" style="color: red"></span>
-                </div>
+                
                 <div class="col-sm-12">
                     <button type="button" data-toggle="tooltip" data-placement="bottom" data-original-title="Cancel"
                         id="cancelbtn" class="btn btn-secondary float-right">Cancel</button>
@@ -136,7 +137,21 @@
                     title: message
                 });
             }
+            $('#party_type').on('change', function() {
+                var type = $(this).val();
 
+                if (type === 'Transport') {
+                    // Remove red asterisk from State (and other fields if needed)
+                    $('#state').prev('label').find('span').remove(); // Removes <span style="color:red;">*</span>
+                    $('#error-state').text('');
+                } else if (type === 'Buyer') {
+                    // Add it back if needed
+                    if ($('#state').prev('label').find('span').length === 0) {
+                        $('#state').prev('label').append('<span style="color:red;">*</span>');
+                        $('#error-state').text('');
+                    }
+                }
+            });
             // show country data in dropdown and set defautl value according to logged in user
             $.ajax({
                 type: 'GET',

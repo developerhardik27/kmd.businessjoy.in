@@ -538,6 +538,22 @@ $(document).ready(function () {
 
         updateRowCount();
         $('[data-toggle="tooltip"]').tooltip('dispose').tooltip();
+        
+        // Initialize Select2 for the new garden dropdown
+        $(`#garden_${rowCount}`).select2({
+            placeholder: 'Select Garden',
+            width: '100%',
+            allowClear: true,
+            search: true
+        });
+        
+        // Initialize Select2 for the new grade dropdown
+        $(`#grade_${rowCount}`).select2({
+            placeholder: 'Select Grade',
+            width: '100%',
+            allowClear: true,
+            search: true
+        });
     }
 
     /* ════════════════════════════════
@@ -597,6 +613,14 @@ $(document).ready(function () {
             });
             gardens = '<option value="" selected disabled>Select Garden</option>';
             if (r.data && r.data.length) r.data.forEach(g => { gardens += `<option value="${g.id}">${g.garden_name}</option>`; });
+            
+            // Initialize Select2 for garden dropdowns with search
+            $('.garden-select').select2({
+                placeholder: 'Select Garden',
+                width: '100%',
+                allowClear: true,
+                search: true
+            });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
@@ -610,6 +634,14 @@ $(document).ready(function () {
             });
             grades = '<option value="" selected disabled>Select Grade</option>';
             if (r.data && r.data.length) r.data.forEach(g => { grades += `<option value="${g.id}">${g.grade}</option>`; });
+            
+            // Initialize Select2 for grade dropdowns with search
+            $('.grade-select').select2({
+                placeholder: 'Select Grade',
+                width: '100%',
+                allowClear: true,
+                search: true
+            });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
