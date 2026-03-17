@@ -11,18 +11,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add columns to companymasters
-        Schema::table('companymasters', function (Blueprint $table) {
-            $table->string('tmco')->nullable()->default(null);
-        });
+        // companymasters table
+        if (Schema::hasTable('companymasters')) {
+            Schema::table('companymasters', function (Blueprint $table) {
+                if (!Schema::hasColumn('companymasters', 'tmco')) {
+                    $table->string('tmco')->nullable();
+                }
+            });
+        }
 
-        // Add columns to partys
-        Schema::table('partys', function (Blueprint $table) {
-            $table->string('code')->nullable()->default(null);
-            $table->string('tmco')->nullable()->default(null);
-            $table->string('c')->nullable()->default('0'); // string default 0
-            $table->string('bill_to')->nullable()->default(null); // string default 0
-        });
+        // partys table
+        if (Schema::hasTable('partys')) {
+            Schema::table('partys', function (Blueprint $table) {
+
+                if (!Schema::hasColumn('partys', 'code')) {
+                    $table->string('code')->nullable();
+                }
+
+                if (!Schema::hasColumn('partys', 'tmco')) {
+                    $table->string('tmco')->nullable();
+                }
+
+                if (!Schema::hasColumn('partys', 'c')) {
+                    $table->string('c')->default('0');
+                }
+
+                if (!Schema::hasColumn('partys', 'bill_to')) {
+                    $table->string('bill_to')->nullable();
+                }
+
+            });
+        }
     }
 
     /**
@@ -30,14 +49,41 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop columns from companymasters
-        Schema::table('companymasters', function (Blueprint $table) {
-            $table->dropColumn('tmco');
-        });
+        // companymasters table
+        if (Schema::hasTable('companymasters')) {
+            Schema::table('companymasters', function (Blueprint $table) {
+                if (Schema::hasColumn('companymasters', 'tmco')) {
+                    $table->dropColumn('tmco');
+                }
+            });
+        }
 
-        // Drop columns from partys
-        Schema::table('partys', function (Blueprint $table) {
-            $table->dropColumn(['code', 'tmco', 'c','bill_to']);
-        });
+        // partys table
+        if (Schema::hasTable('partys')) {
+            Schema::table('partys', function (Blueprint $table) {
+
+                $columns = [];
+
+                if (Schema::hasColumn('partys', 'code')) {
+                    $columns[] = 'code';
+                }
+
+                if (Schema::hasColumn('partys', 'tmco')) {
+                    $columns[] = 'tmco';
+                }
+
+                if (Schema::hasColumn('partys', 'c')) {
+                    $columns[] = 'c';
+                }
+
+                if (Schema::hasColumn('partys', 'bill_to')) {
+                    $columns[] = 'bill_to';
+                }
+
+                if (!empty($columns)) {
+                    $table->dropColumn($columns);
+                }
+            });
+        }
     }
 };
